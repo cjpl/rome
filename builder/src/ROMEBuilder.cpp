@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.42  2004/09/15 18:56:14  schneebeli_m
+  some stuff
+
   Revision 1.41  2004/09/08 13:04:08  schneebeli_m
   online experiment specifier
 
@@ -2690,7 +2693,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          if (folderDataBase[i]) {
             if (folderArray[i]=="1") {
                for (j=0;j<numOfValue[i];j++) {
-                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\",1);\n",valueDataBasePath[i][j].Data());
                   buffer.AppendFormatted("   fSQL->NextRow();\n");
                   buffer.AppendFormatted("   res = fSQL->GetField(0);\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
@@ -2699,7 +2702,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             }
             else {
                for (j=0;j<numOfValue[i];j++) {
-                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\",f%sObjects->GetEntries());\n",valueDataBasePath[i][j].Data(),folderName[i].Data());
                   buffer.AppendFormatted("   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
                   buffer.AppendFormatted("      fSQL->NextRow();\n");
                   buffer.AppendFormatted("      res = fSQL->GetField(0);\n");
@@ -4264,6 +4267,10 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("In the following all tasks will be described.\n");
    buffer.AppendFormatted("<p>\n");
 
+   ROMEString cppFile;
+   ROMEString str;
+   char fileBuffer[bufferLength];
+   int fileHandle;
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("%s<p>\n",taskDescription[i].Data());
@@ -4282,6 +4289,23 @@ void ROMEBuilder::WriteHTMLDoku() {
       else {
          buffer.AppendFormatted("This task containes no histograms.\n");
       }
+      buffer.AppendFormatted("<p>\n");
+      cppFile.SetFormatted("%s/src/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[i].Data());
+      fileHandle = open(cppFile.Data(),O_RDONLY);
+      int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+      
+      buffer.AppendFormatted("%s accesses data from the following folders :\n",taskName[i].Data());
+      buffer.AppendFormatted("<ul>\n");
+      for (j=0;j<numOfFolder;j++) {
+         str = "Get";
+         str.Append(folderName[j]);
+         if (strstr(fileBuffer,str.Data())) {
+            buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
+         }
+      }
+      buffer.AppendFormatted("</ul>\n");
+
+      close(fileHandle);
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">class file</a>\n",outDir.Data(),shortCut.Data(),taskName[i].Data());
       buffer.AppendFormatted("<p>\n");
@@ -4521,7 +4545,7 @@ void ROMEBuilder::WriteHTMLDoku() {
 
    ROMEString htmlFile;
    htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
-   int fileHandle = open(htmlFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   fileHandle = open(htmlFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
    fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
    write(fileHandle,buffer.Data(), buffer.Length());

@@ -77,14 +77,14 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          break;
       }
 
-      // Begin of Run Tasks
+     // Begin of Run Tasks
       if (ROMEAnalyzer::fTaskSwitchesChanged) {
          fAnalyzer->UpdateTaskSwitches();
          ROMEAnalyzer::fTaskSwitchesChanged = false;
       }
       ExecuteTasks(gTaskBeginOfRun);
       CleanTasks();
-
+	  
       if (gShowTime) TimeStart();
       // Loop over Events
       //------------------

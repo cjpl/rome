@@ -227,12 +227,12 @@ int ROMESQL::DecodePath(char *path,char *start_id_extension,char **table_name,ch
 	}
 	depth++;
 	strcpy(id_extension[depth],"idx");
-      }while(strlen(pnext2));
+      }while(pnext2);
       depth--;
     }
     depth++;
     strcpy(id_extension[depth],"id");    
-  }while(strlen(pnext1));
+  }while(pnext1);
   
   maxdepth=depth-1;
   strcpy(id_extension[0],start_id_extension);
@@ -245,7 +245,7 @@ int ROMESQL::DecodePath(char *path,char *start_id_extension,char **table_name,ch
 }
 
 void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension,int max){
-  char       sqlquery[2048];
+  char sqlquery[2048];
   
   char from_phrase[4096]="";
   char where_phrase[4096]="";
@@ -321,7 +321,7 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension,
 	do{
 	  strcpy(entry[nentry],ROMEStatic::strtok_x(pnext1," \t,:",&pnext1));
 	  nentry++;
-	}while(strlen(pnext1));
+	}while(pnext1);
       
       //make FROM phrase
       for(i=0;i<nentry;i++){
@@ -402,7 +402,7 @@ int ROMESQL::WritePathFields(char *path,int id,char **value,char *constraint,int
     filedname1=value1,filedname2=value2
   */
   pnext1 = sqlconstraint;
-  while(strlen(pnext1)){
+  while(pnext1){
     strcpy(constraint_element[nconstraint],ROMEStatic::strtok_x(pnext1,",",&pnext1));
     nconstraint++;
   }    
@@ -440,7 +440,7 @@ int ROMESQL::WritePathFields(char *path,int id,char **value,char *constraint,int
 	      ,table_name[maxdepth] ,id
 	      );
       }
-      if(strlen(constraint)){
+      if(constraint){
 	strcat(sqlquery,",");
 	strcat(sqlquery,constraint);
       }

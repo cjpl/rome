@@ -81,6 +81,7 @@ ROMEAnalyzer::ROMEAnalyzer()
    fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fContinuous = true;
    fOnlineHost = "";
+   fDontReadNextEvent = false;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -393,6 +394,11 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
    this->ClearFolders();
    int timeStamp = 0;
 
+   if (fDontReadNextEvent) {
+      fDontReadNextEvent = false;
+      return true;
+   }
+
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS
       int runNumber,trans;
@@ -428,8 +434,6 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->event_id;
       timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
       this->InitMidasBanks();
-      fTreeInfo->SetEventNumber(fCurrentEventNumber);
-      fTreeInfo->SetTimeStamp(timeStamp);
 
       // Update Statistics
       fTriggerStatistics.processedEvents++;
@@ -440,6 +444,8 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
       if (time - fTimeOfLastEvent != 0)
          fTriggerStatistics.eventsPerSecond = (fTriggerStatistics.processedEvents-fLastEvent)/(time-fTimeOfLastEvent)*1000.0;
       fTimeOfLastEvent = time;
+
+      fTreeInfo->SetTimeStamp(timeStamp);
       fLastEvent = fTriggerStatistics.processedEvents;
 #endif
    }
@@ -479,9 +485,8 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
       }
 
       if (fEventStatus==kAnalyze) this->InitMidasBanks();
-      fTreeInfo->SetEventNumber(fCurrentEventNumber);
-      fTreeInfo->SetTimeStamp(timeStamp);
 
+      fTreeInfo->SetTimeStamp(timeStamp);
       fTriggerStatistics.processedEvents++;
    }
    else if (this->isOffline()&&this->isRoot()) {
@@ -510,9 +515,8 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
          fEventStatus = kEndOfRun;
          return true;
       }
-      fTreeInfo->SetEventNumber(fCurrentEventNumber);
-      fTreeInfo->SetTimeStamp(timeStamp);
    
+      fTreeInfo->SetTimeStamp(timeStamp);
       fTriggerStatistics.processedEvents++;
    }
    else {
@@ -525,6 +529,7 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
 
 bool ROMEAnalyzer::WriteEvent() {
    // Writes the event. Called after the Event tasks.
+   fTreeInfo->SetEventNumber(fCurrentEventNumber);
    FillTrees();
    return true;
 }

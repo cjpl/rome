@@ -70,6 +70,8 @@ protected:
    Int_t      fRunStatus;                       //! Run Status flag
    Int_t      fEventStatus;                     //! Event Status flag
 
+   Bool_t     fDontReadNextEvent;               //! Don't read the next event from file/buffer
+
    // Directories
    ROMEString fInputDir;                        //! General Input Directory
    ROMEString fOutputDir;                       //! General Output Directory
@@ -89,7 +91,7 @@ protected:
 
    Int_t      fMidasFileHandle;                 //! Handle to Midas Inputfile
    int        fMidasBuffer;                     //! Midas Online Buffer
-   char       fMidasEvent[100000];              //! Midas Inputdata Stack for an Event
+   char       fMidasEvent[110000];              //! Midas Inputdata Stack for an Event
 
    TFile**    fRootFiles;                       //! Root files
 
@@ -223,6 +225,12 @@ public:
    // Termination Flag
    void       SetTerminationFlag() { fTerminate = true; };
 
+
+   // Event Read Flag
+   bool       IsDontReadNextEvent() { return fDontReadNextEvent; };
+
+   void       SetDontReadNextEvent() { fDontReadNextEvent = true; };
+
    // midass event header
    EVENT_HEADER* GetEventHeader() { return (EVENT_HEADER*)fMidasEvent; };
 
@@ -254,6 +262,7 @@ public:
    int        GetCurrentEventNumber() { return fCurrentEventNumber; }
    char*      GetEventNumberStringOriginal() { return (char*)fEventNumberString.Data(); }
 
+   void       SetCurrentEventNumber(int eventNumber) { fCurrentEventNumber = eventNumber; }
    void       SetEventNumbers(ROMEString& numbers) { 
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(numbers); }
@@ -275,6 +284,8 @@ public:
    TFile*     GetHistoFileHandle() { return fHistoFiles; };
 
    void       SetHistoFileHandle(TFile *file) { fHistoFiles = file; };
+
+   char*      GetProgramName() { return (char*)fProgramName.Data(); };
 
    // Start Method
    bool       Start(int argc=0, char **argv=NULL);
