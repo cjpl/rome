@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/02/01 21:53:24  sawada
+  implemented thread functions of tabs.
+
   Revision 1.3  2005/01/31 10:40:41  sawada
   small bug fix
 
@@ -21,16 +24,23 @@ bool ArgusBuilder::WriteMain() {
    int i;
    ROMEString cppFile;
    ROMEString buffer;
+   ROMEString mainprogname(mainProgName);
    char fileBuffer[bufferLength];
    int nb;
    int fileHandle;
    cppFile.SetFormatted("%s/src/monitor/main.cpp",outDir.Data());
    buffer.Resize(0);
+   buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include \"include/monitor/%sMonitor.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/monitor/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("extern void InitGui();\n");
+   buffer.AppendFormatted("VoidFuncPtr_t initfuncs[] = {InitGui, 0 };\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("TROOT %s(\"%s\",\"%s\", initfuncs);\n",mainprogname.Data(),mainprogname.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
@@ -46,8 +56,7 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   // Main window\n");
    buffer.AppendFormatted("   char str[80];");
    buffer.AppendFormatted("   sprintf(str, \"%%s connected to %%s\", gMonitor->GetProgramName(), gMonitor->GetNetFolderHost());\n");
-   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
-   
+   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());   
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"Argus\",\"Argus Folder\");\n");
    buffer.AppendFormatted("   fMainFolder->Add(gMonitor);\n");
@@ -237,6 +246,8 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    readGlobalSteeringParameters = false;   
    numOfFolder = -1;
    numOfTab = -1;
+   thread = false;
+
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
@@ -367,6 +378,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      tabHierarchyTitle[i] = tabTitle[i];
                      tabHierarchyParentIndex[i] = -1;
                      tabHierarchyClassIndex[i] = i;
+                     numOfThreadFunctions[i]++;
                   }
                   numOfTabHierarchy = numOfTab;
                   // write tab classes
