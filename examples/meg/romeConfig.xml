@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Thu Nov 11 12:59:44 2004
+<!-- created by ROME on Fri Nov 12 18:33:56 2004
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -14,7 +14,7 @@
           <DataBase>
                <Type>xml</Type>
                <Name>LPDataBase</Name>
-               <Path>C:\Data\analysis\MEG\DataBase6625/</Path>
+               <Path>C:\Data\analysis\MEG\DataBase/</Path>
           </DataBase>
           <Online>
                <Host></Host>
@@ -132,7 +132,7 @@
                          <SPGroupName>Numbers</SPGroupName>
                          <SteeringParameterField>
                               <SPName>NumberOfPMT</SPName>
-                              <SPValue>256</SPValue>
+                              <SPValue>290</SPValue>
                          </SteeringParameterField>
                          <SteeringParameterField>
                               <SPName>NumberOfFTDC</SPName>

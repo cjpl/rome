@@ -15,7 +15,6 @@
 // This task accesses the following folders :
 //    CMPMTData
 //    CMPMTInfo
-//    Test
 // 
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////

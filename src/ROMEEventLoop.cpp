@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.27  2004/11/12 17:35:18  schneebeli_m
+//  fast xml database
+//
 //  Revision 1.26  2004/11/11 12:55:27  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -424,11 +427,6 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    stat->writtenEvents = 0;
    fStatisticsTimeOfLastEvent = 0;
    fStatisticsLastEvent = 0;
-   // Progress Display
-   fProgressDelta = 10000;
-   fProgressTimeOfLastEvent = time(NULL);
-   fProgressLastEvent = 0;
-   fProgressWrite = false;
    // Status
    this->SetRunning();
    this->SetAnalyze();
@@ -465,11 +463,21 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
 
 
    // Update Data Base
-   if (!gROME->ReadSingleDataBaseFolders())
+   if (!gROME->ReadSingleDataBaseFolders()) {
+      cout << "\nError while reading the data base !" << endl;
       return false;
+   }
    this->InitArrayFolders();
-   if (!gROME->ReadArrayDataBaseFolders())
+   if (!gROME->ReadArrayDataBaseFolders()) {
+      cout << "\nError while reading the data base !" << endl;
       return false;
+   }
+
+   // Progress Display
+   fProgressDelta = 10000;
+   fProgressTimeOfLastEvent = time(NULL);
+   fProgressLastEvent = 0;
+   fProgressWrite = false;
 
    if (gROME->isOnline()&&gROME->isMidas()) {
    }

@@ -95,37 +95,37 @@
 						<FieldName>ADCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>ADC Number</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>TDC Number</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/LPTdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPTdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Address</FieldName>
 						<FieldType>TString</FieldType>
 						<FieldComment>Address</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/name;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/name;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>X</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>X-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/x;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/x;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Y</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Y-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/y;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/y;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Z</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Z-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/z;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/z;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 				</Folder>
 				<Folder>
@@ -322,7 +322,7 @@
 				<HistFolderName>adc0</HistFolderName>
 				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -333,7 +333,7 @@
 				<HistFolderName>adc1</HistFolderName>
 				<HistFolderTitle>ADC1 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>

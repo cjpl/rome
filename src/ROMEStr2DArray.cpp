@@ -6,6 +6,9 @@
 //  Handles character string array of array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
+//  fast xml database
+//
 //  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
 //  ROMEStrArray and ROMEStr2DArray change
 //
@@ -78,6 +81,26 @@ void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
       }
    }
    subArray->AddAtAndExpand(new TObjString(str),idy);
+}
+void ROMEStr2DArray::SetAt(ROMEStrArray *str, Int_t idx, Int_t idy)
+{
+   if (idx<0||idx>=array->GetEntriesFast()) {
+      array->AddAtAndExpand(new TObjArray(idy+1),idx);
+   }
+   if (array->At(idx)==NULL) {
+      array->AddAtAndExpand(new TObjArray(idy+1),idx);
+   }
+   TObjArray *subArray = (TObjArray*)array->At(idx);
+   for (int i=0;i<str->GetEntriesFast();i++) {
+      if (str->At(i).Length()>0) {
+         if (i+idy>=0&&i+idy<subArray->GetEntriesFast()) {
+            if (subArray->At(i+idy)!=NULL) {
+               this->RemoveAt(idx,i+idy);
+            }
+         }
+         subArray->AddAtAndExpand(new TObjString(str->At(i)),i+idy);
+      }
+   }
 }
 
 void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)

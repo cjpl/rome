@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.3  2004/11/12 17:35:18  schneebeli_m
+//  fast xml database
+//
 //  Revision 1.2  2004/11/11 14:07:15  schneebeli_m
 //  ROMEStrArray and ROMEStr2DArray change
 //
@@ -24,7 +27,8 @@ ROMEPath::ROMEPath() {
    fTableNames = new ROMEStrArray(0);
    fTableConstraints = new ROMEStrArray(0);
    fTableDBConstraints = new ROMEStrArray(0);
-   fTableConnection = new ROMEStr2DArray(0,0);
+   fTableIDName = new ROMEStrArray(0);
+   fTableIDXName = new ROMEStrArray(0);
    fFieldIndex.Set(3);
    fOrderIndex.Set(3);
    this->SetOrderIndexAt(0,0);
@@ -43,9 +47,8 @@ ROMEPath::~ROMEPath() {
    delete fTableNames;
    delete fTableConstraints;
    delete fTableDBConstraints;
-   delete fTableConnection;
-//   delete fTableID;
-//   delete fTableIDX;
+   delete fTableIDName;
+   delete fTableIDXName;
 
    fConstraintField->Delete();
    fConstraintValue->Delete();
@@ -116,6 +119,8 @@ bool ROMEPath::Decode(const char* dataBasePath)
    while ((index=path.Index("/",1,0,TString::kExact))!=-1) {
       constraint.Resize(0);
       nTable++;
+      this->SetTableIDNameAt(nTable,"id");
+      this->SetTableIDXNameAt(nTable,"");
       this->SetTableConstraintAt(nTable,"");
       this->SetTableDBConstraintAt(nTable,"");
       subPath = path(0,index);
@@ -181,24 +186,19 @@ bool ROMEPath::Decode(const char* dataBasePath)
             cout << "\nID statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
             return false;
          }
-         index = i3;
-         for (int i=0;i<2;i++) {
-            itemp=subPath.Index(",",1,index,TString::kExact);
-            if (itemp==-1 || itemp>=ie)
-               itemp = ie;
-            ROMEString temp = subPath(index+1,itemp-index-1);
-            temp.ToLower();
-            temp.Strip(TString::kBoth,' ');
-            if (temp.Length()==0)
-               break;
-            this->SetTableConnectionAt(nTable,this->GetNumberOfTableConnectionAt(nTable),temp.Data());
-            index = itemp;
-            if (itemp>=ie)
-               break;
+         itemp=subPath.Index(",",1,i3,TString::kExact);
+         if (itemp==-1 || itemp>=ie) {
+            cout << "\nConnection id statment in table '" << this->GetTableNameAt(nTable) << "' must contain a comma." << endl;
+            return false;
          }
-      }
-      else {
-         this->SetTableConnectionAt(nTable,0,"id");
+         ROMEString temp = subPath(i3+1,itemp-i3-1);
+         temp.Strip(TString::kBoth,' ');
+         temp.Strip(TString::kBoth,'"');
+         this->SetTableIDNameAt(nTable,temp.Data());
+         temp = subPath(itemp+1,ie-itemp-1);
+         temp.Strip(TString::kBoth,' ');
+         temp.Strip(TString::kBoth,'"');
+         this->SetTableIDXNameAt(nTable,temp.Data());
       }
    }
    if (strlen(this->GetOrderTableName())<=0)
@@ -257,11 +257,10 @@ void ROMEPath::Print() {
    cout << "Tables : " << endl;
    for (int i=0;i<this->GetNumberOfTables();i++) {
       cout << "   Name : " << this->GetTableNameAt(i) << endl;
-      cout << "      Constraint    : " << this->GetTableConstraintAt(i) << endl;
-      cout << "      DB Constraint : " << this->GetTableDBConstraintAt(i) << endl;
-      for (int j=0;j<this->GetNumberOfTableConnectionAt(i);j++) {      
-         cout << "      Connection ID : " << this->GetTableConnectionAt(i,j) << endl;
-      }
+      cout << "      Constraint     : " << this->GetTableConstraintAt(i) << endl;
+      cout << "      DB Constraint  : " << this->GetTableDBConstraintAt(i) << endl;
+      cout << "      Connection ID  : " << this->GetTableIDNameAt(i) << endl;
+      cout << "      Connection IDX : " << this->GetTableIDXNameAt(i) << endl;
       cout << endl;
    }
    cout << "\nOrder : " << endl;

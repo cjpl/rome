@@ -2,6 +2,9 @@
   ROMEStr2DArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
+  fast xml database
+
   Revision 1.3  2004/11/11 14:07:15  schneebeli_m
   ROMEStrArray and ROMEStr2DArray change
 
@@ -16,6 +19,7 @@
 #ifndef ROMEStr2DArray_H
 #define ROMEStr2DArray_H
 
+#include<ROMEStrArray.h>
 #include<TObjArray.h>
 #include<TObjString.h>
 
@@ -35,6 +39,7 @@ public:
 
    virtual void     SetAt(TString &str, Int_t idx, Int_t idy);
    virtual void     SetAt(const char* str, Int_t idx, Int_t idy);
+   virtual void     SetAt(ROMEStrArray *str, Int_t idx, Int_t idy);
    virtual void     RemoveAt(Int_t idx, Int_t idy);
    virtual void     RemoveAllAt(Int_t idx);
    virtual void     RemoveAll();

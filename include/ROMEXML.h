@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2004/11/12 17:35:18  schneebeli_m
+  fast xml database
+
   Revision 1.10  2004/11/11 12:55:27  schneebeli_m
   Implemented XML database with new path rules
 
@@ -23,6 +26,7 @@
 #include <Riostream.h>
 
 #include <ROMEString.h>
+#include <ROMEStrArray.h>
 
 #define ENCODING "ISO-8859-1"
 
@@ -81,6 +85,8 @@ public:
    bool  GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue="");
    bool  GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue);
    bool  GetPathValue(const char* path,ROMEString& value,const char* defaultValue="");
+   bool  GetPathValues(ROMEString& path,ROMEStrArray* values);
+   bool  GetPathValues(const char* path,ROMEStrArray* values);
    bool  ReplacePathAttributeValue(const char* path,const char* name,const char* value);
    bool  ReplacePathAttributeName(const char* path,const char* name,const char* newName);
    bool  ReplacePathName(const char* path,const char* name);

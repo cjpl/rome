@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
+  fast xml database
+
   Revision 1.3  2004/11/11 14:07:15  schneebeli_m
   ROMEStrArray and ROMEStr2DArray change
 
@@ -30,7 +33,8 @@ protected:
    ROMEStrArray*    fTableNames;             // Array of TableNames
    ROMEStrArray*    fTableConstraints;       // Array of Constraints on the Table 
    ROMEStrArray*    fTableDBConstraints;     // Array of Constraints read from Data Base
-   ROMEStr2DArray*  fTableConnection;        // Connection id's of the Table
+   ROMEStrArray*    fTableIDName;            // ID name of the Table
+   ROMEStrArray*    fTableIDXName;           // IDX name of the Table
    ROMEString       fOrderTableName;         // Name of the Order Table
    ROMEString       fOrderFieldName;         // Name of the Order Field
    TArrayI          fOrderIndex;             // Array indexes of the Order Field Array
@@ -56,8 +60,8 @@ public:
    const char* GetTableNameAt(int i) { return fTableNames->At(i).Data(); };
    const char* GetTableConstraintAt(int i)   { return fTableConstraints->At(i).Data(); };
    const char* GetTableDBConstraintAt(int i) { return fTableDBConstraints->At(i).Data(); };
-   int         GetNumberOfTableConnectionAt(int iTable) { return fTableConnection->GetEntriesFastAt(iTable); };
-   const char* GetTableConnectionAt(int iTable,int iConnection) { if (fTableConnection->At(iTable,iConnection).Length()==0) return ""; return fTableConnection->At(iTable,iConnection).Data(); };
+   const char* GetTableIDNameAt(int i) { return fTableIDName->At(i).Data(); };
+   const char* GetTableIDXNameAt(int i) { return fTableIDXName->At(i).Data(); };
    const char* GetOrderTableName() { return fOrderTableName.Data(); };
    const char* GetOrderFieldName() { return fOrderFieldName.Data(); };
    int         GetOrderIndexAt(int i)  { return fOrderIndex[i]; };
@@ -79,8 +83,10 @@ protected:
    void  SetTableConstraintAt(int i,TString& constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableDBConstraintAt(int i,const char* constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableDBConstraintAt(int i,TString& constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
-   void  SetTableConnectionAt(int iTable,int iConnection,const char* connectionName) { fTableConnection->SetAt(connectionName,iTable,iConnection); };
-   void  SetTableConnectionAt(int iTable,int iConnection,TString& connectionName) { fTableConnection->SetAt(connectionName,iTable,iConnection); };
+   void  SetTableIDNameAt(int i,const char* name) { fTableIDName->AddAtAndExpand(name,i); };
+   void  SetTableIDNameAt(int i,TString& name) { fTableIDName->AddAtAndExpand(name,i); };
+   void  SetTableIDXNameAt(int i,const char* name) { fTableIDXName->AddAtAndExpand(name,i); };
+   void  SetTableIDXNameAt(int i,TString& name) { fTableIDXName->AddAtAndExpand(name,i); };
 
    void  SetOrderTableName(const char* name) { fOrderTableName = name; };
    void  SetOrderTableName(TString& name) { fOrderTableName = name; };

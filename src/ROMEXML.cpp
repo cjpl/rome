@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.15  2004/11/12 17:35:18  schneebeli_m
+//  fast xml database
+//
 //  Revision 1.14  2004/11/11 12:55:28  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -436,6 +439,30 @@ bool ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaul
       return false;
    }
    value = (char*)xpathObj->nodesetval->nodeTab[0]->children->content;
+   return true;
+}
+bool ROMEXML::GetPathValues(ROMEString& path,ROMEStrArray* values) {
+   return GetPathValues((char*)path.Data(),values);
+}
+bool ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return false;
+   }
+   if (xpathObj->nodesetval==NULL) {
+      return false;
+   }
+   for (int i=0;i<xpathObj->nodesetval->nodeNr;i++) {
+      if (xpathObj->nodesetval->nodeTab[i]->children==NULL) {
+         values->AddAtAndExpand("",i);
+      }
+      else {
+         values->AddAtAndExpand((const char*)xpathObj->nodesetval->nodeTab[i]->children->content,i);
+      }
+   }
    return true;
 }
 

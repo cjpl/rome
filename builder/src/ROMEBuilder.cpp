@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.68  2004/11/12 17:35:17  schneebeli_m
+  fast xml database
+
   Revision 1.67  2004/11/11 14:07:15  schneebeli_m
   ROMEStrArray and ROMEStr2DArray change
 
@@ -2530,7 +2533,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                if (folderArray[i]=="1") {
                   buffer.AppendFormatted("   values->RemoveAll();\n");
                   buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,path);\n");
+                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path))\n");
+                  buffer.AppendFormatted("      return false;\n");
                   if (valueArray[i][j]=="1") {
                      buffer.AppendFormatted("   if (values->At(0,0).Length()!=0)\n");
                      setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0).Data()",(char*)valueType[i][j].Data(),1);
@@ -2570,7 +2574,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                if (folderArray[i]!="1") {
                   buffer.AppendFormatted("   values->RemoveAll();\n");
                   buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,path);\n");
+                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path))\n");
+                  buffer.AppendFormatted("      return false;\n");
                   buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
                   if (valueArray[i][j]=="1") {
                      buffer.AppendFormatted("      if (values->At(i,0).Length()!=0)\n");
@@ -6047,9 +6052,14 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
       buffer.AppendFormatted("<table border=\"1\">\n");
-      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td></tr>\n");
+      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
-         buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data());
+         if (valueComment[i][j][0]=='/') {
+            ROMEString comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
+            buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         }
+         else
+            buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),valueComment[i][j].Data());
       }
       buffer.AppendFormatted("</table>\n");
 
