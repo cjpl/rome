@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.24  2004/10/19 21:18:06  pierre
+//  put unistd.h in the right place
+//
 //  Revision 1.23  2004/10/19 21:11:20  pierre
 //  Add unistd.h for read/close under Linux
 //
@@ -38,13 +41,13 @@
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
 #if defined ( __linux__ )
+#include <unistd.h>
 #define O_RDONLY_BINARY O_RDONLY
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#include <unistd.h>
 #include "ROME.h"
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
@@ -306,8 +309,8 @@ bool ROMEEventLoop::Initialize() {
 #endif
 
       // Registers a callback function for run transitions.
-      if (cm_register_transition(TR_START, NULL) != CM_SUCCESS ||
-         cm_register_transition(TR_STOP, NULL) != CM_SUCCESS) {
+      if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
+         cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }
