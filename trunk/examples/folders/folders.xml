@@ -62,7 +62,10 @@
 			</ROMEFolder>
 			<ROMEFolder>
 				<FolderName>PMTData</FolderName>
+<!--
 				<ROMEProjectPath>$(ARGUSSYS)/examples/folders/romeproject</ROMEProjectPath>
+-->
+				<ROMEProjectPath>./romeproject</ROMEProjectPath>
 				<ArraySize>10</ArraySize>
 			</ROMEFolder>
 		</Folder>
