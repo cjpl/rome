@@ -276,7 +276,6 @@ bool ROMEAnalyzer::Init() {
    return true;
 }
 bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
-   cout << "Connect" << endl;
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEString runNumberString;
    // Statistics
@@ -589,7 +588,6 @@ bool ROMEAnalyzer::UserInput() {
 }
 
 bool ROMEAnalyzer::Disconnect() {
-   cout << "Disconnect" << endl;
    // Disconnects the current run. Called before the EndOfRun tasks.
 
    TFile *f1;
