@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.28  2004/09/30 10:18:05  schneebeli_m
+//  gAnalyzer and gROME
+//
 //  Revision 1.27  2004/09/30 09:50:29  schneebeli_m
 //  Samples updated
 //
@@ -65,7 +68,8 @@
 
 ClassImp(ROMEAnalyzer)
 
-void *gROME;  // global Analyzer Handle
+ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
+void *gPassToROME;  // void ROMEAnalyzer Handle
 
 const char* ROMEAnalyzer::LineToProcess = NULL;
 void writeLineToProcess(const char* str) {
@@ -106,6 +110,7 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
+   gROME = (ROMEAnalyzer*)gPassToROME;
 
    consoleStartScreen();
 

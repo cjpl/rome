@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.17  2004/09/30 10:18:05  schneebeli_m
+//  gAnalyzer and gROME
+//
 //  Revision 1.16  2004/09/25 01:34:48  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
@@ -30,8 +33,6 @@
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
-ROMEAnalyzer *gAnalyzer;
-
 #if defined HAVE_MIDAS
 #include <midas.h>
 #define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
@@ -54,7 +55,6 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
    if (!strcmp(option,"init")) {
-      gAnalyzer = (ROMEAnalyzer*)gROME;
       this->InitTrees();
       return;
    }
@@ -63,13 +63,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (fgBeginTask) {
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
       this->Termination();
-      gAnalyzer->SetTerminationFlag();
+      gROME->SetTerminationFlag();
       cout << "\n\nTerminating Program !" << endl;
       return;
    }
    if (!IsActive()) {
       this->Termination();
-      gAnalyzer->SetTerminationFlag();
+      gROME->SetTerminationFlag();
       cout << "\n\nTerminating Program !" << endl;
       return;
    }
@@ -79,15 +79,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    int i,ii;
 
 // Read Histos
-//   sprintf(filename,"%s%s%s.root",gAnalyzer->GetInputDir(),"histos",runNumber);
-//   gAnalyzer->SetHistoFileHandle(new TFile(filename,"READ"));
+//   sprintf(filename,"%s%s%s.root",gROME->GetInputDir(),"histos",runNumber);
+//   gROME->SetHistoFileHandle(new TFile(filename,"READ"));
 
    // Initialisation
    //----------------
 
    if (!this->Initialize()) {
       this->Termination();
-      gAnalyzer->SetTerminationFlag();
+      gROME->SetTerminationFlag();
       cout << "\n\nTerminating Program !" << endl;
       return;
    }
@@ -102,7 +102,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       if (!this->Connect(ii)) {
          this->Termination();
-         gAnalyzer->SetTerminationFlag();
+         gROME->SetTerminationFlag();
          cout << "\n\nTerminating Program !" << endl;
          return;
       }
@@ -121,13 +121,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Loop over Events
       //------------------
       if (gShowTime) TimeStart();
-      cout << "\n\nRun " << gAnalyzer->GetCurrentRunNumber() << " started" << endl; 
+      cout << "\n\nRun " << gROME->GetCurrentRunNumber() << " started" << endl; 
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
 
          // User Input
          if (!this->UserInput()) {
             this->Termination();
-            gAnalyzer->SetTerminationFlag();
+            gROME->SetTerminationFlag();
             cout << "\n\nTerminating Program !" << endl;
             return;
          }
@@ -136,12 +136,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // Set Fill Event equal true
-         gAnalyzer->SetFillEvent();
+         gROME->SetFillEvent();
 
          // Read Event
          if (!this->ReadEvent(i)) {
             this->Termination();
-            gAnalyzer->SetTerminationFlag();
+            gROME->SetTerminationFlag();
             cout << "\n\nTerminating Program !" << endl;
             return;
          }
@@ -160,14 +160,14 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->UpdateTaskSwitches();
             ROMEAnalyzer::fTaskSwitchesChanged = false;
          }
-         char eventID = gAnalyzer->GetEventID();
+         char eventID = gROME->GetEventID();
          ExecuteTasks(&eventID);
          CleanTasks();
 
          // Write Event
-         if (!this->WriteEvent() && gAnalyzer->isFillEvent()) {
+         if (!this->WriteEvent() && gROME->isFillEvent()) {
             this->Termination();
-            gAnalyzer->SetTerminationFlag();
+            gROME->SetTerminationFlag();
             cout << "\n\nTerminating Program !" << endl;
             return;
          }
@@ -175,7 +175,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          // Update
          if (!this->Update()) {
             this->Termination();
-            gAnalyzer->SetTerminationFlag();
+            gROME->SetTerminationFlag();
             cout << "\n\nTerminating Program !" << endl;
             return;
          }
@@ -183,8 +183,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (gShowTime) TimeEnd();
 
       // Show number of processed events
-      cout << "Run " << gAnalyzer->GetCurrentRunNumber() << " stopped                                             " << endl << endl; 
-      cout << (int)gAnalyzer->GetProcessedEvents() << " events processed" << endl <<endl;
+      cout << "Run " << gROME->GetCurrentRunNumber() << " stopped                                             " << endl << endl; 
+      cout << (int)gROME->GetProcessedEvents() << " events processed" << endl <<endl;
       if (gShowTime) {
          cout << "run time = " << GetTime() << endl << endl;
       }
@@ -196,7 +196,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Disconnect
       if (!this->Disconnect()) {
          this->Termination();
-         gAnalyzer->SetTerminationFlag();
+         gROME->SetTerminationFlag();
          cout << "\n\nTerminating Program !" << endl;
          return;
       }
@@ -208,7 +208,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Terminate
    if (!this->Termination()) {
-      gAnalyzer->SetTerminationFlag();
+      gROME->SetTerminationFlag();
       cout << "\n\nTerminating Program !" << endl;
       return;
    }
@@ -222,18 +222,18 @@ bool ROMEEventLoop::Initialize() {
    this->InitTaskSwitches();
 
    // Tree file Initialisation
-   fTreeFiles = new TFile*[gAnalyzer->GetTreeObjectEntries()];
+   fTreeFiles = new TFile*[gROME->GetTreeObjectEntries()];
    ROMEString filename;
    ROMEString runNumberString;
    ROMETree *romeTree;
    TTree *tree;
-   gAnalyzer->GetCurrentRunNumberString(runNumberString);
-   for (j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
+   gROME->GetCurrentRunNumberString(runNumberString);
+   for (j=0;j<gROME->GetTreeObjectEntries();j++) {
       fTreeFiles[j] = NULL;
-      romeTree = gAnalyzer->GetTreeObjectAt(j);
-      if (romeTree->isWrite() && gAnalyzer->isTreeAccumulation()) {
+      romeTree = gROME->GetTreeObjectAt(j);
+      if (romeTree->isWrite() && gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
-         filename = gAnalyzer->GetOutputDir();
+         filename = gROME->GetOutputDir();
          filename.Append(tree->GetName());         
          filename.Append(runNumberString.Data());
          filename.Append(".root");
@@ -242,7 +242,7 @@ bool ROMEEventLoop::Initialize() {
       }
    }
 
-   if (gAnalyzer->isOnline()&&gAnalyzer->isMidas()) {
+   if (gROME->isOnline()&&gROME->isMidas()) {
 #if defined HAVE_MIDAS
       // Connect to the Frontend
       int requestId,i;
@@ -250,7 +250,7 @@ bool ROMEEventLoop::Initialize() {
       cout << "Program is running online." << endl << endl;
 
       // Connect to the experiment
-      if (cm_connect_experiment(gAnalyzer->GetOnlineHost(), gAnalyzer->GetOnlineExperiment(),gAnalyzer->GetProgramName(), NULL) != SUCCESS) {
+      if (cm_connect_experiment(gROME->GetOnlineHost(), gROME->GetOnlineExperiment(),gROME->GetProgramName(), NULL) != SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }
@@ -280,7 +280,7 @@ bool ROMEEventLoop::Initialize() {
       }
 
       // Connect to the online database
-      if (cm_get_experiment_database(gAnalyzer->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
+      if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
          cout << "Cannot connect to the online database" << endl;
          return false;
       }
@@ -288,22 +288,22 @@ bool ROMEEventLoop::Initialize() {
       // Get Runnumber
       int runNumber = 0;
       int size = sizeof(runNumber);
-      if (db_get_value(gAnalyzer->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
+      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
          cout << "Cannot read runnumber from the online database" << endl;
          return false;
       }
-      gAnalyzer->SetCurrentRunNumber(runNumber);
+      gROME->SetCurrentRunNumber(runNumber);
 
       // Initialize the online database
       HNDLE hKey;
       ROMEString str;
       str = "//Trigger/Statistics";
-      str.Insert(1,gAnalyzer->GetProgramName());
+      str.Insert(1,gROME->GetProgramName());
       // Trigger Statistics
       char *triggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
-      db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
-      db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
-      if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
+      db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
+      db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
+      if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
          cout << "Cannot open trigger statistics record, probably other analyzer is using it" << endl;
          return false;
       }
@@ -311,26 +311,26 @@ bool ROMEEventLoop::Initialize() {
       // Scaler Statistics
       char *fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
       str="//Scaler/Statistics";
-      str.Insert(1,gAnalyzer->GetProgramName());
-      db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
-      db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
-      if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
+      str.Insert(1,gROME->GetProgramName());
+      db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
+      db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
+      if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
          cout << "Cannot open scaler statistics record, probably other analyzer is using it" << endl;
          return false;
       }
 
       // Tree Switches
-      for (i=0;i<gAnalyzer->GetTreeObjectEntries();i++) {
+      for (i=0;i<gROME->GetTreeObjectEntries();i++) {
          str="//Tree switches/";
-         str.Insert(1,gAnalyzer->GetProgramName());
-         str.Append(gAnalyzer->GetTreeObjectAt(i)->GetTree()->GetName());
-         db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), gAnalyzer->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
-         db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
-         if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetTreeObjectAt(i)->GetSwitches(),gAnalyzer->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
+         str.Insert(1,gROME->GetProgramName());
+         str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
+         db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
+         db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
+         if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
             cout << "Cannot write to tree switches record." << endl;
             return false;
          }
-         if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetTreeObjectAt(i)->GetSwitches(), gAnalyzer->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
+         if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(), gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
             cout << "Cannot open tree switches record, probably other analyzer is using it" << endl;
             return false;
          }
@@ -347,14 +347,14 @@ bool ROMEEventLoop::Initialize() {
       return false;
 #endif
    }
-   else if (gAnalyzer->isOnline()&&gAnalyzer->isRoot()) {
+   else if (gROME->isOnline()&&gROME->isRoot()) {
       cout << "Root mode is not supported for online analysis." << endl << endl;
       return false;
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isMidas()) {
+   else if (gROME->isOffline()&&gROME->isMidas()) {
       cout << "Program is running offline." << endl << endl;
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isRoot()) {
+   else if (gROME->isOffline()&&gROME->isRoot()) {
       cout << "Program is running offline." << endl << endl;
    }
    else {
@@ -362,14 +362,14 @@ bool ROMEEventLoop::Initialize() {
       return false;
    }
 
-   if (gAnalyzer->isOffline()&&gAnalyzer->GetNumberOfRunNumbers()<=0) {
+   if (gROME->isOffline()&&gROME->GetNumberOfRunNumbers()<=0) {
       cout << "No run numbers specified." << endl << endl;
       return false;
    }
 
    // Data Base Initialisation
-   char* xx = gAnalyzer->GetDataBaseConnection();
-   if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))
+   char* xx = gROME->GetDataBaseConnection();
+   if (!gROME->GetDataBase()->Init(gROME->GetDataBaseDir(),gROME->GetDataBaseConnection()))
       return false;
 
    return true;
@@ -378,7 +378,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEString runNumberString;
    // Statistics
-   Statistics *stat = gAnalyzer->GetTriggerStatistics();
+   Statistics *stat = gROME->GetTriggerStatistics();
    stat->processedEvents = 0;
    stat->eventsPerSecond = 0;
    stat->writtenEvents = 0;
@@ -393,38 +393,38 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    fRunStatus = kRunning;
    fEventStatus = kAnalyze;
 
-   if (gAnalyzer->isOffline()) {
-      if (gAnalyzer->GetNumberOfRunNumbers()<=runNumberIndex) {
+   if (gROME->isOffline()) {
+      if (gROME->GetNumberOfRunNumbers()<=runNumberIndex) {
          this->SetTerminate();
          return true;
       }
-      gAnalyzer->SetCurrentRunNumber(gAnalyzer->GetRunNumberAt(runNumberIndex));
+      gROME->SetCurrentRunNumber(gROME->GetRunNumberAt(runNumberIndex));
    }
-   fTreeInfo->SetRunNumber(gAnalyzer->GetCurrentRunNumber());
-   gAnalyzer->GetCurrentRunNumberString(runNumberString);
+   fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
+   gROME->GetCurrentRunNumberString(runNumberString);
 
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
-   for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-      romeTree = gAnalyzer->GetTreeObjectAt(j);
-      if (romeTree->isWrite() && !gAnalyzer->isTreeAccumulation()) {
+   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      romeTree = gROME->GetTreeObjectAt(j);
+      if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
-         filename.SetFormatted("%s%s%s.root",gAnalyzer->GetOutputDir(),tree->GetName(),runNumberString.Data());
+         filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),tree->GetName(),runNumberString.Data());
          fTreeFiles[j] = new TFile(filename.Data(),"RECREATE");
          tree->SetDirectory(fTreeFiles[j]);
       }
    }
 
    // Update Data Base
-   if (!gAnalyzer->ReadDataBase())
+   if (!gROME->ReadDataBase())
       return false;
 
-   if (gAnalyzer->isOnline()&&gAnalyzer->isMidas()) {
+   if (gROME->isOnline()&&gROME->isMidas()) {
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isMidas()) {
+   else if (gROME->isOffline()&&gROME->isMidas()) {
       // Open Midas File
-      filename.SetFormatted("%srun%s.mid",gAnalyzer->GetInputDir(),runNumberString.Data());
+      filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
       fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
       if (fMidasFileHandle==-1) {
          cout << "Inputfile '" << filename.Data() << "' not found." << endl;
@@ -432,25 +432,25 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       }
       cout << "Reading Midas-File run" << runNumberString.Data() << ".mid" << endl;
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isRoot()) {
+   else if (gROME->isOffline()&&gROME->isRoot()) {
       // Read Trees
-      fRootFiles = new TFile*[gAnalyzer->GetTreeObjectEntries()];
+      fRootFiles = new TFile*[gROME->GetTreeObjectEntries()];
       TTree *tree;
       ROMETree *romeTree;
       ROMEString runNumberString;
-      gAnalyzer->GetCurrentRunNumberString(runNumberString);
+      gROME->GetCurrentRunNumberString(runNumberString);
       bool treeRead = false;
-      fTreePosition = new int[gAnalyzer->GetTreeObjectEntries()];
-      fTreeNextSeqNumber = new int[gAnalyzer->GetTreeObjectEntries()];
-      for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-         romeTree = gAnalyzer->GetTreeObjectAt(j);
+      fTreePosition = new int[gROME->GetTreeObjectEntries()];
+      fTreeNextSeqNumber = new int[gROME->GetTreeObjectEntries()];
+      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+         romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
-         if (!gAnalyzer->isTreeAccumulation()) {
+         if (!gROME->isTreeAccumulation()) {
             tree->Reset();
          }
          if (romeTree->isRead()) {
             treeRead = true;
-            filename.SetFormatted("%s%s%s.root",gAnalyzer->GetInputDir(),tree->GetName(),runNumberString.Data());
+            filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),tree->GetName(),runNumberString.Data());
             fRootFiles[j] = new TFile(filename.Data(),"READ");
             if (fRootFiles[j]->IsZombie()) {
                cout << "Inputfile '" << filename.Data() << "' not found." << endl;
@@ -483,23 +483,23 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
 
 bool ROMEEventLoop::ReadEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
-   Statistics *stat = gAnalyzer->GetTriggerStatistics();
+   Statistics *stat = gROME->GetTriggerStatistics();
    
    fEventStatus = kAnalyze;
    this->CleanUpFolders();
    int timeStamp = 0;
 
-   if (gAnalyzer->IsDontReadNextEvent()) {
-      gAnalyzer->SetDontReadNextEvent(false);
+   if (gROME->IsDontReadNextEvent()) {
+      gROME->SetDontReadNextEvent(false);
       return true;
    }
 
-   if (gAnalyzer->isOnline()&&gAnalyzer->isMidas()) {
+   if (gROME->isOnline()&&gROME->isMidas()) {
 #if defined HAVE_MIDAS
       int runNumber,trans;
       if (cm_query_transition(&trans, &runNumber, NULL)) {
          if (trans == TR_START) {
-            gAnalyzer->SetCurrentRunNumber(runNumber);
+            gROME->SetCurrentRunNumber(runNumber);
             fEventStatus = kAnalyze;
             fRunStatus = kRunning;
          }
@@ -518,17 +518,17 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          fEventStatus = kContinue;
          return true;
       }
-      int size = gAnalyzer->GetMidasEventSize();
-      void* mEvent = gAnalyzer->GetMidasEvent();
+      int size = gROME->GetMidasEventSize();
+      void* mEvent = gROME->GetMidasEvent();
       status = bm_receive_event(fMidasBuffer, mEvent, &size, ASYNC);
       if (status != BM_SUCCESS) {
          fEventStatus = kContinue;
          return true;
       }
 
-      gAnalyzer->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->event_id);
+      gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->event_id);
       timeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
-      gAnalyzer->InitMidasBanks();
+      gROME->InitMidasBanks();
 
       // Update Statistics
       stat->processedEvents++;
@@ -544,9 +544,9 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       fStatisticsLastEvent = stat->processedEvents;
 #endif
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isMidas()) {
+   else if (gROME->isOffline()&&gROME->isMidas()) {
       // read event header
-      EVENT_HEADER *pevent = (EVENT_HEADER*)gAnalyzer->GetMidasEvent();
+      EVENT_HEADER *pevent = (EVENT_HEADER*)gROME->GetMidasEvent();
       bool readError = false;
 
       int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
@@ -574,21 +574,21 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          return true;
       }
 
-      gAnalyzer->SetEventID(pevent->event_id);
-      gAnalyzer->SetCurrentEventNumber(pevent->serial_number);
+      gROME->SetEventID(pevent->event_id);
+      gROME->SetCurrentEventNumber(pevent->serial_number);
       timeStamp = pevent->time_stamp;
 
-      if (fEventStatus==kAnalyze) gAnalyzer->InitMidasBanks();
+      if (fEventStatus==kAnalyze) gROME->InitMidasBanks();
 
       fTreeInfo->SetTimeStamp(timeStamp);
       stat->processedEvents++;
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isRoot()) {
+   else if (gROME->isOffline()&&gROME->isRoot()) {
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
-      for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-         romeTree = gAnalyzer->GetTreeObjectAt(j);
+      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+         romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             if (fTreeNextSeqNumber[j]==event) {
@@ -623,7 +623,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
 
 bool ROMEEventLoop::WriteEvent() {
    // Writes the event. Called after the Event tasks.
-   fTreeInfo->SetEventNumber(gAnalyzer->GetCurrentEventNumber());
+   fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
    this->FillTrees();
    return true;
 }
@@ -633,9 +633,9 @@ bool ROMEEventLoop::Update()
 
    // Progress Display
    if (fProgressDelta>1) {
-      if ((int)gAnalyzer->GetTriggerStatistics()->processedEvents >= fProgressLastEvent + fProgressDelta) {
+      if ((int)gROME->GetTriggerStatistics()->processedEvents >= fProgressLastEvent + fProgressDelta) {
          time(&fProgressTimeOfLastEvent);
-         fProgressLastEvent = (int)gAnalyzer->GetTriggerStatistics()->processedEvents;
+         fProgressLastEvent = (int)gROME->GetTriggerStatistics()->processedEvents;
          fProgressWrite = true;
       } 
       else {
@@ -643,8 +643,8 @@ bool ROMEEventLoop::Update()
             fProgressDelta /= 10;
       }
    }
-   if ((!fContinuous || fProgressDelta==1 || !((int)gAnalyzer->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite)) {
-      cout << (int)gAnalyzer->GetTriggerStatistics()->processedEvents << " events processed                                                    \r";
+   if ((!fContinuous || fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite)) {
+      cout << (int)gROME->GetTriggerStatistics()->processedEvents << " events processed                                                    \r";
       fProgressWrite = false;
    }
  
@@ -660,7 +660,7 @@ void ROMEEventLoop::CheckLineToProcess()
 {
    if (ROMEAnalyzer::LineToProcess){
 /*      cout << ROMEAnalyzer::LineToProcess << endl;
-*/      gAnalyzer->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
+*/      gROME->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
       ROMEAnalyzer::LineToProcess = NULL;
    }
 }
@@ -718,7 +718,7 @@ bool ROMEEventLoop::UserInput()
          }
       }
       if (interpreter) {
-         gAnalyzer->GetApplication()->Run(true);
+         gROME->GetApplication()->Run(true);
       }
    }
 
@@ -734,10 +734,10 @@ bool ROMEEventLoop::Disconnect() {
    ROMETree *romeTree;
    TTree *tree;
    ROMEString runNumberString;
-   gAnalyzer->GetCurrentRunNumberString(runNumberString);
-   for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-      romeTree = gAnalyzer->GetTreeObjectAt(j);
-      if (romeTree->isWrite() && !gAnalyzer->isTreeAccumulation()) {
+   gROME->GetCurrentRunNumberString(runNumberString);
+   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      romeTree = gROME->GetTreeObjectAt(j);
+      if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
          cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
          fTreeFiles[j] = tree->GetCurrentFile();
@@ -749,19 +749,19 @@ bool ROMEEventLoop::Disconnect() {
 
    // Write Histos
    TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   filename.SetFormatted("%s%s%s.root",gAnalyzer->GetOutputDir(),"histos",runNumberString.Data());
+   filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
    f1 = new TFile(filename.Data(),"RECREATE");
    folder->Write();
    f1->Close();
 
-   if (gAnalyzer->isOnline()&&gAnalyzer->isMidas()) {
+   if (gROME->isOnline()&&gROME->isMidas()) {
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isMidas()) {
+   else if (gROME->isOffline()&&gROME->isMidas()) {
       close(fMidasFileHandle);
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isRoot()) {
-      for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-         if (gAnalyzer->GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
+   else if (gROME->isOffline()&&gROME->isRoot()) {
+      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+         if (gROME->GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
       }
       delete [] fRootFiles;
    }
@@ -776,21 +776,21 @@ bool ROMEEventLoop::Termination() {
    // Clean up the analyzer. Called before the Terminate tasks.
    // Write and close Trees
    ROMETree *romeTree;
-   for (int j=0;j<gAnalyzer->GetTreeObjectEntries();j++) {
-      romeTree = gAnalyzer->GetTreeObjectAt(j);
+   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite()) {
          if (fTreeFiles[j]!=NULL)
             fTreeFiles[j]->Close();
       }
    }
-   if (gAnalyzer->isOnline()&&gAnalyzer->isMidas()) {
+   if (gROME->isOnline()&&gROME->isMidas()) {
 #if defined HAVE_MIDAS
       cm_disconnect_experiment();
 #endif
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isMidas()) {
+   else if (gROME->isOffline()&&gROME->isMidas()) {
    }
-   else if (gAnalyzer->isOffline()&&gAnalyzer->isRoot()) {
+   else if (gROME->isOffline()&&gROME->isRoot()) {
    }
    else {
       cout << "Severe program failure." << endl << endl;

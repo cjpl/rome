@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.21  2004/09/30 10:18:05  schneebeli_m
+  gAnalyzer and gROME
+
   Revision 1.20  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -279,6 +282,7 @@ private:
    ClassDef(ROMEAnalyzer,0)
 };
 
-extern void *gROME;  // global void Handle
+extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
+extern void *gPassToROME;  // void ROMEAnalyzer Handle
 
 #endif   // ROMEAnalyzer_H
