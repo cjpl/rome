@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.96  2005/01/20 09:56:14  sawada
+  Makefile for linux. Added -DOS_UNIX
+
   Revision 1.95  2005/01/20 09:25:37  sawada
   Makefile for linux.
 
@@ -6166,7 +6169,7 @@ void ROMEBuilder::WriteMakefile() {
    }
    if (this->midas) {
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/lib -lmidas\n");
-      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DOS_UNIX -DHAVE_MIDAS\n");
    }
    else{
       buffer.AppendFormatted("midaslibs := \n");
