@@ -317,6 +317,21 @@
 					<xs:documentation> Start index of histogram array name enumeration. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the x axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the y axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the z axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The number of bins in x.</xs:documentation>

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.101  2005/01/25 16:36:22  schneebeli_m
+  histo label
+
   Revision 1.100  2005/01/25 14:30:20  schneebeli_m
   small changes
 
@@ -1109,6 +1112,9 @@ bool ROMEBuilder::ReadXMLTask() {
          histoType[numOfTask][numOfHistos[numOfTask]] = "";
          histoArray[numOfTask][numOfHistos[numOfTask]] = "1";
          histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoXLabel[numOfTask][numOfHistos[numOfTask]] = "\"\"";
+         histoYLabel[numOfTask][numOfHistos[numOfTask]] = "\"\"";
+         histoZLabel[numOfTask][numOfHistos[numOfTask]] = "\"\"";
          histoXBin[numOfTask][numOfHistos[numOfTask]] = "1";
          histoXMin[numOfTask][numOfHistos[numOfTask]] = "0";
          histoXMax[numOfTask][numOfHistos[numOfTask]] = "1";
@@ -1142,6 +1148,15 @@ bool ROMEBuilder::ReadXMLTask() {
             // histo array start index
             if (type == 1 && !strcmp((const char*)name,"HistArrayStartIndex"))
                xml->GetValue(histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]],histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]]);
+            // histo label of x axis
+            if (type == 1 && !strcmp((const char*)name,"HistXLabel"))
+               xml->GetValue(histoXLabel[numOfTask][numOfHistos[numOfTask]],histoXLabel[numOfTask][numOfHistos[numOfTask]]);
+            // histo label of y axis
+            if (type == 1 && !strcmp((const char*)name,"HistYLabel"))
+               xml->GetValue(histoYLabel[numOfTask][numOfHistos[numOfTask]],histoYLabel[numOfTask][numOfHistos[numOfTask]]);
+            // histo label of z axis
+            if (type == 1 && !strcmp((const char*)name,"HistZLabel"))
+               xml->GetValue(histoZLabel[numOfTask][numOfHistos[numOfTask]],histoZLabel[numOfTask][numOfHistos[numOfTask]]);
             // histo number of x bins
             if (type == 1 && !strcmp((const char*)name,"HistXNbins"))
                xml->GetValue(histoXBin[numOfTask][numOfHistos[numOfTask]],histoXBin[numOfTask][numOfHistos[numOfTask]]);
@@ -1736,6 +1751,9 @@ bool ROMEBuilder::WriteTaskH() {
                buffer.AppendFormatted("   %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
             else
                buffer.AppendFormatted("   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("   f%s->GetXaxis()->SetTitle(%s);\n",histoName[iTask][i].Data(),histoXLabel[iTask][i].Data());
+            buffer.AppendFormatted("   f%s->GetYaxis()->SetTitle(%s);\n",histoName[iTask][i].Data(),histoYLabel[iTask][i].Data());
+            buffer.AppendFormatted("   f%s->GetZaxis()->SetTitle(%s);\n",histoName[iTask][i].Data(),histoZLabel[iTask][i].Data());
          }
          else {
             buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
@@ -1758,9 +1776,13 @@ bool ROMEBuilder::WriteTaskH() {
             }
             buffer.AppendFormatted("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
             if (!homeFolder)
-               buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n   }\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
             else
-               buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n   }\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      hist%d->GetXaxis()->SetTitle(%s);\n",i,histoXLabel[iTask][i].Data());
+            buffer.AppendFormatted("      hist%d->GetYaxis()->SetTitle(%s);\n",i,histoYLabel[iTask][i].Data());
+            buffer.AppendFormatted("      hist%d->GetZaxis()->SetTitle(%s);\n",i,histoZLabel[iTask][i].Data());
+            buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("}\n\n");

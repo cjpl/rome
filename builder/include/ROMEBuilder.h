@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.25  2005/01/25 16:36:22  schneebeli_m
+  histo label
+
   Revision 1.24  2005/01/24 15:20:24  schneebeli_m
   Seperated DAQ classes
 
@@ -137,6 +140,9 @@ private:
    ROMEString histoTitle[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXLabel[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYLabel[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZLabel[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoXBin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoXMin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoXMax[maxNumberOfTasks][maxNumberOfHistos];
