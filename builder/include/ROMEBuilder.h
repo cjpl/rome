@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.33  2005/04/04 07:06:15  schneebeli_m
+  bankFieldArraySize
+
   Revision 1.32  2005/04/01 14:56:22  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -212,9 +215,7 @@ private:
    ROMEString structFieldName[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldType[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldSize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   int bankFieldArraySize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   int bankFieldArrayStart[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   int bankFieldArrayDigit[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString bankFieldArraySize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    bool  bankHasHeader;
    ROMEString bankHeaderFolder;
    ROMEString bankHeaderEventID;

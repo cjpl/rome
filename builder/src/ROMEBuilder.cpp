@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.123  2005/04/04 07:06:15  schneebeli_m
+  bankFieldArraySize
+
   Revision 1.122  2005/04/01 14:59:58  schneebeli_m
   negligible
 
@@ -2652,9 +2655,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                            structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
                            structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
                            structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
-                           bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = 0;
-                           bankFieldArrayStart[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = 0;
-                           bankFieldArrayDigit[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = 0;
+                           bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "1";
                            while (xml->NextLine()) {
                               type = xml->GetType();
                               name = xml->GetName();
@@ -2670,30 +2671,9 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                               // field size
                               if (type == 1 && !strcmp((const char*)name,"BankFieldSize"))
                                  xml->GetValue(structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
-                              // bank field array
-                              if (type == 1 && !strcmp((const char*)name,"BankFieldArray")) {
-                                 while (xml->NextLine()) {
-                                    type = xml->GetType();
-                                    name = xml->GetName();
-                                    // lower boundary
-                                    if (type == 1 && !strcmp((const char*)name,"BFASize")) {
-                                       xml->GetValue(tmp,"");
-                                       bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = strtol(tmp,&cstop,10);
-                                    }
-                                    // upper boundary
-                                    if (type == 1 && !strcmp((const char*)name,"BFAStartIndex")) {
-                                       xml->GetValue(tmp,"");
-                                       bankFieldArrayStart[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = strtol(tmp,&cstop,10);
-                                    }
-                                    // number of digits
-                                    if (type == 1 && !strcmp((const char*)name,"BFANumberOfDigits")) {
-                                       xml->GetValue(tmp,"");
-                                       bankFieldArrayDigit[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = strtol(tmp,&cstop,10);
-                                    }
-                                    if (type == 15 && !strcmp((const char*)name,"BankFieldArray"))
-                                       break;
-                                 }
-                              }
+                              // bank field array size
+                              if (type == 1 && !strcmp((const char*)name,"BankFieldArraySize"))
+                                 xml->GetValue(bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]],bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]]);
                               // field end
                               if (type == 15 && !strcmp((const char*)name,"BankField"))
                                  break;
@@ -3816,9 +3796,21 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // DAQ Access Methods
    buffer.AppendFormatted("   // DAQ Access Methods\n");
-   buffer.AppendFormatted("   %sMidas* GetMidas()                { return fMidas;   };\n",shortCut.Data());
+   buffer.AppendFormatted("   %sMidas* GetMidas() {\n",shortCut.Data());
+   buffer.AppendFormatted("      if (fMidas==NULL) {\n");
+   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the midas DAQ system over a gAnalyzer->GetMidas()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("         _exit(0);\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      return fMidas;\n");
+   buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("   void     SetMidas(%sMidas* handle) { fMidas = handle; };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRoot*  GetRoot()                 { return fRoot;    };\n",shortCut.Data());
+   buffer.AppendFormatted("   %sRoot*  GetRoot() {\n",shortCut.Data());
+   buffer.AppendFormatted("      if (fRoot==NULL) {\n");
+   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gAnalyzer->GetRoot()\\nhandle but the current DAQ system is not 'Root'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("         _exit(0);\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      return fRoot;\n");
+   buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("   void     SetRoot (%sRoot*  handle) { fRoot  = handle; };\n",shortCut.Data());
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("   %s%s*  Get%s()                 { return f%s;    };\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
@@ -5889,7 +5881,7 @@ bool ROMEBuilder::WriteMidasCpp() {
    return true;
 }
 bool ROMEBuilder::WriteMidasH() {
-   int i,j,k,kk;
+   int i,j,k;
 
    ROMEString hFile;
    ROMEString buffer;
@@ -5926,23 +5918,21 @@ bool ROMEBuilder::WriteMidasH() {
          if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
             buffer.AppendFormatted("typedef struct {\n");
             for (k=0;k<numOfStructFields[i][j];k++) {
-               if (bankFieldArrayDigit[i][j][k]>0) {
-                  for (kk=bankFieldArrayStart[i][j][k];kk<bankFieldArrayStart[i][j][k]+bankFieldArraySize[i][j][k];kk++) {
-                     if (structFieldSize[i][j][k].Length()>0) {
-                        format.SetFormatted("   %%s %%s%%0%dd : %%s;\n",bankFieldArrayDigit[i][j][k]);
-                        buffer.AppendFormatted(format.Data(),structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data(),kk,structFieldSize[i][j][k].Data());
-                     }
-                     else {
-                        format.SetFormatted("   %%s %%s%%0%dd;\n",bankFieldArrayDigit[i][j][k]);
-                        buffer.AppendFormatted(format.Data(),structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data(),kk);
-                     }
-                  }
-               }
-               else {
+               if (bankFieldArraySize[i][j][k]=="1") {
                   if (structFieldSize[i][j][k].Length()>0)
                      buffer.AppendFormatted("   %s %s : %s;\n",structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data(),structFieldSize[i][j][k].Data());
                   else
                      buffer.AppendFormatted("   %s %s;\n",structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data());
+               }
+               else {
+                  if (structFieldSize[i][j][k].Length()>0) {
+                     format.SetFormatted("   %%s %%s[%%s] : %%s;\n");
+                     buffer.AppendFormatted(format.Data(),structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data(),bankFieldArraySize[i][j][k].Data(),structFieldSize[i][j][k].Data());
+                  }
+                  else {
+                     format.SetFormatted("   %%s %%s[%%s];\n");
+                     buffer.AppendFormatted(format.Data(),structFieldType[i][j][k].Data(),structFieldName[i][j][k].Data(),bankFieldArraySize[i][j][k].Data());
+                  }
                }
             }
             buffer.AppendFormatted("} %sStruct;\n",bankName[i][j].Data());
@@ -8379,7 +8369,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
 
 void ROMEBuilder::WriteHTMLDoku() {
 
-   int i=0,j=0,k=0,kk;
+   int i=0,j=0,k=0;
    ROMEString buffer;
    ROMEString parentt;
    ROMEString format;
@@ -8602,14 +8592,11 @@ void ROMEBuilder::WriteHTMLDoku() {
             buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
             buffer.AppendFormatted("<ul>\n");
             for (k=0;k<numOfStructFields[i][j];k++) {
-               if (bankFieldArrayDigit[i][j][k]>0) {
-                  for (kk=bankFieldArrayStart[i][j][k];kk<bankFieldArrayStart[i][j][k]+bankFieldArraySize[i][j][k];kk++) {
-                     format.SetFormatted("<li type=\"disc\">%%s%%0%dd</li>\n",bankFieldArrayDigit[i][j][k]);
-                     buffer.AppendFormatted(format.Data(),structFieldName[i][j][k].Data(),kk);
-                  }
+               if (bankFieldArraySize[i][j][k]=="1") {
+                  buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",structFieldName[i][j][k].Data());
                }
                else {
-                  buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",structFieldName[i][j][k].Data());
+                  buffer.AppendFormatted("<li type=\"disc\">%s[%s]</li>\n",structFieldName[i][j][k].Data(),bankFieldArraySize[i][j][k].Data());
                }
             }
             buffer.AppendFormatted("</ul>\n");

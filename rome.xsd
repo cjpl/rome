@@ -512,28 +512,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="BankFieldArrayDesc">
-		<xs:annotation>
-			<xs:documentation>Description of  a bank field array. Bank field arrays are used for bank fields of a structured bank that are numbered. For example, if there are fields field01 to field04 which all contain the same kind of data, one can specifie the bank field name as 'field' and define an array of size 4 with start index 1 and with 2 digits.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="BFASize" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>The size of the bank field array.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="BFAStartIndex" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>The starting index of the bank field array.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="BFANumberOfDigits" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>Number of digits to add to the bank field name.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="BankFieldDesc">
 		<xs:annotation>
 			<xs:documentation>Description of structured bank fields.</xs:documentation>
@@ -554,9 +532,9 @@
 					<xs:documentation>The pack size of the field of the structured bank. E.g. the field length in bits. </xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="BankFieldArray" type="BankFieldArrayDesc" minOccurs="0">
+			<xs:element name="BankFieldArraySize" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes a bank field array.</xs:documentation>
+					<xs:documentation>The array size of the bank field. If this value is 1 or not present, then the field is a single value.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
