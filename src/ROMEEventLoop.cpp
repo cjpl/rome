@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TFile.h>
 #include <TTree.h>
+#include <time.h>
 
 #include "ROMEEventLoop.h"
 #include "ROMEStatic.h"
@@ -31,18 +32,22 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (fgBeginTask) {
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
       fAnalyzer->SetTerminate();
-      cout << "Terminating Program !" << endl;
+      cout << "\n\nTerminating Program !" << endl;
       return;
    }
    if (!IsActive()) {
       fAnalyzer->SetTerminate();
-      cout << "Terminating Program !" << endl;
+      cout << "\n\nTerminating Program !" << endl;
       return;
    }
 
    // Declarations
    //--------------
    int i,ii;
+   int delta = 1000;
+   time_t last = time(NULL);
+   int lastEvent = 0;
+   bool write = false;
 
 // Read Histos
 //   sprintf(filename,"%s%s%s.root",fAnalyzer->GetInputDir(),"histos",runNumber);
@@ -54,7 +59,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    fAnalyzer->InitFolders();
    if (!fAnalyzer->GetIO()->Init()) {
       fAnalyzer->SetTerminate();
-      cout << "Terminating Program !" << endl;
+      cout << "\n\nTerminating Program !" << endl;
       return;
    }
  
@@ -71,7 +76,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       if (!fAnalyzer->GetIO()->Connect(ii)) {
          fAnalyzer->SetTerminate();
-         cout << "Terminating Program !" << endl;
+         cout << "\n\nTerminating Program !" << endl;
          return;
       }
       if (fAnalyzer->GetIO()->isTerminate()) {
@@ -85,14 +90,30 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (gShowTime) TimeStart();
       // Loop over Events
       //------------------
+      lastEvent = 0;
+      write = false;
       for (i=0;!fAnalyzer->GetIO()->isTerminate()&&!fAnalyzer->GetIO()->isEndOfRun();i++) {
-         if (!((i+1)%1000) && fAnalyzer->GetIO()->isOffline()) cout << i+1 << " events processed\r";
+         // Progress Display
+  
+         if (i >= lastEvent + delta) {
+            time(&last);
+            lastEvent = i;
+            write = true;
+         } 
+         else {
+            if (time(NULL) > last+1)
+               delta /= 10;
+         }
+         if (!(i%delta) && write && fAnalyzer->GetIO()->isOffline()) {
+            cout << i << " events processed\r";
+            write = false;
+         }
 
          fAnalyzer->SetFillEvent();
 
          if (!fAnalyzer->GetIO()->ReadEvent(i)) {
             fAnalyzer->SetTerminate();
-            cout << "Terminating Program !" << endl;
+            cout << "\n\nTerminating Program !" << endl;
             return;
          }
          if (fAnalyzer->GetIO()->isTerminate()||fAnalyzer->GetIO()->isEndOfRun()) {
@@ -103,18 +124,18 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // Event
-         ExecuteTasks(gTaskEvent);
+         ExecuteTasks(fAnalyzer->GetIO()->GetEventID());
          CleanTasks();
 
          if (!fAnalyzer->GetIO()->WriteEvent() && fAnalyzer->isFillEvent()) {
             fAnalyzer->SetTerminate();
-            cout << "Terminating Program !" << endl;
+            cout << "\n\nTerminating Program !" << endl;
             return;
          }
 
          if (!fAnalyzer->GetIO()->UserInput()) {
             fAnalyzer->SetTerminate();
-            cout << "Terminating Program !" << endl;
+            cout << "\n\nTerminating Program !" << endl;
             return;
          }
 
@@ -129,7 +150,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       if (!fAnalyzer->GetIO()->Disconnect()) {
          fAnalyzer->SetTerminate();
-         cout << "Terminating Program !" << endl;
+         cout << "\n\nTerminating Program !" << endl;
          return;
       }
    }
@@ -140,7 +161,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    if (!fAnalyzer->GetIO()->Terminate()) {
       fAnalyzer->SetTerminate();
-      cout << "Terminating Program !" << endl;
+      cout << "\n\nTerminating Program !" << endl;
       return;
    }
    if (gShowTime) {

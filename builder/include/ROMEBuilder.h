@@ -69,6 +69,7 @@ private:
    int numOfTask;
    int numOfHistos[numberOfTasks];
    char taskName[numberOfTasks][nameLength];
+   char taskEventID[numberOfTasks][nameLength];
    char taskDescription[numberOfTasks][descriptionLength];
    bool fortranFlag[numberOfTasks];
    char parentTaskName[numberOfTasks][nameLength];

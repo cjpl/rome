@@ -265,6 +265,20 @@ bool ROMEXML::NewPathElement(char* path,char* name,char* value) {
    return true;
 }
 
+bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return false;
+   }
+   xmlNodePtr node = xmlNewNode(NULL,(xmlChar*)name);
+   xmlNodeSetContent(node,(xmlChar*)value);
+   xmlAddPrevSibling(xpathObj->nodesetval->nodeTab[0]->children,node);
+   return true;
+}
+
 bool ROMEXML::WritePathFile(char* file) {
    xmlSaveFormatFileEnc(file,doc,"ISO-8859-1",1);
    return true;

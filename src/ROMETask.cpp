@@ -26,6 +26,7 @@ ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TT
    strcpy(fTitle,title);
    strcpy(fName,name);
    fAnalyzer = analyzer;
+   strcpy(fEventID,"all");
 }
 void ROMETask::Exec(Option_t *option)
 {
@@ -37,37 +38,25 @@ void ROMETask::Exec(Option_t *option)
    // Terminate
    if (!strcmp(option,gTaskInit)) {
       char foldername[1000];
-      if (gPrintProgress) cout << fName << " (initialisation)" << endl;
-//      if (gShowTime) TimeStart();
       sprintf(foldername,"%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername));
       BookHisto();
       Init();
-//      if (gShowTime) TimeEnd();
    }
    else if (!strcmp(option,gTaskBeginOfRun)) {
-      if (gPrintProgress) cout << fName << " (begin of run)" << endl;
-//      if (gShowTime) TimeStart();
       ResetHisto();
       BeginOfRun();
-//      if (gShowTime) TimeEnd();
    }
-   else if (!strcmp(option,gTaskEvent)) {
-      if (gPrintProgress) cout << fName << " (event)" << endl;
+   else if (!strcmp(fEventID,"all") || !strcmp(option,fEventID)) {
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();
    }
    else if (!strcmp(option,gTaskEndOfRun)) {
-      if (gPrintProgress) cout << fName << " (end of run)" << endl;
-//      if (gShowTime) TimeStart();
       EndOfRun();
-//      if (gShowTime) TimeEnd();
    }
    else if (!strcmp(option,gTaskTerminate)) {
-//      if (gShowTime) TimeStart();
       Terminate();
-//      if (gShowTime) TimeEnd();
       if (gShowTime) {
          cout << "Task '" << fName << "' : run time = " << GetTime() << endl;
       }

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.20  2004/07/14 13:39:04  schneebeli
+  database write
+
   Revision 1.19  2004/07/13 16:07:00  schneebeli
   memory overflow (roottree), romexml
 
@@ -615,6 +618,9 @@ bool ROMEBuilder::ReadXMLTask() {
             cout << "Terminating program." << endl;
             return false;
          }
+         // trigger id
+         strcpy(taskEventID[numOfTask],"all");
+         xml->GetAttribute("EventID",taskEventID[numOfTask]);
          // language
          fortranFlag[numOfTask] = false;
          xml->GetAttribute("Language",tmp);
@@ -1325,7 +1331,7 @@ bool ROMEBuilder::WriteTaskH() {
       // Constructor and Event Methods
       sprintf(buffer+strlen(buffer),"   // Constructor\n");
       sprintf(buffer+strlen(buffer),"   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut,taskName[iTask],shortCut);
-      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fVersion = %s;",version[iTask]);
+      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; strcpy(fEventID,\"%s\"); fVersion = %s;",taskEventID[iTask],version[iTask]);
       if (numOfHistos[iTask]>0) 
          sprintf(buffer+strlen(buffer)," fHasHistograms = true;");
       else
@@ -2804,6 +2810,7 @@ bool ROMEBuilder::WriteIOCpp() {
 // Header Files
 //--------------
 
+   sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETree.h>\n");
@@ -3148,319 +3155,138 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n");
 
-/*
-      sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
-      sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sRunTable.xml\",this->GetInputDir());\n");
-      sprintf(buffer+strlen(buffer),"   reader = xmlReaderForFile(filename, NULL, 0);\n");
-      sprintf(buffer+strlen(buffer),"   if (reader != NULL) {\n");
-      sprintf(buffer+strlen(buffer),"      while (xmlTextReaderRead(reader)) {\n");
-      sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
-      sprintf(buffer+strlen(buffer),"         name = xmlTextReaderConstName(reader);\n");
-      sprintf(buffer+strlen(buffer),"         if (type == 1 && !strcmp((const char*)name,\"Entry\")) {\n");
-
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"TimeStamp\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) timeStamp = strtol((const char*)value,&cstop,10);\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"RunNumber\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) runNumber = strtol((const char*)value,&cstop,10);\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"RunDescription\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) runDescription = (char*)value;\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            TString *files = new TString[%d];\n",ndb);
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"%sFile\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"            if (value!=NULL) files[%d] = (char*)value;\n",ndb);
-            sprintf(buffer+strlen(buffer),"            else files[%d] = \"\";\n",ndb);
-            sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"            this->GetRunTable()->AddLast(new ROMERunTable(timeStamp,runNumber,runDescription,%d,files));\n",ndb);
-
-      sprintf(buffer+strlen(buffer),"         }\n");
-      sprintf(buffer+strlen(buffer),"         if (type == 15 && !strcmp((const char*)name,\"RunTable\")) break;\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"      xmlFreeTextReader(reader);\n");
-      sprintf(buffer+strlen(buffer),"   } else {\n");
-      sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-
-      sprintf(buffer+strlen(buffer),"}\n\n");
-      // SaveRunTable
-      sprintf(buffer+strlen(buffer),"void %sIO::SaveXMLRunTable() {\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   int i=0;\n");
-      sprintf(buffer+strlen(buffer),"   char chr[100];\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
-      sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sRunTable.xml\",this->GetOutputDir());\n");
-      sprintf(buffer+strlen(buffer),"   writer = xmlNewTextWriterFilename(filename, 0);\n");
-      sprintf(buffer+strlen(buffer),"   if (writer == NULL) {\n");
-      sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"      return;\n");
-      sprintf(buffer+strlen(buffer),"   }\n\n");
-      sprintf(buffer+strlen(buffer),"   // Header\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
-      sprintf(buffer+strlen(buffer),"   // Object\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"RunTable\");\n");
-      sprintf(buffer+strlen(buffer),"   for (i=0;i<this->GetRunTable()->GetSize();i++) {\n");
-      sprintf(buffer+strlen(buffer),"      ROMERunTable* runTable = (ROMERunTable*)this->GetRunTable()->At(i);\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterStartElement(writer, BAD_CAST \"Entry\");\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%d\",runTable->GetTimeStamp());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"TimeStamp\",BAD_CAST chr);\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%d\",runTable->GetRunNumber());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"RunNumber\",BAD_CAST chr);\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%s\",runTable->GetRunDescription().Data());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"RunDescription\",BAD_CAST chr);\n");
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"      if (strcmp(runTable->GetFile()[%d].Data(),\"\")) {\n",ndb);
-            sprintf(buffer+strlen(buffer),"         sprintf(chr,\"%%s\",runTable->GetFile()[%d].Data());\n",ndb);
-            sprintf(buffer+strlen(buffer),"         xmlTextWriterWriteAttribute(writer, BAD_CAST \"%sFile\",BAD_CAST chr);\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      }\n");
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
-      sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
-      sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
-      sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-
-      // InitDataBase
-      sprintf(buffer+strlen(buffer),"void %sIO::InitXMLDataBase()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   XMLUpdate();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-
-      // UpdateDataBase
-      sprintf(buffer+strlen(buffer),"void %sIO::UpdateXMLDataBase()\n{\n",shortCut);
-
-      sprintf(buffer+strlen(buffer),"   int pos = this->GetCurrentRunTablePos();\n");
-      sprintf(buffer+strlen(buffer),"   if (pos>=this->GetRunTable()->GetSize()) return;\n");
-      sprintf(buffer+strlen(buffer),"   int runNum = ((ROMERunTable*)this->GetRunTable()->At(pos))->GetRunNumber();\n");
-      sprintf(buffer+strlen(buffer),"   if (runNum>this->GetCurrentRunNumber()) return;\n");
-      sprintf(buffer+strlen(buffer),"   for (pos++;runNum<=this->GetCurrentRunNumber() && pos<this->GetRunTable()->GetSize();pos++)\n");
-      sprintf(buffer+strlen(buffer),"      runNum = ((ROMERunTable*)this->GetRunTable()->At(pos))->GetRunNumber();\n");
-      sprintf(buffer+strlen(buffer),"   pos--;\n");
-      sprintf(buffer+strlen(buffer),"   if (pos>=this->GetRunTable()->GetSize()) return;\n");
-      sprintf(buffer+strlen(buffer),"   this->SetCurrentRunTablePos(pos);\n");
-      sprintf(buffer+strlen(buffer),"   XMLUpdate();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-   
-      // Update
-      sprintf(buffer+strlen(buffer),"void %sIO::XMLUpdate()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   int i;\n");
-      sprintf(buffer+strlen(buffer),"   int pos = fAnalyzer->GetCurrentRunTablePos();\n");
-      sprintf(buffer+strlen(buffer),"   ROMERunTable* runTab = (ROMERunTable*)fAnalyzer->GetRunTable()->At(pos);\n");
-      sprintf(buffer+strlen(buffer),"   for (i=0;i<runTab->GetNumberOfFiles();i++) {\n");
-      sprintf(buffer+strlen(buffer),"      if (!strcmp(runTab->GetFile()[i].Data(),\"\")) continue;\n");
-   
-      sprintf(buffer+strlen(buffer),"      const xmlChar *name,*value;\n");
-      sprintf(buffer+strlen(buffer),"      char *cstop;\n");
-      sprintf(buffer+strlen(buffer),"      int type;\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextReaderPtr reader;\n");
-      sprintf(buffer+strlen(buffer),"      char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s%%s\",fAnalyzer->GetDataBaseDir(),runTab->GetFile()[i].Data());\n");
-      sprintf(buffer+strlen(buffer),"      reader = xmlReaderForFile(filename, NULL, 0);\n");
-      sprintf(buffer+strlen(buffer),"      if (reader != NULL) {\n");
-      sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
-      sprintf(buffer+strlen(buffer),"            type = xmlTextReaderNodeType(reader);\n");
-      sprintf(buffer+strlen(buffer),"            name = xmlTextReaderConstName(reader);\n");
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"            if (i == %d) {\n",ndb);
-            sprintf(buffer+strlen(buffer),"               int number=0;\n",ndb);
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"               %s %s = %s;\n",valueType[i][j],valueName[i][j],valueInit[i][j]);
-            }
-            if (strcmp(folderArray[i],"1")) {
-               sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp((const char*)name,\"%ss\")) {\n",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"%s\");\n",valueName[i][j]);
-                  char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
-                  sprintf(buffer+strlen(buffer),"                  if (value!=NULL) %s;\n",bufft);
-                  sprintf(buffer+strlen(buffer),"                  xmlFree((void*)value);\n");
-               }
-               sprintf(buffer+strlen(buffer),"                  while (xmlTextReaderRead(reader)) {\n");
-               sprintf(buffer+strlen(buffer),"                     type = xmlTextReaderNodeType(reader);\n");
-               sprintf(buffer+strlen(buffer),"                     name = xmlTextReaderConstName(reader);\n");
-               sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",folderName[i]);
-               sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Number\");\n");
-               sprintf(buffer+strlen(buffer),"                        if (value!=NULL) number = strtol((const char*)value,&cstop,10);\n");
-               sprintf(buffer+strlen(buffer),"                        xmlFree((void*)value);\n");
-               sprintf(buffer+strlen(buffer),"                     }\n");
-   
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                        xmlTextReaderRead(reader);\n");
-                  sprintf(buffer+strlen(buffer),"                        type = xmlTextReaderNodeType(reader);\n");
-                  sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderConstValue(reader);\n");
-                  char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
-                  sprintf(buffer+strlen(buffer),"                        if (value!=NULL && type==3) %s;\n",bufft);
-                  sprintf(buffer+strlen(buffer),"                     }\n");
-               }
-               sprintf(buffer+strlen(buffer),"                     if (type == 15 && !strcmp((const char*)name,\"%s\")) {\n",folderName[i]);
-               sprintf(str,"                        fAnalyzer->Set%sObject(number",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(tmp,",%s",valueName[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,");\n");
-               strcat(buffer,str);
-   
-               sprintf(buffer+strlen(buffer),"                     }\n");
-               sprintf(buffer+strlen(buffer),"                  }\n");
-   
-               sprintf(buffer+strlen(buffer),"               }\n");
-               sprintf(buffer+strlen(buffer),"               if (type == 15 && !strcmp((const char*)name,\"%ss\")) break;\n",folderName[i]);
-            }
-            else {
-            }
-            sprintf(buffer+strlen(buffer),"            }\n",folderName[i]);
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"         }\n");
-      sprintf(buffer+strlen(buffer),"         xmlFreeTextReader(reader);\n");
-      sprintf(buffer+strlen(buffer),"      } else {\n");
-      sprintf(buffer+strlen(buffer),"         fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-   
-      sprintf(buffer+strlen(buffer),"}\n");
-*/
-   // Data Base Write
-   ndb = 0;
-   for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
-         ndb++;
-      }
-   }
    for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
          sprintf(buffer+strlen(buffer),"void %sIO::Write%sDataBase() {\n",shortCut,folderName[i]);
-         sprintf(buffer+strlen(buffer),"/*\n");
          sprintf(buffer+strlen(buffer),"   // SQL\n");
          sprintf(buffer+strlen(buffer),"   if (this->isSQLDataBase()) {\n");
          sprintf(buffer+strlen(buffer),"   }\n\n");
          sprintf(buffer+strlen(buffer),"   // XML\n");
          sprintf(buffer+strlen(buffer),"   else if (this->isXMLDataBase()) {\n");
-         sprintf(buffer+strlen(buffer),"   int i=0,j=0;\n");
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
-         sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
-         sprintf(buffer+strlen(buffer),"   char runNumber[10],chr[10];\n");
-         sprintf(buffer+strlen(buffer),"   GetCurrentRunNumberString(runNumber);\n");
-
-         sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sdb%s%%s_%%s_%%d.xml\",GetDataBaseDir(),runNumber,task->GetName(),task->GetVersion());\n",folderName[i]);
-
-         sprintf(buffer+strlen(buffer),"   writer = xmlNewTextWriterFilename(filename, 0);\n");
-         sprintf(buffer+strlen(buffer),"   if (writer == NULL) {\n");
-         sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-         sprintf(buffer+strlen(buffer),"      return;\n");
-         sprintf(buffer+strlen(buffer),"   }\n\n");
-         sprintf(buffer+strlen(buffer),"   // Header\n");
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
-         sprintf(buffer+strlen(buffer),"   // Object\n");
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%ss\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"   for (i=0;i<Get%sObjects()->GetEntries();i++) {\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%d\",i);\n");
-            sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Number\",BAD_CAST chr);\n");
+         sprintf(buffer+strlen(buffer),"      char name[200];\n");
+         sprintf(buffer+strlen(buffer),"      char value[200];\n");
+         sprintf(buffer+strlen(buffer),"      char dbFile[200];\n");
+         sprintf(buffer+strlen(buffer),"      char filename[200];\n");
+         sprintf(buffer+strlen(buffer),"      char path[200];\n");
+         sprintf(buffer+strlen(buffer),"      char runNumberString[6];\n");
+         sprintf(buffer+strlen(buffer),"      int n=0,i;\n");
+         sprintf(buffer+strlen(buffer),"      ROMEXML *xml = new ROMEXML();\n");
+         sprintf(buffer+strlen(buffer),"      this->GetCurrentRunNumberString(runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s/RunTable.xml\",this->GetInputDir());\n");
+         sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForPath(filename))\n");
+         sprintf(buffer+strlen(buffer),"         return;\n");
+         sprintf(buffer+strlen(buffer),"      sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"      if (!xml->ExistPath(path)) {\n");
+         sprintf(buffer+strlen(buffer),"         bool exist = true;\n");
+         sprintf(buffer+strlen(buffer),"         n = this->GetCurrentRunNumber();\n");
+         sprintf(buffer+strlen(buffer),"         while (!xml->ExistPath(path)) {\n");
+         sprintf(buffer+strlen(buffer),"            if (n==0) {\n");
+         sprintf(buffer+strlen(buffer),"               exist = false;\n");
+         sprintf(buffer+strlen(buffer),"               break;\n");
+         sprintf(buffer+strlen(buffer),"            }\n");
+         sprintf(buffer+strlen(buffer),"            sprintf(path,\"//RunTable/Run_%%05d\",n--);\n");
+         sprintf(buffer+strlen(buffer),"         }\n");
+         sprintf(buffer+strlen(buffer),"         if (exist) {\n");
+         sprintf(buffer+strlen(buffer),"            sprintf(name,\"Run_%%s\",runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"            xml->NewPathElement(path,name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"         }\n");
+         sprintf(buffer+strlen(buffer),"         else {\n");
+         sprintf(buffer+strlen(buffer),"            sprintf(name,\"Run_%%s\",runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"            xml->NewPathChildElement(\"//RunTable\",name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"         }\n");
+         sprintf(buffer+strlen(buffer),"         sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"         sprintf(dbFile,\"db%s%%s_0.xml\",runNumberString);\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"         xml->NewPathAttribute(path,\"%sFile\",dbFile);\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"      }\n");
+         sprintf(buffer+strlen(buffer),"      else {\n");
+         sprintf(buffer+strlen(buffer),"         if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"            NextFile(dbFile,dbFile);\n");
+         sprintf(buffer+strlen(buffer),"            xml->ReplacePathAttributeValue(path,\"%sFile\",dbFile);\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"         }\n");
+         sprintf(buffer+strlen(buffer),"         else {\n");
+         sprintf(buffer+strlen(buffer),"            sprintf(dbFile,\"db%s%%s_0.xml\",runNumberString);\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"            xml->NewPathAttribute(path,\"%sFile\",dbFile);\n",folderName[i]);
+         sprintf(buffer+strlen(buffer),"         }\n");
+         sprintf(buffer+strlen(buffer),"      }\n");
+         sprintf(buffer+strlen(buffer),"      xml->WritePathFile(filename);\n");
+         sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s/%%s\",this->GetDataBaseDir(),dbFile);\n");
+         sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForWrite(filename))\n");
+         sprintf(buffer+strlen(buffer),"         return;\n");
+         sprintf(buffer+strlen(buffer),"      xml->StartElement(\"%ss\");\n",folderName[i]);
+         if (!strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"      xml->StartElement(\"%s\");\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Number\",\"0\");\n");
             for (j=0;j<numOfValue[i];j++) {
                char format[10];
                GetFormat(format,valueType[i][j]);
                if (!strcmp(valueType[i][j],"TString")) {
-                  sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\", Get%sAt(i)->Get%s().Data());\n",valueName[i][j],format,folderName[i],valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"      sprintf(value,\"%s\",f%sObject->Get%s().Data());\n",format,folderName[i],valueName[i][j]);
                }
                else {
-                  sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\", Get%sAt(i)->Get%s());\n",valueName[i][j],format,folderName[i],valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"      sprintf(value,\"%s\",f%sObject->Get%s());\n",format,folderName[i],valueName[i][j]);
                }
+               sprintf(buffer+strlen(buffer),"      xml->WriteElement(\"%s\",value);\n",valueName[i][j]);
             }
-            sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
-            sprintf(buffer+strlen(buffer),"   }\n");
+            sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
          }
          else {
-            sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"      for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"         xml->StartElement(\"%s\");\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"         sprintf(value,\"%%d\",i);\n");
+            sprintf(buffer+strlen(buffer),"         xml->WriteAttribute(\"Number\",value);\n");
             for (j=0;j<numOfValue[i];j++) {
                char format[10];
                GetFormat(format,valueType[i][j]);
                if (!strcmp(valueType[i][j],"TString")) {
-                  sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\", Get%sAt(i)->Get%s().Data());\n",valueName[i][j],format,folderName[i],valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"         sprintf(value,\"%s\",((%s%s*)f%sObjects->At(i))->Get%s().Data());\n",format,shortCut,folderName[i],folderName[i],valueName[i][j]);
                }
                else {
-                  sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\", Get%sAt(i)->Get%s());\n",valueName[i][j],format,folderName[i],valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"         sprintf(value,\"%s\",((%s%s*)f%sObjects->At(i))->Get%s());\n",format,shortCut,folderName[i],folderName[i],valueName[i][j]);
                }
+               sprintf(buffer+strlen(buffer),"         xml->WriteElement(\"%s\",value);\n",valueName[i][j]);
             }
+            sprintf(buffer+strlen(buffer),"         xml->EndElement();\n");
+            sprintf(buffer+strlen(buffer),"      }\n");
          }
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
-         sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
-         sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
-         sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
-
-         sprintf(buffer+strlen(buffer),"\n");
-
-         sprintf(buffer+strlen(buffer),"   sprintf(filename,\"db%s%%s_%%s_%%d.xml\",runNumber,task->GetName(),task->GetVersion());\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"   int pos = GetCurrentRunTablePos();\n");
-         sprintf(buffer+strlen(buffer),"   if (pos<GetRunTable()->GetSize()) {\n");
-         sprintf(buffer+strlen(buffer),"      ROMERunTable* runTab = (ROMERunTable*)GetRunTable()->At(pos);\n");
-         sprintf(buffer+strlen(buffer),"      int runNum = runTab->GetRunNumber();\n");
-         sprintf(buffer+strlen(buffer),"      if (runNum<=GetCurrentRunNumber()) {\n");
-         sprintf(buffer+strlen(buffer),"         TString* file = runTab->GetFile();\n");
-         sprintf(buffer+strlen(buffer),"         TString *fileNew;\n");
-         sprintf(buffer+strlen(buffer),"         int ind = -1;\n");
-         sprintf(buffer+strlen(buffer),"         for (i=0;i<runTab->GetNumberOfFiles();i++) {\n");
-         sprintf(buffer+strlen(buffer),"            if (!strcmp(file[i].Data(),\"%sFile\")) ind = i;\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         if (ind != -1) fileNew = new TString[runTab->GetNumberOfFiles()];\n");
-         sprintf(buffer+strlen(buffer),"         else fileNew = new TString[runTab->GetNumberOfFiles()+1];\n");
-         sprintf(buffer+strlen(buffer),"         for (i=0;i<runTab->GetNumberOfFiles();i++) {\n");
-         sprintf(buffer+strlen(buffer),"            fileNew[i] = file[i];\n");
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         if (ind != -1) fileNew[ind] = filename;\n");
-         sprintf(buffer+strlen(buffer),"         else fileNew[i] = filename;\n");
-         sprintf(buffer+strlen(buffer),"         runTab->SetFile(fileNew);\n");
-         sprintf(buffer+strlen(buffer),"         return;\n");
-         sprintf(buffer+strlen(buffer),"      }\n");
+         sprintf(buffer+strlen(buffer),"      xml->EndDocument();\n");
+         sprintf(buffer+strlen(buffer),"      delete xml;\n");
          sprintf(buffer+strlen(buffer),"   }\n");
-         sprintf(buffer+strlen(buffer),"   TString *files = new TString[%d];\n",ndb);
-         int ndb = 0;
-         for (j=0;j<numOfFolder;j++) {
-            if (dataBase[j]) {
-               if (i==j) {
-                  sprintf(buffer+strlen(buffer),"   files[%d] = filename;\n",ndb);
-               }
-               else {
-                  sprintf(buffer+strlen(buffer),"   files[%d] = \"\";\n",ndb);
-               }
-               ndb++;
-            }
-         }
-         sprintf(buffer+strlen(buffer),"//   GetRunTable()->AddAt(new ROMERunTable(Get%sAt(0)->GetTimeStamp(),Get%sAt(0)->GetRunNumber(),Get%sAt(0)->GetRunDescription().Data(),%d,files),pos);\n",folderName[i],folderName[i],folderName[i],ndb);
-         sprintf(buffer+strlen(buffer),"   pos++;\n");
-         sprintf(buffer+strlen(buffer),"   SetCurrentRunTablePos(pos);\n");
-         sprintf(buffer+strlen(buffer),"   }\n");
-         sprintf(buffer+strlen(buffer),"*/\n");
          sprintf(buffer+strlen(buffer),"}\n\n");
       }
    }
 
+   sprintf(buffer+strlen(buffer),"void %sIO::NextFile(char* nextFile,char* file) {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   struct stat buf;\n");
+   sprintf(buffer+strlen(buffer),"   char* body = new char[strlen(file)];\n");
+   sprintf(buffer+strlen(buffer),"   char* res;\n");
+   sprintf(buffer+strlen(buffer),"   int n=0,number=0;\n");
+   sprintf(buffer+strlen(buffer),"   if ((res=strstr(file,\"_\"))) {\n");
+   sprintf(buffer+strlen(buffer),"      n = res-file;\n");
+   sprintf(buffer+strlen(buffer),"      strncpy(body,file,n);\n");
+   sprintf(buffer+strlen(buffer),"      body[n] = 0;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   else {\n");
+   sprintf(buffer+strlen(buffer),"      if ((res=strstr(file,\".\"))) {\n");
+   sprintf(buffer+strlen(buffer),"         n = res-file;\n");
+   sprintf(buffer+strlen(buffer),"         strncpy(body,file,n);\n");
+   sprintf(buffer+strlen(buffer),"         body[n] = 0;\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   sprintf(buffer+strlen(buffer),"      else {\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(body,file);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   sprintf(nextFile,\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body,number);\n");
+   sprintf(buffer+strlen(buffer),"   while (!stat(nextFile,&buf)) {\n");
+   sprintf(buffer+strlen(buffer),"      number++;\n");
+   sprintf(buffer+strlen(buffer),"      sprintf(nextFile,\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body,number);\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   sprintf(nextFile,\"%%s_%%d.xml\",body,number);\n");
+   sprintf(buffer+strlen(buffer),"   delete body;\n");
+   sprintf(buffer+strlen(buffer),"}\n\n");
 
 
-// Close cpp-File
-//----------------
 
+   // Close cpp-File
    sprintf(cppFile,"%s/src/framework/%sIO.cpp",outDir,shortCut);
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
@@ -3648,6 +3474,10 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"   void ConnectTrees();\n");
    sprintf(buffer+strlen(buffer),"   void FillTrees();\n");
    sprintf(buffer+strlen(buffer),"   void ClearFolders();\n");
+
+   //private
+   sprintf(buffer+strlen(buffer),"\nprivate:\n");
+   sprintf(buffer+strlen(buffer),"   void NextFile(char* nextFile,char* file);\n");
 
    // Footer
    //--------

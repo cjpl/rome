@@ -25,6 +25,8 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
+#include <float.h>
+#include <limits>
 #include "Riostream.h"
 
 #if defined HAVE_MIDAS
@@ -36,6 +38,29 @@ void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
    printf("%s\n", message);
 }
 #endif
+
+ROMEIO::ROMEIO() { 
+   fAnalysisMode = kAnalyzeOffline; 
+   fDataFormat = kRoot; 
+   fDataBase = kDataBaseNone; 
+   fIndexOfCurrentRunNumber = 0; 
+   fRunStatus = kAnalyze;
+   fTreeAccumulation = false;
+   fTreeObjects = new TObjArray(0);
+   fSequentialNumber = 0;
+   fTreeInfo = new ROMETreeInfo();
+   strcpy(fEventID,"all");
+}
+
+ROMEIO::~ROMEIO() {
+   ROMETree *romeTree;
+   for (int j=0;j<GetTreeObjectEntries();j++) {
+      romeTree = GetTreeObjectAt(j);
+      if (romeTree->isWrite()) {
+         treeFiles[j]->Close();
+      }
+   }
+}
 
 
 bool ROMEIO::Init() {
@@ -293,6 +318,7 @@ bool ROMEIO::ReadEvent(Int_t event) {
       }
 
       int eventId = ((EVENT_HEADER*)fMidasEvent)->event_id;
+      this->SetEventID(eventId);
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->serial_number;
       timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
 

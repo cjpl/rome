@@ -61,6 +61,7 @@ private:
    TArrayI    fEventNumber;                     //! Event Numbers to Analyze
    TString    fEventNumberString;               //! Event Numbers in Input String Format
 
+   char       fEventID[10];                     //! Event ID of current Event
    Int_t      fMidasFileHandle;                 //! Handle to Midas Inputfile
    int        fMidasBuffer;                     //! Midas Online Buffer
    TFile**    fRootFiles;                       //! Root files
@@ -82,17 +83,8 @@ protected:
 #endif
 
 public:
-   ROMEIO() 
-   { fAnalysisMode = kAnalyzeOffline; 
-     fDataFormat = kRoot; 
-     fDataBase = kDataBaseNone; 
-     fIndexOfCurrentRunNumber = 0; 
-     fRunStatus = kAnalyze;
-     fTreeAccumulation = false;
-     fTreeObjects = new TObjArray(0);
-     fSequentialNumber = 0;
-     fTreeInfo = new ROMETreeInfo();
-   };
+   ROMEIO();
+   ~ROMEIO(); 
 
    // methods
 
@@ -178,6 +170,10 @@ public:
                   fEventNumberString = numbers;
                   fEventNumber = ROMEStatic::decodeRunNumbers(numbers); }
 
+   // Event ID
+   char*      GetEventID() { return fEventID; }
+   void       SetEventID(char* eventID) { strcpy(fEventID,eventID); }
+   void       SetEventID(int eventID) { sprintf(fEventID,"%d",eventID); }
 
 private:
    virtual void ConnectTrees() = 0;
