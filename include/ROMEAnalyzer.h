@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.30  2004/12/06 09:20:50  schneebeli_m
+  ss_getchar on linux
+
   Revision 1.29  2004/12/06 09:04:34  schneebeli_m
   minor changes
 
@@ -51,7 +54,9 @@
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
+#if defined HAVE_MIDAS
 #include <midas.h>
+#endif
 #if defined HAVE_SQL
 #include <ROMESQL.h>
 #endif

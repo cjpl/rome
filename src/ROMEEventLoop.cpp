@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.34  2004/12/06 09:20:50  schneebeli_m
+//  ss_getchar on linux
+//
 //  Revision 1.33  2004/12/06 09:04:34  schneebeli_m
 //  minor changes
 //
@@ -84,8 +87,8 @@ TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
 
-#include <midas.h>
 #if defined HAVE_MIDAS
+#include <midas.h>
 #define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 {

@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.42  2004/12/06 09:20:50  schneebeli_m
+//  ss_getchar on linux
+//
 //  Revision 1.41  2004/12/03 14:42:08  schneebeli_m
 //  some minor changes
 //
@@ -754,7 +757,7 @@ int ROMEAnalyzer::ss_sleep(int millisec)
 
 int ROMEAnalyzer::ss_getchar(bool reset)
 {
-#ifdef OS_UNIX
+#if defined ( __linux__ )  || defined ( __APPLE__ )
 
    static BOOL init = FALSE;
    static struct termios save_termios;
@@ -836,7 +839,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
 
    return c[0];
 
-#elif defined(OS_WINNT)
+#elif defined( _MSC_VER )
 
    static bool init = false;
    static int repeat_count = 0;
@@ -955,42 +958,6 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    }
 
    return ss_getchar(0);
-
-#elif defined(OS_MSDOS)
-
-   int c;
-
-   if (!kbhit())
-      return 0;
-
-   c = getch();
-   if (!c) {
-      c = getch();
-      switch (c) {
-      case 71:
-         return CH_HOME;
-      case 72:
-         return CH_UP;
-      case 73:
-         return CH_PUP;
-      case 75:
-         return CH_LEFT;
-      case 77:
-         return CH_RIGHT;
-      case 79:
-         return CH_END;
-      case 80:
-         return CH_DOWN;
-      case 81:
-         return CH_PDOWN;
-      case 82:
-         return CH_INSERT;
-      case 83:
-         return CH_DELETE;
-      }
-   }
-   return c;
-
 #else
    return -1;
 #endif
