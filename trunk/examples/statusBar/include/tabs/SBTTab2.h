@@ -1,25 +1,24 @@
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// Editable class file for Tab1 tab.
+// Editable class file for Tab2 tab.
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#ifndef SBTTab1_H
-#define SBTTab1_H
+#ifndef SBTTab2_H
+#define SBTTab2_H
 
-#include <include/tabs/SBTTab1_Base.h>
-#include <TG3DLine.h>
+#include <include/tabs/SBTTab2_Base.h>
 
-class SBTTab1 : public SBTTab1_Base
+class SBTTab2 : public SBTTab2_Base
 {
 protected:
-   TGHorizontal3DLine *fLine;
+
 public:
-   SBTTab1():SBTTab1_Base()
+   SBTTab2():SBTTab2_Base()
    {
    }
 
-   ~SBTTab1()
+   ~SBTTab2()
    {
    }
 
@@ -28,7 +27,7 @@ public:
    void TabUnSelected();
 
 
-   ClassDef(SBTTab1,1)
+   ClassDef(SBTTab2,1)
 };
 
-#endif   // SBTTab1_H
+#endif   // SBTTab2_H

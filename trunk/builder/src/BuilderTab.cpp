@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.21  2005/03/18 15:24:49  sawada
+  added TabSelected,TabUnSelected.
+  added gWindow->ClearStatusBar();
+
   Revision 1.20  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -420,6 +424,7 @@ bool ArgusBuilder::WriteTabCpp() {
             buffer.Resize(0);
             // Header
             buffer.AppendFormatted("\n\n#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabName[iTab].Data());
+            buffer.AppendFormatted("#include \"include/monitor/%sWindow.h\"\n",shortCut.Data());
             buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),tabName[iTab].Data());
             // Functions
             buffer.AppendFormatted("void %sT%s::Init()\n",shortCut.Data(),tabName[iTab].Data());
@@ -427,6 +432,13 @@ bool ArgusBuilder::WriteTabCpp() {
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
             buffer.AppendFormatted("void %sT%s::MenuClicked(Long_t param)\n",shortCut.Data(),tabName[iTab].Data());
+            buffer.AppendFormatted("{\n");
+            buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("\n");
+            buffer.AppendFormatted("void %sT%s::TabSelected()\n",shortCut.Data(),tabName[iTab].Data());
+            buffer.AppendFormatted("{\n");
+            buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("void %sT%s::TabUnSelected()\n",shortCut.Data(),tabName[iTab].Data());
             buffer.AppendFormatted("{\n");
             buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("\n");
@@ -666,6 +678,8 @@ bool ArgusBuilder::WriteTabH() {
       }
       buffer.AppendFormatted("   Bool_t GetActive() { return fActive; };\n");
       buffer.AppendFormatted("   void SetActive(Bool_t active) { fActive = active; };\n");
+      buffer.AppendFormatted("   virtual void TabSelected(){};\n");
+      buffer.AppendFormatted("   virtual void TabUnSelected(){};\n");
       buffer.AppendFormatted("   virtual void MenuClicked(Long_t param)\n");
       buffer.AppendFormatted("   {\n");
       buffer.AppendFormatted("      cout<<endl\n");
@@ -736,6 +750,8 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   void Init();\n");
       buffer.AppendFormatted("   void MenuClicked(Long_t param);\n");
+      buffer.AppendFormatted("   void TabSelected();\n");
+      buffer.AppendFormatted("   void TabUnSelected();\n");
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++){
          buffer.AppendFormatted("   void %s();\n",threadFunctionName[iTab][i].Data());

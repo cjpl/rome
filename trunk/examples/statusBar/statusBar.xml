@@ -26,5 +26,9 @@
 				</SteeringParameterField>
 			</SteeringParameters>
 		</Tab>
+		<Tab>
+			<TabName>Tab2</TabName>
+			<TabTitle>Tab 2</TabTitle>
+		</Tab>
 	</Tabs>
 </ArgusMonitorDefinition>
