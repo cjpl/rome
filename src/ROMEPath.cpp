@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.5  2004/11/16 18:53:44  sawada
+//  SQL Write
+//
 //  Revision 1.4  2004/11/16 12:11:06  sawada
 //  SQL Init,Read
 //
@@ -74,6 +77,8 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
    str.ReplaceAll("(","");
    str.ReplaceAll(")","");
    str.ReplaceAll(" and ",",");
+   str.ReplaceAll(" AND ",",");
+   str.ReplaceAll(" And ",",");
    str += ",";
    istart = 0;
    while ((iend=str.Index(",",1,istart,TString::kIgnoreCase))!=-1) {

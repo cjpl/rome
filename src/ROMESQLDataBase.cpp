@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.8  2004/11/16 18:53:44  sawada
+//  SQL Write
+//
 //  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
 //  implemented task hierarchy
 //
@@ -154,6 +157,8 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 		  }
 		  else{
 		     ie2=0;
+		     is3=1;
+		     ie3=value.Length();
 		     while ((is2=value.Index("/",1,ie2,TString::kIgnoreCase))!=-1) {
 			if(is2>is1)
 			   break;
@@ -180,14 +185,20 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 		     value.Insert(is1+1,newdbConstraint);
 		  }
                }
-	       dbpath->Decode(value);
-	       MakePhrase(dbpath);
+	       if(!dbpath->Decode(value)){
+		  delete dbpath;
+		  return false;
+	       }
+	       if(!MakePhrase(dbpath)){
+		  delete dbpath;
+		  return false;
+	       }
             }
          }
 	 delete dbpath;
       }
       
-      //add relation to next table to WHERE phrase    
+      //add relation to the next table
       if(iTable<path->GetNumberOfTables()-1){
 	 if(strlen(path->GetTableIDNameAt(iTable))){
 	    if(fWherePhrase.Length())
@@ -230,7 +241,7 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
 
    //decode dataBasePath
    if ((istart=path.Index("mysql://",8,0,TString::kIgnoreCase))==-1) {
-      cout << "\nWrong path for mysql database : " << path << endl;
+      cout << "\nWrong path for SQL database : " << path << endl;
       return false;
    }
    istart+=8;
@@ -252,7 +263,7 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
 	 user.Remove(ie,user.Length()-ie);
       }
    }
-//search for server
+   //search for server
    is = istart;
    if ((ie=path.Index("/",1,is,TString::kIgnoreCase))==-1) {
       database = "";
@@ -308,15 +319,18 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
 //   path->Print();
    
    this->ResetPhrase();
-   this->MakePhrase(path);
-   
+   if(!MakePhrase(path)){
+      cout<<"\nInvalid input for database read."<<endl;
+      delete path;
+      return false;
+   }
+
    iField=path->GetFieldIndexAt(0);
    j=0;
    do{
       fieldName = path->GetFieldName();
-      if(path->IsFieldArray()){
+      if(path->IsFieldArray())
 	 fieldName.AppendFormatted("$%d",iField);
-      }
       
       sqlQuery = "SELECT ";
       sqlQuery.AppendFormatted("%s.%s", path->GetTableNameAt(path->GetNumberOfTables()-1),fieldName.Data());
@@ -339,6 +353,8 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       sqlQuery += ";";
       
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
+	 cout<<"\nInvalid input for database read."<<endl;
+	 delete path;
 	 return false;
       }
 
@@ -367,73 +383,147 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       j++;
    }while(iField<=path->GetFieldIndexAt(1));
    
+   delete path;
    return true;
 }
 
 bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
-/*
    int iField;
+   int iArray;
    ROMEPath *path = new ROMEPath();
    ROMEString fieldName;
    ROMEString sqlQuery;
+   ROMEString setPhrase;
+   int i,j;
+   bool exist;
+   
    if (!path->Decode(dataBasePath)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
       delete path;
       return false;
    }
-//   path->Print();
-   this->ResetPhrase();
-   this->MakePhrase(path);
-   
-   for (iField=path->GetFieldIndexAt(0);iField<=path->GetFieldIndexAt(1);iField=iField+path->GetFieldIndexAt(2)) {
-      fieldName = path->GetFieldName();
-      if(path->IsFieldArray()){
-	 fieldName.AppendFormatted("$%d",iField);
-      }
-      
-      //check if the row exists
-      sqlQuery += "SELECT FROM ";
-      sqlQuery += fFromPhrase;
-      sqlQuery += " WHERE ";
-      if(fWherePhrase.Length()){
-	 sqlQuery += " AND ";
-	 sqlQuery += fWherePhrase;
-      }
-      sqlQuery += " AND ";
-      sqlQuery += " id =";
-      sqlQuery.AppendFormatted("%d",path->GetOrderIndexAt(path->GetNumberOfTables()));// maybe this is wrong
-      sqlQuery += " LIMIT 1;";
-      fSQL->MakeQuery((char*)sqlQuery.Data(),true);
-      fSQL->NextRow();      
-      
-      if(fSQL->GetNumberOfFields()){ // row exists
-	 sqlQuery = "INSERT INTO ";
-      }
-      else{
-	 sqlQuery = "UPDATE ";
-      }
-      sqlQuery += fFromPhrase;
-      sqlQuery += " SET ";
-      sqlQuery.AppendFormatted("%s.%s=%s", path->GetTableNameAt(path->GetNumberOfTables())
-			       ,fieldName,values->At(iField,0).Data());
-      sqlQuery += ", ";
-      sqlQuery.AppendFormatted("%s", path->GetTableNameAt(path->GetNumberOfTables()));
-//      sqlQuery.AppendFormatted(".id = %d",path->GetTableIndexAt(path->GetNumberOfTables()));
-      if(path->IsFieldArray()){
-	 sqlQuery += " ,";
-	 sqlQuery.AppendFormatted("%s", path->GetTableNameAt(path->GetNumberOfTables()));
-	 sqlQuery.AppendFormatted(".idx = %d",iField);
-      }
-      sqlQuery += " WHERE ";
-      sqlQuery += fWherePhrase;
-      sqlQuery += " ORDER BY ";
-	 sqlQuery += fOrderPhrase;
-	 sqlQuery += " LIMIT 1;";
+//   path->Print();   
+   if (path->GetNumberOfTables()!=1) {
+      cout << "\nWrong data base path : " << dataBasePath << endl;
+      delete path;
+      return false;
    }
-   fSQL->MakeQuery((char*)sqlQuery.Data(),false);
-*/
-   return true;
+   if(strstr(path->GetTableConstraintAt(path->GetNumberOfTables()-1),"!=")){
+      cout << "\n \"!=\" can not be used for default values." << endl;
+      delete path;
+      return false;
+   }
+   
+   this->ResetPhrase();
+   if(!MakePhrase(path)){
+      cout<<"\nInvalid input for database write."<<endl;
+      delete path;
+      return false;
+   }
+   setPhrase = fWherePhrase;
+   setPhrase.ReplaceAll(" AND ",",");
+   setPhrase.ReplaceAll(" and ",",");
+   setPhrase.ReplaceAll(" And ",",");	
 
+   iField=path->GetFieldIndexAt(0);
+   j=0;
+   do{
+      fieldName = path->GetFieldName();
+      if(path->IsFieldArray())
+	 fieldName.AppendFormatted("$%d",iField);
+      
+      iArray=path->GetOrderIndexAt(0);
+      i=0;
+      do{
+	 //check if the row exists
+	 sqlQuery = "SELECT ";
+	 sqlQuery.AppendFormatted("%s.%s",path->GetTableNameAt(path->GetNumberOfTables()-1),fieldName.Data());
+	 sqlQuery += " FROM ";
+	 sqlQuery += fFromPhrase;
+	 if(fWherePhrase.Length()){
+	    sqlQuery += " WHERE ";
+	    sqlQuery += fWherePhrase;
+	 }
+	 if(path->IsOrderArray()){
+	    if(!sqlQuery.Contains("WHERE"))
+	       sqlQuery += " WHERE ";
+	    else
+	       sqlQuery += " AND ";
+	    if(strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)))
+	       sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
+					path->GetTableIDXNameAt(path->GetNumberOfTables()-1),iArray);
+	    else
+	       sqlQuery.AppendFormatted("%s.idx = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),iArray);
+	 }
+	 sqlQuery += " LIMIT 1;";
+	 if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
+	    cout << "\nInvalid input for database write."<< endl;
+	    delete path;
+            return false;
+	 }
+	 
+	 exist = fSQL->GetNumberOfRows()!=0;
+	 
+	 if(!exist)
+	    sqlQuery = "INSERT INTO ";
+	 else
+	    sqlQuery = "UPDATE ";
+	 sqlQuery += fFromPhrase;
+	 sqlQuery.AppendFormatted(" SET %s.%s=%s", path->GetTableNameAt(path->GetNumberOfTables()-1)
+				  ,fieldName.Data(),values->At(i,j).Data());
+	 if(exist){ // row exists
+	    if(fWherePhrase.Length()){
+	       sqlQuery += " WHERE ";
+	       sqlQuery += fWherePhrase;
+	    }
+	    if(path->IsOrderArray()){
+	       if(sqlQuery.Contains("WHERE"))
+		  sqlQuery += " AND ";
+	       else
+		  sqlQuery += " WHERE ";
+	       if(strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)))
+		  sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
+					   path->GetTableIDXNameAt(path->GetNumberOfTables()-1),iArray);
+	       else
+		  sqlQuery.AppendFormatted("%s.idx = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),iArray);
+	    }
+	    sqlQuery += " LIMIT 1;";
+	 }
+	 else{ // row does not exist
+	    if(setPhrase.Length()){
+	       sqlQuery += ",";
+	       sqlQuery += setPhrase;
+	    }
+	    if(path->IsOrderArray()){
+	       sqlQuery += ",";
+	       if(strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)))
+		  sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
+					   path->GetTableIDXNameAt(path->GetNumberOfTables()-1),iArray);
+	       else
+		  sqlQuery.AppendFormatted("%s.idx = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),iArray);
+	    }
+	    sqlQuery += ";";
+	 }
+	 
+#ifdef SQLDEBUG
+	 cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
+#else
+	 cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
+	 if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){
+	    cout<<"\nInvalid input for database write."<<endl;
+	    delete path;
+	    return false;
+	 }
+#endif
+	 i++;
+	 iArray+=path->GetOrderIndexAt(2);
+      }while(iArray<=path->GetOrderIndexAt(1));	 
+      iField+=path->GetFieldIndexAt(2);
+      j++;
+   }while(iField<=path->GetFieldIndexAt(1));
+   
+   delete path;
+   return true;
 }
 
 void ROMESQLDataBase::Print() {

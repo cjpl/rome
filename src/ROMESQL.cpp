@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.11  2004/11/16 18:53:44  sawada
+//  SQL Write
+//
 //  Revision 1.10  2004/11/16 12:11:06  sawada
 //  SQL Init,Read
 //
@@ -162,10 +165,12 @@ bool ROMESQL::MakeQuery(char* query, bool store)
    cout<<endl<<"ROMESQL::MakeQuery : "<<query<<endl;
 #endif
    if (mysql_query(&mysql,query)) {
+      cout << query <<endl;
       cout << "Query error :" << mysql_error(&mysql) << endl;
       return false;
    }
    if (store && !(result = mysql_store_result(&mysql))) {
+      cout << query <<endl;
       cout << "Query error :" << mysql_error(&mysql) << endl;
       return false;
    }
