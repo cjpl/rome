@@ -11,13 +11,8 @@
 #include <iostream>
 #include <iomanip>
 #include <string.h>
-#include "ROMESQL.h"
-#include "ROMEStatic.h"
-
-#undef LPSQLDEBUG //output message for debugging.
-#ifdef LPSQLDEBUG
-#include <time.h>  //to measure calculating time
-#endif
+#include <ROMESQL.h>
+#include <ROMEStatic.h>
 
 ROMESQL::ROMESQL() {
    mysql_init(&mysql);
@@ -218,28 +213,12 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
    pnext1 = strstr(pnext1,".")+1;
    strtok(table_name[maxdepth],".");
    strcpy(field_name,pnext1);
-  
-#ifdef LPSQLDEBUG
-   cout<<"Path\t:"<<path<<endl;
-   for(depth=0;depth<=maxdepth;depth++){
-      cout<<"Table\t:"<<depth<<" "<<table_name[depth]<<" "
-            <<relation_type[depth]<<" "<<id_extension[depth]<<endl;
-   }
-   clock_t oldTime,newTime;
-   oldTime = clock();
-   cout<<"Field\t:"<<field_name<<endl<<endl;
-   cout<<"----   Start following relations   ----"<<endl;
-#endif
-  
+    
    //--  start following relation.  --//
    sprintf(str,"%s.%s = %d",table_name[0],id_extension[0],start_id);    
    strcat(where_phrase,str);
   
-   for(depth=0;depth<=maxdepth;depth++){
-#ifdef LPSQLDEBUG
-      cout<<"Level-"<<depth<<": "<<table_name[depth]<<endl;
-#endif
-    
+   for(depth=0;depth<=maxdepth;depth++){    
       //add table to FROM phrase
       if(!relation_type[depth]){
          if(depth){
@@ -324,10 +303,6 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
 	         strcpy(order_phrase,group_definition[2]);
          }
       }//end of    "if(relation_type[depth+1]==1)"
-#ifdef LPSQLDEBUG
-      cout<<"\tFrom  :"<<from_phrase<<endl
-	      <<"\tWhere :"<<where_phrase<<endl<<endl;
-#endif
    }//end of  "for(depth=0;depth<=maxdepth;depth++)"
   
    sprintf(sqlquery
@@ -341,17 +316,8 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
    }
      
    strcat(sqlquery,";");
-#ifdef LPSQLDEBUG  
-   cout<<sqlquery<<endl;
-#endif
    this->MakeQuery(sqlquery);
 
-#ifdef LPSQLDEBUG
-   newTime = clock();
-   cout<<endl<<"Successfully done.  ("<<setprecision(3)<<setiosflags(ios::fixed)<<setw(4)<<(newTime - oldTime)/(float)CLOCKS_PER_SEC<<" sec.)"<<endl
-         <<"--------------------------------------"<<endl;
-   ;
-#endif
    return;
 }
 

@@ -2,7 +2,7 @@
 #define ROMEEventLoop_H
 
 #include <ROMETask.h>
-#include "ROMEAnalyzer.h"
+#include <ROMEAnalyzer.h>
 
 class ROMEEventLoop : public ROMETask {
 protected:

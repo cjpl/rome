@@ -5,7 +5,6 @@
 #include <TList.h>
 #include <TTask.h>
 #include <TFolder.h>
-#include <TClonesArray.h>
 #include <ROMEIO.h>
 #ifdef HAVE_MIDAS
 #include <midas.h>

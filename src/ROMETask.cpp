@@ -12,10 +12,7 @@
 //    Terminate
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <TROOT.h>
-#include <TFile.h>
-#include "ROMETask.h"
-#include "ROMEStatic.h"
+#include <ROMETask.h>
 #include "Riostream.h"
 
 ClassImp(ROMETask)

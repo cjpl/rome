@@ -8,13 +8,9 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include <TROOT.h>
-#include <TFile.h>
-#include <TTree.h>
 #include <time.h>
 
-#include "ROMEEventLoop.h"
-#include "ROMEStatic.h"
+#include <ROMEEventLoop.h>
 #include <Riostream.h>
 
 TTask *TTask::fgBeginTask  = 0;

@@ -59,6 +59,7 @@ private:
    char valueInit[numberOfFolders][maxNumberOfValues][nameLength];
    char valueComment[numberOfFolders][maxNumberOfValues][commentLength];
    char dataBasePath[numberOfFolders][maxNumberOfValues][descriptionLength];
+   char valueArray[numberOfFolders][maxNumberOfValues][nameLength];
 
    char getter[numberOfFolders][maxNumberOfGetters][nameLength];
    char setter[numberOfFolders][maxNumberOfSetters][nameLength];

@@ -9,7 +9,6 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #if defined( _MSC_VER )
-#include <io.h>
 #include <direct.h>
 #endif
 #if defined ( __linux__ )
@@ -33,11 +32,10 @@
 #include <TROOT.h>
 #include <TBrowser.h>
 #include <TH1.h>
-#include "ROMEAnalyzer.h"
-#include "ROMEEventLoop.h"
-#include "ROMETree.h"
-#include "ROMETask.h"
-#include "ROMEStatic.h"
+#include <ROMEAnalyzer.h>
+#include <ROMEEventLoop.h>
+#include <ROMETree.h>
+#include <ROMETask.h>
 #include <Riostream.h>
 
 void *root_server_loop(void *arg);
@@ -50,7 +48,6 @@ ROMEAnalyzer::ROMEAnalyzer()
    fSplashScreen = true;
    fBatchMode = false;
    fTerminate = false;
-
 }
 
 bool ROMEAnalyzer::Start(int argc, char **argv) 

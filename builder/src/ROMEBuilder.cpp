@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.26  2004/07/19 13:32:22  schneebeli
+  minor stuff
+
   Revision 1.25  2004/07/19 12:45:11  schneebeli
   romoved errors in online mode
 
@@ -251,6 +254,15 @@ bool ROMEBuilder::ReadXMLFolder() {
                   // data base path
                   sprintf(dataBasePath[numOfFolder][numOfValue[numOfFolder]],"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
                   xml->GetAttribute("DataBasePath",dataBasePath[numOfFolder][numOfValue[numOfFolder]]);
+                  // array
+                  sprintf(valueArray[numOfFolder][numOfValue[numOfFolder]],"0");
+                  xml->GetAttribute("Array",valueArray[numOfFolder][numOfValue[numOfFolder]]);
+                  xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]]);
+                  if (strcmp(valueArray[numOfFolder][numOfValue[numOfFolder]],"0") && dataBase[numOfFolder]) {
+                     cout << "Value '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "', which has data base access, can not be an array !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // field count
                   numOfValue[numOfFolder]++;
                }
@@ -476,14 +488,23 @@ bool ROMEBuilder::WriteFolderH() {
       sprintf(buffer+strlen(buffer),"protected:\n");
       int typeLen = 5;
       int nameLen = 8;
+      int nameLenT = 0;
       for (i=0;i<numOfValue[iFold];i++) {
          if (typeLen<(int)strlen(valueType[iFold][i])) typeLen = strlen(valueType[iFold][i]);
-         if (nameLen<(int)strlen(valueName[iFold][i])) nameLen = strlen(valueName[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0"))
+            nameLenT = (int)strlen(valueName[iFold][i]);
+         else
+            nameLenT = (int)(strlen(valueName[iFold][i])+2+strlen(valueArray[iFold][i]));
+         if (nameLen<nameLenT) nameLen = nameLenT;
       }
       for (i=0;i<numOfValue[iFold];i++) {
          if (!strcmp(valueRef[iFold][i],"yes")) {
             sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(valueName[iFold][i]));
             sprintf(buffer+strlen(buffer),format,"TRef",valueName[iFold][i],"",valueComment[iFold][i]);
+         }
+         else if (strcmp(valueArray[iFold][i],"0")) {
+            sprintf(format,"   %%-%ds f%%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i],nameLen-strlen(valueName[iFold][i])+2+strlen(valueArray[iFold][i]));
+            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueComment[iFold][i]);
          }
          else {
             sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(valueName[iFold][i]));
@@ -499,14 +520,19 @@ bool ROMEBuilder::WriteFolderH() {
 
       sprintf(buffer+strlen(buffer),"public:\n");
       // Constructor
-      sprintf(buffer+strlen(buffer),"   %s%s(",shortCut,folderName[iFold]);
+      sprintf(buffer+strlen(buffer),"   %s%s( ",shortCut,folderName[iFold]);
       for (i=0;i<numOfValue[iFold];i++) {
-         sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0"))
+            sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
       }
-      sprintf(buffer+strlen(buffer)-1,")\n");
+      sprintf(buffer+strlen(buffer)-1," )\n");
       sprintf(buffer+strlen(buffer),"   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0"))
+            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         else {
+            sprintf(buffer+strlen(buffer),"for (int i=0;i<%s;i++) f%s[i] = %s; ",valueArray[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         }
       }
       sprintf(buffer+strlen(buffer),"fModified = false; ");
       sprintf(buffer+strlen(buffer),"};\n");
@@ -518,6 +544,10 @@ bool ROMEBuilder::WriteFolderH() {
          if (!strcmp(valueRef[iFold][i],"yes")) {
             sprintf(format,"   %%-%ds Get%%s()%%%ds { return (%%s)f%%s.GetObject();%%%ds };\n",typeLen,lb,lb+(typeLen-strlen(valueType[iFold][i])));
             sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"");
+         }
+         else if (strcmp(valueArray[iFold][i],"0")) {
+            sprintf(format,"   %%-%ds Get%%sAt(int index)%%%ds { return f%%s[index];%%%ds };\n",typeLen,lb,lb);
+            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"");
          }
          else {
             sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,lb,lb);
@@ -539,19 +569,29 @@ bool ROMEBuilder::WriteFolderH() {
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-strlen(valueName[iFold][i]);
-         sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-         sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
+         if (!strcmp(valueArray[iFold][i],"0")) {
+            sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+            sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
+         }
+         else {
+            sprintf(format,"   void Set%%sAt%%%ds(int index,%%-%ds %%s%%%ds) { f%%s[index]%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+            sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
+         }
       }
       sprintf(buffer+strlen(buffer),"\n");
       // Set All
-      sprintf(buffer+strlen(buffer),"   void SetAll(");
+      sprintf(buffer+strlen(buffer),"   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
-         sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0")) {
+            sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         }
       }
-      sprintf(buffer+strlen(buffer)-1,")\n");
+      sprintf(buffer+strlen(buffer)-1," )\n");
       sprintf(buffer+strlen(buffer),"   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0")) {
+            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         }
       }
       sprintf(buffer+strlen(buffer),"fModified = true; ");
       sprintf(buffer+strlen(buffer),"};\n");
@@ -559,7 +599,12 @@ bool ROMEBuilder::WriteFolderH() {
       // Reset
       sprintf(buffer+strlen(buffer),"   void Reset() {");
       for (i=0;i<numOfValue[iFold];i++) {
-         sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueInit[iFold][i]);
+         if (!strcmp(valueArray[iFold][i],"0")) {
+            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueInit[iFold][i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"for (int i=0;i<%s;i++) f%s[i] = %s; ",valueArray[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         }
       }
       sprintf(buffer+strlen(buffer),"fModified = false; ");
       sprintf(buffer+strlen(buffer),"};\n");
@@ -2254,22 +2299,24 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (!strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
+            sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s( ",folderName[i],shortCut,folderName[i]);
             for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
+               if (!strcmp(valueArray[i][j],"0"))
+                  sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
-            sprintf(buffer+strlen(buffer)-1,");\n");
+            sprintf(buffer+strlen(buffer)-1," );\n");
          }
          else {
             strcpy(tmp,folderArray[i]);
             if (strstr(folderArray[i],"fAnalyzer")==folderArray[i])
                sprintf(tmp,"this%s",folderArray[i]+9);
             sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",tmp);
-            sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s(",folderName[i],shortCut,folderName[i]);
+            sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s( ",folderName[i],shortCut,folderName[i]);
             for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
+               if (!strcmp(valueArray[i][j],"0"))
+                  sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
-            sprintf(buffer+strlen(buffer)-1,");\n");
+            sprintf(buffer+strlen(buffer)-1," );\n");
             sprintf(buffer+strlen(buffer),"   }\n");
          }
       }
