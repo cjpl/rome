@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/03/18 12:10:09  sawada
+  added status bar.
+
   Revision 1.8  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -119,8 +122,16 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData->fWindow->fScaleModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fWindow->fScaleModified = true;\n");
+   // Window/StatusBar
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/StatusBar\",fConfigData->fWindow->fStatusBar,\"\");\n");
+   buffer.AppendFormatted("   fConfigData->fWindow->fStatusBar.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fStatusBar==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fWindow->fStatusBarModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData->fWindow->fStatusBarModified = true;\n");
    // --Window
-   buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified)\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified ||\n");
+   buffer.AppendFormatted("       fConfigData->fWindow->fStatusBarModified)\n");
    buffer.AppendFormatted("      fConfigData->fWindowModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fWindowModified = false;\n");
@@ -276,6 +287,12 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fStatusBarModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData->fWindow->fStatusBar==\"false\")\n");
+   buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(false);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(true);\n");
+   buffer.AppendFormatted("   }\n");
    // DataBase
    buffer.AppendFormatted("   if (fConfigData->fDataBase->fConnectionModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetDataBaseConnection(fConfigData->fDataBase->fConnection);\n");
@@ -340,7 +357,7 @@ bool ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = false;\n",switchString.Data());
       buffer.AppendFormatted("      else\n");
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",switchString.Data());
-      buffer.AppendFormatted("   }\n",pointer.Data());
+      buffer.AppendFormatted("   }\n");
       // Steering parameter
       if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
          buffer.AppendFormatted("   // steering parameters\n");
@@ -420,6 +437,21 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData->fWindow->fScaleModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)fConfigData->fWindow->fScale.Data());\n");
+   // Window/StatusBar
+   buffer.AppendFormatted("      if (index==0){\n");
+   buffer.AppendFormatted("         if(gWindow->GetStatusBarSwitch())\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",(char*)str.Data());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData->fWindow->fStatusBarModified){\n");
+   buffer.AppendFormatted("         if(gWindow->GetStatusBarSwitch())\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",(char*)str.Data());\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // DataBase
@@ -563,6 +595,8 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      public:\n");
    buffer.AppendFormatted("         ROMEString  fScale;\n");
    buffer.AppendFormatted("         bool        fScaleModified;\n");
+   buffer.AppendFormatted("         ROMEString  fStatusBar;\n");
+   buffer.AppendFormatted("         bool        fStatusBarModified;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Window *fWindow;\n");
    buffer.AppendFormatted("      bool   fWindowModified;\n");
