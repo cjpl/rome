@@ -2,6 +2,14 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.7  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
   Revision 1.6  2005/02/21 23:07:50  sawada
   several UNIX support
 
@@ -28,7 +36,11 @@
 
 #ifndef ArgusMonitor_H
 #define ArgusMonitor_H
+#if defined ( USE_TRINT )
 #include <TRint.h>
+#else
+#include <TApplication.h>
+#endif
 #include <ROMEString.h>
 #include <ROMEDataBase.h>
 #include <ArgusConfig.h>
@@ -77,8 +89,6 @@ protected:
    
    // Configuration
    ArgusConfig*  fConfiguration;                //! Configuration Handle
-   
-   void CheckLineToProcess();
    
    // virtual methods
    virtual void InitSingleFolders() = 0;
@@ -149,31 +159,20 @@ public:
    // Program name
    char*         GetProgramName() { return (char*)fProgramName.Data(); };
    
-   static const char* LineToProcess;
-   
    // main objects
-   TFolder*   GetMainFolder() { return fMainFolder; }
+   TFolder*      GetMainFolder() { return fMainFolder; }
    
    // Start Method
-   bool         Start(int argc=0, char **argv=NULL);
+   bool          Start(int argc=0, char **argv=NULL);
    
    // Start Monitor
-   virtual bool StartMonitor() = 0 ;   
-   virtual bool ReadSingleDataBaseFolders() = 0;
-   virtual bool ReadArrayDataBaseFolders() = 0;
-   
-   int  ss_getchar(bool reset);
-   bool ss_kbhit();
-   int  ss_sleep(int millisec);
+   virtual bool  StartMonitor() = 0 ;   
+   virtual bool  ReadSingleDataBaseFolders() = 0;
+   virtual bool  ReadArrayDataBaseFolders() = 0;
    
 protected:      
    bool ReadParameters(int argc, char *argv[]);
    void ParameterUsage();
-   
-#ifndef HAVE_MIDAS
-   bool bk_is32(void *event);
-   int  bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata);
-#endif
    
    ClassDef(ArgusMonitor,0)
 };

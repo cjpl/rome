@@ -3,6 +3,14 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
   Revision 1.6  2005/02/22 10:43:31  sawada
   User defined menus.
 
@@ -237,8 +245,8 @@ bool ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("         }\n");
    }
    buffer.AppendFormatted("         MapSubwindows();\n");
-   buffer.AppendFormatted("         Resize(500,500);\n");
-   buffer.AppendFormatted("         Resize(500,501);\n");
+   buffer.AppendFormatted("         Resize(fWidth-1,fHeight-1);\n");
+   buffer.AppendFormatted("         Resize(fWidth+1,fHeight+1);\n");
    buffer.AppendFormatted("         MapWindow();\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      }\n");

@@ -3,8 +3,16 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -394,8 +402,8 @@ bool ArgusBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int nu
    // Fields
    for (k=0;k<numOfSteerFields[numTab][numSteer];k++) {
       buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTab][numSteer][k].Data());
-      buffer.AppendFormatted("   if (fConfigData[modIndex]%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
-      value.SetFormatted("fConfigData[index]%s->f%s",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
+      buffer.AppendFormatted("   if (fConfigData%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
+      value.SetFormatted("fConfigData%s->f%s",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
       setValue(&decodedValue,"",(char*)value.Data(),(char*)steerFieldType[numTab][numSteer][k].Data(),1);
       if (steerFieldType[numTab][numSteer][k]=="std::string")
          buffer.AppendFormatted("      %s->Set%s(%s.Data());\n",steerPointer.Data(),steerFieldName[numTab][numSteer][k].Data(),value.Data());
