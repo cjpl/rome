@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
+//  implemented task hierarchy
+//
 //  Revision 1.6  2004/11/12 17:35:18  schneebeli_m
 //  fast xml database
 //
@@ -245,7 +248,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
                for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
                   xmlPath = xmlBase;
                   xmlPath += path->GetFieldName();
-                  xmlPath.AppendFormatted("-%d",j);
+                  xmlPath.AppendFormatted("$%d",j);
                   if (!xml->GetPathValues(xmlPath,&value)) {
                      cout << "\nWrong data base path : " << xmlPath.Data() << endl;
                      delete xml;
@@ -293,7 +296,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
                for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
                   xmlPath = xmlBase;
                   xmlPath += path->GetFieldName();
-                  xmlPath.AppendFormatted("-%d",j);
+                  xmlPath.AppendFormatted("$%d",j);
                   if (!xml->GetPathValues(xmlPath,&value)) {
                      cout << "\nWrong data base path : " << xmlPath.Data() << endl;
                      delete xml;
@@ -431,8 +434,8 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath)
                return false;
             }
             fieldName = path->GetFieldName();
-            fieldName.AppendFormatted("-%d",j);
-            xmlFieldPath.AppendFormatted("-%d",j);
+            fieldName.AppendFormatted("$%d",j);
+            xmlFieldPath.AppendFormatted("$%d",j);
             // new
             if (!xml->GetPathValue(xmlPath,value)) {
                xmlPath = xmlTablePath;

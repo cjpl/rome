@@ -208,6 +208,11 @@
 					<xs:documentation>Describes a steering parameter group of a task.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a sub-task.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TreeDesc">

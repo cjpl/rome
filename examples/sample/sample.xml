@@ -7,7 +7,7 @@
 	<Folders>
 		<Folder>
 			<FolderName>PMTData</FolderName>
-			<ArraySize>257</ArraySize>
+			<ArraySize>228</ArraySize>
 			<Field>
 				<FieldName>ADC</FieldName>
 				<FieldType>Float_t</FieldType>
@@ -16,27 +16,24 @@
 		</Folder>
 		<Folder>
 			<FolderName>Calib</FolderName>
-			<ArraySize>257</ArraySize>
+			<ArraySize>228</ArraySize>
 			<DataBaseAccess>true</DataBaseAccess>
 			<Field>
 				<FieldName>ADCPedestal</FieldName>
 				<FieldType>Float_t</FieldType>
 				<FieldComment>ADC Pedestal</FieldComment>
+				<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,227]/mean0"</DataBasePath>
 			</Field>
 		</Folder>
 		<Folder>
 			<FolderName>PMTInfo</FolderName>
-			<ArraySize>257</ArraySize>
+			<ArraySize>228</ArraySize>
 			<DataBaseAccess>true</DataBaseAccess>
-			<Field>
-				<FieldName>PMID</FieldName>
-				<FieldType>Int_t</FieldType>
-				<FieldComment>Photo Multiplier ID</FieldComment>
-			</Field>
 			<Field>
 				<FieldName>ADCID</FieldName>
 				<FieldType>Int_t</FieldType>
 				<FieldComment>ADC Number</FieldComment>
+				<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,227]"</DataBasePath>
 			</Field>
 		</Folder>
 		<Folder>

@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
+//  implemented task hierarchy
+//
 //  Revision 1.6  2004/09/30 13:08:21  schneebeli_m
 //  ...
 //
@@ -49,6 +52,7 @@ bool ROMEString::SetFormatted(char* format,...)
    bool res;
    va_list ap;
    va_start(ap,format);
+   char* c="";
    this->Resize(0);
    res = FormatString(this,format,ap);
    va_end(ap);
@@ -190,7 +194,6 @@ int ROMEString::NumberOfOccurrence(char* subString)
    int numberOfOccurrence = 0;
    const char* str = this->Data();
    str = strstr(str,subString);
-   cout << str << endl;
    while (str!=NULL) {
       str++;
       numberOfOccurrence++;

@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
+//  implemented task hierarchy
+//
 //  Revision 1.6  2004/11/16 14:27:21  sawada
 //  small modification
 //
@@ -428,9 +431,9 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
 	 sqlQuery += " LIMIT 1;";
    }
    fSQL->MakeQuery((char*)sqlQuery.Data(),false);
-
-   return true;
 */
+   return true;
+
 }
 
 void ROMESQLDataBase::Print() {

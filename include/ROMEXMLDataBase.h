@@ -2,6 +2,9 @@
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2004/11/16 16:14:00  schneebeli_m
+  implemented task hierarchy
+
   Revision 1.2  2004/11/11 12:55:27  schneebeli_m
   Implemented XML database with new path rules
 
@@ -28,10 +31,6 @@ protected:
    ROMEStrArray  fOrderTableIDs;
    int           fOrderTableIndex;
 
-   enum {
-      kWrite  = 0,
-      kRead   = 1
-   };
 public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();

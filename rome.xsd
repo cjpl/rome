@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
-		<xs:annotation>
-			<xs:documentation>Schema for a ROME framework definition file.</xs:documentation>
-		</xs:annotation>
+	<xs:annotation>
+		<xs:documentation>Schema for a ROME framework definition file.</xs:documentation>
+	</xs:annotation>
 	<xs:simpleType name="IncludeType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="global"/>
@@ -393,6 +393,23 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="TaskHierarchyDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a task in the task hierarchy of the framework.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TaskName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the task.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Task" type="TaskHierarchyDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a task in the task hierarchy of the framework.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="BranchDesc">
 		<xs:annotation>
 			<xs:documentation>Description of branches.</xs:documentation>
@@ -559,6 +576,20 @@
 							<xs:element name="Task" type="TaskDesc" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>Describes a task of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TaskHierarchy" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of the task hierarchy of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Task" type="TaskHierarchyDesc" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a task in the task hierarchy of the framework.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>

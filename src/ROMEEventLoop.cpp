@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.28  2004/11/16 16:14:01  schneebeli_m
+//  implemented task hierarchy
+//
 //  Revision 1.27  2004/11/12 17:35:18  schneebeli_m
 //  fast xml database
 //
@@ -135,7 +138,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Loop over Runs
    //----------------
-
    for (ii=0;!this->isTerminate();ii++) {
 
       if (!this->Connect(ii)) {

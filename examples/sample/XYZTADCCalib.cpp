@@ -47,7 +47,7 @@ void XYZTADCCalib::BeginOfRun()
 
 void XYZTADCCalib::Event()
 {
-    for (int i=0;i<257;i++) {
+    for (int i=0;i<228;i++) {
        float pmtData = gAnalyzer->GetPMTDataAt(i)->GetADC();
        float pedestal = gAnalyzer->GetCalibAt(i)->GetADCPedestal();
        FillADCHistoAt(i,pmtData - pedestal);
@@ -55,7 +55,7 @@ void XYZTADCCalib::Event()
 } 
 void XYZTADCCalib::EndOfRun()
 {
-    for (int i=0;i<257;i++) {
+    for (int i=0;i<228;i++) {
        DrawADCHistoAt(i);
     }
 }

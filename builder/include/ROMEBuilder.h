@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2004/11/16 16:14:00  schneebeli_m
+  implemented task hierarchy
+
   Revision 1.17  2004/10/21 13:03:51  schneebeli_m
   *** empty log message ***
 
@@ -103,7 +106,6 @@ private:
    ROMEString taskEventID[maxNumberOfTasks];
    ROMEString taskDescription[maxNumberOfTasks];
    bool  taskFortran[maxNumberOfTasks];
-   ROMEString taskParentName[maxNumberOfTasks];
    ROMEString taskAuthor[maxNumberOfTasks];
    ROMEString taskVersion[maxNumberOfTasks];
    ROMEString taskInclude[maxNumberOfTasks][maxNumberOfInclude];
@@ -123,6 +125,13 @@ private:
    ROMEString histoZBin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZMin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZMax[maxNumberOfTasks][maxNumberOfHistos];
+
+// task hierarchy
+
+   int numOfTaskHierarchy;
+   ROMEString taskHierarchyName[2*maxNumberOfTasks];
+   int        taskHierarchyParentIndex[2*maxNumberOfTasks];
+   int        taskHierarchyClassIndex[2*maxNumberOfTasks];
 
 // steering
 
@@ -180,6 +189,8 @@ public:
    bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
    bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer);
    bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab);
+   bool WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
+   bool WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();

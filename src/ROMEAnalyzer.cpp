@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.38  2004/11/16 16:14:00  schneebeli_m
+//  implemented task hierarchy
+//
 //  Revision 1.37  2004/11/11 12:55:27  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -178,7 +181,9 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    cout << "i : Root interpreter" << endl;
    cout << endl;
 
-   CreateHistoFolders();
+   TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
+   TList *taskList = fMainTask->GetListOfTasks();
+   CreateHistoFolders(taskList,fHistoFolder);
 
    fMainTask->ExecuteTask("start");
    if (fTerminate) return false;
@@ -299,29 +304,25 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-void ROMEAnalyzer::CreateHistoFolders()
+bool ROMEAnalyzer::CreateHistoFolders(TList *taskList,TFolder *folder)
 {
-   // Creates a Folder for each active Task
-   int i,j;
+   // Recursive Creation of Histogram Subfolders
    ROMEString name;
    ROMEString title;
-   TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
-   TList *taskList = fMainTask->GetListOfTasks();
-   for (i=0;i<taskList->GetSize();i++) {
-      ROMETask *task = (ROMETask*)taskList->At(i);
-      if (!task->IsActive() || !task->hasHistograms()) continue;
+   bool folderCreated = false;
+   for (int j=0;j<taskList->GetSize();j++) {
+      ROMETask *task = (ROMETask*)taskList->At(j);
+      if (!task->IsActive()) continue;
+      if (task->hasHistograms())
+         folderCreated = true;
       name.SetFormatted("%sHistos",task->GetName());
       title.SetFormatted("Histograms of Task '%s'",task->GetName());
-      TFolder *folder = fHistoFolder->AddFolder(name.Data(),title.Data());
+      TFolder *subFolder = folder->AddFolder(name.Data(),title.Data());
       TList *subTaskList = task->GetListOfTasks();
-      for (j=0;j<subTaskList->GetSize();j++) {
-         ROMETask *task = (ROMETask*)subTaskList->At(j);
-         if (!task->IsActive() || !task->hasHistograms()) continue;
-         name.SetFormatted("%sHistos",task->GetName());
-         title.SetFormatted("Histograms of Task '%s'",task->GetName());
-         folder->AddFolder(name.Data(),title.Data());
-      }
+      if (!CreateHistoFolders(subTaskList,subFolder) && !task->hasHistograms())
+         folder->Remove(subFolder);
    }
+   return folderCreated;
 }
 
 #ifndef HAVE_MIDAS

@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.28  2004/11/16 16:14:00  schneebeli_m
+  implemented task hierarchy
+
   Revision 1.27  2004/11/11 12:55:27  schneebeli_m
   Implemented XML database with new path rules
 
@@ -317,7 +320,7 @@ public:
 
 protected:
 
-   void CreateHistoFolders();
+   bool CreateHistoFolders(TList *,TFolder *);
 
    bool ReadParameters(int argc, char *argv[]);
    void ParameterUsage();
