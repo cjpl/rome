@@ -82,7 +82,7 @@ void PMTMixed::withOutMakingThread(){
 void PMTMixed::withMakingThread(){
    cout<<"This function is executed with making new thread"<<endl;
    cout<<" When you have both types of ProcessMessage,"<<endl;
-   cout<<"you need to call ProcessMessageThread form ProcessMessage."<<endl;
+   cout<<"you need to call RunProcessMessageThread form ProcessMessage."<<endl;
    int i;
    for(i=10;i>0;i--){
       cout<<i<<endl;
