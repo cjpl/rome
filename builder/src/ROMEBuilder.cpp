@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.124  2005/04/04 10:14:54  schneebeli_m
+  UserDataBase implemented
+
   Revision 1.123  2005/04/04 07:06:15  schneebeli_m
   bankFieldArraySize
 
@@ -2396,7 +2399,7 @@ bool ROMEBuilder::ReadXMLDAQ() {
          for (i=0;i<numOfDAQ;i++) {
             for (j=i+1;j<numOfDAQ;j++) {
                if (daqName[i]==daqName[j]) {
-                  cout << "\nTree '" << daqName[i].Data() << "' is defined twice !" << endl;
+                  cout << "\nDAQ system '" << daqName[i].Data() << "' is defined twice !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
@@ -2406,6 +2409,68 @@ bool ROMEBuilder::ReadXMLDAQ() {
       }
    }
    numOfDAQ++;
+   return true;
+}
+bool ROMEBuilder::ReadXMLDB() {
+   char *name;
+   int type,i,j;
+
+   // output
+   if (makeOutput) cout << "\n\nUser Database Interfaces:" << endl;
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      if (type == 1 && !strcmp((const char*)name,"UserDatabase")) {
+         // count trees
+         numOfDB++;
+         if (numOfDB>=maxNumberOfDB) {
+            cout << "Maximal number of user database interfaces reached : " << maxNumberOfDB << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         // database initialisation
+         dbName[numOfDB] = "";
+
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // database name
+            if (type == 1 && !strcmp((const char*)name,"DatabaseName")) {
+               xml->GetValue(dbName[numOfDB],dbName[numOfDB]);
+               // output
+               if (makeOutput) cout << "   " << dbName[numOfDB].Data() << endl;
+            }
+            // database description
+            if (type == 1 && !strcmp((const char*)name,"DatabaseDescription"))
+               xml->GetValue(dbDescription[numOfDB],dbDescription[numOfDB]);
+            if (type == 15 && !strcmp((const char*)name,"DatabaseName")) {
+               // input check
+               if (dbName[numOfDB]=="") {
+                  cout << "User database interface without a name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               break;
+            }
+         }
+      }
+
+      if (type == 15 && !strcmp((const char*)name,"UserDatabases")) {
+         // input check
+         for (i=0;i<numOfDB;i++) {
+            for (j=i+1;j<numOfDB;j++) {
+               if (dbName[i]==dbName[j]) {
+                  cout << "\nDatabase '" << dbName[i].Data() << "' is defined twice !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         break;
+      }
+   }
+   numOfDB++;
    return true;
 }
 bool ROMEBuilder::ReadXMLMidasBanks() {
@@ -4022,13 +4087,12 @@ bool ROMEBuilder::WriteConfigCpp() {
    configDep.AppendFormatted(" $(ROMESYS)/include/ROMEString.h");
 
    buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
-   configDep.AppendFormatted(" $(ROMESYS)/include/ROMEXMLDataBase.h");
-
    buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
    buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#endif\n");
-   if (this->sql)
-      configDep.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),dbName[i].Data());
+   configDep.AppendFormatted(" $(DataBaseIncludes)");
 
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n",shortCut.Data());
@@ -4691,6 +4755,13 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
    buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("            }\n");
+   for (i=0;i<numOfDB;i++) {
+      buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"%s\") {\n",dbName[i].Data());
+      buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new %s%s());\n",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
+      buffer.AppendFormatted("                  return false;\n");
+      buffer.AppendFormatted("            }\n");
+   }
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
@@ -6404,6 +6475,120 @@ bool ROMEBuilder::WriteDAQH() {
   }
    return true;
 }
+bool ROMEBuilder::WriteDBCpp() {
+   ROMEString cppFile;
+   ROMEString buffer;
+   ROMEString format;
+   struct stat buf;
+
+   int nb;
+   int fileHandle;
+
+   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
+   for (int iDB=0;iDB<numOfDB;iDB++) {
+      // File name
+      cppFile.SetFormatted("%s/src/framework/%s%s.cpp",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
+
+      if( stat( cppFile.Data(), &buf )) {
+
+         buffer.Resize(0);
+
+         buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("\n");
+
+         buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("%s%s::~%s%s()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("\n");
+
+         buffer.AppendFormatted("bool %s%s::Init(const char* name,const char* path,const char* connection)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   return true;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("bool %s%s::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   return true;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("bool %s%s::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   return true;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+
+         // Write File
+         fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << cppFile.Data() << endl;
+         nb = write(fileHandle,buffer.Data(), buffer.Length());
+         close(fileHandle);
+      }
+  }
+   return true;
+}
+bool ROMEBuilder::WriteDBH() {
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString format;
+   struct stat buf;
+
+   int nb;
+   int fileHandle;
+
+   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   for (int iDB=0;iDB<numOfDB;iDB++) {
+      // File name
+      hFile.SetFormatted("%s/include/framework/%s%s.h",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
+
+      if( stat( hFile.Data(), &buf )) {
+
+         // Description
+         buffer.Resize(0);
+
+         // Header
+         buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),dbName[iDB].Data());
+
+         buffer.AppendFormatted("#include <ROMEDataBase.h>\n");
+
+         // Class
+         buffer.AppendFormatted("\nclass %s%s : public ROMEDataBase\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("{\n");
+
+         buffer.AppendFormatted("protected:\n");
+         // Methods
+         buffer.AppendFormatted("public:\n");
+         // Constructor and Methods
+         buffer.AppendFormatted("   %s%s();\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("   ~%s%s();\n",shortCut.Data(),dbName[iDB].Data());
+
+         // Methods
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   bool   Init(const char* name,const char* path,const char* connection);\n");
+         buffer.AppendFormatted("   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber);\n");
+         buffer.AppendFormatted("   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber);\n");
+         buffer.AppendFormatted("   char*  GetType() { return \"%s\"; }\n",dbName[iDB].Data());
+         buffer.AppendFormatted("   char*  GetDescription() { return \"%s\"; }\n",dbDescription[iDB].Data());
+
+         buffer.AppendFormatted("};\n\n");
+
+
+         buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),dbName[iDB].Data());
+
+         // Write File
+         fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << hFile.Data() << endl;
+         nb = write(fileHandle,buffer.Data(), buffer.Length());
+         close(fileHandle);
+      }
+  }
+   return true;
+}
 bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask,int tab) {
    ROMEString format;
    ROMEString sc;
@@ -7057,8 +7242,6 @@ bool ROMEBuilder::WriteEventLoopCpp() {
 
    buffer.AppendFormatted("#include <Riostream.h>\n");
    buffer.AppendFormatted("\n");
-
-   analyzerDep.AppendFormatted(" include/framework/%sEventLoop.h",shortCut.Data());
 
    // Constructor
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title) {\n",shortCut.Data(),shortCut.Data());
@@ -7820,6 +8003,10 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
                   numOfDAQ = -1;
                   if (!ReadXMLDAQ()) return;
                }
+               if (!strcmp((const char*)name,"UserDatabases")) {
+                  numOfDB = -1;
+                  if (!ReadXMLDB()) return;
+               }
                if (!strcmp((const char*)name,"MidasBanks")) {
                   numOfEvent = -1;
                   if (!ReadXMLMidasBanks()) return;
@@ -7855,6 +8042,9 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
    if (makeOutput) cout << "\n\nUser DAQ Systems:" << endl;
    if (!WriteDAQCpp()) return;
    if (!WriteDAQH()) return;
+   if (makeOutput) cout << "\n\nUser Database Interfaces:" << endl;
+   if (!WriteDBCpp()) return;
+   if (!WriteDBH()) return;
    if (makeOutput) cout << "\n\nFramework:" << endl;
    if (!WriteSteering(numOfTaskHierarchy)) return;
    if (!WriteConfigCpp()) return;
@@ -8075,22 +8265,30 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("DAQIncludes %s",EqualSign());
    buffer.AppendFormatted(" include/framework/%sMidas.h",shortCut.Data());
    buffer.AppendFormatted(" include/framework/%sRoot.h",shortCut.Data());
-   for (i=0;i<numOfDAQ;i++) {
+   for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),daqName[i].Data());
-   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DAQObjects %s",EqualSign());
    buffer.AppendFormatted(" obj/%sMidas.obj",shortCut.Data());
    buffer.AppendFormatted(" obj/%sRoot.obj",shortCut.Data());
-   for (i=0;i<numOfDAQ;i++) {
+   for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),daqName[i].Data());
-   }
    buffer.AppendFormatted("\n");
 
 // data base
    buffer.AppendFormatted("DataBaseIncludes %s",EqualSign());
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEXMLDataBase.h");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+   if (this->sql)
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),dbName[i].Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("DataBaseObjects %s",EqualSign());
+   buffer.AppendFormatted(" obj/ROMEXMLDataBase.obj");
+   if (this->sql)
+      buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
+   for (i=0;i<numOfDB;i++)
+      buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),dbName[i].Data());
    buffer.AppendFormatted("\n");
 
 // user classes
@@ -8111,6 +8309,13 @@ void ROMEBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted("\n");
 
+// database dependences
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfDB;i++) {
+      buffer.AppendFormatted("%s%sDep %s include/framework/%sAnalyzer.h\n",shortCut.Data(),dbName[i].Data(),EqualSign(),shortCut.Data());
+   }
+   buffer.AppendFormatted("\n");
+
 // Objects
 // -------
    buffer.AppendFormatted("objects %s",EqualSign());
@@ -8120,12 +8325,13 @@ void ROMEBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted(" $(TaskObjects)");
    buffer.AppendFormatted(" $(DAQObjects)");
+   buffer.AppendFormatted(" $(DataBaseObjects)");
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (haveFortranTask)
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->sql)
-      buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj");
+      buffer.AppendFormatted(" obj/ROMESQL.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
@@ -8204,6 +8410,11 @@ void ROMEBuilder::WriteMakefile() {
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(%s%sDep)\n",shortCut.Data(),daqName[i].Data(),shortCut.Data(),daqName[i].Data(),shortCut.Data(),daqName[i].Data(),shortCut.Data(),daqName[i].Data());
       buffer.AppendFormatted(compileFormatFrame.Data(),daqName[i].Data(),daqName[i].Data());
+   }
+   // Databases
+   for (i=0;i<numOfDB;i++) {
+      buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(%s%sDep)\n",shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted(compileFormatFrame.Data(),dbName[i].Data(),dbName[i].Data());
    }
    // Fortran Analyzer
    if (haveFortranTask) {

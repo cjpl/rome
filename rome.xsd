@@ -436,6 +436,23 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="UserDatabaseDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a database interface written by the user.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DatabaseName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the database interface.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DatabaseDescription" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The description of the database interface.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="EventHeaderDesc">
 		<xs:annotation>
 			<xs:documentation>Description of event header data.</xs:documentation>
@@ -711,6 +728,20 @@
 							<xs:element name="UserDAQSystem" type="UserDAQSystemDesc" minOccurs="0">
 								<xs:annotation>
 									<xs:documentation>Describes  a DAQ system written by the user.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserDatabases" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of database interface written by the user.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UserDatabase" type="UserDatabaseDesc" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Describes  a database interface written by the user.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>

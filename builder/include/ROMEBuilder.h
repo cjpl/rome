@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.34  2005/04/04 10:14:54  schneebeli_m
+  UserDataBase implemented
+
   Revision 1.33  2005/04/04 07:06:15  schneebeli_m
   bankFieldArraySize
 
@@ -77,6 +80,7 @@ const int maxNumberOfTasks = 200;
 const int maxNumberOfFolders = 100;
 const int maxNumberOfTrees = 20;
 const int maxNumberOfDAQ = 20;
+const int maxNumberOfDB = 20;
 const int maxNumberOfBranches = 10;
 const int maxNumberOfBanks = 20;
 const int maxNumberOfEvents = 5;
@@ -199,6 +203,11 @@ private:
    int numOfDAQ;
    ROMEString daqName[maxNumberOfDAQ];
 
+// database
+   int numOfDB;
+   ROMEString dbName[maxNumberOfDB];
+   ROMEString dbDescription[maxNumberOfDB];
+
 // midas
    int numOfEvent;
    int numOfBank[maxNumberOfEvents];
@@ -261,6 +270,7 @@ public:
    bool WriteTaskH();
    bool ReadXMLTree();
    bool ReadXMLDAQ();
+   bool ReadXMLDB();
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering(int iTask);
    bool WriteSteering(int iTask);
@@ -275,6 +285,8 @@ public:
    bool WriteRootH();
    bool WriteDAQCpp();
    bool WriteDAQH();
+   bool WriteDBCpp();
+   bool WriteDBH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
