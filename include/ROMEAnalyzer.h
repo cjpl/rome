@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.29  2004/12/06 09:04:34  schneebeli_m
+  minor changes
+
   Revision 1.28  2004/11/16 16:14:00  schneebeli_m
   implemented task hierarchy
 
@@ -48,10 +51,7 @@
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
-#if defined HAVE_MIDAS
 #include <midas.h>
-#else
-#endif
 #if defined HAVE_SQL
 #include <ROMESQL.h>
 #endif

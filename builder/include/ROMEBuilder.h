@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.20  2004/12/06 09:04:34  schneebeli_m
+  minor changes
+
   Revision 1.19  2004/11/23 08:54:25  schneebeli_m
   steering parameter hierarchy error removed
 
@@ -109,7 +112,8 @@ private:
    ROMEString taskName[maxNumberOfTasks];
    ROMEString taskEventID[maxNumberOfTasks];
    ROMEString taskDescription[maxNumberOfTasks];
-   bool  taskFortran[maxNumberOfTasks];
+   bool taskFortran[maxNumberOfTasks];
+   bool taskUserCode[maxNumberOfTasks];
    ROMEString taskAuthor[maxNumberOfTasks];
    ROMEString taskVersion[maxNumberOfTasks];
    ROMEString taskInclude[maxNumberOfTasks][maxNumberOfInclude];

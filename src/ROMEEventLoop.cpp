@@ -7,7 +7,11 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.33  2004/12/06 09:04:34  schneebeli_m
+//  minor changes
+//
 //  Revision 1.32  2004/12/05 10:10:43  sawada
+//
 //  code clean up (line feed)
 //
 //  Revision 1.31  2004/12/03 14:42:08  schneebeli_m
@@ -80,8 +84,8 @@ TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
 
-#if defined HAVE_MIDAS
 #include <midas.h>
+#if defined HAVE_MIDAS
 #define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 {
@@ -606,10 +610,10 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       timeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
 #if defined( __ppc__ )
       //byte swapping
-      if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR
-	 && ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR
-	 && ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-	 bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+      if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
+	      ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+	      ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+	      bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       gROME->InitMidasBanks();
 
@@ -638,12 +642,12 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
 #if defined( __ppc__ )
-	 //byte swapping
-	 ByteSwap((UShort_t *)&pevent->event_id);
-	 ByteSwap((UShort_t *)&pevent->trigger_mask);
-	 ByteSwap((UInt_t   *)&pevent->serial_number);
-	 ByteSwap((UInt_t   *)&pevent->time_stamp);
-	 ByteSwap((UInt_t   *)&pevent->data_size);
+         //byte swapping
+         ByteSwap((UShort_t *)&pevent->event_id);
+         ByteSwap((UShort_t *)&pevent->trigger_mask);
+         ByteSwap((UInt_t   *)&pevent->serial_number);
+         ByteSwap((UInt_t   *)&pevent->time_stamp);
+         ByteSwap((UInt_t   *)&pevent->data_size);
 #endif
          n = 0;
          if (pevent->data_size <= 0) readError = true;
@@ -651,7 +655,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
             n = read(fMidasFileHandle, pevent+1, pevent->data_size);
             if (n != (int) pevent->data_size) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
-	 }
+         }
       }
       // check input
       if (readError) {
@@ -669,10 +673,10 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       }
 #if defined( __ppc__ )
       //byte swapping
-      if(pevent->event_id != EVENTID_BOR
-	 && pevent->event_id != EVENTID_EOR
-	 && pevent->event_id != EVENTID_MESSAGE)
-	 bk_swap(pevent + 1, 0);
+      if(pevent->event_id != EVENTID_BOR &&
+         pevent->event_id != EVENTID_EOR &&
+         pevent->event_id != EVENTID_MESSAGE)
+         bk_swap(pevent + 1, 0);
 #endif
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
          this->SetContinue();
@@ -787,8 +791,7 @@ bool ROMEEventLoop::Update()
 void ROMEEventLoop::CheckLineToProcess()
 {
    if (ROMEAnalyzer::LineToProcess){
-/*      cout << ROMEAnalyzer::LineToProcess << endl;
-*/      gROME->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
+      gROME->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
       ROMEAnalyzer::LineToProcess = NULL;
    }
 }
