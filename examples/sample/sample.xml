@@ -22,31 +22,7 @@
 				<FieldName>ADCPedestal</FieldName>
 				<FieldType>Float_t</FieldType>
 				<FieldComment>ADC Pedestal</FieldComment>
-				<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,227]/mean0"</DataBasePath>
-			</Field>
-		</Folder>
-		<Folder>
-			<FolderName>PMTInfo</FolderName>
-			<ArraySize>228</ArraySize>
-			<DataBaseAccess>true</DataBaseAccess>
-			<Field>
-				<FieldName>ADCID</FieldName>
-				<FieldType>Int_t</FieldType>
-				<FieldComment>ADC Number</FieldComment>
-				<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,227]"</DataBasePath>
-			</Field>
-		</Folder>
-		<Folder>
-			<FolderName>Trigger</FolderName>
-			<Field>
-				<FieldName>ID</FieldName>
-				<FieldType>Int_t</FieldType>
-				<FieldComment>event ID</FieldComment>
-			</Field>
-			<Field>
-				<FieldName>Eventnumber</FieldName>
-				<FieldType>Int_t</FieldType>
-				<FieldComment>Event Number</FieldComment>
+				<DataBasePath>"/RunCatalog(id=#)/LPConf/LPCalibPedestal[0,227]/mean0"</DataBasePath>
 			</Field>
 		</Folder>
 	</Folders>
@@ -68,16 +44,6 @@
 			</Histogram>
 		</Task>
 	</Tasks>
-	<Trees>
-		<Tree>
-			<TreeName>Data</TreeName>
-			<TreeTitle>PMT Data</TreeTitle>
-			<Branch>
-				<BranchName>PMTData</BranchName>
-				<RelatedFolder>PMTData</RelatedFolder>
-			</Branch>
-		</Tree>
-	</Trees>
 	<MidasBanks>
 		<Bank>
 			<BankName>ADC0</BankName>

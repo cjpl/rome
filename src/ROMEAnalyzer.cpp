@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.39  2004/11/19 13:29:55  schneebeli_m
+//  added stuff for sample
+//
 //  Revision 1.38  2004/11/16 16:14:00  schneebeli_m
 //  implemented task hierarchy
 //
@@ -61,6 +64,7 @@
 #endif
 #include <io.h>
 #include <direct.h>
+#include <windows.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
 #if defined ( __linux__ )

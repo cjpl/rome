@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.6  2004/11/19 13:29:55  schneebeli_m
+//  added stuff for sample
+//
 //  Revision 1.5  2004/11/16 18:53:44  sawada
 //  SQL Write
 //
@@ -25,6 +28,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <ROMEPath.h>
+#include <ROMEAnalyzer.h>
 #include <TMath.h>
 
 ROMEPath::ROMEPath() {
@@ -102,8 +106,12 @@ bool ROMEPath::Decode(const char* dataBasePath)
    this->SetOrderFieldName("idx");
    char* cstop;
    int value;
-   ROMEString path = dataBasePath;
    ROMEString orderPath;
+   ROMEString path = dataBasePath;
+   // replace # with the current run number
+   ROMEString runNumberString;
+   runNumberString.SetFormatted("%d",gROME->GetCurrentRunNumber());
+   path.ReplaceAll("#",runNumberString);
    // check path
    if (path.Length()<=0) {
       cout << "\nInvalid path." << endl;

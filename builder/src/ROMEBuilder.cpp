@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.73  2004/11/19 13:29:55  schneebeli_m
+  added stuff for sample
+
   Revision 1.72  2004/11/18 13:35:24  schneebeli_m
   Steering hierarchy error removed
 
@@ -4043,69 +4046,71 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   }\n");
    // Trees
    buffer.AppendFormatted("   // trees\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fTreesModified || index==0) {\n");
-   buffer.AppendFormatted("      xml->StartElement(\"Trees\");\n");
-   buffer.AppendFormatted("      if (index==0) {\n");
-   buffer.AppendFormatted("         if (gAnalyzer->isTreeAccumulation())\n");
-   buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"true\");\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"false\");\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fTreeAccumulateModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Accumulate\",(char*)fConfigData[index]->fTreeAccumulate.Data());\n");
-   for (i=0;i<numOfTree;i++) {
-      buffer.AppendFormatted("      if (fConfigData[index]->f%sTreeModified || index==0) {\n",treeName[i].Data());
-      buffer.AppendFormatted("         // %s tree\n",treeName[i].Data());
-      buffer.AppendFormatted("         xml->StartElement(\"Tree\");\n");
-      buffer.AppendFormatted("         xml->WriteElement(\"TreeName\",\"%s\");\n",treeName[i].Data());
-      // read
-      buffer.AppendFormatted("         if (index==0) {\n");
-      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isRead())\n",i);
-      buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"true\");\n");
-      buffer.AppendFormatted("            else\n");
-      buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"false\");\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fReadModified)\n",treeName[i].Data());
-      buffer.AppendFormatted("            xml->WriteElement(\"Read\",(char*)fConfigData[index]->f%sTree->fRead.Data());\n",treeName[i].Data());
-      // write
-      buffer.AppendFormatted("         if (index==0) {\n");
-      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isWrite())\n",i);
-      buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"true\");\n");
-      buffer.AppendFormatted("            else\n");
-      buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"false\");\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fWriteModified)\n",treeName[i].Data());
-      buffer.AppendFormatted("            xml->WriteElement(\"Write\",(char*)fConfigData[index]->f%sTree->fWrite.Data());\n",treeName[i].Data());
-      // fill
-      buffer.AppendFormatted("         if (index==0) {\n");
-      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isFill())\n",i);
-      buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"true\");\n");
-      buffer.AppendFormatted("            else\n");
-      buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"false\");\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fFillModified)\n",treeName[i].Data());
-      buffer.AppendFormatted("            xml->WriteElement(\"Fill\",(char*)fConfigData[index]->f%sTree->fFill.Data());\n",treeName[i].Data());
-      // compression level
-      buffer.AppendFormatted("         if (index==0) {\n");
-      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel()==1)\n",i);
-      buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"1\");\n");
-      buffer.AppendFormatted("            else\n");
-      buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"0\");\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fCompressionLevelModified)\n",treeName[i].Data());
-      buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",(char*)fConfigData[index]->f%sTree->fCompressionLevel.Data());\n",treeName[i].Data());
-      // MaxNumberOfEntries
-      buffer.AppendFormatted("         if (index==0) {\n");
-      buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
-      buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",str.Data());\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified)\n",treeName[i].Data());
-      buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",(char*)fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data());\n",treeName[i].Data());
-      buffer.AppendFormatted("         xml->EndElement();\n");
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   if (fConfigData[index]->fTreesModified || index==0) {\n");
+      buffer.AppendFormatted("      xml->StartElement(\"Trees\");\n");
+      buffer.AppendFormatted("      if (index==0) {\n");
+      buffer.AppendFormatted("         if (gAnalyzer->isTreeAccumulation())\n");
+      buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"true\");\n");
+      buffer.AppendFormatted("         else\n");
+      buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"false\");\n");
       buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      else if (fConfigData[index]->fTreeAccumulateModified)\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"Accumulate\",(char*)fConfigData[index]->fTreeAccumulate.Data());\n");
+      for (i=0;i<numOfTree;i++) {
+         buffer.AppendFormatted("      if (fConfigData[index]->f%sTreeModified || index==0) {\n",treeName[i].Data());
+         buffer.AppendFormatted("         // %s tree\n",treeName[i].Data());
+         buffer.AppendFormatted("         xml->StartElement(\"Tree\");\n");
+         buffer.AppendFormatted("         xml->WriteElement(\"TreeName\",\"%s\");\n",treeName[i].Data());
+         // read
+         buffer.AppendFormatted("         if (index==0) {\n");
+         buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isRead())\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"true\");\n");
+         buffer.AppendFormatted("            else\n");
+         buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fReadModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"Read\",(char*)fConfigData[index]->f%sTree->fRead.Data());\n",treeName[i].Data());
+         // write
+         buffer.AppendFormatted("         if (index==0) {\n");
+         buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isWrite())\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"true\");\n");
+         buffer.AppendFormatted("            else\n");
+         buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fWriteModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"Write\",(char*)fConfigData[index]->f%sTree->fWrite.Data());\n",treeName[i].Data());
+         // fill
+         buffer.AppendFormatted("         if (index==0) {\n");
+         buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isFill())\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"true\");\n");
+         buffer.AppendFormatted("            else\n");
+         buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fFillModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"Fill\",(char*)fConfigData[index]->f%sTree->fFill.Data());\n",treeName[i].Data());
+         // compression level
+         buffer.AppendFormatted("         if (index==0) {\n");
+         buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel()==1)\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"1\");\n");
+         buffer.AppendFormatted("            else\n");
+         buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"0\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fCompressionLevelModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",(char*)fConfigData[index]->f%sTree->fCompressionLevel.Data());\n",treeName[i].Data());
+         // MaxNumberOfEntries
+         buffer.AppendFormatted("         if (index==0) {\n");
+         buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+         buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",str.Data());\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",(char*)fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data());\n",treeName[i].Data());
+         buffer.AppendFormatted("         xml->EndElement();\n");
+         buffer.AppendFormatted("      }\n");
+      }
+      buffer.AppendFormatted("      xml->EndElement();\n");
+      buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("      xml->EndElement();\n");
-   buffer.AppendFormatted("   }\n");
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTaskHierarchy]>0) {
@@ -5311,6 +5316,13 @@ int main(int argc, char *argv[])
          romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
          xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
       }
+      else if (!strcmp(argv[i],"-sample")) {
+         romeb->makeOutput = true;
+         romeb->midas = false;
+         romeb->noLink = false;
+         romeb->outDir = "C:/rome/examples/sample/";
+         xmlFile = "C:/rome/examples/sample/sample.xml";
+      }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {
          romeb->makeOutput = true;
@@ -5428,6 +5440,11 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    readTrees = false;
    readGlobalSteeringParameters = false;
    readMidasBanks = false;
+   
+   numOfFolder = -1;
+   numOfTask = -1;
+   numOfTree = -1;
+   numOfBank = -1;
 
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
@@ -6023,33 +6040,20 @@ void ROMEBuilder::WriteHTMLDoku() {
    // Tasks
    buffer.AppendFormatted("<h3><a name=taskobjects>Tasks</a></h3>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The %s%s consists of the following tasks :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("The %s%s has the following task hierarchy :\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
 
-   depthold=0;
-   depth=0;
-   //todo
-   for (i=0;i<numOfTask;i++) {
+   int index;
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      index = i;
       depth=0;
-//TODO
-/*      if (taskParentName[i]!="GetMainTask()") {
+      while (index!=-1) {
          depth++;
-         parentt = taskParentName[i];
-         for (j=0;j<100;j++) {
-            for (k=0;k<numOfTask;k++) {
-               if (parentt==taskName[k]) break;
-            }
-            if (k>=numOfTask) {
-               cout << "Invalid task structure." << endl;
-               return;
-            }
-            if (taskParentName[k]=="GetMainTask()") break;
-            depth++;
-         }
-      }*/
+         index = taskHierarchyParentIndex[index];
+      }
       if (depth<depthold) buffer.AppendFormatted("</ul>\n");
       if (depth>depthold) buffer.AppendFormatted("<ul>\n");
-      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskHierarchyName[i].Data(),shortCut.Data(),taskHierarchyName[i].Data());
       depthold = depth;
    }
    for (i=0;i<depth;i++) buffer.AppendFormatted("</ul>\n");
