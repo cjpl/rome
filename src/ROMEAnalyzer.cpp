@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.27  2004/09/30 09:50:29  schneebeli_m
+//  Samples updated
+//
 //  Revision 1.26  2004/09/25 01:36:36  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
@@ -281,10 +284,10 @@ void ROMEAnalyzer::CreateHistoFolders()
 
 
 #ifndef HAVE_MIDAS
-#define int PTYPE
+#define PTYPE int
 #endif
 #if defined ( __linux__ )
-#define THREADRETURN
+#define THREADRETURN NULL
 #define THREADTYPE void*
 #endif
 #if defined( _MSC_VER )

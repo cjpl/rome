@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.48  2004/09/30 09:50:29  schneebeli_m
+  Samples updated
+
   Revision 1.47  2004/09/30 08:45:28  schneebeli_m
   Samples updated
 
@@ -2807,8 +2810,10 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("            fSplashScreen = true;\n");
    buffer.AppendFormatted("         xml->GetAttribute(\"DataBaseMode\",value,\"\");\n");
    buffer.AppendFormatted("         if (value==\"sql\"||value==\"SQL\") {\n");
-//   buffer.AppendFormatted("            this->SetDataBaseHandle(new ROMESQLDataBase());\n");
+   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
+   buffer.AppendFormatted("            this->SetDataBaseHandle(new ROMESQLDataBase());\n");
    buffer.AppendFormatted("            this->SetDataBaseConnection(\"\");\n");
+   buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("         else if (value==\"xml\"||value==\"XML\") {\n");
    buffer.AppendFormatted("            delete this->GetDataBase();\n");
@@ -4216,8 +4221,8 @@ void ROMEBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql) 
-      buffer.AppendFormatted(" obj/ROMESQL.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDatabase.obj obj/ROMESQLDatabase.obj\n\n");
+      buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDatabase.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDatabase.obj\n\n");
    // all
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortCut.Data(),mainProgName.Data());
    // make obj
@@ -4259,9 +4264,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEString.obj $(ROMESYS)/src/ROMEString.cpp \n");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEXMLDataBase.obj $(ROMESYS)/src/ROMEXMLDataBase.cpp \n");
-   buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp\n");
-   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMESQLDataBase.obj $(ROMESYS)/src/ROMESQLDataBase.cpp \n");
    if (this->sql) {
+      buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp\n");
+      buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMESQLDataBase.obj $(ROMESYS)/src/ROMESQLDataBase.cpp \n");
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
       buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
    }
@@ -4313,8 +4318,8 @@ void ROMEBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql)
-      buffer.AppendFormatted(" obj/ROMESQL.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDataBase.obj obj/ROMESQLDataBase.obj\n\n");
+      buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDataBase.obj\n\n");
    // all
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
    // make obj
@@ -4358,9 +4363,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEString.cpp -o obj/ROMEString.obj\n");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp\n");
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEXMLDataBase.cpp -o obj/ROMEXMLDataBase.obj\n");
-   buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMESQLDataBase.cpp -o obj/ROMESQLDataBase.obj\n");
    if (this->sql) {
+      buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp\n");
+      buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMESQLDataBase.cpp -o obj/ROMESQLDataBase.obj\n");
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
       buffer.AppendFormatted("	g++ -c $(flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    }
