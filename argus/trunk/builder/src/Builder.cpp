@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.6  2005/02/02 18:29:10  sawada
+  regenerate dictionary, when a header is modified. (linux/mac)
+
   Revision 1.5  2005/02/02 18:19:24  sawada
   small bug fix.
 
@@ -697,11 +700,15 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.o\n");
    }
    buffer.AppendFormatted("obj/%sDict.o: src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sDict.cpp -o obj/%sDict.o\n",shortCut.Data(),shortCut.Data());
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
+   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
+   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
+   dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
    buffer.AppendFormatted("src/monitor/%sDict.cpp: ",shortCut.Data());
-   buffer.AppendFormatted("$(ARGUSSYS)/ArgusMonitor.h $(ARGUSSYS)/ArgusTextDialog.h $(ARGUSSYS)/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("$(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i])
