@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation>Described some enumerated types</xs:documentation>
+	</xs:annotation>
+	<xs:simpleType name="RootType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Float_t"/>
+			<xs:enumeration value="ULong_t"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="HistTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TH1C"/>
+			<xs:enumeration value="TH1D"/>
+			<xs:enumeration value="TH1F"/>
+			<xs:enumeration value="TH1I"/>
+			<xs:enumeration value="TH1S"/>
+			<xs:enumeration value="TH2C"/>
+			<xs:enumeration value="TH2D"/>
+			<xs:enumeration value="TH2F"/>
+			<xs:enumeration value="TH2I"/>
+			<xs:enumeration value="TH2S"/>
+			<xs:enumeration value="TH3C"/>
+			<xs:enumeration value="TH3D"/>
+			<xs:enumeration value="TH3F"/>
+			<xs:enumeration value="TH3I"/>
+			<xs:enumeration value="TH3S"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="MidasType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="DWORD"/>
+			<xs:enumeration value="float"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:annotation>
+		<xs:documentation>Describe general types</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="AuthorDesc">
+		<xs:sequence>
+			<xs:element name="AuthorName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="AuthorInstitute" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="AuthorCollaboration" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="AuthorEmail" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FrameworkDesc">
+		<xs:sequence>
+			<xs:element name="ProgramName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="IncludeDesc">
+		<xs:sequence>
+			<xs:element name="IncludeName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="IncludeType" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterFieldDesc">
+		<xs:sequence>
+			<xs:element name="SPFieldName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SPFieldType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SPFieldInitialization" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="SPFieldComment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterGroupDesc">
+		<xs:sequence>
+			<xs:element name="SPGroupName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Describe types used by subfolders</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="FieldDesc">
+		<xs:sequence>
+			<xs:element name="FieldName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="FieldType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="FieldComment" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ArraySize" type="xs:string" minOccurs="0" maxOccurs="1" default="1"/>
+			<xs:element name="DataBasePath" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FolderDesc">
+		<xs:sequence>
+			<xs:element name="FolderName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="FolderTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ArraySize" type="xs:string" minOccurs="0" maxOccurs="1" default="1"/>
+			<xs:element name="DataBaseAccess" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
+			<xs:element name="ChangeableClassFile" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
+			<xs:element name="Author" type="AuthorDesc" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="FolderVersion" type="xs:integer" minOccurs="0" maxOccurs="1" default="1"/>
+			<xs:element name="FolderDescription" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Folder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Describe tasks</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="HistogramDesc">
+		<xs:sequence>
+			<xs:element name="HistName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="HistTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistFolderName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistFolderTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistType" type="HistTypeDesc" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="HistArraySize" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Xmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Xmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistYNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Ymin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Ymax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistZNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Zmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Zmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaskDesc">
+		<xs:sequence>
+			<xs:element name="TaskName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="TaskEventId" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Author" type="AuthorDesc" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="TaskVersion" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="TaskDescription" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="Histogram" type="HistogramDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Describe trees</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="BranchDesc">
+		<xs:sequence>
+			<xs:element name="BranchName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="RelatedFolder" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TreeDesc">
+		<xs:sequence>
+			<xs:element name="TreeName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="TreeTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="Branch" type="BranchDesc" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Describe elements used by MidasBanks</xs:documentation>
+	</xs:annotation>
+	<xs:complexType name="EventHeaderDesc">
+		<xs:sequence>
+			<xs:element name="Folder" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="EventId" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="TriggerMask" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="SerialNumber" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="TimeStamp" type="xs:string" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankDesc">
+		<xs:sequence>
+			<xs:element name="BankName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="BankType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankFieldDesc">
+		<xs:sequence>
+			<xs:element name="BankFieldName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="BankFieldType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="BankFieldSize" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StructuredBankDesc">
+		<xs:sequence>
+			<xs:element name="BankName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="BankField" type="BankFieldDesc" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:annotation>
+		<xs:documentation>Describe overall document</xs:documentation>
+	</xs:annotation>
+	<xs:element name="Experiment">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="ExperimentName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="ExperimentShortCut" type="xs:string" maxOccurs="1"/>
+				<xs:element name="Author" type="AuthorDesc" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="Framework" type="FrameworkDesc" minOccurs="0" maxOccurs="1"/>
+				<xs:element name="Folders" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Folder" type="FolderDesc" minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Tasks" minOccurs="1" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Task" type="TaskDesc" minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Trees" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Tree" type="TreeDesc" minOccurs="1" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="GlobalSteeringParameters" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="MidasBanks" minOccurs="0" maxOccurs="1">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="EventHeader" type="EventHeaderDesc" minOccurs="0" maxOccurs="1"/>
+							<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded"/>
+							<xs:element name="StructuredBank" type="StructuredBankDesc" minOccurs="0" maxOccurs="unbounded"/>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
