@@ -96,7 +96,7 @@ TObject* TNetFolder::FindObjectAny(const char *name)
     return NULL;
   }
   TObject *obj = (TObject*) m->ReadObject(m->GetClass());
-  
+
   delete m;
   return obj;
 }

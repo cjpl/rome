@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/02/05 00:51:01  sawada
+  folder name of ROMEFolders.
+
   Revision 1.7  2005/02/04 22:58:46  sawada
   ROMEFolder
 
@@ -239,7 +242,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("   if(f%sFolder)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolder;\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFolder = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolder = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   if (!f%sFolder){\n",folderName[i].Data());
             buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
             buffer.AppendFormatted("      return false;\n");
@@ -248,7 +251,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
          else {
             buffer.AppendFormatted("   if(f%sFolders)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolders;\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFolders = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolders = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   if (!f%sFolders){\n",folderName[i].Data());
             buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
             buffer.AppendFormatted("      retrun false;\n");
