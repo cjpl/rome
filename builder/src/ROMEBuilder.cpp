@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.92  2005/01/17 08:54:36  schneebeli_m
+  String SP
+
   Revision 1.91  2005/01/14 19:17:05  sawada
   Makefile for UNIX
    (i)   removed -g. Debug and optimization flags can be specified in Makefile.usr.
@@ -4822,7 +4825,10 @@ bool ROMEBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int num
       buffer.AppendFormatted("   if (fConfigData[modIndex]%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       value.SetFormatted("fConfigData[index]%s->f%s",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       setValue(&decodedValue,"",(char*)value.Data(),(char*)steerFieldType[numTask][numSteer][k].Data(),1);
-      buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+      if (steerFieldType[numTask][numSteer][k]=="std::string")
+         buffer.AppendFormatted("      %s->Set%s(%s.Data());\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),value.Data());
+      else
+         buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
       buffer.AppendFormatted("   }\n");
    }
    // Groups
@@ -4855,7 +4861,12 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
       buffer.AppendFormatted("%s      xml->WriteElement(\"SPName\",\"%s\");\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("%s      if (index==0) {\n",blank.Data());
       GetFormat(&value,(char*)steerFieldType[numTask][numSteer][k].Data());
-      buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      if (steerFieldType[numTask][numSteer][k]=="TString")
+         buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().Data());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      else if (steerFieldType[numTask][numSteer][k]=="std::string")
+         buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().c_str());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      else
+         buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("%s         xml->WriteElement(\"SPValue\",(char*)value.Data());\n",blank.Data());
       buffer.AppendFormatted("%s      }\n",blank.Data());
       buffer.AppendFormatted("%s      else if (%s->f%sModified)\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
