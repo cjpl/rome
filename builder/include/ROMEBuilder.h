@@ -33,7 +33,6 @@ public:
    bool noLink;
    bool offline;
    bool sql;
-   bool writeRunNumber;
 
 private:
    char shortCut[nameLength];
@@ -45,6 +44,7 @@ private:
    int numOfSetters[numberOfFolders];
 
    char folderName[numberOfFolders][nameLength];
+   char folderDescription[numberOfFolders][descriptionLength];
    char parentFolderName[numberOfFolders][nameLength];
    char folderTitle[numberOfFolders][commentLength];
    char folderArray[numberOfFolders][textLength];
@@ -66,6 +66,7 @@ private:
    int numOfTask;
    int numOfHistos[numberOfTasks];
    char taskName[numberOfTasks][nameLength];
+   char taskDescription[numberOfTasks][descriptionLength];
    bool fortranFlag[numberOfTasks];
    char parentTaskName[numberOfTasks][nameLength];
    char histoName[numberOfTasks][maxNumberOfHistos][nameLength];
@@ -133,7 +134,6 @@ private:
    bool overWriteH[numberOfTasks];
    char author[numberOfTasks][authorNameLength];
    char version[numberOfTasks][versionLength];
-   char classDescription[numberOfTasks][descriptionLength];
    char include[numberOfTasks][maxNumberOfInclude][nameLength];
    bool localFlag[numberOfTasks][maxNumberOfInclude];
 

@@ -51,7 +51,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Initialisation
    //----------------
 
-   fAnalyzer->ClearFolders();
+   fAnalyzer->InitFolders();
    if (!fAnalyzer->GetIO()->Init()) {
       cout << "Terminating Program !" << endl;
       return;

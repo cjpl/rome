@@ -68,7 +68,7 @@ public:
 
    bool       Start(int argc=0, char **argv=NULL);
 
-   virtual void ClearFolders() = 0;
+   virtual void InitFolders() = 0;
 
 private:
    void CreateHistoFolders();

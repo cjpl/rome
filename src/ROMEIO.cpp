@@ -21,6 +21,7 @@
 #endif
 #include <fcntl.h>
 
+#include <TArrayI.h>
 #include <TROOT.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
@@ -119,7 +120,7 @@ bool ROMEIO::Connect(Int_t runNumber) {
    }
    fIndexOfCurrentRunNumber = runNumber;
    GetRunNumberStringAt(runNumberString,runNumber);
-   this->FillRunNumbersToFolders();
+   fTreeInfo->SetRunNumber(this->GetCurrentRunNumber());
 
    // Update Data Base
    if (this->isSQLDataBase()) {
@@ -152,11 +153,9 @@ bool ROMEIO::Connect(Int_t runNumber) {
       char filename[gFileNameLength];
       char runNumberString[6];
       GetCurrentRunNumberString(runNumberString);
-      if (!this->isTreeAccumulation()) {
-//         this->fIndexTree->Reset();
-         fFillTreeFirst = true;
-      }
       bool treeRead = false;
+      fTreePosition = new int[GetTreeObjectEntries()];
+      fTreeNextSeqNumber = new int[GetTreeObjectEntries()];
       for (int j=0;j<GetTreeObjectEntries();j++) {
          datTree = GetTreeObjectAt(j);
          tree = datTree->GetTree();
@@ -169,7 +168,14 @@ bool ROMEIO::Connect(Int_t runNumber) {
             fRootFiles[j] = new TFile(filename,"READ");
             tree = (TTree*)fRootFiles[j]->FindObjectAny(tree->GetName());
             datTree->SetTree(tree);
-            cout << "Reading Root-File " << tree->GetName() << runNumberString << ".root" << endl;
+            fTreePosition[j] = 0;
+            if (tree->GetEntriesFast()>0) {
+               tree->GetBranch("Info")->GetEntry(0);
+               fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
+            }
+            else {
+               fTreeNextSeqNumber[j] = -1;
+            }
          }
       }
       if (!treeRead) {
@@ -179,21 +185,17 @@ bool ROMEIO::Connect(Int_t runNumber) {
       ConnectTrees();
 
       // Get Number of Events for ROOT Mode
-      fNumberOfEntries = 0;
-      for (int i=0;i<GetTreeObjectEntries();i++) {
-         if (GetTreeObjectAt(i)->isRead()) {
-            int num = (int)GetTreeObjectAt(i)->GetTree()->GetEntries();
-            if (num>fNumberOfEntries) fNumberOfEntries = num;
-         }
-      }
       return true;
    }
    cout << "Severe program failure." << endl << endl;
    return false;
 }
 
-bool ROMEIO::ReadEvent(Int_t eventNumber) {
+bool ROMEIO::ReadEvent(Int_t event) {
    this->SetAnalyze();
+   this->ClearFolders();
+   int timeStamp = 0;
+
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS
       int runNumber,trans;
@@ -219,7 +221,10 @@ bool ROMEIO::ReadEvent(Int_t eventNumber) {
          return true;
       }
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->event_id;
+      timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
       this->InitMidasBanks();
+      fTreeInfo->SetEventNumber(fCurrentEventNumber);
+      fTreeInfo->SetTimeStamp(timeStamp);
       return true;
 #else
       cout << "Need Midas support for Online Modus !!" << endl;
@@ -253,6 +258,7 @@ bool ROMEIO::ReadEvent(Int_t eventNumber) {
 
       int eventId = ((EVENT_HEADER*)fMidasEvent)->event_id;
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->serial_number;
+      timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
 
       if (eventId == EVENTID_EOR || eventId < 0) {
          fRunStatus = kContinue;
@@ -260,20 +266,41 @@ bool ROMEIO::ReadEvent(Int_t eventNumber) {
       if (eventId == EVENTID_EOR) fRunStatus = kEndOfRun;
 
       if (fRunStatus==kAnalyze) this->InitMidasBanks();
+      fTreeInfo->SetEventNumber(fCurrentEventNumber);
+      fTreeInfo->SetTimeStamp(timeStamp);
       return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
-      if (eventNumber>=fNumberOfEntries) {
+      ROMETree *datTree;
+      TTree *tree;
+      bool found = false;
+      for (int j=0;j<GetTreeObjectEntries();j++) {
+         datTree = GetTreeObjectAt(j);
+         tree = datTree->GetTree();
+         if (datTree->isRead()) {
+            if (fTreeNextSeqNumber[j]==event) {
+               found = true;
+               if (tree->GetEntriesFast()>fTreePosition[j]+1) {
+                  tree->GetBranch("Info")->GetEntry(fTreePosition[j]+1);
+                  fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
+               }
+               else {
+                  fTreeNextSeqNumber[j] = -1;
+               }
+               tree->GetEntry(fTreePosition[j]);
+               fTreePosition[j]++;
+            }
+         }  
+      }
+      if (!found) {
          fRunStatus = kEndOfRun;
          return true;
       }
-      for (int j=0;j<GetTreeObjectEntries();j++) {
-         if (GetTreeObjectAt(j)->isRead()) {
-            GetTreeObjectAt(j)->GetTree()->GetEntry(eventNumber);
-         }  
-      }
+      fTreeInfo->SetEventNumber(fCurrentEventNumber);
+      fTreeInfo->SetTimeStamp(timeStamp);
       return true;
    }
+
    cout << "Severe program failure." << endl << endl;
    return false;
 }

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2004/07/07 14:48:22  schneebeli
+  io : root trees
+
   Revision 1.11  2004/07/06 08:01:08  schneebeli
   lots of stuff changed
 
@@ -63,7 +66,7 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
          // default initialisation
          strcpy(version[numOfFolder],"1");
          strcpy(author[numOfFolder],"");
-         strcpy(classDescription[numOfFolder],"");
+         strcpy(folderDescription[numOfFolder],"");
          numOfValue[numOfFolder] = 0;
          numOfGetters[numOfFolder] = 0;
          numOfSetters[numOfFolder] = 0;
@@ -132,10 +135,10 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
             xmlFree((void*)value);
          }
          // read description
-         else if (!strcmp((const char*)name,"ClassDescription")) {
+         else if (!strcmp((const char*)name,"Description")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            if (value != NULL) strcpy(classDescription[numOfFolder],(const char*)value);
-            else strcpy(classDescription[numOfFolder],"");
+            if (value != NULL) strcpy(folderDescription[numOfFolder],(const char*)value);
+            else strcpy(folderDescription[numOfFolder],"");
             xmlFree((void*)value);
          }
          // read additional getters
@@ -294,10 +297,10 @@ bool ROMEBuilder::WriteFolderCpp() {
       sprintf(format,"// %%s%%-%d.%ds //\n",ll,ll);
       sprintf(buffer+strlen(buffer),format,shortCut,folderName[iFold]);
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      pos = classDescription[iFold];
-      lenTot = strlen(classDescription[iFold]);
-      while (pos-classDescription[iFold] < lenTot) {
-         if (lenTot+(classDescription[iFold]-pos)<74) i=75;
+      pos = folderDescription[iFold];
+      lenTot = strlen(folderDescription[iFold]);
+      while (pos-folderDescription[iFold] < lenTot) {
+         if (lenTot+(folderDescription[iFold]-pos)<74) i=75;
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0) i=75;
          pos[i] = 0;
@@ -454,7 +457,7 @@ bool ROMEBuilder::WriteFolderH() {
 
       sprintf(buffer+strlen(buffer),"protected:\n");
       int typeLen = 5;
-      int nameLen = 11;
+      int nameLen = 8;
       for (i=0;i<numOfValue[iFold];i++) {
          if (typeLen<(int)strlen(valueType[iFold][i])) typeLen = strlen(valueType[iFold][i]);
          if (nameLen<(int)strlen(valueName[iFold][i])) nameLen = strlen(valueName[iFold][i]);
@@ -470,20 +473,8 @@ bool ROMEBuilder::WriteFolderH() {
          }
       }
       sprintf(buffer+strlen(buffer),"\n");
-      if (this->writeRunNumber) {
-         sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","  // Run Number");
-         sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","// Event Number");
-      }
-      else {
-         sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","  //! Run Number");
-         sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","//! Event Number");
-      }
-      sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","   //! Modified Folder Flag");
+      sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
+      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","//! Modified Folder Flag");
       sprintf(buffer+strlen(buffer),"\n");
 
       // Methods
@@ -491,15 +482,11 @@ bool ROMEBuilder::WriteFolderH() {
       sprintf(buffer+strlen(buffer),"public:\n");
       // Constructor
       sprintf(buffer+strlen(buffer),"   %s%s(",shortCut,folderName[iFold]);
-      sprintf(buffer+strlen(buffer),"%s %s=0,","Int_t","RunNumber");
-      sprintf(buffer+strlen(buffer),"%s %s=0,","Int_t","EventNumber");
       for (i=0;i<numOfValue[iFold];i++) {
          sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
       }
       sprintf(buffer+strlen(buffer)-1,")\n");
       sprintf(buffer+strlen(buffer),"   { ");
-      sprintf(buffer+strlen(buffer),"f%s = %s; ","RunNumber","RunNumber");
-      sprintf(buffer+strlen(buffer),"f%s = %s; ","EventNumber","EventNumber");
       for (i=0;i<numOfValue[iFold];i++) {
          sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
       }
@@ -527,12 +514,6 @@ bool ROMEBuilder::WriteFolderH() {
       }
       sprintf(buffer+strlen(buffer),"\n");
 
-      // Run and Eventnumber
-      sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,nameLen-9,nameLen-9);
-      sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","RunNumber","");
-      sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,nameLen-11,nameLen-11);
-      sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","EventNumber","");
-      sprintf(buffer+strlen(buffer),"\n");
       // Modifier
       sprintf(format,"   %%-%ds is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
       sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","Modified","");
@@ -543,12 +524,6 @@ bool ROMEBuilder::WriteFolderH() {
          sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
          sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
       }
-      sprintf(buffer+strlen(buffer),"\n");
-      // Run and Eventnumber
-      sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds };\n",nameLen-9,typeLen,nameLen-9,nameLen-9,nameLen-9);
-      sprintf(buffer+strlen(buffer),format,"RunNumber","","Int_t","RunNumber","","RunNumber","","RunNumber","");
-      sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds };\n",nameLen-11,typeLen,nameLen-11,nameLen-11,nameLen-11);
-      sprintf(buffer+strlen(buffer),format,"EventNumber","","Int_t","EventNumber","","EventNumber","","EventNumber","");
       sprintf(buffer+strlen(buffer),"\n");
       // Set All
       sprintf(buffer+strlen(buffer),"   void SetAll(");
@@ -561,6 +536,14 @@ bool ROMEBuilder::WriteFolderH() {
          sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
       }
       sprintf(buffer+strlen(buffer),"fModified = true; ");
+      sprintf(buffer+strlen(buffer),"};\n");
+      sprintf(buffer+strlen(buffer),"\n");
+      // Reset
+      sprintf(buffer+strlen(buffer),"   void Reset() {");
+      for (i=0;i<numOfValue[iFold];i++) {
+         sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueInit[iFold][i]);
+      }
+      sprintf(buffer+strlen(buffer),"fModified = false; ");
       sprintf(buffer+strlen(buffer),"};\n");
 
 // Footer
@@ -623,7 +606,7 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
          strcpy(parentTaskName[numOfTask],parent[isub]);
          strcpy(version[numOfTask],"1");
          strcpy(author[numOfTask],"");
-         strcpy(classDescription[numOfTask],"");
+         strcpy(taskDescription[numOfTask],"");
          numOfHistos[numOfTask] = 0;
          numOfInclude[numOfTask] = 0;
          // task name
@@ -670,10 +653,10 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
             xmlFree((void*)value);
          }
          // description
-         else if (!strcmp((const char*)name,"ClassDescription")) {
+         else if (!strcmp((const char*)name,"Description")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            if (value!=NULL) strcpy(classDescription[numOfTask],(const char*)value);
-            else strcpy(classDescription[numOfTask],"");
+            if (value!=NULL) strcpy(taskDescription[numOfTask],(const char*)value);
+            else strcpy(taskDescription[numOfTask],"");
             xmlFree((void*)value);
          }
          // includes
@@ -1090,10 +1073,10 @@ bool ROMEBuilder::WriteTaskCpp() {
       sprintf(format,"// %%sT%%-%d.%ds //\n",ll,ll);
       sprintf(buffer+strlen(buffer),format,shortCut,taskName[iTask]);
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      pos = classDescription[iTask];
-      lenTot = strlen(classDescription[iTask]);
-      while (pos-classDescription[iTask] < lenTot) {
-         if (lenTot+(classDescription[iTask]-pos)<74) i=75;
+      pos = taskDescription[iTask];
+      lenTot = strlen(taskDescription[iTask]);
+      while (pos-taskDescription[iTask] < lenTot) {
+         if (lenTot+(taskDescription[iTask]-pos)<74) i=75;
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0) i=75;
          pos[i] = 0;
@@ -2022,7 +2005,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
-   int nb,lenTot,j,k,iFold=0,ll;
+   int nb,lenTot,j,ll;
    char *pos;
    int fileHandle;
 
@@ -2196,25 +2179,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    }
    sprintf(buffer+strlen(buffer),"\n");
 
-   // Tree
-   sprintf(buffer+strlen(buffer),"   // Tree initialisation\n");
-   sprintf(buffer+strlen(buffer),"   TTree *tree;\n\n");
-   for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   tree = new TTree(\"%s\",\"%s\");\n",treeName[i],treeTitle[i]);
-      for (j=0;j<numOfBranch[i];j++) {
-         for (k=0;k<numOfFolder;k++) {
-            if (!strcmp(branchFolder[i][j],folderName[k])) iFold = k;
-         }
-         if (strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"TClonesArray\",&f%sObjects,32000,99);\n",branchName[i][j],branchFolder[i][j]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"%s%s\",&f%sObject,32000,99);\n",branchName[i][j],shortCut,folderName[iFold],branchFolder[i][j]);
-         }
-      }
-      sprintf(buffer+strlen(buffer),"   this->GetIO()->AddTree(tree);\n\n");
-    }
-
    // RunTable
    sprintf(buffer+strlen(buffer),"   // RunTable\n");
    sprintf(buffer+strlen(buffer),"   fRunTable = new TList();\n");
@@ -2223,16 +2187,13 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
 
    // ClearFolders
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::ClearFolders() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::InitFolders() {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (strcmp(folderArray[i],"1")) {
             sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",folderArray[i]);
             sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s(",folderName[i],shortCut,folderName[i]);
-            if (this->writeRunNumber) {
-               sprintf(buffer+strlen(buffer),"0,0,");
-            }
             for (j=0;j<numOfValue[i];j++) {
                sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
@@ -2241,9 +2202,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          }
          else {
             sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
-            if (this->writeRunNumber) {
-               sprintf(buffer+strlen(buffer),"0,0,");
-            }
             for (j=0;j<numOfValue[i];j++) {
                sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
@@ -2395,32 +2353,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetTreeAccumulation();\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"IOMode\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"Synchronized\")) {\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetSynchronizedMode();\n");
-   sprintf(buffer+strlen(buffer),"            }\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"IndexFile\")) {\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetIndexFileMode();\n");
-   sprintf(buffer+strlen(buffer),"            }\n");
-   if (this->writeRunNumber) {
-      sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\")) {\n");
-      sprintf(buffer+strlen(buffer),"               this->GetIO()->SetEventNumberMode();\n");
-      sprintf(buffer+strlen(buffer),"            }\n");
-   }
-   else {
-      sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\")) {\n");
-      sprintf(buffer+strlen(buffer),"               cout << \"The framework was generated with the option '-norn'.\" << endl;\n");
-      sprintf(buffer+strlen(buffer),"               cout << \"This means that the event and run numbers are not written to the trees.\" << endl;\n");
-      sprintf(buffer+strlen(buffer),"               cout << \"Therefore, the io tree mode 'EventNumber' can not be used.\" << endl;\n");
-      sprintf(buffer+strlen(buffer),"               return false;\n");
-      sprintf(buffer+strlen(buffer),"            }\n");
-   }
-   sprintf(buffer+strlen(buffer),"            else {\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetNoTreeMode();\n");
-   sprintf(buffer+strlen(buffer),"            }\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
    sprintf(buffer+strlen(buffer),"            type = xmlTextReaderNodeType(reader);\n");
    sprintf(buffer+strlen(buffer),"            name = xmlTextReaderConstName(reader);\n");
@@ -2535,18 +2467,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   else\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulation\",BAD_CAST \"no\");\n");
 
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isSynchronizedMode()) {\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"Synchronized\");\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isIndexFileMode()) {\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"IndexFile\");\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isEventNumberMode()) {\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"EventNumber\");\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   else {\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"none\");\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",treeName[i]);
       sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isRead())\n",i);
@@ -2742,7 +2662,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    sprintf(buffer+strlen(buffer),"   %sIO* GetIO() { return (%sIO*)fIO; };\n\n",shortCut,shortCut);
 
-   sprintf(buffer+strlen(buffer),"   void ClearFolders();\n\n");
+   sprintf(buffer+strlen(buffer),"   void InitFolders();\n\n");
 
    // Getters
    sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
@@ -2884,6 +2804,8 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMETree.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMETreeInfo.h>\n");
    sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
    sprintf(buffer+strlen(buffer),"#include <midas.h>\n");
    sprintf(buffer+strlen(buffer),"#endif\n");
@@ -2896,116 +2818,110 @@ bool ROMEBuilder::WriteIOCpp() {
    // User Functions
    //----------------
 
-   // fill runnumbers
-   sprintf(buffer+strlen(buffer),"// Fill Runnumbers to Folders\n");
-   sprintf(buffer+strlen(buffer),"void %sIO::FillRunNumbersToFolders() {\n",shortCut);
-   if (writeRunNumber) {
-      sprintf(buffer+strlen(buffer),"   if (this->isNoTreeMode())\n");
-      sprintf(buffer+strlen(buffer),"      return;\n");
-      sprintf(buffer+strlen(buffer),"   int i;\n");
-      sprintf(buffer+strlen(buffer),"   int runNumber = GetCurrentRunNumber();\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (numOfValue[i]>0) {
-            bool found = false;
-            for (j=0;j<numOfTree;j++) {
-               for (k=0;k<numOfBranch[j];k++) {
-                  if (!strcmp(folderName[i],branchFolder[j][k])) {
-                     found = true;
-                  }
-               }
-            }
-            if (!found) continue;
-            if (!strcmp(folderArray[i],"1")) {
-               sprintf(buffer+strlen(buffer),"   f%sObject->SetRunNumber(runNumber);\n",folderName[i]);
-            }
-            else {
-               sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
-               sprintf(buffer+strlen(buffer),"      %s%s* %sObject = (%s%s*)f%sObjects->At(i);\n",shortCut,folderName[i],folderName[i],shortCut,folderName[i],folderName[i]);
-               sprintf(buffer+strlen(buffer),"      %sObject->SetRunNumber(runNumber);\n",folderName[i]);
-               sprintf(buffer+strlen(buffer),"   }\n");
-            }
+   // constructor
+   sprintf(buffer+strlen(buffer),"// Constructor\n");
+   sprintf(buffer+strlen(buffer),"%sIO::%sIO(",shortCut,shortCut);
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"TClonesArray* %sObjects,",folderName[i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"%s%s* %sObject,",shortCut,folderName[i],folderName[i]);
+         }
+      }
+   }
+   sprintf(buffer+strlen(buffer)-1,")\n");
+   sprintf(buffer+strlen(buffer),"{\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"   f%sObjects = %sObjects;\n",folderName[i],folderName[i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"   f%sObject = %sObject;\n",folderName[i],folderName[i]);
+         }
+      }
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"   TTree *tree;\n\n");
+   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"   tree = new TTree(\"%s\",\"%s\");\n",treeName[i],treeTitle[i]);
+      sprintf(buffer+strlen(buffer),"   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
+      for (j=0;j<numOfBranch[i];j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (!strcmp(branchFolder[i][j],folderName[k])) iFold = k;
+         }
+         if (strcmp(folderArray[iFold],"1")) {
+            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"TClonesArray\",&f%sObjects,32000,99);\n",branchName[i][j],branchFolder[i][j]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"%s%s\",&f%sObject,32000,99);\n",branchName[i][j],shortCut,folderName[iFold],branchFolder[i][j]);
+         }
+      }
+      sprintf(buffer+strlen(buffer),"   this->AddTree(tree);\n\n");
+   }
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
+   // clear folders
+   sprintf(buffer+strlen(buffer),"// Clear Folders\n");
+   sprintf(buffer+strlen(buffer),"void %sIO::ClearFolders() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i]>0 && !dataBase[i]) {
+         if (!strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"   f%sObject->Reset();\n",folderName[i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Reset();\n",shortCut,folderName[i],folderName[i]);
+            sprintf(buffer+strlen(buffer),"   }\n");
          }
       }
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
 
-   // fill tree
+   // fill trees
    sprintf(buffer+strlen(buffer),"// Tree Filling\n");
    sprintf(buffer+strlen(buffer),"void %sIO::FillTrees() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   if (this->isNoTreeMode())\n");
-   sprintf(buffer+strlen(buffer),"      return;\n");
    sprintf(buffer+strlen(buffer),"   ROMETree *datTree;\n");
    sprintf(buffer+strlen(buffer),"   int i;\n");
-   sprintf(buffer+strlen(buffer),"   // Fill Run and Event Numbers;\n");
-   sprintf(buffer+strlen(buffer),"   int eventNumber = GetCurrentEventNumber();\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0) {
-         bool found = false;
-         for (j=0;j<numOfTree;j++) {
-            for (k=0;k<numOfBranch[j];k++) {
-               if (!strcmp(folderName[i],branchFolder[j][k])) {
-                  found = true;
-               }
-            }
-         }
-         if (!found) continue;
-         if (!strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   f%sObject->SetEventNumber(eventNumber);\n",folderName[i]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      %s%s* %sObject = (%s%s*)f%sObjects->At(i);\n",shortCut,folderName[i],folderName[i],shortCut,folderName[i],folderName[i]);
-            sprintf(buffer+strlen(buffer),"      %sObject->SetEventNumber(eventNumber);\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"   }\n");
-         }
-      }
-   }
    sprintf(buffer+strlen(buffer),"   // Fill Trees;\n");
    sprintf(buffer+strlen(buffer),"   bool write = false;\n");
-   sprintf(buffer+strlen(buffer),"   if (fFillTreeFirst && this->isIndexFileMode()) {\n");
+   sprintf(buffer+strlen(buffer),"   bool written = false;\n");
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"      if (GetTreeObjectAt(%d)->isWrite()) {\n",i);
-      for (j=0;j<numOfBranch[i];j++) {
-         sprintf(buffer+strlen(buffer),"        fNameObject->AddName(\"%s_%s\");\n",treeName[i],branchName[i][j]);
-      }
-      sprintf(buffer+strlen(buffer),"      }\n");
-   }
-//   sprintf(buffer+strlen(buffer),"      fIndexObject->index[\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   fFillTreeFirst = false;\n");
-   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"   write = false;\n");
       sprintf(buffer+strlen(buffer),"   datTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
       sprintf(buffer+strlen(buffer),"   if (datTree->isWrite()) {\n");
-      sprintf(buffer+strlen(buffer),"      if (this->isSynchronizedMode()) {\n");
-      sprintf(buffer+strlen(buffer),"         datTree->GetTree()->Fill();\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"      else {\n");
       for (j=0;j<numOfBranch[i];j++) {
-         sprintf(buffer+strlen(buffer),"         write = false;\n");
          for (k=0;k<numOfFolder;k++) {
             if (!strcmp(folderName[k],branchFolder[i][j])) {
                iFold = k;
+               break;
             }
          }
          if (!strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"         if (f%sObject->isModified()) {\n",branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"            write = true;\n");
-            sprintf(buffer+strlen(buffer),"         }\n");
+            sprintf(buffer+strlen(buffer),"      if (!write && f%sObject->isModified()) {\n",branchFolder[i][j]);
+            sprintf(buffer+strlen(buffer),"         write = true;\n");
+            sprintf(buffer+strlen(buffer),"      }\n");
          }
          else {
-            sprintf(buffer+strlen(buffer),"         for (i=0;i<f%sObjects->GetEntries()&&!write;i++) {\n",branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"            if (((%s%s*)f%sObjects->At(i))->isModified()) {\n",shortCut,branchFolder[i][j],branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"               write = true;\n");
-            sprintf(buffer+strlen(buffer),"            }\n");
+            sprintf(buffer+strlen(buffer),"      for (i=0;i<f%sObjects->GetEntries()&&!write;i++) {\n",branchFolder[i][j]);
+            sprintf(buffer+strlen(buffer),"         if (((%s%s*)f%sObjects->At(i))->isModified()) {\n",shortCut,branchFolder[i][j],branchFolder[i][j]);
+            sprintf(buffer+strlen(buffer),"            write = true;\n");
+            sprintf(buffer+strlen(buffer),"            break;\n");
             sprintf(buffer+strlen(buffer),"         }\n");
+            sprintf(buffer+strlen(buffer),"      }\n");
          }
-         sprintf(buffer+strlen(buffer),"         if (write) {\n");
-         sprintf(buffer+strlen(buffer),"            datTree->GetTree()->GetBranch(\"%s\")->Fill();\n",branchName[i][j]);
-         sprintf(buffer+strlen(buffer),"         }\n");
       }
+      sprintf(buffer+strlen(buffer),"      if (write) {\n");
+      sprintf(buffer+strlen(buffer),"         written = true;\n");
+      sprintf(buffer+strlen(buffer),"         fTreeInfo->SetSequentialNumber(fSequentialNumber);\n");
+      sprintf(buffer+strlen(buffer),"         datTree->GetTree()->Fill();\n");
       sprintf(buffer+strlen(buffer),"      }\n");
       sprintf(buffer+strlen(buffer),"   }\n");
    }
+   sprintf(buffer+strlen(buffer),"   if (written) fSequentialNumber++;\n");
    sprintf(buffer+strlen(buffer),"}\n");
    sprintf(buffer+strlen(buffer),"\n");
 
@@ -3081,6 +2997,8 @@ bool ROMEBuilder::WriteIOCpp() {
          else {
             sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->f%sObject);\n",folderName[iFold]);
          }
+         sprintf(buffer+strlen(buffer),"   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
+         sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->fTreeInfo);\n");
       }
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
@@ -3600,19 +3518,7 @@ bool ROMEBuilder::WriteIOH() {
          }
       }
    }
-   sprintf(buffer+strlen(buffer)-1,")\n");
-   sprintf(buffer+strlen(buffer),"   { ");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"f%sObjects = %sObjects; ",folderName[i],folderName[i]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"f%sObject = %sObject; ",folderName[i],folderName[i]);
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer)," }\n\n");
+   sprintf(buffer+strlen(buffer)-1,");\n");
 
    // Banks
    if (numOfBank>0) {
@@ -3665,7 +3571,7 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
    sprintf(buffer+strlen(buffer),"   void ConnectTrees();\n");
    sprintf(buffer+strlen(buffer),"   void FillTrees();\n");
-   sprintf(buffer+strlen(buffer),"   void FillRunNumbersToFolders();\n");
+   sprintf(buffer+strlen(buffer),"   void ClearFolders();\n");
 
    // Footer
    //--------
@@ -4292,7 +4198,6 @@ int main(int argc, char *argv[])
    romeb->noLink = false;
    romeb->offline = false;
    romeb->sql = true;
-   romeb->writeRunNumber = true;
 
    char midasFile[200];
    sprintf(midasFile,"MIDASSYS/include/midas.h");
@@ -4311,7 +4216,6 @@ int main(int argc, char *argv[])
       cout << "  -nl       No Linking (no Argument)" << endl;
       cout << "  -offline  Generated program works only offline (no midas library needed) (no Argument)" << endl;
       cout << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
-      cout << "  -norn     Don't save the run number and the event number field of the folders in the trees (no Argument)" << endl;
       return 0;
    }
    for (int i=1;i<argc;i++) {
@@ -4320,9 +4224,6 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-nl")) {
          romeb->noLink = true;
-      }
-      else if (!strcmp(argv[i],"-norn")) {
-         romeb->writeRunNumber = false;
       }
       else if (!strcmp(argv[i],"-offline")) {
          romeb->offline = true;
@@ -4628,7 +4529,7 @@ void ROMEBuilder::WriteDictionaryBat(char* buffer1,char* buffer2)
    for (i=0;i<numOfTask;i++) {
       sprintf(buffer2+strlen(buffer2),"%sT%s.h ",shortCut,taskName[i]);
    }
-   sprintf(buffer2+strlen(buffer2),"ROMETask.h ROMEIndexObject.h ROMENameObject.h\n");
+   sprintf(buffer2+strlen(buffer2),"ROMETask.h ROMETreeInfo.h\n");
    strcat(buffer2,"\0");
 
 #if defined( _MSC_VER )
@@ -4648,6 +4549,9 @@ void ROMEBuilder::WriteHTMLDoku() {
    int i=0,j=0,k=0;
    char buffer[100000];
    char htmlFile[500];
+   char parentt[100] = "";
+   int depthold=0;
+   int depth=0;
 
 // Header
 //--------
@@ -4660,206 +4564,58 @@ void ROMEBuilder::WriteHTMLDoku() {
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"<H1>%s%s Manual</H1>\n",shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"\n");
+   // Table of Contents
+   sprintf(buffer+strlen(buffer),"<H2>Table of Contents</H2>\n");
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#introduction\">Introduction</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<br>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#taskobjects\">Tasks</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#folderobjects\">Folders</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#treeobjects\">Trees</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<br>\n");
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#foldermethods\">Folders</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#databasemethods\">Data Base</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<li><a href=\"#generalmethods\">General</a></li>\n");
+   sprintf(buffer+strlen(buffer),"<br>\n");
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n",outDir);
+   sprintf(buffer+strlen(buffer),"<br>\n");
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<hr>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   // Introduction
+   sprintf(buffer+strlen(buffer),"<H2><a name=introduction>Introduction</a> </H2>\n");
+   sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"The %s%s consists mainly of folders and tasks.\n",shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<a href=\"#folders\">Folders</a> are objects, where you can store data in. Typically you will store the data of one detector (or subdetector) component in it.\n");
+   sprintf(buffer+strlen(buffer),"Folders are objects, where you can store data in. Typically you will store the data of one detector (or subdetector) component in it.\n");
    sprintf(buffer+strlen(buffer),"Like disk folders (directories) they are hierarchically arranged.\n");
    sprintf(buffer+strlen(buffer),"Folders may have a data structure (unlike disk folders). The data objects are called fields. Folders without fields can be used to structure the project.\n");
    sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<a href=\"#tasks\">Tasks</a> are objects, which privides actions. They make calculations, store and read data in folders, fill trees and histograms and so on.\n");
+   sprintf(buffer+strlen(buffer),"Tasks are objects, which privides actions. They make calculations, store and read data in folders, fill trees and histograms and so on.\n");
    sprintf(buffer+strlen(buffer),"Tasks are also hierarchically arranged. That means that a task may have a subtask, which is executed after the task itself has been executed.\n");
    sprintf(buffer+strlen(buffer),"Task also own histograms, which means that all histograms in this frame work belong to a task. The booking and saving of histograms is made by the frame work.\n");
    sprintf(buffer+strlen(buffer),"<p>\n");
    sprintf(buffer+strlen(buffer),"<hr>\n");
    sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<H2>Classes of %s%s </H2>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"In the following all classes of %s%s are discussed. For a quick overview of all classes check out the <A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">class index</A>.\n",shortCut,mainProgName,outDir);
-   sprintf(buffer+strlen(buffer),"<p>\n");
-
-// Analyzer
-//----------
-   sprintf(buffer+strlen(buffer),"<H3>Main Class <A TARGET=_top HREF=\"file:%s/htmldoc/%sAnalyzer.html\">%sAnalyzer</A></H3>\n",outDir,shortCut,shortCut);
+   // Objects
+   sprintf(buffer+strlen(buffer),"<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a> and <a href=\"#treeobjects\">Trees</a> are described here.\n");
+   // Tasks
+   sprintf(buffer+strlen(buffer),"<h3><a name=taskobjects>Tasks</a></h3>\n");
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"This is the main class of the frame work. It instantiates the class %sEventLoop which\n",shortCut);
-   sprintf(buffer+strlen(buffer),"starts the event loop.<p>\n");
-   sprintf(buffer+strlen(buffer),"Further it provides the <a href=\"#getters\">getters</a> and <a href=\"#setters\">setters</a> of the folders\n");
-   sprintf(buffer+strlen(buffer),"and methods for the <a href=\"#database\">data base access</a>, <a href=\"#tree\">tree handling</a> and the <a href=\"#steering\">program steering</a>.\n");
-   sprintf(buffer+strlen(buffer),"All task can access these methods over their <b>fAnalyzer</b> handle, which every task has by\n");
-   sprintf(buffer+strlen(buffer),"default.<p>\n");
-
-// Folders
-   sprintf(buffer+strlen(buffer),"<h4><a name=folders><u>Folders</u></a></h4>\n");
+   sprintf(buffer+strlen(buffer),"The %s%s consists of the following tasks :\n",shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"%s%s incorporates the following folders :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-
-   char parentt[100] = "";
-   int depthold=0;
-   int depth=0;
-   for (i=0;i<numOfFolder;i++) {
-      depth=0;
-      if (strcmp(parentFolderName[i],"GetMainFolder()")) {
-         depth++;
-         strcpy(parentt,parentFolderName[i]);
-         for (j=0;j<100;j++) {
-            for (k=0;k<numOfFolder;k++) {
-               if (!strcmp(parentt,folderName[k])) break;
-            }
-            if (k>=numOfFolder) {
-               cout << "Invalid folder structure." << endl;
-               return;
-            }
-            if (!strcmp(parentFolderName[k],"GetMainFolder()")) break;
-            depth++;
-         }
-      }
-      if (depth<depthold) sprintf(buffer+strlen(buffer),"</ul>\n");
-      if (depth>depthold) sprintf(buffer+strlen(buffer),"<ul>\n");
-      if (numOfValue[i] > 0) sprintf(buffer+strlen(buffer),"<b>\n");
-      if (depth%3==2) sprintf(buffer+strlen(buffer),"<li type=\"square\">%s</li>\n",folderName[i]);
-      else if (depth%3==1) sprintf(buffer+strlen(buffer),"<li type=\"circle\">%s</li>\n",folderName[i]);
-      else sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",folderName[i]);
-      if (numOfValue[i] > 0) sprintf(buffer+strlen(buffer),"</b>\n");
-      depthold = depth;
-   }
-   for (i=0;i<depth;i++) sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"The bold folders are data folders. The others are only used to structure the data.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<a name=getters>The getters of the folders have the following nomenclature : </a><p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td> : for object arrays.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]Object()</td><td> : for single objects.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the object.</br>\n");
-   sprintf(buffer+strlen(buffer),"These methods return a pointer on the class of this folder.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<a name=setters>The setters of the folders have the following nomenclature : </a><p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Set[<i>Folder Name</i>]Object([<i>Index</i>],[<i>Field 1</i>],[<i>Field 2</i>],...)</b></td><td> : for object arrays.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Set[<i>Folder Name</i>]Object([<i>Field 1</i>],[<i>Field 2</i>],...)</b></td><td> : for single objects.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the object.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Field #</i></b> stands for the fields of the folder as specified in the xml file.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-
-// trees
-   sprintf(buffer+strlen(buffer),"<h4><a name=tree><u>Trees</u></a></h4>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"%s%s incorporates the following trees :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-   for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",treeName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"The tree methods have the following nomenclature : <p>\n");
-   sprintf(buffer+strlen(buffer),"<b>Get[<i>Tree Name</i>]Tree()</b>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Tree Name</i></b> stands for the name of the tree specified in the xml file (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"These methods return a pointer on a ROMETree object, that contains the tree.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-
-// Data Base
-   sprintf(buffer+strlen(buffer),"<h4><a name=database><u>Data Base</u></a></h4>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The following folders have data base access :\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
-         sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",folderName[i]);
-      }
-   }
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"The data base methods have the following nomenclature : <p>\n");
-   sprintf(buffer+strlen(buffer),"<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-// General Methods
-   sprintf(buffer+strlen(buffer),"<h4><a name=steering><u>General methods</u></a></h4>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"%s%s provides some general methods for the user.\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetMidasEvent()</td><td> : returns a pointer on the buffer containing the current event data, that was read from a file or received online.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isOnline()</td><td> : true if the program is running online.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isOffline()</td><td> : true if the program is running offline.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isRoot()</td><td> : true if the data is read from a root file.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isMidas()</td><td> : true if the data has the midas format.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isBatchMode()</td><td> : true if the program is running in batch mode.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isEndOfRun()</td><td> : true if the EndOfRun flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isBeginOfRun()</td><td> : true if the BeginOfRun flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isTerminate()</td><td> : true if the Terminate flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>EndOfRun()</td><td> : sets the EndOfRun flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>BeginOfRun()</td><td> : sets the BeginOfRun flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>Terminate()</td><td> : sets the Terminate flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<p><b>Note</b> : The user may not add code to or alter code in this class. Both the class file (.h) and the methods file (.cpp) are generated by the framework. Manual changes to these two files will allways be overwritten.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-// EventLoop
-//-----------
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<H3>Event Loop Class <A TARGET=_top HREF=\"%s/htmldoc/%sEventLoop.html\">%sEventLoop</A></H3>\n",outDir,shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"This class incorporates the event loop. </br>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The event loop can be in the following five different stages : </br>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>Init</td><td> : at the start of the program.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>BeginOfRun</td><td> : at the beginning of a new run.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>Event</td><td> : every event.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>EndOfRun</td><td> : at the end of a run.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>Terminate</td><td> : at the end of the program.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<p><b>Note</b> : The user may not add code to or alter code in this class. Both the class file (.h) and the methods file (.cpp) are generated by the framework. Manual changes to these two files will allways be overwritten.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-// Tasks
-//-------
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<H3><a name=tasks>Task Classes </a></H3>\n",shortCut);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"Tasks provide the user with histogram methods.\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histogram Name</i>]At([<i>Index</i>],[<i>Value</i>],[<i>Weight</i>])</b></td><td> : to fill histogram arrays.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histogram Name</i>]([<i>Value</i>],[<i>Weight</i>])</b></td><td> : to fill single histograms.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histogram Name</i>]HandleAt([<i>Index</i>])</b></td><td> : to get a pointer on a histogram of a histogram array.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histogram Name</i>]Handle()</b></td><td> : to get a pointer on a single histogram.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Histogram Name</i></b> stands for the name of the histogram specified in the xml file (see also the following task descriptions).</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Value</i></b> is the value to fill into the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Weight</i></b> is the weight of the value to fill into the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"In the following all tasks of %s%s are discussed.\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<p>\n");
 
    depthold=0;
    depth=0;
@@ -4882,11 +4638,20 @@ void ROMEBuilder::WriteHTMLDoku() {
       }
       if (depth<depthold) sprintf(buffer+strlen(buffer),"</ul>\n");
       if (depth>depthold) sprintf(buffer+strlen(buffer),"<ul>\n");
-      if (depth%3==2) sprintf(buffer+strlen(buffer),"<li type=\"square\"><h4><A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">%sT%s</A></h4></li>\n",outDir,shortCut,taskName[i],shortCut,taskName[i]);
-      else if (depth%3==1) sprintf(buffer+strlen(buffer),"<li type=\"circle\"><h4><A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">%sT%s</A></h4></li>\n",outDir,shortCut,taskName[i],shortCut,taskName[i]);
-      else sprintf(buffer+strlen(buffer),"<li type=\"disc\"><h4><A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">%sT%s</A></h4></li>\n",outDir,shortCut,taskName[i],shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskName[i],shortCut,taskName[i]);
       depthold = depth;
-      sprintf(buffer+strlen(buffer),"%s<p>\n",classDescription[i]);
+   }
+   for (i=0;i<depth;i++) sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<p><b>Note</b> : The user should write code into the Init(), BeginOfRun(), Event(), EndOfRun() and Terminate() methods of the tasks methods file (.cpp). But the user may not add code to or alter code in the class file (.h). The class file (.h) is generated by the framework. Manual changes to this file will allways be overwritten.\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"In the following all tasks will be described.\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i],taskName[i]);
+      sprintf(buffer+strlen(buffer),"%s<p>\n",taskDescription[i]);
       if (numOfHistos[i]>0) {
          sprintf(buffer+strlen(buffer),"This task containes the following histograms :\n");
          sprintf(buffer+strlen(buffer),"<ul>\n");
@@ -4903,13 +4668,224 @@ void ROMEBuilder::WriteHTMLDoku() {
          sprintf(buffer+strlen(buffer),"This task containes no histograms.\n");
       }
       sprintf(buffer+strlen(buffer),"<p>\n");
+      sprintf(buffer+strlen(buffer),"For more information take a look at the <A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">class file</a>\n",outDir,shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"<p>\n");
       sprintf(buffer+strlen(buffer),"\n");
+   }
+   sprintf(buffer+strlen(buffer),"<hr>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   // Folders
+   sprintf(buffer+strlen(buffer),"<h3><a name=folderobjects>Folders</a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following folders :\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+
+   depthold=0;
+   depth=0;
+   for (i=0;i<numOfFolder;i++) {
+      depth=0;
+      if (strcmp(parentFolderName[i],"GetMainFolder()")) {
+         depth++;
+         strcpy(parentt,parentFolderName[i]);
+         for (j=0;j<100;j++) {
+            for (k=0;k<numOfFolder;k++) {
+               if (!strcmp(parentt,folderName[k])) break;
+            }
+            if (k>=numOfFolder) {
+               cout << "Invalid folder structure." << endl;
+               return;
+            }
+            if (!strcmp(parentFolderName[k],"GetMainFolder()")) break;
+            depth++;
+         }
+      }
+      if (depth<depthold) sprintf(buffer+strlen(buffer),"</ul>\n");
+      if (depth>depthold) sprintf(buffer+strlen(buffer),"<ul>\n");
+      if (numOfValue[i] > 0) {
+         sprintf(buffer+strlen(buffer),"<b>\n");
+         sprintf(buffer+strlen(buffer),"<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n",folderName[i],folderName[i]);
+         sprintf(buffer+strlen(buffer),"</b>\n");
+      }
+      else {
+         sprintf(buffer+strlen(buffer),"<li type=\"circle\">%s</li>\n",folderName[i]);
+      }
+      depthold = depth;
    }
    for (i=0;i<depth;i++) sprintf(buffer+strlen(buffer),"</ul>\n");
    sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<p><b>Note</b> : The user should write code into the Init(), BeginOfRun(), Event(), EndOfRun() and Terminate() methods of the methods file (.cpp). But the user may not add code to or alter code in the class file (.h). The class file (.h) is generated by the framework. Manual changes to this file will allways be overwritten.\n");
+   sprintf(buffer+strlen(buffer),"The bold folders are data folders. The others are only used to structure the frame work.\n");
    sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"In the following all folders will be described.\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] <= 0) continue;
+      sprintf(buffer+strlen(buffer),"<h4><a name=%s><u>%s</u></a></h4>\n",folderName[i],folderName[i]);
+      sprintf(buffer+strlen(buffer),"%s\n",folderDescription[i]);
+      sprintf(buffer+strlen(buffer),"<p>\n");
+      sprintf(buffer+strlen(buffer),"<u>Fields</u>\n");
+      sprintf(buffer+strlen(buffer),"<table border=\"1\">\n");
+      sprintf(buffer+strlen(buffer),"<tr><td>Name</td><td>Type</td></tr>\n");
+      for (j=0;j<numOfValue[i];j++) {
+         sprintf(buffer+strlen(buffer),"<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j],valueType[i][j]);
+      }
+      sprintf(buffer+strlen(buffer),"</table>\n");
+
+   }
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<hr>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   // Trees
+   sprintf(buffer+strlen(buffer),"<h3><a name=treeobjects>Trees</a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following trees :\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",treeName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<hr>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   // Midas Banks
+   sprintf(buffer+strlen(buffer),"<h3><a name=midasbankobjects>Midas Banks</a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following midas banks :\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<ul>\n");
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"<ul>\n");
+         for (j=0;j<numOfStructFields[i];j++) {
+            sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",structFieldName[i][j]);
+         }
+         sprintf(buffer+strlen(buffer),"</ul>\n");
+      }
+      else {
+         sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",bankName[i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"</ul>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<hr>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   // Access Methods
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<H2><a name=accessmethods>Access Methods to Objects in the %s%s</a> </H2>\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"In the following the access methods of all types of objects in the %s%s are discussed.\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"All task can access these methods over their <b>fAnalyzer</b> handle, which every task has by\n");
+   sprintf(buffer+strlen(buffer),"default.<br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<h3><a name=foldermethods>Folders</a></h3>\n");
+   sprintf(buffer+strlen(buffer),"To access a folder one has to get a handle to it with the following methods : <p>\n");
+   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;for object arrays.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]Object()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"</table>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the object.</br>\n");
+   sprintf(buffer+strlen(buffer),"These methods return a pointer on the class of this folder.</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"The get or set the content of a folder one has to use the following methods : <p>\n");
+   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Field Name</i>]()</b></td><td>&nbsp;&nbsp;&nbsp;getter.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Set[<i>Field Name</i>]([<i>Value</i>])</td><td>&nbsp;&nbsp;&nbsp;setter.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"</table>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Field Name</i></b> stands for the name of the field to access specified in the xml file (see also list above).</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Value</i></b> stands for the value given to the Field.</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b>Example:</b> To give the field 'YY' of the 9 folder of a folderarray 'XX' the value 99 one has to type this :<p>\n");
+   sprintf(buffer+strlen(buffer),"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXAt(9)->SetYY(99) <p>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+
+   // Data Base
+   sprintf(buffer+strlen(buffer),"<h3><a name=databasemethods><u>Data Base</u></a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"To add an entry to the data base the following methods are available :\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Midas Banks
+   sprintf(buffer+strlen(buffer),"<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
+   sprintf(buffer+strlen(buffer),"To access a bank in a midas input file the following methods are available :\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"One can get the entries in a bank with the following method :\n");
+   sprintf(buffer+strlen(buffer),"<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"The data can be accessed with :\n");
+   sprintf(buffer+strlen(buffer),"<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
+   sprintf(buffer+strlen(buffer),"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXBankAt(9)->YY <p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Histos
+   sprintf(buffer+strlen(buffer),"<h3><a name=histogrammethods><u>Histograms</u></a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"Histograms belong to a task. So a task can only access his own histograms. To do this the following methods are available :\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histo Name</i>]([<i>xValue</i>],[<i>weight</i>])</b></td>  <td>&nbsp;&nbsp;&nbsp;fills a single histogram.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Draw[<i>Histo Name</i>]()</b></td>       <td>&nbsp;&nbsp;&nbsp;draws a single histogram.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histo Name</i>]Handle()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histo Name</i>]At([<i>Index</i>],[<i>xValue</i>],[<i>weight</i>])</b></td><td>&nbsp;&nbsp;&nbsp;fills a histogram of a histogram array.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Draw[<i>Histo Name</i>]At([<i>Index</i>])</b></td>     <td>&nbsp;&nbsp;&nbsp;draws a histogram of a histogram array.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histo Name</i>]HandleAt([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"</table>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Histo Name</i></b> stands for the name of the histogram.</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the histogram.</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>xValue</i></b> value to be filled to the histogram.</br>\n");
+   sprintf(buffer+strlen(buffer),"<b><i>weight</i></b> weight of the value.</br>\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // General Methods
+   sprintf(buffer+strlen(buffer),"<h3><a name=generalmethods><u>General</u></a></h3>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"%s%s provides some general methods for the user.\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isOnline()</td><td> : true if the program is running online.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isOffline()</td><td> : true if the program is running offline.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isRoot()</td><td> : true if the data is read from a root file.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isMidas()</td><td> : true if the data has the midas format.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isBatchMode()</td><td> : true if the program is running in batch mode.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isEndOfRun()</td><td> : true if the EndOfRun flag is set.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isBeginOfRun()</td><td> : true if the BeginOfRun flag is set.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>isTerminate()</td><td> : true if the Terminate flag is set.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>EndOfRun()</td><td> : sets the EndOfRun flag.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>BeginOfRun()</td><td> : sets the BeginOfRun flag.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>Terminate()</td><td> : sets the Terminate flag.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"<tr><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
+   sprintf(buffer+strlen(buffer),"</table>\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"<p>\n");
+   sprintf(buffer+strlen(buffer),"\n");
 
 // Footer
 //--------
@@ -4929,7 +4905,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    sprintf(buffer+strlen(buffer),"</BODY>\n");
    sprintf(buffer+strlen(buffer),"</HTML>\n");
 
-   sprintf(htmlFile,"%s%s.html",shortCut,mainProgName);
+   sprintf(htmlFile,"%s%s%s.html",outDir,shortCut,mainProgName);
    int fileHandle = open(htmlFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
    fileHandle = open(htmlFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
