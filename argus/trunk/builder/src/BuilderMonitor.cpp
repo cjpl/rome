@@ -3,8 +3,13 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/01/30 20:39:39  sawada
+  * Makefile of builder
+  * Tab enable/disable
+  * Bug fix.(fNetFolder, ConnectServer)
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -131,14 +136,15 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   fApplication->Run();\n");
-   buffer.AppendFormatted("   gArgus->ss_getchar(1);\n");
-   buffer.AppendFormatted("\n");
    // NerFolder
    buffer.AppendFormatted("  // connect to server\n");
    buffer.AppendFormatted("   if(strlen(gMonitor->GetNetFolderHost())){\n");
    buffer.AppendFormatted("      gWindow->ConnectServer();\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   fApplication->Run();\n");
+   buffer.AppendFormatted("   gArgus->ss_getchar(1);\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
    // ReadSingleDataBaseFolders
@@ -330,6 +336,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   if (!fNetFolderSocket->IsValid()) {\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"histos\",\"Online Histograms\",fNetFolderSocket);\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
    // Close cpp-File
@@ -405,8 +412,8 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("{\n");
    // Fields
    buffer.AppendFormatted("protected:\n");
-   buffer.AppendFormatted("   TNetFolder* fNetFolder;\n");
    buffer.AppendFormatted("   TSocket*    fNetFolderSocket;\n");
+   buffer.AppendFormatted("   TNetFolder* fNetFolder;\n");
    buffer.AppendFormatted("\n");
    // Folder Fields
    buffer.AppendFormatted("   // Folder fields\n");

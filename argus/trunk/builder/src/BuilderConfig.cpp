@@ -3,8 +3,13 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:07  sawada
-  Initial revision
+  Revision 1.2  2005/01/30 20:39:39  sawada
+  * Makefile of builder
+  * Tab enable/disable
+  * Bug fix.(fNetFolder, ConnectServer)
+
+  Revision 1.1.1.1  2005/01/29 22:45:07  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -317,6 +322,12 @@ bool ArgusBuilder::WriteConfigCpp() {
          pointer.InsertFormatted(0,"->f%sTab",tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       }
+      buffer.AppendFormatted("   if (fConfigData[modIndex]%s->fActiveModified) {\n",pointer.Data());
+      buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"false\")\n",pointer.Data());
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = false;\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("   }\n",pointer.Data());
       // Steering parameter
       if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
          buffer.AppendFormatted("   // steering parameters\n");
@@ -326,6 +337,30 @@ bool ArgusBuilder::WriteConfigCpp() {
          steerPointerT.SetFormatted("((%sT%s*) gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[tabHierarchyClassIndex[i]].Data(),tabHierarchyName[i].Data(),i);
          WriteSteeringConfigSet(buffer,0,tabHierarchyClassIndex[i],pointerT,steerPointerT);
       }
+   }
+   for (i=0;i<numOfTabHierarchy;i++) {
+      int index = tabHierarchyParentIndex[i];
+      ROMEString switchString = tabHierarchyName[i].Data();
+      while (index!=-1) {
+         switchString.Insert(0,"_");
+         switchString.Insert(0,tabHierarchyName[index].Data());
+         index = tabHierarchyParentIndex[index];
+      }
+      buffer.AppendFormatted("   // %s tab enabled hierarchy\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("   gWindow->GetTabSwitches()->%s = gWindow->GetTabSwitches()->%s ",switchString.Data(),switchString.Data());
+      index = tabHierarchyParentIndex[i];
+      while (index!=-1) {
+         int index2 = tabHierarchyParentIndex[index];
+         ROMEString switchString2 = tabHierarchyName[index].Data();
+         while (index2!=-1) {
+            switchString2.Insert(0,"_");
+            switchString2.Insert(0,tabHierarchyName[index2].Data());
+            index2 = tabHierarchyParentIndex[index2];
+         }
+         buffer.AppendFormatted(" * gWindow->GetTabSwitches()->%s",switchString2.Data());
+         index = tabHierarchyParentIndex[index];
+      }
+      buffer.AppendFormatted(";\n",pointer.Data());
    }
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");
