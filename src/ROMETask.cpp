@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.19  2005/01/18 09:36:11  schneebeli_m
+//  FillEvent flag suppresses later tasks
+//
 //  Revision 1.18  2004/11/23 09:22:21  schneebeli_m
 //  User called Root Interpreter
 //
@@ -77,7 +80,8 @@ void ROMETask::Exec(Option_t *option)
    else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
       fCurrentEventMethod = "Event";
       if (gShowTime) TimeStart();
-      Event();
+      if (gROME->isFillEvent()) 
+         Event();
       if (gShowTime) TimeEnd();
    }
 }
