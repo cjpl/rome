@@ -51,6 +51,30 @@ void TMTT1::MenuClicked(Long_t param)
       case 4:
 	 fText->SetTextColor(4);
 	 break;
+      case 21:
+	 fText->SetTextColor(12);
+	 break;
+      case 22:
+	 fText->SetTextColor(13);
+	 break;
+      case 23:
+	 fText->SetTextColor(14);
+	 break;
+      case 24:
+	 fText->SetTextColor(15);
+	 break;
+      case 5:
+	 fText->SetTextColor(16);
+	 break;
+      case 6:
+	 fText->SetTextColor(17);
+	 break;
+      case 7:
+	 fText->SetTextColor(18);
+	 break;
+      case 8:
+	 fText->SetTextColor(19);
+	 break;
       case 11:
 	 fText->SetTextSize(0.03);
 	 break;

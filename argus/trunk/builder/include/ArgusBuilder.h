@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.16  2005/04/01 12:31:19  sawada
+  sub menu
+
   Revision 1.15  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -71,8 +74,8 @@
 #include "ROMEString.h"
 
 const int maxNumberOfTabs = 200;
-const int maxNumberOfTabMenus = 5;
-const int maxNumberOfTabMenuItems = 20;
+const int maxNumberOfMenus = 5;
+const int maxNumberOfMenuItems = 20;
 const int maxNumberOfFolders = 100;
 const int maxNumberOfSteering = 20;
 const int maxNumberOfSteeringField = 100;
@@ -80,6 +83,7 @@ const int maxNumberOfValues = 50;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfThreadFunctions = 10;
 const int bufferLength = 100000;
+const char LINE_TITLE[] = "NoDayWithoutItsLine";
 
 class ArgusBuilder
 {
@@ -104,13 +108,14 @@ private:
    bool readTabs;
    bool readGlobalSteeringParameters;
 
-   ROMEString parent[maxNumberOfFolders];
    int recursiveTabDepth;
    int recursiveFolderDepth;
    int recursiveSteerDepth;
+   int recursiveMenuDepth;
    int actualSteerIndex;
    
 // folders
+   ROMEString parent[maxNumberOfFolders];
    int        numOfFolder;
    int        numOfValue[maxNumberOfFolders];
    int        numOfFolderInclude[maxNumberOfFolders];
@@ -142,14 +147,16 @@ private:
    ROMEString tabDescription[maxNumberOfTabs];
    ROMEString tabAuthor[maxNumberOfTabs];
    ROMEString tabVersion[maxNumberOfTabs];
-   int        tabParentIndex[2*maxNumberOfTabs];
-   int        numOfTabMenu[maxNumberOfTabs];
-   int        numOfTabMenuItem[maxNumberOfTabs][maxNumberOfTabMenus];
-   ROMEString tabMenuTitle[maxNumberOfTabs][maxNumberOfTabMenus];
-   int        tabMenuItemID[maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
-   ROMEString tabMenuItemTitle[maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
+   int        tabParentIndex[maxNumberOfTabs];
    int        tabNumOfChildren[maxNumberOfTabs];
-      
+   int        numOfMenu[maxNumberOfTabs];
+   int        numOfMenuItem[maxNumberOfTabs][maxNumberOfMenus];
+   ROMEString menuTitle[maxNumberOfTabs][maxNumberOfMenus];
+   int        menuDepth[maxNumberOfTabs][maxNumberOfMenus];
+   int        menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   int        menuItemID[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   ROMEString menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+
 // thread functions
    int        numOfThreadFunctions[maxNumberOfTabs];
    ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
@@ -191,7 +198,7 @@ public:
    bool WriteWindowCpp();
    bool WriteWindowH();
    bool ReadXMLTab();
-   bool ReadXMLMenu();
+   bool ReadXMLMenu(Int_t currentNumberOfTabs);
    bool WriteSteeringClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
    bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
    bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTab,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
@@ -202,6 +209,7 @@ public:
    bool WriteTabCpp();
    bool WriteTabH();
    bool AddTab(ROMEString& buffer,int& i);
+   bool AddMenuItems(ROMEString& buffer,int i,int j);
    bool ReadXMLTree();
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering(int iTab);

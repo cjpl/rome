@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.15  2005/04/01 12:31:19  sawada
+  sub menu
+
   Revision 1.14  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -68,7 +71,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString format;
-   ROMEString menuTitle;
+   ROMEString menu_title;
    char fileBuffer[bufferLength];
    ROMEString buf;
    int nb,lenTot,ll;
@@ -228,9 +231,9 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      case kCM_MENU:\n");
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         if (%d <= param1 && param1 < %d) {\n"
-			     ,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems,(i+2)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+			     ,(i+1)*maxNumberOfMenus*maxNumberOfMenuItems,(i+2)*maxNumberOfMenus*maxNumberOfMenuItems);
       buffer.AppendFormatted("            f%s%03dTab->MenuClicked(param1-%d);\n"
-			     ,tabName[i].Data(),i,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+			     ,tabName[i].Data(),i,(i+1)*maxNumberOfMenus*maxNumberOfMenuItems);
       buffer.AppendFormatted("         }\n");
    }
    buffer.AppendFormatted("         switch (param1) {\n");
@@ -266,24 +269,25 @@ bool ArgusBuilder::WriteWindowCpp() {
       buffer.Remove(buffer.Length()-2); // remove the last "||"
       buffer.AppendFormatted(") {\n");
       buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabName[i].Data(),i);
-      for (j=0;j<numOfTabMenu[i];j++) {
+      for (j=0;j<numOfMenu[i];j++) {
 	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabName[i].Data(),j);
-	 for (k=0;k<numOfTabMenuItem[i][j];k++) {
-	    buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n",tabName[i].Data(),j
-				   ,tabMenuItemTitle[i][j][k].Data()
-				   ,tabMenuItemID[i][j][k]+(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
-	 }
 	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabName[i].Data(),j);
-	 buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",tabMenuTitle[i][j].Data(),tabName[i].Data(),j);
-	 buffer.AppendFormatted("                              new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
+      }
+      for (j=0;j<numOfMenu[i];j++) {
+	 if(menuDepth[i][j] == 1){
+	    if(!AddMenuItems(buffer,i,j))
+	       return false;
+	    buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",menuTitle[i][j].Data(),tabName[i].Data(),j);
+	    buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
+	 }
       }
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         else {\n");
       buffer.AppendFormatted("            f%s%03dTab->SetActive(false);\n",tabName[i].Data(),i);
-      for (j=0;j<numOfTabMenu[i];j++) {
-	 menuTitle = tabMenuTitle[i][j];
-	 menuTitle.ReplaceAll("&","");
-	 buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menuTitle.Data());
+      for (j=0;j<numOfMenu[i];j++) {
+	 menu_title = menuTitle[i][j];
+	 menu_title.ReplaceAll("&","");
+	 buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menu_title.Data());
       }
       buffer.AppendFormatted("         }\n");
    }
@@ -433,8 +437,8 @@ bool ArgusBuilder::WriteWindowH() {
          buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n",tabName[i].Data(),i);
    }
    for (i=0;i<numOfTab;i++) {
-      if(numOfTabMenu[i]>0)
-	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabName[i].Data(),numOfTabMenu[i]);
+      if(numOfMenu[i]>0)
+	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabName[i].Data(),numOfMenu[i]);
       buffer.AppendFormatted("   Int_t               f%sTabID;\n",tabName[i].Data());
    }
    buffer.AppendFormatted("   enum CommandIdentifiers {\n");
@@ -558,3 +562,25 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");
  }
+
+bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
+   int k;
+   for (k=0;k<numOfMenuItem[i][j];k++) {
+      if(menuItemTitle[i][j][k] == LINE_TITLE){
+	 buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n",tabName[i].Data(),j);
+      }
+      else if(menuItemChildMenuIndex[i][j][k]) {
+	 if(!AddMenuItems(buffer,i,menuItemChildMenuIndex[i][j][k]))
+	    return false;
+	 buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n"
+				,tabName[i].Data(),j,menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
+				,tabName[i].Data(),menuItemChildMenuIndex[i][j][k]);
+      }
+      else {
+	 buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n"
+				,tabName[i].Data(),j,menuItemTitle[i][j][k].Data()
+				,menuItemID[i][j][k]+(i+1)*maxNumberOfMenus*maxNumberOfMenuItems);
+      }
+   }
+   return true;
+}
