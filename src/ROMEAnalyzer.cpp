@@ -269,12 +269,6 @@ bool ROMEAnalyzer::Init() {
    if (this->isSQLDataBase()) {
       if (!this->InitSQLDataBase())
          return false;
-      if (!this->ReadSQLDataBase())
-         return false;
-   }
-   else if (this->isXMLDataBase()){
-      if (!this->ReadXMLDataBase())
-         return false;
    }
 
    return true;

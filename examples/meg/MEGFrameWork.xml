@@ -9,7 +9,7 @@
 				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Folder Class for Calorimeter Photo Multiplier data." />
+					<Description Text="Folder Class for Calorimeter Photo Multiplier data." />
 					<Fields>
 						<ADC0Data Type="Float_t" Comment="ADC Data of Photo Multipliers (low resolution)" />
 						<ADC1Data Type="Float_t" Comment="ADC Data of Photo Multipliers (high resolution)" />
@@ -19,36 +19,33 @@
 				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Container Class for Calorimeter calibration data." />
+					<Description Text="Container Class for Calorimeter calibration data." />
 					<Fields>
-						<ADCPedestal Type="Float_t" Comment="ADC Pedestal" />
-						<ADCGain Type="Float_t" Comment="ADC Gain" />
-						<TDCOffset Type="Float_t" Comment="TDC Offset" />
-						<TDCXScale Type="Float_t" Comment="TDC X-Axis Scale" />
+						<ADCPedestal Type="Float_t" Comment="ADC Pedestal" DataBasePath="runTable/CMCalib.ADCPedestal" />
+						<ADCGain Type="Float_t" Comment="ADC Gain" DataBasePath="runTable/CMCalib.ADCGain" />
+						<TDCOffset Type="Float_t" Comment="TDC Offset" DataBasePath="runTable/CMCalib.TDCOffset" />
+						<TDCXScale Type="Float_t" Comment="TDC X-Axis Scale" DataBasePath="runTable/CMCalib.TDCXScale" />
 					</Fields>
 				</SubFolder>
-				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
+				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes" UserCode="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Container Class for Calorimeter Photo Multiplier Information." />
+					<Description Text="Container Class for Calorimeter Photo Multiplier Information." />
 					<Fields>
-						<PMID Type="Int_t" Comment="Photo Multiplier ID" />
-						<ADCID Type="Int_t" Comment="ADC Number" />
-						<TDCID Type="Int_t" Comment="TDC Number" />
-						<Address Type="TString" Comment="Address" />
-						<X Type="Float_t" Comment="X-Coordinate" />
-						<Y Type="Float_t" Comment="Y-Coordinate" />
-						<Z Type="Float_t" Comment="Z-Coordinate" />
-						<DeadFlag Type="Bool_t" Initialisation="false" Comment="Dead Photo Multiplier Flag" />
+						<PMID Type="Int_t" Comment="Photo Multiplier ID" DataBasePath="runTable/CMPMTInfo.PMID" />
+						<ADCID Type="Int_t" Comment="ADC Number" DataBasePath="runTable/CMPMTInfo.ADCID" />
+						<TDCID Type="Int_t" Comment="TDC Number" DataBasePath="runTable/CMPMTInfo.TDCID" />
+						<Address Type="TString" Initialisation="' '" Comment="Address" DataBasePath="runTable/CMPMTInfo.Address" />
+						<X Type="Float_t" Comment="X-Coordinate" DataBasePath="runTable/CMPMTInfo.X" />
+						<Y Type="Float_t" Comment="Y-Coordinate" DataBasePath="runTable/CMPMTInfo.Y" />
+						<Z Type="Float_t" Comment="Z-Coordinate" DataBasePath="runTable/CMPMTInfo.Z" />
+						<DeadFlag Type="Bool_t" Initialisation="false" Comment="Dead Photo Multiplier Flag" DataBasePath="runTable/CMPMTInfo.DeadFlag" />
 					</Fields>
-					<AdditionalGetters>
-						<GetFace Type="Int_t" />
-					</AdditionalGetters>
 				</SubFolder>
 				<SubFolder FolderName="CMScaler" FolderTitle="Scaler">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Container Class for Calorimeter Scaler data." />
+					<Description Text="Container Class for Calorimeter Scaler data." />
 					<Fields>
 						<fScaler Type="Float_t" Comment="  Scaler Data" />
 					</Fields>
@@ -56,7 +53,7 @@
 				<SubFolder FolderName="CMHit" FolderTitle="Hit">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Container Class for Calorimeter hit data." />
+					<Description Text="Container Class for Calorimeter hit data." />
 					<Fields>
 						<Energy Type="Float_t" Comment="Energy" />
 						<PosX Type="Float_t" Comment="X Position" />
@@ -79,7 +76,7 @@
 				<SubFolder FolderName="CMHV" FolderTitle="High Voltage">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
-					<ClassDescription Text="Container Class for High Voltage data." />
+					<Description Text="Container Class for High Voltage data." />
 					<Fields>
 						<Voltage Type="Float_t" Comment="Voltage" />
 						<Current Type="Float_t" Comment="Current" />
@@ -90,7 +87,7 @@
 			<SubFolder FolderName="Environment" FolderTitle="Environment">
 				<Author Name="Matthias Schneebeli" />
 				<Version Number="1" />
-				<ClassDescription Text="Container Class for Environment data." />
+				<Description Text="Container Class for Environment data." />
 				<Fields>
 					<Temp Type="Int_t" Comment="temp" />
 				</Fields>
@@ -98,12 +95,20 @@
 			<SubFolder FolderName="Trigger" FolderTitle="Trigger">
 				<Author Name="Matthias Schneebeli" />
 				<Version Number="1" />
-				<ClassDescription Text="Container Class for Trigger data." />
+				<Description Text="Container Class for Trigger data." />
 				<Fields>
 					<ID Type="Int_t" Comment="event ID" />
 					<Mask Type="Int_t" Comment="Trigger Mask" />
 					<Time Type="Int_t" Comment="Time stamp" />
-					<EventNum Type="Int_t" Comment="Event Number" />
+					<Eventnumber Type="Int_t" Comment="Event Number" />
+				</Fields>
+			</SubFolder>
+			<SubFolder FolderName="Test" FolderTitle="Test">
+				<Author Name="Matthias Schneebeli" />
+				<Version Number="1" />
+				<Description Text="Test." />
+				<Fields>
+					<Test Type="Int_t" Comment="Test" Array="5" />
 				</Fields>
 			</SubFolder>
 		</SubFolder>
@@ -113,12 +118,12 @@
 		<SubTask Name="ReadMidas">
 			<Author Name="Matthias Schneebeli" />
 			<Version Number="1" />
-			<ClassDescription Text="Reads Midas Data." />
+			<Description Text="Reads Midas Data." />
 		</SubTask>
-		<SubTask Name="ADCPedestal">
+		<SubTask Name="ADCPedestal" EventID="1">
 			<Author Name="Matthias Schneebeli" />
 			<Version Number="1" />
-			<ClassDescription Text="Calculates the ADC Pedestal." />
+			<Description Text="Calculates the ADC Pedestal." />
 			<Include>
 				<MEG.h Type="local" />
 			</Include>
@@ -134,7 +139,7 @@
 		<SubTask Name="TDCAverage">
 			<Author Name="Matthias Schneebeli" />
 			<Version Number="1" />
-			<ClassDescription Text="Calculates the TDC Average." />
+			<Description Text="Calculates the TDC Average." />
 			<Histos>
 				<TDCAverageHisto Type="TH1F" ArraySize="1" FolderName="tdcAverage" Title="TDC Avarage Histogram" NumberOfBinsX="400" XMin="-200" XMax="200" />
 			</Histos>
@@ -142,7 +147,7 @@
 		<SubTask Name="Charge">
 			<Author Name="Matthias Schneebeli" />
 			<Version Number="1" />
-			<ClassDescription Text="Calculates the Charge." />
+			<Description Text="Calculates the Charge." />
 			<Include>
 				<MEG.h Type="local" />
 			</Include>
@@ -183,7 +188,7 @@
 		<InvalidValue Type="Float_t" Initialisation="-1000" Comment="Invalid Value" />
 	</GeneralSteeringParameters>
 	<MidasBanks>
-		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="EventNum" TimeStamp="Time" />
+		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="Eventnumber" TimeStamp="Time" />
 		<SCLR Type="unsigned long" />
 		<ADC0 Type="unsigned short" />
 		<ADC1 Type="unsigned short" />

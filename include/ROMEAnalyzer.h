@@ -16,6 +16,9 @@
 #if defined HAVE_MIDAS
 #include <midas.h>
 #endif
+#if defined HAVE_SQL
+#include <ROMESQL.h>
+#endif
 
 class ROMEAnalyzer : public TObject
 {

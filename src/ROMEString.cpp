@@ -115,7 +115,7 @@ bool ROMEString::FormateString(ROMEString* string,char* format,va_list parameter
             stringValue = va_arg(parameters,char*);
             if (stringValue==NULL) 
                return false;
-            tmp = new char[TMath::Max(numberOfDigits,(int)strlen(stringValue))+1+additionalDigits];
+            tmp = new char[TMath::Max(numberOfDigits,(int)strlen(stringValue))+2+additionalDigits];
             if (asterisk)
                sprintf(tmp,form,numberOfDigits,stringValue);
             else
@@ -129,7 +129,7 @@ bool ROMEString::FormateString(ROMEString* string,char* format,va_list parameter
             else
                numberOfDigits = TMath::Max(numberOfDigits,precision);
             integerValue = va_arg(parameters,int);
-            tmp = new char[TMath::Max(numberOfDigits,TMath::Abs((int)TMath::Log10(integerValue))+1)+1+additionalDigits];
+            tmp = new char[TMath::Max(numberOfDigits,(Int_t)TMath::Log10(TMath::Abs(integerValue))+1)+2+additionalDigits];
             if (asterisk)
                sprintf(tmp,form,numberOfDigits,integerValue);
             else
@@ -143,7 +143,7 @@ bool ROMEString::FormateString(ROMEString* string,char* format,va_list parameter
             if (asterisk)
                numberOfDigits = va_arg(parameters,int);
             doubleValue = va_arg(parameters,double);
-            tmp = new char[TMath::Max(numberOfDigits,TMath::Abs((int)TMath::Log10(doubleValue))+1+precision+1)+1+additionalDigits];
+            tmp = new char[TMath::Max(numberOfDigits+precision+1,(Int_t)TMath::Log10(TMath::Abs((Int_t)doubleValue))+1+precision+1)+2+additionalDigits];
             if (asterisk)
                sprintf(tmp,form,numberOfDigits,doubleValue);
             else
