@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.5  2005/02/02 23:54:30  sawada
+  link with midas library.
+
   Revision 1.4  2005/02/02 18:58:02  sawada
   small change.
 
@@ -73,11 +76,12 @@ ArgusMonitor::ArgusMonitor(TRint *app)
    fSocketInterfacePortNumber = 9090;
    fSocketInterfaceHost = "";
    fWindowScale = 1;
+   fRunNumber = 0;
 }
 
 ArgusMonitor::~ArgusMonitor() {
-#if defined HAVE_MIDAS
-      cm_disconnect_experiment();
+#if defined(HAVE_MIDAS)
+   cm_disconnect_experiment();
 #endif
 }
 
@@ -94,36 +98,23 @@ bool ArgusMonitor::Start(int argc, char **argv)
    if (!ReadParameters(argc,argv)) return false;
    
    int j;
-   if (0/* there is ODB folder*/) {
-#if defined(HAVE_MIDAS)
-      // Connect to the Frontend
-      int requestId,i;
-      // Connect to the experiment
-      if (cm_connect_experiment(gArgus->GetOnlineHost(), gArgus->GetOnlineExperiment(),gArgus->GetProgramName(), NULL) != SUCCESS) {
-         cout << "\nCannot connect to experiment" << endl;
-         return false;
-      }
-      // place a request for system messages
-      cm_msg_register(ProcessMessage);
-      // turn off watchdog if in debug mode
-#ifdef MIDAS_DEBUG
-      cm_set_watchdog_params(TRUE, 0);
-#endif
-      // Connect to the online database
-      if (cm_get_experiment_database(gArgus->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         cout << "\nCannot connect to the online database" << endl;
-         return false;
-      }
-      // Experiment dependent ODB initializations
-      this->InitODB();
-#else
-      
-      cout << "Need Midas support for Online Mode !!" << endl;
-      cout << "Please link the midas library into this project." << endl;
-      return kFALSE;
-#endif
-   }
 
+#if defined(HAVE_MIDAS)
+   // Connect to the experiment
+   if (cm_connect_experiment(gArgus->GetOnlineHost(), gArgus->GetOnlineExperiment(),gArgus->GetProgramName(), NULL) != SUCCESS) {
+      cout << "\nCannot connect to experiment" << endl;
+      return false;
+   }
+#ifdef MIDAS_DEBUG
+   cm_set_watchdog_params(TRUE, 0);
+#endif
+   // Connect to the online database
+   if (cm_get_experiment_database(gArgus->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
+      cout << "\nCannot connect to the online database" << endl;
+      return false;
+   }
+#endif
+   
    if(!gArgus->StartMonitor())
       return false;
    
@@ -133,9 +124,8 @@ bool ArgusMonitor::Start(int argc, char **argv)
 void ArgusMonitor::ParameterUsage()
 {
    cout<<"lpmonitor [option]"<<endl
-       <<"-s size      [default = 1]"<<endl
-       <<"-h hostname  [default = localhost]"<<endl
-       <<"-p port      [default = 9090]"<<endl;
+       <<"-i configFile.xml"<<endl
+       <<"-docu"<<endl;
    return;
 }
 
@@ -151,10 +141,22 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 
    ROMEString configFile("argusConfig.xml");
 
+#if defined(HAVE_MIDAS)
+   char host_name[256] = "";
+   char exp_name[32] = "";
+   cm_get_environment(host_name,sizeof(host_name),exp_name,sizeof(exp_name));
+#endif
+   
    for (i=1;i<argc;i++) {
-      if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")) {
+      if (!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help")) {
          ParameterUsage();
          return false;
+      }
+      if (!strcmp(argv[i],"-h")) {
+         strcpy(host_name, argv[i+1]);
+      }
+      if (!strcmp(argv[i],"-e")) {
+         strcpy(exp_name, argv[i+1]);
       }
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
@@ -165,6 +167,10 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
          configFile = argv[i+1];
          i++;
       }
+      if(strlen(host_name))
+         fOnlineHost = host_name;
+      if(strlen(exp_name))
+         fOnlineExperiment = exp_name;
    }
 
    char answer = 0;
@@ -417,7 +423,7 @@ int ArgusMonitor::ss_getchar(bool reset)
 
    if (ir.EventType != KEY_EVENT)
       return ss_getchar(0);
-
+   
    if (!ir.Event.KeyEvent.bKeyDown)
       return ss_getchar(0);
 
