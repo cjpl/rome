@@ -35,7 +35,7 @@ void ROMETask::Exec(Option_t *option)
    // Terminate
    if (!strcmp(option,gTaskInit)) {
       ROMEString foldername;
-      foldername.SetFormated("%sHistos",this->GetName());
+      foldername.SetFormatted("%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
       Init();
@@ -77,7 +77,7 @@ char* ROMETask::GetTime()
    // Returns the elapsed time in a readable format
    int runTime = (int)fWatch.RealTime();
    int milli = (int)((fWatch.RealTime()-runTime)*1000);
-   fTimeString.SetFormated("%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
+   fTimeString.SetFormatted("%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
            (runTime % 3600) / 600, (runTime % 600) / 60, (runTime % 60) / 10,
            runTime % 10,milli);
    return (char*)fTimeString.Data();

@@ -15,38 +15,38 @@
 #include <ROMEString.h>
 #include "Riostream.h"
 
-bool ROMEString::AppendFormated(char* format,...) 
+bool ROMEString::AppendFormatted(char* format,...) 
 {
    bool res;
    va_list ap;
    va_start(ap,format);
-   res = FormateString(this,format,ap);
+   res = FormatString(this,format,ap);
    va_end(ap);
    return res;
 }
-bool ROMEString::InsertFormated(int position,char* format,...) 
+bool ROMEString::InsertFormatted(int position,char* format,...) 
 {
    bool res;
    va_list ap;
    va_start(ap,format);
    ROMEString tmp;
-   res = FormateString(&tmp,format,ap);
+   res = FormatString(&tmp,format,ap);
    va_end(ap);
    if (res)
       this->Insert(position,tmp);
    return res;
 }
-bool ROMEString::SetFormated(char* format,...) 
+bool ROMEString::SetFormatted(char* format,...) 
 {
    bool res;
    va_list ap;
    va_start(ap,format);
    this->Resize(0);
-   res = FormateString(this,format,ap);
+   res = FormatString(this,format,ap);
    va_end(ap);
    return res;
 }
-bool ROMEString::FormateString(ROMEString* string,char* format,va_list parameters) 
+bool ROMEString::FormatString(ROMEString* string,char* format,va_list parameters) 
 {
    char* cstop;
    char* tmp;

@@ -181,7 +181,7 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
         case WM_CREATE:
             SetTimer(hWnd, ID_SPLASHSCREEN, DelayVal, NULL);
             RomeSysDir = getenv("ROMESYS");
-            FullBmpDir.SetFormated("%s%s",RomeSysDir,bmpDir.Data());
+            FullBmpDir.SetFormatted("%s%s",RomeSysDir,bmpDir.Data());
             // Retrieve a handle identifying the file. 
             hfbm = CreateFile(FullBmpDir.Data(), GENERIC_READ, 
                     FILE_SHARE_READ, (LPSECURITY_ATTRIBUTES) NULL, 
@@ -309,15 +309,15 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             TextOut(hDC,bm.bmWidth/2,400,buf.Data(),buf.Length());
 
             if (numberOfAuthors>0) {
-               if (numberOfAuthors==1) buf.SetFormated("Author of the %s :",programName);
-               else buf.SetFormated("Authors of the %s :",programName);
+               if (numberOfAuthors==1) buf.SetFormatted("Author of the %s :",programName);
+               else buf.SetFormatted("Authors of the %s :",programName);
                SelectObject(hDC,fontAuthor);
                TextOut(hDC,bm.bmWidth/2,430,buf.Data(),buf.Length());
 
                if (numberOfAuthors>5) {
                   for (i=0;i<numberOfAuthors;i++) {
                       buf = authorNames[i];
-                      if (i+1<numberOfAuthors) buf.AppendFormated(", %s",authorNames[(i+1)].Data());
+                      if (i+1<numberOfAuthors) buf.AppendFormatted(", %s",authorNames[(i+1)].Data());
                       SelectObject(hDC,fontAuthor);
                       TextOut(hDC,bm.bmWidth/2,450+20*(i/2),buf.Data(),buf.Length());
                       i++;
@@ -336,7 +336,7 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             
             EndPaint(hWnd, &ps);
             // format a "unique" NewWindowTitle
-            pszNewWindowTitle.SetFormated("%d/%d", GetTickCount(), GetCurrentProcessId());
+            pszNewWindowTitle.SetFormatted("%d/%d", GetTickCount(), GetCurrentProcessId());
             // change current window title
             SetConsoleTitle(pszNewWindowTitle.Data());
             // ensure window title has been updated

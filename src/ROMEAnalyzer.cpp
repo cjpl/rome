@@ -308,7 +308,7 @@ bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
       romeTree = GetTreeObjectAt(j);
       if (romeTree->isWrite() && !this->isTreeAccumulation()) {
          tree = romeTree->GetTree();
-         filename.SetFormated("%s%s%s.root",GetOutputDir(),tree->GetName(),runNumberString.Data());
+         filename.SetFormatted("%s%s%s.root",GetOutputDir(),tree->GetName(),runNumberString.Data());
          treeFiles[j] = new TFile(filename.Data(),"RECREATE");
          tree->SetDirectory(treeFiles[j]);
       }
@@ -328,7 +328,7 @@ bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
    }
    else if (this->isOffline()&&this->isMidas()) {
       // Open Midas File
-      filename.SetFormated("%srun%s.mid",GetInputDir(),runNumberString.Data());
+      filename.SetFormatted("%srun%s.mid",GetInputDir(),runNumberString.Data());
       fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
       if (fMidasFileHandle==-1) {
          cout << "Inputfile '" << filename.Data() << "' not found." << endl;
@@ -354,7 +354,7 @@ bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
          }
          if (romeTree->isRead()) {
             treeRead = true;
-            filename.SetFormated("%s%s%s.root",GetInputDir(),tree->GetName(),runNumberString.Data());
+            filename.SetFormatted("%s%s%s.root",GetInputDir(),tree->GetName(),runNumberString.Data());
             fRootFiles[j] = new TFile(filename.Data(),"READ");
             if (fRootFiles[j]->IsZombie()) {
                cout << "Inputfile '" << filename.Data() << "' not found." << endl;
@@ -592,7 +592,7 @@ bool ROMEAnalyzer::Disconnect() {
 
    // Write Histos
    TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   filename.SetFormated("%s%s%s.root",GetOutputDir(),"histos",runNumberString.Data());
+   filename.SetFormatted("%s%s%s.root",GetOutputDir(),"histos",runNumberString.Data());
    f1 = new TFile(filename.Data(),"RECREATE");
    folder->Write();
    f1->Close();
@@ -752,15 +752,15 @@ void ROMEAnalyzer::CreateHistoFolders()
    for (i=0;i<taskList->GetSize();i++) {
       ROMETask *task = (ROMETask*)taskList->At(i);
       if (!task->IsActive() || !task->hasHistograms()) continue;
-      name.SetFormated("%sHistos",task->GetName());
-      title.SetFormated("Histograms of Task '%s'",task->GetName());
+      name.SetFormatted("%sHistos",task->GetName());
+      title.SetFormatted("Histograms of Task '%s'",task->GetName());
       TFolder *folder = fHistoFolder->AddFolder(name.Data(),title.Data());
       TList *subTaskList = task->GetListOfTasks();
       for (j=0;j<subTaskList->GetSize();j++) {
          ROMETask *task = (ROMETask*)subTaskList->At(j);
          if (!task->IsActive() || !task->hasHistograms()) continue;
-         name.SetFormated("%sHistos",task->GetName());
-         title.SetFormated("Histograms of Task '%s'",task->GetName());
+         name.SetFormatted("%sHistos",task->GetName());
+         title.SetFormatted("Histograms of Task '%s'",task->GetName());
          folder->AddFolder(name.Data(),title.Data());
       }
    }

@@ -12,15 +12,15 @@ public:
    ROMEString(const char* s) : TString(s) {};
    ROMEString(const TString& s) : TString(s) {};
    ROMEString(const TSubString& s) : TString(s) {};
-   bool AppendFormated(char* format,...);
-   bool InsertFormated(int position,char* format,...);
-   bool SetFormated(char* format,...);
+   bool AppendFormatted(char* format,...);
+   bool InsertFormatted(int position,char* format,...);
+   bool SetFormatted(char* format,...);
    int  NumberOfOccurrence(ROMEString& subString);
    int  NumberOfOccurrence(char* subString);
    void Write();
    void WriteLine();
 private:
-   bool FormateString(ROMEString* string,char* format,va_list parameters);
+   bool FormatString(ROMEString* string,char* format,va_list parameters);
    int  SearchFormatType(char* str);
 };
 

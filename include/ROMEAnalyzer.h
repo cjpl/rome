@@ -233,9 +233,9 @@ public:
    int        GetTreeObjectEntries() { return fTreeObjects->GetEntries(); };
 
    // Run Number
-   void       GetRunNumberStringAt(ROMEString& buffer,int i) { buffer.SetFormated("%0*d",5,fRunNumber.At(i)); }
+   void       GetRunNumberStringAt(ROMEString& buffer,int i) { buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
    int        GetRunNumberAt(int i) { return fRunNumber.At(i); }
-   void       GetCurrentRunNumberString(ROMEString& buffer) { buffer.SetFormated("%0*d",5,fCurrentRunNumber); }
+   void       GetCurrentRunNumberString(ROMEString& buffer) { buffer.SetFormatted("%0*d",5,fCurrentRunNumber); }
    int        GetCurrentRunNumber() { return fCurrentRunNumber; }
    int        GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    char*      GetRunNumberStringOriginal() { return (char*)fRunNumberString.Data(); }
@@ -260,7 +260,7 @@ public:
    // Event ID
    char*      GetEventID() { return (char*)fEventID.Data(); }
    void       SetEventID(char* eventID) { fEventID = eventID; }
-   void       SetEventID(int eventID) { fEventID.SetFormated("%0*d",1,eventID); }
+   void       SetEventID(int eventID) { fEventID.SetFormatted("%0*d",1,eventID); }
 
   // Processed Events
    double     GetProcessedEvents() { return fTriggerStatistics.processedEvents; }
