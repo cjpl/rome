@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.27  2005/03/17 15:44:02  schneebeli_m
+  Makefile for windows
+
   Revision 1.26  2005/03/08 11:00:36  sawada
   Improvement Makefile for UNIX.
 
@@ -243,6 +246,7 @@ public:
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
+   char* EqualSign();
    void WriteMakefile();
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
