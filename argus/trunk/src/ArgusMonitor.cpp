@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.12  2005/02/24 23:41:54  sawada
+  bug fix of read parameter.
+
   Revision 1.11  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -211,13 +214,17 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
       if (!strcmp(argv[i],"-h")){
 	 strcpy(host_name, argv[i+1]);
 	 i++;
-	 continue;
       }
-      if (!strcmp(argv[i],"-e")){
+      else if (!strcmp(argv[i],"-e")){
 	 strcpy(exp_name, argv[i+1]);
 	 i++;
-	 continue;
       }
+      else if (!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help"))
+	 ;
+      else if (!strcmp(argv[i],"-docu"))
+	 ;
+      else if (!strcmp(argv[i],"-i"))
+	 i++;
       else {
          cout<<"Inputlineparameter '"
 	     <<argv[i]
