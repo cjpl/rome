@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/03/12 22:26:10  sawada
+  small change.
+
   Revision 1.10  2005/03/12 22:22:33  sawada
   Better output from builder.
   Menu of nested tab.
@@ -161,7 +164,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
-   buffer.AppendFormatted("   Int_t menuID = 0;\n",tabHierarchyName[i].Data());      
+   buffer.AppendFormatted("   Int_t tabID = 0;\n",tabHierarchyName[i].Data());      
    buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
@@ -223,7 +226,7 @@ bool ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("         if (");
       int index = i;
       do  {
-         buffer.AppendFormatted(" param1==f%sMenuID ||",tabHierarchyName[index].Data());
+         buffer.AppendFormatted(" param1==f%sTabID ||",tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       } while(index!=-1);
       buffer.Remove(buffer.Length()-2); // remove the last "||"
@@ -393,7 +396,7 @@ bool ArgusBuilder::WriteWindowH() {
    for (i=0;i<numOfTabHierarchy;i++) {
       if(numOfTabMenu[i]>0)
 	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),numOfTabMenu[i]);
-      buffer.AppendFormatted("   Int_t               f%sMenuID;\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("   Int_t               f%sTabID;\n",tabHierarchyName[i].Data());
    }
    buffer.AppendFormatted("   enum CommandIdentifiers {\n");
    buffer.AppendFormatted("      M_FILE_EXIT,\n");
@@ -492,7 +495,7 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
       buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n",shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
    }
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-   buffer.AppendFormatted("      f%sMenuID = menuID++;\n",tabHierarchyName[i].Data());
+   buffer.AppendFormatted("      f%sTabID = tabID++;\n",tabHierarchyName[i].Data());
    if(tabHierarchyNumOfChildren[i]){
       for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
       buffer.AppendFormatted("      f%s%03dTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
