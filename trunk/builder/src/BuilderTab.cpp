@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.6  2005/02/02 11:29:59  sawada
+  tthread example (for the moment, linux&Macintosh)
+
   Revision 1.5  2005/02/02 07:33:19  sawada
   small bug fix
 
@@ -201,13 +204,7 @@ bool ArgusBuilder::WriteTabCpp() {
             format.SetFormatted("//    %%s%%%ds//\n", 72-threadFunctionName[iTab][i].Length());
             buffer.AppendFormatted((char*)format.Data(), threadFunctionName[iTab][i].Data(), "");
          }
-         buffer.AppendFormatted("// If there are not these functions, please implement it.                     //\n");
-         buffer.AppendFormatted("// For example.                                                               //\n");
-         buffer.AppendFormatted("//   void %sT%s::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][0].Data());
-         buffer.AppendFormatted("//   {\n");
-         buffer.AppendFormatted("//      gSystem->Sleep(10000);\n");
-         buffer.AppendFormatted("//      cout<<\" Thread function is executed\"<<endl;\"\n");
-         buffer.AppendFormatted("//   }\n");
+         buffer.AppendFormatted("//                                                                            //\n");
       }
       buffer.AppendFormatted("//                                                                            //\n");
       buffer.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
@@ -258,7 +255,7 @@ bool ArgusBuilder::WriteTabCpp() {
             buffer.AppendFormatted("\n");
             // Thread
             for(i=0; i<numOfThreadFunctions[iTab]; i++) {
-               buffer.AppendFormatted("void %sT%s_Base::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+               buffer.AppendFormatted("void %sT%s::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   gSystem->Sleep(10000);\n");
                buffer.AppendFormatted("}\n");
@@ -340,7 +337,21 @@ bool ArgusBuilder::WriteTabH() {
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   virtual void %s()\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("      cout<<endl\n");
+         buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n");
+         buffer.AppendFormatted("          <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
+         buffer.AppendFormatted("          <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("          <<\"   void %s();\"<<endl\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("          <<\"   void %sT%s::%s()\"<<endl\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\"   {\"<<endl\n");
+         buffer.AppendFormatted("          <<\"      gSystem->Sleep(10000);\"<<endl\n");
+         buffer.AppendFormatted("          <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
+         buffer.AppendFormatted("      %sStop();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      TThread::SetCancelOn();\n");
          buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
@@ -362,9 +373,10 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   bool %sStop(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = false;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      gSystem->Sleep(1000); // wait a while for threads to halt\n");
-         buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(m%s){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("	  TThread::Delete(m%s);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("	  delete m%s;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("	  m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
          buffer.AppendFormatted("   } \n");         
@@ -436,6 +448,11 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   void Init();\n");
+      // Thread
+      for(i=0; i<numOfThreadFunctions[iTab]; i++){
+         buffer.AppendFormatted("   void %s();\n",threadFunctionName[iTab][i].Data());
+      }
+      buffer.AppendFormatted("\n");
       // Fields
       buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),tabName[iTab].Data(),tabVersion[iTab].Data());
       buffer.AppendFormatted("};\n\n");

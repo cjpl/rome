@@ -10,13 +10,7 @@
 // This tab has following thread functions.                                   //
 //    func_2_1                                                                //
 //    func_2_2                                                                //
-// If there are not these functions, please implement it.                     //
-// For example.                                                               //
-//   void TTTTab2::func_2_1()
-//   {
-//      gSystem->Sleep(10000);
-//      cout<<" Thread function is executed"<<endl;"
-//   }
+//                                                                            //
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
@@ -26,22 +20,50 @@ ClassImp(TTTTab2)
 
 void TTTTab2::Init()
 {
-   gSystem->Sleep(1000);
-   func_2_1Start();
+   fHorz = new TGHorizontalFrame(this, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(700*gMonitor->GetWindowScale()));
 
-   gSystem->Sleep(1000);
-   func_2_2Start();
+   fBStart_2_1 = new TGTextButton(fHorz, "Start 2_1", B_START_2_1);
+   fBStop_2_1  = new TGTextButton(fHorz, "Stop 2_1", B_STOP_2_1);
+   fBStart_2_2 = new TGTextButton(fHorz, "Start 2_2", B_START_2_2);
+   fBStop_2_2  = new TGTextButton(fHorz, "Stop 2_2", B_STOP_2_2);
+
+   fBStart_2_1->Associate(this);
+   fBStop_2_1->Associate(this);
+   fBStart_2_2->Associate(this);
+   fBStop_2_2->Associate(this);
+   
+   fHorz->AddFrame(fBStart_2_1, new TGLayoutHints(kLHintsCenterX, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStop_2_1, new TGLayoutHints(kLHintsCenterX, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStart_2_2, new TGLayoutHints(kLHintsCenterX, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStop_2_2, new TGLayoutHints(kLHintsCenterX, 10, 10, 4, 4));
+
+   AddFrame(fHorz, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
 }
 
-void TTTTab2_Base::func_2_1()
+bool TTTTab2::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 {
-   cout<<"2-1"<<endl;
-   gSystem->Sleep(3000);
+   // Process messages coming from widgets associated with the dialog.  
+   switch (GET_MSG(msg)) {
+   case kC_COMMAND:    
+      switch (GET_SUBMSG(msg)) {
+      case kCM_BUTTON:
+         switch (param1){
+         case B_START_2_1:
+            func_2_1Start();
+            break;
+         case B_STOP_2_1:
+            func_2_1Stop();
+            break;
+         case B_START_2_2:
+            func_2_2Start();
+            break;
+         case B_STOP_2_2:
+            func_2_2Stop();
+            break;
+         }
+         break;
+      }
+      break;    
+   }  
+   return true;
 }
-
-void TTTTab2_Base::func_2_2()
-{
-   cout<<"2-2"<<endl;
-   gSystem->Sleep(2000);
-}
-
