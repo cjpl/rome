@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.4  2004/11/16 12:11:06  sawada
+//  SQL Init,Read
+//
 //  Revision 1.3  2004/11/12 17:35:18  schneebeli_m
 //  fast xml database
 //
@@ -62,6 +65,8 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
    int istart,iend,iequal,iconst=0;
    ROMEString str = contraint;
    ROMEString substr;
+   fConstraintField->RemoveAll();
+   fConstraintValue->RemoveAll();
    if (str.Index(" or ",4,0,TString::kIgnoreCase)!=-1) {
       cout << "\n'or' not handled in DecodeConstraint." << endl;
       return false;

@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.10  2004/11/16 12:11:06  sawada
+//  SQL Init,Read
+//
 //  Revision 1.9  2004/10/05 07:52:44  schneebeli_m
 //  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 //
@@ -28,9 +31,13 @@ ROMESQL::ROMESQL() {
    mysql_init(&mysql);
 }
 
-bool ROMESQL::Connect(char *server,char *user,char *passwd,char *database) 
+ROMESQL::~ROMESQL() {
+   mysql_close(&mysql);
+}
+
+bool ROMESQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
-   if (!mysql_real_connect(&mysql, server, user, passwd,database,0,NULL,0)) {
+   if (!mysql_real_connect(&mysql, server, user, passwd, database,atoi(port), NULL, 0)) {
       printf("Could not connect to the data base '%s' : Error: %s\n",database,mysql_error(&mysql));
       return false;
    }
@@ -149,13 +156,16 @@ bool ROMESQL::ReadField(char *table,char* field,char* constraint)
    return true;
 }
 
-bool ROMESQL::MakeQuery(char* query)
+bool ROMESQL::MakeQuery(char* query, bool store)
 {
+#ifdef SQLDEBUG
+   cout<<endl<<"ROMESQL::MakeQuery : "<<query<<endl;
+#endif
    if (mysql_query(&mysql,query)) {
       cout << "Query error :" << mysql_error(&mysql) << endl;
       return false;
    }
-   if (!(result = mysql_store_result(&mysql))) {
+   if (store && !(result = mysql_store_result(&mysql))) {
       cout << "Query error :" << mysql_error(&mysql) << endl;
       return false;
    }

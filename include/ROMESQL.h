@@ -2,6 +2,9 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2004/11/16 12:11:06  sawada
+  SQL Init,Read
+
   Revision 1.6  2004/10/05 07:52:44  schneebeli_m
   dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 
@@ -32,7 +35,8 @@ protected:
    int numberOfRows;
 public:
    ROMESQL();
-   bool Connect(char *server,char *user,char *passwd,char *database);
+   ~ROMESQL();
+   bool Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
    bool CreateDataBase(char* database);
    bool DeleteDataBase(char* database);
    bool CreateTable(char* table,char* fields);
@@ -42,7 +46,7 @@ public:
    bool DeleteRow(char *table,char* constraint);
    bool ReplaceField(char *table,char* field,char* value,char* constraint);
    bool ExistField(char *table,char* field);
-   bool MakeQuery(char* query);
+   bool MakeQuery(char* query,bool store);
    int GetNumberOfRows();
    bool NextRow();
    int GetNumberOfFields();
