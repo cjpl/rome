@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.25  2005/03/12 22:56:39  sawada
+  small change in Makefile
+
   Revision 1.24  2005/03/12 22:22:33  sawada
   Better output from builder.
   Menu of nested tab.
@@ -709,7 +712,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    }
    buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.cpp src/monitor/%sDict.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj src/monitor/%sDict.cpp \n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("clean::\n");
+   buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    int pdnameend = 0;
@@ -718,7 +721,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    while((pdnameend = xmlfile.Index("/",1,pbnamestart,TString::kExact))!=-1)
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfile(pbnamestart,xmlfile.Length());
-   buffer.AppendFormatted("build::\n");
+   buffer.AppendFormatted("build:\n");
    buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder.exe -i %s -o .",xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
@@ -982,7 +985,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted(" $(UserClassHeaders)\n");
    buffer.AppendFormatted("	%s\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("clean::\n");
+   buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.o src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    int pdnameend = 0;
@@ -991,7 +994,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    while((pdnameend = xmlfile.Index("/",1,pbnamestart,TString::kExact))!=-1)
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfile(pbnamestart,xmlfile.Length());
-   buffer.AppendFormatted("build::\n");
+   buffer.AppendFormatted("build:\n");
    buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder -i %s -o .",xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
