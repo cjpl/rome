@@ -144,6 +144,7 @@ protected:
 #endif
 #endif
 
+   bool          fContinuous;                      //! Continuous Mode
 
 public:
    // Static Task Switches Changes Flag

@@ -160,8 +160,8 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
   
   char       sqlquery[2048];
 
-  char from_phrase[1024]="";
-  char where_phrase[1024]="";
+  char from_phrase[4096]="";
+  char where_phrase[4096]="";
   char order_phrase[1024]="";
   char group_definition[3][1024];
   char table_name[32][128];
@@ -244,10 +244,9 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
 	         ,"SELECT %s.groups FROM %s WHERE %s;"
 	         ,table_name[depth],from_phrase,where_phrase
 	         );
-         cout<<"6 : "<<sqlquery<<endl;
          MakeQuery(sqlquery);
          this->NextRow();
-         pnext1 = this->GetField(1);
+         pnext1 = this->GetField(0);
          
          //decode group name list
          ngroup=0;
@@ -262,10 +261,9 @@ void ROMESQL::ReadPathFields(char *path, int start_id, char *start_id_extension)
 	         sprintf(sqlquery
 		         ,"SELECT %s.%s_definition FROM %s WHERE %s;"
 		         ,table_name[depth],group_name[i],from_phrase,where_phrase); 
-               cout<<"7 : "<<sqlquery<<endl;
 	         MakeQuery(sqlquery);
 	         this->NextRow();
-	         pnext1 = this->GetField(1);
+	         pnext1 = this->GetField(0);
             
 	         //decode group definition
 	         strcpy(group_definition[0],ROMEStatic::strtok_x(pnext1,":",&pnext1)); //table list
@@ -342,7 +340,7 @@ int ROMESQL::GetNumberOfRows() {
    if( numberOfRows > -1 ) {
       return numberOfRows;
    }
-   numberOfRows = mysql_num_rows(result);
+   numberOfRows = (int)mysql_num_rows(result);
    return numberOfRows;
 }
 

@@ -79,6 +79,7 @@ ROMEAnalyzer::ROMEAnalyzer()
    fEventID = "all";
    fTriggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
+   fContinuous = true;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -554,11 +555,15 @@ bool ROMEAnalyzer::Update() {
 }
 
 bool ROMEAnalyzer::UserInput() {
-   bool wait = true;
+   bool wait = false;
+   bool first = true;
    // Looks for user input. Called before the Event tasks.
-   while (wait) {
-      if (fTriggerStatistics.processedEvents<3000) wait = false;
-//      wait = false;
+   while (wait||first) {
+
+      first = false;
+      if (!fContinuous)
+         wait = true;
+
       while (ROMEStatic::ss_kbhit()) {
          char ch = ROMEStatic::ss_getchar(0);
          if (ch == -1)
@@ -571,6 +576,10 @@ bool ROMEAnalyzer::UserInput() {
             wait = true;
          if (ch == 'r')
             wait = false;
+         if (ch == 'o')
+            fContinuous = false;
+         if (ch == 'c')
+            fContinuous = true;
       }
    }
    return true;

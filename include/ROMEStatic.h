@@ -29,7 +29,7 @@ public:
 //********************************************************************
    static char* strtok_x(char *str,char* sub,char** tail) {
       int l = strlen(str);
-      char* start = strtok(str,"/");
+      char* start = strtok(str,sub);
       *tail = str+strlen(str)+1;
       if (*tail>str+l) *tail = NULL;
       return start;
@@ -51,7 +51,7 @@ public:
    }
 /********************************************************************\
    bk_find
-/********************************************************************/
+\********************************************************************/
 
    typedef struct {
       unsigned long int data_size;

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.38  2004/09/02 12:39:35  schneebeli_m
+  minor problems
+
   Revision 1.37  2004/08/06 11:39:51  schneebeli_m
   TSocket
 
@@ -2640,7 +2643,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
    if (ndb>0) {
       buffer.AppendFormatted("   fSQL = new ROMESQL();\n");
-      buffer.AppendFormatted("   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut.Data());
+      buffer.AppendFormatted("   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%s\");\n",shortCut.Data());
    }
    else {
       buffer.AppendFormatted("   return true;\n");
@@ -2667,7 +2670,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   buffer.AppendFormatted("   fSQL->NextRow();\n");
                   buffer.AppendFormatted("   res = fSQL->GetField(0);\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("   f%sObjects->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                }
             }
             else {
@@ -3678,7 +3681,21 @@ int main(int argc, char *argv[])
       return 0;
    }
    for (int i=1;i<argc;i++) {
-      if (!strcmp(argv[i],"-v")) {
+      // -- only for testing (start) --
+      if (!strcmp(argv[i],"-dc")) {
+         romeb->makeOutput = true;
+         romeb->noLink = true;
+         romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/";
+         xmlFile = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/dc.xml";
+      }
+      else if (!strcmp(argv[i],"-meg")) {
+         romeb->makeOutput = true;
+         romeb->noLink = true;
+         romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
+         xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
+      }
+      // -- only for testing (end) --
+      else if (!strcmp(argv[i],"-v")) {
          romeb->makeOutput = true;
       }
       else if (!strcmp(argv[i],"-nl")) {
@@ -3893,7 +3910,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags = /GX /GR");
+   buffer.AppendFormatted("Flags = /GX /GR %suserflags",shortCut.Data());
    if (!this->offline) 
       buffer.AppendFormatted(" /DHAVE_MIDAS");
    if (this->sql) 
@@ -3965,6 +3982,10 @@ void ROMEBuilder::WriteMakefile() {
 #endif
 
 #if defined ( __linux__ )
+   ROMEString shortcut(shortCut);
+   shortcut.ToLower();
+   ROMEString mainprogname(mainProgName);
+   mainprogname.ToLower();
    // libs
    buffer.Resize(0);
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
@@ -3983,7 +4004,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("flags := ");
+   buffer.AppendFormatted("flags := %suserflags",shortcut.Data());
    if (!this->offline) 
       buffer.AppendFormatted(" -DHAVE_MIDAS");
    if (this->sql) 
@@ -4012,10 +4033,6 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMESQL.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj\n\n");
    // all
-   ROMEString shortcut(shortCut);
-   shortcut.ToLower();
-   ROMEString mainprogname(mainProgName);
-   mainprogname.ToLower();
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
    // make obj
    buffer.AppendFormatted("obj:\n");
@@ -4029,34 +4046,34 @@ void ROMEBuilder::WriteMakefile() {
    // compile
    for (i=0;i<numOfFolder;i++) {
       buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-      buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
-      buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
 
    buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
    buffer.AppendFormatted("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
    buffer.AppendFormatted("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
    buffer.AppendFormatted("obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
    buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp\n");
-   buffer.AppendFormatted("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEString.cpp -o obj/ROMEString.obj\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEString.cpp -o obj/ROMEString.obj\n");
    if (this->sql) {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
-      buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
+      buffer.AppendFormatted("	g++ -c $(flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    }
 #endif
    ROMEString makeFile;
