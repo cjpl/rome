@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.43  2004/12/06 09:28:31  schneebeli_m
+//  ss_getchar on linux
+//
 //  Revision 1.42  2004/12/06 09:20:50  schneebeli_m
 //  ss_getchar on linux
 //
@@ -759,7 +762,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
 {
 #if defined ( __linux__ )  || defined ( __APPLE__ )
 
-   static BOOL init = FALSE;
+   static bool init = false;
    static struct termios save_termios;
    struct termios buf;
    int i, fd;
@@ -770,7 +773,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    if (reset) {
       if (init)
          tcsetattr(fd, TCSAFLUSH, &save_termios);
-      init = FALSE;
+      init = false;
       return 0;
    }
 
@@ -789,7 +792,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
       buf.c_cc[VTIME] = 0;
 
       tcsetattr(fd, TCSAFLUSH, &buf);
-      init = TRUE;
+      init = true;
    }
 
    memset(c, 0, 3);
@@ -834,8 +837,8 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    }
 
    /* BS/DEL -> BS */
-   if (c[0] == 127)
-      return CH_BS;
+//   if (c[0] == 127)
+//      return CH_BS;
 
    return c[0];
 
