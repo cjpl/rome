@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.4  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.3  2005/02/01 14:44:33  sawada
   Resize frames in window.
 
@@ -67,10 +70,9 @@ ArgusMonitor::ArgusMonitor(TRint *app)
    fDataBaseHandle = new ROMENoDataBase();
    fOnlineHost = "";
    fOnlineExperiment = "";
-   fNetFolderPortNumber = 9090;
-   fNetFolderHost = "";
+   fSocketInterfacePortNumber = 9090;
+   fSocketInterfaceHost = "";
    fWindowScale = 1;
-   fWindowStyle = "Default";
 }
 
 ArgusMonitor::~ArgusMonitor() {

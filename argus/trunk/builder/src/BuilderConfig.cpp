@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.3  2005/02/01 14:44:33  sawada
   Resize frames in window.
 
@@ -106,15 +109,8 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = true;\n");
-   // Window/Style
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Style\",fConfigData[index]->fWindow->fStyle,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStyle==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fStyleModified = false;\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fStyleModified = true;\n");
    // --Window
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fWindow->fStyleModified)\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fWindowModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fWindowModified = false;\n");
@@ -161,27 +157,27 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = false;\n");
-   // NetFolder
-   buffer.AppendFormatted("   // NetFolder\n");
-   buffer.AppendFormatted("   fConfigData[index]->fNetFolder = new ConfigData::NetFolder();\n");
-   // NetFolder/Host
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolder/Host\",fConfigData[index]->fNetFolder->fHost,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder->fHost==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolder->fHostModified = false;\n");
+   // SocketInterface
+   buffer.AppendFormatted("   // SocketInterface\n");
+   buffer.AppendFormatted("   fConfigData[index]->fSocketInterface = new ConfigData::SocketInterface();\n");
+   // SocketInterface/Host
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/Host\",fConfigData[index]->fSocketInterface->fHost,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fHost==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fHostModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolder->fHostModified = true;\n");
-   // NetFolder/PortNumber
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolder/PortNumber\",fConfigData[index]->fNetFolder->fPortNumber,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder->fPortNumber==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolder->fPortNumberModified = false;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fHostModified = true;\n");
+   // SocketInterface/PortNumber
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/PortNumber\",fConfigData[index]->fSocketInterface->fPortNumber,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fPortNumber==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolder->fPortNumberModified = true;\n");
-   // --NetFolder
-   buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder->fHostModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fNetFolder->fPortNumberModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolderModified = true;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = true;\n");
+   // --SocketInterface
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fHostModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = true;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fNetFolderModified = false;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = false;\n");
    // tabs
    buffer.AppendFormatted("   // tabs\n");
    buffer.AppendFormatted("   fConfigData[index]->fTabsModified = false;\n");
@@ -270,9 +266,6 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fScaleModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData[index]->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fStyle) {\n");
-   buffer.AppendFormatted("      gMonitor->SetWindowStyle(fConfigData[index]->fWindow->fStyle);\n");
-   buffer.AppendFormatted("   }\n");
    // DataBase
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fConnectionModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetDataBaseConnection(fConfigData[index]->fDataBase->fConnection);\n");
@@ -309,12 +302,12 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      gMonitor->SetOnlineHost((char*)fConfigData[index]->fOnline->fHost.Data());\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fOnline->fExperimentModified)\n");
    buffer.AppendFormatted("      gMonitor->SetOnlineExperiment((char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
-   // NetFolder
-   buffer.AppendFormatted("   // NetFolder\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fNetFolder->fHostModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetNetFolderHost((char*)fConfigData[index]->fNetFolder->fHost.Data());\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fNetFolder->fPortNumberModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetNetFolderPortNumber((char*)fConfigData[index]->fNetFolder->fPortNumber.Data());\n");
+   // SocketInterface
+   buffer.AppendFormatted("   // SocketInterface\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fHostModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetSocketInterfaceHost((char*)fConfigData[index]->fSocketInterface->fHost.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetSocketInterfacePortNumber((char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
    // Tabs
    buffer.AppendFormatted("   // tabs\n");
    for (i=0;i<numOfTabHierarchy;i++) {
@@ -415,11 +408,6 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fScaleModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)fConfigData[index]->fWindow->fScale.Data());\n");
-   // Window/Style
-   buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Style\",gMonitor->GetWindowStyle());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fStyleModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Style\",(char*)fConfigData[index]->fWindow->fStyle.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // DataBase
@@ -454,22 +442,22 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",(char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
-   // NetFolder
-   buffer.AppendFormatted("   // NetFolder\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fNetFolderModified || index==0) {\n");
-   buffer.AppendFormatted("      xml->StartElement(\"NetFolder\");\n");
-   // NetFolder/Host
+   // SocketInterface
+   buffer.AppendFormatted("   // SocketInterface\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterfaceModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"SocketInterface\");\n");
+   // SocketInterface/Host
    buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Host\",gMonitor->GetNetFolderHost());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fNetFolder->fHostModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData[index]->fNetFolder->fHost.Data());\n");
-   // NetFolder/PortNumber
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",gMonitor->GetSocketInterfaceHost());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fHostModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData[index]->fSocketInterface->fHost.Data());\n");
+   // SocketInterface/PortNumber
    buffer.AppendFormatted("      if (index==0) {\n");
-   buffer.AppendFormatted("         str.SetFormatted(\"%%d\",gMonitor->GetNetFolderPortNumber());\n");
+   buffer.AppendFormatted("         str.SetFormatted(\"%%d\",gMonitor->GetSocketInterfacePortNumber());\n");
    buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)str.Data());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fNetFolder->fPortNumberModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)fConfigData[index]->fNetFolder->fPortNumber.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
    // Tabs
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
@@ -563,8 +551,6 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      public:\n");
    buffer.AppendFormatted("         ROMEString  fScale;\n");
    buffer.AppendFormatted("         bool        fScaleModified;\n");
-   buffer.AppendFormatted("         ROMEString  fStyle;\n");
-   buffer.AppendFormatted("         bool        fStyleModified;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Window *fWindow;\n");
    buffer.AppendFormatted("      bool   fWindowModified;\n");
@@ -590,17 +576,17 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Online *fOnline;\n");
    buffer.AppendFormatted("      bool   fOnlineModified;\n");
-   // NetFolder
-   buffer.AppendFormatted("      // NetFolder;\n");
-   buffer.AppendFormatted("      class NetFolder {\n");
+   // SocketInterface
+   buffer.AppendFormatted("      // SocketInterface;\n");
+   buffer.AppendFormatted("      class SocketInterface {\n");
    buffer.AppendFormatted("      public:\n");
    buffer.AppendFormatted("         ROMEString  fHost;\n");
    buffer.AppendFormatted("         bool        fHostModified;\n");
    buffer.AppendFormatted("         ROMEString  fPortNumber;\n");
    buffer.AppendFormatted("         bool        fPortNumberModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      NetFolder *fNetFolder;\n");
-   buffer.AppendFormatted("      bool fNetFolderModified;\n");
+   buffer.AppendFormatted("      SocketInterface *fSocketInterface;\n");
+   buffer.AppendFormatted("      bool fSocketInterfaceModified;\n");
    // tabs
    buffer.AppendFormatted("      // tabs\n");
    WriteTabConfigClass(buffer,-1,0);
@@ -619,7 +605,7 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      ConfigData() {\n");
    buffer.AppendFormatted("         fDataBaseModified = false;\n");
    buffer.AppendFormatted("         fOnlineModified = false;\n");
-   buffer.AppendFormatted("         fNetFolderModified = false;\n");
+   buffer.AppendFormatted("         fSocketInterfaceModified = false;\n");
    buffer.AppendFormatted("         fTabsModified = false;\n");
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         f%sTabModified = false;\n",tabName[i].Data());
