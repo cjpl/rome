@@ -4,7 +4,13 @@
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/xpath.h>
+
+#include <TObjArray.h>
+#include <Riostream.h>
+
 #include <ROMEString.h>
+
+#define ENCODING "ISO-8859-1"
 
 class ROMEXML
 {
@@ -15,10 +21,12 @@ protected:
    xmlXPathObjectPtr xpathObj; 
 
    // variables for "manual" implmentation of TextWriter
-   int hFile, xmlLevel; 
+   int xmlFile, xmlLevel; 
    bool xmlElementIsOpen;
-   char *xmlStack;
+   TObjArray *xmlStack;
 
+
+   void  XmlEncode(ROMEString &str);
 public:
    ROMEXML();
    ~ROMEXML();
@@ -26,7 +34,7 @@ public:
    // read
    bool  OpenFileForRead(const char* file);
    bool  NextLine() { return xmlTextReaderRead(reader)!=0; };
-   char* GetName() { return (char*)xmlTextReaderConstName(reader); };
+   char* GetName() { return (char*)xmlTextReaderName(reader); };
    int   GetType() { return xmlTextReaderNodeType(reader); };
    int   GetDepth() { return xmlTextReaderDepth(reader); };
    bool  isEmpty() { return xmlTextReaderIsEmptyElement(reader)!=0; };
@@ -37,7 +45,6 @@ public:
    bool  GetValue(ROMEString& value,ROMEString& defaultValue);
    bool  GetValue(ROMEString& value,const char* defaultValue="");
    // write
-   void  xmlEncode(char *str, int size);
    bool  OpenFileForWrite(const char* file);
    bool  StartElement(const char* name);
    bool  EndElement();

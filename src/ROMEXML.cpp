@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.10  2004/09/17 15:59:16  schneebeli_m
+//  xml write not from libxml2
+//
 //  Revision 1.9  2004/09/16 23:50:47  midas
 //  Indent five spaces per level in XML file
 //
@@ -26,11 +29,8 @@
 #include <stdio.h>
 #include <libxml/xmlreader.h>
 #include <libxml/xpath.h>
-#define MY_ENCODING "ISO-8859-1"
 
 #include <ROMEXML.h>
-#include <ROMEString.h>
-#include <Riostream.h>
 
 #ifndef HAVE_STRLCPY
 /*---- strlcpy and strlcat to avoid buffer overflow ----------------*/
@@ -121,7 +121,7 @@ ROMEXML::~ROMEXML() {
 }
 
 bool ROMEXML::OpenFileForRead(const char* file) {
-   reader = xmlReaderForFile(file, NULL, 0);
+   reader = xmlNewTextReaderFilename(file);
    if (reader == NULL) {
       fprintf(stderr, "Unable to open %s\n", file);
       return false;
@@ -159,7 +159,7 @@ bool ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
       return false;
    }
    int type = xmlTextReaderNodeType(reader);
-   const xmlChar* val = xmlTextReaderConstValue(reader);
+   const xmlChar* val = xmlTextReaderValue(reader);
    if (val!=NULL && type==3) {
       value = (char*)val;
       return true;
@@ -170,208 +170,195 @@ bool ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
 }
 
 bool ROMEXML::OpenFileForWrite(const char* file) {
-   char line[256], str[256];
+   ROMEString line;
+   char *str;
    time_t now;
 
-   hFile = open(file, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT, 0644);
+   xmlFile = open(file, O_WRONLY | O_CREAT | O_TRUNC | O_TEXT, 0644);
 
-   if (hFile == -1) {
+   if (xmlFile == -1) {
       fprintf(stderr, "Unable to open %s\n", file);
       return false;
    }
 
    // write XML header
-   strcpy(line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
-   write(hFile, line, strlen(line));
+   line = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n";
+   write(xmlFile, line.Data(), line.Length());
    time(&now);
-   strcpy(str, ctime(&now));
-   str[24] = 0; // strip CR
-   sprintf(line, "<!-- created by ROME on %s -->\n", str);
-   write(hFile, line, strlen(line));
+   str = ctime(&now);
+   line.SetFormatted("<!-- created by ROME on %s -->\n", str);
+   write(xmlFile, line.Data(), line.Length());
 
    xmlLevel = 0;
    xmlElementIsOpen = false;
 
+   xmlStack = new TObjArray(100);
    return true;
 }
 
-void ROMEXML::xmlEncode(char *src, int size)
+void ROMEXML::XmlEncode(ROMEString &src)
 {
    int i;
-   char *dst, *p;
+   ROMEString dst;
+   ROMEString p;
 
-   dst = (char *)malloc(size);
-   if (dst == NULL)
-      return;
-
-   *dst = 0;
-   for (i = 0; i < (int) strlen(src); i++) {
+   for (i = 0; i < src.Length(); i++) {
       switch (src[i]) {
       case '<':
-         strlcat(dst, "&lt;", size);
+         dst.Append("&lt;");
          break;
       case '>':
-         strlcat(dst, "&gt;", size);
+         dst.Append("&gt;");
          break;
       case '&':
-         strlcat(dst, "&amp;", size);
+         dst.Append("&amp;");
          break;
       case '\"':
-         strlcat(dst, "&quot;",size);
+         dst.Append("&quot;");
          break;
       case '\'':
-         strlcat(dst, "&apos;",size);
+         dst.Append("&apos;");
          break;
       default:
-         if ((int)strlen(dst) >= size) {
-            free(dst);
-            return;
-         }
-         p = dst+strlen(dst);
-         *p = src[i];
-         *(p+1) = 0;
+         dst.Append(src[i]);
       }
    }
 
-   strlcpy(src, dst, size);
+   src = dst;
 }
 
 bool ROMEXML::StartElement(const char* name) 
 {
    int i;
-   char line[1000], name_enc[256];
+   ROMEString line;
+   ROMEString name_enc;
 
    if (xmlElementIsOpen) {
-      write(hFile, ">\n", 2);
+      write(xmlFile, ">\n", 2);
       xmlElementIsOpen = false;
    }
 
-   line[0] = 0;
    for (i=0 ; i<xmlLevel ; i++)
-      strlcat(line, "     ", sizeof(line));
-   strlcat(line, "<", sizeof(line));
-   strcpy(name_enc, name);
-   xmlEncode(name_enc, sizeof(name_enc));
-   strlcat(line, name_enc, sizeof(line));
+      line.Append("     ");
+   line.Append("<");
+   name_enc = name;
+   XmlEncode(name_enc);
+   line.Append(name_enc);
 
    // put element on stack
-   if (xmlStack == NULL)
-      xmlStack = (char *)malloc(256);
-   else
-      xmlStack = (char *)realloc(xmlStack, 256*(xmlLevel+1));
-   strlcpy(xmlStack+256*xmlLevel, name_enc, 256);
+   xmlStack->AddAt(((TObject*)new ROMEString(name_enc)),xmlLevel);
    xmlLevel++;
 
    xmlElementIsOpen = true;
 
-   if (write(hFile, line, strlen(line)) != strlen(line))
+   if (write(xmlFile, line.Data(), line.Length()) != line.Length())
       return false;
    return true;
 }
 
 bool ROMEXML::EndElement() {
    int i;
-   char line[1000];
+   ROMEString line;
 
    xmlLevel--;
 
    if (xmlElementIsOpen) {
       xmlElementIsOpen = false;
-      if (write(hFile, "/>\n", 3) != 3)
+      if (write(xmlFile, "/>\n", 3) != 3)
          return false;
       return true;
    }
 
-   line[0] = 0;
    for (i=0 ; i<xmlLevel ; i++)
-      strlcat(line, "     ", sizeof(line));
-   strlcat(line, "</", sizeof(line));
-   strlcat(line, xmlStack+256*xmlLevel, sizeof(line));
-   strlcat(line, ">\n", sizeof(line));
+      line.Append("     ");
+   line.Append("</");
+   line.Append(((ROMEString*)xmlStack->At(xmlLevel))->Data());
+   delete (ROMEString*)xmlStack->At(xmlLevel);
+   line.Append(">\n");
 
-   if (write(hFile, line, strlen(line)) != strlen(line))
+   if (write(xmlFile, line.Data(), line.Length()) != line.Length())
       return false;
    return true;
 }
 
 bool ROMEXML::EndDocument() {
    int i, level;
-   char line[2000];
+   ROMEString line;
 
    if (xmlElementIsOpen) {
       xmlElementIsOpen = false;
-      if (write(hFile, ">\n", 2) != 2)
+      if (write(xmlFile, ">\n", 2) != 2)
          return false;
    }
 
    // close remaining open levels
    for (level=xmlLevel-1 ; level>= 0 ; level--) {
-      line[0] = 0;
       for (i=0 ; i<level ; i++)
-         strlcat(line, "     ", sizeof(line));
-      strlcat(line, "</", sizeof(line));
-      strlcat(line, xmlStack+256*level, sizeof(line));
-      strlcat(line, ">\n", sizeof(line));
+         line.Append("     ");
+      line.Append("</");
+      line.Append(((ROMEString*)xmlStack->At(level))->Data());
+      delete (ROMEString*)xmlStack->At(level);
+      line.Append(">\n");
 
-      if (write(hFile, line, strlen(line)) != strlen(line))
+      if (write(xmlFile, line.Data(), line.Length()) != line.Length())
          return false;
    }
 
-   free(xmlStack);
-   xmlStack = NULL;
+   delete xmlStack;
 
-   close(hFile);
+   close(xmlFile);
    return true;
 }
 
 bool ROMEXML::WriteAttribute(const char* name,const char* value) {
-   char name_enc[256];
+   ROMEString name_enc;
 
    if (!xmlElementIsOpen)
       return false;
 
-   write(hFile, " ", 1);
-   strlcpy(name_enc, name, sizeof(name_enc));
-   xmlEncode(name_enc, sizeof(name_enc));
-   write(hFile, name_enc, strlen(name_enc));
-   write(hFile, "=\"", 2);
+   write(xmlFile, " ", 1);
+   name_enc = name;
+   XmlEncode(name_enc);
+   write(xmlFile, name_enc.Data(), name_enc.Length());
+   write(xmlFile, "=\"", 2);
 
-   strlcpy(name_enc, value, sizeof(name_enc));
-   xmlEncode(name_enc, sizeof(name_enc));
-   write(hFile, name_enc, strlen(name_enc));
-   write(hFile, "\"", 1);
+   name_enc = value;
+   XmlEncode(name_enc);
+   write(xmlFile, name_enc.Data(), name_enc.Length());
+   write(xmlFile, "\"", 1);
 
    return true;
 }
 
 bool ROMEXML::WriteElement(const char* name,const char* value) {
    int i;
-   char line[2000], name_enc[256], value_enc[1000];
+   ROMEString line;
+   ROMEString name_enc;
+   ROMEString value_enc;
 
    if (xmlElementIsOpen) {
       xmlElementIsOpen = false;
-      if (write(hFile, ">\n", 2) != 2)
+      if (write(xmlFile, ">\n", 2) != 2)
          return false;
    }
 
-   line[0] = 0;
    for (i=0 ; i<xmlLevel ; i++)
-      strlcat(line, "     ", sizeof(line));
-   strlcat(line, "<", sizeof(line));
-   strcpy(name_enc, name);
-   xmlEncode(name_enc, sizeof(name_enc));
-   strlcat(line, name_enc, sizeof(line));
-   strlcat(line, ">", sizeof(line));
+      line.Append("     ");
+   line.Append("<");
+   name_enc = name;
+   XmlEncode(name_enc);
+   line.Append(name_enc);
+   line.Append(">");
 
-   strcpy(value_enc, value);
-   xmlEncode(value_enc, sizeof(value_enc));
-   strlcat(line, value_enc, sizeof(line));
+   value_enc = value;
+   XmlEncode(value_enc);
+   line.Append(value_enc);
 
-   strlcat(line, "</", sizeof(line));
-   strlcat(line, name_enc, sizeof(line));
-   strlcat(line, ">\n", sizeof(line));
+   line.Append("</");
+   line.Append(name_enc);
+   line.Append(">\n");
 
-   if (write(hFile, line, strlen(line)) != strlen(line))
+   if (write(xmlFile, line.Data(), line.Length()) != line.Length())
       return false;
 
    return true;
@@ -614,3 +601,5 @@ bool ROMEXML::WritePathFile(const char* file) {
    xmlSaveFormatFileEnc(file,doc,"ISO-8859-1",1);
    return true;
 }
+
+
