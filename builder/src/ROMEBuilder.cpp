@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/06/29 10:27:54  schneebeli
+  double declaration of int i
+
   Revision 1.8  2004/06/28 14:41:20  schneebeli
   lots of new stuff
 
@@ -4505,7 +4508,6 @@ void ROMEBuilder::WriteMakefile() {
 #endif
 
 #if defined ( __linux__ )
-   int i;
    char shortcut[20];
    char mainprogname[20];
    sprintf(buffer,"ROOTLIBS := $(shell root-config --libs)\n");
