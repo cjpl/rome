@@ -3306,6 +3306,7 @@ int main(int argc, char *argv[])
    
    char xmlFile[1000];
 
+   xmlFile[0] = 0;
    const int workDirLen = 1000;
    char workDir[workDirLen];
    getcwd(workDir,workDirLen);
@@ -3352,7 +3353,10 @@ int main(int argc, char *argv[])
 
    struct stat buf;
    if( stat( xmlFile, &buf )) {
-      cout << "Imputfile '" << xmlFile << "' not found." << endl;
+      if ( xmlFile[0] == 0)
+         cout << "No inputfile specified." << endl;
+      else
+         cout << "Inputfile '" << xmlFile << "' not found." << endl;
       return 1;
    }
 
