@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2005/03/17 15:44:51  schneebeli_m
+  GetAbsolutePath error removed
+
   Revision 1.6  2005/03/03 19:24:32  sawada
   compatibility with SQL and XML database.
 
@@ -77,7 +80,8 @@ public:
    const char* GetFieldName() { return fFieldName.Data(); };
    int         GetFieldIndexAt(int i)  { return fFieldIndex[i]; };
    bool        IsFieldArray() { return fFieldArray; };
-   const char* GetAbsolutePath( const char* tablename );
+
+   void GetAbsolutePath( ROMEString& path,const char* tablename );
 
    // getters for decode constraint
    int         GetNumberOfConstraints() { return fConstraintField->GetEntriesFast(); };

@@ -8,7 +8,11 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.56  2005/03/17 15:44:51  schneebeli_m
+//  GetAbsolutePath error removed
+//
 //  Revision 1.55  2005/02/21 21:29:07  sawada
+//
 //  Changed OS specifying macros
 //  Support for DEC,Ultrix,FreeBSD,Solaris
 //
@@ -107,7 +111,6 @@
 #include <Windows4Root.h>
 #include <conio.h>
 #endif
-#include <io.h>
 #include <direct.h>
 #include <windows.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
@@ -125,8 +128,13 @@
 #include <sys/time.h>
 #endif
 #ifndef R__MACOSX
+#if defined( R__VISUAL_CPLUSPLUS )
+#include <io.h>
+#endif
+#if defined( R__UNIX )
 #include <sys/io.h>
 #endif
+#endif // R__MACOSX
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>

@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.10  2005/03/17 15:44:51  schneebeli_m
+//  GetAbsolutePath error removed
+//
 //  Revision 1.9  2005/03/13 08:43:14  sawada
 //  removed or comment out unused variables.
 //  made virtual destructor of ROMEConfig and ROMEDataBase.
@@ -320,18 +323,18 @@ void ROMEPath::Print() {
    }
 }
 
-const char* ROMEPath::GetAbsolutePath( const char* tablename ){
+void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ){
    int i;
-   ROMEString result;
    for(i=1;i<fTableNames->GetEntriesFast();i++){
       if(fTableNames->At(i)==tablename){
-         result = fTableAbsolutePaths->At(i-1).Data();
-         result += "/";
-         result += tablename;
-         return result.Data();
+         path = fTableAbsolutePaths->At(i-1).Data();
+         path += "/";
+         path += tablename;
+         return;
       }
    }
-   return tablename;
+   path = tablename;
+   return;
 }
 
 int ROMEPath::MinPosition(int i1,int i2,int i3,int i4) {

@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.12  2005/03/17 15:44:52  schneebeli_m
+//  GetAbsolutePath error removed
+//
 //  Revision 1.11  2005/03/13 08:43:14  sawada
 //  removed or comment out unused variables.
 //  made virtual destructor of ROMEConfig and ROMEDataBase.
@@ -131,12 +134,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                ConstraintField = ConstraintTable(itmp,ConstraintTable.Length());
                ConstraintTable = ConstraintTable(0,itmp);
                ConstraintTable.ReplaceAll(" ","");
-               if(ConstraintTable != path->GetAbsolutePath(ConstraintTable)){ //ConstraintTable is existing table name.
-                  ConstraintPath = path->GetAbsolutePath(ConstraintTable);
-               }
-               else{
-                  ConstraintPath = ConstraintTable;
-               }
+               path->GetAbsolutePath(ConstraintPath,ConstraintTable);
                ConstraintPath += "/";
                ConstraintPath += ConstraintField(1,ConstraintField.Length());
                Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
@@ -204,7 +202,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                   if ((ie=value.Index(")",1,is+3,TString::kIgnoreCase))==-1)
                      ie = value.Length();
                   val = value(is+3,ie-is-3);
-                  ConstraintPath = path->GetAbsolutePath(path->GetTableNameAt(i));
+                  path->GetAbsolutePath(ConstraintPath,path->GetTableNameAt(i));
                   ConstraintPath += "/";
                   ConstraintPath += val;
                   Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
