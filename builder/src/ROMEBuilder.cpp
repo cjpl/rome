@@ -3,7 +3,11 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.106  2005/02/25 14:40:19  sawada
+  fixed a bug at InitMidasBanks when there are no midas banks.
+
   Revision 1.105  2005/02/21 21:29:06  sawada
+
   Changed OS specifying macros
   Support for DEC,Ultrix,FreeBSD,Solaris
 
@@ -3481,9 +3485,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
    }
 
    // Banks
+   buffer.AppendFormatted("   // Bank Methodes\n");
+   buffer.AppendFormatted("   void InitMidasBanks();\n");
    if (numOfBank>0) {
-      buffer.AppendFormatted("   // Bank Methodes\n");
-      buffer.AppendFormatted("   void InitMidasBanks();\n");
       for (i=0;i<numOfBank;i++) {
          // Bank Array
          if (bankArrayDigit[i]>0) {
