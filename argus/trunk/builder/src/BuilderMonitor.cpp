@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.6  2005/02/04 15:10:05  sawada
+  ODB and ROMEDataBase folders.
+
   Revision 1.5  2005/02/03 11:44:54  sawada
   IO to MIDAS ODB
 
@@ -127,11 +130,6 @@ bool ArgusBuilder::WriteMonitorCpp() {
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
    // StartMonitor
    buffer.AppendFormatted("\nbool %sMonitor::StartMonitor() {\n",shortCut.Data());
-   for (i=0;i<numOfFolder;i++) {
-      if(folderConnectionType[i] == "ODB"){
-         buffer.AppendFormatted("   f%sFolder->SetMidasOnlineDataBase(fMidasOnlineDataBase);\n",folderName[i].Data());
-      }
-   }
    buffer.AppendFormatted("   InitSingleFolders();\n");
    buffer.AppendFormatted("   // Update Data Base\n");
    buffer.AppendFormatted("   if (!ReadSingleDataBaseFolders()) {\n");
@@ -164,85 +162,23 @@ bool ArgusBuilder::WriteMonitorCpp() {
    // ReadSingleDataBaseFolders
    buffer.AppendFormatted("\nbool %sMonitor::ReadSingleDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
-      buffer.AppendFormatted("   ROMEString path;\n");
-      buffer.AppendFormatted("   int i;\n");
-      buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-      buffer.AppendFormatted("   char *cstop;\n");
       for (i=0;i<numOfFolder;i++) {
-         if (folderDataBase[i]) {
-            for (j=0;j<numOfValue[i];j++) {
-               if (folderArray[i]=="1") {
-                  buffer.AppendFormatted("   values->RemoveAll();\n");
-                  buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
-                  buffer.AppendFormatted("      return false;\n");
-                  if (valueArray[i][j]=="1") {
-                     buffer.AppendFormatted("   if (values->At(0,0).Length()!=0)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0).Data()",(char*)valueType[i][j].Data(),1);
-                     buffer.AppendFormatted("      f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                     buffer.AppendFormatted("   else\n");
-                     buffer.AppendFormatted("      f%sFolder->Set%s(%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
-                  }
-                  else {
-                     buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
-                     buffer.AppendFormatted("      if (values->At(0,i).Length()!=0)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i).Data()",(char*)valueType[i][j].Data(),1);
-                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                     buffer.AppendFormatted("      else\n");
-                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
-                     buffer.AppendFormatted("   }\n");
-                  }
-               }
-            }
-         }
+         if (folderDataBase[i] && folderArray[i]=="1")
+            buffer.AppendFormatted("   if(!Update%s()) return false;\n",folderName[i].Data());
       }
-      buffer.AppendFormatted("   values->RemoveAll();\n");
-      buffer.AppendFormatted("   delete values;\n");
+      buffer.AppendFormatted("   return true;\n");
+      buffer.AppendFormatted("}\n\n");
    }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
    // ReadArrayDataBaseFolders
    buffer.AppendFormatted("\nbool %sMonitor::ReadArrayDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
-      buffer.AppendFormatted("   ROMEString path;\n");
-      buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-      buffer.AppendFormatted("   char *cstop;\n");
-      buffer.AppendFormatted("   int i,j;\n");
       for (i=0;i<numOfFolder;i++) {
-         if (folderDataBase[i]) {
-            for (j=0;j<numOfValue[i];j++) {
-               if (folderArray[i]!="1") {
-                  buffer.AppendFormatted("   values->RemoveAll();\n");
-                  buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
-                  buffer.AppendFormatted("      return false;\n");
-                  buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
-                  if (valueArray[i][j]=="1") {
-                     buffer.AppendFormatted("      if (values->At(i,0).Length()!=0)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0).Data()",(char*)valueType[i][j].Data(),1);
-                     buffer.AppendFormatted("         ((%sF%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                     buffer.AppendFormatted("      else\n");
-                     buffer.AppendFormatted("         ((%s%Fs*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
-                  }
-                  else {
-                     buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
-                     buffer.AppendFormatted("         if (values->At(i,j).Length()!=0)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j).Data()",(char*)valueType[i][j].Data(),1);
-                     buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                     buffer.AppendFormatted("         else\n");
-                     buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
-                     buffer.AppendFormatted("      }\n");
-                  }
-                  buffer.AppendFormatted("   }\n");
-               }
-            }
-         }
+         if (folderDataBase[i]&&folderArray[i]!="1")
+            buffer.AppendFormatted("   if(!Update%s()) return false;\n",folderName[i].Data());
       }
-      buffer.AppendFormatted("   values->RemoveAll();\n");
-      buffer.AppendFormatted("   delete values;\n");
+      buffer.AppendFormatted("   return true;\n");
+      buffer.AppendFormatted("}\n\n");
    }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
    // clean up folders
    buffer.AppendFormatted("\n// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sMonitor::CleanUpFolders() {\n",shortCut.Data());
@@ -295,6 +231,103 @@ bool ArgusBuilder::WriteMonitorCpp() {
       }
    }
    buffer.AppendFormatted("}\n\n");
+   //Update Folders
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderDataBase[i] || numOfValue[i]==0)
+         continue;
+      buffer.AppendFormatted("\nbool %sMonitor::Update%s() {\n",shortCut.Data(),folderName[i].Data());
+      //ODB folder
+      if(folderConnectionType[i] == "ODB"){
+         buffer.AppendFormatted("   HNDLE hkey;\n");
+         buffer.AppendFormatted("   INT   size;\n");
+         ROMEString tid;
+         for (j=0;j<numOfValue[i];j++) {
+            GetMidasTID(&tid, (char*)valueType[i][j].Data());
+            if (valueArray[i][j]=="1") {
+               buffer.AppendFormatted("   %s %s_%s;\n",valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("   size = sizeof(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("   db_get_value(fMidasOnlineDataBase, 0, %s, &%s_%s, &size, %s, FALSE);\n",valueDataBasePath[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),tid.Data());
+               buffer.AppendFormatted("   f%sFolder->Set%s(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+            }
+            else {
+               buffer.AppendFormatted("      %s %s_%s[%s];\n",valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),valueArray[i][j].Data());
+               buffer.AppendFormatted("      size = sizeof(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      db_find_key(fMidasOnlineDataBase, 0, %s, &hkey);\n",valueDataBasePath[i][j].Data());
+               buffer.AppendFormatted("      db_get_data(fMidasOnlineDataBase, hkey, %s_%s, &size, %s);\n",folderName[i].Data(),valueName[i][j].Data(),tid.Data());
+               buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
+               buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s_%s[i]);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      }\n");               
+            }
+         }
+      }
+      else if(folderConnectionType[i] == "ROMEDataBase"){
+         // ROMEDataBase Folder
+         buffer.AppendFormatted("   ROMEString path;\n");
+         buffer.AppendFormatted("   int i;\n");
+         buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
+         buffer.AppendFormatted("   char *cstop;\n");
+         if (folderArray[i] == "1") {
+            for (j=0;j<numOfValue[i];j++) {
+               if (folderArray[i]=="1") {
+                  buffer.AppendFormatted("   values->RemoveAll();\n");
+                  buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
+                  buffer.AppendFormatted("      return false;\n");
+                  if (valueArray[i][j]=="1") {
+                     buffer.AppendFormatted("   if (values->At(0,0).Length()!=0)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0).Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("      f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("   else\n");
+                     buffer.AppendFormatted("      f%sFolder->Set%s(%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  }
+                  else {
+                     buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
+                     buffer.AppendFormatted("      if (values->At(0,i).Length()!=0)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i).Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("      else\n");
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                     buffer.AppendFormatted("   }\n");
+                  }
+               }
+            }
+         }
+         else{
+            buffer.AppendFormatted("   int j;\n");
+            for (j=0;j<numOfValue[i];j++) {
+               buffer.AppendFormatted("   values->RemoveAll();\n");
+               buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
+               buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
+               buffer.AppendFormatted("      return false;\n");
+               buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
+               if (valueArray[i][j]=="1") {
+                  buffer.AppendFormatted("      if (values->At(i,0).Length()!=0)\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0).Data()",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormatted("         ((%sF%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("      else\n");
+                  buffer.AppendFormatted("         ((%s%Fs*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+               }
+               else {
+                  buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
+                  buffer.AppendFormatted("         if (values->At(i,j).Length()!=0)\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j).Data()",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("         else\n");
+                  buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  buffer.AppendFormatted("      }\n");
+                  buffer.AppendFormatted("   }\n");
+               }
+            }
+         }
+         buffer.AppendFormatted("   values->RemoveAll();\n");
+         buffer.AppendFormatted("   delete values;\n");
+      }
+      else if(folderConnectionType[i] == "TSocket"){
+         buffer.AppendFormatted("   cout<<\"Update via TSocket is not supported yes\"<<endl;\n");
+      }
+      buffer.AppendFormatted("   return true;\n");
+      buffer.AppendFormatted("};\n");
+   }
    // Initialize Single Folders
    buffer.AppendFormatted("\nvoid %sMonitor::InitSingleFolders() {\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
@@ -452,6 +485,8 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
+         if (folderDataBase[i])
+            buffer.AppendFormatted("   bool Update%s();\n",folderName[i].Data());
          int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
          if (folderArray[i]=="1") {
             format.SetFormatted("   %%sF%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
