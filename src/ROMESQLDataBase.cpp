@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.12  2004/11/17 13:27:17  sawada
+//  bug fix
+//
 //  Revision 1.11  2004/11/17 10:36:27  sawada
 //  argument for Init
 //
@@ -188,14 +191,14 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 			is3 = is2+1;
 			ie2 = value.Length();
 			if ((itmp=value.Index("/",1,is3,TString::kIgnoreCase))!=-1)
-			   ie2 = TMath::Min(ie2,itmp);
+			   ie2 = TMath::Min(ie2,itmp+1);
 			if ((itmp=value.Index("{",1,is3,TString::kIgnoreCase))!=-1)
-			   ie2 = TMath::Min(ie2,itmp);
+			   ie2 = TMath::Min(ie2,itmp+1);
 			if ((itmp=value.Index("(",1,is3,TString::kIgnoreCase))!=-1)
-			   ie2 = TMath::Min(ie2,itmp);
+			   ie2 = TMath::Min(ie2,itmp+1);
 			if ((itmp=value.Index("[",1,is3,TString::kIgnoreCase))!=-1)
-			   ie2 = TMath::Min(ie2,itmp);
-			ie3=ie2;
+			   ie2 = TMath::Min(ie2,itmp+1);
+			ie3=ie2-1;
 		     }
 		     tname = value(is3,ie3-is3);
 		     newdbConstraint.Resize(0);
