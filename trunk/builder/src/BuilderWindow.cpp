@@ -3,6 +3,10 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.14  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.13  2005/03/18 15:24:49  sawada
   added TabSelected,TabUnSelected.
   added gWindow->ClearStatusBar();
@@ -142,19 +146,19 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title)\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   fStatusBarSwitch = true;\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      int index = tabHierarchyParentIndex[i];
-      ROMEString switchString = tabHierarchyName[i].Data();
+   for (i=0;i<numOfTab;i++) {
+      int index = tabParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         switchString.Insert(0,tabName[index].Data());
+         index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   fTabSwitches.%s = true;\n", switchString.Data());
    }
-   for (i=0;i<numOfTabHierarchy;i++) {
-      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n",tabHierarchyName[i].Length());
-      buffer.AppendFormatted((char*)format.Data(),tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+   for (i=0;i<numOfTab;i++) {
+      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n",tabName[i].Length());
+      buffer.AppendFormatted((char*)format.Data(),tabName[i].Data(),i,shortCut.Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
@@ -178,10 +182,10 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
-   buffer.AppendFormatted("   Int_t tabID = 0;\n",tabHierarchyName[i].Data());      
+   buffer.AppendFormatted("   Int_t tabID = 0;\n",tabName[i].Data());      
    buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       recursiveTabDepth=0;
       if(!AddTab(buffer,i))
          return false;
@@ -222,11 +226,11 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   case kC_COMMAND:    \n");
    buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
    buffer.AppendFormatted("      case kCM_MENU:\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         if (%d <= param1 && param1 < %d) {\n"
 			     ,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems,(i+2)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
       buffer.AppendFormatted("            f%s%03dTab->MenuClicked(param1-%d);\n"
-			     ,tabHierarchyName[i].Data(),i,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+			     ,tabName[i].Data(),i,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
       buffer.AppendFormatted("         }\n");
    }
    buffer.AppendFormatted("         switch (param1) {\n");
@@ -244,40 +248,40 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      case kCM_LISTBOX:\n");
    buffer.AppendFormatted("         break;      \n");
    buffer.AppendFormatted("      case kCM_TAB:\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("         // %s\n",tabHierarchyName[i].Data());
-      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID)\n",tabHierarchyName[i].Data(),tabHierarchyName[i].Data());
-      buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n",tabHierarchyName[i].Data(),i);
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("         // %s\n",tabName[i].Data());
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID)\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n",tabName[i].Data(),i);
    }
-   for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("         // %s\n",tabHierarchyName[i].Data());
-      buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID)\n",tabHierarchyName[i].Data(),tabHierarchyName[i].Data());
-      buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n",tabHierarchyName[i].Data(),i);
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("         // %s\n",tabName[i].Data());
+      buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID)\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n",tabName[i].Data(),i);
       buffer.AppendFormatted("         if (");
       int index = i;
       do  {
-         buffer.AppendFormatted(" param1 == f%sTabID ||",tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         buffer.AppendFormatted(" param1 == f%sTabID ||",tabName[index].Data());
+         index = tabParentIndex[index];
       } while(index!=-1);
       buffer.Remove(buffer.Length()-2); // remove the last "||"
       buffer.AppendFormatted(") {\n");
-      buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabName[i].Data(),i);
       for (j=0;j<numOfTabMenu[i];j++) {
-	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabHierarchyName[i].Data(),j);
+	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabName[i].Data(),j);
 	 for (k=0;k<numOfTabMenuItem[i][j];k++) {
-	    buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n",tabHierarchyName[i].Data(),j
-				   ,tabHierarchyMenuItemTitle[i][j][k].Data()
-				   ,tabHierarchyMenuItemID[i][j][k]+(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+	    buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n",tabName[i].Data(),j
+				   ,tabMenuItemTitle[i][j][k].Data()
+				   ,tabMenuItemID[i][j][k]+(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
 	 }
-	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabHierarchyName[i].Data(),j);
-	 buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",tabHierarchyMenuTitle[i][j].Data(),tabHierarchyName[i].Data(),j);
+	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabName[i].Data(),j);
+	 buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",tabMenuTitle[i][j].Data(),tabName[i].Data(),j);
 	 buffer.AppendFormatted("                              new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
       }
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         else {\n");
-      buffer.AppendFormatted("            f%s%03dTab->SetActive(false);\n",tabHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(false);\n",tabName[i].Data(),i);
       for (j=0;j<numOfTabMenu[i];j++) {
-	 menuTitle = tabHierarchyMenuTitle[i][j];
+	 menuTitle = tabMenuTitle[i][j];
 	 menuTitle.ReplaceAll("&","");
 	 buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menuTitle.Data());
       }
@@ -341,20 +345,20 @@ bool ArgusBuilder::WriteWindowH() {
    // max tab name length
    int tabLen=0;
    int scl = shortCut.Length();
-   for (i=0;i<numOfTabHierarchy;i++) {
-      if (tabLen<(int)tabHierarchyName[i].Length()) tabLen = tabHierarchyName[i].Length();
-      if (typeLen<(int)tabHierarchyName[i].Length()+scl) typeLen = tabHierarchyName[i].Length()+scl;
+   for (i=0;i<numOfTab;i++) {
+      if (tabLen<(int)tabName[i].Length()) tabLen = tabName[i].Length();
+      if (typeLen<(int)tabName[i].Length()+scl) typeLen = tabName[i].Length()+scl;
    }
    // max tab switch name length
    int switchLen = -1;
    ROMEString switchString;
-   for (i=0;i<numOfTabHierarchy;i++) {
-      int index = tabHierarchyParentIndex[i];
-      switchString = tabHierarchyName[i].Data();
+   for (i=0;i<numOfTab;i++) {
+      int index = tabParentIndex[i];
+      switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         switchString.Insert(0,tabName[index].Data());
+         index = tabParentIndex[index];
       }
       if (switchLen<(int)switchString.Length()) switchLen = switchString.Length();
    }
@@ -394,20 +398,20 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("#include <TGMenu.h>\n");
    buffer.AppendFormatted("#include <TGTab.h>\n");
    buffer.AppendFormatted("#include <TGStatusBar.h>\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("\n");
    // Tab Switches Structure
    buffer.AppendFormatted("// Tab Switches Structure\n");
    buffer.AppendFormatted("typedef struct{\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      int index = tabHierarchyParentIndex[i];
-      switchString = tabHierarchyName[i].Data();
+   for (i=0;i<numOfTab;i++) {
+      int index = tabParentIndex[i];
+      switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         switchString.Insert(0,tabName[index].Data());
+         index = tabParentIndex[index];
       }
       format.SetFormatted("   bool %%s;%%%ds  //! %%s Tab\n",switchLen-switchString.Length());
       buffer.AppendFormatted((char*)format.Data(),switchString.Data(),"",switchString.Data());
@@ -424,14 +428,14 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("   TGPopupMenu         *fMenuFile;\n");
    buffer.AppendFormatted("   TGTab               *fTab;\n");
    buffer.AppendFormatted("   Int_t               fCurrentTabID;\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      if(tabHierarchyNumOfChildren[i])
-         buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n",tabHierarchyName[i].Data(),i);
+   for (i=0;i<numOfTab;i++) {
+      if(tabNumOfChildren[i])
+         buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n",tabName[i].Data(),i);
    }
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       if(numOfTabMenu[i]>0)
-	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),numOfTabMenu[i]);
-      buffer.AppendFormatted("   Int_t               f%sTabID;\n",tabHierarchyName[i].Data());
+	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabName[i].Data(),numOfTabMenu[i]);
+      buffer.AppendFormatted("   Int_t               f%sTabID;\n",tabName[i].Data());
    }
    buffer.AppendFormatted("   enum CommandIdentifiers {\n");
    buffer.AppendFormatted("      M_FILE_EXIT,\n");
@@ -444,11 +448,11 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("\n");
    // Tab Fields
    buffer.AppendFormatted("   // Tab Fields\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      format.SetFormatted("   %%sT%%s*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n",typeLen-tabHierarchyName[i].Length()-shortCut.Length(),tabLen-tabHierarchyName[i].Length());
-      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),"",tabHierarchyName[i].Data(),i,"",tabHierarchyName[i].Data());
-      format.SetFormatted("   TGCompositeFrame*%%%ds t%%sT%%s;%%%ds  // Container of %%s Tab\n",typeLen-15,1+tabLen-tabHierarchyName[i].Length()-shortCut.Length());
-      buffer.AppendFormatted((char*)format.Data(),"",shortCut.Data(),tabHierarchyName[i].Data(),"",tabHierarchyName[i].Data());
+   for (i=0;i<numOfTab;i++) {
+      format.SetFormatted("   %%sT%%s*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n",typeLen-tabName[i].Length()-shortCut.Length(),tabLen-tabName[i].Length());
+      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabName[i].Data(),"",tabName[i].Data(),i,"",tabName[i].Data());
+      format.SetFormatted("   TGCompositeFrame*%%%ds t%%sT%%s;%%%ds  // Container of %%s Tab\n",typeLen-15,1+tabLen-tabName[i].Length()-shortCut.Length());
+      buffer.AppendFormatted((char*)format.Data(),"",shortCut.Data(),tabName[i].Data(),"",tabName[i].Data());
    }
    buffer.AppendFormatted("\n");
    // Method
@@ -466,9 +470,9 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("   TabSwitches* GetTabSwitches() { return &fTabSwitches; };\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Tabs\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      format.SetFormatted("   %%sT%%s*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds };\n",typeLen-tabHierarchyName[i].Length()-shortCut.Length(),tabLen-tabHierarchyName[i].Length(),tabLen-tabHierarchyName[i].Length());
-      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),"",tabHierarchyName[i].Data(),i,"",tabHierarchyName[i].Data(),i,"");
+   for (i=0;i<numOfTab;i++) {
+      format.SetFormatted("   %%sT%%s*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds };\n",typeLen-tabName[i].Length()-shortCut.Length(),tabLen-tabName[i].Length(),tabLen-tabName[i].Length());
+      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabName[i].Data(),"",tabName[i].Data(),i,"",tabName[i].Data(),i,"");
    }
    buffer.AppendFormatted("   void CloseWindow();\n");
    buffer.AppendFormatted("   void ClearStatusBar();\n");
@@ -509,47 +513,47 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
    int j;
    ROMEString parentt;
    ROMEString format;
-   int index = tabHierarchyParentIndex[i];
-   ROMEString switchString = tabHierarchyName[i].Data();
+   int index = tabParentIndex[i];
+   ROMEString switchString = tabName[i].Data();
    int depth;
    while (index!=-1) {
       switchString.Insert(0,"_");
-      switchString.Insert(0,tabHierarchyName[index].Data());
-      index = tabHierarchyParentIndex[index];
+      switchString.Insert(0,tabName[index].Data());
+      index = tabParentIndex[index];
    }
-   if (tabHierarchyParentIndex[i] == -1)
+   if (tabParentIndex[i] == -1)
       parentt = "fTab";
    else
-      parentt.SetFormatted("f%s%03dTabSubTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
+      parentt.SetFormatted("f%s%03dTabSubTab",tabName[tabParentIndex[i]].Data(),tabParentIndex[i]);
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
    buffer.AppendFormatted("   if (fTabSwitches.%s){\n",switchString.Data());
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-   buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
+   buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabName[i].Data(),parentt.Data(),tabTitle[i].Data());
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-   buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+   buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabName[i].Data(),i,shortCut.Data(),tabName[i].Data());
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-   buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
-   if(!tabHierarchyNumOfChildren[i]){
+   buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabName[i].Data(),i);
+   if(!tabNumOfChildren[i]){
       for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n",shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n",shortCut.Data(),tabName[i].Data(),tabName[i].Data(),i);
    }
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-   buffer.AppendFormatted("      f%sTabID = tabID++;\n",tabHierarchyName[i].Data());
-   if(tabHierarchyNumOfChildren[i]){
+   buffer.AppendFormatted("      f%sTabID = tabID++;\n",tabName[i].Data());
+   if(tabNumOfChildren[i]){
       for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-      buffer.AppendFormatted("      f%s%03dTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+      buffer.AppendFormatted("      f%s%03dTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n",tabName[i].Data(),i,shortCut.Data(),tabName[i].Data());
    }
    recursiveTabDepth++;
    j=i;
-   while(i<j+tabHierarchyNumOfChildren[j]){
+   while(i<j+tabNumOfChildren[j]){
       i++;
       if(!AddTab(buffer,i))
          return false;
    }
    recursiveTabDepth--;
-   if(tabHierarchyNumOfChildren[j]){
+   if(tabNumOfChildren[j]){
       for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
-      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTabSubTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n",shortCut.Data(),tabHierarchyName[j].Data(),tabHierarchyName[j].Data(),j);
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTabSubTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n",shortCut.Data(),tabName[j].Data(),tabName[j].Data(),j);
    }
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");

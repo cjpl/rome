@@ -3,6 +3,10 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.21  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.20  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -158,7 +162,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   fNetFolder = 0;\n");
    buffer.AppendFormatted("\n");
    // Steering 
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("   fGlobalSteeringParameters = new %sGlobalSteering();\n",shortCut.Data());
    }
    // Folder 
@@ -541,7 +545,7 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TNetFolder.h>\n");
    // include
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("#include \"include/monitor/%sGlobalSteering.h\"\n",shortCut.Data());
    }
    // includes
@@ -581,7 +585,7 @@ bool ArgusBuilder::WriteMonitorH() {
    }
    buffer.AppendFormatted("\n");
    // Steering Fields
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("   // Steering Parameter Fields\n");
       buffer.AppendFormatted("\n   %sGlobalSteering* fGlobalSteeringParameters; // Handle to the GlobalSteering Class\n",shortCut.Data());
    }
@@ -641,7 +645,7 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("   bool StartMonitor();\n");
    buffer.AppendFormatted("\n");
    // Steering
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("   // Steering Parameter Methodes\n");
       buffer.AppendFormatted("   %sGlobalSteering* GetGSP() { return fGlobalSteeringParameters; };\n",shortCut.Data());
       buffer.AppendFormatted("\n");

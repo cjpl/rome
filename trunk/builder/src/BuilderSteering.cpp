@@ -3,6 +3,10 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.3  2005/03/01 00:24:35  sawada
   bug fix around global steering parameter.
 
@@ -166,7 +170,7 @@ bool ArgusBuilder::WriteSteering(int iTab) {
    ROMEString buffer;
    char fileBuffer[bufferLength];
    hFile.SetFormatted("%s/include/monitor/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
-   if (numOfSteering[numOfTabHierarchy]==-1) {
+   if (numOfSteering[numOfTab]==-1) {
       remove(hFile.Data());
       return true;
    }

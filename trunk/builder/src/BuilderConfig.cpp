@@ -3,6 +3,10 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.9  2005/03/18 12:10:09  sawada
   added status bar.
 
@@ -205,17 +209,17 @@ bool ArgusBuilder::WriteConfigCpp() {
    ROMEString pointer;
    ROMEString path;
    ROMEString classname;
-   for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("   // %s Tab\n",tabHierarchyName[i].Data());
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("   // %s Tab\n",tabName[i].Data());
       int index = i;
       pointer.Resize(0);
       path.Resize(0);
       classname.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTab",tabHierarchyName[index].Data());
-         path.InsertFormatted(0,"/child::Tab[child::TabName='%s']",tabHierarchyName[index].Data());
-         classname.InsertFormatted(0,"::%sTab",tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         pointer.InsertFormatted(0,"->f%sTab",tabName[index].Data());
+         path.InsertFormatted(0,"/child::Tab[child::TabName='%s']",tabName[index].Data());
+         classname.InsertFormatted(0,"::%sTab",tabName[index].Data());
+         index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   fConfigData%s = new ConfigData%s();\n",pointer.Data(),classname.Data());
       // Active
@@ -225,7 +229,7 @@ bool ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData%s->fActiveModified = true;\n",pointer.Data());
       // Steering parameter
-      if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
+      if (numOfSteering[i]>0) {
          buffer.AppendFormatted("   // steering parameters\n");
          buffer.AppendFormatted("   fConfigData%s->fSteering = new ConfigData%s::Steering();\n",pointer.Data(),classname.Data());
          ROMEString pathT;
@@ -234,11 +238,11 @@ bool ArgusBuilder::WriteConfigCpp() {
          pathT.SetFormatted("path+\"/Tabs%s",path.Data());
          pointerT.SetFormatted("fConfigData%s->fSteering",pointer.Data());
          classT.SetFormatted("ConfigData%s::Steering",classname.Data());
-         WriteSteeringConfigRead(buffer,0,tabHierarchyClassIndex[i],xml,pathT,pointerT,classT);
+         WriteSteeringConfigRead(buffer,0,i,xml,pathT,pointerT,classT);
       }
       // all
       buffer.AppendFormatted("   if (fConfigData%s->fActiveModified",pointer.Data());
-      if (numOfSteering[tabHierarchyClassIndex[i]]>0)
+      if (numOfSteering[i]>0)
          buffer.AppendFormatted("\n    || fConfigData%s->fSteeringModified",pointer.Data());
       buffer.AppendFormatted(") {\n");
       buffer.AppendFormatted("      fConfigData->fTabsModified = true;\n");
@@ -256,7 +260,7 @@ bool ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("      fConfigData%sModified = false;\n",pointer.Data());
    }
    // Global Steering Parameters
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("   // global steering parameters\n");
       buffer.AppendFormatted("   fConfigData->fGlobalSteering = new ConfigData::GlobalSteering();\n");
       ROMEString pathT;
@@ -265,7 +269,7 @@ bool ArgusBuilder::WriteConfigCpp() {
       pathT.SetFormatted("path+\"/GlobalSteeringParameters");
       pointerT.SetFormatted("fConfigData->fGlobalSteering");
       classT.SetFormatted("ConfigData::GlobalSteering");
-      WriteSteeringConfigRead(buffer,0,numOfTabHierarchy,xml,pathT,pointerT,classT);
+      WriteSteeringConfigRead(buffer,0,numOfTab,xml,pathT,pointerT,classT);
    }
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -273,7 +277,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Set Configuration\n");
    buffer.AppendFormatted("bool %sConfig::SetConfiguration() {\n",shortCut.Data());
    bool need_cstop = false;
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       for (j=0;j<numOfSteering[i];j++) {
          for (k=0;k<numOfSteerFields[i][j];k++) {
             if(IsNumber(steerFieldType[i][j][k].Data()))
@@ -337,20 +341,20 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      gMonitor->SetSocketInterfacePortNumber((char*)fConfigData->fSocketInterface->fPortNumber.Data());\n");
    // Tabs
    buffer.AppendFormatted("   // tabs\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("   // %s tab\n",tabHierarchyName[i].Data());
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("   // %s tab\n",tabName[i].Data());
       int index = i;
       pointer.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTab",tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         pointer.InsertFormatted(0,"->f%sTab",tabName[index].Data());
+         index = tabParentIndex[index];
       }
-      ROMEString switchString = tabHierarchyName[i].Data();
-      index = tabHierarchyParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
+      index = tabParentIndex[i];
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         switchString.Insert(0,tabName[index].Data());
+         index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   if (fConfigData%s->fActiveModified) {\n",pointer.Data());
       buffer.AppendFormatted("      if (fConfigData%s->fActive==\"false\")\n",pointer.Data());
@@ -359,47 +363,47 @@ bool ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",switchString.Data());
       buffer.AppendFormatted("   }\n");
       // Steering parameter
-      if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
+      if (numOfSteering[i]>0) {
          buffer.AppendFormatted("   // steering parameters\n");
          ROMEString pointerT;
          ROMEString steerPointerT;
          pointerT.SetFormatted("%s->fSteering",pointer.Data());
-         steerPointerT.SetFormatted("((%sT%s*) gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[tabHierarchyClassIndex[i]].Data(),tabHierarchyName[i].Data(),i);
-         WriteSteeringConfigSet(buffer,0,tabHierarchyClassIndex[i],pointerT,steerPointerT);
+         steerPointerT.SetFormatted("((%sT%s*) gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[i].Data(),tabName[i].Data(),i);
+         WriteSteeringConfigSet(buffer,0,i,pointerT,steerPointerT);
       }
    }
-   for (i=0;i<numOfTabHierarchy;i++) {
-      int index = tabHierarchyParentIndex[i];
-      ROMEString switchString = tabHierarchyName[i].Data();
+   for (i=0;i<numOfTab;i++) {
+      int index = tabParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
+         switchString.Insert(0,tabName[index].Data());
+         index = tabParentIndex[index];
       }
-      buffer.AppendFormatted("   // %s tab enabled hierarchy\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("   // %s tab enabled hierarchy\n",tabName[i].Data());
       buffer.AppendFormatted("   gWindow->GetTabSwitches()->%s = gWindow->GetTabSwitches()->%s ",switchString.Data(),switchString.Data());
-      index = tabHierarchyParentIndex[i];
+      index = tabParentIndex[i];
       while (index!=-1) {
-         int index2 = tabHierarchyParentIndex[index];
-         ROMEString switchString2 = tabHierarchyName[index].Data();
+         int index2 = tabParentIndex[index];
+         ROMEString switchString2 = tabName[index].Data();
          while (index2!=-1) {
             switchString2.Insert(0,"_");
-            switchString2.Insert(0,tabHierarchyName[index2].Data());
-            index2 = tabHierarchyParentIndex[index2];
+            switchString2.Insert(0,tabName[index2].Data());
+            index2 = tabParentIndex[index2];
          }
          buffer.AppendFormatted(" * gWindow->GetTabSwitches()->%s",switchString2.Data());
-         index = tabHierarchyParentIndex[index];
+         index = tabParentIndex[index];
       }
       buffer.AppendFormatted(";\n",pointer.Data());
    }
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       ROMEString pointerT;
       ROMEString steerPointerT;
       pointerT.SetFormatted("->fGlobalSteering");
       steerPointerT.SetFormatted("gMonitor->GetGSP()");
-      WriteSteeringConfigSet(buffer,0,numOfTabHierarchy,pointerT,steerPointerT);
+      WriteSteeringConfigSet(buffer,0,numOfTab,pointerT,steerPointerT);
    }
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -514,7 +518,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   }\n");
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("   if (fConfigData->fGlobalSteeringModified || index==0) {\n");
       buffer.AppendFormatted("      ROMEString value;\n");
       buffer.AppendFormatted("      xml->StartElement(\"GlobalSteeringParameters\");\n");
@@ -522,9 +526,9 @@ bool ArgusBuilder::WriteConfigCpp() {
       ROMEString steerPointerT;
       pointerT.SetFormatted("fConfigData->fGlobalSteering");
       steerPointerT.SetFormatted("gMonitor->GetGSP()");
-      WriteSteeringConfigWrite(buffer,0,numOfTabHierarchy,pointerT,steerPointerT,1);
+      WriteSteeringConfigWrite(buffer,0,numOfTab,pointerT,steerPointerT,1);
    }
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("      xml->EndElement();\n");
       buffer.AppendFormatted("   }\n");
    }
@@ -640,8 +644,8 @@ bool ArgusBuilder::WriteConfigH() {
    // steering parameters
    buffer.AppendFormatted("      class GlobalSteering {\n");
    buffer.AppendFormatted("      public:\n");
-   if (numOfSteering[numOfTabHierarchy]>0) {
-      WriteSteeringConfigClass(buffer,0,numOfTabHierarchy,2);
+   if (numOfSteering[numOfTab]>0) {
+      WriteSteeringConfigClass(buffer,0,numOfTab,2);
    }
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      GlobalSteering *fGlobalSteering;\n");
@@ -653,13 +657,13 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fOnlineModified = false;\n");
    buffer.AppendFormatted("         fSocketInterfaceModified = false;\n");
    buffer.AppendFormatted("         fTabsModified = false;\n");
-   for (i=0;i<numOfTabHierarchy;i++) {
-      if( tabHierarchyParentIndex[i] != -1 )
+   for (i=0;i<numOfTab;i++) {
+      if( tabParentIndex[i] != -1 )
          continue;
       buffer.AppendFormatted("         f%sTabModified = false;\n",tabName[i].Data());
       buffer.AppendFormatted("         f%sTab = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
    }
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("         fGlobalSteeringModified = false;\n");
       buffer.AppendFormatted("         fGlobalSteering = new GlobalSteering();\n");
    }
