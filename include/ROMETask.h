@@ -17,7 +17,7 @@ protected:
    ROMEAnalyzer*  fAnalyzer;       // Handle to the Analyzer Class (should be overriden by each Task)
    Int_t          fVersion;        // Version of Task
    Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
-   ROMEString        fEventID;        // TriggerID for event method
+   char           fEventID;        // TriggerID for event method
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer);

@@ -49,6 +49,14 @@
 
 ClassImp(ROMEAnalyzer)
 
+const char* ROMEAnalyzer::LineToProcess = NULL;
+void writeLineToProcess(const char* str) {
+   while (ROMEAnalyzer::LineToProcess) {
+      ROMEStatic::ss_sleep(10);
+   }
+   ROMEAnalyzer::LineToProcess = str;
+}
+
 void StartServer(int port);
 
 #if defined HAVE_MIDAS
@@ -61,11 +69,12 @@ void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 #endif
 
 
-ROMEAnalyzer::ROMEAnalyzer()
+ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 {
 // Initialisations
 
    int i=0;
+   fApplication = app;
    fSplashScreen = true;
    fBatchMode = false;
    fTerminate = false;
@@ -78,12 +87,13 @@ ROMEAnalyzer::ROMEAnalyzer()
    fTreeObjects = new TObjArray(0);
    fSequentialNumber = 0;
    fTreeInfo = new ROMETreeInfo();
-   fEventID = "all";
+   fEventID = 'a';
    fTriggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fContinuous = true;
    fOnlineHost = "";
    fDontReadNextEvent = false;
+   fUserInputLast = 0;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -105,13 +115,27 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    consoleStartScreen();
 
-   StartServer(9091);
+   int port = 9091;
+   StartServer(port);
+   printf("Root server listening on port %d\n", port);
+
 
    if (!ReadParameters(argc,argv)) return false;
 
    if (isSplashScreen()) startSplashScreen();
 
    CreateHistoFolders();
+
+   cout << "Program steering" << endl;
+   cout << "----------------" << endl;
+   cout << "q : Terminates the program" << endl;
+   cout << "e : Ends the program" << endl;
+   cout << "s : Stopps the program" << endl;
+   cout << "r : Restarts the program" << endl;
+   cout << "c : Continuous Analysis" << endl;
+   cout << "o : Step by step Analysis" << endl;
+   cout << "i : Root interpreter" << endl;
+   cout << endl;
 
    fMainTask->ExecuteTask();
    if (fTerminate) return false;
@@ -124,6 +148,9 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 bool ROMEAnalyzer::Init() {
    // Initialize the analyzer. Called before the init tasks.
    int j;
+   this->InitFolders();
+   this->InitTaskSwitches();
+
    // Tree file Initialisation
    treeFiles = new TFile*[GetTreeObjectEntries()];
    ROMEString filename;
@@ -389,7 +416,7 @@ bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
 bool ROMEAnalyzer::ReadEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
    fEventStatus = kAnalyze;
-   this->ClearFolders();
+   this->CleanUpFolders();
    int timeStamp = 0;
 
    if (fDontReadNextEvent) {
@@ -402,12 +429,11 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
       int runNumber,trans;
       if (cm_query_transition(&trans, &runNumber, NULL)) {
          if (trans == TR_START) {
-            printf("\n\nRun %d started\n", runNumber);
+            this->SetCurrentRunNumber(runNumber);
             fEventStatus = kAnalyze;
             fRunStatus = kRunning;
          }
          if (trans == TR_STOP) {
-            printf("\n\nRun %d stopped\n", runNumber);
             fEventStatus = kEndOfRun;
             fRunStatus = kStopped;
             return true;
@@ -449,12 +475,12 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
    }
    else if (this->isOffline()&&this->isMidas()) {
       // read event header
-      EVENT_HEADER *pevent;
+      EVENT_HEADER *pevent = (EVENT_HEADER*)fMidasEvent;
       bool readError = false;
-      int n = read(fMidasFileHandle,fMidasEvent, sizeof(EVENT_HEADER));
+
+      int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
-         pevent = (EVENT_HEADER*)fMidasEvent;
          n = 0;
          if (pevent->data_size <= 0) readError = true;
          else {
@@ -468,19 +494,18 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
          return true;
       }
 
-      int eventId = ((EVENT_HEADER*)fMidasEvent)->event_id;
-      this->SetEventID(eventId);
-      fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->serial_number;
-      timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
-
-      if (eventId < 0) {
+      if (pevent->event_id < 0) {
          fEventStatus = kContinue;
          return true;
       }
-      if (eventId == EVENTID_EOR) {
+      if (pevent->event_id == EVENTID_EOR) {
          fEventStatus = kEndOfRun;
          return true;
       }
+
+      this->SetEventID(pevent->event_id);
+      fCurrentEventNumber = pevent->serial_number;
+      timeStamp = pevent->time_stamp;
 
       if (fEventStatus==kAnalyze) this->InitMidasBanks();
 
@@ -531,7 +556,8 @@ bool ROMEAnalyzer::WriteEvent() {
    FillTrees();
    return true;
 }
-bool ROMEAnalyzer::Update() {
+bool ROMEAnalyzer::Update() 
+{
    // Update the Analyzer. Called after the Event tasks.
 
    // Progress Display
@@ -546,8 +572,8 @@ bool ROMEAnalyzer::Update() {
             fProgressDelta /= 10;
       }
    }
-   if ((fProgressDelta==1 || !((int)fTriggerStatistics.processedEvents%fProgressDelta) && fProgressWrite)) {
-      cout << (int)fTriggerStatistics.processedEvents << " events processed\r";
+   if ((!fContinuous || fProgressDelta==1 || !((int)fTriggerStatistics.processedEvents%fProgressDelta) && fProgressWrite)) {
+      cout << (int)fTriggerStatistics.processedEvents << " events processed                                                    \r";
       fProgressWrite = false;
    }
  
@@ -559,11 +585,24 @@ bool ROMEAnalyzer::Update() {
    return true;
 }
 
-bool ROMEAnalyzer::UserInput() {
+void ROMEAnalyzer::CheckLineToProcess()
+{
+   if (ROMEAnalyzer::LineToProcess){
+/*      cout << ROMEAnalyzer::LineToProcess << endl;
+*/      this->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
+      ROMEAnalyzer::LineToProcess = NULL;
+   }
+}
+bool ROMEAnalyzer::UserInput() 
+{
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
    bool first = true;
    bool interpreter = false;
+
+   if (fContinuous && time(NULL) < fUserInputLast+0.1)
+      return true;
+   time(&fUserInputLast);
 
    while (wait||first) {
 
@@ -571,24 +610,37 @@ bool ROMEAnalyzer::UserInput() {
       if (!fContinuous)
          wait = true;
 
+      CheckLineToProcess();
+
       interpreter = false;
       while (ROMEStatic::ss_kbhit()) {
          char ch = ROMEStatic::ss_getchar(0);
-         cout << ch << endl;
-         if (ch == -1)
+         if (ch == -1) {
             ch = getchar();
-         if (ch == 's')
-            fEventStatus = kTerminate;
-         if (ch == 'q')
+         }
+         if (ch == 'q') {
             return false;
-         if (ch == 'p')
-            wait = true;
-         if (ch == 'r')
+         }
+         if (ch == 'e') {
+            fEventStatus = kTerminate;
             wait = false;
-         if (ch == 'o')
+         }
+         if (ch == 's') {
+            cout << "Stopped                          \r";
+            wait = true;
+         }
+         if (ch == 'r') {
+            wait = false;
+         }
+         if (ch == 'o') {
+            cout << "Step by step mode                 " << endl;
             fContinuous = false;
-         if (ch == 'c')
+         }
+         if (ch == 'c') {
+            cout << "Continues mode                    " << endl;
             fContinuous = true;
+            wait = false;
+         }
          if (ch == 'i') {
 //            interpreter = true;
             wait = false;
@@ -620,6 +672,7 @@ bool ROMEAnalyzer::UserInput() {
          }
       }*/
    }
+
    return true;
 }
 
@@ -826,6 +879,19 @@ void ROMEAnalyzer::CreateHistoFolders()
 
 
 
+
+#ifndef HAVE_MIDAS
+#define int PTYPE
+#endif
+#if defined ( __linux__ )
+#define THREADRETURN
+#define THREADTYPE void*
+#endif
+#if defined( _MSC_VER )
+#define THREADRETURN 0
+#define THREADTYPE DWORD WINAPI
+#endif
+
 TFolder *ReadFolderPointer(TSocket *fSocket) 
 {
    //read pointer to current folder
@@ -957,6 +1023,32 @@ int ResponseFunction(TSocket *fSocket) {
       delete message;
       return 1;
    }
+   else if (strncmp(str, "Command", 7) == 0) {
+      char objName[100];
+      char method[100];
+      char type[100];
+      char arg[100];
+      fSocket->Recv(objName, sizeof(objName));
+      fSocket->Recv(type, sizeof(type));
+      fSocket->Recv(method, sizeof(method));
+      fSocket->Recv(arg, sizeof(arg));
+
+      TString str = "temporarySocketObject = gROOT->FindObjectAny(\"";
+      str += objName;
+      str += "\");";
+      writeLineToProcess(str.Data());
+      str = "((";
+      str += type;
+      str += ")temporarySocketObject)->";
+      str += method;
+      str += "(";
+      str += arg;
+      str += ");";
+      writeLineToProcess(str.Data());
+
+      delete message;
+      return 1;
+   }
 /*
    else if (strncmp(str, "CLEAR", 5) == 0) {
       TObject *obj;
@@ -985,15 +1077,6 @@ int ResponseFunction(TSocket *fSocket) {
 
 
 
-#if defined ( __linux__ )
-#define THREADRETURN
-#define THREADTYPE void*
-#endif
-#if defined( _MSC_VER )
-#define THREADRETURN 0
-#define THREADTYPE DWORD WINAPI
-#endif
-
 THREADTYPE Server(void *arg)
 {
    TSocket *fSocket = (TSocket *) arg;
@@ -1010,8 +1093,8 @@ THREADTYPE ServerLoop(void *arg)
 // specified by command line option -s. Starts a searver_thread for 
 // each connection.
    int port = *(int*)arg;
-   printf("Root server listening on port %d...\n", port);
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
+   writeLineToProcess("TObject* temporarySocketObject;");
 
    do {
       TSocket *sock = lsock->Accept();

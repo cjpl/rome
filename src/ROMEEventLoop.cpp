@@ -48,8 +48,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Initialisation
    //----------------
 
-   fAnalyzer->InitFolders();
-   fAnalyzer->InitTaskSwitches();
    if (!fAnalyzer->Init()) {
       fAnalyzer->Terminate();
       fAnalyzer->SetTerminationFlag();
@@ -57,21 +55,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       return;
    }
  
-   ExecuteTasks(gTaskInit);
+   ExecuteTasks("i");
    CleanTasks();
-
-   cout << "Program steering" << endl;
-   cout << "----------------" << endl;
-   cout << "q : Terminates the program" << endl;
-   cout << "s : Stops the program" << endl;
-   cout << "r : Restarts the program" << endl;
-   cout << "c : Continuous Analysis" << endl;
-   cout << "o : Step by step Analysis" << endl;
-   cout << "i : Root interpreter" << endl;
-   cout << endl;
 
    // Loop over Runs
    //----------------
+
    for (ii=0;!fAnalyzer->isTerminate();ii++) {
 
       if (!fAnalyzer->Connect(ii)) {
@@ -89,12 +78,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          fAnalyzer->UpdateTaskSwitches();
          ROMEAnalyzer::fTaskSwitchesChanged = false;
       }
-      ExecuteTasks(gTaskBeginOfRun);
+      ExecuteTasks("b");
       CleanTasks();
 	  
-      if (gShowTime) TimeStart();
       // Loop over Events
       //------------------
+      if (gShowTime) TimeStart();
+      cout << "\n\nRun " << fAnalyzer->GetCurrentRunNumber() << " started" << endl; 
       for (i=0;!fAnalyzer->isTerminate()&&!fAnalyzer->isEndOfRun();i++) {
 
          // User Input
@@ -133,7 +123,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             fAnalyzer->UpdateTaskSwitches();
             ROMEAnalyzer::fTaskSwitchesChanged = false;
          }
-         ExecuteTasks(fAnalyzer->GetEventID());
+         char eventID = fAnalyzer->GetEventID();
+         ExecuteTasks(&eventID);
          CleanTasks();
 
          // Write Event
@@ -155,10 +146,14 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (gShowTime) TimeEnd();
 
       // Show number of processed events
-      cout << (int)fAnalyzer->GetProcessedEvents() << " events processed" << endl<<endl;
+      cout << "Run " << fAnalyzer->GetCurrentRunNumber() << " stopped                                             " << endl << endl; 
+      cout << (int)fAnalyzer->GetProcessedEvents() << " events processed" << endl <<endl;
+      if (gShowTime) {
+         cout << "run time = " << GetTime() << endl << endl;
+      }
 
       // End of Run Tasks
-      ExecuteTasks(gTaskEndOfRun);
+      ExecuteTasks("e");
       CleanTasks();
 
       // Disconnect
@@ -171,7 +166,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
    // Terminate Tasks
-   ExecuteTasks(gTaskTerminate);
+   ExecuteTasks("t");
    CleanTasks();
 
    // Terminate
@@ -179,9 +174,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       fAnalyzer->SetTerminationFlag();
       cout << "\n\nTerminating Program !" << endl;
       return;
-   }
-   if (gShowTime) {
-      cout << "Program : run time = " << GetTime() << endl;
    }
 }
 

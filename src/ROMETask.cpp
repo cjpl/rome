@@ -23,7 +23,7 @@ ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TT
    fTitle = title;
    fName = name;
    fAnalyzer = analyzer;
-   fEventID = "all";
+   fEventID = 'a';
 }
 void ROMETask::Exec(Option_t *option)
 {
@@ -33,27 +33,27 @@ void ROMETask::Exec(Option_t *option)
    // Event
    // EndOfRun
    // Terminate
-   if (!strcmp(option,gTaskInit)) {
+   if (!strcmp(option,"i")) {
       ROMEString foldername;
       foldername.SetFormatted("%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
       Init();
    }
-   else if (!strcmp(option,gTaskBeginOfRun)) {
+   else if (!strcmp(option,"b")) {
       ResetHisto();
       BeginOfRun();
    }
-   else if (!strcmp(option,gTaskEndOfRun)) {
+   else if (!strcmp(option,"e")) {
       EndOfRun();
    }
-   else if (!strcmp(option,gTaskTerminate)) {
+   else if (!strcmp(option,"t")) {
       Terminate();
       if (gShowTime) {
          cout << "Task '" << fName.Data() << "' : run time = " << GetTime() << endl;
       }
    }
-   else if (!strcmp(fEventID.Data(),"all") || !strcmp(option,fEventID.Data())) {
+   else if (!strcmp(&fEventID,"a") || !strcmp(option,&fEventID)) {
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();

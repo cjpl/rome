@@ -28,7 +28,7 @@ public:
    ROMEString outDir;
    bool  makeOutput;
    bool  noLink;
-   bool  offline;
+   bool  midas;
    bool  sql;
 
 private:

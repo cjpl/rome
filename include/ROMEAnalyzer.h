@@ -21,6 +21,7 @@
 #include <ROMESQL.h>
 #endif
 
+
 class ROMEAnalyzer : public TObject
 {
 private:
@@ -60,6 +61,7 @@ private:
    };
 
 protected:
+
    // Application
    TRint*     fApplication;                     //! Application Handle
 
@@ -91,7 +93,7 @@ protected:
    ROMEString fEventNumberString;               //! Event Numbers in Input String Format
 
    // Event ID
-   ROMEString fEventID;                         //! Event ID of current Event
+   char       fEventID;                         //! Event ID of current Event
 
    Int_t      fMidasFileHandle;                 //! Handle to Midas Inputfile
    int        fMidasBuffer;                     //! Midas Online Buffer
@@ -101,9 +103,11 @@ protected:
 
    // Progress Display
    int        fProgressDelta;                   //! Maximal time difference
-   time_t     fProgressLast;                    //! Last time
+   time_t     fProgressLast;                    //! Last time for display
    int        fProgressLastEvent;               //! Last Event
    bool       fProgressWrite;                   //! Write flag
+
+   time_t     fUserInputLast;                   //! Last time for user input
 
    // Flags
    Bool_t     fTerminate;                       //! Termination flag
@@ -157,11 +161,16 @@ protected:
 
 public:
    // Static Task Switches Changes Flag
-   static bool fTaskSwitchesChanged;            //! Flag Task Switches Changes
+   static bool fTaskSwitchesChanged;               //! Flag Task Switches Changes
+
+   static const char* LineToProcess;
 
 public:
-   ROMEAnalyzer();
+   ROMEAnalyzer(TRint *app);
    ~ROMEAnalyzer();
+
+   // Application Handle
+   TRint* GetApplication() { return fApplication; };
 
    // modes
    Bool_t     isSplashScreen() { return fSplashScreen; };
@@ -256,6 +265,7 @@ public:
    int        GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    char*      GetRunNumberStringOriginal() { return (char*)fRunNumberString.Data(); }
 
+   void       SetCurrentRunNumber(int runNumber) { fCurrentRunNumber = runNumber; }
    void       SetRunNumbers(ROMEString& numbers) { 
                   fRunNumberString = numbers;
                   fRunNumber = decodeRunNumbers(numbers); }
@@ -275,9 +285,9 @@ public:
                   fEventNumber = decodeRunNumbers(fEventNumberString); }
 
    // Event ID
-   char*      GetEventID() { return (char*)fEventID.Data(); }
-   void       SetEventID(char* eventID) { fEventID = eventID; }
-   void       SetEventID(int eventID) { fEventID.SetFormatted("%0*d",1,eventID); }
+   char       GetEventID() { return fEventID; }
+   void       SetEventID(char eventID) { fEventID = eventID; }
+   void       SetEventID(int eventID) { fEventID = 48+eventID; }
 
   // Processed Events
    double     GetProcessedEvents() { return fTriggerStatistics.processedEvents; }
@@ -304,13 +314,13 @@ public:
    bool Disconnect();
    bool Terminate();
 
-   virtual void InitFolders() = 0;
    virtual void InitTaskSwitches() = 0;
    virtual void UpdateTaskSwitches() = 0;
 
    static TArrayI decodeRunNumbers(ROMEString& str);
 
 private:
+   void CheckLineToProcess();
    void CreateHistoFolders();
 
    bool ReadParameters(int argc, char *argv[]);
@@ -326,7 +336,10 @@ private:
 
    virtual void ConnectTrees() = 0;
    virtual void FillTrees() = 0;
-   virtual void ClearFolders() = 0;
+
+   virtual void InitFolders() = 0;
+   virtual void CleanUpFolders() = 0;
+   virtual void ResetFolders() = 0;
 
    virtual bool ReadXMLDataBase() = 0;
 

@@ -10,6 +10,9 @@
 #endif
 #endif
 #if defined ( __linux__ )
+#include <sys/select.h>
+#include <sys/socket.h>
+#include <sys/types.h>
 #include <sstream>
 #include <unistd.h>
 #include <stdlib.h>
@@ -49,6 +52,36 @@ public:
       return (n > 0);
 #endif
    }
+
+
+
+   static int ss_sleep(int millisec)
+   {
+      fd_set readfds;
+      struct timeval timeout;
+      int status;
+      static int sock = 0;
+
+      timeout.tv_sec = millisec / 1000;
+      timeout.tv_usec = (millisec % 1000) * 1000;
+
+      if (!sock)
+         sock = socket(AF_INET, SOCK_DGRAM, 0);
+
+      FD_ZERO(&readfds);
+      FD_SET(sock, &readfds);
+      do {
+         status = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
+
+         /* if an alarm signal was cought, restart select with reduced timeout */
+         if (status == -1 && timeout.tv_sec >= 1)
+            timeout.tv_sec -= 1;
+
+      } while (status == -1);      /* dont return if an alarm signal was cought */
+
+      return 1;
+   }
+
 /********************************************************************\
    bk_find
 \********************************************************************/
