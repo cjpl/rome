@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.6  2005/02/03 11:44:54  sawada
+  IO to MIDAS ODB
+
   Revision 1.5  2005/02/02 23:54:30  sawada
   link with midas library.
 
@@ -80,9 +83,6 @@ ArgusMonitor::ArgusMonitor(TRint *app)
 }
 
 ArgusMonitor::~ArgusMonitor() {
-#if defined(HAVE_MIDAS)
-   cm_disconnect_experiment();
-#endif
 }
 
 bool ArgusMonitor::Start(int argc, char **argv)
@@ -113,6 +113,7 @@ bool ArgusMonitor::Start(int argc, char **argv)
       cout << "\nCannot connect to the online database" << endl;
       return false;
    }
+   atexit((void (*)(void))cm_disconnect_experiment);
 #endif
    
    if(!gArgus->StartMonitor())

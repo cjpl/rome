@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.3  2005/02/03 11:44:54  sawada
+  IO to MIDAS ODB
+
   Revision 1.2  2005/02/01 21:53:24  sawada
   implemented thread functions of tabs.
 
@@ -165,6 +168,7 @@ public:
    void WriteDictionaryBat(ROMEString& buffer);
    void startBuilder(char* xmlFile);
    void GetFormat(ROMEString *buf,char *type);
+   void GetMidasTID(ROMEString *buf,char *type);
    void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
 };
 #endif   // ArgusBuilder_H
