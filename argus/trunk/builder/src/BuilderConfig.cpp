@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/03/12 01:21:00  sawada
+  Nested tab.
+
   Revision 1.6  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -311,11 +314,18 @@ bool ArgusBuilder::WriteConfigCpp() {
          pointer.InsertFormatted(0,"->f%sTab",tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       }
+      ROMEString switchString = tabHierarchyName[i].Data();
+      index = tabHierarchyParentIndex[i];
+      while (index!=-1) {
+         switchString.Insert(0,"_");
+         switchString.Insert(0,tabHierarchyName[index].Data());
+         index = tabHierarchyParentIndex[index];
+      }
       buffer.AppendFormatted("   if (fConfigData%s->fActiveModified) {\n",pointer.Data());
       buffer.AppendFormatted("      if (fConfigData%s->fActive==\"false\")\n",pointer.Data());
-      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = false;\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = false;\n",switchString.Data());
       buffer.AppendFormatted("      else\n");
-      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",switchString.Data());
       buffer.AppendFormatted("   }\n",pointer.Data());
       // Steering parameter
       if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
@@ -595,7 +605,9 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fOnlineModified = false;\n");
    buffer.AppendFormatted("         fSocketInterfaceModified = false;\n");
    buffer.AppendFormatted("         fTabsModified = false;\n");
-   for (i=0;i<numOfTab;i++) {
+   for (i=0;i<numOfTabHierarchy;i++) {
+      if( tabHierarchyParentIndex[i] != -1 )
+         continue;
       buffer.AppendFormatted("         f%sTabModified = false;\n",tabName[i].Data());
       buffer.AppendFormatted("         f%sTab = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
    }

@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.12  2005/03/12 01:21:00  sawada
+  Nested tab.
+
   Revision 1.11  2005/03/11 19:49:34  sawada
   *** empty log message ***
 
@@ -128,6 +131,7 @@ private:
    ROMEString tabDescription[maxNumberOfTabs];
    ROMEString tabAuthor[maxNumberOfTabs];
    ROMEString tabVersion[maxNumberOfTabs];
+   int        tabParentIndex[2*maxNumberOfTabs];
       
 // tab hierarchy
    int        numOfTabHierarchy;
@@ -139,6 +143,7 @@ private:
    ROMEString tabHierarchyName[2*maxNumberOfTabs];
    ROMEString tabHierarchyTitle[2*maxNumberOfTabs];
    int        tabHierarchyParentIndex[2*maxNumberOfTabs];
+   int        tabHierarchyNumOfChildren[2*maxNumberOfTabs];
    int        tabHierarchyClassIndex[2*maxNumberOfTabs];
 
 // thread functions
@@ -191,6 +196,7 @@ public:
    bool WriteTabConfigClass(ROMEString &buffer,int parentIndex,int tab);
    bool WriteTabCpp();
    bool WriteTabH();
+   bool AddTab(ROMEString& buffer,int& i);
    bool ReadXMLTree();
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering(int iTab);

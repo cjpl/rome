@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.19  2005/03/12 01:21:00  sawada
+  Nested tab.
+
   Revision 1.18  2005/03/01 00:24:34  sawada
   bug fix around global steering parameter.
 
@@ -504,6 +507,7 @@ bool ArgusBuilder::WriteMonitorH() {
    // Header
    buffer.AppendFormatted("#ifndef %sMonitor_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sMonitor_H\n\n",shortCut.Data());
+   buffer.AppendFormatted("#include <ROME.h>\n");
    buffer.AppendFormatted("#include <ArgusMonitor.h>\n");
    buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TNetFolder.h>\n");
