@@ -3,6 +3,14 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.6  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
   Revision 1.5  2005/02/06 02:15:18  sawada
   reduced number of configuration file to 1.
 
@@ -87,7 +95,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fConfigData = new ConfigData;\n");
    buffer.AppendFormatted("   ROMEString path = \"//Configuration/MainConfiguration\";\n");
    buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
-   buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
+   buffer.AppendFormatted("   if (!SetConfiguration())\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
@@ -243,20 +251,10 @@ bool ArgusBuilder::WriteConfigCpp() {
    }
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
-   // Check Configuration
-   buffer.AppendFormatted("\n// Check Configuration\n");
-   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(int runNumber) {\n",shortCut.Data());
-   buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
-   buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
-   buffer.AppendFormatted("         return false;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
    // Set Configuration
    buffer.AppendFormatted("\n// Set Configuration\n");
-   buffer.AppendFormatted("bool %sConfig::SetConfiguration(int modIndex,int index) {\n",shortCut.Data());
+   buffer.AppendFormatted("bool %sConfig::SetConfiguration() {\n",shortCut.Data());
    buffer.AppendFormatted("   char* cstop;\n");
-   buffer.AppendFormatted("   fActiveConfiguration = index;\n");
    // Window
    buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData->fWindow->fScale.Data()));\n");
@@ -611,7 +609,6 @@ bool ArgusBuilder::WriteConfigH() {
    // Fields
    buffer.AppendFormatted("   ConfigData *fConfigData;\n");
    buffer.AppendFormatted("   ROMEString fXMLFile;\n");
-   buffer.AppendFormatted("   int   fActiveConfiguration;\n");
    buffer.AppendFormatted("\n");
    // Methods
    buffer.AppendFormatted("public:\n");
@@ -620,12 +617,11 @@ bool ArgusBuilder::WriteConfigH() {
    // methods
    buffer.AppendFormatted("   bool WriteConfigurationFile(char *file);\n");
    buffer.AppendFormatted("   bool ReadConfigurationFile(char *file);\n");
-   buffer.AppendFormatted("   bool CheckConfiguration(int runNumber);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool ReadConfiguration(ROMEXML *xml,ROMEString& path,int index);\n");
    buffer.AppendFormatted("   bool WriteConfiguration(ROMEXML *xml,int index);\n");
-   buffer.AppendFormatted("   bool SetConfiguration(int modIndex,int index);\n");
+   buffer.AppendFormatted("   bool SetConfiguration();\n");
    buffer.AppendFormatted("\n");
    // Footer
    buffer.AppendFormatted("#endif\n");

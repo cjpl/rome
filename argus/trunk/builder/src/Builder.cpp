@@ -3,6 +3,14 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.15  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
   Revision 1.14  2005/02/21 23:07:50  sawada
   several UNIX support
 
@@ -97,7 +105,6 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"Argus\",\"Argus Folder\");\n");
    buffer.AppendFormatted("   fMainFolder->Add(gMonitor);\n");
-   buffer.AppendFormatted("   app->ProcessLine(\"%sMonitor* gMonitor = ((%sMonitor*)((TFolder*)gROOT->FindObjectAny(\\\"Argus\\\"))->GetListOfFolders()->MakeIterator()->Next());\");\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!gMonitor->Start(argc, argv)) {\n");
    buffer.AppendFormatted("      delete gMonitor;\n");

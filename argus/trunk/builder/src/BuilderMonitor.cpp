@@ -3,6 +3,14 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.13  2005/02/24 15:04:03  sawada
+  Reduced number of configuration to 1.
+  Replaced ss_getchar to getchar().
+  Removed LineToProcess.
+  Removed bk_is32,bk_find.
+  Improved help.
+  Handling of midas host and experiment.
+
   Revision 1.12  2005/02/21 23:07:50  sawada
   several UNIX support
 
@@ -186,7 +194,6 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fApplication->Run();\n");
-   buffer.AppendFormatted("   gArgus->ss_getchar(1);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
