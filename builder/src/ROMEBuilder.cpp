@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.22  2004/07/15 09:13:36  schneebeli
+  running on linux
+
   Revision 1.21  2004/07/15 08:53:37  schneebeli
   running on linux
 
@@ -3911,7 +3914,10 @@ void ROMEBuilder::WriteMakefile() {
    // libs
    sprintf(buffer,"rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libEG.lib $(ROOTSYS)/lib/libEGPythia6.lib $(ROOTSYS)/lib/libFumili.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHbook.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRFIO.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTable.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    sprintf(buffer+strlen(buffer),"xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
-   sprintf(buffer+strlen(buffer),"sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
+   if (this->sql) 
+      sprintf(buffer+strlen(buffer),"sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
+   else
+      sprintf(buffer+strlen(buffer),"sqllibs = \n");
    sprintf(buffer+strlen(buffer),"clibs = gdi32.lib user32.lib kernel32.lib\n");
    sprintf(buffer+strlen(buffer),"Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs)\n");
    sprintf(buffer+strlen(buffer),"\n");
@@ -3940,7 +3946,9 @@ void ROMEBuilder::WriteMakefile() {
       sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
-   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESQL.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
+   if (this->sql) 
+      sprintf(buffer+strlen(buffer)," obj/ROMESQL.obj");
+   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
    // all
    sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
    // make obj
@@ -3976,12 +3984,14 @@ void ROMEBuilder::WriteMakefile() {
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEIO.obj $(ROMESYS)/src/ROMEIO.cpp \n");
    sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMETask.obj $(ROMESYS)/src/ROMETask.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
    sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESplashScreen.obj $(ROMESYS)/src/ROMESplashScreen.cpp \n");
    sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
+   if (this->sql) {
+      sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
+      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
+   }
 
 #endif
 
@@ -3991,6 +4001,7 @@ void ROMEBuilder::WriteMakefile() {
    // libs
    sprintf(buffer,"rootlibs := $(shell root-config --libs)\n");
    sprintf(buffer+strlen(buffer),"rootglibs := $(shell root-config --glibs)\n");
+   sprintf(buffer+strlen(buffer),"rootthreadlibs := -lThread\n");
    sprintf(buffer+strlen(buffer),"xmllibs := -lxml2 -lz -liconv\n");
    if (this->sql) 
       sprintf(buffer+strlen(buffer),"sqllibs := -lmysql\n");
@@ -4001,7 +4012,7 @@ void ROMEBuilder::WriteMakefile() {
    else
       sprintf(buffer+strlen(buffer),"midaslibs := \n");
    sprintf(buffer+strlen(buffer),"clibs := -lpthread -lHtml $(SYSLIBS)\n");
-   sprintf(buffer+strlen(buffer),"Libraries := $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   sprintf(buffer+strlen(buffer),"Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    sprintf(buffer+strlen(buffer),"\n");
    // flags
    sprintf(buffer+strlen(buffer),"flags := ");
@@ -4029,7 +4040,9 @@ void ROMEBuilder::WriteMakefile() {
       sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
-   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESQL.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
+   if (this->sql)
+      sprintf(buffer+strlen(buffer)," obj/ROMESQL.obj");
+   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
    // all
    sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
    // make obj
@@ -4068,12 +4081,14 @@ void ROMEBuilder::WriteMakefile() {
    sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEIO.cpp -o obj/ROMEIO.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
    sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
    sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
    sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
+   if (this->sql) {
+      sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
+      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
+   }
 #endif
    char makeFile[500];
 #if defined ( __linux__ )
