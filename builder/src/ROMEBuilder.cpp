@@ -1,3 +1,15 @@
+/********************************************************************
+
+  ROMEBuilder.cpp, M. Schneebeli PSI
+
+  $Log$
+  Revision 1.7  2004/06/18 08:29:47  midas
+  Added file header
+
+
+********************************************************************/
+
+
 #if defined( _MSC_VER )
 #include <io.h>
 #include <direct.h>
