@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.80  2004/12/09 08:22:19  schneebeli_m
+  lg2c
+
   Revision 1.79  2004/12/07 11:43:39  schneebeli_m
   error when no database folder
 
@@ -1458,7 +1461,7 @@ bool ROMEBuilder::WriteTaskH() {
    for (int iTask=0;iTask<numOfTask;iTask++) {
       // File name
       if (taskUserCode[iTask])
-         hFile.SetFormatted("%s/include/tasks/%sT%s_base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+         hFile.SetFormatted("%s/include/tasks/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
       else
          hFile.SetFormatted("%s/include/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
@@ -1473,8 +1476,8 @@ bool ROMEBuilder::WriteTaskH() {
 
       // Header
       if (taskUserCode[iTask]) {
-         buffer.AppendFormatted("#ifndef %sT%s_base_H\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("#define %sT%s_base_H\n\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("#ifndef %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("#define %sT%s_Base_H\n\n",shortCut.Data(),taskName[iTask].Data());
       }
       else {
          buffer.AppendFormatted("#ifndef %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
@@ -1499,7 +1502,7 @@ bool ROMEBuilder::WriteTaskH() {
 
       // Class
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("\nclass %sT%s_base : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("\nclass %sT%s_Base : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("\nclass %sT%s : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("{\n");
@@ -1538,7 +1541,7 @@ bool ROMEBuilder::WriteTaskH() {
       // Constructor and Event Methods
       buffer.AppendFormatted("   // Constructor\n");
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("   %sT%s_base(const char *name,const char *title):ROMETask(name,title)\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title):ROMETask(name,title)\n",shortCut.Data(),taskName[iTask].Data());
       else 
          buffer.AppendFormatted("   %sT%s(const char *name,const char *title):ROMETask(name,title)\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   { fEventID = '%s'; fVersion = %s;",taskEventID[iTask].Data(),taskVersion[iTask].Data());
@@ -1613,14 +1616,14 @@ bool ROMEBuilder::WriteTaskH() {
       buffer.AppendFormatted("   virtual void ResetHisto();\n\n");
       // Footer
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("\n   ClassDef(%sT%s_base,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+         buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
       else
          buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
       buffer.AppendFormatted("};\n\n");
 
       // Histo Inline Methods
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline void %sT%s_base::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline void %sT%s_Base::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline void %sT%s::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       bool array = false;
@@ -1690,7 +1693,7 @@ bool ROMEBuilder::WriteTaskH() {
       buffer.AppendFormatted("}\n\n");
 
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline void %sT%s_base::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline void %sT%s_Base::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline void %sT%s::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       array = false;
@@ -1714,7 +1717,7 @@ bool ROMEBuilder::WriteTaskH() {
       buffer.AppendFormatted("}\n\n");
 
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("#endif   // %sT%s_base_H\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("#endif   // %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("#endif   // %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -1757,13 +1760,13 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("#ifndef %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
 
-         buffer.AppendFormatted("#include <include/tasks/%sT%s_base.h>\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("#include <include/tasks/%sT%s_Base.h>\n",shortCut.Data(),taskName[iTask].Data());
 
          // Class
-         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_base\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title):%sT%s_base(name,title) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name,const char *title):%sT%s_Base(name,title) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
@@ -5940,7 +5943,10 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("midaslibs := -lmidas\n");
    else
       buffer.AppendFormatted("midaslibs := \n");
-   buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS) -lg2c\n");
+   buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS)");
+   if (haveFortranTask)
+      buffer.AppendFormatted(" -lg2c");
+   buffer.AppendFormatted("\n");
 #if !defined( __APPLE__ )
    buffer.AppendFormatted("clibs += -lutil\n");
 #endif
@@ -6078,7 +6084,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("include/tasks/%sT%s.h ",shortCut.Data(),taskName[i].Data());
       if (taskUserCode[i])
-         buffer.AppendFormatted("include/tasks/%sT%s_base.h ",shortCut.Data(),taskName[i].Data());
+         buffer.AppendFormatted("include/tasks/%sT%s_Base.h ",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.Append("\0");
@@ -6278,12 +6284,13 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<table border=\"1\">\n");
       buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
-         if (valueComment[i][j][0]=='/') {
-            ROMEString comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
-            buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         ROMEString comment = valueComment[i][j];
+         if (valueComment[i][j].Length()>3) {
+            if (valueComment[i][j][0]=='/') {
+               comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
+            }
          }
-         else
-            buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),valueComment[i][j].Data());
+         buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
       }
       buffer.AppendFormatted("</table>\n");
 
