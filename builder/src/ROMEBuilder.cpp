@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.97  2005/01/20 10:32:23  sawada
+  Makefile for linux.
+
   Revision 1.96  2005/01/20 09:56:14  sawada
   Makefile for linux. Added -DOS_UNIX
 
@@ -6168,8 +6171,15 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqlcflags := \n");
    }
    if (this->midas) {
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/lib -lmidas\n");
-      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DOS_UNIX -DHAVE_MIDAS\n");
+#if defined( __linux__ )
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib");
+#elif defined ( __APPLE__ )
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib");
+#else
+      buffer.AppendFormatted("midaslibs :=");
+#endif
+      buffer.AppendFormatted(" -lmidas\n");
+      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
    }
    else{
       buffer.AppendFormatted("midaslibs := \n");
@@ -6191,7 +6201,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
 #if defined( __APPLE__ )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
-   buffer.AppendFormatted("Includes += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
+   buffer.AppendFormatted("Flags += -DOS_DARWIN -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("Libraries += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
 #endif
    buffer.AppendFormatted("\n");
