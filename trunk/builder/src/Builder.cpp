@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.6  2005/02/02 18:29:10  sawada
   regenerate dictionary, when a header is modified. (linux/mac)
 
@@ -61,7 +64,7 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   gMonitor = new %sMonitor(app);\n",shortCut.Data());
    buffer.AppendFormatted("   // Main window\n");
    buffer.AppendFormatted("   char str[80];");
-   buffer.AppendFormatted("   sprintf(str, \"%%s connected to %%s\", gMonitor->GetProgramName(), gMonitor->GetNetFolderHost());\n");
+   buffer.AppendFormatted("   sprintf(str, \"%%s connected to %%s\", gMonitor->GetProgramName(), gMonitor->GetSocketInterfaceHost());\n");
    buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());   
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"Argus\",\"Argus Folder\");\n");

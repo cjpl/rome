@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.3  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.2  2005/02/01 14:44:33  sawada
   Resize frames in window.
 
@@ -44,13 +47,12 @@ protected:
    ROMEString    fOnlineHost;                   //! Name of the Online Host
    ROMEString    fOnlineExperiment;             //! Name of the Online Experiment
    
-   // NetFolder
-   int           fNetFolderPortNumber;          //! Port Number for TSocket
-   ROMEString    fNetFolderHost;                //! Host for TSocket
+   // SocketInterface
+   int           fSocketInterfacePortNumber;          //! Port Number for TSocket
+   ROMEString    fSocketInterfaceHost;                //! Host for TSocket
    
    // Window
    float         fWindowScale;                  //! Window scale
-   ROMEString    fWindowStyle;                  //! Style
    
    // Configuration
    ArgusConfig*  fConfiguration;                //! Configuration Handle
@@ -95,23 +97,20 @@ public:
    void          SetOnlineExperiment(char* experiment) { fOnlineExperiment = experiment; };
    void          SetOnlineExperiment(ROMEString& experiment) { fOnlineExperiment = experiment; };
    
-   // NetFolder
-   char*         GetNetFolderHost() { return (char*)fNetFolderHost.Data(); };
-   int           GetNetFolderPortNumber() { return fNetFolderPortNumber; };
-   void          SetNetFolderHost(char* host) { fNetFolderHost = host; };
-   void          SetNetFolderHost(ROMEString& host) { fNetFolderHost = host; };
-   void          SetNetFolderPortNumber(int port) { fNetFolderPortNumber = port; };
-   void          SetNetFolderPortNumber(char* port) { char* cstop; fNetFolderPortNumber = strtol(port,&cstop,10); };
-   void          SetNetFolderPortNumber(ROMEString& port) { SetNetFolderPortNumber((char*)port.Data()); };
+   // SocketInterface
+   char*         GetSocketInterfaceHost() { return (char*)fSocketInterfaceHost.Data(); };
+   int           GetSocketInterfacePortNumber() { return fSocketInterfacePortNumber; };
+   void          SetSocketInterfaceHost(char* host) { fSocketInterfaceHost = host; };
+   void          SetSocketInterfaceHost(ROMEString& host) { fSocketInterfaceHost = host; };
+   void          SetSocketInterfacePortNumber(int port) { fSocketInterfacePortNumber = port; };
+   void          SetSocketInterfacePortNumber(char* port) { char* cstop; fSocketInterfacePortNumber = strtol(port,&cstop,10); };
+   void          SetSocketInterfacePortNumber(ROMEString& port) { SetSocketInterfacePortNumber((char*)port.Data()); };
    
    // Window
    float         GetWindowScale() { return fWindowScale; };
-   char*         GetWindowStyle() { return (char*)fWindowStyle.Data(); };   
    void          SetWindowScale(float scale) { fWindowScale = scale; };
    void          SetWindowScale(char* scale) { char* cstop; fWindowScale = strtod(scale,&cstop); };
    void          SetWindowScale(ROMEString& scale) { SetWindowScale((char*)scale.Data()); };
-   void          SetWindowStyle(char* style) { fWindowStyle = style; };
-   void          SetWindowStyle(ROMEString& style) { fWindowStyle = style; };
    
    // Midas
    int           GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };

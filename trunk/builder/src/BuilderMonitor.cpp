@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.2  2005/01/30 20:39:39  sawada
   * Makefile of builder
   * Tab enable/disable
@@ -83,8 +86,8 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   gPassToArgus = (void*)this; // Pass the handle to the monitor\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
-   buffer.AppendFormatted("   fNetFolderSocket = 0;\n");
-   buffer.AppendFormatted("   fNetFolderHost = \"\";\n");
+   buffer.AppendFormatted("   fSocketInterfaceSocket = 0;\n");
+   buffer.AppendFormatted("   fSocketInterfaceHost = \"\";\n");
    buffer.AppendFormatted("\n");
    // Steering 
    if (numOfSteering[numOfTabHierarchy]>0) {
@@ -138,7 +141,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("\n");
    // NerFolder
    buffer.AppendFormatted("  // connect to server\n");
-   buffer.AppendFormatted("   if(strlen(gMonitor->GetNetFolderHost())){\n");
+   buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost())){\n");
    buffer.AppendFormatted("      gWindow->ConnectServer();\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
@@ -325,18 +328,18 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("\nbool %sMonitor::ConnectServer() {\n",shortCut.Data());   
    buffer.AppendFormatted("   char str[80];\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (fNetFolderSocket) {\n");
+   buffer.AppendFormatted("   if (fSocketInterfaceSocket) {\n");
    buffer.AppendFormatted("      // disconnect first\n");
-   buffer.AppendFormatted("      fNetFolderSocket->Close();\n");
-   buffer.AppendFormatted("      delete fNetFolderSocket;\n");
-   buffer.AppendFormatted("      fNetFolderSocket = 0;\n");
+   buffer.AppendFormatted("      fSocketInterfaceSocket->Close();\n");
+   buffer.AppendFormatted("      delete fSocketInterfaceSocket;\n");
+   buffer.AppendFormatted("      fSocketInterfaceSocket = 0;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   fNetFolderSocket = new TSocket(fNetFolderHost.Data(), fNetFolderPortNumber);\n");
-   buffer.AppendFormatted("   if (!fNetFolderSocket->IsValid()) {\n");
+   buffer.AppendFormatted("   fSocketInterfaceSocket = new TSocket(fSocketInterfaceHost.Data(), fSocketInterfacePortNumber);\n");
+   buffer.AppendFormatted("   if (!fSocketInterfaceSocket->IsValid()) {\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"histos\",\"Online Histograms\",fNetFolderSocket);\n");
+   buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"histos\",\"Online Histograms\",fSocketInterfaceSocket);\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
    // Close cpp-File
@@ -412,7 +415,7 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("{\n");
    // Fields
    buffer.AppendFormatted("protected:\n");
-   buffer.AppendFormatted("   TSocket*    fNetFolderSocket;\n");
+   buffer.AppendFormatted("   TSocket*    fSocketInterfaceSocket;\n");
    buffer.AppendFormatted("   TNetFolder* fNetFolder;\n");
    buffer.AppendFormatted("\n");
    // Folder Fields

@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/02/02 18:58:02  sawada
+  small change.
+
   Revision 1.3  2005/02/01 14:44:33  sawada
   Resize frames in window.
 
@@ -81,14 +84,14 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("bool %sWindow::ConnectServer()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   char buffer[80] = \"\";\n");
-   buffer.AppendFormatted("   if(strlen(gMonitor->GetNetFolderHost()) == 0 ) {\n");
+   buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost()) == 0 ) {\n");
    buffer.AppendFormatted("      new ArgusTextDialog(gClient->GetRoot(), this, 100, 100, \"&Host name:\", (char*)buffer);\n");
-   buffer.AppendFormatted("      gMonitor->SetNetFolderHost((char*)buffer);\n");
+   buffer.AppendFormatted("      gMonitor->SetSocketInterfaceHost((char*)buffer);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Connect to Server\n");
    buffer.AppendFormatted("   if(strlen(buffer) && !gMonitor->ConnectServer()) {\n");
-   buffer.AppendFormatted("      sprintf(buffer, \"Cannot connect to server on host %%s, port %%d\", gMonitor->GetNetFolderHost(), gMonitor->GetNetFolderPortNumber());\n");
+   buffer.AppendFormatted("      sprintf(buffer, \"Cannot connect to server on host %%s, port %%d\", gMonitor->GetSocketInterfaceHost(), gMonitor->GetSocketInterfacePortNumber());\n");
    buffer.AppendFormatted("      new TGMsgBox(gClient->GetRoot(), this, \"Error\", buffer, kMBIconExclamation, 0, NULL);    \n");
    buffer.AppendFormatted("      SetWindowName(gMonitor->GetProgramName());\n");
    buffer.AppendFormatted("      return true;\n");
@@ -185,7 +188,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            CloseWindow();\n");
    buffer.AppendFormatted("            break;\n");
    buffer.AppendFormatted("         case M_FILE_CONNECT:\n");
-   buffer.AppendFormatted("            gMonitor->SetNetFolderHost(\"\");\n");
+   buffer.AppendFormatted("            gMonitor->SetSocketInterfaceHost(\"\");\n");
    buffer.AppendFormatted("            gWindow->ConnectServer();\n");
    buffer.AppendFormatted("            break;\n");
    buffer.AppendFormatted("         }\n");
