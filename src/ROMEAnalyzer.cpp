@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.29  2004/10/01 14:33:29  schneebeli_m
+//  Fixed some tree file problems
+//
 //  Revision 1.28  2004/09/30 10:18:05  schneebeli_m
 //  gAnalyzer and gROME
 //
@@ -139,8 +142,6 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask("start");
    if (fTerminate) return false;
-
-//   if (!isBatchMode()) TBrowser *t = new TBrowser();
 
    return true;
 }

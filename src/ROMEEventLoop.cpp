@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.19  2004/10/01 14:33:29  schneebeli_m
+//  Fixed some tree file problems
+//
 //  Revision 1.18  2004/10/01 13:11:33  schneebeli_m
 //  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
 //
@@ -229,22 +232,19 @@ bool ROMEEventLoop::Initialize() {
    this->InitTaskSwitches();
    this->InitSingleFolders();
 
-   // Tree file Initialisation
+   // Accumulative output tree file initialisation
    fTreeFiles = new TFile*[gROME->GetTreeObjectEntries()];
    ROMEString filename;
    ROMEString runNumberString;
    ROMETree *romeTree;
    TTree *tree;
-   gROME->GetCurrentRunNumberString(runNumberString);
+   gROME->GetRunNumberStringAt(runNumberString,0);
    for (j=0;j<gROME->GetTreeObjectEntries();j++) {
       fTreeFiles[j] = NULL;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
-         filename = gROME->GetOutputDir();
-         filename.Append(tree->GetName());         
-         filename.Append(runNumberString.Data());
-         filename.Append(".root");
+         filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),tree->GetName(),runNumberString.Data());
          fTreeFiles[j] = new TFile(filename.Data(),"RECREATE");
          tree->SetDirectory(fTreeFiles[j]);
       }
@@ -411,6 +411,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
    gROME->GetCurrentRunNumberString(runNumberString);
 
+   // Non accumulative output tree file initialisation
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
@@ -418,6 +419,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
+         tree->Reset();
          filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),tree->GetName(),runNumberString.Data());
          fTreeFiles[j] = new TFile(filename.Data(),"RECREATE");
          tree->SetDirectory(fTreeFiles[j]);
@@ -741,7 +743,7 @@ bool ROMEEventLoop::Disconnect() {
    // Disconnects the current run. Called after the EndOfRun tasks.
 
    TFile *f1;
-   // Write Trees
+   // Write non accumulative output tree files
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
@@ -752,18 +754,19 @@ bool ROMEEventLoop::Disconnect() {
       if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
          cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
-         fTreeFiles[j] = tree->GetCurrentFile();
-         fTreeFiles[j]->Write();
+         fTreeFiles[j]->cd();
+         tree->Write("",TObject::kOverwrite);
       }
    }
    cout << endl;
 
    // Write Histos
-   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
    filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
-   f1 = new TFile(filename.Data(),"RECREATE");
+   fHistoFile = new TFile(filename.Data(),"RECREATE");
+   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
+   fHistoFile->cd();
    folder->Write();
-   f1->Close();
+   fHistoFile->Close();
 
    if (gROME->isOnline()&&gROME->isMidas()) {
    }
@@ -785,13 +788,24 @@ bool ROMEEventLoop::Disconnect() {
 
 bool ROMEEventLoop::Termination() {
    // Clean up the analyzer. Called after the Terminate tasks.
-   // Write and close Trees
+   // Write accumulative output tree files
+   // Close all files
+   ROMEString runNumberString;
+   gROME->GetCurrentRunNumberString(runNumberString);
    ROMETree *romeTree;
+   TTree *tree;
    for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite()) {
-         if (fTreeFiles[j]!=NULL)
+         if (gROME->isTreeAccumulation()) {
+            tree = romeTree->GetTree();
+            cout << endl << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
+            fTreeFiles[j]->cd();
+            tree->Write("",TObject::kOverwrite);
+         }
+         if (fTreeFiles[j]!=NULL) {
             fTreeFiles[j]->Close();
+         }
       }
    }
    if (gROME->isOnline()&&gROME->isMidas()) {

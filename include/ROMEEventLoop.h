@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2004/10/01 14:33:29  schneebeli_m
+  Fixed some tree file problems
+
   Revision 1.7  2004/10/01 13:11:33  schneebeli_m
   Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
 
@@ -63,6 +66,9 @@ protected:
 
    // Input Root Files
    TFile**       fRootFiles;                       //! Root files
+
+   // Histo File
+   TFile*        fHistoFile;                       //! Histo file
 
 
 
