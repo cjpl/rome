@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.17  2005/04/05 15:03:05  schneebeli_m
+//  linux
+//
 //  Revision 1.16  2005/04/05 14:54:52  schneebeli_m
 //  Database write & _exit on linux
 //
@@ -559,7 +562,8 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          }*/
       }
       else {
-         if (!WriteValue(xml,path,fXMLBase,(ROMEString)values->At(0,0))) {
+         ROMEString vTemp = values->At(0,0);
+         if (!WriteValue(xml,path,fXMLBase,vTemp)) {
             delete path;
             return false;
          }
