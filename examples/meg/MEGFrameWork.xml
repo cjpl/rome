@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Matthias Schneebeli (PSI) -->
+<MEG>
+	<Author Name="Matthias Schneebeli" Institute="Paul Scherrer Institute (PSI)" Collaboration="Mu-E-Gamma (MEG)" Email="matthias.schneebeli@psi.ch"/>
+	<Programname Name="Framework"/>
+	<Folder>
+		<SubFolder FolderName="megData" FolderTitle="MEG Data Root Folder">
+			<SubFolder FolderName="cm" FolderTitle="Calorimeter">
+				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" Array="yes">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Folder Class for Calorimeter Photo Multiplier data."/>
+					<Fields>
+						<ADC0Data Type="Float_t" Initialisation="0" Comment="// ADC Data of Photo Multipliers (low resolution)"/>
+						<ADC1Data Type="Float_t" Initialisation="0" Comment="// ADC Data of Photo Multipliers (high resolution)"/>
+						<TDCData Type="Float_t" Initialisation="0" Comment="// TDC Data of Photo Multipliers"/>
+					</Fields>
+				</SubFolder>
+				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" Array="yes" DataBase="yes">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for Calorimeter calibration data."/>
+					<Fields>
+						<RunNumber Type="Int_t" Initialisation="0" Comment="// Run Number"/>
+						<TimeStamp Type="Int_t" Initialisation="0" Comment="// Time Stamp"/>
+						<RunDescription Type="TString" Initialisation="0" Comment="// Run Description"/>
+						<ADCPedestal Type="Float_t" Initialisation="0" Comment="// ADC Pedestal"/>
+						<ADCGain Type="Float_t" Initialisation="0" Comment="// ADC Gain"/>
+						<TDCOffset Type="Float_t" Initialisation="0" Comment="// TDC Offset"/>
+						<TDCXScale Type="Float_t" Initialisation="0" Comment="// TDC X-Axis Scale"/>
+					</Fields>
+				</SubFolder>
+				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" Array="yes" DataBase="yes">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for Calorimeter Photo Multiplier Information."/>
+					<Fields>
+						<RunNumber Type="Int_t" Initialisation="0" Comment="// Run Number"/>
+						<TimeStamp Type="Int_t" Initialisation="0" Comment="// Time Stamp"/>
+						<RunDescription Type="TString" Initialisation="0" Comment="// Run Description"/>
+						<PMID Type="Int_t" Initialisation="0" Comment="// Photo Multiplier ID"/>
+						<ADCID Type="Int_t" Initialisation="0" Comment="// ADC Number"/>
+						<TDCID Type="Int_t" Initialisation="0" Comment="// TDC Number"/>
+						<Address Type="TString" Initialisation="0" Comment="// Address"/>
+						<X Type="Float_t" Initialisation="0" Comment="// X-Coordinate"/>
+						<Y Type="Float_t" Initialisation="0" Comment="// Y-Coordinate"/>
+						<Z Type="Float_t" Initialisation="0" Comment="// Z-Coordinate"/>
+						<DeadFlag Type="Bool_t" Initialisation="false" Comment="// Dead Photo Multiplier Flag"/>
+					</Fields>
+					<AdditionalGetters>
+						<GetFace Type="Int_t"/>
+					</AdditionalGetters>
+				</SubFolder>
+				<SubFolder FolderName="CMRef" FolderTitle="References for ADC and TDC Counts">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for Calorimeter References."/>
+					<Fields>
+						<Trigger Type="Trigger*" Initialisation="NULL" Comment="//-> Pointer to Trigger Object"/>
+						<Scaler Type="CMScaler*" Initialisation="NULL" Comment="//-> Pointer to Scaler Object"/>
+						<HV Type="CMHV*" Initialisation="NULL" Comment="//-> Pointer to High Voltage Object"/>
+						<Env Type="Environment*" Initialisation="NULL" Comment="//-> Pointer to Environment Object"/>
+						<!--Trigger Type="Trigger*" Reference="yes" Initialisation="NULL" Comment="// Pointer to Trigger Object"/>
+						<Scaler Type="CMScaler*" Reference="yes" Initialisation="NULL" Comment="// Pointer to Scaler Object"/>
+						<HV Type="HV*" Reference="yes" Initialisation="NULL" Comment="// Pointer to High Voltage Object"/>
+						<Env Type="Environment*" Reference="yes" Initialisation="NULL" Comment="// Pointer to Environment Object"/-->
+					</Fields>
+				</SubFolder>
+				<SubFolder FolderName="CMScaler" FolderTitle="Scaler">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for Calorimeter Scaler data."/>
+					<Fields>
+						<fScaler Type="Float_t" Initialisation="0" Comment="//   Scaler Data"/>
+					</Fields>
+				</SubFolder>
+				<SubFolder FolderName="CMHit" FolderTitle="Hit">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for Calorimeter hit data."/>
+					<Fields>
+						<Energy Type="Float_t" Initialisation="0" Comment="// Energy"/>
+						<PosX Type="Float_t" Initialisation="0" Comment="// X Position"/>
+						<PosY Type="Float_t" Initialisation="0" Comment="// Y Position"/>
+						<PosZ Type="Float_t" Initialisation="0" Comment="// Z Position"/>
+						<Time Type="Float_t" Initialisation="0" Comment="// Time"/>
+						<XAverage Type="Float_t" Initialisation="0" Comment="// X Average"/>
+						<YAverage Type="Float_t" Initialisation="0" Comment="// Y Average"/>
+						<QFront Type="Float_t" Initialisation="0" Comment="// Charge on Front Face"/>
+						<QBack Type="Float_t" Initialisation="0" Comment="// Charge on Back Face"/>
+						<QTop Type="Float_t" Initialisation="0" Comment="// Charge on Top Face"/>
+						<QBottom Type="Float_t" Initialisation="0" Comment="// Charge on Bottom Face"/>
+						<QRight Type="Float_t" Initialisation="0" Comment="// Charge on Right Face"/>
+						<QLeft Type="Float_t" Initialisation="0" Comment="// Charge on Left Face"/>
+						<QRaw Type="Float_t" Initialisation="0" Comment="// Raw total charge"/>
+						<QSum Type="Float_t" Initialisation="0" Comment="// Total charge"/>
+						<NHit Type="Float_t" Initialisation="0" Comment="// Number of hits"/>
+					</Fields>
+				</SubFolder>
+				<SubFolder FolderName="CMHV" FolderTitle="High Voltage">
+					<Author Name="Matthias Schneebeli"/>
+					<Version Number="1"/>
+					<ClassDescription Text="Container Class for High Voltage data."/>
+					<Fields>
+						<Voltage Type="Float_t" Initialisation="0" Comment="// Voltage"/>
+						<Current Type="Float_t" Initialisation="0" Comment="// Current"/>
+					</Fields>
+				</SubFolder>
+			</SubFolder>
+			<!--cm-->
+			<SubFolder FolderName="Environment" FolderTitle="Environment">
+				<Author Name="Matthias Schneebeli"/>
+				<Version Number="1"/>
+				<ClassDescription Text="Container Class for Environment data."/>
+				<Fields>
+					<Temp Type="Int_t" Initialisation="0" Comment="// temp"/>
+				</Fields>
+			</SubFolder>
+			<SubFolder FolderName="Trigger" FolderTitle="Trigger">
+				<Author Name="Matthias Schneebeli"/>
+				<Version Number="1"/>
+				<ClassDescription Text="Container Class for Trigger data."/>
+				<Fields>
+					<ID Type="Int_t" Initialisation="0" Comment="// event ID"/>
+					<Mask Type="Int_t" Initialisation="0" Comment="// Trigger Mask"/>
+					<Time Type="Int_t" Initialisation="0" Comment="// Time stamp"/>
+					<EventNumber Type="Int_t" Initialisation="0" Comment="// Event Number"/>
+				</Fields>
+			</SubFolder>
+		</SubFolder>
+		<!--megData-->
+	</Folder>
+	<Task>
+		<SubTask Name="ReadOfflineMid" OverWriteCpp="no">
+			<Author Name="Matthias Schneebeli"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Reads Midas Data in an offline analysis."/>
+		</SubTask>
+		<SubTask Name="ReadMidasTest" OverWriteCpp="no">
+			<Author Name="MEG Collaboration"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Reads Test Midas Data."/>
+		</SubTask>
+		<SubTask Name="ReadOfflineRoot" OverWriteCpp="no">
+			<Author Name="Matthias Schneebeli"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Reads Root Data in an offline analysis."/>
+		</SubTask>
+		<SubTask Name="ADCPedestal" OverWriteCpp="no">
+			<Author Name="Matthias Schneebeli"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Calculates the ADC Pedestal."/>
+			<Include>
+				<MEG.h Type="local"/>
+			</Include>
+			<Histos>
+				<ADC0Histo Type="TH1F" ArraySize="gNumberOfPMT" FolderName="adc0" FolderTitle="ADC0 Histograms" Title="ADC0 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096"/>
+				<ADC1Histo Type="TH1F" ArraySize="gNumberOfPMT" FolderName="adc1" FolderTitle="ADC1 Histograms" Title="ADC1 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096"/>
+			</Histos>
+		</SubTask>
+		<SubTask Name="TDCAverage" OverWriteCpp="no">
+			<Author Name="Matthias Schneebeli"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Calculates the TDC Average."/>
+			<Histos>
+				<TDCAverageHisto Type="TH1F" ArraySize="1" FolderName="tdcAverage" Title="TDC Avarage Histogram" NumberOfBinsX="400" XMin="-200" XMax="200"/>
+			</Histos>
+		</SubTask>
+		<SubTask Name="Charge" OverWriteCpp="no">
+			<Author Name="Matthias Schneebeli"/>
+			<Version Number="1"/>
+			<ClassDescription Text="Calculates the Charge."/>
+			<Include>
+				<MEG.h Type="local"/>
+			</Include>
+			<Histos>
+				<FrontMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+				<BackMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="backmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+				<TopMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+				<BottomMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+				<RightMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+				<LeftMapHisto Type="TH2F" ArraySize="gNumberOfMapHistos" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
+			</Histos>
+		</SubTask>
+	</Task>
+	<Trees>
+		<Tree Name="CMPMTData" Title="Calorimeter PMT Data">
+			<Branch Name="PMTData" Folder="CMPMTData"/>
+			<Branch Name="Ref" Folder="CMRef"/>
+		</Tree>
+		<Tree Name="CMHit" Title="Calorimeter Hit">
+			<Branch Name="CMHit" Folder="CMHit"/>
+		</Tree>
+		<Tree Name="Trigger" Title="Trigger Data">
+			<Branch Name="Trigger" Folder="Trigger"/>
+		</Tree>
+	</Trees>
+</MEG>
