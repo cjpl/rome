@@ -154,7 +154,7 @@ bool ROMEAnalyzer::Init() {
       cout << "Program is running online." << endl << endl;
 
       // Connect to the experiment
-      if (cm_connect_experiment((char*)fOnlineHost.Data(), "",(char*)fProgramName.Data(), NULL) != SUCCESS) {
+      if (cm_connect_experiment((char*)fOnlineHost.Data(), (char*)fOnlineExperiment.Data(),(char*)fProgramName.Data(), NULL) != SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }

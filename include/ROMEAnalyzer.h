@@ -125,6 +125,7 @@ protected:
    ROMEString    fProgramName;                     //! Name of this Program
    // Online Host Name
    ROMEString    fOnlineHost;                      //! Name of the Online Host
+   ROMEString    fOnlineExperiment;                //! Name of the Online Experiment
 
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics
