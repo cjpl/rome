@@ -1,13 +1,18 @@
 // Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
-// ROMEAnalyzer                                                         //
-//                                                                      //
+//
+// ROMEAnalyzer
+//
 //  Basic class in ROME. This class is the base-class
-//  for the analysis dependent main class, which should implement the 
+//  for the analysis dependent main class, which should implement the
 //  Folders, Trees and Task definitions.
-//                                                                      //
+//
+//  $Log$
+//  Revision 1.24  2004/09/23 15:48:16  midas
+//  Added $Log$ tag in header
+//
 //////////////////////////////////////////////////////////////////////////
+
 #if defined( _MSC_VER )
 #include <io.h>
 #include <direct.h>
@@ -78,10 +83,10 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fSplashScreen = true;
    fBatchMode = false;
    fTerminate = false;
-   fAnalysisMode = kAnalyzeOffline; 
-   fDataFormat = kRoot; 
-   fDataBase = kDataBaseNone; 
-   fCurrentRunNumber = 0; 
+   fAnalysisMode = kAnalyzeOffline;
+   fDataFormat = kRoot;
+   fDataBase = kDataBaseNone;
+   fCurrentRunNumber = 0;
    fEventStatus = kAnalyze;
    fTreeAccumulation = false;
    fTreeObjects = new TObjArray(0);
@@ -109,7 +114,7 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 }
 
 
-bool ROMEAnalyzer::Start(int argc, char **argv) 
+bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
 
@@ -164,7 +169,7 @@ bool ROMEAnalyzer::Init() {
       if (romeTree->isWrite() && this->isTreeAccumulation()) {
          tree = romeTree->GetTree();
          filename = GetOutputDir();
-         filename.Append(tree->GetName());         
+         filename.Append(tree->GetName());
          filename.Append(runNumberString.Data());
          filename.Append(".root");
          treeFiles[j] = new TFile(filename.Data(),"RECREATE");
@@ -532,13 +537,13 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
                tree->GetEntry(fTreePosition[j]);
                fTreePosition[j]++;
             }
-         }  
+         }
       }
       if (!found) {
          fEventStatus = kEndOfRun;
          return true;
       }
-   
+
       fTreeInfo->SetTimeStamp(timeStamp);
       fTriggerStatistics.processedEvents++;
    }
@@ -556,7 +561,7 @@ bool ROMEAnalyzer::WriteEvent() {
    FillTrees();
    return true;
 }
-bool ROMEAnalyzer::Update() 
+bool ROMEAnalyzer::Update()
 {
    // Update the Analyzer. Called after the Event tasks.
 
@@ -566,7 +571,7 @@ bool ROMEAnalyzer::Update()
          time(&fProgressLast);
          fProgressLastEvent = (int)fTriggerStatistics.processedEvents;
          fProgressWrite = true;
-      } 
+      }
       else {
          if (time(NULL) > fProgressLast+1)
             fProgressDelta /= 10;
@@ -576,7 +581,7 @@ bool ROMEAnalyzer::Update()
       cout << (int)fTriggerStatistics.processedEvents << " events processed                                                    \r";
       fProgressWrite = false;
    }
- 
+
    // ODB update
 #if defined HAVE_MIDAS
    db_send_changed_records();
@@ -593,7 +598,7 @@ void ROMEAnalyzer::CheckLineToProcess()
       ROMEAnalyzer::LineToProcess = NULL;
    }
 }
-bool ROMEAnalyzer::UserInput() 
+bool ROMEAnalyzer::UserInput()
 {
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
@@ -753,7 +758,7 @@ void ROMEAnalyzer::ParameterUsage()
    cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
    return;
 }
-bool ROMEAnalyzer::ReadParameters(int argc, char *argv[]) 
+bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
@@ -850,7 +855,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-void ROMEAnalyzer::CreateHistoFolders() 
+void ROMEAnalyzer::CreateHistoFolders()
 {
    // Creates a Folder for each active Task
    int i,j;
@@ -892,7 +897,7 @@ void ROMEAnalyzer::CreateHistoFolders()
 #define THREADTYPE DWORD WINAPI
 #endif
 
-TFolder *ReadFolderPointer(TSocket *fSocket) 
+TFolder *ReadFolderPointer(TSocket *fSocket)
 {
    //read pointer to current folder
    TMessage *message = new TMessage(kMESS_OBJECT);
@@ -1090,7 +1095,7 @@ THREADTYPE Server(void *arg)
 THREADTYPE ServerLoop(void *arg)
 {
 // Server loop listening for incoming network connections on port
-// specified by command line option -s. Starts a searver_thread for 
+// specified by command line option -s. Starts a searver_thread for
 // each connection.
    int port = *(int*)arg;
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
