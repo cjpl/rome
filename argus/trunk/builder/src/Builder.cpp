@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/02/05 23:16:23  sawada
+  Removed TROOT,VoidFuncPtr_t.
+  small bug fix.
+
   Revision 1.9  2005/02/04 22:58:46  sawada
   ROMEFolder
 
@@ -45,17 +49,17 @@ bool ArgusBuilder::WriteMain() {
    int fileHandle;
    cppFile.SetFormatted("%s/src/monitor/main.cpp",outDir.Data());
    buffer.Resize(0);
-   buffer.AppendFormatted("#include <TROOT.h>\n");
+//   buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include \"include/monitor/%sMonitor.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/monitor/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include <Riostream.h>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("extern void InitGui();\n");
-   buffer.AppendFormatted("VoidFuncPtr_t initfuncs[] = {InitGui, 0 };\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("TROOT %s(\"%s\",\"%s\", initfuncs);\n",mainprogname.Data(),mainprogname.Data(),mainprogname.Data());
+//   buffer.AppendFormatted("extern void InitGui();\n");
+//   buffer.AppendFormatted("VoidFuncPtr_t initfuncs[] = {InitGui, 0 };\n");
+//   buffer.AppendFormatted("\n");
+//   buffer.AppendFormatted("TROOT %s(\"%s\",\"%s\", initfuncs);\n",mainprogname.Data(),mainprogname.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
