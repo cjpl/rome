@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.108  2005/03/08 15:23:27  sawada
+  Added UserClassHeaders and task dependences in Makefile for UNIX.
+
   Revision 1.107  2005/03/08 11:00:36  sawada
   Improvement Makefile for UNIX.
 
@@ -6664,15 +6667,47 @@ void ROMEBuilder::WriteMakefile() {
    // includes
    buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
    buffer.AppendFormatted("\n");
+   // folders
+   buffer.AppendFormatted("Folders := ");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0)
+         buffer.AppendFormatted(" %s%s",shortCut.Data(),folderName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("FolderBases := ");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0 && folderUserCode[i])
+	 buffer.AppendFormatted(" %s%s_Base",shortCut.Data(),folderName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   // tasks
+   buffer.AppendFormatted("Tasks := ");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted(" %sT%s",shortCut.Data(),taskName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("TaskBases := ");
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i])
+         buffer.AppendFormatted(" %sT%s_Base",shortCut.Data(),taskName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   // user classes
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("UserClassHeaders := \n");
+   // task dependences
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted("%sT%sDep :=\n",shortCut.Data(),taskName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
    // objects
    buffer.AppendFormatted("objects := obj/%sDict.obj",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (!folderUserCode[i]) continue;
       buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
    }
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
-   }
+   buffer.AppendFormatted(" $(addprefix obj/,$(addsuffix .obj,$(Tasks)))");
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/%sMidas.obj obj/%sRoot.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
@@ -6701,38 +6736,24 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("obj/%sT%s.obj: src/tasks/%sT%s.cpp include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("obj/%sT%s.obj: src/tasks/%sT%s.cpp include/tasks/%sT%s.h $(%sT%sDep)",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
       if (taskUserCode[i])
          buffer.AppendFormatted(" include/tasks/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp include/framework/%sAnalyzer.h include/framework/%sEventLoop.h",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted(" include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      if (taskUserCode[i])
-         buffer.AppendFormatted(" include/tasks/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-   }
-   if (numOfSteering[numOfTaskHierarchy]>0) {
-      buffer.AppendFormatted(" include/framework/%sGlobalSteering.h",shortCut.Data());
-   }
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),folderName[i].Data());
-	 if (folderUserCode[i])
-	    buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
-      }
-   }
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(Tasks)))");
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(TaskBases)))");
+   buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(Folders)))");
+   buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(FolderBases)))");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp include/framework/%sEventLoop.h include/framework/%sAnalyzer.h include/framework/%sMidas.h include/framework/%sRoot.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/framework/%sEventLoop.cpp -o obj/%sEventLoop.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sConfig.obj: src/framework/%sConfig.cpp include/framework/%sConfig.h include/framework/%sAnalyzer.h",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted(" include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      if (taskUserCode[i])
-         buffer.AppendFormatted(" include/tasks/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-   }
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(Tasks)))");
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(TaskBases)))");
    buffer.AppendFormatted("\n");   
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/framework/%sConfig.cpp -o obj/%sConfig.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sMidas.obj: src/framework/%sMidas.cpp include/framework/%sMidas.h include/framework/%sAnalyzer.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
@@ -6780,20 +6801,12 @@ void ROMEBuilder::WriteMakefile() {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    buffer.AppendFormatted("%sDict.cpp: ",shortCut.Data());
-  for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         buffer.AppendFormatted("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());
-         if (folderUserCode[i])
-            buffer.AppendFormatted("include/framework/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
-      }
-   }
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("include/tasks/%sT%s.h ",shortCut.Data(),taskName[i].Data());
-      if (taskUserCode[i])
-         buffer.AppendFormatted("include/tasks/%sT%s_Base.h ",shortCut.Data(),taskName[i].Data());
-   }
-   buffer.AppendFormatted("$(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
-   buffer.AppendFormatted("	%s\n",dictionarybat.Data());
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(Tasks)))");
+   buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(TaskBases)))");
+   buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(Folders)))");
+   buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(FolderBases)))");
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(UserClassHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted("	%s  $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
