@@ -35,7 +35,7 @@
 						<PMID Type="Int_t" Comment="Photo Multiplier ID" DataBasePath="runTable/CMPMTInfo.PMID" />
 						<ADCID Type="Int_t" Comment="ADC Number" DataBasePath="runTable/CMPMTInfo.ADCID" />
 						<TDCID Type="Int_t" Comment="TDC Number" DataBasePath="runTable/CMPMTInfo.TDCID" />
-						<Address Type="TString" Initialisation="' '" Comment="Address" DataBasePath="runTable/CMPMTInfo.Address" />
+						<Address Type="TString" Comment="Address" DataBasePath="runTable/CMPMTInfo.Address" />
 						<X Type="Float_t" Comment="X-Coordinate" DataBasePath="runTable/CMPMTInfo.X" />
 						<Y Type="Float_t" Comment="Y-Coordinate" DataBasePath="runTable/CMPMTInfo.Y" />
 						<Z Type="Float_t" Comment="Z-Coordinate" DataBasePath="runTable/CMPMTInfo.Z" />
@@ -152,12 +152,12 @@
 				<MEG.h Type="local" />
 			</Include>
 			<Histos>
-				<FrontMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<BackMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="backmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<TopMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<BottomMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<RightMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<LeftMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<FrontMapHisto Type="TH2F" ArraySize="10" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<BackMapHisto Type="TH2F" ArraySize="10" FolderName="backmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<TopMapHisto Type="TH2F" ArraySize="10" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<BottomMapHisto Type="TH2F" ArraySize="10" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<RightMapHisto Type="TH2F" ArraySize="10" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<LeftMapHisto Type="TH2F" ArraySize="10" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
 			</Histos>
 			<SteeringParameters>
 				<NumberOfMapHistos Type="Int_t" Initialisation="10" Comment="Number of Map Histograms" />

@@ -109,7 +109,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 #if defined ( __linux__ )
    /* start socket server */
    TThread *th1 = new TThread("root_server_loop", root_server_loop, NULL);
-//   th1->Run();
+   th1->Run();
 #endif
 
    fMainTask->ExecuteTask();
@@ -554,16 +554,24 @@ bool ROMEAnalyzer::Update() {
 }
 
 bool ROMEAnalyzer::UserInput() {
+   bool wait = true;
    // Looks for user input. Called before the Event tasks.
-   while (ROMEStatic::ss_kbhit()) {
-      char ch = ROMEStatic::ss_getchar(0);
-      if (ch == -1)
-         ch = getchar();
-      if (ch == 's') {
-         fEventStatus = kTerminate;
+   while (wait) {
+      if (fTriggerStatistics.processedEvents<3000) wait = false;
+//      wait = false;
+      while (ROMEStatic::ss_kbhit()) {
+         char ch = ROMEStatic::ss_getchar(0);
+         if (ch == -1)
+            ch = getchar();
+         if (ch == 's')
+            fEventStatus = kTerminate;
+         if (ch == 'q')
+            return false;
+         if (ch == 'p')
+            wait = true;
+         if (ch == 'r')
+            wait = false;
       }
-      if (ch == 'q')
-         return false;
    }
    return true;
 }
@@ -766,6 +774,9 @@ void ROMEAnalyzer::CreateHistoFolders()
    }
 }
 
+ROMEString currentDirectory[100];
+int directoryDepth = 0;
+
 void *server_thread(void *arg)
 //  Server histograms to remove clients
 {
@@ -781,24 +792,23 @@ void *server_thread(void *arg)
          delete s;
          return NULL;
       } else {
-         printf("Received \"%s\"\n", str);
+//         printf("Received \"%s\"\n", str);
 
          TMessage *mess = new TMessage(kMESS_OBJECT);
 
          if (strcmp(str, "LIST") == 0) {
-            // build name array 
 
+            TObject *obj;
             TObjArray *names = new TObjArray(100);
 
-            cout << "histos" << endl;
-            TCollection *histos = ((TFolder*)gROOT->FindObjectAny("histos"))->GetListOfFolders();
-            TIterator *iter = histos->MakeIterator();
-            while (TObject *obj = iter->Next()) {
-               cout << obj->GetName() << endl;
-               names->Add(new TObjString(obj->GetName()));
+            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
+            TIterator *iterFolders = folders->MakeIterator();
+            while (obj = iterFolders->Next()) {
+               ROMEString str;
+               str.SetFormatted("%s\n%s",obj->GetName(),obj->ClassName());
+               names->Add(new TObjString(str.Data()));
             }
 
-            // send "names" array 
             mess->Reset();
             mess->WriteObject(names);
             s->Send(*mess);
@@ -809,13 +819,40 @@ void *server_thread(void *arg)
             delete names;
          }
 
-         else if (strncmp(str, "GET", 3) == 0) {
-            // search histo 
+         else if (strncmp(str, "CD", 2) == 0) {
             TObject *obj;
 
-            TCollection *histos = ((TFolder*)gROOT->FindObjectAny("histos"))->GetListOfFolders();
-            TIterator *iter = histos->MakeIterator();
-            while (obj = iter->Next()) {
+            if (strcmp(str + 3, "..") == 0) {
+               directoryDepth--;
+               if (directoryDepth<0) 
+                  directoryDepth = 0;
+            }
+
+            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
+            TIterator *iterFolders = folders->MakeIterator();
+            while (obj = iterFolders->Next()) {
+               if (strcmp(str + 3, obj->GetName()) == 0) {
+                  directoryDepth++;
+                  if (directoryDepth>=100) 
+                     directoryDepth = 99;
+                  currentDirectory[directoryDepth] = str + 3;
+                  break;
+               }
+            }
+
+            if (!obj) {
+               s->Send("Error");
+            } else {
+               s->Send("OK");
+            }
+         }
+
+         else if (strncmp(str, "GET", 3) == 0) {
+            TObject *obj;
+
+            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
+            TIterator *iterFolders = folders->MakeIterator();
+            while (obj = iterFolders->Next()) {
                if (strcmp(str + 4, obj->GetName()) == 0)
                   break;
             }
@@ -823,7 +860,6 @@ void *server_thread(void *arg)
             if (!obj) {
                s->Send("Error");
             } else {
-               // send single histo 
                mess->Reset();
                mess->WriteObject(obj);
                s->Send(*mess);
@@ -831,12 +867,11 @@ void *server_thread(void *arg)
          }
 
          else if (strncmp(str, "CLEAR", 5) == 0) {
-            // search histo 
             TObject *obj;
 
-            TCollection *histos = ((TFolder*)gROOT->FindObjectAny("histos"))->GetListOfFolders();
-            TIterator *iter = histos->MakeIterator();
-            while (obj = iter->Next()) {
+            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
+            TIterator *iterFolders = folders->MakeIterator();
+            while (obj = iterFolders->Next()) {
                if (strcmp(str + 6, obj->GetName()) == 0)
                   break;
             }
@@ -844,14 +879,11 @@ void *server_thread(void *arg)
             if (!obj) {
                s->Send("Error");
             } else {
-               // clear histo 
 #if defined ( __linux__ )
                TThread::Lock();
                ((TH1 *) obj)->Reset();
                TThread::UnLock();
 #endif
-
-               // send single histo 
                s->Send("OK");
             }
          }
@@ -867,14 +899,15 @@ void *root_server_loop(void *arg)
 // specified by command line option -s. Starts a searver_thread for 
 // each connection.
 {
-   int port = 9090;
+   currentDirectory[0] = "histos";
+   int port = 9091;
    printf("Root server listening on port %d...\n", port);
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
 
    do {
       TSocket *s = lsock->Accept();
       s->Send("RMSERV 1.0");
-      printf("New connection from %s\n", s->GetInetAddress().GetHostName());
+//      printf("New connection from %s\n", s->GetInetAddress().GetHostName());
 
       // start a new server thread 
 #if defined ( __linux__ )

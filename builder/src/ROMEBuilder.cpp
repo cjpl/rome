@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.37  2004/08/06 11:39:51  schneebeli_m
+  TSocket
+
   Revision 1.36  2004/08/03 12:34:55  schneebeli_m
   ...
 
@@ -1220,9 +1223,11 @@ bool ROMEBuilder::WriteTaskCpp() {
       pos = (char*)taskDescription[iTask].Data();
       lenTot = taskDescription[iTask].Length();
       while (pos-taskDescription[iTask].Data() < lenTot) {
-         if (lenTot+(taskDescription[iTask].Data()-pos)<74) i=lenTot;
+         if (lenTot+(taskDescription[iTask].Data()-pos)<74) 
+            i=TMath::Min(75,lenTot);
          else for (i=74;pos[i]!=32&&i>0;i--) {}
-         if (i<=0) i=75;
+         if (i<=0)
+            i=TMath::Min(75,lenTot);
          pos[i] = 0;
          buffer.AppendFormatted("// %-74.74s   \n",pos);
          pos = pos+i+1;
@@ -2275,9 +2280,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    pos = (char*)classDescription.Data();
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
-      if (lenTot+(classDescription.Data()-pos)<74) i=75;
+      if (lenTot+(classDescription.Data()-pos)<74) 
+         i=TMath::Min(75,lenTot);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
-      if (i<=0) i=75;
+      if (i<=0) 
+         i=TMath::Min(75,lenTot);
       pos[i] = 0;
       buffer.AppendFormatted("// %-74.74s   \n",pos);
       pos = pos+i+1;
