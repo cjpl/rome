@@ -55,21 +55,6 @@
 
 ClassImp(MEGTADCPedestal)
 
-int dfprintf(char *str, char *filename)
-{
-   ofstream ofile;
-   ofile.open(filename,ofstream::out | ofstream::app);
-   ofile<<str;
-   ofile.close();
-   return 0;
-}
-static int dfclear(char *filename) 
-{
-   ofstream ofile;
-   ofile.open(filename,ofstream::out);
-   ofile.close();
-   return 0;
-}
 void MEGTADCPedestal::Init()
 {
 }
@@ -111,15 +96,8 @@ void MEGTADCPedestal::EndOfRun()
    double *pedestal = new double[nPMT*2];    //pedestal
    double *spedestal = new double[nPMT*2];   //sigma of pedestal
    double *espedestal = new double[nPMT*2];  //err of sigma of pedestal
-   char dfstring[1024];
-   ostrstream dfstream(dfstring,sizeof(dfstring));
 
    char runNumber[6];
-   char logfilename[gFileNameLength];
-   sprintf(logfilename,"%spiedi_%s.log",gAnalyzer->GetOutputDir(),runNumber);
-   dfclear(logfilename);
-   char outfilename[gFileNameLength];
-   sprintf(outfilename,"%sped%s.dat",gAnalyzer->GetOutputDir(),runNumber);
 
    TCanvas *c1 = new TCanvas(false);
 
@@ -166,14 +144,6 @@ void MEGTADCPedestal::EndOfRun()
          pedestal[ipmt+i*nPMT]  = g1->GetParameter(1);
 	      spedestal[ipmt+i*nPMT] = g1->GetParameter(2);
 	      espedestal[ipmt+i*nPMT]= g1->GetParError(2);
-
-         if(i==0 && pedestal[ipmt]>GetSP()->GetPedestalThreshold()){
-	         dfstream.seekp(0);
-	         dfstream<<"ADC \033[31m"<< setw(3) << ipmt<<"\t  :"
-		         <<setprecision(1)<<setiosflags(ios::fixed)<<setfill(' ')<<setw(5)
-		         <<pedestal[ipmt]<<"\033[m\tch"<<endl<<ends;
-            dfprintf(dfstring,logfilename);
-   	   }
    	}
    }
 
@@ -188,39 +158,6 @@ void MEGTADCPedestal::EndOfRun()
       c1->Update();
    }
 
-   //out put pedestal file
-   ofstream ofile(outfilename);
-   for(i=0;i<2;i++){
-      for(ipmt=0;ipmt<nPMT;ipmt++){
-	      ofile<<setprecision(9)<<setiosflags(ios::fixed)
-	         <<" "<<pedestal[ipmt+i*nPMT]<<" "<<spedestal[ipmt+i*nPMT]
-	         <<" "<<espedestal[ipmt+i*nPMT]<<endl;
-      }
-   }
-   ofile.close();
-
-   dfstream.seekp(0);
-   dfstream<<"------------------------------"<<endl
-	    << "PMTs which have broaden (sigma>" 
-	    << GetSP()->GetPedestalSpreadThreshold() << ") pedestal"<<endl<<ends;    
-   dfprintf(dfstring,logfilename);
-
-   for(ipmt=0;ipmt<nPMT;ipmt++){
-      if (spedestal[ipmt]>GetSP()->GetPedestalSpreadThreshold()){
-	      dfstream.seekp(0);
-	      dfstream<<"ADC "<< setw(3)<<ipmt <<":\t"
-		      << setprecision(1)<<setiosflags(ios::fixed)<<setfill(' ')<<setw(4)
-		      <<spedestal[ipmt]<<" ch"<<endl<<ends;
-	      dfprintf(dfstring,logfilename);
-      }
-      if (spedestal[ipmt]==0){ 
-	      dfstream.seekp(0);
-	      dfstream<< "ADC "<< setw(3)<< ipmt <<":\tNO SIGNAL"<<endl<<ends;
-	      dfprintf(dfstring,logfilename);
-      }
-   }
-//	      hist->GetXaxis()->SetRange(hist->GetXaxis()->FindBin(0.),
-//		       hist->GetXaxis()->FindBin(4096.));
    delete pedestal;
    delete spedestal;
    delete espedestal;
