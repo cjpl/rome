@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/01/31 10:40:41  sawada
+  small bug fix
+
   Revision 1.2  2005/01/31 10:21:29  sawada
    * make clean.
    * changed template of tabs.
@@ -681,7 +684,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/%sDict.o: src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sDict.cpp -o obj/%sDict.o\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("clean::");
+   buffer.AppendFormatted("clean::\n");
    buffer.AppendFormatted("	rm -f obj/*.o src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
 #endif
    ROMEString makeFile;
