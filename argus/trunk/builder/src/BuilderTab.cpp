@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/02/03 09:11:07  sawada
+  function type of thread function on Windows.
+
   Revision 1.8  2005/02/02 18:19:25  sawada
   small bug fix.
 
@@ -322,8 +325,7 @@ bool ArgusBuilder::WriteTabH() {
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
 #if defined ( __linux__ ) || defined ( __APPLE__ )
          buffer.AppendFormatted("   TThread* m%s;\n", threadFunctionName[iTab][i].Data());
-#endif
-#if defined( _MSC_VER )
+#elif defined( _MSC_VER )
          buffer.AppendFormatted("   LPDWORD f%sId;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   LPDWORD f%sExCode;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
@@ -344,8 +346,7 @@ bool ArgusBuilder::WriteTabH() {
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
 #if defined ( __linux__ ) || defined ( __APPLE__ )
          buffer.AppendFormatted("      m%s = 0;\n", threadFunctionName[iTab][i].Data());
-#endif
-#if defined( _MSC_VER )
+#elif defined( _MSC_VER )
          buffer.AppendFormatted("      f%sId = 0;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sExCode = 0;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sHandle = 0;\n", threadFunctionName[iTab][i].Data());
@@ -377,8 +378,8 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
          buffer.AppendFormatted("      %sStop();\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
 #if defined ( __linux__ ) || defined ( __APPLE__ )
+         buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      TThread::SetCancelOn();\n");
          buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
@@ -387,15 +388,17 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("         TThread::CancelPoint();\n");
          buffer.AppendFormatted("	  inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
-#endif
-#if defined ( _MSC_VER )
+         buffer.AppendFormatted("   }\n");
+#elif defined ( _MSC_VER )
+         buffer.AppendFormatted("   static DWORD WINAPI Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("      GetExitCodeThread(f%sHandle, &f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      while(inst->f%sActive && f%sExCode == STILL_ACTIVE){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("	  inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
-#endif
+         buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
+#endif
          buffer.AppendFormatted("   bool %sStart(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = true;\n",threadFunctionName[iTab][i].Data());
 #if defined ( __linux__ ) || defined ( __APPLE__ )
@@ -404,8 +407,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("	  m%s->Run();\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
-#endif
-#if defined ( _MSC_VER )
+#elif defined ( _MSC_VER )
          buffer.AppendFormatted("      if(!f%sHandle){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         f%sHandle = CreateThread(NULL,1024,&%s,0,0,&%sId);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         if( f!%sHandle ){\n",threadFunctionName[iTab][i].Data());
@@ -429,8 +431,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("	  m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
-#endif
-#if defined ( _MSC_VER )
+#elif defined ( _MSC_VER )
          buffer.AppendFormatted("      if(f%sHanele){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         CloseHandle(f%sHandle));\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
