@@ -312,67 +312,67 @@
 					<xs:documentation>The array size of the histogram. If this value is 1 or not present, then the framework creates a single histogram. If the value is greater than 1 the framework creates an array of histograms. The histograms are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistArrayStartIndex" type="xs:integer" minOccurs="0">
+			<xs:element name="HistArrayStartIndex" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation> Start index of histogram array name enumeration. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The label text of the x axis. Text has to be placed in quotes.</xs:documentation>
+					<xs:documentation>The label text of the x axis.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The label text of the y axis. Text has to be placed in quotes.</xs:documentation>
+					<xs:documentation>The label text of the y axis.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The label text of the z axis. Text has to be placed in quotes.</xs:documentation>
+					<xs:documentation>The label text of the z axis.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0">
+			<xs:element name="HistXNbins" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The number of bins in x.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistXmin" type="xs:integer" minOccurs="0">
+			<xs:element name="HistXmin" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The minimum value in x.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistXmax" type="xs:integer" minOccurs="0">
+			<xs:element name="HistXmax" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The maximum value in x.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistYNbins" type="xs:integer" minOccurs="0">
+			<xs:element name="HistYNbins" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The number of bins in y.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistYmin" type="xs:integer" minOccurs="0">
+			<xs:element name="HistYmin" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The minimum value in y.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistYmax" type="xs:integer" minOccurs="0">
+			<xs:element name="HistYmax" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The maximum value in y.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistZNbins" type="xs:integer" minOccurs="0">
+			<xs:element name="HistZNbins" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The number of bins in z.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistZmin" type="xs:integer" minOccurs="0">
+			<xs:element name="HistZmin" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The minimum value in z.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistZmax" type="xs:integer" minOccurs="0">
+			<xs:element name="HistZmax" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The maximum value in z.</xs:documentation>
 				</xs:annotation>

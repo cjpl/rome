@@ -2,7 +2,11 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.38  2005/03/18 16:12:57  schneebeli_m
+  Event request & Histo in romeConfig
+
   Revision 1.37  2005/02/21 21:29:07  sawada
+
   Changed OS specifying macros
   Support for DEC,Ultrix,FreeBSD,Solaris
 
@@ -159,6 +163,10 @@ protected:
    // Online
    ROMEString    fOnlineHost;                      //! Name of the Online Host
    ROMEString    fOnlineExperiment;                //! Name of the Online Experiment
+   int           fNumberOfEventRequests;           //! Number of Event Requests
+   int           fEventRequestID[5];               //! IDs of Event Requests
+   int           fEventRequestMask[5];             //! Trigger Masks of Event Requests
+   int           fEventRequestRate[5];             //! Sampling Rates of Event Requests
 
    // Socket
    int           fPortNumber;                      //! Port Number for TSocket
@@ -307,9 +315,17 @@ public:
    // Online
    char*      GetOnlineHost() { return (char*)fOnlineHost.Data(); };
    char*      GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };
+   int        GetNumberOfEventRequests() { return fNumberOfEventRequests; };
+   int        GetEventRequestID(int i) { return fEventRequestID[i]; };
+   int        GetEventRequestMask(int i) { return fEventRequestMask[i]; };
+   int        GetEventRequestRate(int i) { return fEventRequestRate[i]; };
 
    void       SetOnlineHost(char* host) { fOnlineHost = host; };
    void       SetOnlineExperiment(char* experiment) { fOnlineExperiment = experiment; };
+   void       SetNumberOfEventRequests(int value) { fNumberOfEventRequests = value; };
+   void       SetEventRequestID(int i,int value)    { fEventRequestID[i] = value; };
+   void       SetEventRequestMask(int i,int value)  { fEventRequestMask[i] = value; };
+   void       SetEventRequestRate(int i,int value)  { fEventRequestRate[i] = value; };
 
    // Socket
    int        GetPortNumber() { return fPortNumber; };

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.28  2005/03/18 16:12:57  schneebeli_m
+  Event request & Histo in romeConfig
+
   Revision 1.27  2005/03/17 15:44:02  schneebeli_m
   Makefile for windows
 
@@ -70,6 +73,7 @@ const int maxNumberOfHistos = 10;
 const int maxNumberOfStructFields = 50;
 const int bufferLength = 500000;
 
+const int maxNumberOfEventRequests = 5;
 
 class ROMEBuilder
 {

@@ -66,6 +66,40 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="EventRequestDesc">
+		<xs:annotation>
+			<xs:documentation>Description of one requested eventtype of the online system.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EventID" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TriggerMask" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SamplingRate" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EventRequestsDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the event requests to the online system..</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EventRequest" type="EventRequestDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>A requested eventtype of the online system.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="OnlineDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the online specific configuration.</xs:documentation>
@@ -79,6 +113,11 @@
 			<xs:element name="Experiment" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The name of the online experiment.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventRequests" type="EventRequestsDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Event requests to the online system.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -127,9 +166,89 @@
 					<xs:documentation>The name of the histogram.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Accumulate" type="xs:boolean" default="false" minOccurs="0">
+			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Histograms can be accumulated over certain runs.</xs:documentation>
+					<xs:documentation>The title of the histogram. Displayed in the ROOT browser.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistFolderTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the ROOT folder in which the histogram is stored.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistArraySize" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the histogram. This value will be ignord if the histogram is not declared as an array in the ROME definition file. The histograms are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistArrayStartIndex" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation> Start index of histogram array name enumeration. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the x axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the y axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the z axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in z.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in z.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in z.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistAccumulate" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is true the histograms content will be accumulated over all runs.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

@@ -6,7 +6,11 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.6  2005/03/18 16:12:57  schneebeli_m
+//  Event request & Histo in romeConfig
+//
 //  Revision 1.5  2005/02/21 21:29:07  sawada
+//
 //  Changed OS specifying macros
 //  Support for DEC,Ultrix,FreeBSD,Solaris
 //
@@ -69,7 +73,15 @@ bool ROMEMidas::Initialize() {
       bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
 
       // place a request for a specific event id
-      bm_request_event(fMidasOnlineBuffer, 1, TRIGGER_ALL,GET_SOME, &requestId,NULL);
+      if (gROME->GetNumberOfEventRequests()<=0) {
+         gROME->Println("\nNo Events Requests for online mode!");
+         gROME->Println("\nPlace Events Requests into the ROME configuration file.");
+         return false;
+      }
+      for (i=0;i<gROME->GetNumberOfEventRequests();i++) {
+         bm_request_event(fMidasOnlineBuffer, gROME->GetEventRequestID(i), 
+            gROME->GetEventRequestMask(i),gROME->GetEventRequestRate(i), &requestId,NULL);
+      }
 
       // place a request for system messages
       cm_msg_register(ProcessMessage);
