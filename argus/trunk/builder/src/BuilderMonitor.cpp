@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/02/07 17:52:35  sawada
+  modification of ROMEFolder
+
   Revision 1.9  2005/02/06 00:39:35  sawada
    Changed TRint to TApplication
    Stop method of thread function
@@ -251,7 +254,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("   if(f%sFolder)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolder;\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFolder = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolder = (%s%s*)((TFolder*) fNetFolder->FindObjectAny(\"%s\"))->FindObject(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   if (!f%sFolder){\n",folderName[i].Data());
             buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
             buffer.AppendFormatted("      return false;\n");
@@ -260,7 +263,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
          else {
             buffer.AppendFormatted("   if(f%sFolders)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolders;\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFolders = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolder = (%s%s*)((TFolder*) fNetFolder->FindObjectAny(\"%s\"))->FindObject(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   if (!f%sFolders){\n",folderName[i].Data());
             buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
             buffer.AppendFormatted("      retrun false;\n");
@@ -409,7 +412,10 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   if (!fSocketInterfaceSocket->IsValid()) {\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"histos\",\"Online Histograms\",fSocketInterfaceSocket);\n");
+   if(this->romefolder)
+      buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"%s\",\"Online Histograms\",fSocketInterfaceSocket);\n",shortCut.Data());
+   else
+      buffer.AppendFormatted("   fNetFolder = new TNetFolder(\"histos\",\"Online Histograms\",fSocketInterfaceSocket);\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
    // Close cpp-File
