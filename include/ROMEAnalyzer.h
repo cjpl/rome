@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.36  2005/01/27 16:21:06  schneebeli_m
+  print method & no gROME in path
+
   Revision 1.35  2005/01/24 16:29:40  schneebeli_m
   last bank access
 
@@ -175,6 +178,12 @@ public:
    ROMEAnalyzer() {};
    ROMEAnalyzer(TRint *app);
    ~ROMEAnalyzer();
+
+   // Output
+   void          Print(char text);
+   void          Print(const char* text="");
+   void          Println(const char* text="");
+   void          Printfl(const char* text="");
 
    // Application Handle
    TRint*        GetApplication() { return fApplication; };

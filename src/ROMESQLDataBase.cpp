@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.22  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.21  2005/01/14 08:29:53  sawada
 //  bug fix. removed FreeResult from Write().
 //
@@ -101,7 +104,7 @@ void ROMESQLDataBase:: ResetPhrase(){
    fWherePhrase.Resize(0);
 }
 
-bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint){
+bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber){
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -155,11 +158,11 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
                value.Insert(is1+1,newpathString);
             }
          }
-         if(!dbpath->Decode(value)){
+         if(!dbpath->Decode(value,runNumber)){
             delete dbpath;
             return false;
          }
-         if(!MakePhrase(dbpath)){
+         if(!MakePhrase(dbpath,runNumber)){
             delete dbpath;
             return false;
          }
@@ -199,7 +202,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
    return true;
 }
 
-bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
+bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
@@ -278,7 +281,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
             return false;
          }
          temp = fSQL->GetField(0);
-         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data())){
+         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data(),runNumber)){
             fSQL->FreeResult();
             return false;
          }
@@ -391,7 +394,7 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    return true;
 }
 
-bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
+bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber){
    int iField,iOrder;
    int iLastOrder=0;
    int iArray,jArray;
@@ -402,14 +405,14 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    ROMEString sqlQuery;
    ROMEString orderField;
    
-   if (!path->Decode(dataBasePath)) {
+   if (!path->Decode(dataBasePath,runNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
    }
    
    this->ResetPhrase();
-   if(!MakePhrase(path)){
+   if(!MakePhrase(path,runNumber)){
       cout<<"Invalid input for database read."<<endl;
       delete path;
       return false;
@@ -525,7 +528,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    return true;
 }
 
-bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
+bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber) {
    int iField;
    int iOrder;
    ROMEPath *path = new ROMEPath();
@@ -537,7 +540,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
    int istart;
    bool exist;
    
-   if (!path->Decode(dataBasePath)) {
+   if (!path->Decode(dataBasePath,runNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
@@ -555,7 +558,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
    }
    
    this->ResetPhrase();
-   if(!MakePhrase(path)){
+   if(!MakePhrase(path,runNumber)){
       cout<<"Invalid input for database write."<<endl;
       delete path;
       return false;

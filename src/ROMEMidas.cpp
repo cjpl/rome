@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.2  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.1  2005/01/24 15:25:09  schneebeli_m
 //  Seperated DAQ classes
 //
@@ -41,11 +44,11 @@ bool ROMEMidas::Initialize() {
       // Connect to the Frontend
       int requestId,i;
 
-      cout << "Program is running online." << endl << endl;
+      gROME->Println("Program is running online.\n");
 
       // Connect to the experiment
       if (cm_connect_experiment(gROME->GetOnlineHost(), gROME->GetOnlineExperiment(),gROME->GetProgramName(), NULL) != SUCCESS) {
-         cout << "\nCannot connect to experiment" << endl;
+         gROME->Println("\nCannot connect to experiment");
          return false;
       }
 
@@ -69,13 +72,13 @@ bool ROMEMidas::Initialize() {
       // Registers a callback function for run transitions.
       if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
-         cout << "\nCannot connect to experiment" << endl;
+         gROME->Println("\nCannot connect to experiment");
          return false;
       }
 
       // Connect to the online database
       if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         cout << "\nCannot connect to the online database" << endl;
+         gROME->Println("\nCannot connect to the online database");
          return false;
       }
 
@@ -83,7 +86,7 @@ bool ROMEMidas::Initialize() {
       int state = 0;
       int statesize = sizeof(state);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/State",&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
-         cout << "\nCannot read run status from the online database" << endl;
+         gROME->Println("\nCannot read run status from the online database");
          return false;
       }
       if (state!=3) {
@@ -95,7 +98,7 @@ bool ROMEMidas::Initialize() {
       int runNumber = 0;
       int size = sizeof(runNumber);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
-         cout << "\nCannot read runnumber from the online database" << endl;
+         gROME->Println("\nCannot read runnumber from the online database");
          return false;
       }
       gROME->SetCurrentRunNumber(runNumber);
@@ -110,7 +113,7 @@ bool ROMEMidas::Initialize() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "\nCannot open trigger statistics record, probably other analyzer is using it" << endl;
+         gROME->Println("\nCannot open trigger statistics record, probably other analyzer is using it");
          return false;
       }
 
@@ -121,7 +124,7 @@ bool ROMEMidas::Initialize() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "\nCannot open scaler statistics record, probably other analyzer is using it" << endl;
+         gROME->Println("\nCannot open scaler statistics record, probably other analyzer is using it");
          return false;
       }
 
@@ -133,11 +136,11 @@ bool ROMEMidas::Initialize() {
          db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
          if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
-            cout << "\nCannot write to tree switches record." << endl;
+            gROME->Println("\nCannot write to tree switches record.");
             return false;
          }
          if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(), gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
-            cout << "\nCannot open tree switches record, probably other analyzer is using it" << endl;
+            gROME->Println("\nCannot open tree switches record, probably other analyzer is using it");
             return false;
          }
       }
@@ -146,13 +149,13 @@ bool ROMEMidas::Initialize() {
       this->InitODB();
 
 #else
-      cout << "Need Midas support for Online Mode !!" << endl;
-      cout << "Please link the midas library into this project." << endl;
+      gROME->Println("Need Midas support for Online Mode !!");
+      gROME->Println("Please link the midas library into this project.");
       return false;
 #endif
    }
    else if (gROME->isOffline()) {
-      cout << "Program is running offline." << endl << endl;
+      gROME->Println("Program is running offline.\n");
    }
    return true;
 }
@@ -165,10 +168,14 @@ bool ROMEMidas::Connect() {
       filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
       fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
       if (fMidasFileHandle==-1) {
-         cout << "Inputfile '" << filename.Data() << "' not found." << endl;
+         gROME->Print("Inputfile '");
+         gROME->Print(filename.Data());
+         gROME->Println("' not found.");
          return false;
       }
-      cout << "Reading Midas-File run" << runNumberString.Data() << ".mid" << endl;
+      gROME->Print("Reading Midas-File run");
+      gROME->Print(runNumberString.Data());
+      gROME->Println(".mid");
    }
    return true;
 }
@@ -248,7 +255,7 @@ bool ROMEMidas::ReadEvent(int event) {
       }
       // check input
       if (readError) {
-         if (n > 0) cout << "Unexpected end of file\n";
+         if (n > 0) gROME->Println("Unexpected end of file");
          this->SetEndOfRun();
          return true;
       }

@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.21  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.20  2005/01/18 17:41:29  schneebeli_m
 //  Termination flag
 //
@@ -79,7 +82,10 @@ void ROMETask::Exec(Option_t *option)
       fCurrentEventMethod = "Terminate";
       Terminate();
       if (gShowTime) {
-         cout << "Task '" << fName.Data() << "' : run time = " << GetTime() << endl;
+         gROME->Print("Task '");
+         gROME->Print(fName.Data());
+         gROME->Print("' : run time = ");
+         gROME->Println(GetTime());
       }
    }
    else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
@@ -92,9 +98,11 @@ void ROMETask::Exec(Option_t *option)
 }
 
 void ROMETask::StartRootInterpreter(const char* message) {
-   cout << endl << "In method " << fCurrentEventMethod.Data() << " of task " << fName.Data() << " of event number " << gROME->GetCurrentEventNumber() << " of run number " << gROME->GetCurrentRunNumber() << endl;
+   ROMEString text;
+   text.SetFormatted("\nIn method %s of task %s of event number %d of run number %d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+   gROME->Println(text.Data());
    if (message) 
-      cout << message << endl;
+      gROME->Println(message);
    gROME->GetApplication()->Run(true);
 }
 

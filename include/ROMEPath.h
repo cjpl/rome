@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/01/27 16:21:06  schneebeli_m
+  print method & no gROME in path
+
   Revision 1.4  2004/11/12 17:35:18  schneebeli_m
   fast xml database
 
@@ -52,7 +55,7 @@ public:
    ~ROMEPath();
 
    void Print();
-   bool Decode(const char* path);
+   bool Decode(const char* path,int runNumber);
    bool DecodeConstraint(const char* constraint);
 
    // getters for decode

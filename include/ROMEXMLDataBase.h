@@ -2,6 +2,9 @@
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/01/27 16:21:06  schneebeli_m
+  print method & no gROME in path
+
   Revision 1.3  2004/11/16 16:14:00  schneebeli_m
   implemented task hierarchy
 
@@ -36,8 +39,8 @@ public:
    ~ROMEXMLDataBase();
 
    bool   Init(const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *path);
-   bool   Write(ROMEStr2DArray* values,const char *path);
+   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber);
+   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber);
    char*  GetType() { return "xml"; }
    char*  GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
 };

@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.8  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
 //  implemented task hierarchy
 //
@@ -49,7 +52,7 @@ bool ROMEXMLDataBase::Init(const char* path,const char* connection) {
    return true;
 }
 
-bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
+bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
 {
    int i,j,k,ii,istart,iend,index;
    int iValue=0,jValue=0;
@@ -69,7 +72,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
    int nArrayTables = -1;
 
    // decode path
-   if (!path->Decode(dataBasePath)) {
+   if (!path->Decode(dataBasePath,runNumber)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
       delete path;
       return false;
@@ -173,7 +176,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
                // decode new path
                delete xml;
                delete path;
-               return Read(values,newDataBasePath.Data());
+               return Read(values,newDataBasePath.Data(),runNumber);
             }
          }
          // constraint is not a path
@@ -347,7 +350,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath)
    return true; 
 }
 
-bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath)
+bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
 {
    int i,j,ii,istart,iend,istep;
    int iValue=0,jValue=0;
@@ -365,7 +368,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath)
    ROMEPath *path = new ROMEPath();
 
    // decode path
-   if (!path->Decode(dataBasePath)) {
+   if (!path->Decode(dataBasePath,runNumber)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
       delete path;
       return false;

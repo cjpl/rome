@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.7  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.6  2004/11/19 13:29:55  schneebeli_m
 //  added stuff for sample
 //
@@ -100,7 +103,7 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
    return true;
 }
 
-bool ROMEPath::Decode(const char* dataBasePath)
+bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
 {
    this->SetOrderTableName("");
    this->SetOrderFieldName("idx");
@@ -110,7 +113,7 @@ bool ROMEPath::Decode(const char* dataBasePath)
    ROMEString path = dataBasePath;
    // replace # with the current run number
    ROMEString runNumberString;
-   runNumberString.SetFormatted("%d",gROME->GetCurrentRunNumber());
+   runNumberString.SetFormatted("%d",runNumber);
    path.ReplaceAll("#",runNumberString);
    // check path
    if (path.Length()<=0) {
@@ -226,7 +229,7 @@ bool ROMEPath::Decode(const char* dataBasePath)
    if (orderPath.Length()>0) {
       ROMEPath *order = new ROMEPath();
       orderPath.Insert(0,"/");
-      order->Decode(orderPath.Data());
+      order->Decode(orderPath.Data(),runNumber);
       if (order->GetNumberOfTables()!=1) {
          cout << "\nOrder statment has to look like this : 'Table'/'Field'['start','end','step']." << endl;
          delete order;

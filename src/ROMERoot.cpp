@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.2  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.1  2005/01/24 15:25:09  schneebeli_m
 //  Seperated DAQ classes
 //
@@ -20,11 +23,11 @@ ROMERoot::ROMERoot() {
 
 bool ROMERoot::Initialize() {
    if (gROME->isOnline()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
+      gROME->Println("Root mode is not supported for online analysis.\n");
       return false;
    }
    if (gROME->isOffline()) {
-      cout << "Program is running offline." << endl << endl;
+      gROME->Println("Program is running offline.\n");
    }
    return true;
 }
@@ -49,7 +52,9 @@ bool ROMERoot::Connect() {
             filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),tree->GetName(),runNumberString.Data());
             fRootFiles[j] = new TFile(filename.Data(),"READ");
             if (fRootFiles[j]->IsZombie()) {
-               cout << "Inputfile '" << filename.Data() << "' not found." << endl;
+               gROME->Print("Inputfile '");
+               gROME->Print(filename.Data());
+               gROME->Println("' not found.");
                return false;
             }
             tree = (TTree*)fRootFiles[j]->FindObjectAny(tree->GetName());
@@ -58,7 +63,7 @@ bool ROMERoot::Connect() {
          }
       }
       if (!treeRead) {
-         cout << "No input root file specified for running in root mode." << endl << endl;
+         gROME->Println("No input root file specified for running in root mode.\n");
          return false;
       }
       this->ConnectTrees();

@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2005/01/27 16:21:06  schneebeli_m
+  print method & no gROME in path
+
   Revision 1.11  2004/12/03 14:42:08  schneebeli_m
   some minor changes
 
@@ -62,8 +65,8 @@ public:
    ~ROMESQLDataBase();
 
    bool   Init(const char* dataBase,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *dataBasePath);
-   bool   Write(ROMEStr2DArray* values,const char *dataBasePath);
+   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber);
+   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber);
    char*  GetType() { return "sql"; }
    char*  GetDescription() { return "SQL data base using the file system to store tables"; }
    void   Print();
@@ -91,8 +94,8 @@ public:
    bool   DataSeek(my_ulonglong offset);
 
 protected:
-   bool   MakePhrase(ROMEPath *dataBasePath);
-   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint);
+   bool   MakePhrase(ROMEPath *dataBasePath,int runNumber);
+   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber);
    void   ResetPhrase();
    bool   InRange(int value,int b1,int b2){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
 };

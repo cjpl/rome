@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.52  2005/01/27 16:21:06  schneebeli_m
+//  print method & no gROME in path
+//
 //  Revision 1.51  2005/01/24 15:45:04  schneebeli_m
 //  ss_millitime
 //
@@ -212,17 +215,17 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
       printf("Root server listening on port %d\n\n\n", gROME->GetPortNumber());
    }
 
-   cout << "Program steering" << endl;
-   cout << "----------------" << endl;
-   cout << "q : Terminates the program" << endl;
-   cout << "e : Ends the program" << endl;
-   cout << "s : Stops the program" << endl;
-   cout << "r : Restarts the program" << endl;
-   cout << "c : Continuous Analysis" << endl;
-   cout << "o : Step by step Analysis" << endl;
-   cout << "g : Run until event #" << endl;
-   cout << "i : Root interpreter" << endl;
-   cout << endl;
+   gROME->Println("Program steering");
+   gROME->Println("----------------");
+   gROME->Println("q : Terminates the program");
+   gROME->Println("e : Ends the program");
+   gROME->Println("s : Stops the program");
+   gROME->Println("r : Restarts the program");
+   gROME->Println("c : Continuous Analysis");
+   gROME->Println("o : Step by step Analysis");
+   gROME->Println("g : Run until event #");
+   gROME->Println("i : Root interpreter");
+   gROME->Println();
 
    TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
    TList *taskList = fMainTask->GetListOfTasks();
@@ -236,16 +239,40 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    return true;
 }
 
+void ROMEAnalyzer::Print(char text)
+{
+   cout << text;
+   return;
+}
+
+void ROMEAnalyzer::Print(const char* text)
+{
+   cout << text;
+   return;
+}
+
+void ROMEAnalyzer::Println(const char* text)
+{
+   cout << text << endl;
+   return;
+}
+
+void ROMEAnalyzer::Printfl(const char* text)
+{
+   cout << text << flush;
+   return;
+}
+
 void ROMEAnalyzer::ParameterUsage()
 {
-   cout << "  -i       Configuration file (default romeConfig.xml)" << endl;
-   cout << "  -b       Batch Mode (no Argument)" << endl;
-   cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
-   cout << "  -m       Analysing Mode : (online/[offline])" << endl;
-   cout << "  -f       Input Data Format : ([midas]/root)" << endl;
-   cout << "  -r       Runnumbers" << endl;
-   cout << "  -e       Eventnumbers" << endl;
-   cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
+   gROME->Println("  -i       Configuration file (default romeConfig.xml)");
+   gROME->Println("  -b       Batch Mode (no Argument)");
+   gROME->Println("  -ns      Splash Screen is not displayed (no Argument)");
+   gROME->Println("  -m       Analysing Mode : (online/[offline])");
+   gROME->Println("  -f       Input Data Format : ([midas]/root)");
+   gROME->Println("  -r       Runnumbers");
+   gROME->Println("  -e       Eventnumbers");
+   gROME->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
    return;
 }
 bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
@@ -280,8 +307,10 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    char answer = 0;
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
-      cout << "Configuration file '" << configFile.Data() << "' not found." << endl;
-      cout << "Do you like the framework to generate a new configuration file ([y]/n) ? " << flush;
+      gROME->Print("Configuration file '");
+      gROME->Print(configFile.Data());
+      gROME->Println("' not found.");
+      gROME->Printfl("Do you like the framework to generate a new configuration file ([y]/n) ? ");
       while (answer==0) {
          while (this->ss_kbhit()) {
             answer = this->ss_getchar(0);
@@ -289,23 +318,23 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       if (answer!='n') {
          if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
-            cout << "\nTerminate program.\n" << endl;
+            gROME->Println("\nTerminate program.\n");
             return false;
          }
-         cout << "\nThe framework generated a new configuration file." << endl;
-         cout << "Please edit this file and restart the program.\n" << endl;
+         gROME->Println("\nThe framework generated a new configuration file.");
+         gROME->Println("Please edit this file and restart the program.\n");
       }
       else {
-         cout << "\nTerminate program.\n" << endl;
+         gROME->Println("\nTerminate program.\n");
       }
       return false;
    }
    if (!this->GetConfiguration()->ReadConfigurationFile((char*)configFile.Data())) {
-      cout << "\nTerminate program.\n" << endl;
+      gROME->Println("\nTerminate program.\n");
       return false;
    }
    if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
-      cout << "\nTerminate program.\n" << endl;
+      gROME->Println("\nTerminate program.\n");
       return false;
    }
 
@@ -338,9 +367,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else {
-         cout << "Inputlineparameter '" << argv[i] << "' not available." << endl;
-         cout << "Available inputlineparameter are : " << endl;
-         cout << endl;
+         gROME->Print("Inputlineparameter '");
+         gROME->Print(argv[i]);
+         gROME->Println("' not available.");
+         gROME->Println("Available inputlineparameter are : ");
+         gROME->Println();
          ParameterUsage();
               return false;
       }
