@@ -3,6 +3,11 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/02/06 00:39:35  sawada
+   Changed TRint to TApplication
+   Stop method of thread function
+   Name of method for start/stop
+
   Revision 1.8  2005/02/05 00:51:01  sawada
   folder name of ROMEFolders.
 
@@ -97,7 +102,11 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
    // Constructor
+#if defined(USE_TRINT)
    buffer.AppendFormatted("%sMonitor::%sMonitor(TRint *app):ArgusMonitor(app) {\n",shortCut.Data(),shortCut.Data());
+#else
+   buffer.AppendFormatted("%sMonitor::%sMonitor(TApplication *app):ArgusMonitor(app) {\n",shortCut.Data(),shortCut.Data());
+#endif
    buffer.AppendFormatted("   gPassToArgus = (void*)this; // Pass the handle to the monitor\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
@@ -505,7 +514,11 @@ bool ArgusBuilder::WriteMonitorH() {
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
+#if defined(USE_TRINT)
    buffer.AppendFormatted("   %sMonitor(TRint *app);\n",shortCut.Data());
+#else
+   buffer.AppendFormatted("   %sMonitor(TApplication *app);\n",shortCut.Data());
+#endif
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {

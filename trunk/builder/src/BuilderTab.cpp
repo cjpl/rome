@@ -3,6 +3,11 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/02/06 00:39:35  sawada
+   Changed TRint to TApplication
+   Stop method of thread function
+   Name of method for start/stop
+
   Revision 1.10  2005/02/05 23:16:23  sawada
   Removed TROOT,VoidFuncPtr_t.
   small bug fix.
@@ -360,7 +365,7 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   ~%sT%s_Base(){\n",shortCut.Data(),tabName[iTab].Data());
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
-         buffer.AppendFormatted("      %sStop();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
       }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
@@ -380,7 +385,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("          <<\"      gSystem->Sleep(10000);\"<<endl\n");
          buffer.AppendFormatted("          <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
-         buffer.AppendFormatted("      %sStop();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   }\n");
 #if defined ( __linux__ ) || defined ( __APPLE__ )
          buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
@@ -390,7 +395,7 @@ bool ArgusBuilder::WriteTabH() {
 //         buffer.AppendFormatted("      int meid=TThread::SelfId(); // get pthread id\n");
          buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         TThread::CancelPoint();\n");
-         buffer.AppendFormatted("	  inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
 #elif defined ( _MSC_VER )
@@ -398,17 +403,17 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("      GetExitCodeThread(f%sHandle, &f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      while(inst->f%sActive && f%sExCode == STILL_ACTIVE){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
 #endif
-         buffer.AppendFormatted("   bool %sStart(){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool Start%s(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = true;\n",threadFunctionName[iTab][i].Data());
 #if defined ( __linux__ ) || defined ( __APPLE__ )
          buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  m%s->Run();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s->Run();\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
 #elif defined ( _MSC_VER )
@@ -425,14 +430,13 @@ bool ArgusBuilder::WriteTabH() {
 #endif
 
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   bool %sStop(){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool Stop%s(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = false;\n",threadFunctionName[iTab][i].Data());
 #if defined ( __linux__ ) || defined ( __APPLE__ )
          buffer.AppendFormatted("      gSystem->Sleep(1000); // wait a while for threads to halt\n");
          buffer.AppendFormatted("      if(m%s){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  TThread::Delete(m%s);\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  delete m%s;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("	  m%s = 0;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         TThread::Delete(m%s);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
 #elif defined ( _MSC_VER )

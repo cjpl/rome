@@ -3,6 +3,11 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/02/06 00:39:35  sawada
+   Changed TRint to TApplication
+   Stop method of thread function
+   Name of method for start/stop
+
   Revision 1.10  2005/02/05 23:16:23  sawada
   Removed TROOT,VoidFuncPtr_t.
   small bug fix.
@@ -68,7 +73,11 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
    buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
+#if defined(USE_TRINT)
    buffer.AppendFormatted("   TRint *app = new TRint(\"App\", &argn, &argp,NULL,0,true);\n");
+#else
+   buffer.AppendFormatted("   TRint *app = new TApplication(\"App\", &argn, &argp,NULL,0);\n");
+#endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Monitor\n");
    buffer.AppendFormatted("   gMonitor = new %sMonitor(app);\n",shortCut.Data());
