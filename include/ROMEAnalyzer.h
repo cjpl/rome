@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.25  2004/10/05 13:30:32  schneebeli_m
+  make -e, Port number
+
   Revision 1.24  2004/10/05 07:52:44  schneebeli_m
   dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 
@@ -128,9 +131,14 @@ protected:
 
    // Program name
    ROMEString    fProgramName;                     //! Name of this Program
-   // Online Host Name
+
+   // Online
    ROMEString    fOnlineHost;                      //! Name of the Online Host
    ROMEString    fOnlineExperiment;                //! Name of the Online Experiment
+
+   // Socket
+   int           fPortNumber;                      //! Port Number for TSocket
+   bool          fSocketOffline;                   //! Socket available offline
 
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics
@@ -262,8 +270,13 @@ public:
 
    char*      GetProgramName() { return (char*)fProgramName.Data(); };
 
+   // Online
    char*      GetOnlineHost() { return (char*)fOnlineHost.Data(); };
    char*      GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };
+
+   // Socket
+   int        GetPortNumber() { return fPortNumber; };
+   bool       isSocketOffline() { return fSocketOffline; };
 
    // Midas
    int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };

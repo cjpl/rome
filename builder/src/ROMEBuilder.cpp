@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.53  2004/10/05 13:30:32  schneebeli_m
+  make -e, Port number
+
   Revision 1.52  2004/10/05 07:52:44  schneebeli_m
   dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 
@@ -2819,6 +2822,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("//--------------------\n");
    buffer.AppendFormatted("bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut.Data());
    buffer.AppendFormatted("   char *name;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
    buffer.AppendFormatted("   ROMEString value;\n");
    buffer.AppendFormatted("   int type;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
@@ -2836,25 +2840,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("            this->SetOnline();\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            this->SetOffline();\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"OnlineHost\",value,\"\");\n");
-   buffer.AppendFormatted("         fOnlineHost = value;\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"OnlineExperiment\",value,\"\");\n");
-   buffer.AppendFormatted("         fOnlineExperiment = value;\n");
    buffer.AppendFormatted("         xml->GetAttribute(\"InputDataFormat\",value,\"\");\n");
    buffer.AppendFormatted("         if (value==\"root\")\n");
    buffer.AppendFormatted("            this->SetRoot();\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            this->SetMidas();\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"BatchMode\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"yes\")\n");
-   buffer.AppendFormatted("            fBatchMode = true;\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            fBatchMode = false;\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"ShowSplashScreen\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"no\")\n");
-   buffer.AppendFormatted("            fSplashScreen = false;\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            fSplashScreen = true;\n");
    buffer.AppendFormatted("         xml->GetAttribute(\"DataBaseMode\",value,\"\");\n");
    buffer.AppendFormatted("         if (value==\"sql\"||value==\"SQL\") {\n");
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
@@ -2867,6 +2857,33 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("            this->SetDataBase(new ROMEXMLDataBase());\n");
    buffer.AppendFormatted("            this->SetDataBaseConnection(\"RunTable.xml\");\n");
    buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"BatchMode\",value,\"\");\n");
+   buffer.AppendFormatted("         if (value==\"yes\")\n");
+   buffer.AppendFormatted("            fBatchMode = true;\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            fBatchMode = false;\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"ShowSplashScreen\",value,\"\");\n");
+   buffer.AppendFormatted("         if (value==\"no\")\n");
+   buffer.AppendFormatted("            fSplashScreen = false;\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            fSplashScreen = true;\n");
+   buffer.AppendFormatted("      }\n");
+   // Online
+   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"Online\")) {\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"Host\",value,\"\");\n");
+   buffer.AppendFormatted("         fOnlineHost = value;\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"Experiment\",value,\"\");\n");
+   buffer.AppendFormatted("         fOnlineExperiment = value;\n");
+   buffer.AppendFormatted("      }\n");
+   // Online
+   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"SocketInterface\")) {\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"PortNumber\",value,\"\");\n");
+   buffer.AppendFormatted("         fPortNumber = strtol(value.Data(),&cstop,10);\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"AvailableOffline\",value,\"\");\n");
+   buffer.AppendFormatted("         if (value==\"yes\")\n");
+   buffer.AppendFormatted("            fSocketOffline = true;\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            fSocketOffline = false;\n");
    buffer.AppendFormatted("      }\n");
    // Run Numbers
    buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
@@ -2970,6 +2987,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // WriteROMEConfigXML
    buffer.AppendFormatted("bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut.Data());
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
+   buffer.AppendFormatted("   ROMEString str;\n");
    buffer.AppendFormatted("   if (!xml->OpenFileForWrite(configFile))\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("\n");
@@ -2980,12 +2998,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"OnlineHost\",(char*)fOnlineHost.Data());\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"OnlineExperiment\",(char*)fOnlineExperiment.Data());\n");
    buffer.AppendFormatted("   if (this->isMidas())\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"InputDataFormat\",\"root\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"DataBaseMode\",this->GetDataBase()->GetType());\n");
    buffer.AppendFormatted("   if (isBatchMode())\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"BatchMode\",\"yes\");\n");
    buffer.AppendFormatted("   else\n");
@@ -2994,7 +3011,20 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("      xml->WriteAttribute(\"ShowSplashScreen\",\"yes\");\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"ShowSplashScreen\",\"no\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"DataBaseMode\",this->GetDataBase()->GetType());\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   //online
+   buffer.AppendFormatted("   xml->StartElement(\"Online\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"Host\",(char*)fOnlineHost.Data());\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"Experiment\",(char*)fOnlineExperiment.Data());\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   //socket
+   buffer.AppendFormatted("   xml->StartElement(\"SocketInterface\");\n");
+   buffer.AppendFormatted("   str.SetFormatted(\"%%d\",this->GetPortNumber());\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"PortNumber\",(char*)str.Data());\n");
+   buffer.AppendFormatted("   if (isSocketOffline())\n");
+   buffer.AppendFormatted("      xml->WriteAttribute(\"AvailableOffline\",\"yes\");\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      xml->WriteAttribute(\"AvailableOffline\",\"no\");\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
    //run numbers
    buffer.AppendFormatted("   xml->StartElement(\"RunNumbers\");\n");
@@ -4225,7 +4255,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    WriteMakefile();
    if (!noLink) {
 #if defined ( __linux__ )
-      system("make");
+      system("make -e");
 #endif
 #if defined( _MSC_VER )
    const int workDirLen = 1000;

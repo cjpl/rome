@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.32  2004/10/05 13:30:32  schneebeli_m
+//  make -e, Port number
+//
 //  Revision 1.31  2004/10/05 08:12:33  schneebeli_m
 //  linked on linux
 //
@@ -135,9 +138,10 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    if (isSplashScreen()) startSplashScreen();
 
-   int port = 9091;
-   StartServer(port);
-   printf("Root server listening on port %d\n\n\n", port);
+   if (gROME->isOnline() || gROME->isSocketOffline()) {
+      StartServer(gROME->GetPortNumber());
+      printf("Root server listening on port %d\n\n\n", gROME->GetPortNumber());
+   }
 
    cout << "Program steering" << endl;
    cout << "----------------" << endl;
