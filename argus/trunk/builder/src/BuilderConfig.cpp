@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/02/06 02:15:18  sawada
+  reduced number of configuration file to 1.
+
   Revision 1.4  2005/02/02 18:58:02  sawada
   small change.
 
@@ -72,8 +75,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
    buffer.AppendFormatted("%sConfig::%sConfig() {\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("   fConfigData = new ConfigData*[1];\n");
-   buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
+   buffer.AppendFormatted("   fConfigData = new ConfigData();\n");
    buffer.AppendFormatted("}\n\n");
    // Read Configuration File
    buffer.AppendFormatted("\n// Read Configuration File\n");
@@ -81,19 +83,12 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fXMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
-   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"//Configuration/RunConfiguration\");\n");
-   buffer.AppendFormatted("   delete [] fConfigData;\n");
-   buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
-   buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
+   buffer.AppendFormatted("   delete fConfigData;\n");
+   buffer.AppendFormatted("   fConfigData = new ConfigData;\n");
    buffer.AppendFormatted("   ROMEString path = \"//Configuration/MainConfiguration\";\n");
    buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
    buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
    buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
-   buffer.AppendFormatted("      fConfigData[i+1] = new ConfigData();\n");
-   buffer.AppendFormatted("      path.SetFormatted(\"//Configuration/child::RunConfiguration[position()=%%d]\",i+1);\n");
-   buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
-   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -102,85 +97,85 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("bool %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,int index) {\n",shortCut.Data());
    // Window
    buffer.AppendFormatted("   // window\n");
-   buffer.AppendFormatted("   fConfigData[index]->fWindow = new ConfigData::Window();\n");
+   buffer.AppendFormatted("   fConfigData->fWindow = new ConfigData::Window();\n");
    // Window/Scale
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Scale\",fConfigData[index]->fWindow->fScale,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScale==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Scale\",fConfigData->fWindow->fScale,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fScale==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fWindow->fScaleModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fWindow->fScaleModified = true;\n");
    // --Window
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindowModified = true;\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified)\n");
+   buffer.AppendFormatted("      fConfigData->fWindowModified = true;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindowModified = false;\n");
+   buffer.AppendFormatted("      fConfigData->fWindowModified = false;\n");
    // DataBase
    buffer.AppendFormatted("   // database\n");
-   buffer.AppendFormatted("   fConfigData[index]->fDataBase = new ConfigData::DataBase();\n");
+   buffer.AppendFormatted("   fConfigData->fDataBase = new ConfigData::DataBase();\n");
    // DataBase/Type
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Type\",fConfigData[index]->fDataBase->fType,\"\");\n");
-   buffer.AppendFormatted("   fConfigData[index]->fDataBase->fType.ToLower();\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fType==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Type\",fConfigData->fDataBase->fType,\"\");\n");
+   buffer.AppendFormatted("   fConfigData->fDataBase->fType.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBase->fType==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fDataBase->fTypeModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fDataBase->fTypeModified = true;\n");
    // DataBase/Connection
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Connection\",fConfigData[index]->fDataBase->fConnection,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fConnection==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fConnectionModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Connection\",fConfigData->fDataBase->fConnection,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBase->fConnection==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fDataBase->fConnectionModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fConnectionModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fDataBase->fConnectionModified = true;\n");
    // --DataBase
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fTypeModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fConnectionModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = true;\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBase->fTypeModified ||\n");
+   buffer.AppendFormatted("       fConfigData->fDataBase->fConnectionModified)\n");
+   buffer.AppendFormatted("      fConfigData->fDataBaseModified = true;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = false;\n");
+   buffer.AppendFormatted("      fConfigData->fDataBaseModified = false;\n");
    // Online
    buffer.AppendFormatted("   // online\n");
-   buffer.AppendFormatted("   fConfigData[index]->fOnline = new ConfigData::Online();\n");
+   buffer.AppendFormatted("   fConfigData->fOnline = new ConfigData::Online();\n");
    // Online/Host
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Host\",fConfigData[index]->fOnline->fHost,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fHost==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnline->fHostModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Host\",fConfigData->fOnline->fHost,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnline->fHost==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fOnline->fHostModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnline->fHostModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fOnline->fHostModified = true;\n");
    // Online/Experiment
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Experiment\",fConfigData[index]->fOnline->fExperiment,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fExperiment==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnline->fExperimentModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Experiment\",fConfigData->fOnline->fExperiment,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnline->fExperiment==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fOnline->fExperimentModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnline->fExperimentModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fOnline->fExperimentModified = true;\n");
    // --Online
-   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fHostModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fOnline->fExperimentModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = true;\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnline->fHostModified ||\n");
+   buffer.AppendFormatted("       fConfigData->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("      fConfigData->fOnlineModified = true;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = false;\n");
+   buffer.AppendFormatted("      fConfigData->fOnlineModified = false;\n");
    // SocketInterface
    buffer.AppendFormatted("   // SocketInterface\n");
-   buffer.AppendFormatted("   fConfigData[index]->fSocketInterface = new ConfigData::SocketInterface();\n");
+   buffer.AppendFormatted("   fConfigData->fSocketInterface = new ConfigData::SocketInterface();\n");
    // SocketInterface/Host
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/Host\",fConfigData[index]->fSocketInterface->fHost,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fHost==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fHostModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/Host\",fConfigData->fSocketInterface->fHost,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterface->fHost==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterface->fHostModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fHostModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterface->fHostModified = true;\n");
    // SocketInterface/PortNumber
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/PortNumber\",fConfigData[index]->fSocketInterface->fPortNumber,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fPortNumber==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = false;\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/PortNumber\",fConfigData->fSocketInterface->fPortNumber,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterface->fPortNumber==\"\")\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterface->fPortNumberModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = true;\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterface->fPortNumberModified = true;\n");
    // --SocketInterface
-   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fHostModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fSocketInterface->fPortNumberModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = true;\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterface->fHostModified ||\n");
+   buffer.AppendFormatted("       fConfigData->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterfaceModified = true;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = false;\n");
+   buffer.AppendFormatted("      fConfigData->fSocketInterfaceModified = false;\n");
    // tabs
    buffer.AppendFormatted("   // tabs\n");
-   buffer.AppendFormatted("   fConfigData[index]->fTabsModified = false;\n");
+   buffer.AppendFormatted("   fConfigData->fTabsModified = false;\n");
    ROMEString pointer;
    ROMEString path;
    ROMEString classname;
@@ -196,53 +191,53 @@ bool ArgusBuilder::WriteConfigCpp() {
          classname.InsertFormatted(0,"::%sTab",tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       }
-      buffer.AppendFormatted("   fConfigData[index]%s = new ConfigData%s();\n",pointer.Data(),classname.Data());
+      buffer.AppendFormatted("   fConfigData%s = new ConfigData%s();\n",pointer.Data(),classname.Data());
       // Active
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tabs%s/Active\",fConfigData[index]%s->fActive,\"\");\n",path.Data(),pointer.Data());
-      buffer.AppendFormatted("   if (fConfigData[index]%s->fActive==\"\")\n",pointer.Data());
-      buffer.AppendFormatted("      fConfigData[index]%s->fActiveModified = false;\n",pointer.Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tabs%s/Active\",fConfigData%s->fActive,\"\");\n",path.Data(),pointer.Data());
+      buffer.AppendFormatted("   if (fConfigData%s->fActive==\"\")\n",pointer.Data());
+      buffer.AppendFormatted("      fConfigData%s->fActiveModified = false;\n",pointer.Data());
       buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      fConfigData[index]%s->fActiveModified = true;\n",pointer.Data());
+      buffer.AppendFormatted("      fConfigData%s->fActiveModified = true;\n",pointer.Data());
       // Steering parameter
       if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
          buffer.AppendFormatted("   // steering parameters\n");
-         buffer.AppendFormatted("   fConfigData[index]%s->fSteering = new ConfigData%s::Steering();\n",pointer.Data(),classname.Data());
+         buffer.AppendFormatted("   fConfigData%s->fSteering = new ConfigData%s::Steering();\n",pointer.Data(),classname.Data());
          ROMEString pathT;
          ROMEString pointerT;
          ROMEString classT;
          pathT.SetFormatted("path+\"/Tabs%s",path.Data());
-         pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointer.Data());
+         pointerT.SetFormatted("fConfigData%s->fSteering",pointer.Data());
          classT.SetFormatted("ConfigData%s::Steering",classname.Data());
          WriteSteeringConfigRead(buffer,0,tabHierarchyClassIndex[i],xml,pathT,pointerT,classT);
       }
       // all
-      buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified",pointer.Data());
+      buffer.AppendFormatted("   if (fConfigData%s->fActiveModified",pointer.Data());
       if (numOfSteering[tabHierarchyClassIndex[i]]>0)
-         buffer.AppendFormatted("\n    || fConfigData[index]%s->fSteeringModified",pointer.Data());
+         buffer.AppendFormatted("\n    || fConfigData%s->fSteeringModified",pointer.Data());
       buffer.AppendFormatted(") {\n");
-      buffer.AppendFormatted("      fConfigData[index]->fTabsModified = true;\n");
-      buffer.AppendFormatted("      fConfigData[index]%sModified = true;\n",pointer.Data());
+      buffer.AppendFormatted("      fConfigData->fTabsModified = true;\n");
+      buffer.AppendFormatted("      fConfigData%sModified = true;\n",pointer.Data());
       ROMEString tempPointer = pointer;
       while (true) {
          for (j=tempPointer.Length()-1;tempPointer[j]!='>' && j>0;j--) {}
          if (j<=1) 
             break;
          tempPointer = tempPointer(0,j-1);
-         buffer.AppendFormatted("      fConfigData[index]%sModified = true;\n",tempPointer.Data());
+         buffer.AppendFormatted("      fConfigData%sModified = true;\n",tempPointer.Data());
       }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      fConfigData[index]%sModified = false;\n",pointer.Data());
+      buffer.AppendFormatted("      fConfigData%sModified = false;\n",pointer.Data());
    }
    // Global Steering Parameters
    if (numOfSteering[numOfTabHierarchy]>0) {
       buffer.AppendFormatted("   // global steering parameters\n");
-      buffer.AppendFormatted("   fConfigData[index]->fGlobalSteering = new ConfigData::GlobalSteering();\n");
+      buffer.AppendFormatted("   fConfigData->fGlobalSteering = new ConfigData::GlobalSteering();\n");
       ROMEString pathT;
       ROMEString pointerT;
       ROMEString classT;
       pathT.SetFormatted("path+\"/GlobalSteeringParameters");
-      pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
+      pointerT.SetFormatted("fConfigData->fGlobalSteering");
       classT.SetFormatted("ConfigData::GlobalSteering");
       WriteSteeringConfigRead(buffer,0,numOfTabHierarchy,xml,pathT,pointerT,classT);
    }
@@ -263,15 +258,15 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   char* cstop;\n");
    buffer.AppendFormatted("   fActiveConfiguration = index;\n");
    // Window
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fScaleModified) {\n");
-   buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData[index]->fWindow->fScale.Data()));\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified) {\n");
+   buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
    // DataBase
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fConnectionModified) {\n");
-   buffer.AppendFormatted("      gMonitor->SetDataBaseConnection(fConfigData[index]->fDataBase->fConnection);\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBase->fConnectionModified) {\n");
+   buffer.AppendFormatted("      gMonitor->SetDataBaseConnection(fConfigData->fDataBase->fConnection);\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fTypeModified) {\n");
-   buffer.AppendFormatted("      if (fConfigData[index]->fDataBase->fType==\"sql\") {\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBase->fTypeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData->fDataBase->fType==\"sql\") {\n");
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
    buffer.AppendFormatted("         delete gMonitor->GetDataBase();\n");
    buffer.AppendFormatted("         gMonitor->SetDataBase(new ROMESQLDataBase());\n");
@@ -279,7 +274,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("            return false;\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fType==\"xml\") {\n");
+   buffer.AppendFormatted("      else if (fConfigData->fDataBase->fType==\"xml\") {\n");
    buffer.AppendFormatted("         delete gMonitor->GetDataBase();\n");
    buffer.AppendFormatted("         gMonitor->SetDataBase(new ROMEXMLDataBase());\n");
    buffer.AppendFormatted("         ROMEString str = gMonitor->GetDataBaseConnection();\n");
@@ -298,16 +293,16 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   }\n");
    // Online
    buffer.AppendFormatted("   // online\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fOnline->fHostModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetOnlineHost((char*)fConfigData[index]->fOnline->fHost.Data());\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fOnline->fExperimentModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetOnlineExperiment((char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnline->fHostModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetOnlineHost((char*)fConfigData->fOnline->fHost.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetOnlineExperiment((char*)fConfigData->fOnline->fExperiment.Data());\n");
    // SocketInterface
    buffer.AppendFormatted("   // SocketInterface\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fHostModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetSocketInterfaceHost((char*)fConfigData[index]->fSocketInterface->fHost.Data());\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fPortNumberModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetSocketInterfacePortNumber((char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterface->fHostModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetSocketInterfaceHost((char*)fConfigData->fSocketInterface->fHost.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("      gMonitor->SetSocketInterfacePortNumber((char*)fConfigData->fSocketInterface->fPortNumber.Data());\n");
    // Tabs
    buffer.AppendFormatted("   // tabs\n");
    for (i=0;i<numOfTabHierarchy;i++) {
@@ -318,8 +313,8 @@ bool ArgusBuilder::WriteConfigCpp() {
          pointer.InsertFormatted(0,"->f%sTab",tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       }
-      buffer.AppendFormatted("   if (fConfigData[modIndex]%s->fActiveModified) {\n",pointer.Data());
-      buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"false\")\n",pointer.Data());
+      buffer.AppendFormatted("   if (fConfigData%s->fActiveModified) {\n",pointer.Data());
+      buffer.AppendFormatted("      if (fConfigData%s->fActive==\"false\")\n",pointer.Data());
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = false;\n",tabHierarchyName[i].Data());
       buffer.AppendFormatted("      else\n");
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = true;\n",tabHierarchyName[i].Data());
@@ -384,11 +379,6 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
-   buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
-   buffer.AppendFormatted("      xml->StartElement(\"RunConfiguration\");\n");
-   buffer.AppendFormatted("      WriteConfiguration(xml,i+1);\n");
-   buffer.AppendFormatted("      xml->EndElement();\n");
-   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   xml->EndDocument();\n");
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
@@ -399,70 +389,70 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
    // Window
    buffer.AppendFormatted("   // window\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindowModified || index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData->fWindowModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Window\");\n");
    // Window/Scale
    buffer.AppendFormatted("      if (index==0){\n");
    buffer.AppendFormatted("         str.SetFormatted(\"%%2.1f\",gMonitor->GetWindowScale());\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)str.Data());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fScaleModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)fConfigData[index]->fWindow->fScale.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fWindow->fScaleModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)fConfigData->fWindow->fScale.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // DataBase
    buffer.AppendFormatted("   // database\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBaseModified || index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData->fDataBaseModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"DataBase\");\n");
    // DataBase/Type
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Type\",gMonitor->GetDataBase()->GetType());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fTypeModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Type\",(char*)fConfigData[index]->fDataBase->fType.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fDataBase->fTypeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Type\",(char*)fConfigData->fDataBase->fType.Data());\n");
    // DataBase/Connection
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Connection\",gMonitor->GetDataBaseConnection());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fConnectionModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Connection\",(char*)fConfigData[index]->fDataBase->fConnection.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fDataBase->fConnectionModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Connection\",(char*)fConfigData->fDataBase->fConnection.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // Online
    buffer.AppendFormatted("   // online\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fOnlineModified || index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData->fOnlineModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Online\");\n");
    // Online/Host
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Host\",gMonitor->GetOnlineHost());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fHostModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData[index]->fOnline->fHost.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fOnline->fHostModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData->fOnline->fHost.Data());\n");
    // Online/Experiment
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",gMonitor->GetOnlineExperiment());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fExperimentModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",(char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",(char*)fConfigData->fOnline->fExperiment.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // SocketInterface
    buffer.AppendFormatted("   // SocketInterface\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterfaceModified || index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData->fSocketInterfaceModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"SocketInterface\");\n");
    // SocketInterface/Host
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Host\",gMonitor->GetSocketInterfaceHost());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fHostModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData[index]->fSocketInterface->fHost.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fSocketInterface->fHostModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData->fSocketInterface->fHost.Data());\n");
    // SocketInterface/PortNumber
    buffer.AppendFormatted("      if (index==0) {\n");
    buffer.AppendFormatted("         str.SetFormatted(\"%%d\",gMonitor->GetSocketInterfacePortNumber());\n");
    buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)str.Data());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fPortNumberModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)fConfigData->fSocketInterface->fPortNumber.Data());\n");
    // Tabs
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   // tabs\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fTabsModified || index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData->fTabsModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Tabs\");\n");
    pointer.Resize(0);
    WriteTabConfigWrite(buffer,-1,pointer,0);
@@ -471,12 +461,12 @@ bool ArgusBuilder::WriteConfigCpp() {
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTabHierarchy]>0) {
-      buffer.AppendFormatted("   if (fConfigData[index]->fGlobalSteeringModified || index==0) {\n");
+      buffer.AppendFormatted("   if (fConfigData->fGlobalSteeringModified || index==0) {\n");
       buffer.AppendFormatted("      ROMEString value;\n");
       buffer.AppendFormatted("      xml->StartElement(\"GlobalSteeringParameters\");\n");
       ROMEString pointerT;
       ROMEString steerPointerT;
-      pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
+      pointerT.SetFormatted("fConfigData->fGlobalSteering");
       steerPointerT.SetFormatted("gMonitor->GetGSP()");
       WriteSteeringConfigWrite(buffer,0,numOfTabHierarchy,pointerT,steerPointerT,1);
    }
@@ -619,9 +609,8 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");
    // Fields
-   buffer.AppendFormatted("   ConfigData **fConfigData;\n");
+   buffer.AppendFormatted("   ConfigData *fConfigData;\n");
    buffer.AppendFormatted("   ROMEString fXMLFile;\n");
-   buffer.AppendFormatted("   int   fNumberOfRunConfigs;\n");
    buffer.AppendFormatted("   int   fActiveConfiguration;\n");
    buffer.AppendFormatted("\n");
    // Methods
