@@ -8,8 +8,50 @@
 
 
   $Log$
-  Revision 1.1  2004/10/12 15:41:46  schneebeli_m
-  added to cvs
+  Revision 1.2  2004/10/20 09:22:16  schneebeli_m
+  bugs removed
+
+  Revision 1.146  2004/10/07 00:54:02  midas
+  Implemented templates for histo booking from John O'Donnell
+
+  Revision 1.145  2004/10/06 22:35:37  midas
+  Added CM_TOO_MANY_REQUESTS
+
+  Revision 1.144  2004/10/04 23:54:39  midas
+  Implemented ODB version
+
+  Revision 1.143  2004/10/01 23:36:11  midas
+  Removed PRE/POST transitions and implemented sequence order of transitions
+
+  Revision 1.142  2004/10/01 15:38:18  midas
+  Added previous_count to tests
+
+  Revision 1.141  2004/09/29 17:57:22  midas
+  Added large file (>2GB) support for linux
+
+  Revision 1.140  2004/09/29 16:45:06  midas
+  Added get_frontend_index()
+
+  Revision 1.139  2004/09/29 00:58:35  midas
+  Increased various constants
+
+  Revision 1.138  2004/09/28 23:57:08  midas
+  Added EQ_EB flag for event building
+
+  Revision 1.137  2004/09/28 20:05:47  midas
+  Revised debug logging for mserver
+
+  Revision 1.136  2004/09/28 18:30:12  midas
+  Changed rpc_debug_print arguments
+
+  Revision 1.135  2004/09/28 17:13:32  midas
+  Added startup debug code for mserver
+
+  Revision 1.134  2004/09/23 19:22:04  midas
+  Added histo booking funcitons
+
+  Revision 1.133  2004/09/17 16:10:11  midas
+  Added new timeout errors
 
   Revision 1.132  2004/07/21 06:54:03  pierre
   fix dox doc
@@ -450,7 +492,8 @@ The main include file
  *  
  *  @{  */
 
-#define MIDAS_VERSION "1.9.4"
+#define MIDAS_VERSION "1.9.5"
+#define DATABASE_VERSION 2   /* has to be changed whenenver binary ODB format changes*/
 
 /**dox***************************************************************/
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
@@ -491,6 +534,12 @@ The main include file
 #endif
 
 /*------------------------------------------------------------------*/
+
+#ifdef USE_ROOT
+#include <TObjArray.h>
+#include <TFolder.h>
+#include <TCutG.h>
+#endif
 
 /* Define basic data types */
 
@@ -589,6 +638,11 @@ typedef INT midas_thread_t;
 #define INLINE
 #endif
 
+/* large file (>2GB) support */
+#ifndef _LARGEFILE64_SOURCE
+#define O_LARGEFILE 0
+#endif
+
 /**dox***************************************************************/
 #endif                          /* DOXYGEN_SHOULD_SKIP_THIS */
 
@@ -615,12 +669,12 @@ typedef INT midas_thread_t;
 
 #define NAME_LENGTH            32            /**< length of names, mult.of 8! */
 #define HOST_NAME_LENGTH       256           /**< length of TCP/IP names      */
-#define MAX_CLIENTS            32            /**< client processes per buf/db */
+#define MAX_CLIENTS            64            /**< client processes per buf/db */
 #define MAX_EVENT_REQUESTS     10            /**< event requests per client   */
-#define MAX_OPEN_RECORDS       100           /**< number of open DB records   */
+#define MAX_OPEN_RECORDS       256           /**< number of open DB records   */
 #define MAX_ODB_PATH           256           /**< length of path in ODB       */
 #define MAX_EXPERIMENT         32            /**< number of different exp.    */
-#define BANKLIST_MAX           32            /**< max # of banks in event     */
+#define BANKLIST_MAX           64            /**< max # of banks in event     */
 #define STRING_BANKLIST_MAX    BANKLIST_MAX * 4   /**< for bk_list()          */
 
 
@@ -727,14 +781,6 @@ Transitions values */
 #define TR_STOP       (1<<1)  /**< Stop transition  */
 #define TR_PAUSE      (1<<2)  /**< Pause transition */
 #define TR_RESUME     (1<<3)  /**< Resume transition  */
-#define TR_PRESTART   (1<<4)
-#define TR_POSTSTART  (1<<5)
-#define TR_PRESTOP    (1<<6)
-#define TR_POSTSTOP   (1<<7)
-#define TR_PREPAUSE   (1<<8)
-#define TR_POSTPAUSE  (1<<9)
-#define TR_PRERESUME  (1<<10)
-#define TR_POSTRESUME (1<<11)
 #define TR_DEFERRED   (1<<12)
 
 /** 
@@ -745,6 +791,8 @@ Equipment types */
 #define EQ_SLOW       (1<<3)   /**< Slow Control Event */
 #define EQ_MANUAL_TRIG (1<<4)  /**< Manual triggered Event */
 #define EQ_FRAGMENTED (1<<5)   /**< Fragmented Event */
+#define EQ_EB         (1<<6)   /**< Event run through the event builder */
+
 
 /** 
 Read - On flags */
@@ -905,6 +953,9 @@ System message types */
 #define CM_UNDEF_ENVIRON            109 /**< - */
 #define CM_DEFERRED_TRANSITION      110 /**< - */
 #define CM_TRANSITION_IN_PROGRESS   111 /**< - */
+#define CM_TIMEOUT                  112 /**< - */
+#define CM_INVALID_TRANSITION       113 /**< - */
+#define CM_TOO_MANY_REQUESTS        114 /**< - */
 /**dox***************************************************************/
 /** @} */ /* end of err21 */
 
@@ -960,6 +1011,8 @@ System message types */
 #define DB_INVALID_LINK             322   /**< - */
 #define DB_CORRUPTED                323   /**< - */
 #define DB_STRUCT_MISMATCH          324   /**< - */
+#define DB_TIMEOUT                  325   /**< - */
+#define DB_VERSION_MISMATCH         326   /**< - */
 /**dox***************************************************************/
 /** @} */ /* end of group 23 */
 
@@ -1411,6 +1464,7 @@ typedef struct {
    INT param_size;                    /**< Size of parameter structure       */
    char **init_str;                   /**< Parameter init string             */
    BOOL enabled;                      /**< Enabled flag                      */
+   void *histo_folder;
 } ANA_MODULE;
 
 typedef struct {
@@ -1461,6 +1515,7 @@ typedef struct {
    char name[80];
    BOOL registered;
    DWORD count;
+   DWORD previous_count;
    BOOL value;
 } ANA_TEST;
 
@@ -1870,7 +1925,7 @@ extern "C" {
 #define EXPRT
 #endif
 
-/*---- common routines ----*/
+   /*---- common routines ----*/
    INT EXPRT cm_get_error(INT code, char *string);
    char EXPRT *cm_get_version(void);
    INT EXPRT cm_get_environment(char *host_name, int host_name_size,
@@ -1885,7 +1940,8 @@ extern "C" {
                                     void (*func) (char *), INT odb_size,
                                     DWORD watchdog_timeout);
    INT EXPRT cm_disconnect_experiment(void);
-   INT EXPRT cm_register_transition(INT transition, INT(*func) (INT, char *));
+   INT EXPRT cm_register_transition(INT transition, INT(*func) (INT, char *), int sequence_number);
+   INT EXPRT cm_set_transition_sequence(INT transition, INT sequence_number);
    INT EXPRT cm_query_transition(int *transition, int *run_number, int *trans_time);
    INT EXPRT cm_register_deferred_transition(INT transition, BOOL(*func) (INT, BOOL));
    INT EXPRT cm_check_deferred_transition(void);
@@ -1935,7 +1991,7 @@ extern "C" {
    INT EXPRT strlcat(char *dst, const char *src, INT size);
 #endif
 
-/*---- buffer manager ----*/
+   /*---- buffer manager ----*/
    INT EXPRT bm_open_buffer(char *buffer_name, INT buffer_size, INT * buffer_handle);
    INT EXPRT bm_close_buffer(INT buffer_handle);
    INT EXPRT bm_close_all_buffers(void);
@@ -1967,7 +2023,7 @@ extern "C" {
    INT EXPRT bm_poll_event(INT flag);
    INT EXPRT bm_empty_buffers(void);
 
-/*---- online database functions -----*/
+   /*---- online database functions -----*/
    INT EXPRT db_open_database(char *database_name, INT database_size,
                               HNDLE * hdb, char *client_name);
    INT EXPRT db_close_database(HNDLE database_handle);
@@ -2043,13 +2099,14 @@ extern "C" {
                             char *struct_name, BOOL append);
    INT EXPRT db_save_string(HNDLE hDB, HNDLE hKey, char *file_name,
                             char *string_name, BOOL append);
+   INT EXPRT db_save_xml(HNDLE hDB, HNDLE hKey, char *file_name);
 
    INT EXPRT db_sprintf(char *string, void *data, INT data_size, INT index, DWORD type);
    INT EXPRT db_sprintfh(char *string, void *data, INT data_size, INT index, DWORD type);
    INT EXPRT db_sscanf(char *string, void *data, INT * data_size, INT index, DWORD type);
    char EXPRT *strcomb(char **list);
 
-/*---- Bank routines ----*/
+   /*---- Bank routines ----*/
    void EXPRT bk_init(void *pbh);
    void EXPRT bk_init32(void *event);
    BOOL EXPRT bk_is32(void *event);
@@ -2065,7 +2122,7 @@ extern "C" {
    INT EXPRT bk_find(BANK_HEADER * pbkh, const char *name, DWORD * bklen,
                      DWORD * bktype, void **pdata);
 
-/*---- RPC routines ----*/
+   /*---- RPC routines ----*/
    INT EXPRT rpc_register_functions(RPC_LIST * new_list, INT(*func) (INT, void **));
    INT EXPRT rpc_register_function(INT id, INT(*func) (INT, void **));
    INT EXPRT rpc_get_option(HNDLE hConn, INT item);
@@ -2074,6 +2131,7 @@ extern "C" {
    INT EXPRT rpc_get_name(char *name);
    INT EXPRT rpc_is_remote(void);
    INT EXPRT rpc_set_debug(void (*func) (char *), INT mode);
+   void EXPRT rpc_debug_printf(char *format, ...);
 
    INT EXPRT rpc_register_server(INT server_type, char *name, INT * port,
                                  INT(*func) (INT, void **));
@@ -2098,7 +2156,7 @@ extern "C" {
    void EXPRT rpc_convert_data(void *data, INT tid, INT flags, INT size,
                                INT convert_flags);
 
-/*---- system services ----*/
+   /*---- system services ----*/
    DWORD EXPRT ss_millitime(void);
    DWORD EXPRT ss_time(void);
    DWORD EXPRT ss_settime(DWORD seconds);
@@ -2117,11 +2175,11 @@ extern "C" {
 
    void EXPRT *ss_ctrlc_handler(void (*func) (int));
 
-/*---- direct io routines ----*/
+   /*---- direct io routines ----*/
    INT EXPRT ss_directio_give_port(INT start, INT end);
    INT EXPRT ss_directio_lock_port(INT start, INT end);
 
-/*---- tape routines ----*/
+   /*---- tape routines ----*/
    INT EXPRT ss_tape_open(char *path, INT oflag, INT * channel);
    INT EXPRT ss_tape_close(INT channel);
    INT EXPRT ss_tape_status(char *path);
@@ -2136,15 +2194,14 @@ extern "C" {
    INT EXPRT ss_tape_unmount(INT channel);
    INT EXPRT ss_tape_get_blockn(INT channel);
 
-/*---- disk routines ----*/
+   /*---- disk routines ----*/
    double EXPRT ss_disk_free(char *path);
-/*-PAA-*/
    double EXPRT ss_file_size(char *path);
    INT EXPRT ss_file_remove(char *path);
    INT EXPRT ss_file_find(char *path, char *pattern, char **plist);
    double EXPRT ss_disk_size(char *path);
 
-/*---- history routines ----*/
+   /*---- history routines ----*/
    INT EXPRT hs_set_path(char *path);
    INT EXPRT hs_define_event(DWORD event_id, char *name, TAG * tag, DWORD size);
    INT EXPRT hs_write_event(DWORD event_id, void *data, DWORD size);
@@ -2165,7 +2222,7 @@ extern "C" {
                      DWORD interval, BOOL binary_time);
    INT EXPRT hs_fdump(char *file_name, DWORD id, BOOL binary_time);
 
-/*---- ELog functions ----*/
+   /*---- ELog functions ----*/
    INT EXPRT el_retrieve(char *tag, char *date, int *run, char *author,
                          char *type, char *system, char *subject,
                          char *text, int *textsize, char *orig_tag,
@@ -2181,7 +2238,7 @@ extern "C" {
    INT EXPRT el_search_run(int run, char *return_tag);
    INT EXPRT el_delete_message(char *tag);
 
-/*---- Alarm functions ----*/
+   /*---- alarm functions ----*/
    INT EXPRT al_check();
    INT EXPRT al_trigger_alarm(char *alarm_name, char *alarm_message,
                               char *default_class, char *cond_str, INT type);
@@ -2189,13 +2246,177 @@ extern "C" {
    INT EXPRT al_reset_alarm(char *alarm_name);
    BOOL EXPRT al_evaluate_condition(char *condition, char *value);
 
-/*---- analyzer functions ----*/
+   /*---- frontend functions ----*/
+   INT get_frontend_index();
+
+   /*---- analyzer functions ----*/
    void EXPRT test_register(ANA_TEST * t);
    void EXPRT add_data_dir(char *result, char *file);
    void EXPRT lock_histo(INT id);
 
+   void EXPRT open_subfolder(char *name);
+   void EXPRT close_subfolder();
 #ifdef __cplusplus
 }
+
+#ifdef USE_ROOT
+   /* root functions really are C++ functions */
+   extern TFolder *gManaHistosFolder;
+   extern TObjArray *gHistoFolderStack;
+
+   // book functions put a root object in a suitable folder
+   // for histos, there are a lot of types, so we use templates.
+   // for other objects we have one function per object
+   template<typename TH1X>
+   TH1X EXPRT *h1_book(const char *name, const char *title,
+		       int bins, double min, double max)
+   {
+      TH1X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH1X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH1X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH1X(name, title, bins, min, max);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   template<typename TH1X>
+   TH1X EXPRT *h1_book(const char *name, const char *title,
+		       int bins, double edges[])
+   {
+      TH1X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH1X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH1X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH1X(name, title, bins, edges);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   template<typename TH2X>
+   TH2X EXPRT *h2_book(const char *name, const char *title,
+	     	       int xbins, double xmin, double xmax,
+                       int ybins, double ymin, double ymax)
+   {
+      TH2X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH2X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH2X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH2X(name, title, xbins, xmin, xmax, ybins, ymin, ymax);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   template<typename TH2X>
+   TH2X EXPRT *h2_book(const char *name, const char *title,
+	  	       int xbins, double xmin, double xmax,
+                       int ybins, double yedges[])
+   {
+      TH2X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH2X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH2X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH2X(name, title, xbins, xmin, xmax, ybins, yedges);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   template<typename TH2X>
+   TH2X EXPRT *h2_book(const char *name, const char *title,
+		       int xbins, double xedges[],
+                       int ybins, double ymin, double ymax)
+   {
+      TH2X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH2X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH2X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH2X(name, title, xbins, xedges, ybins, ymin, ymax);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   template<typename TH2X>
+   TH2X EXPRT *h2_book(const char *name, const char *title,
+		       int xbins, double xedges[],
+                       int ybins, double yedges[])
+   {
+      TH2X *hist;
+
+      /* check if histo already exists */
+      if (!gHistoFolderStack->Last())
+         hist = (TH2X *) gManaHistosFolder->FindObjectAny(name);
+      else
+         hist = (TH2X *) ((TFolder *)gHistoFolderStack->Last())->FindObjectAny(name);
+
+      if (hist == NULL) {
+         hist = new TH2X(name, title, xbins, xedges, ybins, yedges);
+         if (!gHistoFolderStack->Last())
+            gManaHistosFolder->Add(hist);
+         else
+            ((TFolder *)gHistoFolderStack->Last())->Add(hist);
+      }
+
+      return hist;
+   }
+
+   /*
+    * the following two macros allow for simple fortran like usage
+    * for the most common histo types
+    */
+   #define H1_BOOK(n,t,b,min,max) (h1_book<TH1F>(n,t,b,min,max))
+   #define H2_BOOK(n,t,xb,xmin,xmax,yb,ymin,ymax) (h2_book<TH2F>(n,t,xb,xmin,xmax,yb,ymin,ymax))
+#endif /* USE_ROOT */
+
 #endif
 #endif                          /* _MIDAS_H */
 /**dox***************************************************************/

@@ -33,38 +33,55 @@ FunctionEnd
 
 Page instfiles
 
-Section "builder" SEC01
+Section "rome" SEC01
+  SetOutPath "$INSTDIR"
+  SetOverwrite ifnewer
+  File "*.xsd"
+  SetOutPath "$INSTDIR"
+  File "Makefile*"
+SectionEnd
+
+Section "builder" SEC02
   SetOutPath "$INSTDIR\builder\src"
   SetOverwrite ifnewer
   File "builder\src\ROMEBuilder.cpp"
   SetOutPath "$INSTDIR\builder\include"
   File "builder\include\ROMEBuilder.h"
-  
-  SetOutPath "$INSTDIR\icons\rome.bmp"
-  File "icons\rome.bmp"
-  SetOutPath "$INSTDIR\icons\rome.ico"
-  File "icons\rome.ico"
 SectionEnd
 
-Section "rome" SEC02
+Section "src" SEC03
   SetOutPath "$INSTDIR\src"
   SetOverwrite ifnewer
   File "src\*.cpp"
+SectionEnd
+
+Section "include" SEC04
   SetOutPath "$INSTDIR\include"
+  SetOverwrite ifnewer
   File "include\*.h"
   SetOutPath "$INSTDIR\include\libxml"
   File "include\libxml\*.h"
+  SetOutPath "$INSTDIR\include\mysql"
+  File "include\mysql\*.h"
 SectionEnd
 
-Section "library" SEC03
+Section "library" SEC05
   SetOutPath "$INSTDIR\lib_win"
   SetOverwrite ifnewer
   File "lib_win\*.lib"
   SetOutPath "$INSTDIR\bin"
-  File "bin\*.*"
+  File "bin\*.dll"
 SectionEnd
 
-Section "documentation" SEC04
+Section "icons" SEC06
+  SetOutPath "$INSTDIR\icons"
+  SetOverwrite ifnewer
+  File "icons\rome.bmp"
+  SetOutPath "$INSTDIR\icons"
+  File "icons\rome.ico"
+SectionEnd
+
+Section "documentation" SEC07
   SetOutPath "$INSTDIR\documentation"
   SetOverwrite ifnewer
   File "documentation\*.*"
@@ -73,7 +90,7 @@ SectionEnd
 ${StrStr}
 VAR ind
 VAR reg
-Section "registry" SEC05
+Section "registry" SEC08
   ReadRegStr $reg HKCU "Environment" "path"
   WriteRegStr HKCU "Environment" "ROMESYS" "$INSTDIR\"
   ${StrStr} $ind $reg "%ROMESYS%\bin"
@@ -110,14 +127,17 @@ FunctionEnd
 
 Section Uninstall
   Delete "$INSTDIR\uninst.exe"
-  Delete "$INSTDIR\builder\include\ROMEBuilder.h"
-  Delete "$INSTDIR\builder\src\ROMEBuilder.cpp"
-  Delete "$INSTDIR\src\*.cpp"
-  Delete "$INSTDIR\include\*.h"
-  Delete "$INSTDIR\include\libxml\*.h"
-  Delete "$INSTDIR\lib_win\*.lib"
+  Delete "$INSTDIR\builder\include\*.*"
+  Delete "$INSTDIR\builder\src\*.*"
+  Delete "$INSTDIR\src\*.*"
+  Delete "$INSTDIR\include\*.*"
+  Delete "$INSTDIR\include\mysql\*.*"
+  Delete "$INSTDIR\include\libxml\*.*"
+  Delete "$INSTDIR\lib_win\*.*"
   Delete "$INSTDIR\bin\*.*"
   Delete "$INSTDIR\documentation\*.*"
+  Delete "$INSTDIR\icons\*.*"
+  Delete "$INSTDIR\*.*"
 
   Delete "$SMPROGRAMS\ROME\Uninstall.lnk"
 
@@ -126,10 +146,12 @@ Section Uninstall
   RMDir "$INSTDIR\builder"
   RMDir "$INSTDIR\src"
   RMDir "$INSTDIR\include\libxml"
+  RMDir "$INSTDIR\include\mysql"
   RMDir "$INSTDIR\include"
   RMDir "$INSTDIR\lib_win"
   RMDir "$INSTDIR\bin"
   RMDir "$INSTDIR\documentation"
+  RMDir "$INSTDIR\icons"
   RMDir "$INSTDIR"
   RMDir "$SMPROGRAMS\ROME"
 

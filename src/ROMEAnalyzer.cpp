@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.36  2004/10/20 09:22:16  schneebeli_m
+//  bugs removed
+//
 //  Revision 1.35  2004/10/20 03:12:28  pierre
 //  add termios.h for linux, comment out undef _daemon_flag
 //
@@ -738,11 +741,6 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    struct termios buf;
    int i, fd;
    char c[3];
-
-/*
- if (_daemon_flag)
-      return 0;
-*/
    
    fd = fileno(stdin);
 

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.62  2004/10/20 09:22:16  schneebeli_m
+  bugs removed
+
   Revision 1.61  2004/10/19 21:10:08  pierre
   add lutil for forkpty
 
@@ -4901,6 +4904,17 @@ int main(int argc, char *argv[])
 {
    struct stat buf;
 
+   char* romesys = getenv("ROMESYS");
+   if (romesys==NULL) {
+      cout << "Please set the environment variable ROMESYS to the ROME root-directory." << endl;
+      return 1;
+   }
+   char* rootsys = getenv("ROOTSYS");
+   if (rootsys==NULL) {
+      cout << "Please set the environment variable ROOTSYS to the ROOT root-directory." << endl;
+      return 1;
+   }
+
    ROMEBuilder* romeb = new ROMEBuilder();
 
    romeb->romeVersion = "Version 1.00";
@@ -5768,7 +5782,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("To access a folder one has to get a handle to it with the following methods : <p>\n");
    buffer.AppendFormatted("<table border=\"0\">\n");
    buffer.AppendFormatted("<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;for object arrays.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Folder Name</i>]Object()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td><b>Get[<i>Folder Name</i>]()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
    buffer.AppendFormatted("</table>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
@@ -5827,10 +5841,10 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<table border=\"0\">\n");
    buffer.AppendFormatted("<tr><td><b>Fill[<i>Histo Name</i>]([<i>xValue</i>],[<i>weight</i>])</b></td>  <td>&nbsp;&nbsp;&nbsp;fills a single histogram.</td></tr>\n");
    buffer.AppendFormatted("<tr><td><b>Draw[<i>Histo Name</i>]()</b></td>       <td>&nbsp;&nbsp;&nbsp;draws a single histogram.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]Handle()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
    buffer.AppendFormatted("<tr><td><b>Fill[<i>Histo Name</i>]At([<i>Index</i>],[<i>xValue</i>],[<i>weight</i>])</b></td><td>&nbsp;&nbsp;&nbsp;fills a histogram of a histogram array.</td></tr>\n");
    buffer.AppendFormatted("<tr><td><b>Draw[<i>Histo Name</i>]At([<i>Index</i>])</b></td>     <td>&nbsp;&nbsp;&nbsp;draws a histogram of a histogram array.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]HandleAt([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
    buffer.AppendFormatted("</table>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<b><i>Histo Name</i></b> stands for the name of the histogram.</br>\n");
@@ -5846,24 +5860,47 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("%s%s provides some general methods for the user.\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<table border=\"0\">\n");
-   buffer.AppendFormatted("<tr><td>isOnline()</td><td> : true if the program is running online.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isOffline()</td><td> : true if the program is running offline.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isRoot()</td><td> : true if the data is read from a root file.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isMidas()</td><td> : true if the data has the midas format.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isBatchMode()</td><td> : true if the program is running in batch mode.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isEndOfRun()</td><td> : true if the EndOfRun flag is set.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isBeginOfRun()</td><td> : true if the BeginOfRun flag is set.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>isTerminate()</td><td> : true if the Terminate flag is set.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>EndOfRun()</td><td> : sets the EndOfRun flag.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>BeginOfRun()</td><td> : sets the BeginOfRun flag.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>Terminate()</td><td> : sets the Terminate flag.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
-   buffer.AppendFormatted("</table>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isOnline()</td><td> : returns true, if the program is running online.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isOffline()</td><td> : returns true, if the program is running offline.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isRoot()</td><td> : returns true, if the data is read from a root file.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isMidas()</td><td> : returns true, if the data has the midas format.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isBatchMode()</td><td> : returns true, if the program is running in batch mode.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetBatchMode(bool flag=true)</td><td> : sets the batch mode.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetInputDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetOutputDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetDataBaseDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isFillEvent()</td><td> : if true, the current event is filled to the trees.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetFillEvent(Bool_t fillEvent = true)</td><td> : sets the fill event flag.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>IsDontReadNextEvent()</td><td> : if true, the next event is not read from the file (for multiple events).</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetDontReadNextEvent(bool flag = true)</td><td> : sets the DontReadNextEvent flag.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetTerminationFlag()</td><td> : sets the termination flag equal true.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isTreeAccumulation()</td><td> : if true, the trees are accumulated over different runs.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetTreeAccumulation(bool flag = true)</td><td> : sets the TreeAccumulation flag.</td></tr>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("<tr><td>char</td><td>GetEventID()</td><td> : returns a character value containing the event id.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>char*</td><td>GetOnlineHost()</td><td> : returns the host of the online experiment.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetOnlineHost(char* host)</td><td> : sets host of the online experiment.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>char*</td><td>GetOnlineExperiment()</td><td> : returns the name of the online experiment.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetOnlineExperiment(char* experiment)</td><td> : sets name of the online experiment.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>int</td><td>GetPortNumber()</td><td> : returns the port number of the socket interface.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetPortNumber(int portNumber)</td><td> : sets the port number of the socket interface.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>bool</td><td>isSocketOffline()</td><td> : returns true, if the socket interface should be available in offline mode.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>void</td><td>SetSocketOffline(bool flag=true)</td><td> : sets SocketOffline flag.</td></tr>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("<tr><td>int</td><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>int</td><td>GetCurrentEventNumber()</td><td> : returns the current event number.</td></tr>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("<tr><td>TRint*</td><td>GetApplication()</td><td> : returns the root application handle.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>char*</td><td>GetProgramName()</td><td> : returns the name of the executable of this program.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>ROMEDataBase*</td><td>GetDataBase()</td><td> : returns the database handle.</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>int</td><td>GetMidasOnlineDataBase()</td><td> : returns the handle to the midas ODB (only online).</td></tr>\n");
+   buffer.AppendFormatted("<tr><td>int*</td><td>GetMidasOnlineDataBasePointer()</td><td> : returns a pointer to the handle to the midas ODB (only online).</td></tr>\n");
+   buffer.AppendFormatted("</table>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("\n");
 

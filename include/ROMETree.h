@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2004/10/20 09:22:16  schneebeli_m
+  bugs removed
+
   Revision 1.7  2004/10/14 09:53:41  schneebeli_m
   ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 
@@ -49,7 +52,7 @@ public:
    Bool_t isCircular() { return fSwitches.fMaxEntries!=0; };
    Int_t  GetMaxEntries() { return fSwitches.fMaxEntries; };
    Switches* GetSwitches() { return &fSwitches; };
-   int       GetSwitchesSize() { return sizeof(Switches); };
+   int       GetSwitchesSize() { return sizeof(fSwitches); };
    char*     GetSwitchesString() { return (char*)fSwitchesString.Data(); };
    void SetTree(TTree *tree) { fTree = tree; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };

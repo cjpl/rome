@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.25  2004/10/20 09:22:16  schneebeli_m
+//  bugs removed
+//
 //  Revision 1.24  2004/10/19 21:18:06  pierre
 //  put unistd.h in the right place
 //
@@ -287,7 +290,7 @@ bool ROMEEventLoop::Initialize() {
 
       // Connect to the experiment
       if (cm_connect_experiment(gROME->GetOnlineHost(), gROME->GetOnlineExperiment(),gROME->GetProgramName(), NULL) != SUCCESS) {
-         cout << "Cannot connect to experiment" << endl;
+         cout << "\nCannot connect to experiment" << endl;
          return false;
       }
 
@@ -311,13 +314,13 @@ bool ROMEEventLoop::Initialize() {
       // Registers a callback function for run transitions.
       if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
-         cout << "Cannot connect to experiment" << endl;
+         cout << "\nCannot connect to experiment" << endl;
          return false;
       }
 
       // Connect to the online database
       if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         cout << "Cannot connect to the online database" << endl;
+         cout << "\nCannot connect to the online database" << endl;
          return false;
       }
 
@@ -325,7 +328,7 @@ bool ROMEEventLoop::Initialize() {
       int runNumber = 0;
       int size = sizeof(runNumber);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
-         cout << "Cannot read runnumber from the online database" << endl;
+         cout << "\nCannot read runnumber from the online database" << endl;
          return false;
       }
       gROME->SetCurrentRunNumber(runNumber);
@@ -340,7 +343,7 @@ bool ROMEEventLoop::Initialize() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "Cannot open trigger statistics record, probably other analyzer is using it" << endl;
+         cout << "\nCannot open trigger statistics record, probably other analyzer is using it" << endl;
          return false;
       }
 
@@ -351,7 +354,7 @@ bool ROMEEventLoop::Initialize() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "Cannot open scaler statistics record, probably other analyzer is using it" << endl;
+         cout << "\nCannot open scaler statistics record, probably other analyzer is using it" << endl;
          return false;
       }
 
@@ -363,11 +366,11 @@ bool ROMEEventLoop::Initialize() {
          db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
          if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
-            cout << "Cannot write to tree switches record." << endl;
+            cout << "\nCannot write to tree switches record." << endl;
             return false;
          }
          if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(), gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
-            cout << "Cannot open tree switches record, probably other analyzer is using it" << endl;
+            cout << "\nCannot open tree switches record, probably other analyzer is using it" << endl;
             return false;
          }
       }
