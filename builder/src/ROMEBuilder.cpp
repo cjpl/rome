@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.56  2004/10/08 12:21:11  schneebeli_m
+  Changed compile order
+
   Revision 1.55  2004/10/08 12:03:17  schneebeli_m
   Changed XML format, included a rome.xsd schema file
 
@@ -4419,8 +4422,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj src/framework/%sAnalyzer.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sEventLoop.obj src/framework/%sEventLoop.cpp \n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
 
@@ -4445,6 +4446,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
    }
 
+   buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut.Data(),shortCut.Data());
 #endif
 
 #if defined ( __linux__ )
@@ -4518,8 +4521,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sEventLoop.cpp -o obj/%sEventLoop.obj\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp\n");
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
 
@@ -4543,6 +4544,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
       buffer.AppendFormatted("	g++ -c $(flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    }
+   buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
 #endif
    ROMEString makeFile;
 #if defined ( __linux__ )
