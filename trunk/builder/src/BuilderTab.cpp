@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.20  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.19  2005/03/12 22:22:33  sawada
   Better output from builder.
   Menu of nested tab.
@@ -110,7 +114,6 @@ bool ArgusBuilder::ReadXMLTab() {
       if (type == 1 && !strcmp((const char*)name,"Tab")) {
          // set tab as parent for subsequent tabs
          recursiveTabDepth++;
-         parent[recursiveTabDepth] = tabName[currentNumberOfTabs];
          tabParentIndex[numOfTab+1] = currentNumberOfTabs;
          tabHierarchyNumOfChildren[currentNumberOfTabs]++;
          // read subtab

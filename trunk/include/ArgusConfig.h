@@ -2,6 +2,10 @@
   ArgusConfig.h, R. Sawada
 
   $Log$
+  Revision 1.3  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.2  2005/02/24 15:43:14  sawada
   removed CheckConfiguration
 
@@ -18,6 +22,7 @@ class ArgusConfig
 protected:
 public:
    ArgusConfig() {};
+   virtual ~ArgusConfig() {};
    
    virtual bool WriteConfigurationFile(char *file) = 0;
    virtual bool ReadConfigurationFile(char *file) = 0;
