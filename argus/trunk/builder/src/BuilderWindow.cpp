@@ -3,6 +3,10 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/03/12 22:22:33  sawada
+  Better output from builder.
+  Menu of nested tab.
+
   Revision 1.9  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -216,7 +220,14 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("         break;      \n");
    buffer.AppendFormatted("      case kCM_TAB:\n");
    for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("         if (param1==f%sMenuID) {\n",tabHierarchyName[i].Data());
+      buffer.AppendFormatted("         if (");
+      int index = i;
+      do  {
+         buffer.AppendFormatted(" param1==f%sMenuID ||",tabHierarchyName[index].Data());
+         index = tabHierarchyParentIndex[index];
+      } while(index!=-1);
+      buffer.Remove(buffer.Length()-2); // remove the last "||"
+      buffer.AppendFormatted(") {\n");
       buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabHierarchyName[i].Data(),i);
       for (j=0;j<numOfTabMenu[i];j++) {
 	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabHierarchyName[i].Data(),j);

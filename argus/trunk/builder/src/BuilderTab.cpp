@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.19  2005/03/12 22:22:33  sawada
+  Better output from builder.
+  Menu of nested tab.
+
   Revision 1.18  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -158,6 +162,8 @@ bool ArgusBuilder::ReadXMLTab() {
       }
       // tab threadFunctions
       if (type == 1 && !strcmp((const char*)name,"ThreadFunctions")) {
+         if (makeOutput) for (i=0;i<recursiveTabDepth+1;i++) cout << "   ";
+         if (makeOutput) cout << "ThreadFunctions:"<<endl;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -178,10 +184,14 @@ bool ArgusBuilder::ReadXMLTab() {
                   type = xml->GetType();
                   name = xml->GetName();
                   // end
-                  if (type == 15 && !strcmp((const char*)name,"ThreadFunction"))
+                  if (type == 15 && !strcmp((const char*)name,"ThreadFunction")){
+                     // output
+                     if (makeOutput) for (i=0;i<recursiveTabDepth+2;i++) cout << "   ";
+                     if (makeOutput) threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]].WriteLine();
                      break;
+                  }
                   if (type == 1 && !strcmp((const char*)name,"FunctionName"))
-                        xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]],threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
+                     xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]],threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
                }
                // check input
                if (threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]=="") {
@@ -196,13 +206,13 @@ bool ArgusBuilder::ReadXMLTab() {
                      return false;
                   }
                }
-               // output
-               if (makeOutput) threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]].WriteLine();
             }
          }
       }
       // tab menu
       if (type == 1 && !strcmp((const char*)name,"Menus")) {
+         if (makeOutput) for (i=0;i<recursiveTabDepth+1;i++) cout << "   ";
+         if (makeOutput) cout << "Menus:"<<endl;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -227,7 +237,12 @@ bool ArgusBuilder::ReadXMLTab() {
                   name = xml->GetName();
                   // end
                   if (type == 15 && !strcmp((const char*)name,"Menu")){
+                     if (makeOutput) for (i=0;i<recursiveTabDepth+2;i++) cout << "   ";
+                     if (makeOutput) tabHierarchyMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]].WriteLine();
 		     numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]++;
+                     for(j=0;j<numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]];j++){
+                        if (makeOutput) for (i=0;i<recursiveTabDepth+3;i++) cout << "   ";
+                        if (makeOutput) tabHierarchyMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][j].WriteLine();}
                      break;
 		  }
 		  if (type == 1 && !strcmp((const char*)name,"MenuTitle"))
@@ -286,8 +301,6 @@ bool ArgusBuilder::ReadXMLTab() {
 			      cout << "Terminating program." << endl;
 			      return false;
 			   }
-			   // output
-			   if (makeOutput) tabHierarchyMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]].WriteLine();
 			}
 		     }
 		  }
@@ -305,8 +318,6 @@ bool ArgusBuilder::ReadXMLTab() {
                      return false;
                   }
                }
-               // output
-               if (makeOutput) tabHierarchyMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]].WriteLine();
             }
          }
       }
