@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.31  2005/01/18 17:41:29  schneebeli_m
+  Termination flag
+
   Revision 1.30  2004/12/06 09:20:50  schneebeli_m
   ss_getchar on linux
 
@@ -214,6 +217,7 @@ public:
    void       SetFillEvent(Bool_t fillEvent = true) { fFillEvent = fillEvent; }
 
    // Termination Flag
+   Bool_t     isTerminationFlag() { return fTerminate; };
    void       SetTerminationFlag() { fTerminate = true; };
 
 

@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.41  2005/01/18 17:41:29  schneebeli_m
+//  Termination flag
+//
 //  Revision 1.40  2005/01/17 11:13:27  schneebeli_m
 //  consol output
 //
@@ -246,6 +249,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          char eventID = gROME->GetEventID();
          ExecuteTasks(&eventID);
          CleanTasks();
+         if (gROME->isTerminationFlag()) {
+            cout << "\n\nTerminating Program !" << endl;
+            return;
+         }
 
          // Write Event
          if (!this->WriteEvent() && gROME->isFillEvent()) {

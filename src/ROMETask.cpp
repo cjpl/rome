@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.20  2005/01/18 17:41:29  schneebeli_m
+//  Termination flag
+//
 //  Revision 1.19  2005/01/18 09:36:11  schneebeli_m
 //  FillEvent flag suppresses later tasks
 //
@@ -53,6 +56,8 @@ void ROMETask::Exec(Option_t *option)
    // Event
    // EndOfRun
    // Terminate
+   if (gROME->isTerminationFlag())
+      return;
    if (!strncmp(option,"i",1)) {
       fCurrentEventMethod = "Init";
       ROMEString foldername;
