@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.35  2004/12/06 11:16:51  schneebeli_m
+//  user input on linux
+//
 //  Revision 1.34  2004/12/06 09:20:50  schneebeli_m
 //  ss_getchar on linux
 //
@@ -778,8 +781,8 @@ bool ROMEEventLoop::Update()
             fProgressDelta /= 10;
       }
    }
-   if ((!fContinuous || fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite)) {
-      cout << (int)gROME->GetTriggerStatistics()->processedEvents << " events processed                                                    \r";
+   if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
+      cout << (int)gROME->GetTriggerStatistics()->processedEvents << " events processed                                                    \r" << flush;
       fProgressWrite = false;
    }
  
@@ -807,7 +810,7 @@ bool ROMEEventLoop::UserInput()
    bool hit = false;
 
    if (fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) {
-      cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r";
+      cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r" << flush;
       wait = true;
    }
    else if (fContinuous && time(NULL) < fUserInputLastTime+0.1)
@@ -836,10 +839,12 @@ bool ROMEEventLoop::UserInput()
             wait = false;
          }
          if (ch == 's') {
-            cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r";
+            cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r" << flush;
             wait = true;
          }
          if (ch == 'r') {
+            if (fContinuous)
+               cout << "                                  \r" << flush;
             wait = false;
          }
          if (ch == 'o') {
@@ -855,7 +860,7 @@ bool ROMEEventLoop::UserInput()
             char *cstop;
             ROMEString number;
             // run number
-            cout << "                                  \r";
+            cout << "                                  \r" << flush;
             cout << "Run number :";
             while (true) {
                ch = gROME->ss_getchar(0);
@@ -866,7 +871,7 @@ bool ROMEEventLoop::UserInput()
                cout << ch;
                number += ch;
             }
-            cout << "                                  \r";
+            cout << "                                  \r" << flush;
             int inumber = strtol(number.Data(),&cstop,10);
             if (inumber!=0) 
                fStopAtRun = inumber;
@@ -874,7 +879,7 @@ bool ROMEEventLoop::UserInput()
                fStopAtRun = gROME->GetCurrentRunNumber();
             // event number
             number.Resize(0);
-            cout << "                                  \r";
+            cout << "                                  \r" << flush;
             cout << "Event number :";
             while (true) {
                ch = gROME->ss_getchar(0);
@@ -885,7 +890,7 @@ bool ROMEEventLoop::UserInput()
                cout << ch;
                number += ch;
             }
-            cout << "                                  \r";
+            cout << "                                  \r" << flush;
             inumber = strtol(number.Data(),&cstop,10);
             if (inumber!=0) 
                fStopAtEvent = inumber;

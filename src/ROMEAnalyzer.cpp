@@ -8,8 +8,8 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
-//  Revision 1.43  2004/12/06 09:28:31  schneebeli_m
-//  ss_getchar on linux
+//  Revision 1.44  2004/12/06 11:16:43  schneebeli_m
+//  user input on linux
 //
 //  Revision 1.42  2004/12/06 09:20:50  schneebeli_m
 //  ss_getchar on linux
@@ -171,6 +171,8 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    gROME = (ROMEAnalyzer*)gPassToROME;
 
+   gROME->ss_getchar(0);
+
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
@@ -205,6 +207,8 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    CreateHistoFolders(taskList,fHistoFolder);
 
    fMainTask->ExecuteTask("start");
+
+   gROME->ss_getchar(1);
    if (fTerminate) return false;
 
    return true;
@@ -746,6 +750,9 @@ int ROMEAnalyzer::ss_sleep(int millisec)
    return 1;
 }
 
+#define CH_BS             8
+#define CH_TAB            9
+#define CH_CR            13
 #define CH_EXT 0x100
 #define CH_HOME   (CH_EXT+0)
 #define CH_INSERT (CH_EXT+1)
@@ -761,19 +768,18 @@ int ROMEAnalyzer::ss_sleep(int millisec)
 int ROMEAnalyzer::ss_getchar(bool reset)
 {
 #if defined ( __linux__ )  || defined ( __APPLE__ )
-
-   static bool init = false;
+   static unsigned long int init = 0;
    static struct termios save_termios;
    struct termios buf;
    int i, fd;
    char c[3];
-   
+  
    fd = fileno(stdin);
 
    if (reset) {
       if (init)
          tcsetattr(fd, TCSAFLUSH, &save_termios);
-      init = false;
+      init = 0;
       return 0;
    }
 
@@ -792,7 +798,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
       buf.c_cc[VTIME] = 0;
 
       tcsetattr(fd, TCSAFLUSH, &buf);
-      init = true;
+      init = 1;
    }
 
    memset(c, 0, 3);
@@ -837,8 +843,8 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    }
 
    /* BS/DEL -> BS */
-//   if (c[0] == 127)
-//      return CH_BS;
+   if (c[0] == 127)
+      return CH_BS;
 
    return c[0];
 
