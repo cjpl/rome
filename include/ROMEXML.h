@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2005/03/23 11:48:47  schneebeli_m
+  link error on linux
+
   Revision 1.12  2005/03/23 09:06:11  schneebeli_m
   libxml replaced by mxml, Bool SP error
 
@@ -21,9 +24,13 @@
 #ifndef ROMEXML_H
 #define ROMEXML_H
 
+#if defined( R__VISUAL_CPLUSPLUS )
 extern "C" {
+#endif
 #include <mxml.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 }
+#endif
 
 #include <TObjArray.h>
 #include <Riostream.h>
