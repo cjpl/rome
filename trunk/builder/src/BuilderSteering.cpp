@@ -3,6 +3,9 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/03/01 00:24:35  sawada
+  bug fix around global steering parameter.
+
   Revision 1.2  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -162,7 +165,7 @@ bool ArgusBuilder::WriteSteering(int iTab) {
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
-   hFile.SetFormatted("%s/include/monitor/%sMGlobalSteering.h",outDir.Data(),shortCut.Data());
+   hFile.SetFormatted("%s/include/monitor/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
    if (numOfSteering[numOfTabHierarchy]==-1) {
       remove(hFile.Data());
       return true;

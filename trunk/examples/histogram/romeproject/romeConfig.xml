@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Mon Feb 28 12:37:46 2005
+<!-- created by ROME on Mon Feb 28 20:26:03 2005
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
-          <RunNumbers>0</RunNumbers>
+          <RunNumbers></RunNumbers>
           <EventNumbers></EventNumbers>
           <Modes>
                <AnalyzingMode>online</AnalyzingMode>
