@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.90  2005/01/14 17:13:52  schneebeli_m
+  HistoArrayStartIndex
+
   Revision 1.89  2005/01/14 12:44:19  schneebeli_m
   midas path in makefile
 
@@ -1072,6 +1075,7 @@ bool ROMEBuilder::ReadXMLTask() {
          histoFolderTitle[numOfTask][numOfHistos[numOfTask]] = "";
          histoType[numOfTask][numOfHistos[numOfTask]] = "";
          histoArray[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]] = "1";
          histoXBin[numOfTask][numOfHistos[numOfTask]] = "1";
          histoXMin[numOfTask][numOfHistos[numOfTask]] = "0";
          histoXMax[numOfTask][numOfHistos[numOfTask]] = "1";
@@ -1102,6 +1106,9 @@ bool ROMEBuilder::ReadXMLTask() {
             // histo array size
             if (type == 1 && !strcmp((const char*)name,"HistArraySize"))
                xml->GetValue(histoArray[numOfTask][numOfHistos[numOfTask]],histoArray[numOfTask][numOfHistos[numOfTask]]);
+            // histo array start index
+            if (type == 1 && !strcmp((const char*)name,"HistArrayStartIndex"))
+               xml->GetValue(histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]],histoArrayStartIndex[numOfTask][numOfHistos[numOfTask]]);
             // histo number of x bins
             if (type == 1 && !strcmp((const char*)name,"HistXNbins"))
                xml->GetValue(histoXBin[numOfTask][numOfHistos[numOfTask]],histoXBin[numOfTask][numOfHistos[numOfTask]]);
@@ -1703,9 +1710,9 @@ bool ROMEBuilder::WriteTaskH() {
             if (!sameFolder&&!homeFolder)
                buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
             buffer.AppendFormatted("   for (j=0;j<%s;j++) {\n",histoArray[iTask][i].Data());
-            buffer.AppendFormatted("      name.SetFormatted(\"%%0*d\",3,j);\n");
+            buffer.AppendFormatted("      name.SetFormatted(\"%%0*d\",3,j+%s);\n",histoArrayStartIndex[iTask][i].Data());
             buffer.AppendFormatted("      name.Insert(0,\"%s_\");\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("      title.SetFormatted(\"%%0*d\",3,j);\n");
+            buffer.AppendFormatted("      title.SetFormatted(\"%%0*d\",3,j+%s);\n",histoArrayStartIndex[iTask][i].Data());
             buffer.AppendFormatted("      title.Insert(0,\"%s \");\n",histoTitle[iTask][i].Data());
             if (histoType[iTask][i][2]==49) {
                buffer.AppendFormatted("      hist%d = new %s(name.Data(),title.Data(),%s,%s,%s);\n",i,histoType[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data());

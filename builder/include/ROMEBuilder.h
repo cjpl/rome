@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.23  2005/01/14 17:13:52  schneebeli_m
+  HistoArrayStartIndex
+
   Revision 1.22  2005/01/07 11:37:32  schneebeli_m
   Bank Arrays, Folder Array Getter
 
@@ -127,6 +130,7 @@ private:
    ROMEString histoName[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoType[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoArray[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoArrayStartIndex[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoTitle[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
