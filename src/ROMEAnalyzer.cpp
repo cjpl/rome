@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.58  2005/03/23 09:06:11  schneebeli_m
+//  libxml replaced by mxml, Bool SP error
+//
 //  Revision 1.57  2005/03/21 17:29:47  schneebeli_m
 //  minor changes
 //
@@ -1083,4 +1086,14 @@ long ROMEAnalyzer::ss_millitime()
    return (int) GetTickCount();
 
 #endif
+}
+
+bool ROMEAnalyzer::strtobool(const char* str) 
+{
+   char *cstop;
+   if (!strcmp(str,"true"))
+      return true;
+   if (!strcmp(str,"false"))
+      return false;
+   return strtol(str,&cstop,10)!=0;
 }

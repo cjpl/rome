@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.14  2005/03/23 09:06:11  schneebeli_m
+//  libxml replaced by mxml, Bool SP error
+//
 //  Revision 1.13  2005/03/21 17:29:47  schneebeli_m
 //  minor changes
 //
@@ -116,7 +119,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          return false;
       }
       // create path
-      xmlPath = "//";
+      xmlPath = "/";
       xmlPath += fDataBaseName;
       xmlPath += "/";
       xmlPath += path->GetTableNameAt(i);

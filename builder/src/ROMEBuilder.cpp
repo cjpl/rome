@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.117  2005/03/23 09:06:11  schneebeli_m
+  libxml replaced by mxml, Bool SP error
+
   Revision 1.116  2005/03/21 17:29:46  schneebeli_m
   minor changes
 
@@ -4016,17 +4019,17 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fXMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
-   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"//Configuration/RunConfiguration\");\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
    buffer.AppendFormatted("   delete [] fConfigData;\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
-   buffer.AppendFormatted("   ROMEString path = \"//Configuration/MainConfiguration\";\n");
+   buffer.AppendFormatted("   ROMEString path = \"/Configuration/MainConfiguration\";\n");
    buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
    buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
    buffer.AppendFormatted("      fConfigData[i+1] = new ConfigData();\n");
-   buffer.AppendFormatted("      path.SetFormatted(\"//Configuration/child::RunConfiguration[position()=%%d]\",i+1);\n");
+   buffer.AppendFormatted("      path.SetFormatted(\"/Configuration/RunConfiguration[%%d]\",i+1);\n");
    buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   delete xml;\n");
@@ -4188,7 +4191,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       classname.Resize(0);
       while (index!=-1) {
          pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
-         path.InsertFormatted(0,"/child::Task[child::TaskName='%s']",taskHierarchyName[index].Data());
+         path.InsertFormatted(0,"/Task[TaskName='%s']",taskHierarchyName[index].Data());
          classname.InsertFormatted(0,"::%sTask",taskHierarchyName[index].Data());
          index = taskHierarchyParentIndex[index];
       }
@@ -4207,103 +4210,103 @@ bool ROMEBuilder::WriteConfigCpp() {
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          buffer.AppendFormatted("   fConfigData[index]%s->f%sHisto = new ConfigData%s::%sHisto();\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),classname.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Title
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistTitle\",fConfigData[index]%s->f%sHisto->fTitle,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistTitle\",fConfigData[index]%s->f%sHisto->fTitle,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fTitle==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fTitleModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fTitleModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // FolderTitle
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistFolderTitle\",fConfigData[index]%s->f%sHisto->fFolderTitle,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistFolderTitle\",fConfigData[index]%s->f%sHisto->fFolderTitle,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fFolderTitle==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fFolderTitleModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fFolderTitleModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // ArraySize
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistArraySize\",fConfigData[index]%s->f%sHisto->fArraySize,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistArraySize\",fConfigData[index]%s->f%sHisto->fArraySize,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fArraySize==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fArraySizeModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fArraySizeModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // ArrayStartIndex
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistArrayStartIndex\",fConfigData[index]%s->f%sHisto->fArrayStartIndex,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistArrayStartIndex\",fConfigData[index]%s->f%sHisto->fArrayStartIndex,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fArrayStartIndex==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fArrayStartIndexModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fArrayStartIndexModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // XLabel
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistXLabel\",fConfigData[index]%s->f%sHisto->fXLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistXLabel\",fConfigData[index]%s->f%sHisto->fXLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fXLabel==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXLabelModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXLabelModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // YLabel
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistYLabel\",fConfigData[index]%s->f%sHisto->fYLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistYLabel\",fConfigData[index]%s->f%sHisto->fYLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fYLabel==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYLabelModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYLabelModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // ZLabel
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistZLabel\",fConfigData[index]%s->f%sHisto->fZLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistZLabel\",fConfigData[index]%s->f%sHisto->fZLabel,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fZLabel==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZLabelModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZLabelModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // XNbins
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistXNbins\",fConfigData[index]%s->f%sHisto->fXNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistXNbins\",fConfigData[index]%s->f%sHisto->fXNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fXNbins==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXNbinsModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXNbinsModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Xmin
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistXmin\",fConfigData[index]%s->f%sHisto->fXmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistXmin\",fConfigData[index]%s->f%sHisto->fXmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fXmin==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXminModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXminModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Xmax
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistXmax\",fConfigData[index]%s->f%sHisto->fXmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistXmax\",fConfigData[index]%s->f%sHisto->fXmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fXmax==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXmaxModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fXmaxModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // YNbins
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistYNbins\",fConfigData[index]%s->f%sHisto->fYNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistYNbins\",fConfigData[index]%s->f%sHisto->fYNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fYNbins==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYNbinsModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYNbinsModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Ymin
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistYmin\",fConfigData[index]%s->f%sHisto->fYmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistYmin\",fConfigData[index]%s->f%sHisto->fYmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fYmin==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYminModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYminModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Ymax
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistYmax\",fConfigData[index]%s->f%sHisto->fYmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistYmax\",fConfigData[index]%s->f%sHisto->fYmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fYmax==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYmaxModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fYmaxModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // ZNbins
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistZNbins\",fConfigData[index]%s->f%sHisto->fZNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistZNbins\",fConfigData[index]%s->f%sHisto->fZNbins,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fZNbins==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZNbinsModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZNbinsModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Zmin
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistZmin\",fConfigData[index]%s->f%sHisto->fZmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistZmin\",fConfigData[index]%s->f%sHisto->fZmin,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fZmin==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZminModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZminModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Zmax
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistZmax\",fConfigData[index]%s->f%sHisto->fZmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistZmax\",fConfigData[index]%s->f%sHisto->fZmax,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fZmax==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZmaxModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fZmaxModified = true;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          // Accumulate
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/child::Histogram[child::HistName='%s']/HistAccumulate\",fConfigData[index]%s->f%sHisto->fAccumulate,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks%s/Histogram[HistName='%s']/HistAccumulate\",fConfigData[index]%s->f%sHisto->fAccumulate,\"\");\n",path.Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]%s->f%sHisto->fAccumulate==\"\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      fConfigData[index]%s->f%sHisto->fAccumulateModified = false;\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   else\n");
@@ -4382,13 +4385,13 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   // %s Tree\n",treeName[i].Data());
       buffer.AppendFormatted("   fConfigData[index]->f%sTree = new ConfigData::%sTree();\n",treeName[i].Data(),treeName[i].Data());
       // Read
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Read\",fConfigData[index]->f%sTree->fRead,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/Read\",fConfigData[index]->f%sTree->fRead,\"\");\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fRead==\"\")\n",treeName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fReadModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fReadModified = true;\n",treeName[i].Data());
       // Write
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Write\",fConfigData[index]->f%sTree->fWrite,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/Write\",fConfigData[index]->f%sTree->fWrite,\"\");\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fWrite==\"\")\n",treeName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fWriteModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("   else\n");
@@ -4399,20 +4402,20 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fFillModified = true;\n",treeName[i].Data());
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   else {\n");
-      buffer.AppendFormatted("      xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Fill\",fConfigData[index]->f%sTree->fFill,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("      xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/Fill\",fConfigData[index]->f%sTree->fFill,\"\");\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fFill==\"\")\n",treeName[i].Data());
       buffer.AppendFormatted("         fConfigData[index]->f%sTree->fFillModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("      else\n");
       buffer.AppendFormatted("         fConfigData[index]->f%sTree->fFillModified = true;\n",treeName[i].Data());
       buffer.AppendFormatted("   }\n");
       // CompressionLevel
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/CompressionLevel\",fConfigData[index]->f%sTree->fCompressionLevel,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/CompressionLevel\",fConfigData[index]->f%sTree->fCompressionLevel,\"\");\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fCompressionLevel==\"\")\n",treeName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fCompressionLevelModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fCompressionLevelModified = true;\n",treeName[i].Data());
       // MaxNumberOfEntries
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/MaxNumberOfEntries\",fConfigData[index]->f%sTree->fMaxNumberOfEntries,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/MaxNumberOfEntries\",fConfigData[index]->f%sTree->fMaxNumberOfEntries,\"\");\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fMaxNumberOfEntries==\"\")\n",treeName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("   else\n");
@@ -4445,7 +4448,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    for (i=0;i<numOfEvent;i++) {
       // Active
       buffer.AppendFormatted("   // %s Event\n",eventName[i].Data());
-      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[child::EventName='%s']/Active\",fConfigData[index]->f%sEvent->fActive,\"\");\n",eventName[i].Data(),eventName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[EventName='%s']/Active\",fConfigData[index]->f%sEvent->fActive,\"\");\n",eventName[i].Data(),eventName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[index]->f%sEvent->fActive==\"\")\n",eventName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->f%sEvent->fActiveModified = false;\n",eventName[i].Data());
       buffer.AppendFormatted("   else\n");
@@ -4454,7 +4457,7 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("   // %s Bank\n",bankName[i][j].Data());
          buffer.AppendFormatted("   fConfigData[index]->f%sEvent->f%sBank = new ConfigData::%sEvent::%sBank();\n",eventName[i].Data(),bankName[i][j].Data(),eventName[i].Data(),bankName[i][j].Data());
          // Read
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[child::EventName='%s']/Bank[child::BankName='%s']/Active\",fConfigData[index]->f%sEvent->f%sBank->fActive,\"\");\n",eventName[i].Data(),bankName[i][j].Data(),eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[EventName='%s']/Bank[BankName='%s']/Active\",fConfigData[index]->f%sEvent->f%sBank->fActive,\"\");\n",eventName[i].Data(),bankName[i][j].Data(),eventName[i].Data(),bankName[i][j].Data());
          buffer.AppendFormatted("   if (fConfigData[index]->f%sEvent->f%sBank->fActive==\"\")\n",eventName[i].Data(),bankName[i][j].Data());
          buffer.AppendFormatted("      fConfigData[index]->f%sEvent->f%sBank->fActiveModified = false;\n",eventName[i].Data(),bankName[i][j].Data());
          buffer.AppendFormatted("   else\n");
@@ -5845,7 +5848,7 @@ bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int nu
    // Fields
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
-      buffer.AppendFormatted("   xml->GetPathValue(%s/child::SteeringParameterField[child::SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTask][numSteer][k].Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(%s/SteeringParameterField[SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTask][numSteer][k].Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("   if (%s->f%s==\"\")\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("      %s->f%sModified = false;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("   else {\n");
@@ -5860,7 +5863,7 @@ bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int nu
       pathT = path;
       pointerT = pointer;
       classPathT = classPath;
-      path.AppendFormatted("/child::SteeringParameterGroup[child::SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      path.AppendFormatted("/SteeringParameterGroup[SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath);
@@ -5925,6 +5928,12 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
          buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().Data());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       else if (steerFieldType[numTask][numSteer][k]=="std::string")
          buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().c_str());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      else if (isBoolType((char*)steerFieldType[numTask][numSteer][k].Data())) {
+         buffer.AppendFormatted("%s         if (%s->Get%s())\n",blank.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s            value = \"true\";\n",blank.Data());
+         buffer.AppendFormatted("%s         else\n",blank.Data());
+         buffer.AppendFormatted("%s            value = \"false\";\n",blank.Data());
+      }
       else
          buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("%s         xml->WriteElement(\"SPValue\",(char*)value.Data());\n",blank.Data());
@@ -6673,7 +6682,7 @@ int main(int argc, char *argv[])
       else if (!strcmp(argv[i],"-meg")) {
          romeb->makeOutput = true;
          romeb->midas = true;
-         romeb->noLink = true;
+         romeb->noLink = false;
          romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
          xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
       }
@@ -7067,7 +7076,7 @@ void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer;
-   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME;
+   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatMXML;
    int i;
    bool haveFortranTask = false;
    for (i=0;i<numOfTask;i++) {
@@ -7088,7 +7097,6 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib \n");
-   buffer.AppendFormatted("xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
    if (this->sql) 
       buffer.AppendFormatted("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
    else
@@ -7098,7 +7106,7 @@ void ROMEBuilder::WriteMakefile() {
    else
       buffer.AppendFormatted("midaslibs = \n");
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
-   buffer.AppendFormatted("Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortcut.Data());
@@ -7123,8 +7131,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
    buffer.AppendFormatted("rootthreadlibs := -lThread\n");
-   buffer.AppendFormatted("xmllibs :=  $(shell xml2-config --libs)\n");
-   buffer.AppendFormatted("xmlcflags :=  $(shell xml2-config --cflags)\n");
    if (this->sql){
       buffer.AppendFormatted("sqllibs := $(shell mysql_config --libs)\n");
       buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags) -DHAVE_SQL\n");
@@ -7190,9 +7196,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
+   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
    // includes
    buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
    buffer.AppendFormatted("\n");
@@ -7259,7 +7265,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEMidas.obj obj/ROMERoot.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
@@ -7302,6 +7308,7 @@ void ROMEBuilder::WriteMakefile() {
    compileFormatTaskF.SetFormatted("	@echo fortran tasks not implemented on unix\n");
    compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
+   compileFormatMXML.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c -o obj/%%s.obj\n");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
    compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
@@ -7310,6 +7317,7 @@ void ROMEBuilder::WriteMakefile() {
    compileFormatTaskF.SetFormatted("	df $(FortranFlags) /compile_only src\\tasks\\%sTF%%s.f /object:obj\\%sTF%%s.obj\n",shortCut.Data(),shortCut.Data());
    compileFormatBlank.SetFormatted("	cl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
+   compileFormatMXML.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
 #endif
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
@@ -7379,6 +7387,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted((char*)compileFormatROME.Data(),"Path","Path");
    buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h\n");
    buffer.AppendFormatted((char*)compileFormatROME.Data(),"XML","XML");
+   buffer.AppendFormatted("obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h\n");
+   buffer.AppendFormatted((char*)compileFormatMXML.Data(),"mxml","mxml");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted((char*)compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
    if (this->sql) {
@@ -7859,9 +7869,9 @@ void ROMEBuilder::setValue(ROMEString* buf,char *destination,char *source,char *
        !strcmp(type,"bool") ||
        !strcmp(type,"Bool_t")) {
       if (version==0)
-         buf->AppendFormatted("%s = toBool(strtol(%s,&cstop,10))",destination,source);
+         buf->AppendFormatted("%s = gAnalyzer->strtobool(%s)",destination,source);
       else
-         buf->AppendFormatted("toBool(strtol(%s,&cstop,10))",source);
+         buf->AppendFormatted("gAnalyzer->strtobool(%s)",source);
    }
    else if (
        !strcmp(type,"char") ||
@@ -7925,6 +7935,15 @@ bool ROMEBuilder::isFloatingType(char *type)
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
+      return true;
+   }
+   return false;
+}
+bool ROMEBuilder::isBoolType(char *type)
+{
+   if (
+       !strcmp(type,"bool") ||
+       !strcmp(type,"Bool_t")) {
       return true;
    }
    return false;

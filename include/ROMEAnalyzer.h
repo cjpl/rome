@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.39  2005/03/23 09:06:11  schneebeli_m
+  libxml replaced by mxml, Bool SP error
+
   Revision 1.38  2005/03/18 16:12:57  schneebeli_m
   Event request & Histo in romeConfig
 
@@ -366,6 +369,7 @@ public:
    Bool_t ss_kbhit();
    int ss_sleep(int millisec);
    long ss_millitime();
+   bool strtobool(const char* str);
 
 protected:
 

@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2005/03/23 09:06:11  schneebeli_m
+  libxml replaced by mxml, Bool SP error
+
   Revision 1.11  2004/11/12 17:35:18  schneebeli_m
   fast xml database
 
@@ -18,9 +21,9 @@
 #ifndef ROMEXML_H
 #define ROMEXML_H
 
-#include <libxml/xmlreader.h>
-#include <libxml/xmlwriter.h>
-#include <libxml/xpath.h>
+extern "C" {
+#include <mxml.h>
+}
 
 #include <TObjArray.h>
 #include <Riostream.h>
@@ -28,34 +31,36 @@
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
 
-#define ENCODING "ISO-8859-1"
-
 class ROMEXML
 {
 protected:
-   xmlTextReaderPtr reader;
-   xmlDocPtr doc;
-   xmlXPathContextPtr xpathCtx; 
-   xmlXPathObjectPtr xpathObj; 
+   // read & path
+   PMXML_NODE rootNode;
+   PMXML_NODE currentNode;
+   PMXML_NODE lastNode;
+   int nodeType;
+   int nodeDepth;
+   bool endTag;
 
-   // variables for "manual" implmentation of TextWriter
+   // write
    int xmlFile, xmlLevel; 
    bool xmlElementIsOpen;
    TObjArray *xmlStack;
 
 
    void  XmlEncode(ROMEString &str);
+   int   IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode);
 public:
    ROMEXML();
    ~ROMEXML();
 
    // read
    bool  OpenFileForRead(const char* file);
-   bool  NextLine() { return xmlTextReaderRead(reader)!=0; };
-   char* GetName() { return (char*)xmlTextReaderName(reader); };
-   int   GetType() { return xmlTextReaderNodeType(reader); };
-   int   GetDepth() { return xmlTextReaderDepth(reader); };
-   bool  isEmpty() { return xmlTextReaderIsEmptyElement(reader)!=0; };
+   bool  NextLine();
+   char* GetName() { return currentNode->name; };
+   int   GetType() { return nodeType; };
+   int   GetDepth() { return nodeDepth; };
+   bool  isEmpty() { return currentNode->value[0]==0; };
    bool  GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue);
    bool  GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue);
    bool  GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue="");

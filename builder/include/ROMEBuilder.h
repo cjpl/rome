@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.30  2005/03/23 09:06:11  schneebeli_m
+  libxml replaced by mxml, Bool SP error
+
   Revision 1.29  2005/03/21 10:39:40  schneebeli_m
   Midas event definition implemented
 
@@ -268,6 +271,7 @@ public:
    void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
    bool isFloatingType(char *type);
    bool isNumber(ROMEString& string);
+   bool isBoolType(char *type);
 };
 
 #endif   // ROMEBuilder_H
