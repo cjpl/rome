@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.53  2005/01/27 16:40:33  schneebeli_m
+//  cm_msg in print method
+//
 //  Revision 1.52  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -242,24 +245,37 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 void ROMEAnalyzer::Print(char text)
 {
    cout << text;
+#if defined HAVE_MIDAS
+   ROMEString strText = text;
+   cm_msg(MINFO, "ROMEAnalyzer::Print", strText.Data());
+#endif
    return;
 }
 
 void ROMEAnalyzer::Print(const char* text)
 {
    cout << text;
+#if defined HAVE_MIDAS
+   cm_msg(MINFO, "ROMEAnalyzer::Print", text);
+#endif
    return;
 }
 
 void ROMEAnalyzer::Println(const char* text)
 {
    cout << text << endl;
+#if defined HAVE_MIDAS
+   cm_msg(MINFO, "ROMEAnalyzer::Println", text);
+#endif
    return;
 }
 
 void ROMEAnalyzer::Printfl(const char* text)
 {
    cout << text << flush;
+#if defined HAVE_MIDAS
+   cm_msg(MINFO, "ROMEAnalyzer::Printfl", text);
+#endif
    return;
 }
 
