@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.79  2004/12/07 11:43:39  schneebeli_m
+  error when no database folder
+
   Revision 1.78  2004/12/06 16:03:02  sawada
   code cleanup (tab -> space)
 
@@ -2670,8 +2673,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       }
       buffer.AppendFormatted("   values->RemoveAll();\n");
       buffer.AppendFormatted("   delete values;\n");
-      buffer.AppendFormatted("   return true;\n");
    }
+   buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
    // ReadArrayDataBaseFolders
@@ -2713,8 +2716,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       }
       buffer.AppendFormatted("   values->RemoveAll();\n");
       buffer.AppendFormatted("   delete values;\n");
-      buffer.AppendFormatted("   return true;\n");
    }
+   buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
    // Write Data Base
