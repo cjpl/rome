@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.4  2005/02/04 15:10:05  sawada
   ODB and ROMEDataBase folders.
 
@@ -44,7 +47,7 @@ bool ArgusBuilder::ReadXMLFolder() {
    folderDescription[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
    folderDefinedInROME[numOfFolder] = false;
-   folderConnectionType[numOfFolder] = "ROME";
+   folderConnectionType[numOfFolder] = "ROMEDataBase";
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;   
    // set parent
@@ -53,13 +56,13 @@ bool ArgusBuilder::ReadXMLFolder() {
       type = xml->GetType();
       name = xml->GetName();
       // subfolder
-      if (type == 1 && !strcmp((const char*)name,"Folder")) {
+      if (type == 1 && (!strcmp((const char*)name,"Folder") ||  !strcmp((const char*)name,"ROMEFolder"))) {
          // set folder as parent for subsequent folders
          recursiveFolderDepth++;
          if (parent[recursiveFolderDepth].Length()==0)
             parent[recursiveFolderDepth] = folderName[numOfFolder].Data();
          // read subfolder
-         if (!ReadXMLFolder()) 
+         if ((!strcmp((const char*)name,"Folder")&&!ReadXMLFolder()) || (!strcmp((const char*)name,"ROMEFolder")&&!ReadXMLROMEFolder())) 
             return false;
          continue;
       }
@@ -155,12 +158,6 @@ bool ArgusBuilder::ReadXMLFolder() {
             return false;
          }
          continue;
-      }
-      // folder is defined in ROME
-      if (type == 1 && !strcmp((const char*)name,"DefinedInROME")) {
-         xml->GetValue(tmp,"false");
-         if (tmp == "true") 
-            folderDefinedInROME[numOfFolder] = true;
       }
       // folder data base type
       if (type == 1 && !strcmp((const char*)name,"ConnectionType")){
@@ -264,6 +261,101 @@ bool ArgusBuilder::ReadXMLFolder() {
    return true;
 }
 
+bool ArgusBuilder::ReadXMLROMEFolder() {
+   romefolder = true;
+   // read the ROMEFolder definitions out of the xml file
+   ROMEString tmp;
+   char* name;
+   int type,i,j;
+   ROMEString currentFolderName = "";
+   int currentNumberOfFolders;   
+   // count folders
+   numOfFolder++;
+   currentNumberOfFolders = numOfFolder;
+   if (numOfFolder>=maxNumberOfFolders) {
+      cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+   // initialisation
+   folderName[numOfFolder] = "";
+   folderTitle[numOfFolder] = "";
+   folderArray[numOfFolder] = "1";
+   folderDataBase[numOfFolder] = false;
+   folderUserCode[numOfFolder] = false;
+   folderVersion[numOfFolder] = "1";
+   folderDescription[numOfFolder] = "";
+   folderAuthor[numOfFolder] = mainAuthor;
+   folderDefinedInROME[numOfFolder] = true;
+   folderConnectionType[numOfFolder] = "Socket";
+   numOfFolderInclude[numOfFolder] = 0;
+   numOfValue[numOfFolder] = 0;
+   // set parent
+   folderParentName[numOfFolder] = parent[recursiveFolderDepth];
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      // end folder
+      if (type == 15 && !strcmp((const char*)name,"ROMEFolder")) {
+         // check input
+         if (currentFolderName=="") {
+            cout << "The " << (currentNumberOfFolders+1) << ". Folder has no name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         parent[recursiveFolderDepth+1] = "";
+         recursiveFolderDepth--;
+         return true;
+      }
+      // folder name
+      if (type == 1 && !strcmp((const char*)name,"FolderName")) {
+         xml->GetValue(folderName[numOfFolder],folderName[numOfFolder]);
+         currentFolderName = folderName[numOfFolder];
+         // output
+         if (makeOutput) for (i=0;i<recursiveFolderDepth;i++) cout << "   ";
+         if (makeOutput) folderName[numOfFolder].WriteLine();
+      }
+      // folder title
+      if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
+         xml->GetValue(folderTitle[numOfFolder],folderTitle[numOfFolder]);
+      // folder array size
+      if (type == 1 && !strcmp((const char*)name,"Arrayed")){
+         xml->GetValue(tmp,"false");
+         if (tmp == "true") 
+            folderArray[numOfFolder] = 2;
+      }
+      // folder data base access
+      if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true") 
+            folderDataBase[numOfFolder] = true;
+      }
+      // folder description
+      if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
+         xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+      // folder with changeble class file
+      if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true") 
+            folderUserCode[numOfFolder] = true;
+      }
+      // folder author
+      if (type == 1 && !strcmp((const char*)name,"Author")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // author name
+            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+               xml->GetValue(folderAuthor[numOfFolder],folderAuthor[numOfFolder]);
+            if (type == 15 && !strcmp((const char*)name,"Author"))
+               break;
+         }
+         continue;
+      }
+   }
+   return true;
+}
+
 bool ArgusBuilder::WriteFolderCpp() {
    ROMEString cppFile;
    ROMEString buffer;
@@ -277,9 +369,9 @@ bool ArgusBuilder::WriteFolderCpp() {
    int bufferLen=0;
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
-      if (numOfValue[iFold] == 0) continue;
+      if (numOfValue[iFold] == 0 || folderDefinedInROME[iFold]) continue;
       // File name
-      cppFile.SetFormatted("%s/src/monitor/%sF%s.cpp",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+      cppFile.SetFormatted("%s/src/monitor/%s%s.cpp",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
       if (!folderUserCode[iFold]) {
          remove(cppFile.Data());
          continue;
@@ -315,8 +407,8 @@ bool ArgusBuilder::WriteFolderCpp() {
       struct stat buf;
       if( stat( cppFile.Data(), &buf )) {
          // Header Files
-         buffer.AppendFormatted("\n\n#include \"include/monitor/%sF%s.h\"\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("\nClassImp(%sF%s)\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\n\n#include \"include/monitor/%s%s.h\"\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nClassImp(%s%s)\n",shortCut.Data(),folderName[iFold].Data());
          writeFile = true;
       }
       else {
@@ -366,12 +458,12 @@ bool ArgusBuilder::WriteFolderH() {
    ROMEString format;
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
-     if (!folderDefinedInROME[iFold] && numOfValue[iFold] == 0) continue;
+     if (folderDefinedInROME[iFold] || numOfValue[iFold] == 0) continue;
       // File name
       if (folderUserCode[iFold])
-         hFile.SetFormatted("%s/include/monitor/%sF%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+         hFile.SetFormatted("%s/include/monitor/%s%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
       else
-         hFile.SetFormatted("%s/include/monitor/%sF%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+         hFile.SetFormatted("%s/include/monitor/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
       // Description
       buffer.Resize(0);
       buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
@@ -382,16 +474,16 @@ bool ArgusBuilder::WriteFolderH() {
       buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
       // Header
       if (folderUserCode[iFold]) {
-         buffer.AppendFormatted("#ifndef %sF%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("#define %sF%s_Base_H\n\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#ifndef %s%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#define %s%s_Base_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
       else {
-         buffer.AppendFormatted("#ifndef %sF%s_H\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("#define %sF%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
       if (folderDefinedInROME[iFold]){
 /*
-         buffer.AppendFormatted("#include \"%sF%s.h\"\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#include \"%s%s.h\"\n",shortCut.Data(),folderName[iFold].Data());
 */
       }
       else{
@@ -416,7 +508,7 @@ bool ArgusBuilder::WriteFolderH() {
          for (j=0;j<numOfFolder;j++) {
             str.SetFormatted("%s*",folderName[j].Data());
             if (valueType[iFold][i]==folderName[j] || valueType[iFold][i]==str) {
-               buffer.AppendFormatted("#include \"include/monitor/%sF%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               buffer.AppendFormatted("#include \"include/monitor/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
                valueType[iFold][i].Insert(0,shortCut);
                break;
             }
@@ -425,15 +517,15 @@ bool ArgusBuilder::WriteFolderH() {
       // Class
       if (folderDefinedInROME[iFold]){
 /*
-         buffer.AppendFormatted("\nclass %sF%s : public %s%s\n",shortCut.Data(),folderName[iFold].Data()
+         buffer.AppendFormatted("\nclass %s%s : public %s%s\n",shortCut.Data(),folderName[iFold].Data()
                                 ,shortCut.Data(),folderName[iFold].Data());
 */
       }
       else{
          if (folderUserCode[iFold])
-            buffer.AppendFormatted("\nclass %sF%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+            buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
          else
-            buffer.AppendFormatted("\nclass %sF%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+            buffer.AppendFormatted("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       }
       buffer.AppendFormatted("{\n");
       // Fields
@@ -470,9 +562,9 @@ bool ArgusBuilder::WriteFolderH() {
       if(!folderDefinedInROME[iFold]){
          // Constructor
          if (folderUserCode[iFold])
-            buffer.AppendFormatted("   %sF%s_Base( ",shortCut.Data(),folderName[iFold].Data());
+            buffer.AppendFormatted("   %s%s_Base( ",shortCut.Data(),folderName[iFold].Data());
          else
-            buffer.AppendFormatted("   %sF%s( ",shortCut.Data(),folderName[iFold].Data());
+            buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
             if (valueArray[iFold][i]=="1") {
                if (valueType[iFold][i]=="TRef") {
@@ -499,7 +591,7 @@ bool ArgusBuilder::WriteFolderH() {
       }
       else{
          // Constructor
-         buffer.AppendFormatted("   %sF%s( ",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
             if (valueArray[iFold][i]=="1") {
                if (valueType[iFold][i]=="TRef") {
@@ -626,14 +718,14 @@ bool ArgusBuilder::WriteFolderH() {
       }
       // Footer
       if (folderUserCode[iFold])
-         buffer.AppendFormatted("\n   ClassDef(%sF%s_Base,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         buffer.AppendFormatted("\n   ClassDef(%s%s_Base,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
       else
-         buffer.AppendFormatted("\n   ClassDef(%sF%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
       buffer.AppendFormatted("};\n\n");      
       if (folderUserCode[iFold])
-         buffer.AppendFormatted("#endif   // %sF%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#endif   // %s%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
       else
-         buffer.AppendFormatted("#endif   // %sF%s_H\n",shortCut.Data(),folderName[iFold].Data());      
+         buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),folderName[iFold].Data());      
       // Write File
       fileHandle = open(hFile.Data(),O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
@@ -658,7 +750,7 @@ bool ArgusBuilder::WriteFolderH() {
       }      
       // User H-File
       struct stat buf;
-      hFile.SetFormatted("%s/include/monitor/%sF%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+      hFile.SetFormatted("%s/include/monitor/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
       if (folderUserCode[iFold] && stat( hFile.Data(), &buf )) {
          // Description
          buffer.Resize(0);
@@ -668,20 +760,20 @@ bool ArgusBuilder::WriteFolderH() {
          buffer.AppendFormatted("//                                                                            //\n");
          buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
          // Header
-         buffer.AppendFormatted("#ifndef %sF%s_H\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("#define %sF%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("#include \"include/monitor/%sF%s_Base.h\"\n",shortCut.Data(),folderName[iFold].Data());         
+         buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#include \"include/monitor/%s%s_Base.h\"\n",shortCut.Data(),folderName[iFold].Data());         
          // Class
-         buffer.AppendFormatted("\nclass %sF%s : public %sF%s_Base\n",shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nclass %s%s : public %s%s_Base\n",shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   %sF%s( ",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
             if (valueArray[iFold][i]=="1")
                buffer.AppendFormatted("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          buffer.Resize(buffer.Length()-1);
-         buffer.AppendFormatted(" ) : %sF%s_Base( ",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted(" ) : %s%s_Base( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
             if (valueArray[iFold][i]=="1")
                buffer.AppendFormatted("%s,",valueName[iFold][i].Data());
@@ -689,9 +781,9 @@ bool ArgusBuilder::WriteFolderH() {
          buffer.Resize(buffer.Length()-1);
          buffer.AppendFormatted(" ) {}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("\n   ClassDef(%sF%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
          buffer.AppendFormatted("};\n\n");
-         buffer.AppendFormatted("#endif   // %sF%s_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
          // Write File
          if(open(hFile.Data(),O_RDONLY) == -1){
             fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );

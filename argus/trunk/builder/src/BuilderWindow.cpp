@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.4  2005/02/02 18:58:02  sawada
   small change.
 
@@ -90,7 +93,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Connect to Server\n");
-   buffer.AppendFormatted("   if(strlen(buffer) && !gMonitor->ConnectServer()) {\n");
+   buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost()) && !gMonitor->ConnectServer()) {\n");
    buffer.AppendFormatted("      sprintf(buffer, \"Cannot connect to server on host %%s, port %%d\", gMonitor->GetSocketInterfaceHost(), gMonitor->GetSocketInterfacePortNumber());\n");
    buffer.AppendFormatted("      new TGMsgBox(gClient->GetRoot(), this, \"Error\", buffer, kMBIconExclamation, 0, NULL);    \n");
    buffer.AppendFormatted("      SetWindowName(gMonitor->GetProgramName());\n");

@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.4  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.3  2005/02/03 11:44:54  sawada
   IO to MIDAS ODB
 
@@ -47,6 +50,7 @@ public:
    bool       midas;
    bool       sql;
    bool       thread;
+   bool       romefolder;
    
 private:
    ROMEXML* xml;
@@ -140,6 +144,7 @@ public:
    ArgusBuilder() {};
 
    bool ReadXMLFolder();
+   bool ReadXMLROMEFolder();
    bool WriteFolderCpp();
    bool WriteFolderH();
    bool WriteWindowCpp();

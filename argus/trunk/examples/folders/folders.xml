@@ -3,7 +3,7 @@
 <ArgusMonitorDefinition>
 	<Experiment>
 		<ExperimentName>Folders</ExperimentName>
-		<ExperimentShortCut>FO</ExperimentShortCut>
+		<ExperimentShortCut>LP</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
 		<MonitorDescription>Several kind of folders.</MonitorDescription>
 	</Experiment>
@@ -23,18 +23,24 @@
 	</Tabs>
 	<Folders>
 		<Folder>
-			<FolderName>FOData</FolderName>
-			<FolderTitle>FOData</FolderTitle>
+			<FolderName>LPData</FolderName>
+			<FolderTitle>LPData</FolderTitle>
 			<Author>Ryu Sawada</Author>
 			<FolderVersion>1</FolderVersion>
-			<FolderDescription>FO root folder.</FolderDescription>
+			<FolderDescription>LP root folder.</FolderDescription>
 			<Folder>
-				<FolderName>RunInfo</FolderName>
-				<FolderTitle>This folder is defined in ROME</FolderTitle>
-				<DefinedInROME>true</DefinedInROME>
+			  <FolderName>ODB</FolderName>
+			  <FolderTitle>This folder reads ODB</FolderTitle>
 				<DataBaseAccess>true</DataBaseAccess>
 				<Author>Ryu Sawada</Author>
-				<ConnectionType>Socket</ConnectionType>
+				<ConnectionType>ODB</ConnectionType>
+				<Field>
+					<FieldName>RunNumber</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Run number</FieldComment>
+					<FieldInitialization>0</FieldInitialization>
+					<DataBasePath>"/Runinfo/Run number"</DataBasePath>
+				</Field>
 			</Folder>
 			<Folder>
 			  <FolderName>ROMEDataBase</FolderName>
@@ -50,20 +56,11 @@
 					<DataBasePath>"/RunCatalog(id=%d)/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
 				</Field>
 			</Folder>
-			<Folder>
-			  <FolderName>ODB</FolderName>
-			  <FolderTitle>This folder reads ODB</FolderTitle>
+			<ROMEFolder>
+				<FolderName>RunInfo</FolderName>
 				<DataBaseAccess>true</DataBaseAccess>
-				<Author>Ryu Sawada</Author>
-				<ConnectionType>ODB</ConnectionType>
-				<Field>
-					<FieldName>RunNumber</FieldName>
-					<FieldType>Int_t</FieldType>
-					<FieldComment>Run number</FieldComment>
-					<FieldInitialization>0</FieldInitialization>
-					<DataBasePath>"/Runinfo/Run number"</DataBasePath>
-				</Field>
-			</Folder>
+				<Arrayed>false</Arrayed>
+			</ROMEFolder>
 		</Folder>
 	</Folders>
 </ArgusMonitorDefinition>
