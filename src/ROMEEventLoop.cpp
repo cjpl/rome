@@ -44,7 +44,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Declarations
    //--------------
    int i,ii;
-   int delta = 1000;
+   int delta = 10000;
    time_t last = time(NULL);
    int lastEvent = 0;
    bool write = false;

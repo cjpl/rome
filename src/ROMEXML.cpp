@@ -6,6 +6,10 @@
 //  XML file access.
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#if defined ( __linux__ )
+#include <string.h>
+#endif
+
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/xpath.h>

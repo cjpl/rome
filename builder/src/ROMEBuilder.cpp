@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.21  2004/07/15 08:53:37  schneebeli
+  running on linux
+
   Revision 1.20  2004/07/14 13:39:04  schneebeli
   database write
 
@@ -3713,6 +3716,9 @@ int main(int argc, char *argv[])
       else if (!strcmp(argv[i],"-nl")) {
          romeb->noLink = true;
       }
+      else if (!strcmp(argv[i],"-nosql")) {
+         romeb->sql = false;
+      }
       else if (!strcmp(argv[i],"-offline")) {
          romeb->offline = true;
       }
@@ -3757,18 +3763,35 @@ int main(int argc, char *argv[])
       cout << "Outputpath '" << romeb->outDir << "' not found." << endl;
       return 1;
    }
+#if defined( _MSC_VER )
    sprintf(path,"%s/src",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
    sprintf(path,"%s/src/tasks",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
    sprintf(path,"%s/src/framework",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
    sprintf(path,"%s/include/",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
    sprintf(path,"%s/include/tasks",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
    sprintf(path,"%s/include/framework",romeb->outDir);
-   _mkdir(path);
+   mkdir(path);
+#endif
+
+#if defined ( __linux__ )
+   sprintf(path,"%s/src",romeb->outDir);
+   mkdir(path,0711);
+   sprintf(path,"%s/src/tasks",romeb->outDir);
+   mkdir(path,0711);
+   sprintf(path,"%s/src/framework",romeb->outDir);
+   mkdir(path,0711);
+   sprintf(path,"%s/include/",romeb->outDir);
+   mkdir(path,0711);
+   sprintf(path,"%s/include/tasks",romeb->outDir);
+   mkdir(path,0711);
+   sprintf(path,"%s/include/framework",romeb->outDir);
+   mkdir(path,0711);
+#endif
 
    romeb->startBuilder(xmlFile);
 
@@ -3965,27 +3988,92 @@ void ROMEBuilder::WriteMakefile() {
 #if defined ( __linux__ )
    char shortcut[20];
    char mainprogname[20];
-   sprintf(buffer,"ROOTLIBS := $(shell root-config --libs)\n");
-   sprintf(buffer+strlen(buffer),"ROOTGLIBS := $(shell root-config --glibs)\n");
+   // libs
+   sprintf(buffer,"rootlibs := $(shell root-config --libs)\n");
+   sprintf(buffer+strlen(buffer),"rootglibs := $(shell root-config --glibs)\n");
+   sprintf(buffer+strlen(buffer),"xmllibs := -lxml2 -lz -liconv\n");
+   if (this->sql) 
+      sprintf(buffer+strlen(buffer),"sqllibs := -lmysql\n");
+   else
+      sprintf(buffer+strlen(buffer),"sqllibs := \n");
+   if (this->offline) 
+      sprintf(buffer+strlen(buffer),"midaslibs := -lmidas\n");
+   else
+      sprintf(buffer+strlen(buffer),"midaslibs := \n");
+   sprintf(buffer+strlen(buffer),"clibs := -lpthread -lHtml $(SYSLIBS)\n");
+   sprintf(buffer+strlen(buffer),"Libraries := $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"cfiles := $(wildcard *.cpp)\n");
-   sprintf(buffer+strlen(buffer),"romecfiles := $(wildcard $(ROMESYS)/src/ROME*.cpp)\n");
-   sprintf(buffer+strlen(buffer),"hfiles := $(wildcard *.h)\n");
-   sprintf(buffer+strlen(buffer),"romehfiles := $(wildcard $(ROMESYS)/include/ROME*.h)\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"flags = ");
+   // flags
+   sprintf(buffer+strlen(buffer),"flags := ");
    if (!this->offline) 
       sprintf(buffer+strlen(buffer)," -DHAVE_MIDAS");
    if (this->sql) 
       sprintf(buffer+strlen(buffer)," -DHAVE_SQL");
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"\n");
-   for (i=0;i<strlen(shortCut);i++) shortcut[i] = tolower(shortCut[i]);
-   shortcut[i] = 0;
-   for (i=0;i<strlen(mainProgName);i++) mainprogname[i] = tolower(mainProgName[i]);
-   mainprogname[i] = 0;
-   sprintf(buffer+strlen(buffer),"%s%s: $(cfiles) $(romecfiles) $(hfiles) $(romehfiles)\n",shortcut,mainprogname);
-   sprintf(buffer+strlen(buffer),"	g++ -o $@ $(cfiles) $(romecfiles) $(flags) -I$(ROOTSYS)/include/ -I$(ROMESYS)/include -I$(ROMESYS)/include/mysql/ -lmysql -lxml2 -lz -lpthread -lmidas -lHtml $(ROOTLIBS) $(SYSLIBS)\n");
+   // includes
+   sprintf(buffer+strlen(buffer),"Includes := -I$(ROMESYS)/include/ -I$(ROOTSYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
+   if (!this->offline) 
+      sprintf(buffer+strlen(buffer)," -I$(MIDASSYS)/include/");
+   if (this->sql) 
+      sprintf(buffer+strlen(buffer)," -I$(ROMESYS)/include/mysql/");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   // objects
+   sprintf(buffer+strlen(buffer),"objects :=");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfGetters[i]==0) continue;
+      sprintf(buffer+strlen(buffer)," obj/%s%s.obj",shortCut,folderName[i]);
+   }
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
+   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESQL.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
+   // all
+   sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
+   // make obj
+   sprintf(buffer+strlen(buffer),"obj:\n");
+	sprintf(buffer+strlen(buffer),"\t@if [ ! -d  obj ] ; then \\\n");
+	sprintf(buffer+strlen(buffer),"\t\techo \"Making directory obj\" ; \\\n");
+	sprintf(buffer+strlen(buffer),"\t\tmkdir obj; \\\n");
+	sprintf(buffer+strlen(buffer),"\tfi;\n");
+   // link
+   sprintf(buffer+strlen(buffer),"%s%s.exe: $(objects)\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"	g++ -o $@ $(objects) $(Libraries)\n\n",shortCut,mainProgName);
+   // compile
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfGetters[i]==0) continue;
+      sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
+      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut,folderName[i],shortCut,folderName[i]);
+   }
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut,taskName[i],shortCut,taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"obj/%sIO.obj: src/framework/%sIO.cpp\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%sIO.cpp -o obj/%sIO.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"obj/%sDict.obj: %sDict.cpp\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"obj/main.obj: src/framework/main.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
+
+   sprintf(buffer+strlen(buffer),"obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMEIO.obj: $(ROMESYS)/src/ROMEIO.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEIO.cpp -o obj/ROMEIO.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
+   sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
+   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
 #endif
    char makeFile[500];
 #if defined ( __linux__ )

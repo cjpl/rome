@@ -25,8 +25,6 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
-#include <float.h>
-#include <limits>
 #include "Riostream.h"
 
 #if defined HAVE_MIDAS

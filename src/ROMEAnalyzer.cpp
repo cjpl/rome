@@ -413,7 +413,7 @@ void *root_server_loop(void *arg)
 void ROMEAnalyzer::intToNDigitsChar(char *buffer,int numberOfDigits,int number)
 {
    for (int i=0;i<numberOfDigits;i++) 
-      buffer[i] = 48+(int)((number % (int)pow(10,numberOfDigits-i)) / (int)pow(10,numberOfDigits-i-1));
+      buffer[i] = 48+(int)((number % (int)pow(10.,numberOfDigits-i)) / (int)pow(10.,numberOfDigits-i-1));
    
    buffer[numberOfDigits] = 0;
 }

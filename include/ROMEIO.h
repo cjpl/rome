@@ -12,8 +12,10 @@
 #if defined HAVE_MIDAS
 #include <midas.h>
 #endif
+#if defined HAVE_SQL
 #ifndef __CINT__
   #include <ROMESQL.h>
+#endif
 #endif
 #include <Riostream.h>
 
@@ -78,8 +80,10 @@ protected:
    int*          fTreePosition;                    //! Array with tree read positions
    int*          fTreeNextSeqNumber;               //! Array with the trees next sequential number
 
+#if defined HAVE_SQL
 #ifndef __CINT__
    ROMESQL*   fSQL;                             //! Handle to SQL Class
+#endif
 #endif
 
 public:
