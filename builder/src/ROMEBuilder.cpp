@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.95  2005/01/20 09:25:37  sawada
+  Makefile for linux.
+
   Revision 1.94  2005/01/18 15:29:16  schneebeli_m
   std::string init
 
@@ -6147,7 +6150,6 @@ void ROMEBuilder::WriteMakefile() {
 
 #if defined ( __linux__ ) || defined ( __APPLE__ )
    buffer.Resize(0);
-   buffer.AppendFormatted("libpaths = \n");
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
@@ -6156,40 +6158,34 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("xmlcflags :=  $(shell xml2-config --cflags)\n");
    if (this->sql){
       buffer.AppendFormatted("sqllibs := $(shell mysql_config --libs)\n");
-      buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags)\n");
+      buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags) -DHAVE_SQL\n");
    }
    else{
       buffer.AppendFormatted("sqllibs := \n");
       buffer.AppendFormatted("sqlcflags := \n");
    }
    if (this->midas) {
-      buffer.AppendFormatted("midaslibs := -lmidas\n");
-      buffer.AppendFormatted("libpaths += -L$(MIDASSYS)/lib \n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/lib -lmidas\n");
+      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
    }
-   else
+   else{
       buffer.AppendFormatted("midaslibs := \n");
+      buffer.AppendFormatted("midascflags := \n");
+   }
    buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS)");
    if (haveFortranTask)
       buffer.AppendFormatted(" -lg2c");
-   buffer.AppendFormatted("\n");
 #if !defined( __APPLE__ )
-   buffer.AppendFormatted("clibs += -lutil\n");
+   buffer.AppendFormatted(" -lutil");
 #endif
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(libpaths) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(rootcflags) $(xmlcflags) $(sqlcflags)",shortcut.Data());
-   if (this->midas) 
-      buffer.AppendFormatted(" -DHAVE_MIDAS");
-   if (this->sql) 
-      buffer.AppendFormatted(" -DHAVE_SQL");
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("Flags := $(%suserflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
    // includes
-   buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
-   if (this->midas) 
-      buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
 #if defined( __APPLE__ )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("Includes += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
