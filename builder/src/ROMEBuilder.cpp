@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.74  2004/11/23 08:54:25  schneebeli_m
+  steering parameter hierarchy error removed
+
   Revision 1.73  2004/11/19 13:29:55  schneebeli_m
   added stuff for sample
 
@@ -1115,6 +1118,7 @@ bool ROMEBuilder::ReadXMLTask() {
          // read steering parameter
          steerName[numOfTask][0] = "Steering";
          steerParent[numOfTask][0] = -1;
+         actualSteerIndex = 0;
          recursiveSteerDepth = 0;
          if (!ReadXMLSteering(numOfTask)) 
             return false;
@@ -2108,7 +2112,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
       // subgroup
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterGroup")) {
          // set steering parameter group as parent for subsequent groups
-         steerParent[iTask][numOfSteering[iTask]+1] = recursiveSteerDepth;
+         steerParent[iTask][numOfSteering[iTask]+1] = actualSteerIndex;
+         actualSteerIndex = numOfSteering[iTask]+1;
          recursiveSteerDepth++;
          // read subgroup
          if (!ReadXMLSteering(iTask)) 
@@ -2123,48 +2128,49 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
             cout << "Terminating program." << endl;
             return false;
          }
+         actualSteerIndex = steerParent[iTask][actualSteerIndex];
          recursiveSteerDepth--;
          return true;
       }
       // group name
       if (type == 1 && !strcmp((const char*)name,"SPGroupName")) {
-         xml->GetValue(steerName[iTask][numOfSteering[iTask]],steerName[iTask][numOfSteering[iTask]]);
-         currentSteeringName = steerName[iTask][numOfSteering[iTask]];
+         xml->GetValue(steerName[iTask][actualSteerIndex],steerName[iTask][actualSteerIndex]);
+         currentSteeringName = steerName[iTask][actualSteerIndex];
          if (steerParent[iTask][numOfSteering[iTask]]!= -1) {
-            steerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]][numOfSteerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]]] = numOfSteering[iTask];
-            numOfSteerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]]++;
+            steerChildren[iTask][steerParent[iTask][actualSteerIndex]][numOfSteerChildren[iTask][steerParent[iTask][actualSteerIndex]]] = actualSteerIndex;
+            numOfSteerChildren[iTask][steerParent[iTask][actualSteerIndex]]++;
          }
          // output
          if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
-         if (makeOutput) steerName[iTask][numOfSteering[iTask]].WriteLine();
+         if (makeOutput) steerName[iTask][actualSteerIndex].WriteLine();
       }
       // steering parameter field
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterField")) {
          // include initialisation
          bool readName = false;
          bool readType = false;
-         steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
-         steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
-         steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
+         steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // steering parameter field name
             if (type == 1 && !strcmp((const char*)name,"SPFieldName")) {
                readName = true;
-               xml->GetValue(steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+               xml->GetValue(steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
                // output
                if (makeOutput) for (i=0;i<recursiveSteerDepth+1;i++) cout << "   ";
-               if (makeOutput) steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].WriteLine();
+               if (makeOutput) steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].WriteLine();
             }
             // steering parameter field type
             if (type == 1 && !strcmp((const char*)name,"SPFieldType")) {
                readType = true;
-               xml->GetValue(steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
-               if (steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] == "TString")
-                  steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "' '";
-               else if (steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] == "TRef")
-                  steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "NULL";
+               xml->GetValue(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString")
+                  steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "' '";
+               else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TRef")
+                  steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "NULL";
                else
                   steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "0";
             }
@@ -2180,13 +2186,13 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xml->GetValue(steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+               xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
-               xml->GetValue(steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
-               if (steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]][0]!='/') {
-                  steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].Insert(0,"// ");
+               xml->GetValue(steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][0]!='/') {
+                  steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Insert(0,"// ");
                }
             }
             // steering parameter field end
@@ -2194,14 +2200,14 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                break;
          }
          // check input
-         if (steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]=="") {
+         if (steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]=="") {
             cout << "A steering parameter field of task '" << taskName[iTask].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // count includes
-         numOfSteerFields[iTask][numOfSteering[iTask]]++;
-         if (numOfSteerFields[iTask][numOfSteering[iTask]]>=maxNumberOfSteering) {
+         numOfSteerFields[iTask][actualSteerIndex]++;
+         if (numOfSteerFields[iTask][actualSteerIndex]>=maxNumberOfSteering) {
             cout << "Maximal number of steering parameter fields in task '" << taskName[iTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
@@ -5634,6 +5640,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
                   if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
                   // initialisation
                   steerName[numOfTaskHierarchy][0] = "GlobalSteering";
+                  actualSteerIndex = 0;
                   recursiveSteerDepth = 0;
                   steerParent[numOfTaskHierarchy][0] = -1;
                   numOfSteering[numOfTaskHierarchy] = -1;

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.19  2004/11/23 08:54:25  schneebeli_m
+  steering parameter hierarchy error removed
+
   Revision 1.18  2004/11/16 16:14:00  schneebeli_m
   implemented task hierarchy
 
@@ -72,6 +75,7 @@ private:
    ROMEString parent[maxNumberOfTasks];
    int recursiveDepth;
    int recursiveSteerDepth;
+   int actualSteerIndex;
 
 // folders
    int numOfFolder;
