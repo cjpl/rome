@@ -1,7 +1,7 @@
 //// Author: Ryu Sawada
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// HGTMakeHistogram                                                          //
+// HGTMakeHistogram                                                           //
 //                                                                            //
 // Create and fill histograms at the begin of run                               
 // 
@@ -13,7 +13,7 @@
 //              ROMEBuilder.
 // 
 // This task contains the following histgrams :
-//    hAdc0
+//    hAdc
 //
 // The histograms are created and saved automaticaly by the task.
 //
@@ -47,7 +47,7 @@ void HGTMakeHistogram::Init()
    TRandom *rndm = new TRandom();
    int i;
    for(i=0;i<10000;i++){
-      FillhAdc0(rndm->Gaus(2000,200));
+      FillhAdc(rndm->Gaus(2000,200));
    }
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Fri Feb 25 18:43:17 2005
+<!-- created by ROME on Fri Feb 25 19:48:21 2005
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -32,8 +32,8 @@
                     <TaskName>MakeHistogram</TaskName>
                     <Active>true</Active>
                     <Histogram>
-                         <HistName>hAdc0</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName>hAdc</HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                </Task>
           </Tasks>
