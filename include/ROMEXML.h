@@ -10,10 +10,14 @@ class ROMEXML
 {
 protected:
    xmlTextReaderPtr reader;
-   xmlTextWriterPtr writer;
    xmlDocPtr doc;
    xmlXPathContextPtr xpathCtx; 
    xmlXPathObjectPtr xpathObj; 
+
+   // variables for "manual" implmentation of TextWriter
+   int hFile, xmlLevel; 
+   bool xmlElementIsOpen;
+   char *xmlStack;
 
 public:
    ROMEXML();
@@ -33,6 +37,7 @@ public:
    bool  GetValue(ROMEString& value,ROMEString& defaultValue);
    bool  GetValue(ROMEString& value,const char* defaultValue="");
    // write
+   void  xmlEncode(char *str, int size);
    bool  OpenFileForWrite(const char* file);
    bool  StartElement(const char* name);
    bool  EndElement();
