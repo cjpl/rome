@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2004/07/09 12:39:31  schneebeli
+  error in task generation
+
   Revision 1.13  2004/07/08 08:19:36  schneebeli
   write midas event header to folder
 
@@ -1170,7 +1173,7 @@ bool ROMEBuilder::WriteTaskCpp() {
 
          if (replaceBody) {
             sprintf(buffer,"\n\n#include %c%sT%s.h%c\n",34,shortCut,taskName[iTask],34);
-            sprintf(buffer,"#include <Riostream.h>\n");
+            sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
 
             sprintf(buffer+strlen(buffer),"\nClassImp(%sT%s)\n\n",shortCut,taskName[iTask]);
 
