@@ -44,11 +44,6 @@ void ROMETask::Exec(Option_t *option)
       ResetHisto();
       BeginOfRun();
    }
-   else if (!strcmp(fEventID,"all") || !strcmp(option,fEventID)) {
-      if (gShowTime) TimeStart();
-      Event();
-      if (gShowTime) TimeEnd();
-   }
    else if (!strcmp(option,gTaskEndOfRun)) {
       EndOfRun();
    }
@@ -57,6 +52,11 @@ void ROMETask::Exec(Option_t *option)
       if (gShowTime) {
          cout << "Task '" << fName << "' : run time = " << GetTime() << endl;
       }
+   }
+   else if (!strcmp(fEventID,"all") || !strcmp(option,fEventID)) {
+      if (gShowTime) TimeStart();
+      Event();
+      if (gShowTime) TimeEnd();
    }
 }
 

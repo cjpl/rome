@@ -44,8 +44,10 @@ public:
    bool ReplacePathName(char* path,char* name);
    bool ReplacePathValue(char* path,char* value);
    bool NewPathAttribute(char* path,char* name,char* value);
-   bool NewPathElement(char* path,char* name,char* value);
+   bool NewPathNextElement(char* path,char* name,char* value);
+   bool NewPathPrevElement(char* path,char* name,char* value);
    bool NewPathChildElement(char* path,char* name,char* value);
+   bool HasPathChildren(char* path);
    bool WritePathFile(char* file);
 };
 

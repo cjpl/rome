@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.27  2004/07/20 16:18:41  schneebeli
+  minor errors
+
   Revision 1.26  2004/07/19 13:32:22  schneebeli
   minor stuff
 
@@ -132,6 +135,7 @@ bool ROMEBuilder::ReadXMLFolder() {
          xml->GetAttribute("ArraySize",folderArray[numOfFolder]);
          xml->GetAttribute("Array",folderArray[numOfFolder]);
          // read data base flag
+         strcpy(tmp,"");
          xml->GetAttribute("DataBase",tmp);
          if (!strcmp(tmp,"yes")) 
             dataBase[numOfFolder] = true;
@@ -531,7 +535,7 @@ bool ROMEBuilder::WriteFolderH() {
          if (!strcmp(valueArray[iFold][i],"0"))
             sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
          else {
-            sprintf(buffer+strlen(buffer),"for (int i=0;i<%s;i++) f%s[i] = %s; ",valueArray[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+            sprintf(buffer+strlen(buffer),"for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i],i,valueName[iFold][i],i,valueInit[iFold][i]);
          }
       }
       sprintf(buffer+strlen(buffer),"fModified = false; ");
@@ -603,7 +607,7 @@ bool ROMEBuilder::WriteFolderH() {
             sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueInit[iFold][i]);
          }
          else {
-            sprintf(buffer+strlen(buffer),"for (int i=0;i<%s;i++) f%s[i] = %s; ",valueArray[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+            sprintf(buffer+strlen(buffer),"for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i],i,valueName[iFold][i],i,valueInit[iFold][i]);
          }
       }
       sprintf(buffer+strlen(buffer),"fModified = false; ");
@@ -2386,16 +2390,25 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"      }\n");
    // Paths
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
+   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetInputDir(value);\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
+   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOutputDir(value);\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
+   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetDataBaseDir(value);\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Tasks
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Tasks\")) {\n");
@@ -3084,7 +3097,7 @@ bool ROMEBuilder::WriteIOCpp() {
    // SQL Init
    sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
+   sprintf(buffer+strlen(buffer),"#ifdef HAVE_SQL\n");
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
       sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
@@ -3102,7 +3115,7 @@ bool ROMEBuilder::WriteIOCpp() {
    char buf[200];
    sprintf(buffer+strlen(buffer),"bool %sIO::ReadSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
+   sprintf(buffer+strlen(buffer),"#ifdef HAVE_SQL\n");
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
       sprintf(buffer+strlen(buffer),"   int i;\n");
@@ -3252,22 +3265,26 @@ bool ROMEBuilder::WriteIOCpp() {
          sprintf(buffer+strlen(buffer),"         return;\n");
          sprintf(buffer+strlen(buffer),"      sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
          sprintf(buffer+strlen(buffer),"      if (!xml->ExistPath(path)) {\n");
-         sprintf(buffer+strlen(buffer),"         bool exist = true;\n");
-         sprintf(buffer+strlen(buffer),"         n = this->GetCurrentRunNumber();\n");
-         sprintf(buffer+strlen(buffer),"         while (!xml->ExistPath(path)) {\n");
-         sprintf(buffer+strlen(buffer),"            if (n==0) {\n");
-         sprintf(buffer+strlen(buffer),"               exist = false;\n");
-         sprintf(buffer+strlen(buffer),"               break;\n");
-         sprintf(buffer+strlen(buffer),"            }\n");
-         sprintf(buffer+strlen(buffer),"            sprintf(path,\"//RunTable/Run_%%05d\",n--);\n");
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         if (exist) {\n");
-         sprintf(buffer+strlen(buffer),"            sprintf(name,\"Run_%%s\",runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"            xml->NewPathElement(path,name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"         sprintf(name,\"Run_%%s\",runNumberString);\n");
+         sprintf(buffer+strlen(buffer),"         if (!xml->HasPathChildren(\"//RunTable\")) {\n");
+         sprintf(buffer+strlen(buffer),"            xml->NewPathChildElement(\"//RunTable\",name,NULL);\n");
          sprintf(buffer+strlen(buffer),"         }\n");
          sprintf(buffer+strlen(buffer),"         else {\n");
-         sprintf(buffer+strlen(buffer),"            sprintf(name,\"Run_%%s\",runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"            xml->NewPathChildElement(\"//RunTable\",name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"            bool exist = true;\n");
+         sprintf(buffer+strlen(buffer),"            n = this->GetCurrentRunNumber();\n");
+         sprintf(buffer+strlen(buffer),"            while (!xml->ExistPath(path)) {\n");
+         sprintf(buffer+strlen(buffer),"               if (n==0) {\n");
+         sprintf(buffer+strlen(buffer),"                  exist = false;\n");
+         sprintf(buffer+strlen(buffer),"                  break;\n");
+         sprintf(buffer+strlen(buffer),"               }\n");
+         sprintf(buffer+strlen(buffer),"               sprintf(path,\"//RunTable/Run_%%05d\",n--);\n");
+         sprintf(buffer+strlen(buffer),"            }\n");
+         sprintf(buffer+strlen(buffer),"            if (exist) {\n");
+         sprintf(buffer+strlen(buffer),"               xml->NewPathNextElement(path,name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"            }\n");
+         sprintf(buffer+strlen(buffer),"            else {\n");
+         sprintf(buffer+strlen(buffer),"               xml->NewPathPrevElement(path,name,NULL);\n");
+         sprintf(buffer+strlen(buffer),"            }\n");
          sprintf(buffer+strlen(buffer),"         }\n");
          sprintf(buffer+strlen(buffer),"         sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
          sprintf(buffer+strlen(buffer),"         sprintf(dbFile,\"db%s%%s_0.xml\",runNumberString);\n",folderName[i]);

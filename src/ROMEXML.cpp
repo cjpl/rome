@@ -255,7 +255,7 @@ bool ROMEXML::NewPathAttribute(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::NewPathElement(char* path,char* name,char* value) {
+bool ROMEXML::NewPathNextElement(char* path,char* name,char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -269,7 +269,7 @@ bool ROMEXML::NewPathElement(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
+bool ROMEXML::NewPathPrevElement(char* path,char* name,char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -279,7 +279,31 @@ bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
    }
    xmlNodePtr node = xmlNewNode(NULL,(xmlChar*)name);
    xmlNodeSetContent(node,(xmlChar*)value);
-   xmlAddPrevSibling(xpathObj->nodesetval->nodeTab[0]->children,node);
+   xmlAddPrevSibling(xpathObj->nodesetval->nodeTab[0],node);
+   return true;
+}
+
+bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return false;
+   }
+   xmlNewChild(xpathObj->nodesetval->nodeTab[0],NULL,(xmlChar*)name,(xmlChar*)value);
+   return true;
+}
+
+bool ROMEXML::HasPathChildren(char* path) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return false;
+   }
+   if (xpathObj->nodesetval->nodeTab[0]->children==NULL) return false;
    return true;
 }
 
