@@ -6,6 +6,11 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.12  2004/11/18 15:23:23  sawada
+//  Modify handling the order of array.
+//  Enable inverse order.
+//  Enable to send sql query from user tasks.
+//
 //  Revision 1.11  2004/11/16 18:53:44  sawada
 //  SQL Write
 //
@@ -44,6 +49,12 @@ bool ROMESQL::Connect(const char *server,const char *user,const char *passwd,con
       printf("Could not connect to the data base '%s' : Error: %s\n",database,mysql_error(&mysql));
       return false;
    }
+   return true;
+}
+
+bool ROMESQL::DisConnect()
+{
+   mysql_close(&mysql);
    return true;
 }
 

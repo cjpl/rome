@@ -2,6 +2,11 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2004/11/18 15:23:23  sawada
+  Modify handling the order of array.
+  Enable inverse order.
+  Enable to send sql query from user tasks.
+
   Revision 1.7  2004/11/16 12:11:06  sawada
   SQL Init,Read
 
@@ -37,6 +42,7 @@ public:
    ROMESQL();
    ~ROMESQL();
    bool Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
+   bool DisConnect();
    bool CreateDataBase(char* database);
    bool DeleteDataBase(char* database);
    bool CreateTable(char* table,char* fields);
