@@ -1,7 +1,7 @@
 //// Author: Ryu Sawada
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// SBTTab1                                                                    //
+// SBTTab2                                                                    //
 //                                                                            //
 // 
 // 
@@ -10,35 +10,24 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "include/tabs/SBTTab1.h"
+#include "include/tabs/SBTTab2.h"
 #include "include/monitor/SBWindow.h"
-#include <TTimeStamp.h>
 
-ClassImp(SBTTab1)
+ClassImp(SBTTab2)
 
-void SBTTab1::Init()
+void SBTTab2::Init()
 {
-   fLine = new TGHorizontal3DLine(this,500);
-   AddFrame(fLine, new TGLayoutHints(kLHintsTop));
 }
 
-void SBTTab1::TabSelected()
+void SBTTab2::TabSelected()
 {
-   Int_t parts[]={15, 15, 23, 47};
+   Int_t parts[]={15,15};
    gWindow->GetStatusBar()->SetParts(parts,sizeof(parts)/sizeof(Int_t));
-   //Fixed text
-   gWindow->GetStatusBar()->SetText("Fixed Text",0);
-   //Program name
-   gWindow->GetStatusBar()->SetText(gMonitor->GetProgramName(),1);
-   //Steering parameter
-   gWindow->GetStatusBar()->SetText(GetSP()->Gettext(),2);
-   // Time
-   TTimeStamp ts;
-   ts.Set();
-   gWindow->GetStatusBar()->SetText(ts.AsString("s"),3);
+   gWindow->GetStatusBar()->SetText("Tab2-1",0);
+   gWindow->GetStatusBar()->SetText("Tab2-2",1);
 }
 
-void SBTTab1::TabUnSelected()
+void SBTTab2::TabUnSelected()
 {
    gWindow->ClearStatusBar();
 }
