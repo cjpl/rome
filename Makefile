@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.16  2005/03/23 09:12:21  schneebeli_m
+#  libxml replaced by mxml
+#
 #  Revision 1.15  2005/02/21 23:07:28  sawada
 #  not compile when builder is up to data.
 #
@@ -30,8 +33,8 @@
 #
 #####################################################################
 #
-INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags) $(shell xml2-config --cflags)
-LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs)
+INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags)
+LIBRARY := $(shell root-config --libs)
 
 
 OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
@@ -58,8 +61,8 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
-	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp \
+$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/ROMEString.cpp
+	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 
 clean:
