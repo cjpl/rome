@@ -4,10 +4,13 @@
 //  ROMEXML
 //
 //  XML file access.
+//
 //  $Log$
+//  Revision 1.9  2004/09/16 23:50:47  midas
+//  Indent five spaces per level in XML file
+//
 //  Revision 1.8  2004/09/16 23:48:25  midas
 //  Added Log in header
-//
 //
 //////////////////////////////////////////////////////////////////////////
 #if defined ( __linux__ )
@@ -245,7 +248,7 @@ bool ROMEXML::StartElement(const char* name)
 
    line[0] = 0;
    for (i=0 ; i<xmlLevel ; i++)
-      strlcat(line, "  ", sizeof(line));
+      strlcat(line, "     ", sizeof(line));
    strlcat(line, "<", sizeof(line));
    strcpy(name_enc, name);
    xmlEncode(name_enc, sizeof(name_enc));
@@ -281,7 +284,7 @@ bool ROMEXML::EndElement() {
 
    line[0] = 0;
    for (i=0 ; i<xmlLevel ; i++)
-      strlcat(line, "  ", sizeof(line));
+      strlcat(line, "     ", sizeof(line));
    strlcat(line, "</", sizeof(line));
    strlcat(line, xmlStack+256*xmlLevel, sizeof(line));
    strlcat(line, ">\n", sizeof(line));
