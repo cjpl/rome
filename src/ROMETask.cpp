@@ -12,12 +12,16 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.15  2004/10/05 07:52:44  schneebeli_m
+//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+//
 //  Revision 1.14  2004/09/25 01:34:48  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETask.h>
+#include "ROME.h"
 #include "Riostream.h"
 
 ClassImp(ROMETask)

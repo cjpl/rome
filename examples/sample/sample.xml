@@ -1,27 +1,27 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Matthias Schneebeli (PSI) -->
-<XYZ>
+<Experiment ShortCut="XYZ">
 	<Folder>
-		<SubFolder FolderName="PMTData" Array="257">
+		<SubFolder Name="PMTData" Array="257">
 			<Fields>
-				<ADC Type="Float_t" Initialisation="0" Comment="// ADC Data"/>
+				<Field Name="ADC" Type="Float_t" Comment="// ADC Data"/>
 			</Fields>
 		</SubFolder>
-		<SubFolder FolderName="Calib" Array="257" DataBase="yes">
+		<SubFolder Name="Calib" Array="257" DataBase="yes">
 			<Fields>
-				<ADCPedestal Type="Float_t" Initialisation="0" Comment="// ADC Pedestal"/>
+				<Field Name="ADCPedestal" Type="Float_t" Comment="// ADC Pedestal"/>
 			</Fields>
 		</SubFolder>
-		<SubFolder FolderName="PMTInfo" Array="257" DataBase="yes">
+		<SubFolder Name="PMTInfo" Array="257" DataBase="yes">
 			<Fields>
-				<PMID Type="Int_t" Initialisation="0" Comment="// Photo Multiplier ID"/>
-				<ADCID Type="Int_t" Initialisation="0" Comment="// ADC Number"/>
+				<Field Name="PMID" Type="Int_t" Comment="// Photo Multiplier ID"/>
+				<Field Name="ADCID" Type="Int_t" Comment="// ADC Number"/>
 			</Fields>
 		</SubFolder>
-		<SubFolder FolderName="Trigger">
+		<SubFolder Name="Trigger">
 			<Fields>
-				<ID Type="Int_t" Initialisation="0" Comment="// event ID"/>
-				<Eventnumber Type="Int_t" Initialisation="0" Comment="// Event Number"/>
+				<Field Name="ID" Type="Int_t" Comment="// event ID"/>
+				<Field Name="Eventnumber" Type="Int_t" Comment="// Event Number"/>
 			</Fields>
 		</SubFolder>
 	</Folder>
@@ -29,7 +29,7 @@
 		<SubTask Name="ReadMidas"/>
 		<SubTask Name="ADCCalib">
 			<Histos>
-				<ADCHisto Type="TH1F" ArraySize="257" FolderName="adc" Title="ADC" NumberOfBinsX="500" XMin="0" XMax="500"/>
+				<Histo Name="ADCHisto" Type="TH1F" ArraySize="257" FolderName="adc" Title="ADC" NumberOfBinsX="500" XMin="0" XMax="500"/>
 			</Histos>
 		</SubTask>
 	</Task>
@@ -39,6 +39,6 @@
 		</Tree>
 	</Trees>
 	<MidasBanks>
-		<ADC0 Type="unsigned short"/>
+		<Bank Name="ADC0" Type="unsigned short"/>
 	</MidasBanks>
-</XYZ>
+</Experiment>

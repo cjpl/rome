@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.24  2004/10/05 07:52:44  schneebeli_m
+  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+
   Revision 1.23  2004/10/01 13:11:33  schneebeli_m
   Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
 
@@ -28,12 +31,28 @@
 #include <TTree.h>
 #include <TROOT.h>
 #include <TFolder.h>
-#include <ROMEStatic.h>
+#include "ROME.h"
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
 #if defined HAVE_MIDAS
 #include <midas.h>
+#else
+typedef struct {
+   unsigned long int data_size;
+   unsigned long int flags;
+} BANK_HEADER;
+typedef struct {
+   char name[4];
+   unsigned short int type;
+   unsigned short int data_size;
+} BANK;
+
+typedef struct {
+   char name[4];
+   unsigned long int type;
+   unsigned long int data_size;
+} BANK32;
 #endif
 #if defined HAVE_SQL
 #include <ROMESQL.h>
@@ -265,7 +284,12 @@ public:
    virtual bool ReadSingleDataBaseFolders() = 0;
    virtual bool ReadArrayDataBaseFolders() = 0;
    virtual void InitMidasBanks() = 0;
-private:
+
+   int ss_getchar(bool reset);
+   Bool_t ss_kbhit();
+   int ss_sleep(int millisec);
+
+protected:
 
    void CreateHistoFolders();
 
@@ -277,6 +301,11 @@ private:
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
+
+#ifndef HAVE_MIDAS
+   bool bk_is32(void *event);
+   int bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata);
+#endif
 
    ClassDef(ROMEAnalyzer,0)
 };

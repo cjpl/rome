@@ -2,6 +2,9 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2004/10/05 07:52:44  schneebeli_m
+  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+
   Revision 1.5  2004/09/30 13:08:21  schneebeli_m
   ...
 
@@ -14,7 +17,8 @@
 
 #include <TString.h>
 #if defined ( _MSC_VER )
-#include <winsock.h>
+#include <Windows4root.h>
+//typedef UINT_PTR        SOCKET;
 #endif
 #include <mysql.h>
 

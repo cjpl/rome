@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.3  2004/10/05 07:52:44  schneebeli_m
+//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+//
 //  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
 //  ...
 //
@@ -15,7 +18,6 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>
-#include <ROMEStatic.h>
 #include <TObjString.h>
 
 #include <ROMESQLDataBase.h>
@@ -41,7 +43,7 @@ int ROMESQLDataBase::DecodePath(char *path,char *start_id_extension,char **table
   int   maxdepth;
   transition_depth = -1;
   do{
-    strcpy(table_name[depth],ROMEStatic::strtok_x(pnext1,"/",&pnext1));
+    strcpy(table_name[depth],strtok_x(pnext1,"/",&pnext1));
     if(table_name[depth][0] == '('){
       transition_depth = depth;
       strcpy(group_name,&table_name[depth][1]);  
@@ -51,7 +53,7 @@ int ROMESQLDataBase::DecodePath(char *path,char *start_id_extension,char **table
     pnext2 = table_name[depth];    
     if(strchr(pnext2,'|')){
       do{
-	strcpy(table_name[depth],ROMEStatic::strtok_x(pnext2,"|",&pnext2));
+	strcpy(table_name[depth],strtok_x(pnext2,"|",&pnext2));
 	if(table_name[depth][0] == '('){
           transition_depth = depth;
 	  strcpy(group_name,&table_name[depth][1]);  
@@ -71,7 +73,7 @@ int ROMESQLDataBase::DecodePath(char *path,char *start_id_extension,char **table
   strcpy(id_extension[0],start_id_extension);
   //get field name
   pnext1=table_name[maxdepth];
-  ROMEStatic::strtok_x(pnext1,".",&pnext1);
+  strtok_x(pnext1,".",&pnext1);
   strcpy(field_name,pnext1);
 
   return maxdepth;
@@ -147,15 +149,15 @@ void ROMESQLDataBase::Read(TObjArray *values,const char *path, int start_id,int 
          pnext1 = fSQL->GetField(0);
 //	cout<<"OK"<<endl;	
 	//decode group definition
-	strcpy(group_definition[0],ROMEStatic::strtok_x(pnext1,":",&pnext1)); //table list
-	strcpy(group_definition[1],ROMEStatic::strtok_x(pnext1,":",&pnext1)); //condition
+	strcpy(group_definition[0],strtok_x(pnext1,":",&pnext1)); //table list
+	strcpy(group_definition[1],strtok_x(pnext1,":",&pnext1)); //condition
 	strcpy(group_definition[2],pnext1);                       //order
 	
 	//decode menber list.    
 	nentry=0;
 	pnext1=group_definition[0];
 	do{
-	  strcpy(entry[nentry],ROMEStatic::strtok_x(pnext1," \t,:",&pnext1));
+	  strcpy(entry[nentry],strtok_x(pnext1," \t,:",&pnext1));
 	  nentry++;
 	}while(pnext1);
       
@@ -245,7 +247,7 @@ void ROMESQLDataBase::Write(const char *path,TObjArray* values) {}
 
   pnext1 = sqlconstraint;
   while(pnext1){
-    strcpy(constraint_element[nconstraint],ROMEStatic::strtok_x(pnext1,",",&pnext1));
+    strcpy(constraint_element[nconstraint],strtok_x(pnext1,",",&pnext1));
     nconstraint++;
   }    
   
@@ -306,3 +308,10 @@ void ROMESQLDataBase::Write(const char *path,TObjArray* values) {}
   return 0;
 }
 */
+char* ROMESQLDataBase::strtok_x(char *str,char* sub,char** tail) {
+   int l = strlen(str);
+   char* start = strtok(str,sub);
+   *tail = str+strlen(str)+1;
+   if (*tail>str+l) *tail = NULL;
+   return start;
+}

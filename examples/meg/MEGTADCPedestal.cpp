@@ -99,14 +99,14 @@ void MEGTADCPedestal::EndOfRun()
 
    char runNumber[6];
 
-   TCanvas *c1 = new TCanvas(false);
+//   TCanvas *c1 = new TCanvas(false);
 
    TStyle *mystyle = new TStyle("mystyle","");
    mystyle->cd();
    mystyle->SetOptFit(1);
    if (!gAnalyzer->isBatchMode()) {
-      c1 = new TCanvas("c1");
-      c1->cd();
+//      c1 = new TCanvas("c1");
+//      c1->cd();
    }
    TF1 *g1=new TF1("g1","gaus");//fit function
    TF1 *g2=new TF1("g2","pol1");//fit function
@@ -136,7 +136,7 @@ void MEGTADCPedestal::EndOfRun()
 	      hist->GetXaxis()->SetRange(hist->GetXaxis()->FindBin(xmin),
 		         hist->GetXaxis()->FindBin(xmax));
          if (!gAnalyzer->isBatchMode()) {
-	         hist->Draw();
+//	         hist->Draw();
 //	         g1->Draw("same");
 //            c1->Update();
          }
@@ -152,12 +152,12 @@ void MEGTADCPedestal::EndOfRun()
    for(j=0;j<nLXePMT;j++){
       pspread->Fill(spedestal[j]);
    }
-   if (!gAnalyzer->isBatchMode()) {
+/*   if (!gAnalyzer->isBatchMode()) {
       pspread->Draw();
       c1->SetLogy(1);
       c1->Update();
    }
-
+*/
    delete pedestal;
    delete spedestal;
    delete espedestal;

@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.3  2004/10/05 07:52:44  schneebeli_m
+//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+//
 //  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
 //  ...
 //
@@ -15,9 +18,9 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>
-#include <ROMEStatic.h>
 #include <TObjString.h>
 
+#include <ROMEAnalyzer.h>
 #include <ROMEXMLDataBase.h>
 
 ROMEXMLDataBase::ROMEXMLDataBase() {
@@ -38,8 +41,8 @@ bool ROMEXMLDataBase::Init(const char* path,const char* runTableName) {
       cout << "Do you like the framework to generate a new xml database ([y]/n) ? ";
       char answer = 0;
       while (answer==0) {
-         while (ROMEStatic::ss_kbhit()) {
-            answer = ROMEStatic::ss_getchar(0);
+         while (gROME->ss_kbhit()) {
+            answer = gROME->ss_getchar(0);
          }
       }
       if (answer!='n') {

@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.9  2004/10/05 07:52:44  schneebeli_m
+//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+//
 //  Revision 1.8  2004/09/30 13:08:21  schneebeli_m
 //  ...
 //
@@ -20,7 +23,6 @@
 #include <iomanip>
 #include <string.h>
 #include <ROMESQL.h>
-#include <ROMEStatic.h>
 
 ROMESQL::ROMESQL() {
    mysql_init(&mysql);

@@ -47,7 +47,6 @@
 
 #include <TFile.h>
 #include <ROME.h>
-#include <ROMEStatic.h>
 #include <include/tasks/MEGTReadMidas.h>
 #include <Riostream.h>
 
@@ -61,9 +60,20 @@ void MEGTReadMidas::Init()
 void MEGTReadMidas::BeginOfRun()
 {
 }
-
+int ii=0;
 void MEGTReadMidas::Event()
 {
+/*   ii++;
+   gAnalyzer->GetTestAt(ii%2)->SetTestAt(0,100);
+   gAnalyzer->GetTestAt(ii%2)->SetTestAt(1,200);
+   gAnalyzer->GetTestAt(ii%2)->SetTestAt(2,300);
+   gAnalyzer->GetTestAt(ii%2)->SetTestAt(3,400);
+*/
+/*   gAnalyzer->GetCMPMTDataAt(0)->SetADC0Data(123);
+   gAnalyzer->GetTestAt(0)->Setref(gAnalyzer->GetCMPMTDataAt(0));
+   cout << gAnalyzer->GetCMPMTDataAt(0)->GetADC0Data() << endl;
+   cout << ((MEGCMPMTData*)gAnalyzer->GetTestAt(0)->Getref()->GetObject())->GetADC0Data() << endl<<endl;
+*/
    // Read Midas Banks and fill theme to folder
    float invalid = gAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
 

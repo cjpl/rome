@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2004/10/05 07:52:44  schneebeli_m
+  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+
   Revision 1.13  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -44,11 +47,12 @@ private:
    ROMEXML* xml;
 
    ROMEString shortCut;
+   ROMEString experimentName;
 
 // folders
    int numOfFolder;
    int numOfValue[maxNumberOfFolders];
-   int numOfFolderInclude[maxNumberOfTasks];
+   int numOfFolderInclude[maxNumberOfFolders];
 
    ROMEString folderName[maxNumberOfFolders];
    ROMEString folderDescription[maxNumberOfFolders];
@@ -57,14 +61,13 @@ private:
    ROMEString folderArray[maxNumberOfFolders];
    ROMEString folderAuthor[maxNumberOfFolders];
    ROMEString folderVersion[maxNumberOfFolders];
-   ROMEString folderInclude[maxNumberOfTasks][maxNumberOfInclude];
-   bool  folderLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
+   ROMEString folderInclude[maxNumberOfFolders][maxNumberOfInclude];
+   bool  folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
    bool folderDataBase[maxNumberOfFolders];
    bool folderUserCode[maxNumberOfFolders];
 
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString valueRef[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueComment[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueDataBasePath[maxNumberOfFolders][maxNumberOfValues];

@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2004/10/05 07:52:44  schneebeli_m
+  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+
   Revision 1.2  2004/09/30 13:08:21  schneebeli_m
   ...
 
@@ -34,6 +37,7 @@ public:
    char*  GetDescription() { return "SQL data base using the file system to store tables"; }
 protected:
    int    DecodePath(char *path,char *start_id_extension,char **table_name,char **id_extension,int  &transition_depth,char *group_name,char *field_name);
+   char*  strtok_x(char *str,char* sub,char** tail);
 };
 
 #endif   // ROMESQLDataBase_H

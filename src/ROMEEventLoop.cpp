@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.20  2004/10/05 07:52:44  schneebeli_m
+//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+//
 //  Revision 1.19  2004/10/01 14:33:29  schneebeli_m
 //  Fixed some tree file problems
 //
@@ -33,6 +36,7 @@
 #include <fcntl.h>
 #include <time.h>
 
+#include "ROME.h"
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
 
@@ -500,7 +504,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
    Statistics *stat = gROME->GetTriggerStatistics();
    
    fEventStatus = kAnalyze;
-   this->CleanUpFolders();
+   this->ResetFolders();
    int timeStamp = 0;
 
    if (gROME->IsDontReadNextEvent()) {
@@ -571,6 +575,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          else {
             n = read(fMidasFileHandle, pevent+1, pevent->data_size);
             if (n != (int) pevent->data_size) readError = true;
+            if ((int) (pevent+1)->data_size <= 0) readError = true;
          }
       }
       if (readError) {
@@ -637,6 +642,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
 
 bool ROMEEventLoop::WriteEvent() {
    // Writes the event. Called after the Event tasks.
+   this->CleanUpFolders();
    fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
    this->FillTrees();
    return true;
@@ -698,8 +704,8 @@ bool ROMEEventLoop::UserInput()
       CheckLineToProcess();
 
       interpreter = false;
-      while (ROMEStatic::ss_kbhit()) {
-         char ch = ROMEStatic::ss_getchar(0);
+      while (gROME->ss_kbhit()) {
+         char ch = gROME->ss_getchar(0);
          if (ch == -1) {
             ch = getchar();
          }

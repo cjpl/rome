@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Thu Sep 30 10:31:28 2004
+<!-- created by ROME on Tue Oct 05 09:49:55 2004
  -->
 <Configuration>
-     <Modes AnalyzingMode="offline" OnlineHost="" OnlineExperiment="" InputDataFormat="midas" BatchMode="no" ShowSplashScreen="no" DataBaseMode="xml"/>
+     <Modes AnalyzingMode="offline" OnlineHost="megonln01" OnlineExperiment="meglp" InputDataFormat="midas" BatchMode="no" ShowSplashScreen="yes" DataBaseMode="xml"/>
      <RunNumbers Numbers="6625"/>
      <EventNumbers Numbers=""/>
      <Paths>
@@ -39,6 +39,7 @@
           <CMPMTData Read="no" Write="no"/>
           <CMHit Read="no" Write="no"/>
           <Trigger Read="no" Write="no"/>
+          <Test Read="no" Write="no"/>
      </Trees>
      <GeneralSteeringParameters>
           <InvalidValue>-1000.000000</InvalidValue>

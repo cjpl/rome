@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.52  2004/10/05 07:52:44  schneebeli_m
+  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
+
   Revision 1.51  2004/10/01 13:11:33  schneebeli_m
   Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
 
@@ -188,6 +191,7 @@ bool ROMEBuilder::ReadXMLFolder() {
             return false;
          }
          // default initialisation
+         numOfFolderInclude[numOfFolder] = 0;
          folderAuthor[numOfFolder] = mainAuthor;
          folderVersion[numOfFolder] = "1";
          folderDescription[numOfFolder] = "";
@@ -246,12 +250,19 @@ bool ROMEBuilder::ReadXMLFolder() {
             xml->GetAttribute("Text",folderDescription[numOfFolder],"");
          }
          // includes
-         else if (!strcmp((const char*)name,"Include")) {
+         else if (!strcmp((const char*)name,"Includes")) {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
-               if (type == 1) {
-                  folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] = (char*)name;
+               if (type == 1 && !strcmp((const char*)name,"Include")) {
+                  // include name
+                  xml->GetAttribute("Name",folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]],"");
+                  if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]=="") {
+                     cout << "An Include of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
+                  // include type
                   folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
                   xml->GetAttribute("Type",tmp,"global");
                   if (tmp=="local") 
@@ -263,7 +274,7 @@ bool ROMEBuilder::ReadXMLFolder() {
                      return false;
                   }
                }
-               if (type == 15 && !strcmp((const char*)name,"Include")) {
+               if (type == 15 && !strcmp((const char*)name,"Includes")) {
                   break;
                }
             }
@@ -273,21 +284,26 @@ bool ROMEBuilder::ReadXMLFolder() {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
-               if (type == 1) {
+               if (type == 1 && !strcmp((const char*)name,"Field")) {
                   // field name
-                  valueName[numOfFolder][numOfValue[numOfFolder]] = name;
-                  // field type
-                  xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]],"");
-                  if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
-                     cout << "Field '" << valueType[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
+                  xml->GetAttribute("Name",valueName[numOfFolder][numOfValue[numOfFolder]],"");
+                  if (valueName[numOfFolder][numOfValue[numOfFolder]]=="") {
+                     cout << "A Field of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  // field reference flag
-                  xml->GetAttribute("Reference",valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
+                  // field type
+                  xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]],"");
+                  if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
+                     cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // field initialisation
                   if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
                      xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
+                  else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
+                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"NULL");
                   else
                      xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
                   xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
@@ -494,13 +510,6 @@ bool ROMEBuilder::WriteFolderH() {
 
       buffer.AppendFormatted("#include <TObject.h>\n");
 
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (valueRef[iFold][i]=="yes") {
-            buffer.AppendFormatted("#include <TRef.h>\n");
-            break;
-         }
-      }
-
       for (i=0;i<numOfFolderInclude[iFold];i++) {
          if (folderLocalFlag[iFold][i]) {
             buffer.AppendFormatted("#include \"%s\"\n",folderInclude[iFold][i].Data());
@@ -548,16 +557,12 @@ bool ROMEBuilder::WriteFolderH() {
          if (nameLen<nameLenT) nameLen = nameLenT;
       }
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueRef[iFold][i]=="yes") {
-            format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
-            buffer.AppendFormatted((char*)format.Data(),"TRef",valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
-         }
-         else if (valueArray[iFold][i]!="0") {
-            format.SetFormatted("   %%-%ds f%%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i].Data(),nameLen-valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
+         if (valueArray[iFold][i]!="0") {
+            format.SetFormatted("   %%-%ds %%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i].Data(),nameLen-valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
             buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
          else {
-            format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
+            format.SetFormatted("   %%-%ds %%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
             buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
       }
@@ -575,17 +580,23 @@ bool ROMEBuilder::WriteFolderH() {
       else
          buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0")
-            buffer.AppendFormatted("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+         if (valueArray[iFold][i]=="0") {
+            if (valueType[iFold][i]=="TRef") {
+               buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            }
+            else {
+               buffer.AppendFormatted("%s %s_value=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            }
+         }
       }
       buffer.Resize(buffer.Length()-1);
       buffer.AppendFormatted(" )\n");
       buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueArray[iFold][i]=="0")
-            buffer.AppendFormatted("f%s = %s; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          else {
-            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
+            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
       buffer.AppendFormatted("fModified = false; ");
@@ -595,17 +606,25 @@ bool ROMEBuilder::WriteFolderH() {
       // Getters
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-valueName[iFold][i].Length();
-         if (valueRef[iFold][i]=="yes") {
-            format.SetFormatted("   %%-%ds Get%%s()%%%ds { return (%%s)f%%s.GetObject();%%%ds };\n",typeLen,lb,lb+(typeLen-valueType[iFold][i].Length()));
-            buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
-         }
-         else if (valueArray[iFold][i]!="0") {
-            format.SetFormatted("   %%-%ds Get%%sAt(int index)%%%ds { return f%%s[index];%%%ds };\n",typeLen,lb,lb);
-            buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+         if (valueArray[iFold][i]!="0") {
+            if (valueType[iFold][i]=="TRef") {
+               format.SetFormatted("   %%-%ds Get%%sAt(int index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else {
+               format.SetFormatted("   %%-%ds Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
          }
          else {
-            format.SetFormatted("   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,lb,lb);
-            buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            if (valueType[iFold][i]=="TRef") {
+               format.SetFormatted("   %%-%ds Get%%s()%%%ds { return &%%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else {
+               format.SetFormatted("   %%-%ds Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
          }
       }
       buffer.AppendFormatted("\n");
@@ -618,12 +637,24 @@ bool ROMEBuilder::WriteFolderH() {
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueArray[iFold][i]=="0") {
-            format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-            buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            if (valueType[iFold][i]=="TRef") {
+               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else {
+               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
          }
          else {
-            format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s%%%ds) { f%%s[index]%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-            buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            if (valueType[iFold][i]=="TRef") {
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else {
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
          }
       }
       buffer.AppendFormatted("\n");
@@ -636,7 +667,12 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueArray[iFold][i]=="0") {
-            buffer.AppendFormatted("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            if (valueType[iFold][i]=="TRef") {
+               buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            }
+            else {
+               buffer.AppendFormatted("%s %s_value=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            }
          }
       }
       buffer.Resize(buffer.Length()-1);
@@ -644,7 +680,7 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueArray[iFold][i]=="0") {
-            buffer.AppendFormatted("f%s = %s; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          }
       }
       buffer.AppendFormatted("fModified = true; ");
@@ -654,10 +690,10 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("   void Reset() {");
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueArray[iFold][i]=="0") {
-            buffer.AppendFormatted("f%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+            buffer.AppendFormatted("%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          else {
-            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
+            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
       buffer.AppendFormatted("fModified = false; ");
@@ -846,12 +882,19 @@ bool ROMEBuilder::ReadXMLTask() {
             xml->GetAttribute("Text",taskDescription[numOfTask],"");
          }
          // includes
-         else if (!strcmp((const char*)name,"Include")) {
+         else if (!strcmp((const char*)name,"Includes")) {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
-               if (type == 1) {
-                  taskInclude[numOfTask][numOfTaskInclude[numOfTask]] = (char*)name;
+               if (type == 1 && !strcmp((const char*)name,"Include")) {
+                  // include name
+                  xml->GetAttribute("Name",taskInclude[numOfTask][numOfTaskInclude[numOfTask]],"");
+                  if (taskInclude[numOfTask][numOfTaskInclude[numOfTask]]=="") {
+                     cout << "An Include of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
+                  // include type
                   taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = false;
                   xml->GetAttribute("Type",tmp,"global");
                   if (tmp=="local") 
@@ -863,7 +906,7 @@ bool ROMEBuilder::ReadXMLTask() {
                      return false;
                   }
                }
-               if (type == 15 && !strcmp((const char*)name,"Include")) {
+               if (type == 15 && !strcmp((const char*)name,"Includes")) {
                   break;
                }
             }
@@ -874,7 +917,7 @@ bool ROMEBuilder::ReadXMLTask() {
                type = xml->GetType();
                name = xml->GetName();
                empty = xml->isEmpty();
-               if (type == 1 && !empty) {
+               if (type == 1 && !strcmp((const char*)name,"Group")) {
                   numOfTaskSteering[numOfTask]++;
                   if (numOfTaskSteering[numOfTask]>=maxNumberOfSteering) {
                      cout << "Maximal number of steering parameter classes in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
@@ -885,7 +928,12 @@ bool ROMEBuilder::ReadXMLTask() {
                   index[depth] = numOfTaskSteering[numOfTask];
                   numOfTaskSteerFields[numOfTask][index[depth]] = 0;
                   // steering name
-                  taskSteerName[numOfTask][index[depth]] = (char*)name;
+                  xml->GetAttribute("Name",taskSteerName[numOfTask][index[depth]],"");
+                  if (taskSteerName[numOfTask][index[depth]]=="") {
+                     cout << "A Steering Parameter Group of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // parent name
                   taskSteerParent[numOfTask][index[depth]] = taskSteerName[numOfTask][index[depth-1]];
                   // depth
@@ -894,9 +942,14 @@ bool ROMEBuilder::ReadXMLTask() {
                   if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
                   if (makeOutput) taskSteerName[numOfTask][index[depth]].WriteLine();
                }
-               if (type == 1 && empty) {
+               if (type == 1 && !strcmp((const char*)name,"Field")) {
                   // field name
-                  taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = (char*)name;
+                  xml->GetAttribute("Name",taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
+                  if (taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="") {
+                     cout << "A Field of Steering Parameter Group '" << taskSteerName[numOfTask][index[depth]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // field type
                   xml->GetAttribute("Type",taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
                   if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="") {
@@ -925,7 +978,7 @@ bool ROMEBuilder::ReadXMLTask() {
                      return false;
                   }
                }
-               if (type == 15 && strcmp((const char*)name,"SteeringParameters")) {
+               if (type == 15 && !strcmp((const char*)name,"Group")) {
                   depth--;
                   if (makeOutput) cout << endl;;
                }
@@ -938,9 +991,14 @@ bool ROMEBuilder::ReadXMLTask() {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
-               if (type == 1) {
+               if (type == 1 && !strcmp((const char*)name,"Histo")) {
                   // histo name
-                  histoName[numOfTask][numOfHistos[numOfTask]] = (char*)name;
+                  xml->GetAttribute("Name",histoName[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoName[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "A Histo of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // histo type
                   xml->GetAttribute("Type",histoType[numOfTask][numOfHistos[numOfTask]],"");
                   if (histoType[numOfTask][numOfHistos[numOfTask]]=="") {
@@ -1906,7 +1964,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
             return false;
          }
       }
-      else if (type == 1) {
+      else if (type == 1 && !strcmp((const char*)name,"Bank")) {
          numOfBank++;
          if (numOfBank>=maxNumberOfBanks) {
             cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
@@ -1915,7 +1973,12 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
          }
          numOfStructFields[numOfBank] = 0;
          // bank name
-         bankName[numOfBank] = (char*)name;
+         xml->GetAttribute("Name",bankName[numOfBank],"");
+         if (bankName[numOfBank]=="") {
+            cout << "A Midas Bank has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          // bank type
          xml->GetAttribute("Type",bankType[numOfBank],"");
          if (bankType[numOfBank]=="") {
@@ -1933,9 +1996,14 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
-               if (type == 1) {
+               if (type == 1 && !strcmp((const char*)name,"Field")) {
                   // field name
-                  structFieldName[numOfBank][numOfStructFields[numOfBank]] = (char*)name;
+                  xml->GetAttribute("Name",structFieldName[numOfBank][numOfStructFields[numOfBank]],"");
+                  if (structFieldName[numOfBank][numOfStructFields[numOfBank]]=="") {
+                     cout << "A Field of the Midas Bank '" << bankName[numOfBank].Data() << "' has no Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   // field type
                   xml->GetAttribute("Type",structFieldType[numOfBank][numOfStructFields[numOfBank]],"");
                   if (structFieldType[numOfBank][numOfStructFields[numOfBank]]=="") {
@@ -1954,7 +2022,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                      return false;
                   }
                }
-               if (type == 15 && !strcmp((const char*)name,bankName[numOfBank])) {
+               if (type == 15 && !strcmp((const char*)name,"Bank")) {
                   for (i=0;i<numOfStructFields[numOfBank];i++) {
                      for (j=i+1;j<numOfStructFields[numOfBank];j++) {
                         if (structFieldName[numOfBank][i]==structFieldName[numOfBank][j]) {
@@ -2001,7 +2069,7 @@ bool ROMEBuilder::ReadXMLSteering() {
       type = xml->GetType();
       name = xml->GetName();
       empty = xml->isEmpty();
-      if (type == 1 && !empty) {
+      if (type == 1 && !strcmp((const char*)name,"Group")) {
          numOfSteering++;
          if (numOfSteering>=maxNumberOfSteering) {
             cout << "Maximal number of steering parameter classes reached : " << maxNumberOfSteering << " !" << endl;
@@ -2011,8 +2079,13 @@ bool ROMEBuilder::ReadXMLSteering() {
          depth++;
          index[depth] = numOfSteering;
          numOfSteerFields[index[depth]] = 0;
-         // bank name
-         steerName[index[depth]] = (char*)name;
+         // group name
+         xml->GetAttribute("Name",steerName[index[depth]],"");
+         if (steerName[index[depth]]=="") {
+            cout << "A Steering Parameter Group has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          // parent name
          steerParent[index[depth]] = steerName[index[depth-1]];
          // depth
@@ -2021,9 +2094,14 @@ bool ROMEBuilder::ReadXMLSteering() {
          if (makeOutput) for (i=0;i<depth;i++) cout << "   ";
          if (makeOutput) steerName[index[depth]].WriteLine();
       }
-      if (type == 1 && empty) {
+      if (type == 1 && !strcmp((const char*)name,"Field")) {
          // field name
-         steerFieldName[index[depth]][numOfSteerFields[index[depth]]] = (char*)name;
+         xml->GetAttribute("Name",steerFieldName[index[depth]][numOfSteerFields[index[depth]]],"");
+         if (steerFieldName[index[depth]][numOfSteerFields[index[depth]]]=="") {
+            cout << "A Field of Steering Parameter Group '" << steerName[index[depth]] << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          // field type
          xml->GetAttribute("Type",steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"");
          if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]=="") {
@@ -2052,7 +2130,7 @@ bool ROMEBuilder::ReadXMLSteering() {
             return false;
          }
       }
-      if (type == 15 && strcmp((const char*)name,"GeneralSteeringParameters")) {
+      if (type == 15 && !strcmp((const char*)name,"Group")) {
          depth--;
          if (makeOutput) cout << endl;;
       }
@@ -2375,7 +2453,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#include <TObjString.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
-   buffer.AppendFormatted("#include <ROMEStatic.h>\n");
    buffer.AppendFormatted("#if defined HAVE_SQL\n");
    buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#endif\n");
@@ -2535,7 +2612,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       buffer.AppendFormatted("   unsigned long bktype;\n");
       buffer.AppendFormatted("   EVENT_HEADER *pevent = this->GetEventHeader();\n");
       buffer.AppendFormatted("   pevent++;\n");
-      buffer.AppendFormatted("   if (ROMEStatic::bk_find(pevent, \"%s\", (unsigned long*)&f%sBankLength, &bktype, &f%sBankPointer)) {\n",bankName[i].Data(),bankName[i].Data(),bankName[i].Data());
+      buffer.AppendFormatted("   if (bk_find((BANK_HEADER*)pevent, \"%s\", (unsigned long*)&f%sBankLength, &bktype, (void**)&f%sBankPointer)) {\n",bankName[i].Data(),bankName[i].Data(),bankName[i].Data());
       buffer.AppendFormatted("      f%sBankExists = true;\n",bankName[i].Data());
       buffer.AppendFormatted("      return;\n");
       buffer.AppendFormatted("   }\n");
@@ -3228,7 +3305,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sAnalyzer(TRint *app);\n",shortCut.Data());
-
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -3239,6 +3315,18 @@ bool ROMEBuilder::WriteAnalyzerH() {
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
             format.SetFormatted("   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-folderName[i].Length()-scl,1+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+         }
+         else if (folderArray[i]=="variable") {
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
+            buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
+            buffer.AppendFormatted("   { if (f%sObjects->GetEntries()<=index)\n",folderName[i].Data());
+            buffer.AppendFormatted("        for (int i=f%sObjects->GetEntries();i<=index;i++)\n",folderName[i].Data());
+            buffer.AppendFormatted("           new((*f%sObjects)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("     return (%s%s*)f%sObjects->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else {
             format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
@@ -3424,7 +3512,6 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
-   buffer.AppendFormatted("#include <ROMEStatic.h>\n");
    buffer.AppendFormatted("#if defined HAVE_SQL\n");
    buffer.AppendFormatted("#include <ROMESQL.h>\n");
    buffer.AppendFormatted("#endif\n");
@@ -3511,7 +3598,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   for (i=gAnalyzer->Get%sObjects()->GetEntriesFast()-1;i>=0;i--) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified()))\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified())\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("         break;\n");
             buffer.AppendFormatted("      gAnalyzer->Get%sObjects()->RemoveAt(i);\n",folderName[i].Data());
             buffer.AppendFormatted("   }\n");
@@ -3577,7 +3664,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         if (folderArray[i]!="1") {
+         if (folderArray[i]!="1" && folderArray[i]!="variable") {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
             buffer.AppendFormatted("     new((*gAnalyzer->Get%sObjects())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
@@ -4063,12 +4150,18 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
       name = xml->GetName();
-      if (type == 1) {
-         shortCut = (char*)name;
+      if (type == 1 && !strcmp((const char*)name,"Experiment")) {
+         xml->GetAttribute("Name",experimentName,"");
+         xml->GetAttribute("ShortCut",shortCut,"");
+         if (shortCut=="") {
+            cout << "Experiment must have a shortcut!" << endl;
+            cout << "Terminating program." << endl;
+            return;
+         }
          while (xml->NextLine()&&!finished) {
             type = xml->GetType();
             name = xml->GetName();
-            if (type == 15 && !strcmp((const char*)name,shortCut)) {
+            if (type == 15 && !strcmp((const char*)name,"Experiment")) {
                finished = true;
                break;
             }
@@ -4159,7 +4252,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( _MSC_VER )
    // libs
    buffer.Resize(0);
-//   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
+//   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib \n");
    buffer.AppendFormatted("xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
    if (this->sql) 
