@@ -34,8 +34,8 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include <TCanvas.h>
-#include "MEGTTDCAverage.h"
 #include "MEG.h"
+#include "MEGTTDCAverage.h"
 #include "Riostream.h"
 
 ClassImp(MEGTTDCAverage)
@@ -50,17 +50,19 @@ void MEGTTDCAverage::BeginOfRun()
 
 void MEGTTDCAverage::Event()
 {
-//   cout <<fAnalyzer->GetCMRefObject()->GetTrigger()->GetID() << " " <<fAnalyzer->GetTriggerObject()->GetID()<<endl;
+   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   float invalid = fAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
+//   cout <<fAnalyzer->GetTriggerObject()->GetID()<<endl;
    if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
    float sum = 0;
    int nsum = 0;
    Bool_t corrupt = false;
-   for (int j=0;j<gNumberOfPMT&&!corrupt;j++) {
+   for (int j=0;j<nPMT&&!corrupt;j++) {
       MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(j);
       MEGCMPMTInfo *pmtInfo = fAnalyzer->GetCMPMTInfoAt(j);
       if (pmtInfo->GetFace()==FRONT) {
-         if (pmtData->GetTDCData()!=INVALID) {
+         if (pmtData->GetTDCData()!=invalid) {
             sum = sum + pmtData->GetTDCData();
             nsum++;
          }

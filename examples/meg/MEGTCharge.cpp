@@ -40,8 +40,8 @@
 
 #include <TCanvas.h>
 #include <ROME.h>
-#include "MEGTCharge.h"
 #include "MEG.h"
+#include "MEGTCharge.h"
 
 ClassImp(MEGTCharge)
 
@@ -51,8 +51,9 @@ void MEGTCharge::Init()
 
 void MEGTCharge::BeginOfRun()
 {
+   int nMapHistos = GetSP()->GetNumberOfMapHistos();
    char name[80],title[80];
-   for (int j=0;j<gNumberOfMapHistos;j++) {
+   for (int j=0;j<nMapHistos;j++) {
       sprintf(name,"frontmap%i%i",j/10,j%10);
       sprintf(title,"Front side Map for event %d",j+1);
       GetFrontMapHistoHandleAt(j)->SetName(name);
@@ -87,6 +88,8 @@ void MEGTCharge::BeginOfRun()
 
 void MEGTCharge::Event()
 {
+   int nMapHistos = GetSP()->GetNumberOfMapHistos();
+   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
    if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
    int eventNumber,face;
@@ -107,7 +110,7 @@ void MEGTCharge::Event()
    qtot_right = 0.;
    qtot_top   = 0.;
    qtot_bottom= 0.;
-   for (j=0; j<gNumberOfPMT; j++) {
+   for (j=0; j<nPMT; j++) {
       MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(j);
       MEGCMPMTInfo *pmtInfo = fAnalyzer->GetCMPMTInfoAt(j);
       pmt_signal = TMath::Max(pmtData->GetADC0Data(),0.f);
@@ -121,36 +124,36 @@ void MEGTCharge::Event()
          xsqr +=pmt_signal*x_coor*x_coor;
          ysqr +=pmt_signal*y_coor*y_coor;
          qtot_front+=pmt_signal;
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillFrontMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
       }
       if (face==BACK) {
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillBackMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
          qtot_back += pmt_signal;
       }
       if (face==TOP) {
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillTopMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
          qtot_top += pmt_signal;
       }
       if (face==BOTTOM) {
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillBottomMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
          qtot_bottom += pmt_signal;
       }
       if (face==RIGHT) {
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillRightMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
          qtot_right += pmt_signal;
       }
       if (face==LEFT) {
-         if (eventNumber<gNumberOfMapHistos) {
+         if (eventNumber<nMapHistos) {
             FillLeftMapHistoAt(eventNumber,x_coor,y_coor,pmt_signal);
          }
          qtot_left += pmt_signal;
@@ -190,10 +193,11 @@ void MEGTCharge::Event()
 
 void MEGTCharge::EndOfRun()
 {
+   int nMapHistos = GetSP()->GetNumberOfMapHistos();
    if (fAnalyzer->isBatchMode()) return;
    TCanvas *c1 = new TCanvas("c1","Map Histos",600,400);
 
-   for (int i=0;i<gNumberOfMapHistos;i++) {
+   for (int i=0;i<nMapHistos;i++) {
       GetFrontMapHistoHandleAt(i)->Draw();
       c1->Update();
       GetBackMapHistoHandleAt(i)->Draw();

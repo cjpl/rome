@@ -34,6 +34,16 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
+#if defined( _MSC_VER )
+#include <conio.h>
+#endif
+#if defined ( __linux__ )
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/io.h>
+#include <sys/ioctl.h>
+#endif
+
 #include <TCanvas.h>
 #include <TStyle.h>
 #include <TF1.h>
@@ -41,19 +51,34 @@
 #include <strstream>
 #include "ROME.h"
 #include "MEGTADCPedestal.h"
-#include "MEGStatic.h"
-#include "MEG.h"
+#include <Riostream.h>
 
 ClassImp(MEGTADCPedestal)
 
+int dfprintf(char *str, char *filename)
+{
+   ofstream ofile;
+   ofile.open(filename,ofstream::out | ofstream::app);
+   ofile<<str;
+   ofile.close();
+   return 0;
+}
+static int dfclear(char *filename) 
+{
+   ofstream ofile;
+   ofile.open(filename,ofstream::out);
+   ofile.close();
+   return 0;
+}
 void MEGTADCPedestal::Init()
 {
 }
 
 void MEGTADCPedestal::BeginOfRun()
 {
+   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
    char name[80],title[80];
-   for (int j=0;j<gNumberOfPMT;j++) {
+   for (int j=0;j<nPMT;j++) {
       sprintf(name,"adc0_%i%i%i",j/100,(j%100)/10,j%10);
       sprintf(title,"ADC0 of PMT %s",fAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
       GetADC0HistoHandleAt(j)->SetName(name);
@@ -68,9 +93,10 @@ void MEGTADCPedestal::BeginOfRun()
 
 void MEGTADCPedestal::Event()
 {
+   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
    if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
-   for (int i=0;i<gNumberOfPMT;i++) {
+   for (int i=0;i<nPMT;i++) {
       MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(i);
       int ipmt = fAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
       FillADC0HistoAt(ipmt,pmtData->GetADC0Data());
@@ -80,17 +106,19 @@ void MEGTADCPedestal::Event()
 
 void MEGTADCPedestal::EndOfRun()
 {
+   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nLXePMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    int ipmt,i,j;
-   double pedestal[gNumberOfPMT*2];    //pedestal
-   double spedestal[gNumberOfPMT*2];   //sigma of pedestal
-   double espedestal[gNumberOfPMT*2];  //err of sigma of pedestal
+   double *pedestal = new double[nPMT*2];    //pedestal
+   double *spedestal = new double[nPMT*2];   //sigma of pedestal
+   double *espedestal = new double[nPMT*2];  //err of sigma of pedestal
    char dfstring[1024];
    ostrstream dfstream(dfstring,sizeof(dfstring));
 
    char runNumber[6];
    char logfilename[gFileNameLength];
    sprintf(logfilename,"%spiedi_%s.log",fAnalyzer->GetOutputDir(),runNumber);
-   MEGStatic::dfclear(logfilename);
+   dfclear(logfilename);
    char outfilename[gFileNameLength];
    sprintf(outfilename,"%sped%s.dat",fAnalyzer->GetOutputDir(),runNumber);
 
@@ -115,7 +143,7 @@ void MEGTADCPedestal::EndOfRun()
    pspread->SetXTitle("pedestal spread in sigma [ch]");          
     
    //calculate pedestal
-   for(ipmt=0 ; ipmt<gNumberOfPMT ; ipmt++){
+   for(ipmt=0 ; ipmt<nPMT ; ipmt++){
    	for(i=0;i<2;i++){
          if(i==0) {
             hist = GetADC0HistoHandleAt(ipmt);
@@ -136,23 +164,23 @@ void MEGTADCPedestal::EndOfRun()
 //            c1->Update();
          }
 
-         pedestal[ipmt+i*gNumberOfPMT]  = g1->GetParameter(1);
-	      spedestal[ipmt+i*gNumberOfPMT] = g1->GetParameter(2);
-	      espedestal[ipmt+i*gNumberOfPMT]= g1->GetParError(2);
+         pedestal[ipmt+i*nPMT]  = g1->GetParameter(1);
+	      spedestal[ipmt+i*nPMT] = g1->GetParameter(2);
+	      espedestal[ipmt+i*nPMT]= g1->GetParError(2);
 
-         if(i==0 && pedestal[ipmt]>gPedestalThreshold){
+         if(i==0 && pedestal[ipmt]>GetSP()->GetPedestalThreshold()){
 	         dfstream.seekp(0);
 	         dfstream<<"ADC \033[31m"<< setw(3) << ipmt<<"\t  :"
 		         <<setprecision(1)<<setiosflags(ios::fixed)<<setfill(' ')<<setw(5)
 		         <<pedestal[ipmt]<<"\033[m\tch"<<endl<<ends;
-            MEGStatic::dfprintf(dfstring,logfilename);
+            dfprintf(dfstring,logfilename);
    	   }
    	}
    }
 
     
    //Draw pedestal spread distribution
-   for(j=0;j<gNumberOfLXePMT;j++){
+   for(j=0;j<nLXePMT;j++){
       pspread->Fill(spedestal[j]);
    }
    if (!fAnalyzer->isBatchMode()) {
@@ -164,10 +192,10 @@ void MEGTADCPedestal::EndOfRun()
    //out put pedestal file
    ofstream ofile(outfilename);
    for(i=0;i<2;i++){
-      for(ipmt=0;ipmt<gNumberOfPMT;ipmt++){
+      for(ipmt=0;ipmt<nPMT;ipmt++){
 	      ofile<<setprecision(9)<<setiosflags(ios::fixed)
-	         <<" "<<pedestal[ipmt+i*gNumberOfPMT]<<" "<<spedestal[ipmt+i*gNumberOfPMT]
-	         <<" "<<espedestal[ipmt+i*gNumberOfPMT]<<endl;
+	         <<" "<<pedestal[ipmt+i*nPMT]<<" "<<spedestal[ipmt+i*nPMT]
+	         <<" "<<espedestal[ipmt+i*nPMT]<<endl;
       }
    }
    ofile.close();
@@ -175,25 +203,28 @@ void MEGTADCPedestal::EndOfRun()
    dfstream.seekp(0);
    dfstream<<"------------------------------"<<endl
 	    << "PMTs which have broaden (sigma>" 
-	    << gPedestalSpreadThreshold << ") pedestal"<<endl<<ends;    
-   MEGStatic::dfprintf(dfstring,logfilename);
+	    << GetSP()->GetPedestalSpreadThreshold() << ") pedestal"<<endl<<ends;    
+   dfprintf(dfstring,logfilename);
 
-   for(ipmt=0;ipmt<gNumberOfPMT;ipmt++){
-      if (spedestal[ipmt]>gPedestalSpreadThreshold){
+   for(ipmt=0;ipmt<nPMT;ipmt++){
+      if (spedestal[ipmt]>GetSP()->GetPedestalSpreadThreshold()){
 	      dfstream.seekp(0);
 	      dfstream<<"ADC "<< setw(3)<<ipmt <<":\t"
 		      << setprecision(1)<<setiosflags(ios::fixed)<<setfill(' ')<<setw(4)
 		      <<spedestal[ipmt]<<" ch"<<endl<<ends;
-	      MEGStatic::dfprintf(dfstring,logfilename);
+	      dfprintf(dfstring,logfilename);
       }
       if (spedestal[ipmt]==0){ 
 	      dfstream.seekp(0);
 	      dfstream<< "ADC "<< setw(3)<< ipmt <<":\tNO SIGNAL"<<endl<<ends;
-	      MEGStatic::dfprintf(dfstring,logfilename);
+	      dfprintf(dfstring,logfilename);
       }
    }
 //	      hist->GetXaxis()->SetRange(hist->GetXaxis()->FindBin(0.),
 //		       hist->GetXaxis()->FindBin(4096.));
+   delete pedestal;
+   delete spedestal;
+   delete espedestal;
    delete pspread;
 }
 
