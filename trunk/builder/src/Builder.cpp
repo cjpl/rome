@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.24  2005/03/12 22:22:33  sawada
+  Better output from builder.
+  Menu of nested tab.
+
   Revision 1.23  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -657,7 +661,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
    // compile
    for (i=0;i<numOfTab;i++) {
-      buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
+      buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h $(%sT%sDep) $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tabs/%sT%s.cpp \n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("obj/%sWindow.obj: src/monitor/%sWindow.cpp include/monitor/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h include/monitor/%sMonitor.h $(ARGUSSYS)/bin/argusbuilder.exe",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
@@ -897,7 +901,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       }
    }
    for (i=0;i<numOfTab;i++) {
-      buffer.AppendFormatted("obj/%sT%s.o: src/tabs/%sT%s.cpp include/tabs/%sT%s.h\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
+      buffer.AppendFormatted("obj/%sT%s.o: src/tabs/%sT%s.cpp include/tabs/%sT%s.h $(%sT%sDep)\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/tabs/%sT%s.cpp -o obj/%sT%s.o\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("obj/%sWindow.o: src/monitor/%sWindow.cpp include/monitor/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h include/monitor/%sMonitor.h",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
@@ -951,6 +955,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
+   dictionarybat += " $(UserClassHeaders)";
    buffer.AppendFormatted("src/monitor/%sDict.cpp: ",shortCut.Data());
    buffer.AppendFormatted("$(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
@@ -974,7 +979,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted("include/tabs/%sT%s_Base.h ",shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("include/tabs/%sT%s.h ",shortCut.Data(),tabName[i].Data());
    }
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted(" $(UserClassHeaders)\n");
    buffer.AppendFormatted("	%s\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean::\n");
