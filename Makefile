@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.12  2004/12/02 17:46:43  sawada
+#  Macintosh port
+#
 #  Revision 1.11  2004/10/25 08:34:06  schneebeli_m
 #  *** empty log message ***
 #
@@ -18,11 +21,15 @@
 #
 #####################################################################
 #
-INCLUDE :=-I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -I$(ROOTSYS)/include/
-rootlib := $(shell root-config --libs)
-rootlib2 := -L$(ROOTSYS)/lib/ -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint \
-	    -lPostscript -lMatrix -lPhysics -lpthread -lm -ldl -rdynamic
-LIBRARY := $(rootlib2) -lxml2 -lz -lpthread -lg2c
+INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags) $(shell xml2-config --cflags)
+LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs) -lpthread -lg2c
+
+## for Macintosh
+ifeq ($(shell uname),Darwin)
+FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
+Include += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
+LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)
+endif
 
 romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
 	g++ $(CFLAGS) -o $(ROMESYS)/bin/$@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp \

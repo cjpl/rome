@@ -8,6 +8,9 @@
 
 
   $Log$
+  Revision 1.3  2004/12/02 17:46:43  sawada
+  Macintosh port
+
   Revision 1.2  2004/10/20 09:22:16  schneebeli_m
   bugs removed
 
@@ -522,6 +525,12 @@ The main include file
 #if !defined(OS_LINUX)
 #if defined ( __linux__ )
 #define OS_LINUX
+#endif
+#endif
+
+#if !defined(OS_DARWIN)
+#if defined ( __APPLE__ )
+#define OS_DARWIN
 #endif
 #endif
 
@@ -1443,6 +1452,7 @@ typedef struct {
    DWORD n_data;                       /**< - */
    HNDLE def_key;                      /**< - */
 } BANK_LIST;
+
 /**dox***************************************************************/
 /** @} */ /* end of mbank */
 

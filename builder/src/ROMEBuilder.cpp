@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.75  2004/12/02 17:46:43  sawada
+  Macintosh port
+
   Revision 1.74  2004/11/23 08:54:25  schneebeli_m
   steering parameter hierarchy error removed
 
@@ -215,10 +218,12 @@
 #include <io.h>
 #include <direct.h>
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) ||  defined ( __APPLE__ )
 #include <unistd.h>
 #include <string.h>
 #include <ctype.h>
+#endif
+#if defined ( __linux__ )
 #include <sys/io.h>
 #endif
 #include <sys/stat.h>
@@ -1272,7 +1277,7 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("   %sT%s_TERMINATE();\n",ShortCut.Data(),TaskName.Data());
          buffer.AppendFormatted("}\n\n");
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) ||  defined ( __APPLE__ )
          buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortcut.Data(),taskname.Data());
          buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("   %st%s_init_();\n",shortcut.Data(),taskname.Data());
@@ -2762,7 +2767,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#if defined ( __linux__ )\n");
+   buffer.AppendFormatted("#if defined ( __linux__ ) ||  defined ( __APPLE__ )\n");
    buffer.AppendFormatted("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
    buffer.AppendFormatted("   \n");
    buffer.AppendFormatted("}\n");
@@ -5397,7 +5402,7 @@ int main(int argc, char *argv[])
    mkdir(path);
 #endif
 
-#if defined ( __linux__ )
+#if defined ( __linux__ )  || defined ( __APPLE__ )
    path.SetFormatted("%s/src",romeb->outDir.Data());
    mkdir(path,0711);
    path.SetFormatted("%s/src/tasks",romeb->outDir.Data());
@@ -5674,7 +5679,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
    if (!noLink) {
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
       system("make -e");
 #endif
 #if defined( _MSC_VER )
@@ -5828,22 +5833,31 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut.Data(),shortCut.Data());
 #endif
 
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
    // libs
    buffer.Resize(0);
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
+   buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
    buffer.AppendFormatted("rootthreadlibs := -lThread\n");
-   buffer.AppendFormatted("xmllibs := -lxml2 -lz\n");
-   if (this->sql) 
-      buffer.AppendFormatted("sqllibs := -lmysql\n");
-   else
+   buffer.AppendFormatted("xmllibs :=  $(shell xml2-config --libs)\n");
+   buffer.AppendFormatted("xmlcflags :=  $(shell xml2-config --cflags)\n");
+   if (this->sql){
+      buffer.AppendFormatted("sqllibs := $(shell mysql_config --libs)\n");
+      buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags)\n");
+   }
+   else{
       buffer.AppendFormatted("sqllibs := \n");
+      buffer.AppendFormatted("sqlcflags := \n");
+   }
    if (this->midas) 
       buffer.AppendFormatted("midaslibs := -lmidas\n");
    else
       buffer.AppendFormatted("midaslibs := \n");
-   buffer.AppendFormatted("clibs := -lpthread -lHtml -lutil $(SYSLIBS) -lg2c\n");
+   buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS) -lg2c\n");
+#if !defined( __APPLE__ )
+   buffer.AppendFormatted("clibs += -lutil\n");
+#endif
    buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
@@ -5855,12 +5869,17 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // includes
-   buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I$(ROOTSYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
+   buffer.AppendFormatted("Includes :=  $(rootcflags) $(xmlcflags) $(sqlcflags) -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
    if (this->midas) 
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
    if (this->sql) 
       buffer.AppendFormatted(" -I$(ROMESYS)/include/mysql/");
    buffer.AppendFormatted("\n");
+#if defined( __APPLE__ )
+   buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
+   buffer.AppendFormatted("Includes += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
+   buffer.AppendFormatted("Libraries += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+#endif
    buffer.AppendFormatted("\n");
    // objects
    buffer.AppendFormatted("objects :=");
@@ -5934,7 +5953,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
 #endif
    ROMEString makeFile;
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
    makeFile = "Makefile";
 #endif
 #if defined ( _MSC_VER )
@@ -5958,7 +5977,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%% ");
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS ");
 #endif

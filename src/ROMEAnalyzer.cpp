@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.40  2004/12/02 17:46:43  sawada
+//  Macintosh port
+//
 //  Revision 1.39  2004/11/19 13:29:55  schneebeli_m
 //  added stuff for sample
 //
@@ -67,10 +70,9 @@
 #include <windows.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
 #include <unistd.h>
 #include <stdlib.h>
-#include <sys/io.h>
 #include <sys/ioctl.h>
 #include <termios.h>
 #include <sys/types.h>
@@ -78,6 +80,9 @@
 #include <sys/socket.h>
 #include <TThread.h>
 #define O_RDONLY_BINARY O_RDONLY
+#endif
+#if defined ( __linux__ )
+#include <sys/io.h>
 #endif
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -332,7 +337,7 @@ bool ROMEAnalyzer::CreateHistoFolders(TList *taskList,TFolder *folder)
 #ifndef HAVE_MIDAS
 #define PTYPE int
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
 #define THREADRETURN NULL
 #define THREADTYPE void*
 #endif
@@ -512,7 +517,7 @@ int ResponseFunction(TSocket *fSocket) {
       if (!obj) {
          fSocket->Send("Error");
       } else {
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
          TThread::Lock();
          ((TH1 *) obj)->Reset();
          TThread::UnLock();
@@ -548,7 +553,7 @@ THREADTYPE ServerLoop(void *arg)
    do {
       TSocket *sock = lsock->Accept();
 
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
       TThread *thread = new TThread("Server", Server, sock);
       thread->Run();
 #endif
@@ -563,7 +568,7 @@ int pport;
 void StartServer(int port) {
    pport = port;
 // start fSocket server loop
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
    TThread *thread = new TThread("server_loop", ServerLoop, &pport);
    thread->Run();
 #endif
@@ -574,8 +579,6 @@ void StartServer(int port) {
 }
 
 #ifndef HAVE_MIDAS
-#define ALIGN8(x)  (((x)+7) & ~7)
-
 bool ROMEAnalyzer::bk_is32(void *event)
 {
    return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
@@ -699,7 +702,7 @@ Bool_t ROMEAnalyzer::ss_kbhit()
 #if defined( _MSC_VER )
    return toBool(kbhit());
 #endif
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
    int n;
    ioctl(0, FIONREAD, &n);
    return (n > 0);

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.16  2004/12/02 17:46:43  sawada
+//  Macintosh port
+//
 //  Revision 1.15  2004/11/12 17:35:18  schneebeli_m
 //  fast xml database
 //
@@ -31,7 +34,7 @@
 //  Added Log in header
 //
 //////////////////////////////////////////////////////////////////////////
-#if defined ( __linux__ )
+#if defined ( __linux__ ) || defined ( __APPLE__ )
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>

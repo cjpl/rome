@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.18  2004/12/02 17:46:43  sawada
+//  Macintosh port
+//
 //  Revision 1.17  2004/11/21 00:10:41  sawada
 //  error handling
 //
@@ -359,7 +362,7 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    }
    
    if(passwd.Length()==1 && passwd(0) == '?'){
-#ifdef __linux__
+#if defined ( __linux__ ) || defined (  __APPLE__  )
       prompt.AppendFormatted("%s@%s's password: ",user.Data(),server.Data());
       passwd = getpass(prompt.Data());
 #endif
