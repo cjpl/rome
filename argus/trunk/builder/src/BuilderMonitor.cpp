@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.18  2005/03/01 00:24:34  sawada
+  bug fix around global steering parameter.
+
   Revision 1.17  2005/02/27 23:53:43  sawada
   Create placeholder of ROMEFolder at start.
   Environment variable in ROMEProjectPath.
@@ -367,7 +370,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
                   setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0).Data()",(char*)valueType[i][j].Data(),1);
                   buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                   buffer.AppendFormatted("      else\n");
-                  buffer.AppendFormatted("         ((%s%Fs*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                }
                else {
                   buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
@@ -377,8 +380,8 @@ bool ArgusBuilder::WriteMonitorCpp() {
                   buffer.AppendFormatted("         else\n");
                   buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                   buffer.AppendFormatted("      }\n");
-                  buffer.AppendFormatted("   }\n");
                }
+	       buffer.AppendFormatted("   }\n");
             }
          }
          buffer.AppendFormatted("   values->RemoveAll();\n");
@@ -506,7 +509,7 @@ bool ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("#include <TNetFolder.h>\n");
    // include
    if (numOfSteering[numOfTabHierarchy]>0) {
-      buffer.AppendFormatted("#include \"include/framework/%sGlobalSteering.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"include/monitor/%sGlobalSteering.h\"\n",shortCut.Data());
    }
    // includes
    for (i=0;i<numOfFolder;i++) {
