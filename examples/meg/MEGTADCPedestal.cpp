@@ -58,6 +58,7 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <include/tasks/MEGTADCPedestal.h>
+#include <ROMEStrArray.h>
 #include <Riostream.h>
 
 ClassImp(MEGTADCPedestal)

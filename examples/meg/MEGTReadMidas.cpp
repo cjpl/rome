@@ -50,17 +50,6 @@ void MEGTReadMidas::BeginOfRun()
 int ii=0;
 void MEGTReadMidas::Event()
 {
-/*   ii++;
-   gAnalyzer->GetTestAt(ii%2)->SetTestAt(0,100);
-   gAnalyzer->GetTestAt(ii%2)->SetTestAt(1,200);
-   gAnalyzer->GetTestAt(ii%2)->SetTestAt(2,300);
-   gAnalyzer->GetTestAt(ii%2)->SetTestAt(3,400);
-*/
-/*   gAnalyzer->GetCMPMTDataAt(0)->SetADC0Data(123);
-   gAnalyzer->GetTestAt(0)->Setref(gAnalyzer->GetCMPMTDataAt(0));
-   cout << gAnalyzer->GetCMPMTDataAt(0)->GetADC0Data() << endl;
-   cout << ((MEGCMPMTData*)gAnalyzer->GetTestAt(0)->Getref()->GetObject())->GetADC0Data() << endl<<endl;
-*/
    // Read Midas Banks and fill theme to folder
    float invalid = gAnalyzer->GetGSP()->GetInvalidValue();
 
@@ -135,6 +124,8 @@ void MEGTReadMidas::Event()
       gAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)gAnalyzer->GetADC1BankAt(iadc));
       gAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
+   if (gAnalyzer->GetCurrentEventNumber()==1234)
+      this->StartRootInterpreter("End of Task");
 
    delete vfTDC;
    return;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Tue Nov 16 17:02:54 2004
+<!-- created by ROME on Tue Nov 23 10:20:35 2004
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -13,8 +13,7 @@
           </Modes>
           <DataBase>
                <Type>xml</Type>
-               <Name>LPDataBase</Name>
-               <Path>C:\Data\analysis\MEG\DataBase/</Path>
+               <Connection>C:\Data\analysis\MEG\DataBase;LPDataBase</Connection>
           </DataBase>
           <Online>
                <Host></Host>
@@ -32,17 +31,25 @@
                <Task>
                     <TaskName>ReadMidas</TaskName>
                     <Active>true</Active>
+                    <Task>
+                         <TaskName>TDCAverage</TaskName>
+                         <Active>false</Active>
+                         <Histogram>
+                              <HistName>ADC0Histo</HistName>
+                              <Accumulate>true</Accumulate>
+                         </Histogram>
+                    </Task>
                </Task>
                <Task>
                     <TaskName>ADCPedestal</TaskName>
                     <Active>true</Active>
                     <Histogram>
-                         <HistName>ADC0Histo</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName>TDCAverageHisto</HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>ADC1Histo</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <SteeringParameterField>
                          <SPName>PedestalThreshold</SPName>
@@ -57,36 +64,36 @@
                     <TaskName>TDCAverage</TaskName>
                     <Active>false</Active>
                     <Histogram>
-                         <HistName>TDCAverageHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName>FrontMapHisto</HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                </Task>
                <Task>
                     <TaskName>Charge</TaskName>
                     <Active>false</Active>
                     <Histogram>
-                         <HistName>FrontMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>BackMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>TopMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>BottomMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>RightMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName>LeftMapHisto</HistName>
-                         <Accumulate>false</Accumulate>
+                         <HistName></HistName>
+                         <Accumulate>true</Accumulate>
                     </Histogram>
                     <SteeringParameterField>
                          <SPName>NumberOfMapHistos</SPName>
@@ -126,6 +133,10 @@
                     <SPName>InvalidValue</SPName>
                     <SPValue>-1000.000000</SPValue>
                </SteeringParameterField>
+               <SteeringParameterField>
+                    <SPName>Testfield2</SPName>
+                    <SPValue>128</SPValue>
+               </SteeringParameterField>
                <SteeringParameterGroup>
                     <SPGroupName>PMT</SPGroupName>
                     <SteeringParameterGroup>
@@ -149,6 +160,20 @@
                          <SteeringParameterField>
                               <SPName>NumberOfLXePMT</SPName>
                               <SPValue>228</SPValue>
+                         </SteeringParameterField>
+                    </SteeringParameterGroup>
+               </SteeringParameterGroup>
+               <SteeringParameterGroup>
+                    <SPGroupName>Testgroup</SPGroupName>
+                    <SteeringParameterField>
+                         <SPName>Testfield</SPName>
+                         <SPValue>128</SPValue>
+                    </SteeringParameterField>
+                    <SteeringParameterGroup>
+                         <SPGroupName>TestSubgroup</SPGroupName>
+                         <SteeringParameterField>
+                              <SPName>TestSubfield</SPName>
+                              <SPValue>128</SPValue>
                          </SteeringParameterField>
                     </SteeringParameterGroup>
                </SteeringParameterGroup>

@@ -477,6 +477,23 @@
 			</SteeringParameters>
 		</Task>
 	</Tasks>
+	<TaskHierarchy>
+		<Task>
+			<TaskName>ReadMidas</TaskName>
+			<Task>
+				<TaskName>TDCAverage</TaskName>
+			</Task>
+		</Task>
+		<Task>
+			<TaskName>ADCPedestal</TaskName>
+		</Task>
+		<Task>
+			<TaskName>TDCAverage</TaskName>
+		</Task>
+		<Task>
+			<TaskName>Charge</TaskName>
+		</Task>
+	</TaskHierarchy>
 	<Trees>
 		<Tree>
 			<TreeName>CMPMTData</TreeName>
