@@ -3,8 +3,13 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/01/30 20:39:39  sawada
+  * Makefile of builder
+  * Tab enable/disable
+  * Bug fix.(fNetFolder, ConnectServer)
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -228,7 +233,6 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("\n");
       }
       buffer.AppendFormatted("   Int_t fVersion; // Version number\n");
-      buffer.AppendFormatted("   TGWindow* fParentWindow; // ParentWindow\n");
       if (numOfSteering[iTab]>0) {
          buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
       }
@@ -240,7 +244,6 @@ bool ArgusBuilder::WriteTabH() {
 
       buffer.AppendFormatted("   %sT%s_Base(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options, Pixel_t back):TGCompositeFrame(p, w, h, options, back){\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n",tabVersion[iTab].Data());
-      buffer.AppendFormatted("      fParentWindow = (TGWindow*) p;\n");
       if (numOfSteering[iTab]>0) {
          buffer.AppendFormatted("      fSteering = new Steering();\n");
       }

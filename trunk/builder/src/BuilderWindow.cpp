@@ -3,8 +3,13 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/01/30 20:39:39  sawada
+  * Makefile of builder
+  * Tab enable/disable
+  * Bug fix.(fNetFolder, ConnectServer)
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -72,14 +77,14 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sWindow::ConnectServer()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   char buffer[80];\n");
-   buffer.AppendFormatted("   if(gMonitor->GetNetFolderHost() == 0 ) {\n");
+   buffer.AppendFormatted("   char buffer[80] = \"\";\n");
+   buffer.AppendFormatted("   if(strlen(gMonitor->GetNetFolderHost()) == 0 ) {\n");
    buffer.AppendFormatted("      new ArgusTextDialog(gClient->GetRoot(), this, 100, 100, \"&Host name:\", (char*)buffer);\n");
    buffer.AppendFormatted("      gMonitor->SetNetFolderHost((char*)buffer);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Connect to Server\n");
-   buffer.AppendFormatted("   if(!gMonitor->ConnectServer()) {\n");
+   buffer.AppendFormatted("   if(strlen(buffer) && !gMonitor->ConnectServer()) {\n");
    buffer.AppendFormatted("      sprintf(buffer, \"Cannot connect to server on host %%s, port %%d\", gMonitor->GetNetFolderHost(), gMonitor->GetNetFolderPortNumber());\n");
    buffer.AppendFormatted("      new TGMsgBox(gClient->GetRoot(), this, \"Error\", buffer, kMBIconExclamation, 0, NULL);    \n");
    buffer.AppendFormatted("      SetWindowName(gMonitor->GetProgramName());\n");
@@ -92,44 +97,58 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title)\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   fMenuFile = new TGPopupMenu(fClient->GetRoot());\n");
-   buffer.AppendFormatted("   fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);\n");
-   buffer.AppendFormatted("   // Create tab widget\n");
-   buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowSize()), (UInt_t)(400*gMonitor->GetWindowSize()));\n");
-   buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
-      if (tabHierarchyParentIndex[i]==-1) 
-         parentt = "fTab";
-      else
-         parentt.SetFormatted("f%s%03dTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
-      format.SetFormatted("   t%%sT%%s = %s->AddTab(\"%%s\");\n",parentt.Data());
-      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyTitle[i].Data());
-      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s(t%%sT%%s, 60, 20, kVerticalFrame);\n",tabHierarchyName[i].Length());
-      buffer.AppendFormatted((char*)format.Data(),tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data());
+      int index = tabHierarchyParentIndex[i];
+      ROMEString switchString = tabHierarchyName[i].Data();
+      while (index!=-1) {
+         switchString.Insert(0,"_");
+         switchString.Insert(0,tabHierarchyName[index].Data());
+         index = tabHierarchyParentIndex[index];
+      }
+      buffer.AppendFormatted("   fTabSwitches.%s = true;\n", switchString.Data());
+   }
+   for (i=0;i<numOfTabHierarchy;i++) {
+      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n",tabHierarchyName[i].Length());
+      buffer.AppendFormatted((char*)format.Data(),tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sWindow::Start()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   // Create menu\n");
+   buffer.AppendFormatted("   fMenuFile = new TGPopupMenu(fClient->GetRoot());\n");
    buffer.AppendFormatted("   fMenuFile->AddEntry(\"&Connect to ...\", M_FILE_CONNECT);\n");
    buffer.AppendFormatted("   fMenuFile->AddEntry(\"E&xit\", M_FILE_EXIT);\n");
    buffer.AppendFormatted("   fMenuFile->Associate(this);\n");
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);\n");
    buffer.AppendFormatted("   fMenuBar->AddPopup(\"&File\", fMenuFile,\n");
    buffer.AppendFormatted("                      new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   AddFrame(fMenuBar,\n");
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
+   buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowSize()), (UInt_t)(400*gMonitor->GetWindowSize()));\n");
+   buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
-      if (tabHierarchyParentIndex[i]==-1) 
+      int index = tabHierarchyParentIndex[i];
+      ROMEString switchString = tabHierarchyName[i].Data();
+      while (index!=-1) {
+         switchString.Insert(0,"_");
+         switchString.Insert(0,tabHierarchyName[index].Data());
+         index = tabHierarchyParentIndex[index];
+      }
+      if (tabHierarchyParentIndex[i]==-1)
          parentt = "fTab";
       else
          parentt.SetFormatted("f%s%03dTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
-      buffer.AppendFormatted("   f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
-      format.SetFormatted("   t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));\n");
+
+      buffer.AppendFormatted("   if (fTabSwitches.%s){\n",switchString.Data());
+      buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
+      buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+      buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
+      format.SetFormatted("      t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));\n");
       buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("   }\n");    
    }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
@@ -164,7 +183,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            break;\n");
    buffer.AppendFormatted("         case M_FILE_CONNECT:\n");
    buffer.AppendFormatted("            gMonitor->SetNetFolderHost(\"\");\n");
-   buffer.AppendFormatted("            gMonitor->ConnectServer();\n");
+   buffer.AppendFormatted("            gWindow->ConnectServer();\n");
    buffer.AppendFormatted("            break;\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("         break;\n");      
@@ -295,7 +314,7 @@ bool ArgusBuilder::WriteWindowH() {
          switchString.Insert(0,tabHierarchyName[index].Data());
          index = tabHierarchyParentIndex[index];
       }
-      format.SetFormatted("   int %%s;%%%ds  //! %%s Tab\n",switchLen-switchString.Length());
+      format.SetFormatted("   bool %%s;%%%ds  //! %%s Tab\n",switchLen-switchString.Length());
       buffer.AppendFormatted((char*)format.Data(),switchString.Data(),"",switchString.Data());
 //      buffer.AppendFormatted("   int %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
    }

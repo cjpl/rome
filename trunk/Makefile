@@ -4,8 +4,13 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
-#  Revision 1.1  2005/01/29 22:45:07  sawada
-#  Initial revision
+#  Revision 1.2  2005/01/30 20:39:39  sawada
+#  * Makefile of builder
+#  * Tab enable/disable
+#  * Bug fix.(fNetFolder, ConnectServer)
+#
+#  Revision 1.1.1.1  2005/01/29 22:45:07  sawada
+#  Advanced Root based GUi monitoring System
 #
 #
 #####################################################################
@@ -33,9 +38,15 @@ endif
 
 all: $(TARGET)
 
-bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp
+bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp bin
 	g++ $(CFLAGS) -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
 	$(ROMESYS)/src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
+
+bin:
+	@if [ ! -d  bin ] ; then \
+		echo "Making directory bin" ; \
+		mkdir bin; \
+	fi;
 
 warning_argus::
 	@echo 'Please set environment variable ARGUSSYS'

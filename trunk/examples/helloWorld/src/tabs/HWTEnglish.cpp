@@ -27,7 +27,7 @@ Pixel_t back):HWTEnglish_Base(p, w, h, options, back)
 void HWTEnglish::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(fParentWindow, (UInt_t)700, (UInt_t)700);
+   fVert = new TGVerticalFrame(fParent, (UInt_t)700, (UInt_t)700);
    
    // Create an embedded canvas and add to the main frame, centered in x and y 
    fCanvas = new TRootEmbeddedCanvas("Hello World", fVert, (UInt_t)600, (UInt_t)600);
