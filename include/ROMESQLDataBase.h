@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2005/03/03 19:24:32  sawada
+  compatibility with SQL and XML database.
+
   Revision 1.12  2005/01/27 16:21:06  schneebeli_m
   print method & no gROME in path
 
@@ -95,7 +98,7 @@ public:
 
 protected:
    bool   MakePhrase(ROMEPath *dataBasePath,int runNumber);
-   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber);
+   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName);
    void   ResetPhrase();
    bool   InRange(int value,int b1,int b2){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
 };

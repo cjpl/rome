@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.8  2005/03/03 19:24:32  sawada
+//  compatibility with SQL and XML database.
+//
 //  Revision 1.7  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -37,6 +40,7 @@
 ROMEPath::ROMEPath() {
    fOrderArray = false;
    fFieldArray = false;
+   fTableAbsolutePaths = new ROMEStrArray(0);
    fTableNames = new ROMEStrArray(0);
    fTableConstraints = new ROMEStrArray(0);
    fTableDBConstraints = new ROMEStrArray(0);
@@ -58,6 +62,7 @@ ROMEPath::ROMEPath() {
 ROMEPath::~ROMEPath() {
    int i;
    delete fTableNames;
+   delete fTableAbsolutePaths;
    delete fTableConstraints;
    delete fTableDBConstraints;
    delete fTableIDName;
@@ -109,6 +114,8 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
    this->SetOrderFieldName("idx");
    char* cstop;
    int value;
+   int abspathposition = 0;
+   ROMEString originalPath = dataBasePath;
    ROMEString orderPath;
    ROMEString path = dataBasePath;
    // replace # with the current run number
@@ -125,6 +132,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
       return false;
    }
    path = path(1,path.Length());
+   abspathposition += 1;
 
    int index;
    int i1,i2,i3,iat1,iat2,itemp,ie;
@@ -146,6 +154,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
       this->SetTableDBConstraintAt(nTable,"");
       subPath = path(0,index);
       path = path(index+1,path.Length());
+      abspathposition += index+1;
       // brackets
       i1=subPath.Index("(",1,0,TString::kExact);
       i2=subPath.Index("[",1,0,TString::kExact);
@@ -153,6 +162,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
       index = this->MinPosition(i1,i2,i3);
       if (index==-1) {
          this->SetTableNameAt(nTable,subPath);
+         this->SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
          continue;
       }
       else {
@@ -161,6 +171,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
             return false;
          }
          this->SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
+         this->SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
       }
       // handle '('
       if (i1!=-1) {
@@ -258,6 +269,8 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
       this->SetFieldArray(true);
    }
    path = path(index+1,path.Length());
+   abspathposition += index+1;
+
    for (int i=0;i<3;i++) {
       value = strtol(path.Data(),&cstop,10);
       if (cstop==NULL)
@@ -302,6 +315,20 @@ void ROMEPath::Print() {
       cout << "      end   : " << this->GetFieldIndexAt(1) << endl;
       cout << "      step  : " << this->GetFieldIndexAt(2) << endl;
    }
+}
+
+const char* ROMEPath::GetAbsolutePath( const char* tablename ){
+   int i;
+   ROMEString result;
+   for(i=1;i<fTableNames->GetEntriesFast();i++){
+      if(fTableNames->At(i)==tablename){
+         result = fTableAbsolutePaths->At(i-1).Data();
+         result += "/";
+         result += tablename;
+         return result.Data();
+      }
+   }
+   return tablename;
 }
 
 int ROMEPath::MinPosition(int i1,int i2,int i3,int i4) {

@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.10  2005/03/03 19:24:32  sawada
+//  compatibility with SQL and XML database.
+//
 //  Revision 1.9  2005/03/01 14:34:23  sawada
 //  compatibility of SQL and XML database of @constraint.
 //  bug fix of loop counter.
@@ -75,8 +78,10 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    char *cstop;
    int orderTableIndex = -1;
    int nArrayTables = -1;
-   ROMEString preid;
-   ROMEString preidConstraint;
+   ROMEString ConstraintPath;
+   ROMEString ConstraintTable;
+   ROMEString ConstraintField;
+   ROMEStr2DArray ConstraintValue(1,1);
 
    // decode path
    if (!path->Decode(dataBasePath,runNumber)) {
@@ -107,11 +112,39 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
       xmlPath += "/";
       xmlPath += path->GetTableNameAt(i);
       // add constraint
-      if (strlen(path->GetTableConstraintAt(i))>0) {
-         xmlPath += "[";
-         xmlPath += path->GetTableConstraintAt(i);
-         xmlPath += "]";
-      }
+      if(strlen(path->GetTableConstraintAt(i))){
+         int itmp;
+         if (!path->DecodeConstraint(path->GetTableConstraintAt(i))) {
+            return false;
+         }
+         for(j=0;j<path->GetNumberOfConstraints();j++){
+            xmlPath += "[";
+            xmlPath += path->GetConstraintFieldAt(j);
+            
+            ConstraintTable = path->GetConstraintValueAt(j);
+            if ((itmp=ConstraintTable.Index(".",1,0,TString::kExact))!=-1) {
+               ConstraintField = ConstraintTable(itmp,ConstraintTable.Length());
+               ConstraintTable = ConstraintTable(0,itmp);
+               ConstraintTable.ReplaceAll(" ","");
+               if(ConstraintTable != path->GetAbsolutePath(ConstraintTable)){ //ConstraintTable is existing table name.
+                  ConstraintPath = path->GetAbsolutePath(ConstraintTable);
+               }
+               else{
+                  ConstraintPath = ConstraintTable;
+               }
+               ConstraintPath += "/";
+               ConstraintPath += ConstraintField(1,ConstraintField.Length());
+               Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
+               xmlPath += "=";
+               xmlPath += ConstraintValue.At(0,0).Data();
+            }
+            else{
+               xmlPath += "=";
+               xmlPath += path->GetConstraintValueAt(j);
+            }
+            xmlPath += "]";
+         }
+      }      
       if (i>0) {
          if (strlen(path->GetTableIDNameAt(i-1))>0) {
             xmlPath += "[";
@@ -124,19 +157,6 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
       xmlPath += "/";
       // Data base constraint
       if (strlen(path->GetTableDBConstraintAt(i))>0) {
-         basePath = xmlPath;
-         preid.Resize(0);
-         if (strlen(path->GetTableIDNameAt(i))>0&&i<path->GetNumberOfTables()-1) {
-            basePath += path->GetTableNameAt(i+1);
-            basePath += "_";
-            basePath += path->GetTableIDNameAt(i);
-            if (!xml->GetPathValue(basePath,preid)) {
-               cout << "\nWrong data base path : " << basePath.Data() << endl;
-               delete xml;
-               delete path;
-               return false;
-            }
-         }
          basePath = xmlPath;
          int istart,iend;
          ROMEString newDataBasePath;
@@ -179,28 +199,14 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                   if ((ie=value.Index(")",1,is+3,TString::kIgnoreCase))==-1)
                      ie = value.Length();
                   val = value(is+3,ie-is-3);
-                  xmlPath = "//";
-                  xmlPath += fDataBaseName;
-                  xmlPath += "/";
-                  xmlPath += path->GetTableNameAt(i);
-                  xmlPath += "/";
-                  xmlPath += val;
-                  if (!xml->GetPathValue(xmlPath,val)) {
-                     cout << "\nWrong path for data base value in a data base constraint : " << xmlPath.Data() << endl;
-                     delete xml;
-                     delete path;
-                     return false;
-                  }
+                  ConstraintPath = path->GetAbsolutePath(path->GetTableNameAt(i));
+                  ConstraintPath += "/";
+                  ConstraintPath += val;
+                  Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
                   value.Remove(is,ie-is+1);
-                  value.Insert(is,val);
+                  value.Insert(is,ConstraintValue.At(0,0));           
                }
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
-               if (i>0) {
-                  if (strlen(path->GetTableIDNameAt(i))>0) {
-                     preidConstraint.SetFormatted("(%s=%s)",path->GetTableIDNameAt(i),(char*)preid.Data());
-                  }
-               }
-               newDataBasePath.InsertFormatted(istart+value.Length()+strlen(path->GetTableNameAt(i+1))+1,(char*)preidConstraint.Data());
                // decode new path
                delete xml;
                delete path;

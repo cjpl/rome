@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.25  2005/03/03 19:24:32  sawada
+//  compatibility with SQL and XML database.
+//
 //  Revision 1.24  2005/03/01 14:34:24  sawada
 //  compatibility of SQL and XML database of @constraint.
 //  bug fix of loop counter.
@@ -115,7 +118,7 @@ void ROMESQLDataBase:: ResetPhrase(){
    fWherePhrase.Resize(0);
 }
 
-bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber){
+bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName){
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -132,6 +135,8 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
    if ((is1=value.Index(temp,temp.Length(),0,TString::kIgnoreCase))!=-1) {
       if ((ie1=value.Index("\"",1,is1+temp.Length(),TString::kIgnoreCase))!=-1) {
          value = value(is1+temp.Length(),ie1-is1-temp.Length());
+         if(value(value.Length()-1)!='/')
+            value += "/";
          temp.Remove(temp.Length()-2,2);
          while ((is1=value.Index("(@@",3,0,TString::kIgnoreCase))!=-1) {
             if ((ie1=value.Index(")",1,is1+3,TString::kIgnoreCase))==-1)
@@ -200,6 +205,29 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
                                          ,dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1)
                );
          }
+      }
+      //add relation to the first @constraint table
+      if(strlen(currentIdName)){
+         if(fWherePhrase.Length())
+            fWherePhrase += " AND ";
+         fWherePhrase.AppendFormatted("%s.%s=%s.%s_%s"
+                                      ,dbpath->GetTableNameAt(0)
+                                      ,"id"//dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables()-1)
+                                      ,currentTableName
+                                      ,dbpath->GetTableNameAt(0)
+                                      ,currentIdName
+            );
+      }
+      if(strlen(currentIdxName)){
+         if(fWherePhrase.Length())
+            fWherePhrase += " AND ";
+         fWherePhrase.AppendFormatted("%s.%s=%s.%s_%s"
+                                      ,dbpath->GetTableNameAt(0)
+                                      ,"idx"//dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1)
+                                      ,currentTableName
+                                      ,dbpath->GetTableNameAt(0)
+                                      ,currentIdxName
+            );
       }
    }
    else{
@@ -292,7 +320,8 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             return false;
          }
          temp = fSQL->GetField(0);
-         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data(),runNumber)){
+         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data(),runNumber
+                                ,path->GetTableIDNameAt(iTable),path->GetTableIDXNameAt(iTable))){
             fSQL->FreeResult();
             return false;
          }
@@ -300,7 +329,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
       }
       
       //add relation to the next table
-      if(iTable<path->GetNumberOfTables()-1){
+      if(iTable<path->GetNumberOfTables()-1 && !strlen(path->GetTableDBConstraintAt(iTable))){
          if(strlen(path->GetTableIDNameAt(iTable))){
             if(fWherePhrase.Length())
                fWherePhrase += " AND ";

@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/03/03 19:24:32  sawada
+  compatibility with SQL and XML database.
+
   Revision 1.5  2005/01/27 16:21:06  schneebeli_m
   print method & no gROME in path
 
@@ -34,6 +37,7 @@ class ROMEPath
 protected:
    // decode
    ROMEStrArray*    fTableNames;             // Array of TableNames
+   ROMEStrArray*    fTableAbsolutePaths;     // Absolute path to the table
    ROMEStrArray*    fTableConstraints;       // Array of Constraints on the Table 
    ROMEStrArray*    fTableDBConstraints;     // Array of Constraints read from Data Base
    ROMEStrArray*    fTableIDName;            // ID name of the Table
@@ -61,6 +65,7 @@ public:
    // getters for decode
    int         GetNumberOfTables() { return fTableNames->GetEntriesFast(); };
    const char* GetTableNameAt(int i) { return fTableNames->At(i).Data(); };
+//   const char* GetTableAbsolutePathAt(int i) { return fTableAbsolutePaths->At(i).Data(); };
    const char* GetTableConstraintAt(int i)   { return fTableConstraints->At(i).Data(); };
    const char* GetTableDBConstraintAt(int i) { return fTableDBConstraints->At(i).Data(); };
    const char* GetTableIDNameAt(int i) { return fTableIDName->At(i).Data(); };
@@ -72,6 +77,7 @@ public:
    const char* GetFieldName() { return fFieldName.Data(); };
    int         GetFieldIndexAt(int i)  { return fFieldIndex[i]; };
    bool        IsFieldArray() { return fFieldArray; };
+   const char* GetAbsolutePath( const char* tablename );
 
    // getters for decode constraint
    int         GetNumberOfConstraints() { return fConstraintField->GetEntriesFast(); };
@@ -82,6 +88,8 @@ protected:
    // setters for decode
    void  SetTableNameAt(int i,const char* name) { fTableNames->AddAtAndExpand(name,i); };
    void  SetTableNameAt(int i,TString& name) { fTableNames->AddAtAndExpand(name,i); };
+   void  SetTableAbsolutePathAt(int i,const char* name) { fTableAbsolutePaths->AddAtAndExpand(name,i); };
+   void  SetTableAbsolutePathAt(int i,TString& name) { fTableAbsolutePaths->AddAtAndExpand(name,i); };
    void  SetTableConstraintAt(int i,const char* constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableConstraintAt(int i,TString& constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableDBConstraintAt(int i,const char* constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
