@@ -294,22 +294,6 @@
 					<FieldComment>Event Number</FieldComment>
 				</Field>
 			</Folder>
-			<Folder>
-				<FolderName>test</FolderName>
-				<ArraySize>variable</ArraySize>
-				<ChangeableClassFile>true</ChangeableClassFile>
-				<Field>
-					<FieldName>test</FieldName>
-					<FieldType>Int_t</FieldType>
-					<ArraySize>4</ArraySize>
-				</Field>
-			</Folder>
-			<Folder>
-				<FolderName>subtest</FolderName>
-				<Folder>
-					<FolderName>subsubtest</FolderName>
-				</Folder>
-			</Folder>
 		</Folder>
 	</Folders>
 	<Tasks>
@@ -537,19 +521,11 @@
 				<RelatedFolder>Trigger</RelatedFolder>
 			</Branch>
 		</Tree>
-		<Tree>
-			<TreeName>test</TreeName>
-			<Branch>
-				<BranchName>test</BranchName>
-				<RelatedFolder>test</RelatedFolder>
-			</Branch>
-		</Tree>
 	</Trees>
 	<GlobalSteeringParameters>
 		<SteeringParameterField>
 			<SPFieldName>text</SPFieldName>
 			<SPFieldType>std::string</SPFieldType>
-			<SPFieldInitialization>"teststring"</SPFieldInitialization>
 			<SPFieldComment>text</SPFieldComment>
 		</SteeringParameterField>
 		<SteeringParameterField>

@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2005/01/24 15:25:06  schneebeli_m
+  Seperated DAQ classes
+
   Revision 1.11  2004/12/03 14:42:08  schneebeli_m
   some minor changes
 
@@ -25,31 +28,16 @@
 #define ROMEEventLoop_H
 
 #include <ROMETask.h>
+#include <ROMEDAQSystem.h>
 #include <ROMEAnalyzer.h>
+#include <ROMEMidas.h>
+#include <ROMERoot.h>
 
 class ROMEEventLoop : public ROMETask {
 protected:
-   // Run Status
-   enum {
-      kRunning   = 0,
-      kStopped   = 1
-   };
-   // Event Status
-   enum {
-      kAnalyze     = 0,
-      kContinue    = 1,
-      kBeginOfRun  = 2,
-      kEndOfRun    = 3,
-      kTerminate   = 4
-   };
-
-   // Midas
-   Int_t         fMidasFileHandle;                 //! Handle to Midas Inputfile
-   Int_t         fMidasBuffer;                     //! Midas Online Buffer
-
-   // Status
-   Int_t         fRunStatus;                       //! Run Status flag
-   Int_t         fEventStatus;                     //! Event Status flag
+   ROMEMidas*    fMidas;                           //! Handle to the Midas Systems
+   ROMERoot*     fRoot;                            //! Handle to root data written by ROME
+   ROMEDAQSystem *fActiveDAQ;                      //! Handle to the active DAQ system
 
    // Stop at
    Int_t         fStopAtRun;                       //! Stop execution at this run
@@ -71,20 +59,16 @@ protected:
 
    // Output Tree Files
    TFile**       fTreeFiles;                       //! File Handles for Tree Objects
-
-   // Tree Info
-   int           fSequentialNumber;                //! Sequential Number
    ROMETreeInfo* fTreeInfo;                        //! Tree Info Object
-   int*          fTreePosition;                    //! Array with tree read positions
-   int*          fTreeNextSeqNumber;               //! Array with the trees next sequential number
-
-   // Input Root Files
-   TFile**       fRootFiles;                       //! Root files
+   int           fSequentialNumber;                //! Sequential Number
 
    // Histo File
    TFile*        fHistoFile;                       //! Histo file
 
 
+public:
+   // Static Task Switches Changes Flag
+   static bool fTaskSwitchesChanged;               //! Flag Task Switches Changes
 
 public:
    ROMEEventLoop() { ; }
@@ -100,24 +84,24 @@ public:
    void Terminate() {};
 protected:
    // Run Status
-   Bool_t     isRunning()  { return fRunStatus==kRunning; };
-   Bool_t     isStopped()  { return fRunStatus==kStopped; };
+   Bool_t     isRunning()  { return fActiveDAQ->isRunning(); };
+   Bool_t     isStopped()  { return fActiveDAQ->isStopped(); };
 
-   void       SetRunning()  { fRunStatus = kRunning; };
-   void       SetStopped()  { fRunStatus = kStopped; };
+   void       SetRunning()  { fActiveDAQ->SetRunning(); };
+   void       SetStopped()  { fActiveDAQ->SetStopped(); };
 
    // Event Status
-   Bool_t     isAnalyze()    { return fEventStatus==kAnalyze;    };
-   Bool_t     isContinue()   { return fEventStatus==kContinue;   };
-   Bool_t     isBeginOfRun() { return fEventStatus==kBeginOfRun; };
-   Bool_t     isEndOfRun()   { return fEventStatus==kEndOfRun;   };
-   Bool_t     isTerminate()  { return fEventStatus==kTerminate;  };
+   Bool_t     isAnalyze()    { return fActiveDAQ->isAnalyze();    };
+   Bool_t     isContinue()   { return fActiveDAQ->isContinue();   };
+   Bool_t     isBeginOfRun() { return fActiveDAQ->isBeginOfRun(); };
+   Bool_t     isEndOfRun()   { return fActiveDAQ->isEndOfRun();   };
+   Bool_t     isTerminate()  { return fActiveDAQ->isTerminate();  };
 
-   void       SetAnalyze()    { fEventStatus = kAnalyze;    };
-   void       SetContinue()   { fEventStatus = kContinue;   };
-   void       SetBeginOfRun() { fEventStatus = kBeginOfRun; };
-   void       SetEndOfRun()   { fEventStatus = kEndOfRun;   };
-   void       SetTerminate()  { fEventStatus = kTerminate;  };
+   void       SetAnalyze()    { fActiveDAQ->SetAnalyze();    };
+   void       SetContinue()   { fActiveDAQ->SetContinue();   };
+   void       SetBeginOfRun() { fActiveDAQ->SetBeginOfRun(); };
+   void       SetEndOfRun()   { fActiveDAQ->SetEndOfRun();   };
+   void       SetTerminate()  { fActiveDAQ->SetTerminate();  };
 
    // event methods
    bool Initialize();
@@ -139,10 +123,7 @@ protected:
    virtual void InitTaskSwitches() = 0;
    virtual void UpdateTaskSwitches() = 0;
 
-   virtual bool InitODB() = 0;
-
    virtual void InitTrees() = 0;
-   virtual void ConnectTrees() = 0;
    virtual void FillTrees() = 0;
    
    //byte swapping

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.24  2005/01/24 15:20:24  schneebeli_m
+  Seperated DAQ classes
+
   Revision 1.23  2005/01/14 17:13:52  schneebeli_m
   HistoArrayStartIndex
 
@@ -224,6 +227,10 @@ public:
    bool WriteAnalyzerF();
    bool WriteConfigCpp();
    bool WriteConfigH();
+   bool WriteMidasCpp();
+   bool WriteMidasH();
+   bool WriteRootCpp();
+   bool WriteRootH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();

@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.33  2005/01/24 15:25:06  schneebeli_m
+  Seperated DAQ classes
+
   Revision 1.32  2005/01/19 13:29:50  schneebeli_m
   geteventid
 
@@ -94,7 +97,7 @@ protected:
 
    // Modes
    Int_t      fAnalysisMode;                    //! Analysis mode flag
-   Int_t      fDataFormat;                      //! Root mode flag
+   ROMEString fDAQSystem;                       //! DAQ System
    Bool_t     fBatchMode;                       //! Batch mode flag
    Bool_t     fSplashScreen;                    //! Splash screen flag
 
@@ -120,7 +123,8 @@ protected:
    char       fEventID;                         //! Event ID of current Event
 
    // Midas
-   char       fMidasEvent[0x80000];             //! Midas Inputdata Stack for an Event
+   char       fRawDataEvent[2][0x80000];          //! Midas Inputdata Stack for the current Event and the last Event
+   int        fCurrentRawDataEvent;               //! Index of the current event buffer
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
 
    // Flags
@@ -159,9 +163,6 @@ protected:
    ROMEConfig   *fConfiguration;                   //! Configuration Handle
 
 public:
-   // Static Task Switches Changes Flag
-   static bool fTaskSwitchesChanged;               //! Flag Task Switches Changes
-
    static const char* LineToProcess;
 
 public:
@@ -194,11 +195,9 @@ public:
    void       SetOffline() { fAnalysisMode = kAnalyzeOffline; };
 
    // Data Format
-   Bool_t     isRoot() { return fDataFormat==kRoot; };
-   Bool_t     isMidas() { return fDataFormat==kMidas; };
+   ROMEString &GetDAQ() { return fDAQSystem; };
 
-   void       SetRoot()  { fDataFormat = kRoot; };
-   void       SetMidas() { fDataFormat = kMidas; };
+   void       SetDAQ(ROMEString daqSystem)  { daqSystem.ToLower(); fDAQSystem = daqSystem; };
 
    // Directories
    char*      GetInputDir() { return (char*)fInputDir.Data(); }
@@ -228,9 +227,6 @@ public:
    bool       IsDontReadNextEvent() { return fDontReadNextEvent; };
 
    void       SetDontReadNextEvent(bool flag = true) { fDontReadNextEvent = flag; };
-
-   // midass event header
-   EVENT_HEADER* GetEventHeader() { return (EVENT_HEADER*)fMidasEvent; };
 
    // Tree IO
    Bool_t     isTreeAccumulation()  { return fTreeAccumulation;  };
@@ -304,11 +300,14 @@ public:
    void       SetPortNumber(char* portNumber) { char* cstop; fPortNumber = strtol(portNumber,&cstop,10); };
    void       SetSocketOffline(bool flag=true) { fSocketOffline = flag; };
 
-   // Midas
+   // Midas ODB
    int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
    int*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
-   char*      GetMidasEvent() { return fMidasEvent; };
-   int        GetMidasEventSize() { return sizeof(fMidasEvent); };
+
+   // Raw Data
+   void*      GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; };
+   void*      GetLastRawDataEvent() { return fRawDataEvent[1-fCurrentRawDataEvent]; };
+   int        GetRawDataEventSize() { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); };
 
    // Configuration
    ROMEConfig *GetConfiguration() { return fConfiguration; };

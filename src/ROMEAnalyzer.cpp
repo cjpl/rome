@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.49  2005/01/24 15:25:08  schneebeli_m
+//  Seperated DAQ classes
+//
 //  Revision 1.48  2004/12/21 08:49:54  schneebeli_m
 //  Config SP read error
 //
@@ -155,7 +158,7 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fLastEventNumberIndex = 0;
    fApplication = app;
    fAnalysisMode = kAnalyzeOffline; 
-   fDataFormat = kRoot; 
+   fDAQSystem = "root"; 
    fBatchMode = false;
    fSplashScreen = true;
    fDontReadNextEvent = false;
@@ -312,8 +315,8 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if (!strcmp(argv[i],"-f")) {
-         if (!strcmp(argv[i+1],"root")) this->SetRoot();
-         else this->SetMidas();
+         if (!strcmp(argv[i+1],"root")) this->SetDAQ("root");
+         else if (!strcmp(argv[i+1],"midas")) this->SetDAQ("midas");
          i++;
       }
       else if (!strcmp(argv[i],"-r")&&i<argc-1) {
