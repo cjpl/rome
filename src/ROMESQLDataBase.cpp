@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.13  2004/11/17 18:50:30  sawada
+//  bug fix in handling database constraint
+//
 //  Revision 1.12  2004/11/17 13:27:17  sawada
 //  bug fix
 //
@@ -218,7 +221,32 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 		  delete dbpath;
 		  return false;
 	       }
-            }
+	       //add relation
+	       if(iTable<path->GetNumberOfTables()-1){
+		  if(strlen(dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables()-1))){
+		     if(fWherePhrase.Length())
+			fWherePhrase += " AND ";
+		     fWherePhrase.AppendFormatted("%s.%s_%s=%s.%s"
+						  , dbpath->GetTableNameAt(dbpath->GetNumberOfTables()-1)
+						  ,path->GetTableNameAt(iTable+1)
+						  ,dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables()-1)
+						  ,path->GetTableNameAt(iTable+1)
+						  ,"id"//dbpath->GetTableIDNameAt(dbpath->GetNumberOfTables()-1)
+			);
+		  }
+		  if(strlen(dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1))){
+		     if(fWherePhrase.Length())
+			fWherePhrase += " AND ";
+		     fWherePhrase.AppendFormatted("%s.%s_%s=%s.%s"
+						  , dbpath->GetTableNameAt(dbpath->GetNumberOfTables()-1)
+						  ,path->GetTableNameAt(iTable+1)
+						  ,dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1)
+						  ,path->GetTableNameAt(iTable+1)
+						  ,"idx"//dbpath->GetTableIDXNameAt(dbpath->GetNumberOfTables()-1)
+			);
+		  }
+	       }
+	    }
          }
 	 else{
 	    cout << "\nWarning: DB constraint was not found for "
@@ -239,7 +267,8 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 					 ,path->GetTableNameAt(iTable+1)
 					 ,path->GetTableIDNameAt(iTable)
 					 ,path->GetTableNameAt(iTable+1)
-					 ,path->GetTableIDNameAt(iTable));
+					 ,"id"//path->GetTableIDNameAt(iTable)
+	       );
 	 }
 	 if(strlen(path->GetTableIDXNameAt(iTable))){
 	    if(fWherePhrase.Length())
@@ -249,7 +278,8 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 					 ,path->GetTableNameAt(iTable+1)
 					 ,path->GetTableIDXNameAt(iTable)
 					 ,path->GetTableNameAt(iTable+1)
-					 ,path->GetTableIDXNameAt(iTable));
+					 ,"idx"//path->GetTableIDXNameAt(iTable)
+	       );
 	 }
       }
 #ifdef SQLDEBUG
