@@ -47,6 +47,9 @@
 						<Z Type="Float_t" Initialisation="0" Comment="// Z-Coordinate"/>
 						<DeadFlag Type="Bool_t" Initialisation="false" Comment="// Dead Photo Multiplier Flag"/>
 					</Fields>
+					<AdditionalGetters>
+						<GetFace Type="Int_t"/>
+					</AdditionalGetters>
 				</SubFolder>
 				<SubFolder FolderName="CMRef" FolderTitle="References for ADC and TDC Counts">
 					<Author Name="Matthias Schneebeli"/>
@@ -113,37 +116,27 @@
 					<Temp Type="Int_t" Initialisation="0" Comment="// temp"/>
 				</Fields>
 			</SubFolder>
-			<SubFolder FolderName="Trigger" FolderTitle="Trigger">
+			<SubFolder FolderName="Trigger" FolderTitle="Trigger" MidasHeader="yes">
 				<Author Name="Matthias Schneebeli"/>
 				<Version Number="1"/>
 				<ClassDescription Text="Container Class for Trigger data."/>
 				<Fields>
-					<ID Type="Int_t" Initialisation="0" Comment="// event ID"/>
-					<Mask Type="Int_t" Initialisation="0" Comment="// Trigger Mask"/>
-					<Time Type="Int_t" Initialisation="0" Comment="// Time stamp"/>
-					<EventNumber Type="Int_t" Initialisation="0" Comment="// Event Number"/>
+					<ID Type="Int_t" Initialisation="0" Comment="// event ID" MidasName="event_id"/>
+					<Mask Type="Int_t" Initialisation="0" Comment="// Trigger Mask" MidasName="trigger_mask"/>
+					<Time Type="Int_t" Initialisation="0" Comment="// Time stamp" MidasName="time_stamp"/>
+					<EventNumber Type="Int_t" Initialisation="0" Comment="// Event Number" MidasName="serial_number"/>
 				</Fields>
 			</SubFolder>
 		</SubFolder>
 		<!--megData-->
 	</Folder>
 	<Task>
-		<SubTask Name="ReadOfflineMid" OverWriteCpp="no">
+		<SubTask Name="ReadMidas">
 			<Author Name="Matthias Schneebeli"/>
 			<Version Number="1"/>
-			<ClassDescription Text="Reads Midas Data in an offline analysis."/>
+			<ClassDescription Text="Reads Midas Data."/>
 		</SubTask>
-		<SubTask Name="ReadMidasTest" OverWriteCpp="no">
-			<Author Name="MEG Collaboration"/>
-			<Version Number="1"/>
-			<ClassDescription Text="Reads Test Midas Data."/>
-		</SubTask>
-		<SubTask Name="ReadOfflineRoot" OverWriteCpp="no">
-			<Author Name="Matthias Schneebeli"/>
-			<Version Number="1"/>
-			<ClassDescription Text="Reads Root Data in an offline analysis."/>
-		</SubTask>
-		<SubTask Name="ADCPedestal" OverWriteCpp="no">
+		<SubTask Name="ADCPedestal">
 			<Author Name="Matthias Schneebeli"/>
 			<Version Number="1"/>
 			<ClassDescription Text="Calculates the ADC Pedestal."/>
@@ -163,7 +156,7 @@
 				<TDCAverageHisto Type="TH1F" ArraySize="1" FolderName="tdcAverage" Title="TDC Avarage Histogram" NumberOfBinsX="400" XMin="-200" XMax="200"/>
 			</Histos>
 		</SubTask>
-		<SubTask Name="Charge" OverWriteCpp="no">
+		<SubTask Name="Charge">
 			<Author Name="Matthias Schneebeli"/>
 			<Version Number="1"/>
 			<ClassDescription Text="Calculates the Charge."/>
@@ -192,4 +185,30 @@
 			<Branch Name="Trigger" Folder="Trigger"/>
 		</Tree>
 	</Trees>
+	<MidasBanks>
+		<SCLR Type="unsigned long"/>
+		<ADC0 Type="unsigned short"/>
+		<ADC1 Type="unsigned short"/>
+		<FTDC Type="struct" StructName="LRS1875">
+			<data Type="unsigned short" PackedSize="12"/>
+			<q1 Type="unsigned short" PackedSize="4"/>
+			<channel Type="unsigned short" PackedSize="6"/>
+			<q2 Type="unsigned short" PackedSize="1"/>
+			<range Type="unsigned short" PackedSize="1"/>
+			<event Type="unsigned short" PackedSize="3"/>
+			<geo_addr Type="unsigned short" PackedSize="5"/>
+		</FTDC>
+		<VTDC Type="struct" StructName="CAEN775">
+			<data Type="unsigned short" PackedSize="12"/>
+			<overflow Type="unsigned short" PackedSize="1"/>
+			<underflow Type="unsigned short" PackedSize="1"/>
+			<valid Type="unsigned short" PackedSize="1"/>
+			<q1 Type="unsigned short" PackedSize="1"/>
+			<channel Type="unsigned short" PackedSize="6"/>
+			<q2 Type="unsigned short" PackedSize="2"/>
+			<tag Type="unsigned short" PackedSize="3"/>
+			<geo_addr Type="unsigned short" PackedSize="5"/>
+		</VTDC>
+		<CTDC Type="unsigned long"/>
+	</MidasBanks>
 </MEG>
