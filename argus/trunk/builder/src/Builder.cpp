@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.29  2005/03/20 18:26:20  sawada
+  small bug fix.
+
   Revision 1.28  2005/03/20 18:19:55  sawada
   unified makefile for windows and unix.
 
@@ -820,7 +823,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
    compileFormatROMEFolders.SetFormatted("	g++ -c $(Flags) $(Includes) %%s/src/framework/%%s.cpp -o obj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
-   compileFormatARGUS.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/ARGUS%%s.cpp -o obj/ARGUS%%s.obj\n");
+   compileFormatARGUS.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp -o obj/Argus%%s.obj\n");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
    compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/monitor/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
@@ -828,7 +831,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    compileFormatBlank.SetFormatted("	cl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
    compileFormatROMEFolders.SetFormatted("	cl /c $(Flags) $(Includes) %%s/src/framework/%%s.cpp /Foobj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
-   compileFormatARGUS.SetFormatted ("	cl /c $(Flags) $(Includes) $(ARGUSSYS)/src/ARGUS%%s.cpp /Foobj/ARGUS%%s.obj\n");
+   compileFormatARGUS.SetFormatted ("	cl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
 #endif
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
@@ -908,7 +911,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMEFolderIncludes)");
    buffer.AppendFormatted(" $(BaseROMEFolderIncludes)");
-   buffer.AppendFormatted(" $(ARGUSSYS)/include/ARGUSMonitor.h include/monitor/%sMonitor.h $(UserClassHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h include/monitor/%sMonitor.h $(UserClassHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
    buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
