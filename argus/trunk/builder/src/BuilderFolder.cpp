@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/02/25 16:14:00  sawada
+  bug fix and example for ROMEFolder
+
   Revision 1.6  2005/02/25 13:51:02  sawada
   added folderShortCut and ROMEProjectPath
 
@@ -42,7 +45,6 @@ bool ArgusBuilder::ReadXMLFolder() {
    }
    // initialisation
    folderName[numOfFolder] = "";
-   folderShortCut[numOfFolder] = shortCut;
    folderRomeProjPath[numOfFolder] = "./";
    folderTitle[numOfFolder] = "";
    folderArray[numOfFolder] = "1";
@@ -323,9 +325,6 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
       // folder title
       if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
          xml->GetValue(folderTitle[numOfFolder],folderTitle[numOfFolder]);
-      // folder short cut for ROMEFolder
-      if (type == 1 && !strcmp((const char*)name,"FolderShortCut"))
-         xml->GetValue(folderShortCut[numOfFolder],folderShortCut[numOfFolder]);
       // folder ROME project path for ROMEFolder
       if (type == 1 && !strcmp((const char*)name,"ROMEProjectPath"))
          xml->GetValue(folderRomeProjPath[numOfFolder],folderRomeProjPath[numOfFolder]);

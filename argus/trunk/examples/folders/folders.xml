@@ -3,7 +3,7 @@
 <ArgusMonitorDefinition>
 	<Experiment>
 		<ExperimentName>Folders</ExperimentName>
-		<ExperimentShortCut>LP</ExperimentShortCut>
+		<ExperimentShortCut>FO</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
 		<MonitorDescription>Several kind of folders.</MonitorDescription>
 	</Experiment>
@@ -23,11 +23,11 @@
 	</Tabs>
 	<Folders>
 		<Folder>
-			<FolderName>LPData</FolderName>
-			<FolderTitle>LPData</FolderTitle>
+			<FolderName>FOData</FolderName>
+			<FolderTitle>FOData</FolderTitle>
 			<Author>Ryu Sawada</Author>
 			<FolderVersion>1</FolderVersion>
-			<FolderDescription>LP root folder.</FolderDescription>
+			<FolderDescription>FO root folder.</FolderDescription>
 			<Folder>
 			  <FolderName>ODB</FolderName>
 			  <FolderTitle>This folder reads ODB</FolderTitle>
@@ -59,8 +59,7 @@
 			<ROMEFolder>
 				<FolderName>RunInfo</FolderName>
 				<DataBaseAccess>true</DataBaseAccess>
-				<FolderShortCut>LP</FolderShortCut>
-				<ROMEProjectPath>./</ROMEProjectPath>
+				<ROMEProjectPath>./romeproject</ROMEProjectPath>
 				<Arrayed>false</Arrayed>
 			</ROMEFolder>
 		</Folder>
