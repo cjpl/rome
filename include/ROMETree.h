@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2004/10/05 14:01:16  schneebeli_m
+  Circular Trees
+
   Revision 1.5  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -19,25 +22,33 @@ private:
    struct Switches {
       int fRead;           //!   Read Flag
       int fWrite;          //!   Write Flag
-   } fSwitches;               //!   Switches Structure
+      int fMaxEntries;     //!   Max number of entries, 0 in case of a non circular tree
+   } fSwitches;            //!   Switches Structure
 
    ROMEString fSwitchesString;   //!   Switches String
 
 protected:
    TTree *fTree;              //   Tree
 public:
-   ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0)
-   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; 
-     fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\n"; };
+   ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Int_t maxEntries=0)
+   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fMaxEntries = maxEntries; 
+     if (maxEntries>0) fTree->SetCircular(maxEntries);
+     fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nMax Entries = INT : 0\n"; };
    TTree *GetTree() { return fTree; };
    Bool_t isRead() { return fSwitches.fRead!=0; };
    Bool_t isWrite() { return fSwitches.fWrite!=0; };
+   Bool_t isCircular() { return fSwitches.fMaxEntries!=0; };
+   Int_t  GetMaxEntries() { return fSwitches.fMaxEntries; };
    Switches* GetSwitches() { return &fSwitches; };
    int       GetSwitchesSize() { return sizeof(Switches); };
    char*     GetSwitchesString() { return (char*)fSwitchesString.Data(); };
    void SetTree(TTree *tree) { fTree = tree; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };
    void SetWrite(Bool_t write) { fSwitches.fWrite = write; };
+   void SetMaxEntries(Int_t maxEntries) 
+   {  fSwitches.fMaxEntries = maxEntries;
+      if (maxEntries>0) fTree->SetCircular(maxEntries);
+   };
 };
 
 #endif   // ROMETree_H

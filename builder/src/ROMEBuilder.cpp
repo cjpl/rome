@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.54  2004/10/05 14:01:16  schneebeli_m
+  Circular Trees
+
   Revision 1.53  2004/10/05 13:30:32  schneebeli_m
   make -e, Port number
 
@@ -2967,6 +2970,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       buffer.AppendFormatted("               xml->GetAttribute(\"Write\",value,\"\");\n");
       buffer.AppendFormatted("               if (value==\"yes\")\n");
       buffer.AppendFormatted("                  this->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
+      buffer.AppendFormatted("               xml->GetAttribute(\"MaxNumberOfEntries\",value,\"\");\n");
+      buffer.AppendFormatted("               int maxNumOfEntries = strtol(value.Data(),&cstop,10);\n");
+      buffer.AppendFormatted("               this->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);\n",i);
       buffer.AppendFormatted("            }\n");
    }
    buffer.AppendFormatted("            if (type == 15 && !strcmp((const char*)name,\"Trees\"))\n");
@@ -3086,6 +3092,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       buffer.AppendFormatted("      xml->WriteAttribute(\"Write\",\"yes\");\n");
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      xml->WriteAttribute(\"Write\",\"no\");\n");
+      buffer.AppendFormatted("   str.SetFormatted(\"%%d\",this->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+      buffer.AppendFormatted("   xml->WriteAttribute(\"MaxNumberOfEntries\",str.Data());\n");
       buffer.AppendFormatted("   xml->EndElement();\n");
    }
    buffer.AppendFormatted("      xml->EndElement();\n");
