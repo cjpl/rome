@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.89  2005/01/14 12:44:19  schneebeli_m
+  midas path in makefile
+
   Revision 1.88  2005/01/13 09:11:28  schneebeli_m
   Description text overflow
 
@@ -5997,7 +6000,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
    else
       buffer.AppendFormatted("sqllibs = \n");
-   if (this->midas) 
+   if (this->midas)
       buffer.AppendFormatted("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
    else
       buffer.AppendFormatted("midaslibs = \n");
@@ -6112,6 +6115,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined ( __linux__ ) || defined ( __APPLE__ )
    // libs
    buffer.Resize(0);
+   buffer.AppendFormatted("libpaths = \n");
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
@@ -6126,8 +6130,10 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqllibs := \n");
       buffer.AppendFormatted("sqlcflags := \n");
    }
-   if (this->midas) 
+   if (this->midas) {
       buffer.AppendFormatted("midaslibs := -lmidas\n");
+      buffer.AppendFormatted("libpaths += -L$(MIDASSYS)/lib \n");
+   }
    else
       buffer.AppendFormatted("midaslibs := \n");
    buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS)");
@@ -6137,7 +6143,7 @@ void ROMEBuilder::WriteMakefile() {
 #if !defined( __APPLE__ )
    buffer.AppendFormatted("clibs += -lutil\n");
 #endif
-   buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries := $(libpaths) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("flags := $(%suserflags)",shortcut.Data());
