@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.54  2005/01/31 17:13:33  schneebeli_m
+//  cm_set_msg_print
+//
 //  Revision 1.53  2005/01/27 16:40:33  schneebeli_m
 //  cm_msg in print method
 //
@@ -197,6 +200,12 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
 
+   ROMEString text;
+
+#if defined HAVE_MIDAS
+   cm_set_msg_print(0,0,NULL);
+#endif
+
    gROME = (ROMEAnalyzer*)gPassToROME;
 
    gROME->ss_getchar(0);
@@ -215,7 +224,8 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    if (gROME->isOnline() || gROME->isSocketOffline()) {
       StartServer(gROME->GetPortNumber());
-      printf("Root server listening on port %d\n\n\n", gROME->GetPortNumber());
+      text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
+      gROME->Println(text.Data());
    }
 
    gROME->Println("Program steering");
@@ -247,7 +257,7 @@ void ROMEAnalyzer::Print(char text)
    cout << text;
 #if defined HAVE_MIDAS
    ROMEString strText = text;
-   cm_msg(MINFO, "ROMEAnalyzer::Print", strText.Data());
+//   cm_msg(MINFO, "ROMEAnalyzer::Print", strText.Data());
 #endif
    return;
 }
@@ -256,7 +266,7 @@ void ROMEAnalyzer::Print(const char* text)
 {
    cout << text;
 #if defined HAVE_MIDAS
-   cm_msg(MINFO, "ROMEAnalyzer::Print", text);
+//   cm_msg(MINFO, "ROMEAnalyzer::Print", text);
 #endif
    return;
 }
@@ -265,7 +275,7 @@ void ROMEAnalyzer::Println(const char* text)
 {
    cout << text << endl;
 #if defined HAVE_MIDAS
-   cm_msg(MINFO, "ROMEAnalyzer::Println", text);
+//   cm_msg(MINFO, "ROMEAnalyzer::Println", text);
 #endif
    return;
 }
@@ -274,7 +284,7 @@ void ROMEAnalyzer::Printfl(const char* text)
 {
    cout << text << flush;
 #if defined HAVE_MIDAS
-   cm_msg(MINFO, "ROMEAnalyzer::Printfl", text);
+//   cm_msg(MINFO, "ROMEAnalyzer::Printfl", text);
 #endif
    return;
 }
