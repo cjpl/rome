@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.87  2005/01/11 08:04:16  schneebeli_m
+  UserHTML
+
   Revision 1.86  2005/01/11 08:00:43  schneebeli_m
   UserHTML
 
@@ -6726,9 +6729,12 @@ void ROMEBuilder::WriteHTMLDoku() {
    if (makeOutput) htmlFile.WriteLine();
 
    // Write UserHTML
+   struct stat buf;
    htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
-   fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   close(fileHandle);
+   if( stat( htmlFile.Data(), &buf )) {
+      fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+   }
 }
 
 void ROMEBuilder::GetFormat(ROMEString* buf,char *type) 
