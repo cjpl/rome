@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.40  2004/09/08 10:09:50  schneebeli_m
+  online host
+
   Revision 1.39  2004/09/08 09:07:12  schneebeli_m
   minor bugs
 
@@ -3007,6 +3010,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("            this->SetOnline();\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            this->SetOffline();\n");
+   buffer.AppendFormatted("         xml->GetAttribute(\"OnlineHost\",value,\"\");\n");
+   buffer.AppendFormatted("         fOnlineHost = value;\n");
    buffer.AppendFormatted("         xml->GetAttribute(\"InputDataFormat\",value,\"\");\n");
    buffer.AppendFormatted("         if (value==\"root\")\n");
    buffer.AppendFormatted("            this->SetRoot();\n");
@@ -3141,6 +3146,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"OnlineHost\",(char*)fOnlineHost.Data());\n");
    buffer.AppendFormatted("   if (this->isMidas())\n");
    buffer.AppendFormatted("      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
    buffer.AppendFormatted("   else\n");

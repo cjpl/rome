@@ -123,6 +123,8 @@ protected:
 
    // Program name
    ROMEString    fProgramName;                     //! Name of this Program
+   // Online Host Name
+   ROMEString    fOnlineHost;                      //! Name of the Online Host
 
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics

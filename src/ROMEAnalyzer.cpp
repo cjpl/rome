@@ -80,6 +80,7 @@ ROMEAnalyzer::ROMEAnalyzer()
    fTriggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
    fContinuous = true;
+   fOnlineHost = "";
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -153,7 +154,7 @@ bool ROMEAnalyzer::Init() {
       cout << "Program is running online." << endl << endl;
 
       // Connect to the experiment
-      if (cm_connect_experiment("", "",(char*)fProgramName.Data(), NULL) != SUCCESS) {
+      if (cm_connect_experiment((char*)fOnlineHost.Data(), "",(char*)fProgramName.Data(), NULL) != SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }
