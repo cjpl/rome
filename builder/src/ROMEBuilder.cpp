@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.58  2004/10/14 10:53:17  schneebeli_m
+  bug fixed
+
   Revision 1.57  2004/10/14 09:53:41  schneebeli_m
   ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 
@@ -3466,7 +3469,8 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         gAnalyzer->Get%sTask()->SetActive(false);\n",taskName[i].Data());
       buffer.AppendFormatted("   }\n");
       // Histogram
-      buffer.AppendFormatted("   // histograms\n");
+      if (numOfHistos[i]>0)
+         buffer.AppendFormatted("   // histograms\n");
       for (j=0;j<numOfHistos[i];j++) {
          buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTask->f%sHisto->fAccumulateModified) {\n",taskName[i].Data(),histoName[i][j].Data());
          buffer.AppendFormatted("      if (fConfigData[index]->f%sTask->f%sHisto->fAccumulate==\"false\")\n",taskName[i].Data(),histoName[i][j].Data());
@@ -3476,7 +3480,8 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("   }\n");
       }
       // Steering parameter
-      buffer.AppendFormatted("   // steering parameters\n");
+      if (numOfSteering[i]>0)
+         buffer.AppendFormatted("   // steering parameters\n");
       for (j=0;j<numOfSteering[i];j++) {
          if (steerParent[i][j]!=-1)
             continue;
@@ -4246,8 +4251,8 @@ bool ROMEBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int num
       buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
       buffer.AppendFormatted("   if (fConfigData[modIndex]%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
       value.SetFormatted("fConfigData[index]%s->f%s",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-      setValue(&value,"",(char*)value.Data(),(char*)steerFieldType[numTask][numSteer][k].Data(),1);
-      buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),value.Data());
+      setValue(&decodedValue,"",(char*)value.Data(),(char*)steerFieldType[numTask][numSteer][k].Data(),1);
+      buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
       buffer.AppendFormatted("   }\n");
    }
    // Groups
