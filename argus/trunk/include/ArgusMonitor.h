@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.4  2005/02/02 23:54:30  sawada
+  link with midas library.
+
   Revision 1.3  2005/02/02 18:58:02  sawada
   small change.
 
@@ -19,6 +22,9 @@
 #include <ROMEString.h>
 #include <ROMEDataBase.h>
 #include <ArgusConfig.h>
+#if defined(HAVE_MIDAS)
+#include <midas.h>
+#endif
 
 class ArgusMonitor : public TObject
 {
@@ -48,9 +54,10 @@ protected:
    ROMEString    fOnlineExperiment;             //! Name of the Online Experiment
    
    // SocketInterface
-   int           fSocketInterfacePortNumber;          //! Port Number for TSocket
-   ROMEString    fSocketInterfaceHost;                //! Host for TSocket
-   
+   int           fSocketInterfacePortNumber;    //! Port Number for TSocket
+   ROMEString    fSocketInterfaceHost;          //! Host for TSocket
+   int           fRunNumber;                    //! Run number for ROMEDataBase
+
    // Window
    float         fWindowScale;                  //! Window scale
    
@@ -64,7 +71,6 @@ protected:
    virtual void InitArrayFolders() = 0;
    virtual void CleanUpFolders() = 0;
    virtual void ResetFolders() = 0;
-   virtual bool InitODB() = 0;
    
 public:
    ArgusMonitor() {};

@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/02/02 23:54:30  sawada
+  link with midas library.
+
   Revision 1.3  2005/02/02 18:58:02  sawada
   small change.
 
@@ -163,7 +166,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
                if (folderArray[i]=="1") {
                   buffer.AppendFormatted("   values->RemoveAll();\n");
                   buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path))\n");
+                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
                   buffer.AppendFormatted("      return false;\n");
                   if (valueArray[i][j]=="1") {
                      buffer.AppendFormatted("   if (values->At(0,0).Length()!=0)\n");
@@ -203,7 +206,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
                if (folderArray[i]!="1") {
                   buffer.AppendFormatted("   values->RemoveAll();\n");
                   buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path))\n");
+                  buffer.AppendFormatted("   if (!this->GetDataBase()->Read(values,path,fRunNumber))\n");
                   buffer.AppendFormatted("      return false;\n");
                   buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
                   if (valueArray[i][j]=="1") {
@@ -230,11 +233,6 @@ bool ArgusBuilder::WriteMonitorCpp() {
       buffer.AppendFormatted("   values->RemoveAll();\n");
       buffer.AppendFormatted("   delete values;\n");
    }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
-   // Initialize ODB
-   buffer.AppendFormatted("\n// InitODB\n");
-   buffer.AppendFormatted("bool %sMonitor::InitODB() {\n",shortCut.Data());
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
    // clean up folders
@@ -495,10 +493,6 @@ bool ArgusBuilder::WriteMonitorH() {
    }
    // Private
    buffer.AppendFormatted("private:\n");
-   // ODB
-   buffer.AppendFormatted("   // ODB Methodes\n");
-   buffer.AppendFormatted("   bool InitODB();\n");
-   buffer.AppendFormatted("\n");
    // Folders
    buffer.AppendFormatted("   // Folder Methodes\n");
    buffer.AppendFormatted("   void InitSingleFolders();\n");

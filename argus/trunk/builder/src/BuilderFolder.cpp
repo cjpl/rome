@@ -3,8 +3,11 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:07  sawada
-  Initial revision
+  Revision 1.2  2005/02/02 23:54:30  sawada
+  link with midas library.
+
+  Revision 1.1.1.1  2005/01/29 22:45:07  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -154,8 +157,14 @@ bool ArgusBuilder::ReadXMLFolder() {
             folderDefinedInROME[numOfFolder] = true;
       }
       // folder data base type
-      if (type == 1 && !strcmp((const char*)name,"ConnectionType"))
+      if (type == 1 && !strcmp((const char*)name,"ConnectionType")){
          xml->GetValue(folderConnectionType[numOfFolder],folderConnectionType[numOfFolder]);
+         if(!midas && !strcmp(folderConnectionType[numOfFolder],"ODB")){
+            cout << "Need Midas support for ODB connection !!" << endl;
+            cout << "Please link the midas library into this project." << endl;
+            return false;
+         }
+      }
       // folder field
       if (type == 1 && !strcmp((const char*)name,"Field")) {
          // field initialisation
