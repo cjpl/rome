@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.39  2004/09/08 09:07:12  schneebeli_m
+  minor bugs
+
   Revision 1.38  2004/09/02 12:39:35  schneebeli_m
   minor problems
 
@@ -910,11 +913,6 @@ bool ROMEBuilder::ReadXMLTask() {
                   xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]],"");
                   // histo folder name
                   xml->GetAttribute("FolderName",histoFolderName[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoFolderName[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Folder Name defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
                   // histo folder title
                   xml->GetAttribute("FolderTitle",histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
                   // histo xbins
@@ -1412,7 +1410,7 @@ bool ROMEBuilder::WriteTaskH() {
    char fileBuffer[bufferLength];
    ROMEString format;
 
-   int i;
+   int i,j;
    int fileHandle;
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
@@ -1570,7 +1568,20 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("   ROMEString title;\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
+         bool sameFolder = false;
+         bool homeFolder = false;
+         if (histoFolderName[iTask][i]=="") {
+            homeFolder = true;
+         }
+         else {
+            for (j=0;j<i;j++) {
+               if (histoFolderName[iTask][i]==histoFolderName[iTask][j])
+                  sameFolder = true;
+            }
+         }
          if (histoArray[iTask][i]=="1") {
+            if (!sameFolder&&!homeFolder)
+               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
             if (histoType[iTask][i][2]==49) {
                buffer.AppendFormatted("   f%s = new %s(\"%s\",\"%s\",%s,%s,%s);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoTitle[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data());
             }
@@ -1580,12 +1591,16 @@ bool ROMEBuilder::WriteTaskH() {
             if (histoType[iTask][i][2]==51) {
                buffer.AppendFormatted("   f%s = new %s(\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoTitle[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data(),histoZBin[iTask][i].Data(),histoZMin[iTask][i].Data(),histoZMax[iTask][i].Data());
             }
-            buffer.AppendFormatted("   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
+            if (!homeFolder)
+               buffer.AppendFormatted("   %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+            else
+               buffer.AppendFormatted("   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
          }
          else {
             buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
             buffer.AppendFormatted("   f%ss = new TObjArray(%s);\n",histoName[iTask][i].Data(),histoArray[iTask][i].Data());
-            buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
+            if (!sameFolder&&!homeFolder)
+               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
             buffer.AppendFormatted("   for (j=0;j<%s;j++) {\n",histoArray[iTask][i].Data());
             buffer.AppendFormatted("      name.SetFormatted(\"%%0*d\",3,j);\n");
             buffer.AppendFormatted("      name.Insert(0,\"%s_\");\n",histoName[iTask][i].Data());
@@ -1601,7 +1616,10 @@ bool ROMEBuilder::WriteTaskH() {
                buffer.AppendFormatted("      hist%d = new %s(name,title,%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",i,histoType[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data(),histoZBin[iTask][i].Data(),histoZMin[iTask][i].Data(),histoZMax[iTask][i].Data());
             }
             buffer.AppendFormatted("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
-            buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n   }\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+            if (!homeFolder)
+               buffer.AppendFormatted("      %sFolder->Add(f%ss->At(j));\n   }\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
+            else
+               buffer.AppendFormatted("      GetHistoFolder()->Add(f%ss->At(j));\n   }\n",histoName[iTask][i].Data());
          }
       }
       buffer.AppendFormatted("}\n\n");
@@ -2670,7 +2688,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   buffer.AppendFormatted("   fSQL->NextRow();\n");
                   buffer.AppendFormatted("   res = fSQL->GetField(0);\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   f%sObjects->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("   f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                }
             }
             else {
@@ -3910,7 +3928,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags = /GX /GR %suserflags",shortCut.Data());
+   buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortCut.Data());
    if (!this->offline) 
       buffer.AppendFormatted(" /DHAVE_MIDAS");
    if (this->sql) 
@@ -4004,7 +4022,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("flags := %suserflags",shortcut.Data());
+   buffer.AppendFormatted("flags := $(%suserflags)",shortcut.Data());
    if (!this->offline) 
       buffer.AppendFormatted(" -DHAVE_MIDAS");
    if (this->sql) 
