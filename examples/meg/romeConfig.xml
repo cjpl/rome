@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Mon Jan 24 16:17:28 2005
+<!-- created by ROME on Wed Mar 23 09:31:23 2005
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -31,25 +31,38 @@
                <Task>
                     <TaskName>ReadMidas</TaskName>
                     <Active>true</Active>
-                    <Task>
-                         <TaskName>TDCAverage</TaskName>
-                         <Active>false</Active>
-                         <Histogram>
-                              <HistName>ADC0Histo</HistName>
-                              <Accumulate>true</Accumulate>
-                         </Histogram>
-                    </Task>
+                    <SteeringParameterField>
+                         <SPName>test</SPName>
+                         <SPValue>true</SPValue>
+                    </SteeringParameterField>
+               </Task>
+               <Task>
+                    <TaskName>TDCAverage</TaskName>
+                    <Active>false</Active>
+                    <Histogram>
+                         <HistName>TDCAverageHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
+                    </Histogram>
                </Task>
                <Task>
                     <TaskName>ADCPedestal</TaskName>
                     <Active>true</Active>
                     <Histogram>
-                         <HistName>TDCAverageHisto</HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>ADC0Histo</HistName>
+                         <HistTitle>ADC0 Histograms</HistTitle>
+                         <HistFolderTitle>ADC0 Histograms</HistFolderTitle>
+                         <HistArraySize>422</HistArraySize>
+                         <HistArrayStartIndex>10</HistArrayStartIndex>
+                         <HistXLabel>ADC []</HistXLabel>
+                         <HistYLabel>Entries []</HistYLabel>
+                         <HistXNbins>4096</HistXNbins>
+                         <HistXmin>0</HistXmin>
+                         <HistXmax>4096</HistXmax>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>ADC1Histo</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <SteeringParameterField>
                          <SPName>PedestalThreshold</SPName>
@@ -61,39 +74,31 @@
                     </SteeringParameterField>
                </Task>
                <Task>
-                    <TaskName>TDCAverage</TaskName>
-                    <Active>false</Active>
-                    <Histogram>
-                         <HistName>FrontMapHisto</HistName>
-                         <Accumulate>true</Accumulate>
-                    </Histogram>
-               </Task>
-               <Task>
                     <TaskName>Charge</TaskName>
                     <Active>false</Active>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>FrontMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>BackMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>TopMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>BottomMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>RightMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <Histogram>
-                         <HistName></HistName>
-                         <Accumulate>true</Accumulate>
+                         <HistName>LeftMapHisto</HistName>
+                         <HistAccumulate>false</HistAccumulate>
                     </Histogram>
                     <SteeringParameterField>
                          <SPName>NumberOfMapHistos</SPName>
@@ -106,7 +111,7 @@
                <Tree>
                     <TreeName>CMPMTData</TreeName>
                     <Read>false</Read>
-                    <Write>true</Write>
+                    <Write>false</Write>
                     <Fill>true</Fill>
                     <CompressionLevel>1</CompressionLevel>
                     <MaxNumberOfEntries>0</MaxNumberOfEntries>
@@ -127,11 +132,19 @@
                     <CompressionLevel>0</CompressionLevel>
                     <MaxNumberOfEntries>0</MaxNumberOfEntries>
                </Tree>
+               <Tree>
+                    <TreeName>test</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
           </Trees>
           <GlobalSteeringParameters>
                <SteeringParameterField>
                     <SPName>text</SPName>
-                    <SPValue>my text</SPValue>
+                    <SPValue> </SPValue>
                </SteeringParameterField>
                <SteeringParameterField>
                     <SPName>InvalidValue</SPName>
@@ -167,9 +180,39 @@
                     <SPGroupName>test</SPGroupName>
                     <SteeringParameterField>
                          <SPName>test</SPName>
-                         <SPValue>257</SPValue>
+                         <SPValue>0</SPValue>
                     </SteeringParameterField>
                </SteeringParameterGroup>
           </GlobalSteeringParameters>
+          <Midas>
+               <Event>
+                    <EventName>Trigger</EventName>
+                    <Active>true</Active>
+                    <Bank>
+                         <BankName>ADC</BankName>
+                         <Active>true</Active>
+                    </Bank>
+                    <Bank>
+                         <BankName>CTDC</BankName>
+                         <Active>true</Active>
+                    </Bank>
+                    <Bank>
+                         <BankName>FTDC</BankName>
+                         <Active>true</Active>
+                    </Bank>
+                    <Bank>
+                         <BankName>VTDC</BankName>
+                         <Active>true</Active>
+                    </Bank>
+               </Event>
+               <Event>
+                    <EventName>Scaler</EventName>
+                    <Active>false</Active>
+                    <Bank>
+                         <BankName>SCLR</BankName>
+                         <Active>true</Active>
+                    </Bank>
+               </Event>
+          </Midas>
      </MainConfiguration>
 </Configuration>

@@ -294,6 +294,18 @@
 					<FieldComment>Event Number</FieldComment>
 				</Field>
 			</Folder>
+			<Folder>
+				<FolderName>test</FolderName>
+				<ArraySize>variable</ArraySize>
+				<Include>
+					<IncludeName>TVector.h</IncludeName>
+					<IncludeType>global</IncludeType>
+				</Include>
+				<Field>
+					<FieldName>test</FieldName>
+					<FieldType>TVectorF*</FieldType>
+				</Field>
+			</Folder>
 		</Folder>
 	</Folders>
 	<Tasks>
@@ -305,6 +317,13 @@
 			</Author>
 			<TaskVersion>1</TaskVersion>
 			<TaskDescription>Reads Midas Data.</TaskDescription>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>test</SPFieldName>
+					<SPFieldType>Bool_t</SPFieldType>
+					<SPFieldInitialization>true</SPFieldInitialization>
+				</SteeringParameterField>
+			</SteeringParameters>
 		</Task>
 		<Task>
 			<TaskName>ADCPedestal</TaskName>
@@ -325,6 +344,8 @@
 				<HistType>TH1F</HistType>
 				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
 				<HistArrayStartIndex>10</HistArrayStartIndex>
+				<HistXLabel>ADC []</HistXLabel>
+				<HistYLabel>Entries []</HistYLabel>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -482,15 +503,12 @@
 	<TaskHierarchy>
 		<Task>
 			<TaskName>ReadMidas</TaskName>
-			<Task>
-				<TaskName>TDCAverage</TaskName>
-			</Task>
-		</Task>
-		<Task>
-			<TaskName>ADCPedestal</TaskName>
 		</Task>
 		<Task>
 			<TaskName>TDCAverage</TaskName>
+		</Task>
+		<Task>
+			<TaskName>ADCPedestal</TaskName>
 		</Task>
 		<Task>
 			<TaskName>Charge</TaskName>
@@ -521,12 +539,19 @@
 				<RelatedFolder>Trigger</RelatedFolder>
 			</Branch>
 		</Tree>
+		<Tree>
+			<TreeName>test</TreeName>
+			<Branch>
+				<BranchName>test</BranchName>
+				<RelatedFolder>test</RelatedFolder>
+			</Branch>
+		</Tree>
 	</Trees>
 	<GlobalSteeringParameters>
 		<SteeringParameterField>
 			<SPFieldName>text</SPFieldName>
 			<SPFieldType>std::string</SPFieldType>
-			<SPFieldComment>text</SPFieldComment>
+			<SPFieldComment>std::string( "config/EnergyCalib.csv" )</SPFieldComment>
 		</SteeringParameterField>
 		<SteeringParameterField>
 			<SPFieldName>InvalidValue</SPFieldName>
@@ -583,113 +608,129 @@
 	<MidasBanks>
 		<EventHeader>
 			<Folder>Trigger</Folder>
-			<EventId>ID</EventId>
+			<EventID>ID</EventID>
 			<TriggerMask>Mask</TriggerMask>
 			<SerialNumber>Eventnumber</SerialNumber>
 			<TimeStamp>Time</TimeStamp>
 		</EventHeader>
-		<Bank>
-			<BankName>SCLR</BankName>
-			<BankType>unsigned long</BankType>
-		</Bank>
-		<Bank>
-			<BankName>ADC</BankName>
-			<BankType>unsigned short</BankType>
-			<BankArray>
-				<BASize>2</BASize>
-				<BAStartIndex>0</BAStartIndex>
-				<BANumberOfDigits>2</BANumberOfDigits>
-			</BankArray>
-		</Bank>
-		<Bank>
-			<BankName>CTDC</BankName>
-			<BankType>unsigned long</BankType>
-		</Bank>
-		<StructuredBank>
-			<BankName>FTDC</BankName>
-			<BankField>
-				<BankFieldName>data</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>12</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>q1</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>4</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>channel</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>6</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>q2</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>range</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>event</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>3</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>geo_addr</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>5</BankFieldSize>
-			</BankField>
-		</StructuredBank>
-		<StructuredBank>
-			<BankName>VTDC</BankName>
-			<BankField>
-				<BankFieldName>data</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>12</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>overflow</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>underflow</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>valid</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>q1</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>1</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>channel</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>6</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>q2</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>2</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>tag</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>3</BankFieldSize>
-			</BankField>
-			<BankField>
-				<BankFieldName>geo_addr</BankFieldName>
-				<BankFieldType>unsigned short</BankFieldType>
-				<BankFieldSize>5</BankFieldSize>
-			</BankField>
-		</StructuredBank>
+		<EventDefinition>
+			<EventName>Trigger</EventName>
+			<EventID>1</EventID>
+			<EventTriggerMask>1</EventTriggerMask>
+			<EventSamplingRate>2</EventSamplingRate>
+			<Banks>
+				<Bank>
+					<BankName>ADC</BankName>
+					<BankType>unsigned short</BankType>
+					<BankArray>
+						<BASize>2</BASize>
+						<BAStartIndex>0</BAStartIndex>
+						<BANumberOfDigits>2</BANumberOfDigits>
+					</BankArray>
+				</Bank>
+				<Bank>
+					<BankName>CTDC</BankName>
+					<BankType>unsigned long</BankType>
+				</Bank>
+				<StructuredBank>
+					<BankName>FTDC</BankName>
+					<BankField>
+						<BankFieldName>data</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>12</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>q1</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>4</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>channel</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>6</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>q2</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>range</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>event</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>3</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>geo_addr</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>5</BankFieldSize>
+					</BankField>
+				</StructuredBank>
+				<StructuredBank>
+					<BankName>VTDC</BankName>
+					<BankField>
+						<BankFieldName>data</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>12</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>overflow</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>underflow</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>valid</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>q1</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>1</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>channel</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>6</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>q2</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>2</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>tag</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>3</BankFieldSize>
+					</BankField>
+					<BankField>
+						<BankFieldName>geo_addr</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldSize>5</BankFieldSize>
+					</BankField>
+				</StructuredBank>
+			</Banks>
+		</EventDefinition>
+		<EventDefinition>
+			<EventName>Scaler</EventName>
+			<EventID>2</EventID>
+			<EventTriggerMask>1</EventTriggerMask>
+			<EventSamplingRate>1</EventSamplingRate>
+			<Banks>
+				<Bank>
+					<BankName>SCLR</BankName>
+					<BankType>unsigned long</BankType>
+				</Bank>
+			</Banks>
+		</EventDefinition>
 	</MidasBanks>
 </ROMEFrameworkDefinition>
