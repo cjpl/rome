@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.23  2004/10/19 21:11:20  pierre
+//  Add unistd.h for read/close under Linux
+//
 //  Revision 1.22  2004/10/15 12:30:49  schneebeli_m
 //  online eventloop logic
 //
@@ -41,7 +44,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-
+#include <unistd.h>
 #include "ROME.h"
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
