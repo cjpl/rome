@@ -451,4 +451,88 @@
 		</xs:sequence>
 	</xs:complexType>
 	-->
+	
+	<xs:element name="ARGUSFrameworkDefinition">
+		<xs:annotation>
+			<xs:documentation>Description of a ARGUS framework.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Experiment" type="ExperimentDesc">
+					<xs:annotation>
+						<xs:documentation>Describes the experiment and the framework.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Author" type="AuthorDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Describes the author of the framework.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Folders">
+					<xs:annotation>
+						<xs:documentation>Description of all folders of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Folder" type="FolderDesc" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a folder of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Tabs">
+					<xs:annotation>
+						<xs:documentation>Description of all tabs of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Tab" type="Tab" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a task of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+		<!-- 
+				<xs:element name="TaskHierarchy" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of the task hierarchy of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Task" type="TaskHierarchyDesc" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a task in the task hierarchy of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+		-->
+				<xs:element name="GlobalSteeringParameters" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
+						<xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a global steering parameter field of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a global steering parameter group of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
 </xs:schema>
