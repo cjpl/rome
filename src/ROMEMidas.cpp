@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.4  2005/02/20 19:17:22  sawada
+//  Large file support
+//
 //  Revision 1.3  2005/02/06 01:26:55  sawada
 //  moved byte swapping functions to ROMEMidas
 //
@@ -169,7 +172,11 @@ bool ROMEMidas::Connect() {
       gROME->GetCurrentRunNumberString(runNumberString);
       ROMEString filename;
       filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
+#if defined( R__SEEK64 )
+      fMidasFileHandle = open64(filename.Data(),O_RDONLY_BINARY);
+#else
       fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
+#endif
       if (fMidasFileHandle==-1) {
          gROME->Print("Inputfile '");
          gROME->Print(filename.Data());
