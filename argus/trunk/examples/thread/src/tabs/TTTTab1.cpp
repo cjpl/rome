@@ -10,38 +10,99 @@
 // This tab has following thread functions.                                   //
 //    func_1_1                                                                //
 //    func_1_2                                                                //
-// If there are not these functions, please implement it.                     //
-// For example.                                                               //
-//   void TTTTab1::func_1_1()
-//   {
-//      gSystem->Sleep(10000);
-//      cout<<" Thread function is executed"<<endl;"
-//   }
+//                                                                            //
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/TTTTab1.h"
 
 ClassImp(TTTTab1)
-
+   
 void TTTTab1::Init()
 {
-   gSystem->Sleep(1000);
-   func_1_1Start();
+   fVert = new TGVerticalFrame(this, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(700*gMonitor->GetWindowScale()));
+   
+   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(600*gMonitor->GetWindowScale()));   
+   
+   fHorz = new TGHorizontalFrame(fVert, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(100*gMonitor->GetWindowScale()));
+   
+   fBStartVertical = new TGTextButton(fHorz, "Start vertical", B_STARTV);
+   fBStopVertical  = new TGTextButton(fHorz, "Stop vertical", B_STOPV);
+   fBStartHorizontal = new TGTextButton(fHorz, "Start horizontal", B_STARTH);
+   fBStopHorizontal  = new TGTextButton(fHorz, "Stop horizontal", B_STOPH);
+   
+   fBStartVertical->Associate(this);
+   fBStopVertical->Associate(this);
+   fBStartHorizontal->Associate(this);
+   fBStopHorizontal->Associate(this);
+   
+   fHorz->AddFrame(fBStartVertical, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStopVertical, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStartHorizontal, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
+   fHorz->AddFrame(fBStopHorizontal, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
+   
+   fText = new TLatex(0.5,0.5,"Thrad test.");
+   fText->SetTextAlign(22);
 
-   gSystem->Sleep(1000);
-   func_1_2Start();
+   fVert->AddFrame(fCanvas, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4, 4, 4, 4));
+   
+   fVert->AddFrame(fHorz, new TGLayoutHints(kLHintsExpandX | kLHintsBottom, 4, 4, 4, 4));
+   
+   AddFrame(fVert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
+
+   fCanvas->GetCanvas()->cd();
+   fText->Draw();
+   fCanvas->GetCanvas()->Modified();
+   fCanvas->GetCanvas()->Update(); 
 }
 
-void TTTTab1_Base::func_1_1()
+bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 {
-   cout<<"1-1"<<endl;
+   // Process messages coming from widgets associated with the dialog.  
+   switch (GET_MSG(msg)) {
+   case kC_COMMAND:    
+      switch (GET_SUBMSG(msg)) {
+      case kCM_BUTTON:
+         switch (param1){
+         case B_STARTV:
+            func_1_1Start();
+            break;
+         case B_STOPV:
+            func_1_1Stop();
+            break;
+         case B_STARTH:
+            func_1_2Start();
+            break;
+         case B_STOPH:
+            func_1_2Stop();
+            break;
+         }
+         break;
+      }
+      break;    
+   }  
+   return true;
+}
+
+void TTTTab1::func_1_1()
+{
+   Float_t x = TMath::Abs(TMath::Sin(fText->GetX()*10));
+   fText->SetX(x);
+   fCanvas->GetCanvas()->cd();
+   fText->Draw();
+   fCanvas->GetCanvas()->Modified();
+   fCanvas->GetCanvas()->Update(); 
    gSystem->Sleep(1000);
 }
 
-void TTTTab1_Base::func_1_2()
+void TTTTab1::func_1_2()
 {
-   cout<<"1-2"<<endl;
-   gSystem->Sleep(10000);
+   Float_t y = TMath::Abs(TMath::Sin(fText->GetY()*10));
+   fText->SetY(y);
+   fCanvas->GetCanvas()->cd();
+   fText->Draw();
+   fCanvas->GetCanvas()->Modified();
+   fCanvas->GetCanvas()->Update(); 
+   gSystem->Sleep(2000);
 }
 
