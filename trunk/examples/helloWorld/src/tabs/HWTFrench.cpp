@@ -13,17 +13,6 @@
 
 ClassImp(HWTFrench)
 
-//Destructer
-HWTFrench::~HWTFrench()
-{
-}
-
-//Constructer
-HWTFrench::HWTFrench(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options,
-Pixel_t back):HWTFrench_Base(p, w, h, options, back) 
-{
-}
-
 void HWTFrench::Init()
 {
    // Create a vertical frame containing buttons and canvas 

@@ -13,17 +13,6 @@
 
 ClassImp(HWTItalian)
 
-//Destructer
-HWTItalian::~HWTItalian()
-{
-}
-
-//Constructer
-HWTItalian::HWTItalian(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options,
-Pixel_t back):HWTItalian_Base(p, w, h, options, back) 
-{
-}
-
 void HWTItalian::Init()
 {
    // Create a vertical frame containing buttons and canvas 

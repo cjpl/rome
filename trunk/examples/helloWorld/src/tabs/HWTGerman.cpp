@@ -13,17 +13,6 @@
 
 ClassImp(HWTGerman)
 
-//Destructer
-HWTGerman::~HWTGerman()
-{
-}
-
-//Constructer
-HWTGerman::HWTGerman(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options,
-Pixel_t back):HWTGerman_Base(p, w, h, options, back) 
-{
-}
-
 void HWTGerman::Init()
 {
    // Create a vertical frame containing buttons and canvas 
