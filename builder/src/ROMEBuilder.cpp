@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2004/07/09 14:29:34  schneebeli
+  removed minor errors
+
   Revision 1.14  2004/07/09 12:39:31  schneebeli
   error in task generation
 
@@ -236,7 +239,12 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
                   // field initialisation
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
                   if (value!=NULL) strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
+                  else {
+                     if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
+                        strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
+                     else
+                        strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
+                  }
                   xmlFree((void*)value);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
                   if (value!=NULL) strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
@@ -721,7 +729,12 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
                   // field initialisation
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
                   if (value!=NULL) strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
-                  else strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
+                  else {
+                     if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
+                        strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
+                     else
+                        strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
+                  }
                   xmlFree((void*)value);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
                   if (value!=NULL) strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
@@ -1804,7 +1817,12 @@ bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
          // field initialisation
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
          if (value!=NULL) strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
-         else strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
+         else {
+            if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
+               strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
+            else
+               strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
+         }
          xmlFree((void*)value);
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
          if (value!=NULL) strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
@@ -2131,6 +2149,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <TH1.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TROOT.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TObjArray.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
@@ -3051,15 +3070,6 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"}\n\n");
    }
 
-   // DataBase Functions
-   //====================
-
-   // SQL Init
-   sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
-   sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
-   sprintf(buffer+strlen(buffer),"}\n\n");
 
    // Connect Trees
    sprintf(buffer+strlen(buffer),"// Connect Trees\n");
@@ -3081,6 +3091,13 @@ bool ROMEBuilder::WriteIOCpp() {
          sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->fTreeInfo);\n");
       }
    }
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
+   // SQL Init
+   sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
+   sprintf(buffer+strlen(buffer),"{\n");
+   sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
+   sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // SQL Read
@@ -3119,7 +3136,7 @@ bool ROMEBuilder::WriteIOCpp() {
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
    // Data Base Methods
-   if (ndb>0) {
+   if (false && ndb>0) {
       // ReadXMLRunTable
       sprintf(buffer+strlen(buffer),"void %sIO::ReadXMLRunTable() {\n",shortCut);
 
@@ -3617,29 +3634,16 @@ bool ROMEBuilder::WriteIOH() {
       sprintf(buffer+strlen(buffer),"\n");
    }
    // Data Base
-   int ndb = 0;
-   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
-   if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
-      sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   bool SaveSQLRunTable();\n");
-      sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable();\n");
-      sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable();\n");
-      sprintf(buffer+strlen(buffer),"   void InitXMLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");
-   }
-   else {
-      sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase() {};\n");
-      sprintf(buffer+strlen(buffer),"   bool ReadSQLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   bool SaveSQLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void InitXMLDataBase() {};\n");
-      sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase() {};\n");
-      sprintf(buffer+strlen(buffer),"   void XMLUpdate() {};\n");
-   }
+   sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
+   sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"   bool SaveSQLRunTable();\n");
+/*   sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable();\n");
+   sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable();\n");
+   sprintf(buffer+strlen(buffer),"   void InitXMLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");*/
+
    for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
          sprintf(buffer+strlen(buffer),"   void Write%sDataBase();\n",folderName[i]);
@@ -4468,7 +4472,7 @@ void ROMEBuilder::WriteMakefile() {
 
 #if defined( _MSC_VER )
    // libs
-   sprintf(buffer+strlen(buffer),"rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libEG.lib $(ROOTSYS)/lib/libEGPythia6.lib $(ROOTSYS)/lib/libFumili.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHbook.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRFIO.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTable.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
+   sprintf(buffer,"rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libEG.lib $(ROOTSYS)/lib/libEGPythia6.lib $(ROOTSYS)/lib/libFumili.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHbook.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRFIO.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTable.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    sprintf(buffer+strlen(buffer),"xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
    sprintf(buffer+strlen(buffer),"sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
    sprintf(buffer+strlen(buffer),"clibs = gdi32.lib user32.lib kernel32.lib\n");

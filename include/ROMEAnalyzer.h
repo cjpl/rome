@@ -1,16 +1,12 @@
 #ifndef ROMEAnalyzer_H
 #define ROMEAnalyzer_H
 
-#include <TTree.h>
 #include <TFile.h>
 #include <TList.h>
 #include <TTask.h>
 #include <TFolder.h>
 #include <TClonesArray.h>
-#include <TArrayI.h>
-#include <ROMETree.h>
 #include <ROMEIO.h>
-#include <ROME.h>
 #ifdef HAVE_MIDAS
 #include <midas.h>
 #endif

@@ -37,12 +37,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Declarations
    //--------------
-   TFile *f1;
-   char filename[gFileNameLength];
-   char runNumber[6];
-   int j,i,ii;
-   ROMETree *datTree;
-
+   int i,ii;
 
 // Read Histos
 //   sprintf(filename,"%s%s%s.root",fAnalyzer->GetInputDir(),"histos",runNumber);
