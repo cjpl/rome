@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.34  2004/10/15 11:51:28  schneebeli_m
+//  bugs removed
+//
 //  Revision 1.33  2004/10/14 09:53:41  schneebeli_m
 //  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 //
@@ -220,12 +223,12 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
       }
       if (answer!='n') {
-         cout << "\nThe framework generated a new configuration file." << endl;
-         cout << "Please edit this file and restart the program.\n" << endl;
-         if (!this->fConfiguration->WriteConfigurationFile()) {
+         if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
             cout << "\nTerminate program.\n" << endl;
             return false;
          }
+         cout << "\nThe framework generated a new configuration file." << endl;
+         cout << "Please edit this file and restart the program.\n" << endl;
       }
       else {
          cout << "\nTerminate program.\n" << endl;
@@ -236,7 +239,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       cout << "\nTerminate program.\n" << endl;
       return false;
    }
-   if (!this->fConfiguration->WriteConfigurationFile()) {
+   if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
       cout << "\nTerminate program.\n" << endl;
       return false;
    }
