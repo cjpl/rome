@@ -3,6 +3,13 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.20  2005/02/27 23:53:43  sawada
+  Create placeholder of ROMEFolder at start.
+  Environment variable in ROMEProjectPath.
+  Bug fix of arrayed ROMEFolder.
+  Bug fix of SetActive of tabs from monitor.
+  Create menues of the first tab at start.
+
   Revision 1.19  2005/02/27 13:21:41  sawada
   recompile monitor and window when dictionary is changed.
 
@@ -880,6 +887,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 {
    // writes a script file that executes rootcint
    ROMEString romeFolderInclude;
+   ROMEString romeprojectpath;
    int i;
    buffer.Resize(0);
    buffer.AppendFormatted("rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
@@ -895,7 +903,10 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 #endif
    //ROMEFolder include
    for (i=0;i<numOfFolder;i++) {
-      romeFolderInclude.SetFormatted(" -I%s ",folderRomeProjPath[i].Data());
+      romeprojectpath = folderRomeProjPath[i];
+      romeprojectpath.ReplaceAll("(","");
+      romeprojectpath.ReplaceAll(")","");
+      romeFolderInclude.SetFormatted(" -I%s ",romeprojectpath.Data());
       if(!buffer.Contains(romeFolderInclude))
 	 buffer.AppendFormatted("%s",romeFolderInclude.Data());
    }
@@ -903,10 +914,14 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("ArgusMonitor.h ArgusTextDialog.h TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if(folderDefinedInROME[i]){
-            if (folderUserCode[i])
-               buffer.AppendFormatted("%s/include/framework/%s%s_Base.h ",folderRomeProjPath[i].Data(),shortCut.Data(),folderName[i].Data());
-            else
-               buffer.AppendFormatted("%s/include/framework/%s%s.h ",folderRomeProjPath[i].Data(),shortCut.Data(),folderName[i].Data());
+	 romeprojectpath = folderRomeProjPath[i];
+	 romeprojectpath.ReplaceAll("(","");
+	 romeprojectpath.ReplaceAll(")","");
+	 if (folderUserCode[i]){
+	    buffer.AppendFormatted("%s/include/framework/%s%s_Base.h ",romeprojectpath.Data(),shortCut.Data(),folderName[i].Data());
+	 }
+	 else
+	    buffer.AppendFormatted("%s/include/framework/%s%s.h ",romeprojectpath.Data(),shortCut.Data(),folderName[i].Data());
       }
       else{
          if (numOfValue[i] > 0) {

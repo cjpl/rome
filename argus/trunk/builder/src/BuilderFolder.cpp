@@ -3,6 +3,13 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/02/27 23:53:43  sawada
+  Create placeholder of ROMEFolder at start.
+  Environment variable in ROMEProjectPath.
+  Bug fix of arrayed ROMEFolder.
+  Bug fix of SetActive of tabs from monitor.
+  Create menues of the first tab at start.
+
   Revision 1.7  2005/02/25 16:14:00  sawada
   bug fix and example for ROMEFolder
 
@@ -288,7 +295,7 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
    folderName[numOfFolder] = "";
    folderTitle[numOfFolder] = "";
    folderArray[numOfFolder] = "1";
-   folderDataBase[numOfFolder] = false;
+   folderDataBase[numOfFolder] = true;
    folderUserCode[numOfFolder] = false;
    folderVersion[numOfFolder] = "1";
    folderDescription[numOfFolder] = "";
@@ -296,7 +303,7 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
    folderDefinedInROME[numOfFolder] = true;
    folderConnectionType[numOfFolder] = "Socket";
    numOfFolderInclude[numOfFolder] = 0;
-   numOfValue[numOfFolder] = 0;
+   numOfValue[numOfFolder] = 1;//dummy
    // set parent
    folderParentName[numOfFolder] = parent[recursiveFolderDepth];
    while (xml->NextLine()) {
@@ -329,17 +336,8 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
       if (type == 1 && !strcmp((const char*)name,"ROMEProjectPath"))
          xml->GetValue(folderRomeProjPath[numOfFolder],folderRomeProjPath[numOfFolder]);
       // folder array size
-      if (type == 1 && !strcmp((const char*)name,"Arrayed")){
-         xml->GetValue(tmp,"false");
-         if (tmp == "true") 
-            folderArray[numOfFolder] = 2;
-      }
-      // folder data base access
-      if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
-         xml->GetValue(tmp,"false");
-         if (tmp == "true") 
-            folderDataBase[numOfFolder] = true;
-      }
+      if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+         xml->GetValue(folderArray[numOfFolder],folderArray[numOfFolder]);
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
          xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);

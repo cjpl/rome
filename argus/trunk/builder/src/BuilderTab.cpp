@@ -3,6 +3,13 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.17  2005/02/27 23:53:43  sawada
+  Create placeholder of ROMEFolder at start.
+  Environment variable in ROMEProjectPath.
+  Bug fix of arrayed ROMEFolder.
+  Bug fix of SetActive of tabs from monitor.
+  Create menues of the first tab at start.
+
   Revision 1.16  2005/02/24 23:25:01  sawada
   Removed thread flag in builder.
   Added ProcessMessageThread.
@@ -558,7 +565,6 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("          <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
          buffer.AppendFormatted("          <<\"   void %sT%s::%s()\"<<endl\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("          <<\"   {\"<<endl\n");
-         buffer.AppendFormatted("          <<\"      gSystem->Sleep(10000);\"<<endl\n");
          buffer.AppendFormatted("          <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
          buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
@@ -592,7 +598,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
 #endif
-         buffer.AppendFormatted("   bool Start%s(Int_t interval = 1, Int_t nloop = 0){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool Start%s(Int_t interval = 1000, Int_t nloop = 0){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = true;\n",threadFunctionName[iTab][i].Data());
 	 buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sInterval = interval;\n",threadFunctionName[iTab][i].Data());

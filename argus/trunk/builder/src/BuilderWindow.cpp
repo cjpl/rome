@@ -3,6 +3,13 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/02/27 23:53:43  sawada
+  Create placeholder of ROMEFolder at start.
+  Environment variable in ROMEProjectPath.
+  Bug fix of arrayed ROMEFolder.
+  Bug fix of SetActive of tabs from monitor.
+  Create menues of the first tab at start.
+
   Revision 1.7  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -148,6 +155,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
+   buffer.AppendFormatted("   Int_t menuID = 0;\n",tabHierarchyName[i].Data());      
    buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
@@ -162,14 +170,14 @@ bool ArgusBuilder::WriteWindowCpp() {
          parentt = "fTab";
       else
          parentt.SetFormatted("f%s%03dTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
-
       buffer.AppendFormatted("   if (fTabSwitches.%s){\n",switchString.Data());
       buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
       buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
       buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
       format.SetFormatted("      t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n");
       buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
-      buffer.AppendFormatted("   }\n");    
+      buffer.AppendFormatted("      f%sMenuID = menuID++;\n",tabHierarchyName[i].Data());      
+      buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
@@ -178,6 +186,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   MapSubwindows();\n");
    buffer.AppendFormatted("   Resize(GetDefaultSize());\n");
    buffer.AppendFormatted("   MapWindow();\n");
+   buffer.AppendFormatted("   ProcessMessage(MK_MSG(kC_COMMAND,kCM_TAB),0,0);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
@@ -221,7 +230,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("         break;      \n");
    buffer.AppendFormatted("      case kCM_TAB:\n");
    for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("         if (param1==%d) {\n",i);
+      buffer.AppendFormatted("         if (param1==f%sMenuID) {\n",tabHierarchyName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabHierarchyName[i].Data(),i);
       for (j=0;j<numOfTabMenu[i];j++) {
 	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabHierarchyName[i].Data(),j);
@@ -382,7 +391,9 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("   TGPopupMenu         *fMenuFile;\n");
    buffer.AppendFormatted("   TGTab               *fTab;\n"); 
    for (i=0;i<numOfTabHierarchy;i++) {
-      buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),maxNumberOfTabMenuItems);
+      if(numOfTabMenu[i]>0)
+	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),numOfTabMenu[i]);
+      buffer.AppendFormatted("   Int_t               f%sMenuID;\n",tabHierarchyName[i].Data());
    }
    buffer.AppendFormatted("   enum CommandIdentifiers {\n");
    buffer.AppendFormatted("      M_FILE_EXIT,\n");
