@@ -59,6 +59,8 @@
 			<ROMEFolder>
 				<FolderName>RunInfo</FolderName>
 				<DataBaseAccess>true</DataBaseAccess>
+				<FolderShortCut>LP</FolderShortCut>
+				<ROMEProjectPath>./</ROMEProjectPath>
 				<Arrayed>false</Arrayed>
 			</ROMEFolder>
 		</Folder>
