@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/02/01 14:44:33  sawada
+  Resize frames in window.
+
   Revision 1.2  2005/01/30 20:39:39  sawada
   * Makefile of builder
   * Tab enable/disable
@@ -97,12 +100,12 @@ bool ArgusBuilder::WriteConfigCpp() {
    // Window
    buffer.AppendFormatted("   // window\n");
    buffer.AppendFormatted("   fConfigData[index]->fWindow = new ConfigData::Window();\n");
-   // Window/Size
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Size\",fConfigData[index]->fWindow->fSize,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fSize==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fSizeModified = false;\n");
+   // Window/Scale
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Scale\",fConfigData[index]->fWindow->fScale,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScale==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fWindow->fSizeModified = true;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = true;\n");
    // Window/Style
    buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Style\",fConfigData[index]->fWindow->fStyle,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStyle==\"\")\n");
@@ -110,7 +113,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fWindow->fStyleModified = true;\n");
    // --Window
-   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fSizeModified ||\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fWindow->fStyleModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fWindowModified = true;\n");
    buffer.AppendFormatted("   else\n");
@@ -264,8 +267,8 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   char* cstop;\n");
    buffer.AppendFormatted("   fActiveConfiguration = index;\n");
    // Window
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fSizeModified) {\n");
-   buffer.AppendFormatted("      gMonitor->SetWindowSize(atof(fConfigData[index]->fWindow->fSize.Data()));\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fScaleModified) {\n");
+   buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData[index]->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fWindow->fStyle) {\n");
    buffer.AppendFormatted("      gMonitor->SetWindowStyle(fConfigData[index]->fWindow->fStyle);\n");
@@ -405,13 +408,13 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   // window\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fWindowModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Window\");\n");
-   // Window/Size
+   // Window/Scale
    buffer.AppendFormatted("      if (index==0){\n");
-   buffer.AppendFormatted("         str.SetFormatted(\"%%2.1f\",gMonitor->GetWindowSize());\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Size\",(char*)str.Data());\n");
+   buffer.AppendFormatted("         str.SetFormatted(\"%%2.1f\",gMonitor->GetWindowScale());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)str.Data());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fSizeModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Size\",(char*)fConfigData[index]->fWindow->fSize.Data());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fScaleModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(char*)fConfigData[index]->fWindow->fScale.Data());\n");
    // Window/Style
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Style\",gMonitor->GetWindowStyle());\n");
@@ -558,8 +561,8 @@ bool ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      // window;\n");
    buffer.AppendFormatted("      class Window {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fSize;\n");
-   buffer.AppendFormatted("         bool        fSizeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fScale;\n");
+   buffer.AppendFormatted("         bool        fScaleModified;\n");
    buffer.AppendFormatted("         ROMEString  fStyle;\n");
    buffer.AppendFormatted("         bool        fStyleModified;\n");
    buffer.AppendFormatted("      };\n");

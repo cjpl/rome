@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/02/01 14:44:33  sawada
+  Resize frames in window.
+
   Revision 1.2  2005/01/30 20:39:39  sawada
   * Makefile of builder
   * Tab enable/disable
@@ -127,7 +130,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
-   buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowSize()), (UInt_t)(400*gMonitor->GetWindowSize()));\n");
+   buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
       int index = tabHierarchyParentIndex[i];
@@ -146,12 +149,12 @@ bool ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
       buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
       buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
-      format.SetFormatted("      t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 0, 0, 0));\n");
+      format.SetFormatted("      t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n");
       buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
       buffer.AppendFormatted("   }\n");    
    }
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
+   buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   SetWindowName(gMonitor->GetProgramName());\n");
    buffer.AppendFormatted("   MapSubwindows();\n");
