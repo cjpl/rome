@@ -6,8 +6,8 @@
 //  SQLDataBase access.
 //
 //  $Log$
-//  Revision 1.10  2004/11/17 10:17:21  sawada
-//  code cleanup
+//  Revision 1.11  2004/11/17 10:36:27  sawada
+//  argument for Init
 //
 //  Revision 1.9  2004/11/16 21:59:45  sawada
 //  read/write field array at once.
@@ -217,6 +217,12 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 	       }
             }
          }
+	 else{
+	    cout << "\nWarning: DB constraint was not found for "
+		 <<path->GetTableNameAt(iTable+1)<<endl;
+	    delete dbpath;
+	    return false;
+	 }
 	 delete dbpath;
       }
       
@@ -253,22 +259,21 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 
 bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    ROMEString path = connection;
-   ROMEString database = dataBase;
    ROMEString server;
    ROMEString user;
    ROMEString passwd;
+   ROMEString database;
    ROMEString port;
    ROMEString prompt;
    int is,ie;
    int istart;
-
+   
    //decode dataBasePath
    if ((istart=path.Index("mysql://",8,0,TString::kIgnoreCase))==-1) {
       cout << "\nWrong path for SQL database : " << path << endl;
       return false;
    }
    istart+=8;
-   
    //search for user
    is = istart;
    if ((ie=path.Index("@",1,is,TString::kIgnoreCase))==-1) {
@@ -289,17 +294,24 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    }
    //search for server
    is = istart;
-   server = path(is,path.Length());
-   //search for port
-   if ((ie=server.Index(":",1,0,TString::kIgnoreCase))==-1) {
-      port = "0";
+   if ((ie=path.Index("/",1,is,TString::kIgnoreCase))==-1) {
+      database = "";
    }
-   else{
-      port = server(ie+1,server.Length()-ie-1);
-      server.Remove(ie,server.Length()-ie);
+   else {
+      istart = ie+1;
+      server = path(is,ie-is);
+      //search for port
+      if ((ie=server.Index(":",1,0,TString::kIgnoreCase))==-1) {
+	 port = "0";
+      }
+      else{
+	 port = server(ie+1,server.Length()-ie-1);
+	 server.Remove(ie,server.Length()-ie);
+      }
+      //search for database
+      database = path(istart,path.Length());
    }
    
-   //ask password when password is "?"
    if(passwd.Length()==1 && passwd(0) == '?'){
 #ifdef __linux__
       prompt.AppendFormatted("%s@%s's password: ",user.Data(),server.Data());

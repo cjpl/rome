@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2004/11/17 10:36:27  sawada
+  argument for Init
+
   Revision 1.6  2004/11/16 21:59:45  sawada
   read/write field array at once.
 
@@ -45,7 +48,7 @@ public:
    ROMESQLDataBase();
    ~ROMESQLDataBase();
 
-   bool   Init(const char* dataBasePath,const char* connection);
+   bool   Init(const char* dataBase,const char* connection);
    bool   Read(ROMEStr2DArray *values,const char *dataBasePath);
    bool   Write(ROMEStr2DArray* values,const char *dataBasePath);
    char*  GetType() { return "sql"; }
