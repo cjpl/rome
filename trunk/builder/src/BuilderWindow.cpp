@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/03/12 01:21:00  sawada
+  Nested tab.
+
   Revision 1.8  2005/02/27 23:53:43  sawada
   Create placeholder of ROMEFolder at start.
   Environment variable in ROMEProjectPath.
@@ -49,7 +52,6 @@ bool ArgusBuilder::WriteWindowCpp() {
    ROMEString format;
    ROMEString menuTitle;
    char fileBuffer[bufferLength];
-   ROMEString parentt;
    ROMEString buf;
    int nb,lenTot,ll;
    char *pos;
@@ -159,25 +161,9 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfTabHierarchy;i++) {
-      int index = tabHierarchyParentIndex[i];
-      ROMEString switchString = tabHierarchyName[i].Data();
-      while (index!=-1) {
-         switchString.Insert(0,"_");
-         switchString.Insert(0,tabHierarchyName[index].Data());
-         index = tabHierarchyParentIndex[index];
-      }
-      if (tabHierarchyParentIndex[i]==-1)
-         parentt = "fTab";
-      else
-         parentt.SetFormatted("f%s%03dTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
-      buffer.AppendFormatted("   if (fTabSwitches.%s){\n",switchString.Data());
-      buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
-      buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
-      buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
-      format.SetFormatted("      t%%sT%%s->AddFrame(f%%s%%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n");
-      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
-      buffer.AppendFormatted("      f%sMenuID = menuID++;\n",tabHierarchyName[i].Data());      
-      buffer.AppendFormatted("   }\n");
+      recursiveTabDepth=0;
+      if(!AddTab(buffer,i))
+         return false;
    }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
@@ -297,7 +283,6 @@ bool ArgusBuilder::WriteWindowH() {
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
-   ROMEString parentt;
    ROMEString buf;
    int nb,lenTot,j,ll;
    char *pos;
@@ -389,7 +374,11 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   TGMenuBar           *fMenuBar;\n");
    buffer.AppendFormatted("   TGPopupMenu         *fMenuFile;\n");
-   buffer.AppendFormatted("   TGTab               *fTab;\n"); 
+   buffer.AppendFormatted("   TGTab               *fTab;\n");
+   for (i=0;i<numOfTabHierarchy;i++) {
+      if(tabHierarchyNumOfChildren[i])
+         buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n",tabHierarchyName[i].Data(),i);
+   }
    for (i=0;i<numOfTabHierarchy;i++) {
       if(numOfTabMenu[i]>0)
 	 buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),numOfTabMenu[i]);
@@ -462,3 +451,53 @@ bool ArgusBuilder::WriteWindowH() {
    }
    return true;
 }
+
+bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
+   int j;
+   ROMEString parentt;
+   ROMEString format;
+   int index = tabHierarchyParentIndex[i];
+   ROMEString switchString = tabHierarchyName[i].Data();
+   int depth;
+   while (index!=-1) {
+      switchString.Insert(0,"_");
+      switchString.Insert(0,tabHierarchyName[index].Data());
+      index = tabHierarchyParentIndex[index];
+   }
+   if (tabHierarchyParentIndex[i] == -1)
+      parentt = "fTab";
+   else
+      parentt.SetFormatted("f%s%03dTabSubTab",tabHierarchyName[tabHierarchyParentIndex[i]].Data(),tabHierarchyParentIndex[i]);
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("   if (fTabSwitches.%s){\n",switchString.Data());
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n",shortCut.Data(),tabHierarchyName[i].Data(),parentt.Data(),tabHierarchyTitle[i].Data());
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("      f%s%03dTab->Init();\n",tabHierarchyName[i].Data(),i);
+   if(!tabHierarchyNumOfChildren[i]){
+      for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n",shortCut.Data(),tabHierarchyName[i].Data(),tabHierarchyName[i].Data(),i);
+   }
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("      f%sMenuID = menuID++;\n",tabHierarchyName[i].Data());
+   if(tabHierarchyNumOfChildren[i]){
+      for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+      buffer.AppendFormatted("      f%s%03dTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n",tabHierarchyName[i].Data(),i,shortCut.Data(),tabHierarchyName[i].Data());
+   }
+   recursiveTabDepth++;
+   j=i;
+   while(i<j+tabHierarchyNumOfChildren[j]){
+      i++;
+      if(!AddTab(buffer,i))
+         return false;
+   }
+   recursiveTabDepth--;
+   if(tabHierarchyNumOfChildren[j]){
+      for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTabSubTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n",shortCut.Data(),tabHierarchyName[j].Data(),tabHierarchyName[j].Data(),j);
+   }
+   for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
+   buffer.AppendFormatted("   }\n");
+ }

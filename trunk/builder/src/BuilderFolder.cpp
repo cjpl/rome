@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/03/12 01:21:00  sawada
+  Nested tab.
+
   Revision 1.8  2005/02/27 23:53:43  sawada
   Create placeholder of ROMEFolder at start.
   Environment variable in ROMEProjectPath.
@@ -45,27 +48,27 @@ bool ArgusBuilder::ReadXMLFolder() {
    // count folders
    numOfFolder++;
    currentNumberOfFolders = numOfFolder;
-   if (numOfFolder>=maxNumberOfFolders) {
+   if (currentNumberOfFolders>=maxNumberOfFolders) {
       cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
       cout << "Terminating program." << endl;
       return false;
    }
    // initialisation
-   folderName[numOfFolder] = "";
-   folderRomeProjPath[numOfFolder] = "./";
-   folderTitle[numOfFolder] = "";
-   folderArray[numOfFolder] = "1";
-   folderDataBase[numOfFolder] = false;
-   folderUserCode[numOfFolder] = false;
-   folderVersion[numOfFolder] = "1";
-   folderDescription[numOfFolder] = "";
-   folderAuthor[numOfFolder] = mainAuthor;
-   folderDefinedInROME[numOfFolder] = false;
-   folderConnectionType[numOfFolder] = "ROMEDataBase";
-   numOfFolderInclude[numOfFolder] = 0;
-   numOfValue[numOfFolder] = 0;   
+   folderName[currentNumberOfFolders] = "";
+   folderRomeProjPath[currentNumberOfFolders] = "./";
+   folderTitle[currentNumberOfFolders] = "";
+   folderArray[currentNumberOfFolders] = "1";
+   folderDataBase[currentNumberOfFolders] = false;
+   folderUserCode[currentNumberOfFolders] = false;
+   folderVersion[currentNumberOfFolders] = "1";
+   folderDescription[currentNumberOfFolders] = "";
+   folderAuthor[currentNumberOfFolders] = mainAuthor;
+   folderDefinedInROME[currentNumberOfFolders] = false;
+   folderConnectionType[currentNumberOfFolders] = "ROMEDataBase";
+   numOfFolderInclude[currentNumberOfFolders] = 0;
+   numOfValue[currentNumberOfFolders] = 0;   
    // set parent
-   folderParentName[numOfFolder] = parent[recursiveFolderDepth];
+   folderParentName[currentNumberOfFolders] = parent[recursiveFolderDepth];
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
@@ -74,7 +77,7 @@ bool ArgusBuilder::ReadXMLFolder() {
          // set folder as parent for subsequent folders
          recursiveFolderDepth++;
          if (parent[recursiveFolderDepth].Length()==0)
-            parent[recursiveFolderDepth] = folderName[numOfFolder].Data();
+            parent[recursiveFolderDepth] = folderName[currentNumberOfFolders].Data();
          // read subfolder
          if ((!strcmp((const char*)name,"Folder")&&!ReadXMLFolder()) || (!strcmp((const char*)name,"ROMEFolder")&&!ReadXMLROMEFolder())) 
             return false;
@@ -94,36 +97,36 @@ bool ArgusBuilder::ReadXMLFolder() {
       }
       // folder name
       if (type == 1 && !strcmp((const char*)name,"FolderName")) {
-         xml->GetValue(folderName[numOfFolder],folderName[numOfFolder]);
-         currentFolderName = folderName[numOfFolder];
+         xml->GetValue(folderName[currentNumberOfFolders],folderName[currentNumberOfFolders]);
+         currentFolderName = folderName[currentNumberOfFolders];
          // output
          if (makeOutput) for (i=0;i<recursiveFolderDepth;i++) cout << "   ";
-         if (makeOutput) folderName[numOfFolder].WriteLine();
+         if (makeOutput) folderName[currentNumberOfFolders].WriteLine();
       }
       // folder title
       if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
-         xml->GetValue(folderTitle[numOfFolder],folderTitle[numOfFolder]);
+         xml->GetValue(folderTitle[currentNumberOfFolders],folderTitle[currentNumberOfFolders]);
       // folder array size
       if (type == 1 && !strcmp((const char*)name,"ArraySize"))
-         xml->GetValue(folderArray[numOfFolder],folderArray[numOfFolder]);
+         xml->GetValue(folderArray[currentNumberOfFolders],folderArray[currentNumberOfFolders]);
       // folder data base access
       if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderDataBase[numOfFolder] = true;
+            folderDataBase[currentNumberOfFolders] = true;
       }
       // folder with changeble class file
       if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderUserCode[numOfFolder] = true;
+            folderUserCode[currentNumberOfFolders] = true;
       }
       // folder version
       if (type == 1 && !strcmp((const char*)name,"FolderVersion"))
-         xml->GetValue(folderVersion[numOfFolder],folderVersion[numOfFolder]);
+         xml->GetValue(folderVersion[currentNumberOfFolders],folderVersion[currentNumberOfFolders]);
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
-         xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+         xml->GetValue(folderDescription[currentNumberOfFolders],folderDescription[currentNumberOfFolders]);
       // folder author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
          while (xml->NextLine()) {
@@ -131,7 +134,7 @@ bool ArgusBuilder::ReadXMLFolder() {
             name = xml->GetName();
             // author name
             if (type == 1 && !strcmp((const char*)name,"AuthorName"))
-               xml->GetValue(folderAuthor[numOfFolder],folderAuthor[numOfFolder]);
+               xml->GetValue(folderAuthor[currentNumberOfFolders],folderAuthor[currentNumberOfFolders]);
             if (type == 15 && !strcmp((const char*)name,"Author"))
                break;
          }
@@ -140,34 +143,34 @@ bool ArgusBuilder::ReadXMLFolder() {
       // folder include
       if (type == 1 && !strcmp((const char*)name,"Include")) {
          // include initialisation
-         folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] = "";
-         folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
+         folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = "";
+         folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = false;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // include name
             if (type == 1 && !strcmp((const char*)name,"IncludeName"))
-               xml->GetValue(folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]],folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]);
+               xml->GetValue(folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]],folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]]);
             // include type
             if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
                xml->GetValue(tmp,"false");
                if (tmp == "local") 
-                  folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = true;
+                  folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = true;
             }
             // include end
             if (type == 15 && !strcmp((const char*)name,"Include"))
                break;
          }
          // check input
-         if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]=="") {
-            cout << "An Include of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
+         if (folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]]=="") {
+            cout << "An Include of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // count includes
-         numOfFolderInclude[numOfFolder]++;
-         if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
-            cout << "Maximal number of includes in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
+         numOfFolderInclude[currentNumberOfFolders]++;
+         if (numOfFolderInclude[currentNumberOfFolders]>=maxNumberOfInclude) {
+            cout << "Maximal number of includes in folder '" << folderName[currentNumberOfFolders].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -175,8 +178,8 @@ bool ArgusBuilder::ReadXMLFolder() {
       }
       // folder data base type
       if (type == 1 && !strcmp((const char*)name,"ConnectionType")){
-         xml->GetValue(folderConnectionType[numOfFolder],folderConnectionType[numOfFolder]);
-         if(!midas && !strcmp(folderConnectionType[numOfFolder],"ODB")){
+         xml->GetValue(folderConnectionType[currentNumberOfFolders],folderConnectionType[currentNumberOfFolders]);
+         if(!midas && !strcmp(folderConnectionType[currentNumberOfFolders],"ODB")){
             cout << "Need Midas support for ODB connection !!" << endl;
             cout << "Please link the midas library with \"-midas\"." << endl;
             return false;
@@ -187,85 +190,85 @@ bool ArgusBuilder::ReadXMLFolder() {
          // field initialisation
          bool readName = false;
          bool readType = false;
-         valueName[numOfFolder][numOfValue[numOfFolder]] = "";
-         valueType[numOfFolder][numOfValue[numOfFolder]] = "";
-         valueComment[numOfFolder][numOfValue[numOfFolder]] = "";
-         valueArray[numOfFolder][numOfValue[numOfFolder]] = "1";
-         valueDataBasePath[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
+         valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
+         valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
+         valueArray[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "1";
+         valueDataBasePath[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // field name
             if (type == 1 && !strcmp((const char*)name,"FieldName")) {
                readName = true;
-               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],valueName[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             }
             // field type
             if (type == 1 && !strcmp((const char*)name,"FieldType")) {
                readType = true;
-               xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
-               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
-                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
-               else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
-                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
+               xml->GetValue(valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
+               if (valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] == "TString")
+                  valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "' '";
+               else if (valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] == "TRef")
+                  valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "NULL";
                else
-                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+                  valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "0";
             }
             // field initialization
             if (type == 1 && !strcmp((const char*)name,"FieldInitialization")) {
                if (!readName) {
-                  cout << "Please specify a field name befor the initial value in the " << (numOfValue[numOfFolder]+1) << ".field in folder '" << folderName[numOfFolder].Data() << "' !" << endl;
+                  cout << "Please specify a field name befor the initial value in the " << (numOfValue[currentNumberOfFolders]+1) << ".field in folder '" << folderName[currentNumberOfFolders].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                if (!readType) {
-                  cout << "Please specify a field type befor the initial value in field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' in folder  '" << folderName[numOfFolder].Data() << "' !" << endl;
+                  cout << "Please specify a field type befor the initial value in field '" << valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Data() << "' in folder  '" << folderName[currentNumberOfFolders].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xml->GetValue(valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             }
             // field comment
             if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
-               xml->GetValue(valueComment[numOfFolder][numOfValue[numOfFolder]],valueComment[numOfFolder][numOfValue[numOfFolder]]);
-               if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
-                  valueComment[numOfFolder][numOfValue[numOfFolder]].Insert(0,"// ");
+               xml->GetValue(valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
+               if (valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]][0]!='/') {
+                  valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Insert(0,"// ");
                }
             }
             // field array size
             if (type == 1 && !strcmp((const char*)name,"ArraySize"))
-               xml->GetValue(valueArray[numOfFolder][numOfValue[numOfFolder]],valueArray[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueArray[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueArray[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             // field data base path
             if (type == 1 && !strcmp((const char*)name,"DataBasePath"))
-               xml->GetValue(valueDataBasePath[numOfFolder][numOfValue[numOfFolder]],valueDataBasePath[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueDataBasePath[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueDataBasePath[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             // field end
             if (type == 15 && !strcmp((const char*)name,"Field"))
                break;
          }
          // check input
-         if (valueName[numOfFolder][numOfValue[numOfFolder]]=="") {
-            cout << "A Field of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
+         if (valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]=="") {
+            cout << "A Field of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
-            cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
+         if (valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]=="") {
+            cout << "Field '" << valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Data() << "' of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         for (i=0;i<numOfValue[numOfFolder];i++) {
-            for (j=i+1;j<numOfValue[numOfFolder];j++) {
-               if (valueName[numOfFolder][i]==valueName[numOfFolder][j]) {
-                  cout << "\nFolder '" << folderName[numOfFolder].Data() << "' has two fields with the name '" << valueName[numOfFolder][i].Data() << "' !" << endl;
+         for (i=0;i<numOfValue[currentNumberOfFolders];i++) {
+            for (j=i+1;j<numOfValue[currentNumberOfFolders];j++) {
+               if (valueName[currentNumberOfFolders][i]==valueName[currentNumberOfFolders][j]) {
+                  cout << "\nFolder '" << folderName[currentNumberOfFolders].Data() << "' has two fields with the name '" << valueName[currentNumberOfFolders][i].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
             }
          }
          // count fields
-         numOfValue[numOfFolder]++;
-         if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-            cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
+         numOfValue[currentNumberOfFolders]++;
+         if (numOfValue[currentNumberOfFolders]>=maxNumberOfValues) {
+            cout << "Maximal number of fields in folder '" << folderName[currentNumberOfFolders].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
