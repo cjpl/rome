@@ -44,14 +44,16 @@
 #include <ROMEEventLoop.h>
 #include <ROMETree.h>
 #include <ROMETask.h>
+#include <ROMEString.h>
 #include <Riostream.h>
 
-void *root_server_loop(void *arg);
+ClassImp(ROMEAnalyzer)
+
+void StartServer(int port);
 
 #if defined HAVE_MIDAS
 #include <midas.h>
 #define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
-
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 {
 // This method is called, when a system message from the online system occurs
@@ -103,22 +105,18 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    consoleStartScreen();
 
+   StartServer(9091);
+
    if (!ReadParameters(argc,argv)) return false;
 
    if (isSplashScreen()) startSplashScreen();
 
    CreateHistoFolders();
 
-#if defined ( __linux__ )
-   /* start socket server */
-   TThread *th1 = new TThread("root_server_loop", root_server_loop, NULL);
-   th1->Run();
-#endif
-
    fMainTask->ExecuteTask();
    if (fTerminate) return false;
 
-   if (!isBatchMode()) TBrowser *t = new TBrowser();
+//   if (!isBatchMode()) TBrowser *t = new TBrowser();
 
    return true;
 }
@@ -562,17 +560,21 @@ bool ROMEAnalyzer::Update() {
 }
 
 bool ROMEAnalyzer::UserInput() {
+   // Looks for user input. Called before the Event tasks.
    bool wait = false;
    bool first = true;
-   // Looks for user input. Called before the Event tasks.
+   bool interpreter = false;
+
    while (wait||first) {
 
       first = false;
       if (!fContinuous)
          wait = true;
 
+      interpreter = false;
       while (ROMEStatic::ss_kbhit()) {
          char ch = ROMEStatic::ss_getchar(0);
+         cout << ch << endl;
          if (ch == -1)
             ch = getchar();
          if (ch == 's')
@@ -587,7 +589,36 @@ bool ROMEAnalyzer::UserInput() {
             fContinuous = false;
          if (ch == 'c')
             fContinuous = true;
+         if (ch == 'i') {
+//            interpreter = true;
+            wait = false;
+         }
       }
+      if (interpreter) {
+         int argn = 1;
+         char *argp = (char*)this->fApplication;
+
+         cout << endl << "interpreter" << endl;
+         TRint *theApp = new TRint("App", &argn, &argp,NULL,0,true);
+
+         theApp->Run(true);
+         delete theApp;
+         gApplication = false;
+      }
+
+/*      if (interpreter) {
+
+         ROMEStatic::ss_getchar(1);
+         char input[1000];
+         while (true) {
+            cin >> input;
+            if (!strcmp(input,".q"))
+               break;
+            strcpy(input,"TBrowser t;");
+            fApplication->ProcessLine(input);
+//   fApplication->ProcessLine("TBrowser t;");
+         }
+      }*/
    }
    return true;
 }
@@ -640,7 +671,6 @@ bool ROMEAnalyzer::Disconnect() {
 }
 
 bool ROMEAnalyzer::Terminate() {
-   cout << "Terminate" << endl;
    // Clean up the analyzer. Called before the Terminate tasks.
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS
@@ -658,6 +688,18 @@ bool ROMEAnalyzer::Terminate() {
    return true;
 }
 
+void ROMEAnalyzer::ParameterUsage()
+{
+   cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
+   cout << "  -b       Batch Mode (no Argument)" << endl;
+   cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
+   cout << "  -m       Analysing Mode : (online/[offline])" << endl;
+   cout << "  -f       Input Data Format : ([midas]/root)" << endl;
+   cout << "  -r       Runnumbers" << endl;
+   cout << "  -e       Eventnumbers" << endl;
+   cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
+   return;
+}
 bool ROMEAnalyzer::ReadParameters(int argc, char *argv[]) 
 {
    // Reads the Inputlineparameters
@@ -674,15 +716,8 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")) {
-         cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
-         cout << "  -b       Batch Mode (no Argument)" << endl;
-         cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
-         cout << "  -m       Analysing Mode : (online/[offline])" << endl;
-         cout << "  -f       Input Data Format : ([midas]/root)" << endl;
-         cout << "  -r       Runnumbers" << endl;
-         cout << "  -e       Eventnumbers" << endl;
-         cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
-	      return false;
+         ParameterUsage();
+         return false;
       }
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
@@ -747,18 +782,14 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          this->SetEventNumbers(argv[i+1]);
          i++;
       }
+      else if (!strcmp(argv[i],"-i")) {
+         i++;
+      }
       else {
          cout << "Inputlineparameter '" << argv[i] << "' not available." << endl;
          cout << "Available inputlineparameter are : " << endl;
          cout << endl;
-         cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
-         cout << "  -b       Batch Mode (no Argument)" << endl;
-         cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
-         cout << "  -m       Analysing Mode : (online/[offline])" << endl;
-         cout << "  -f       Input Data Format : ([midas]/root)" << endl;
-         cout << "  -r       Runnumbers" << endl;
-         cout << "  -e       Eventnumbers" << endl;
-         cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
+         ParameterUsage();
 	      return false;
       }
    }
@@ -791,149 +822,224 @@ void ROMEAnalyzer::CreateHistoFolders()
    }
 }
 
-ROMEString currentDirectory[100];
-int directoryDepth = 0;
 
-void *server_thread(void *arg)
-//  Server histograms to remove clients
+
+
+
+TFolder *ReadFolderPointer(TSocket *fSocket) 
 {
-   int i;
-   char str[32];
-
-   TSocket *s = (TSocket *) arg;
-
-   do {
-      if (s->Recv(str, sizeof(str)) <= 0) {
-         printf("Closed connection from %s\n", s->GetInetAddress().GetHostName());
-         s->Close();
-         delete s;
-         return NULL;
-      } else {
-//         printf("Received \"%s\"\n", str);
-
-         TMessage *mess = new TMessage(kMESS_OBJECT);
-
-         if (strcmp(str, "LIST") == 0) {
-
-            TObject *obj;
-            TObjArray *names = new TObjArray(100);
-
-            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
-            TIterator *iterFolders = folders->MakeIterator();
-            while (obj = iterFolders->Next()) {
-               ROMEString str;
-               str.SetFormatted("%s\n%s",obj->GetName(),obj->ClassName());
-               names->Add(new TObjString(str.Data()));
-            }
-
-            mess->Reset();
-            mess->WriteObject(names);
-            s->Send(*mess);
-
-            for (i = 0; i < names->GetLast() + 1; i++)
-               delete(TObjString *) names->At(i);
-
-            delete names;
-         }
-
-         else if (strncmp(str, "CD", 2) == 0) {
-            TObject *obj;
-
-            if (strcmp(str + 3, "..") == 0) {
-               directoryDepth--;
-               if (directoryDepth<0) 
-                  directoryDepth = 0;
-            }
-
-            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
-            TIterator *iterFolders = folders->MakeIterator();
-            while (obj = iterFolders->Next()) {
-               if (strcmp(str + 3, obj->GetName()) == 0) {
-                  directoryDepth++;
-                  if (directoryDepth>=100) 
-                     directoryDepth = 99;
-                  currentDirectory[directoryDepth] = str + 3;
-                  break;
-               }
-            }
-
-            if (!obj) {
-               s->Send("Error");
-            } else {
-               s->Send("OK");
-            }
-         }
-
-         else if (strncmp(str, "GET", 3) == 0) {
-            TObject *obj;
-
-            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
-            TIterator *iterFolders = folders->MakeIterator();
-            while (obj = iterFolders->Next()) {
-               if (strcmp(str + 4, obj->GetName()) == 0)
-                  break;
-            }
-
-            if (!obj) {
-               s->Send("Error");
-            } else {
-               mess->Reset();
-               mess->WriteObject(obj);
-               s->Send(*mess);
-            }
-         }
-
-         else if (strncmp(str, "CLEAR", 5) == 0) {
-            TObject *obj;
-
-            TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
-            TIterator *iterFolders = folders->MakeIterator();
-            while (obj = iterFolders->Next()) {
-               if (strcmp(str + 6, obj->GetName()) == 0)
-                  break;
-            }
-
-            if (!obj) {
-               s->Send("Error");
-            } else {
-#if defined ( __linux__ )
-               TThread::Lock();
-               ((TH1 *) obj)->Reset();
-               TThread::UnLock();
-#endif
-               s->Send("OK");
-            }
-         }
-
-         delete mess;
-      }
-
-   } while (1);
+   //read pointer to current folder
+   TMessage *message = new TMessage(kMESS_OBJECT);
+   fSocket->Recv(message);
+   Int_t p;
+   *message>>p;
+   delete message;
+   return (TFolder*)p;
 }
 
-void *root_server_loop(void *arg)
+int ResponseFunction(TSocket *fSocket) {
+   char str[80];
+   if (fSocket->Recv(str, sizeof(str)) <= 0) {
+      fSocket->Close();
+      delete fSocket;
+      return 0;
+   }
+   TMessage *message = new TMessage(kMESS_OBJECT);
+   if (strcmp(str, "GetListOfFolders") == 0) {
+      TFolder *folder = ReadFolderPointer(fSocket);
+      if (folder==NULL) {
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(NULL);
+         fSocket->Send(*message);
+         delete message;
+         return 1;
+      }
+
+      //get folder names
+      TObject *obj;
+      TObjArray *names = new TObjArray(100);
+
+      TCollection *folders = folder->GetListOfFolders();
+      TIterator *iterFolders = folders->MakeIterator();
+      while (obj = iterFolders->Next()) {
+         ROMEString str;
+         str.SetFormatted("%s",obj->GetName());
+         names->Add(new TObjString(str.Data()));
+      }
+
+      //write folder names
+      message->Reset(kMESS_OBJECT);
+      message->WriteObject(names);
+      fSocket->Send(*message);
+
+      for (int i = 0; i < names->GetLast() + 1; i++)
+         delete(TObjString *) names->At(i);
+
+      delete names;
+
+      delete message;
+      return 1;
+   }
+   else if (strncmp(str, "FindObject", 10) == 0) {
+      TFolder *folder = ReadFolderPointer(fSocket);
+
+      //get object
+      TObject *obj;
+      if (strncmp(str+10, "Any", 3) == 0) {
+         obj = folder->FindObjectAny(str+14);
+      }
+      else {
+         obj = folder->FindObject(str+11);
+      }
+
+      //write object
+      if (!obj) {
+         fSocket->Send("Error");
+      } else {
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(obj);
+         fSocket->Send(*message);
+      }
+      delete message;
+      return 1;
+   }
+
+   else if (strncmp(str, "FindFullPathName", 16) == 0) {
+      TFolder *folder = ReadFolderPointer(fSocket);
+
+      //find path
+      const char* path = folder->FindFullPathName(str+17);
+
+      //write path
+      if (!path) {
+         fSocket->Send("Error");
+      } else {
+         TObjString *obj = new TObjString(path);
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(obj);
+         fSocket->Send(*message);
+         delete obj;
+      }
+      delete message;
+      return 1;
+   }
+
+   else if (strncmp(str, "Occurence", 9) == 0) {
+      TFolder *folder = ReadFolderPointer(fSocket);
+
+      //read object
+      message->Reset(kMESS_OBJECT);
+      fSocket->Recv(message);
+      TObject *obj = ((TObject*) message->ReadObject(message->GetClass()));
+
+      //get occurence
+      Int_t retValue = folder->Occurence(obj);
+
+      //write occurence
+      message->Reset(kMESS_OBJECT);
+      *message<<retValue;
+      fSocket->Send(*message);
+
+      delete message;
+      return 1;
+   }
+
+   else if (strncmp(str, "GetPointer", 10) == 0) {
+      //find object
+      TObject *obj = gROOT->FindObjectAny(str+11);
+
+      //write pointer
+      message->Reset(kMESS_ANY);
+      int p = (PTYPE)obj;
+      *message<<p;
+      fSocket->Send(*message);
+
+      delete message;
+      return 1;
+   }
+/*
+   else if (strncmp(str, "CLEAR", 5) == 0) {
+      TObject *obj;
+
+      TCollection *folders = ((TFolder*)gROOT->FindObjectAny(currentDirectory[directoryDepth].Data()))->GetListOfFolders();
+      TIterator *iterFolders = folders->MakeIterator();
+      while (obj = iterFolders->Next()) {
+         if (strcmp(str + 6, obj->GetName()) == 0)
+            break;
+      }
+
+      if (!obj) {
+         fSocket->Send("Error");
+      } else {
+#if defined ( __linux__ )
+         TThread::Lock();
+         ((TH1 *) obj)->Reset();
+         TThread::UnLock();
+#endif
+         fSocket->Send("OK");
+      }
+   }*/
+   return 1;
+}
+
+
+
+
+#if defined ( __linux__ )
+#define THREADRETURN
+#define THREADTYPE void*
+#endif
+#if defined( _MSC_VER )
+#define THREADRETURN 0
+#define THREADTYPE DWORD WINAPI
+#endif
+
+THREADTYPE Server(void *arg)
+{
+   TSocket *fSocket = (TSocket *) arg;
+
+   while (ResponseFunction(fSocket))
+   {}
+   return THREADRETURN;
+}
+
+
+THREADTYPE ServerLoop(void *arg)
+{
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for 
 // each connection.
-{
-   currentDirectory[0] = "histos";
-   int port = 9091;
+   int port = *(int*)arg;
    printf("Root server listening on port %d...\n", port);
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
 
    do {
-      TSocket *s = lsock->Accept();
-      s->Send("RMSERV 1.0");
-//      printf("New connection from %s\n", s->GetInetAddress().GetHostName());
+      TSocket *sock = lsock->Accept();
 
-      // start a new server thread 
 #if defined ( __linux__ )
-      TThread *th = new TThread("server_thread", server_thread, s);
-      th->Run();
+      TThread *thread = new TThread("Server", Server, sock);
+      thread->Run();
+#endif
+#if defined( _MSC_VER )
+      LPDWORD lpThreadId=0;
+      CloseHandle(CreateThread(NULL,1024,&Server,sock,0,lpThreadId));
 #endif
    } while (1);
+   return THREADRETURN;
 }
-
+int pport;
+void StartServer(int port) {
+   pport = port;
+// start fSocket server loop
+#if defined ( __linux__ )
+   TThread *thread = new TThread("server_loop", ServerLoop, &pport);
+   thread->Run();
+#endif
+#if defined( _MSC_VER )
+   LPDWORD lpThreadId=0;
+   CloseHandle(CreateThread(NULL,1024,&ServerLoop,&pport,0,lpThreadId));
+#endif
+}
 
 TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
 {

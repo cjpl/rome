@@ -60,8 +60,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    ExecuteTasks(gTaskInit);
    CleanTasks();
 
-   cout << "Stop run with 's'" << endl;
-   cout << "Terminate program with 'q'" << endl << endl;
+   cout << "Program steering" << endl;
+   cout << "----------------" << endl;
+   cout << "q : Terminates the program" << endl;
+   cout << "s : Stops the program" << endl;
+   cout << "r : Restarts the program" << endl;
+   cout << "c : Continuous Analysis" << endl;
+   cout << "o : Step by step Analysis" << endl;
+   cout << "i : Root interpreter" << endl;
+   cout << endl;
 
    // Loop over Runs
    //----------------

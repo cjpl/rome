@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.43  2004/09/22 00:15:10  schneebeli_m
+  TRint & Socket
+
   Revision 1.42  2004/09/15 18:56:14  schneebeli_m
   some stuff
 
@@ -2355,6 +2358,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       buffer.AppendFormatted("#include <include/tasks/%sT%s.h>\n",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   ClassImp(%sAnalyzer);\n",shortCut.Data());
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#if defined( _MSC_VER )\n");
@@ -2544,6 +2549,38 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       }
    }
    buffer.AppendFormatted("}\n\n");
+
+   // Initialize Folders
+   buffer.AppendFormatted("void %sAnalyzer::InitFolders() {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderArray[i]=="1") {
+            buffer.AppendFormatted("   new(f%sObject) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            for (j=0;j<numOfValue[i];j++) {
+               if (valueArray[i][j]=="0")
+                  buffer.AppendFormatted("%s,",valueInit[i][j].Data());
+            }
+            buffer.Resize(buffer.Length()-1);
+            buffer.AppendFormatted(" );\n");
+         }
+         else {
+            tmp = folderArray[i];
+            if (folderArray[i].Contains("fAnalyzer"))
+               tmp.Replace(0,9,"this",4);
+            buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",tmp.Data());
+            buffer.AppendFormatted("     new((*f%sObjects)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            for (j=0;j<numOfValue[i];j++) {
+               if (valueArray[i][j]=="0")
+                  buffer.AppendFormatted("%s,",valueInit[i][j].Data());
+            }
+            buffer.Resize(buffer.Length()-1);
+            buffer.AppendFormatted(" );\n");
+            buffer.AppendFormatted("   }\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("};\n\n");
 
    // fill trees
    buffer.AppendFormatted("// Tree Filling\n");
@@ -2944,38 +2981,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("}\n\n");
 
 
-
-   // Initialize Folders
-   buffer.AppendFormatted("void %sAnalyzer::InitFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   new(f%sObject) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            for (j=0;j<numOfValue[i];j++) {
-               if (valueArray[i][j]=="0")
-                  buffer.AppendFormatted("%s,",valueInit[i][j].Data());
-            }
-            buffer.Resize(buffer.Length()-1);
-            buffer.AppendFormatted(" );\n");
-         }
-         else {
-            tmp = folderArray[i];
-            if (folderArray[i].Contains("fAnalyzer"))
-               tmp.Replace(0,9,"this",4);
-            buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",tmp.Data());
-            buffer.AppendFormatted("     new((*f%sObjects)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            for (j=0;j<numOfValue[i];j++) {
-               if (valueArray[i][j]=="0")
-                  buffer.AppendFormatted("%s,",valueInit[i][j].Data());
-            }
-            buffer.Resize(buffer.Length()-1);
-            buffer.AppendFormatted(" );\n");
-            buffer.AppendFormatted("   }\n");
-         }
-      }
-   }
-   buffer.AppendFormatted("};\n\n");
 
    // Initialize Task Switches
    buffer.AppendFormatted("void %sAnalyzer::InitTaskSwitches() {\n",shortCut.Data());
@@ -3580,6 +3585,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   void consoleStartScreen();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   void NextFile(ROMEString& nextFile,ROMEString& file);\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   ClassDef(%sAnalyzer,0);\n",shortCut.Data());
 
    // Footer
    buffer.AppendFormatted("};\n\n");
@@ -3625,7 +3632,8 @@ bool ROMEBuilder::WriteMain() {
    cppFile.SetFormatted("%s/src/framework/main.cpp",outDir.Data());
 
    buffer.Resize(0);
-   buffer.AppendFormatted("#include <TApplication.h>\n");
+   buffer.AppendFormatted("#include <TRint.h>\n");
+   buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <Riostream.h>\n");
    buffer.AppendFormatted("\n");
@@ -3636,16 +3644,23 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
    buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   TApplication theApp(\"App\", &argn, &argp);\n");
+   buffer.AppendFormatted("   TRint *theApp = new TRint(\"App\", &argn, &argp,NULL,0,true);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   %sAnalyzer *analyzer = new %sAnalyzer();\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("//   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"ROME\",\"ROME Folder\");\n");
+   buffer.AppendFormatted("//   fMainFolder->Add(analyzer);\n");
+   buffer.AppendFormatted("//   theApp->ProcessLine(\"MEGAnalyzer* fAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\\\"ROME\\\"))->GetListOfFolders()->MakeIterator()->Next());\");\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!analyzer->Start(argc, argv)) {\n");
    buffer.AppendFormatted("      delete analyzer;\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   theApp.Run();\n");
+   buffer.AppendFormatted("   cout << endl;\n");
+   buffer.AppendFormatted("   cout << endl;\n");
+   buffer.AppendFormatted("   theApp->Run(true);\n");
+   buffer.AppendFormatted("   cout << endl;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   delete analyzer;\n");
    buffer.AppendFormatted("\n");
@@ -4149,7 +4164,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("include/tasks/%sT%s.h ",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h \n");
+   buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.Append("\0");
 
 #if defined( _MSC_VER )

@@ -2,6 +2,7 @@
 #define ROMEAnalyzer_H
 
 #include <time.h>
+#include <TRint.h>
 #include <TFile.h>
 #include <TArrayI.h>
 #include <ROMEString.h>
@@ -59,6 +60,9 @@ private:
    };
 
 protected:
+   // Application
+   TRint*     fApplication;                     //! Application Handle
+
    // Modes
    Int_t      fAnalysisMode;                    //! Analysis mode flag
    Int_t      fDataFormat;                      //! Root mode flag
@@ -310,6 +314,7 @@ private:
    void CreateHistoFolders();
 
    bool ReadParameters(int argc, char *argv[]);
+   void ParameterUsage();
 
    virtual bool ReadROMEConfigXML(char *configFile) = 0;
    virtual bool WriteROMEConfigXML(char *configFile) = 0;
@@ -329,6 +334,8 @@ private:
    virtual bool ReadSQLDataBase() = 0;
 
    virtual void InitMidasBanks() = 0;
+
+   ClassDef(ROMEAnalyzer,0)
 };
 
 #endif   // ROMEAnalyzer_H
