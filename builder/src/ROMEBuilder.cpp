@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.70  2004/11/16 16:20:59  schneebeli_m
+  detail
+
   Revision 1.69  2004/11/16 16:14:00  schneebeli_m
   implemented task hierarchy
 
@@ -4571,9 +4574,9 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
 
 
 bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab) {
-   int j;
+   int j,i;
    ROMEString blank = "";
-   for (int i=0;i<tab;i++)
+   for (i=0;i<tab;i++)
       blank.Append("   ");
 
    ROMEString pointerI;
@@ -4633,9 +4636,9 @@ bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
    return true;
 }
 bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab) {
-   int j;
+   int j,i;
    ROMEString blank = "";
-   for (int i=0;i<tab;i++)
+   for (i=0;i<tab;i++)
       blank.Append("   ");
 
    for (i=0;i<numOfTaskHierarchy;i++) {
