@@ -78,8 +78,8 @@ void MEGTReadMidas::Event()
    int n_f,n_c,n_v;
 
    // set trigger values
-   fAnalyzer->SetTriggerObject(fAnalyzer->GetEventHeader()->event_id,fAnalyzer->GetEventHeader()->trigger_mask,
-                               fAnalyzer->GetEventHeader()->time_stamp,fAnalyzer->GetEventHeader()->serial_number);
+//   fAnalyzer->SetTriggerObject(fAnalyzer->GetEventHeader()->event_id,fAnalyzer->GetEventHeader()->trigger_mask,
+//                               fAnalyzer->GetEventHeader()->time_stamp,fAnalyzer->GetEventHeader()->serial_number);
 
    // Read Banks
 
@@ -129,7 +129,7 @@ void MEGTReadMidas::Event()
       }
    }
    else {
-      fAnalyzer->GetCMPMTDataTree()->SetFillEvent(false);
+      fAnalyzer->SetFillEvent(false);
       delete vfTDC;
       return;
    }
@@ -138,12 +138,14 @@ void MEGTReadMidas::Event()
    for (i=0;i<nPMT;i++) {
       iadc = fAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
       itdc = fAnalyzer->GetCMPMTInfoAt(i)->GetTDCID();
-      fAnalyzer->SetCMPMTDataObject(i,(Float_t)fAnalyzer->GetADC0BankAt(iadc),(Float_t)fAnalyzer->GetADC1BankAt(iadc),vfTDC[itdc]);
+      fAnalyzer->GetCMPMTDataAt(i)->SetADC0Data((Float_t)fAnalyzer->GetADC0BankAt(iadc));
+      fAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)fAnalyzer->GetADC1BankAt(iadc));
+      fAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
-   fAnalyzer->SetCMRefObject(fAnalyzer->GetTriggerObject(),
-                             fAnalyzer->GetCMScalerObject(),
-                             fAnalyzer->GetCMHVObject(),
-                             fAnalyzer->GetEnvironmentObject());
+   fAnalyzer->GetCMRefObject()->SetTrigger(fAnalyzer->GetTriggerObject());
+   fAnalyzer->GetCMRefObject()->SetScaler(fAnalyzer->GetCMScalerObject());
+   fAnalyzer->GetCMRefObject()->SetHV(fAnalyzer->GetCMHVObject());
+   fAnalyzer->GetCMRefObject()->SetEnv(fAnalyzer->GetEnvironmentObject());
 	  
    delete vfTDC;
    return;

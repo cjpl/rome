@@ -77,7 +77,7 @@ void MEGTTDCAverage::EndOfRun()
    if (fAnalyzer->isBatchMode()) return;
    TCanvas *c1 = new TCanvas("c1","Average of Frontface TDCs",600,400);
 
-   GetTDCAverageHistoHandle()->Draw();
+   this->DrawTDCAverageHisto();
 }
 
 void MEGTTDCAverage::Terminate()

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2004/06/30 15:32:12  schneebeli
+  ms
+
   Revision 1.9  2004/06/29 10:27:54  schneebeli
   double declaration of int i
 
@@ -2862,8 +2865,6 @@ bool ROMEBuilder::WriteIOCpp() {
 // Header Files
 //--------------
 
-   sprintf(buffer+strlen(buffer),"#include <winsock.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <mysql.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");

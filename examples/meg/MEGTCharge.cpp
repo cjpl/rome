@@ -178,7 +178,7 @@ void MEGTCharge::Event()
       }
    }
 */
-   fAnalyzer->SetCMHitObject(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
+   fAnalyzer->GetCMHitObject()->SetAll(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
       qtot_bottom,qtot_right,qtot_left,qraw,qsum,nhit);
 
 /*   gHistoHists1[1]->Fill((float)hist->qsum);
@@ -198,17 +198,17 @@ void MEGTCharge::EndOfRun()
    TCanvas *c1 = new TCanvas("c1","Map Histos",600,400);
 
    for (int i=0;i<nMapHistos;i++) {
-      GetFrontMapHistoHandleAt(i)->Draw();
+      DrawFrontMapHistoAt(i);
       c1->Update();
-      GetBackMapHistoHandleAt(i)->Draw();
+      DrawBackMapHistoAt(i);
       c1->Update();
-      GetTopMapHistoHandleAt(i)->Draw();
+      DrawTopMapHistoAt(i);
       c1->Update();
-      GetBottomMapHistoHandleAt(i)->Draw();
+      DrawBottomMapHistoAt(i);
       c1->Update();
-      GetRightMapHistoHandleAt(i)->Draw();
+      DrawRightMapHistoAt(i);
       c1->Update();
-      GetLeftMapHistoHandleAt(i)->Draw();
+      DrawLeftMapHistoAt(i);
       c1->Update();
    }
 }

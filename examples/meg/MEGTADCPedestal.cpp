@@ -49,7 +49,6 @@
 #include <TF1.h>
 #include <TH1.h>
 #include <strstream>
-#include "ROME.h"
 #include "MEGTADCPedestal.h"
 #include <Riostream.h>
 
