@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.122  2005/04/01 14:59:58  schneebeli_m
+  negligible
+
   Revision 1.121  2005/04/01 14:59:02  schneebeli_m
   negligible
 
@@ -7616,7 +7619,6 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
-   romeb->noLink = false;
    romeb->startBuilder(xmlFile.Data());
 
    return 0;
