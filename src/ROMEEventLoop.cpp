@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.45  2005/01/24 16:29:40  schneebeli_m
+//  last bank access
+//
 //  Revision 1.44  2005/01/24 15:45:15  schneebeli_m
 //  ss_millitime
 //
@@ -208,7 +211,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Loop over Events
       //------------------
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
-
          // User Input
          if (!this->UserInput()) {
             this->Termination();
@@ -423,6 +425,9 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
 bool ROMEEventLoop::ReadEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
+
+   // Switch Raw Data Buffer
+   gROME->SwitchRawDataBuffer();
    
    this->SetAnalyze();
    this->ResetFolders();
@@ -459,6 +464,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
 
    fTreeInfo->SetTimeStamp(fActiveDAQ->GetTimeStamp());
    fStatisticsLastEvent = stat->processedEvents;
+
    return true;
 }
 
@@ -491,7 +497,6 @@ bool ROMEEventLoop::Update()
 
       fProgressWrite = false;
    }
- 
    // ODB update
 #if defined HAVE_MIDAS
    db_send_changed_records();

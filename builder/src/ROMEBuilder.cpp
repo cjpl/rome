@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.99  2005/01/24 16:29:40  schneebeli_m
+  last bank access
+
   Revision 1.98  2005/01/24 15:20:32  schneebeli_m
   Seperated DAQ classes
 
@@ -2741,6 +2744,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             buffer.AppendFormatted("      return f%sBankPointer[bankIndex]+index;\n",bankName[i].Data());
             buffer.AppendFormatted("   return NULL;\n");
             buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("%sStruct* %sAnalyzer::GetLast%sBankAt(int bankIndex,int index) {\n",bankName[i].Data(),shortCut.Data(),bankName[i].Data());
+            buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i].Data());
+            buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex]+index;\n",bankName[i].Data());
+            buffer.AppendFormatted("   return NULL;\n");
+            buffer.AppendFormatted("}\n");
          }
          else {
             buffer.AppendFormatted("%s %sAnalyzer::Get%sBankAt(int bankIndex,int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
@@ -2748,8 +2756,16 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             buffer.AppendFormatted("      return *(f%sBankPointer[bankIndex]+index);\n",bankName[i].Data());
             buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i].Data());
             buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("%s %sAnalyzer::GetLast%sBankAt(int bankIndex,int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
+            buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i].Data());
+            buffer.AppendFormatted("      return *(fLast%sBankPointer[bankIndex]+index);\n",bankName[i].Data());
+            buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i].Data());
+            buffer.AppendFormatted("}\n");
          }
          buffer.AppendFormatted("void %sAnalyzer::Init%sBank(int bankIndex) {\n",shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankExists[bankIndex] = f%sBankExists[bankIndex];\n",bankName[i].Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankPointer[bankIndex] = f%sBankPointer[bankIndex];\n",bankName[i].Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankLength[bankIndex] = f%sBankLength[bankIndex];\n",bankName[i].Data(),bankName[i].Data());
          buffer.AppendFormatted("   unsigned long bktype;\n");
          buffer.AppendFormatted("   EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();\n");
          buffer.AppendFormatted("   pevent++;\n");
@@ -2767,6 +2783,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
          buffer.AppendFormatted("int %sAnalyzer::Get%sBankEntries(int bankIndex) {\n",shortCut.Data(),bankName[i].Data());
          buffer.AppendFormatted("   return f%sBankLength[bankIndex];\n",bankName[i].Data());
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("int %sAnalyzer::GetLast%sBankEntries(int bankIndex) {\n",shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormatted("   return fLast%sBankLength[bankIndex];\n",bankName[i].Data());
          buffer.AppendFormatted("}\n\n");
       }
       // Single Bank
@@ -2777,6 +2796,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             buffer.AppendFormatted("      return f%sBankPointer+index;\n",bankName[i].Data());
             buffer.AppendFormatted("   return NULL;\n");
             buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("%sStruct* %sAnalyzer::GetLast%sBankAt(int index) {\n",bankName[i].Data(),shortCut.Data(),bankName[i].Data());
+            buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i].Data());
+            buffer.AppendFormatted("      return fLast%sBankPointer+index;\n",bankName[i].Data());
+            buffer.AppendFormatted("   return NULL;\n");
+            buffer.AppendFormatted("}\n");
          }
          else {
             buffer.AppendFormatted("%s %sAnalyzer::Get%sBankAt(int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
@@ -2784,8 +2808,16 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             buffer.AppendFormatted("      return *(f%sBankPointer+index);\n",bankName[i].Data());
             buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i].Data());
             buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("%s %sAnalyzer::GetLast%sBankAt(int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
+            buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i].Data());
+            buffer.AppendFormatted("      return *(fLast%sBankPointer+index);\n",bankName[i].Data());
+            buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i].Data());
+            buffer.AppendFormatted("}\n");
          }
          buffer.AppendFormatted("void %sAnalyzer::Init%sBank() {\n",shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankExists = f%sBankExists;\n",bankName[i].Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankPointer = f%sBankPointer;\n",bankName[i].Data(),bankName[i].Data());
+         buffer.AppendFormatted("   fLast%sBankLength = f%sBankLength;\n",bankName[i].Data(),bankName[i].Data());
          buffer.AppendFormatted("   unsigned long bktype;\n");
          buffer.AppendFormatted("   EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();\n");
          buffer.AppendFormatted("   pevent++;\n");
@@ -2801,6 +2833,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
          buffer.AppendFormatted("int %sAnalyzer::Get%sBankEntries() {\n",shortCut.Data(),bankName[i].Data());
          buffer.AppendFormatted("   return f%sBankLength;\n",bankName[i].Data());
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("int %sAnalyzer::GetLast%sBankEntries() {\n",shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormatted("   return fLast%sBankLength;\n",bankName[i].Data());
          buffer.AppendFormatted("}\n\n");
       }
    }
@@ -3310,14 +3345,22 @@ bool ROMEBuilder::WriteAnalyzerH() {
             if (bankType[i]=="structure"||bankType[i]=="struct") {
                format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i].Length()-6,bankNameLen-bankName[i].Length());
                buffer.AppendFormatted((char*)format.Data(),bankName[i].Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
+               format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i].Length()-6,bankNameLen-bankName[i].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i].Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
             }
             else {
                format.SetFormatted("   %%s*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
                buffer.AppendFormatted((char*)format.Data(),bankType[i].Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
+               format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i].Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
             }
             format.SetFormatted("   int%%%ds f%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
+            format.SetFormatted("   int%%%ds fLast%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
             format.SetFormatted("   bool%%%ds f%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
+            format.SetFormatted("   bool%%%ds fLast%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),bankArraySize[i]+bankArrayStart[i],"",bankName[i].Data());
          }
          // Single Bank
@@ -3325,14 +3368,22 @@ bool ROMEBuilder::WriteAnalyzerH() {
             if (bankType[i]=="structure"||bankType[i]=="struct") {
                format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i].Length()-6,bankNameLen-bankName[i].Length());
                buffer.AppendFormatted((char*)format.Data(),bankName[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
+               format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i].Length()-6,bankNameLen-bankName[i].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
             }
             else {
                format.SetFormatted("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
                buffer.AppendFormatted((char*)format.Data(),bankType[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
+               format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
             }
             format.SetFormatted("   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
+            format.SetFormatted("   int%%%ds fLast%%sBankLength;  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
             format.SetFormatted("   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
+            format.SetFormatted("   bool%%%ds fLast%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
          }
       }
@@ -3399,22 +3450,28 @@ bool ROMEBuilder::WriteAnalyzerH() {
          if (bankArrayDigit[i]>0) {
             if (bankType[i]=="structure"||bankType[i]=="struct") {
                buffer.AppendFormatted("   %sStruct* Get%sBankAt(int bankIndex,int index);\n",bankName[i].Data(),bankName[i].Data());
+               buffer.AppendFormatted("   %sStruct* GetLast%sBankAt(int bankIndex,int index);\n",bankName[i].Data(),bankName[i].Data());
             }
             else {
                buffer.AppendFormatted("   %s Get%sBankAt(int bankIndex,int index);\n",bankType[i].Data(),bankName[i].Data());
+               buffer.AppendFormatted("   %s GetLast%sBankAt(int bankIndex,int index);\n",bankType[i].Data(),bankName[i].Data());
             }
             buffer.AppendFormatted("   int Get%sBankEntries(int bankIndex);\n",bankName[i].Data());
+            buffer.AppendFormatted("   int GetLast%sBankEntries(int bankIndex);\n",bankName[i].Data());
             buffer.AppendFormatted("   void Init%sBank(int bankIndex);\n",bankName[i].Data());
          }
          // Single Bank
          else {
             if (bankType[i]=="structure"||bankType[i]=="struct") {
                buffer.AppendFormatted("   %sStruct* Get%sBankAt(int index);\n",bankName[i].Data(),bankName[i].Data());
+               buffer.AppendFormatted("   %sStruct* GetLast%sBankAt(int index);\n",bankName[i].Data(),bankName[i].Data());
             }
             else {
                buffer.AppendFormatted("   %s Get%sBankAt(int index);\n",bankType[i].Data(),bankName[i].Data());
+               buffer.AppendFormatted("   %s GetLast%sBankAt(int index);\n",bankType[i].Data(),bankName[i].Data());
             }
             buffer.AppendFormatted("   int Get%sBankEntries();\n",bankName[i].Data());
+            buffer.AppendFormatted("   int GetLast%sBankEntries();\n",bankName[i].Data());
             buffer.AppendFormatted("   void Init%sBank();\n",bankName[i].Data());
          }
       }

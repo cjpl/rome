@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.35  2005/01/24 16:29:40  schneebeli_m
+  last bank access
+
   Revision 1.34  2005/01/24 15:38:02  schneebeli_m
   ss_millitime
 
@@ -126,8 +129,8 @@ protected:
    char       fEventID;                         //! Event ID of current Event
 
    // Midas
-   char       fRawDataEvent[2][0x80000];          //! Midas Inputdata Stack for the current Event and the last Event
-   int        fCurrentRawDataEvent;               //! Index of the current event buffer
+   char       fRawDataEvent[2][0x80000];        //! Midas Inputdata Stack for the current Event and the last Event
+   int        fCurrentRawDataEvent;             //! Index of the current event buffer
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
 
    // Flags
@@ -311,6 +314,7 @@ public:
    void*      GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; };
    void*      GetLastRawDataEvent() { return fRawDataEvent[1-fCurrentRawDataEvent]; };
    int        GetRawDataEventSize() { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); };
+   void       SwitchRawDataBuffer() { fCurrentRawDataEvent = 1-fCurrentRawDataEvent; };
 
    // Configuration
    ROMEConfig *GetConfiguration() { return fConfiguration; };
