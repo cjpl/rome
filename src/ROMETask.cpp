@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.23  2005/04/04 07:23:59  schneebeli_m
+//  Time report
+//
 //  Revision 1.22  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -65,37 +68,45 @@ void ROMETask::Exec(Option_t *option)
       return;
    if (!strncmp(option,"i",1)) {
       fCurrentEventMethod = "Init";
+      TimeReset();
       ROMEString foldername;
       foldername.SetFormatted("%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
+      TimeStart();
       Init();
+      TimeEnd();
    }
    else if (!strncmp(option,"b",1)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
+      TimeStart();
       BeginOfRun();
+      TimeEnd();
    }
    else if (!strncmp(option,"e",1)) {
       fCurrentEventMethod = "EndOfRun";
+      TimeStart();
       EndOfRun();
+      TimeEnd();
    }
    else if (!strncmp(option,"t",1)) {
       fCurrentEventMethod = "Terminate";
+      TimeStart();
       Terminate();
-      if (gShowTime) {
-         gROME->Print("Task '");
-         gROME->Print(fName.Data());
-         gROME->Print("' : run time = ");
-         gROME->Println(GetTime());
-      }
+      TimeEnd();
+
+      gROME->Print("Task '");
+      gROME->Print(fName.Data());
+      gROME->Print("' : run time = ");
+      gROME->Println(GetTime());
    }
    else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
       fCurrentEventMethod = "Event";
-      if (gShowTime) TimeStart();
+      TimeStart();
       if (gROME->isFillEvent()) 
          Event();
-      if (gShowTime) TimeEnd();
+      TimeEnd();
    }
 }
 
@@ -110,6 +121,11 @@ void ROMETask::StartRootInterpreter(const char* message) {
 
 // Time methods
 
+void ROMETask::TimeReset()
+{
+   // Reset the Tasks stopwatch
+   fWatch.Reset();
+}
 void ROMETask::TimeStart()
 {
    // Starts the Tasks stopwatch

@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.51  2005/04/04 07:23:59  schneebeli_m
+//  Time report
+//
 //  Revision 1.50  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -219,7 +222,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          CleanTasks();
 
          // Output
-         if (gShowTime) TimeStart();
+         TimeStart();
          text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
          gROME->Println(text.Data());
       }
@@ -295,18 +298,18 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (this->isEndOfRun() || this->isTerminate()) {
          if (this->isEndOfRun())
             this->SetBeginOfRun();
-         if (gShowTime) TimeEnd();
+         
+         TimeEnd();
 
          // Show number of processed events
          text.SetFormatted("Run %d stopped                                             \n",gROME->GetCurrentRunNumber());
          gROME->Println(text.Data());
          text.SetFormatted("%d events processed\n",(int)gROME->GetProcessedEvents());
          gROME->Println(text.Data());
-         if (gShowTime) {
-            gROME->Print("run time = ");
-            gROME->Println(GetTime());
-            gROME->Println();
-         }
+
+         gROME->Print("run time = ");
+         gROME->Println(GetTime());
+         gROME->Println();
 
          // End of Run Tasks
          ExecuteTasks("e");

@@ -2,6 +2,9 @@
   ROME.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2005/04/04 07:23:59  schneebeli_m
+  Time report
+
   Revision 1.7  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -33,8 +36,5 @@
 #else
 #define DLLEXPORT
 #endif
-
-// General
-#define gShowTime 1
 
 #endif   // ROME_H
