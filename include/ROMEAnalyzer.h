@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.34  2005/01/24 15:38:02  schneebeli_m
+  ss_millitime
+
   Revision 1.33  2005/01/24 15:25:06  schneebeli_m
   Seperated DAQ classes
 
@@ -329,6 +332,7 @@ public:
    int ss_getchar(bool reset);
    Bool_t ss_kbhit();
    int ss_sleep(int millisec);
+   long ss_millitime();
 
 protected:
 

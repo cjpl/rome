@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.50  2005/01/24 15:38:04  schneebeli_m
+//  ss_millitime
+//
 //  Revision 1.49  2005/01/24 15:25:08  schneebeli_m
 //  Seperated DAQ classes
 //
@@ -984,5 +987,23 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    return ss_getchar(0);
 #else
    return -1;
+#endif
+}
+
+long ROMEAnalyzer::ss_millitime()
+{
+#if defined ( __linux__ )  || defined ( __APPLE__ )
+   {
+      struct timeval tv;
+
+      gettimeofday(&tv, NULL);
+
+      return tv.tv_sec * 1000 + tv.tv_usec / 1000;
+   }
+
+#elif defined( _MSC_VER )
+
+   return (int) GetTickCount();
+
 #endif
 }
