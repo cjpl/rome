@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.93  2005/01/18 15:12:43  schneebeli_m
+  include <string>
+
   Revision 1.92  2005/01/17 08:54:36  schneebeli_m
   String SP
 
@@ -2460,6 +2463,7 @@ bool ROMEBuilder::WriteSteering(int iTask) {
    // Header
    buffer.AppendFormatted("#ifndef %sGlobalSteering_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sGlobalSteering_H\n\n",shortCut.Data());
+   buffer.AppendFormatted("#include <string>\n\n");
 
    WriteSteeringClass(buffer,0,iTask,0);
 
