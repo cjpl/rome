@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.15  2005/02/24 17:02:11  sawada
+  start of thread function.
+
   Revision 1.14  2005/02/22 10:43:31  sawada
   User defined menus.
 
@@ -464,6 +467,8 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
 #endif
          buffer.AppendFormatted("   bool f%sActive;\n", threadFunctionName[iTab][i].Data());
+	 buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Int_t f%sInterval;\n",threadFunctionName[iTab][i].Data());
       }
       buffer.AppendFormatted("   Int_t fVersion; // Version number\n");
       buffer.AppendFormatted("   Bool_t fActive; // is Active\n");
@@ -518,24 +523,34 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      TThread::SetCancelOn();\n");
          buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
+         buffer.AppendFormatted("      Int_t iLoop = 0;\n");
 //         buffer.AppendFormatted("      int meid=TThread::SelfId(); // get pthread id\n");
-         buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         TThread::CancelPoint();\n");
          buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
+	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("   static DWORD WINAPI Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
+         buffer.AppendFormatted("      Int_t iLoop = 0;\n");
          buffer.AppendFormatted("      GetExitCodeThread(f%sHandle, &f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      while(inst->f%sActive && f%sExCode == STILL_ACTIVE){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      while(inst->f%sActive && f%sExCode == STILL_ACTIVE && (f%sNumberOfLoops == 0 || iLoop<f%sNumberOfLoops)){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
+	 buffer.AppendFormatted("         if(f%sNumberOfLoops != 0 && ++iLoop>=f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            Stop%s();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         gSystem->Sleep(f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
 #endif
-         buffer.AppendFormatted("   bool Start%s(){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool Start%s(Int_t interval = 1, Int_t nloop = 0){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = true;\n",threadFunctionName[iTab][i].Data());
+	 buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sInterval = interval;\n",threadFunctionName[iTab][i].Data());
 #if defined ( R__UNIX )
          buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());

@@ -65,13 +65,13 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
       case kCM_BUTTON:
          switch (param1){
          case B_STARTV:
-            Startfunc_1_1();
+            Startfunc_1_1(2000);
             break;
          case B_STOPV:
             Stopfunc_1_1();
             break;
          case B_STARTH:
-            Startfunc_1_2();
+            Startfunc_1_2(1000,10);
             break;
          case B_STOPH:
             Stopfunc_1_2();
@@ -98,7 +98,6 @@ void TTTTab1::func_1_1()
    fText->Draw();
    fCanvas->GetCanvas()->Modified();
    fCanvas->GetCanvas()->Update(); 
-   gSystem->Sleep(1000);
 }
 
 void TTTTab1::func_1_2()
@@ -115,6 +114,5 @@ void TTTTab1::func_1_2()
    fText->Draw();
    fCanvas->GetCanvas()->Modified();
    fCanvas->GetCanvas()->Update(); 
-   gSystem->Sleep(2000);
 }
 
