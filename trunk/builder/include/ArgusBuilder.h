@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.10  2005/02/25 16:14:00  sawada
+  bug fix and example for ROMEFolder
+
   Revision 1.9  2005/02/25 13:51:02  sawada
   added folderShortCut and ROMEProjectPath
 
@@ -95,7 +98,6 @@ private:
    int        numOfValue[maxNumberOfFolders];
    int        numOfFolderInclude[maxNumberOfFolders];
    ROMEString folderName[maxNumberOfFolders];
-   ROMEString folderShortCut[maxNumberOfFolders];
    ROMEString folderRomeProjPath[maxNumberOfFolders];
    ROMEString folderDescription[maxNumberOfFolders];
    ROMEString folderParentName[maxNumberOfFolders];

@@ -23,5 +23,8 @@ void FOTTab::Init()
    //ROMEDataBase
    gMonitor->UpdateROMEDataBase();
    cout<<gMonitor->GetROMEDataBase()->Getcomment()<<endl;
-}
 
+   //ROMEFolder
+   gMonitor->UpdateRunInfo();
+   cout<<gMonitor->GetRunInfo()->GetRunMode()<<endl;
+}
