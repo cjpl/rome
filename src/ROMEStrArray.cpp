@@ -6,6 +6,9 @@
 //  Handles character string array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
+//  detail
+//
 //  Revision 1.1  2004/11/11 12:56:43  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -163,21 +166,21 @@ void ROMEStrArray::RemoveAll()
 {
    this->Delete();
 }
-TString* ROMEStrArray::At(Int_t idx) const
+TString ROMEStrArray::At(Int_t idx) const
 {
-   return &((TObjString*)array->At(idx))->GetString();
+   return ((TObjString*)array->At(idx))->GetString();
 }
-TString* ROMEStrArray::UncheckedAt(Int_t i) const
+TString ROMEStrArray::UncheckedAt(Int_t i) const
 {
-   return &((TObjString*)array->UncheckedAt(i))->GetString();
+   return ((TObjString*)array->UncheckedAt(i))->GetString();
 }
-TString* ROMEStrArray::First() const
+TString ROMEStrArray::First() const
 {
-   return &((TObjString*)array->First())->GetString();
+   return ((TObjString*)array->First())->GetString();
 }
-TString* ROMEStrArray::Last() const
+TString ROMEStrArray::Last() const
 {
-   return &((TObjString*)array->Last())->GetString();
+   return ((TObjString*)array->Last())->GetString();
 }
 TString ROMEStrArray::operator[](Int_t i) const
 {

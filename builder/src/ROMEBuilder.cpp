@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.66  2004/11/11 13:17:37  schneebeli_m
+  detail
+
   Revision 1.65  2004/11/11 12:55:27  schneebeli_m
   Implemented XML database with new path rules
 
@@ -2527,7 +2530,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   buffer.AppendFormatted("   this->GetDataBase()->Read(values,path);\n");
                   if (valueArray[i][j]=="1") {
                      buffer.AppendFormatted("   if (values->At(0,0)!=NULL)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0)->Data()",(char*)valueType[i][j].Data(),1);
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0).Data()",(char*)valueType[i][j].Data(),1);
                      buffer.AppendFormatted("      f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                      buffer.AppendFormatted("   else\n");
                      buffer.AppendFormatted("      f%sFolder->Set%s(%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
@@ -2535,7 +2538,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   else {
                      buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
                      buffer.AppendFormatted("      if (values->At(0,i)!=NULL)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i)->Data()",(char*)valueType[i][j].Data(),1);
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i).Data()",(char*)valueType[i][j].Data(),1);
                      buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                      buffer.AppendFormatted("      else\n");
                      buffer.AppendFormatted("         f%sFolder->Set%sAt(i,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
@@ -2568,7 +2571,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
                   if (valueArray[i][j]=="1") {
                      buffer.AppendFormatted("      if (values->At(i,0)!=NULL)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0)->Data()",(char*)valueType[i][j].Data(),1);
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0).Data()",(char*)valueType[i][j].Data(),1);
                      buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                      buffer.AppendFormatted("      else\n");
                      buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
@@ -2576,7 +2579,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                   else {
                      buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
                      buffer.AppendFormatted("         if (values->At(i,j)!=NULL)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j)->Data()",(char*)valueType[i][j].Data(),1);
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j).Data()",(char*)valueType[i][j].Data(),1);
                      buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                      buffer.AppendFormatted("         else\n");
                      buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());

@@ -2,6 +2,9 @@
   ROMEStrArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
+  detail
+
   Revision 1.1  2004/11/11 12:57:49  schneebeli_m
   Implemented XML database with new path rules
 
@@ -48,10 +51,10 @@ public:
    virtual void     RemoveAt(Int_t idx);
    virtual void     RemoveAll();
 
-   TString         *At(Int_t idx) const;
-   TString         *UncheckedAt(Int_t i) const;
-   TString         *First() const;
-   TString         *Last() const;
+   TString          At(Int_t idx) const;
+   TString          UncheckedAt(Int_t i) const;
+   TString          First() const;
+   TString          Last() const;
    virtual TString  operator[](Int_t i) const;
    Int_t            LowerBound() const;
 

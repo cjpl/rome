@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
+  detail
+
   Revision 1.1  2004/11/11 12:58:07  schneebeli_m
   Implemented XML database with new path rules
 
@@ -47,11 +50,11 @@ public:
 
    // getters for decode
    int         GetNumberOfTables() { return fTableNames->GetEntriesFast(); };
-   const char* GetTableNameAt(int i) { return fTableNames->At(i)->Data(); };
-   const char* GetTableConstraintAt(int i)   { return fTableConstraints->At(i)->Data(); };
-   const char* GetTableDBConstraintAt(int i) { return fTableDBConstraints->At(i)->Data(); };
+   const char* GetTableNameAt(int i) { return fTableNames->At(i).Data(); };
+   const char* GetTableConstraintAt(int i)   { return fTableConstraints->At(i).Data(); };
+   const char* GetTableDBConstraintAt(int i) { return fTableDBConstraints->At(i).Data(); };
    int         GetNumberOfTableConnectionAt(int iTable) { return fTableConnection->GetEntriesFastAt(iTable); };
-   const char* GetTableConnectionAt(int iTable,int iConnection) { if (fTableConnection->At(iTable,iConnection)==NULL) return ""; return fTableConnection->At(iTable,iConnection)->Data(); };
+   const char* GetTableConnectionAt(int iTable,int iConnection) { if (fTableConnection->At(iTable,iConnection)==NULL) return ""; return fTableConnection->At(iTable,iConnection).Data(); };
    const char* GetOrderTableName() { return fOrderTableName.Data(); };
    const char* GetOrderFieldName() { return fOrderFieldName.Data(); };
    int         GetOrderIndexAt(int i)  { return fOrderIndex[i]; };
@@ -62,8 +65,8 @@ public:
 
    // getters for decode constraint
    int         GetNumberOfConstraints() { return fConstraintField->GetEntriesFast(); };
-   const char* GetConstraintFieldAt(int i)   { return fConstraintField->At(i)->Data(); };
-   const char* GetConstraintValueAt(int i)   { return fConstraintValue->At(i)->Data(); };
+   const char* GetConstraintFieldAt(int i)   { return fConstraintField->At(i).Data(); };
+   const char* GetConstraintValueAt(int i)   { return fConstraintValue->At(i).Data(); };
 
 protected:
    // setters for decode

@@ -6,6 +6,9 @@
 //  Handles character string array of array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
+//  detail
+//
 //  Revision 1.1  2004/11/11 12:56:50  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -122,7 +125,7 @@ void ROMEStr2DArray::RemoveAll()
    array->RemoveAll();
 }
 
-TString* ROMEStr2DArray::At(Int_t idx, Int_t idy) const
+TString ROMEStr2DArray::At(Int_t idx, Int_t idy) const
 {
    if (idx<0||idx>=array->GetEntriesFast())
       return NULL;
@@ -133,5 +136,5 @@ TString* ROMEStr2DArray::At(Int_t idx, Int_t idy) const
       return NULL;
    if (subArray->At(idy)==NULL)
       return NULL;
-   return &((TObjString*)subArray->At(idy))->GetString();
+   return ((TObjString*)subArray->At(idy))->GetString();
 }

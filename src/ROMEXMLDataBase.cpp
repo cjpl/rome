@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.5  2004/11/11 13:17:37  schneebeli_m
+//  detail
+//
 //  Revision 1.4  2004/11/11 12:55:28  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -390,15 +393,15 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath)
                for (ii=0;ii<path->GetNumberOfConstraints();ii++) {
                   xml->NewPathChildElement(xmlPath.Data(),path->GetConstraintFieldAt(ii),path->GetConstraintValueAt(ii));
                }
-               xml->NewPathChildElement(xmlPath.Data(),fieldName.Data(),values->At(i-istart,j)->Data());
+               xml->NewPathChildElement(xmlPath.Data(),fieldName.Data(),values->At(i-istart,j).Data());
             }
             // replace
             else {
                if (!xml->GetPathValue(xmlFieldPath,value)) {
-                  xml->NewPathChildElement(xmlPath.Data(),fieldName.Data(),values->At(i-istart,j)->Data());
+                  xml->NewPathChildElement(xmlPath.Data(),fieldName.Data(),values->At(i-istart,j).Data());
                }
                else {
-                  xml->ReplacePathValue(xmlFieldPath.Data(),values->At(i-istart,j)->Data());
+                  xml->ReplacePathValue(xmlFieldPath.Data(),values->At(i-istart,j).Data());
                }
             }
          }
@@ -427,15 +430,15 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath)
             for (ii=0;ii<path->GetNumberOfConstraints();ii++) {
                xml->NewPathChildElement(xmlPath.Data(),path->GetConstraintFieldAt(ii),path->GetConstraintValueAt(ii));
             }
-            xml->NewPathChildElement(xmlPath.Data(),path->GetFieldName(),values->At(i-istart,0)->Data());
+            xml->NewPathChildElement(xmlPath.Data(),path->GetFieldName(),values->At(i-istart,0).Data());
          }
          // replace
          else {
             if (!xml->GetPathValue(xmlFieldPath,value)) {
-               xml->NewPathChildElement(xmlPath.Data(),path->GetFieldName(),values->At(i-istart,0)->Data());
+               xml->NewPathChildElement(xmlPath.Data(),path->GetFieldName(),values->At(i-istart,0).Data());
             }
             else {
-               xml->ReplacePathValue(xmlFieldPath.Data(),values->At(i-istart,0)->Data());
+               xml->ReplacePathValue(xmlFieldPath.Data(),values->At(i-istart,0).Data());
             }
          }
       }

@@ -2,6 +2,9 @@
   ROMEStr2DArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
+  detail
+
   Revision 1.1  2004/11/11 12:57:58  schneebeli_m
   Implemented XML database with new path rules
 
@@ -34,7 +37,7 @@ public:
    virtual void     RemoveAllAt(Int_t idx);
    virtual void     RemoveAll();
 
-   TString         *At(Int_t idx, Int_t idy) const;
+   TString          At(Int_t idx, Int_t idy) const;
 };
 
 #endif   // ROMEStr2DArray_H
