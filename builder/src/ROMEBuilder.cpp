@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.81  2004/12/21 08:49:54  schneebeli_m
+  Config SP read error
+
   Revision 1.80  2004/12/09 08:22:19  schneebeli_m
   lg2c
 
@@ -4596,6 +4599,7 @@ bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int n
 }
 bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath) {
    int k;
+   ROMEString pathT;
    ROMEString pointerT;
    ROMEString classPathT;
    buffer.AppendFormatted("   %sModified = false;\n",pointer.Data());
@@ -4614,12 +4618,14 @@ bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int nu
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
       buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       buffer.AppendFormatted("   %s->f%s = new %s::%s();\n",pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),classPath.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      path.AppendFormatted("/child::SteeringParameterGroup[child::SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pathT = path;
       pointerT = pointer;
       classPathT = classPath;
+      path.AppendFormatted("/child::SteeringParameterGroup[child::SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath);
+      path = pathT;
       pointer = pointerT;
       classPath = classPathT;
       buffer.AppendFormatted("   if (%s->f%sModified)\n",pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());

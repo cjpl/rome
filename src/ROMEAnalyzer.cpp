@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.48  2004/12/21 08:49:54  schneebeli_m
+//  Config SP read error
+//
 //  Revision 1.47  2004/12/07 15:03:03  schneebeli_m
 //  online steering
 //
@@ -225,7 +228,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
 void ROMEAnalyzer::ParameterUsage()
 {
-   cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
+   cout << "  -i       Configuration file (default romeConfig.xml)" << endl;
    cout << "  -b       Batch Mode (no Argument)" << endl;
    cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
    cout << "  -m       Analysing Mode : (online/[offline])" << endl;
