@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.27  2004/11/11 12:55:27  schneebeli_m
+  Implemented XML database with new path rules
+
   Revision 1.26  2004/10/14 09:53:41  schneebeli_m
   ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 
@@ -136,7 +139,7 @@ protected:
 
    // Data base
    ROMEDataBase *fDataBaseHandle;                  //! DataBase Handle
-   char*         fDataBaseConnection;              //! DataBase connection string
+   ROMEString    fDataBaseConnection;              //! DataBase connection string
 
    // Configuration
    ROMEConfig   *fConfiguration;                   //! Configuration Handle
@@ -156,8 +159,9 @@ public:
    TRint*        GetApplication() { return fApplication; };
 
    // Data Base Handle
-   char*         GetDataBaseConnection() { return fDataBaseConnection; };
+   char*         GetDataBaseConnection() { return (char*)fDataBaseConnection.Data(); };
    void          SetDataBaseConnection(char* connection) { fDataBaseConnection = connection; };
+   void          SetDataBaseConnection(ROMEString& connection) { fDataBaseConnection = connection; };
    ROMEDataBase* GetDataBase() { return fDataBaseHandle; };
    void          SetDataBase(ROMEDataBase* dataBase) { fDataBaseHandle = dataBase; };
 
@@ -320,6 +324,7 @@ protected:
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
+   virtual void redirectOutput() = 0;
 
 #ifndef HAVE_MIDAS
    bool bk_is32(void *event);

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.65  2004/11/11 12:55:27  schneebeli_m
+  Implemented XML database with new path rules
+
   Revision 1.64  2004/10/25 08:03:41  schneebeli_m
   html docu and tree switches
 
@@ -2330,6 +2333,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("#include <ROMEXML.h>\n");
+   buffer.AppendFormatted("#include <ROMEStr2DArray.h>\n");
    buffer.AppendFormatted("#include <ROMETree.h>\n");
    buffer.AppendFormatted("#include <ROMETreeInfo.h>\n");
    buffer.AppendFormatted("#include <ROME.h>\n");
@@ -2510,20 +2514,38 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // ReadSingleDataBaseFolders
    buffer.AppendFormatted("bool %sAnalyzer::ReadSingleDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
-      buffer.AppendFormatted("   TObjArray *values = new TObjArray(0);\n");
+      buffer.AppendFormatted("   ROMEString path;\n");
+      buffer.AppendFormatted("   int i;\n");
+      buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
       buffer.AppendFormatted("   char *cstop;\n");
       for (i=0;i<numOfFolder;i++) {
          if (folderDataBase[i]) {
             for (j=0;j<numOfValue[i];j++) {
-               buffer.AppendFormatted("   values->RemoveAll();\n");
                if (folderArray[i]=="1") {
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),1);\n",folderName[i].Data(),valueName[i][j].Data());
-                  setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(0))->GetString().Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("   values->RemoveAll();\n");
+                  buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,path);\n");
+                  if (valueArray[i][j]=="1") {
+                     buffer.AppendFormatted("   if (values->At(0,0)!=NULL)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,0)->Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("      f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("   else\n");
+                     buffer.AppendFormatted("      f%sFolder->Set%s(%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  }
+                  else {
+                     buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
+                     buffer.AppendFormatted("      if (values->At(0,i)!=NULL)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i)->Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("      else\n");
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                     buffer.AppendFormatted("   }\n");
+                  }
                }
             }
          }
       }
+      buffer.AppendFormatted("   values->RemoveAll();\n");
       buffer.AppendFormatted("   delete values;\n");
       buffer.AppendFormatted("   return true;\n");
    }
@@ -2532,27 +2554,40 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // ReadArrayDataBaseFolders
    buffer.AppendFormatted("bool %sAnalyzer::ReadArrayDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
-      buffer.AppendFormatted("   TObjArray *values = new TObjArray(0);\n");
+      buffer.AppendFormatted("   ROMEString path;\n");
+      buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
       buffer.AppendFormatted("   char *cstop;\n");
-      buffer.AppendFormatted("   int i;\n");
+      buffer.AppendFormatted("   int i,j;\n");
       for (i=0;i<numOfFolder;i++) {
          if (folderDataBase[i]) {
             for (j=0;j<numOfValue[i];j++) {
-               buffer.AppendFormatted("   values->RemoveAll();\n");
                if (folderArray[i]!="1") {
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),f%sFolders->GetEntries());\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data());
+                  buffer.AppendFormatted("   values->RemoveAll();\n");
+                  buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,path);\n");
                   buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
-                  buffer.AppendFormatted("      if (i<values->GetEntriesFast()) {\n");
-                  setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(i))->GetString().Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                  buffer.AppendFormatted("      } else {\n");
-                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
-                  buffer.AppendFormatted("      }\n");
+                  if (valueArray[i][j]=="1") {
+                     buffer.AppendFormatted("      if (values->At(i,0)!=NULL)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0)->Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("      else\n");
+                     buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  }
+                  else {
+                     buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
+                     buffer.AppendFormatted("         if (values->At(i,j)!=NULL)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j)->Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("         else\n");
+                     buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                     buffer.AppendFormatted("      }\n");
+                  }
                   buffer.AppendFormatted("   }\n");
                }
             }
          }
       }
+      buffer.AppendFormatted("   values->RemoveAll();\n");
       buffer.AppendFormatted("   delete values;\n");
       buffer.AppendFormatted("   return true;\n");
    }
@@ -2729,6 +2764,14 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   cout << \"*****************************************\" << endl << endl;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("   \n");
+
+   // Redirect Output
+   buffer.AppendFormatted("void %sAnalyzer::redirectOutput() {\n",shortCut.Data());
+   buffer.AppendFormatted("   ofstream *romeOutputFile;\n");
+   buffer.AppendFormatted("   romeOutputFile = new ofstream(\"romeOutput.txt\");\n");
+   buffer.AppendFormatted("   cout.rdbuf(romeOutputFile->rdbuf());\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
    bool haveFortranTask = false;
    for (i=0;i<numOfTask;i++) {
@@ -3056,6 +3099,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
+   buffer.AppendFormatted("   void redirectOutput();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   void NextFile(ROMEString& nextFile,ROMEString& file);\n");
    buffer.AppendFormatted("\n");
@@ -3319,13 +3363,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fModes->fInputDataFormatModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fModes->fInputDataFormatModified = true;\n");
-   // DataBaseMode
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/DataBaseMode\",fConfigData[index]->fModes->fDataBaseMode,\"\");\n");
-   buffer.AppendFormatted("   fConfigData[index]->fModes->fDataBaseMode.ToLower();\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fDataBaseMode==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fModes->fDataBaseModeModified = false;\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fModes->fDataBaseModeModified = true;\n");
    // BatchMode
    buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/BatchMode\",fConfigData[index]->fModes->fBatchMode,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fModes->fBatchMode==\"\")\n");
@@ -3341,12 +3378,40 @@ bool ROMEBuilder::WriteConfigCpp() {
    // all
    buffer.AppendFormatted("   if (fConfigData[index]->fModes->fAnalyzingModeModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fInputDataFormatModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fModes->fDataBaseModeModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fBatchModeModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fShowSplashScreenModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fModesModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fModesModified = false;\n");
+   // DataBase
+   buffer.AppendFormatted("   // database\n");
+   buffer.AppendFormatted("   fConfigData[index]->fDataBase = new ConfigData::DataBase();\n");
+   // Type
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Type\",fConfigData[index]->fDataBase->fType,\"\");\n");
+   buffer.AppendFormatted("   fConfigData[index]->fDataBase->fType.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fType==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = true;\n");
+   // Name
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Name\",fConfigData[index]->fDataBase->fName,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fName==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fNameModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fNameModified = true;\n");
+   // Path
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Path\",fConfigData[index]->fDataBase->fPath,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fPath==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fPathModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fPathModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fTypeModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fNameModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fPathModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = false;\n");
    // online
    buffer.AppendFormatted("   // online\n");
    buffer.AppendFormatted("   fConfigData[index]->fOnline = new ConfigData::Online();\n");
@@ -3404,16 +3469,9 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fPaths->fOutputFilePathModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fPaths->fOutputFilePathModified = true;\n");
-   // DataBaseFilePath
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Paths/DataBaseFilePath\",fConfigData[index]->fPaths->fDataBaseFilePath,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fDataBaseFilePath==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fPaths->fDataBaseFilePathModified = false;\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fPaths->fDataBaseFilePathModified = true;\n");
    // all
    buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fInputFilePathModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fPaths->fOutputFilePathModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fPaths->fDataBaseFilePathModified)\n");
+   buffer.AppendFormatted("       fConfigData[index]->fPaths->fOutputFilePathModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = false;\n");
@@ -3612,11 +3670,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         fConfigData[index]->fPaths->fOutputFilePath.Append(\"/\");\n");
    buffer.AppendFormatted("      gAnalyzer->SetOutputDir(fConfigData[index]->fPaths->fOutputFilePath);\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fPaths->fDataBaseFilePathModified) {\n");
-   buffer.AppendFormatted("      if (fConfigData[index]->fPaths->fDataBaseFilePath[fConfigData[index]->fPaths->fDataBaseFilePath.Length()-1]!='/' && fConfigData[index]->fPaths->fDataBaseFilePath[fConfigData[index]->fPaths->fDataBaseFilePath.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("         fConfigData[index]->fPaths->fDataBaseFilePath.Append(\"/\");\n");
-   buffer.AppendFormatted("      gAnalyzer->SetDataBaseDir(fConfigData[index]->fPaths->fDataBaseFilePath);\n");
-   buffer.AppendFormatted("   }\n");
    // Modes
    buffer.AppendFormatted("   // modes\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fAnalyzingModeModified) {\n");
@@ -3631,23 +3684,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetMidas();\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fDataBaseModeModified) {\n");
-   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fDataBaseMode==\"sql\") {\n");
-   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("         gAnalyzer->SetDataBaseConnection(\"\");\n");
-   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
-   buffer.AppendFormatted("            return false;\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDataBaseMode==\"xml\") {\n");
-   buffer.AppendFormatted("         delete gAnalyzer->GetDataBase();\n");
-   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMEXMLDataBase());\n");
-   buffer.AppendFormatted("         gAnalyzer->SetDataBaseConnection(\"RunTable.xml\");\n");
-   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
-   buffer.AppendFormatted("            return false;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fBatchModeModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fModes->fBatchMode==\"true\")\n");
    buffer.AppendFormatted("         gAnalyzer->SetBatchMode(true);\n");
@@ -3659,6 +3695,31 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(false);\n");
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(true);\n");
+   buffer.AppendFormatted("   }\n");
+   // DataBase
+
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fPathModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fDataBase->fPath[fConfigData[index]->fDataBase->fPath.Length()-1]!='/' && fConfigData[index]->fDataBase->fPath[fConfigData[index]->fDataBase->fPath.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("         fConfigData[index]->fDataBase->fPath.Append(\"/\");\n");
+   buffer.AppendFormatted("      gAnalyzer->SetDataBaseDir(fConfigData[index]->fDataBase->fPath);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fNameModified) {\n");
+   buffer.AppendFormatted("      gAnalyzer->SetDataBaseConnection(fConfigData[index]->fDataBase->fName);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fTypeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fDataBase->fType==\"sql\") {\n");
+   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMESQLDataBase());\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fType==\"xml\") {\n");
+   buffer.AppendFormatted("         delete gAnalyzer->GetDataBase();\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMEXMLDataBase());\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
    // Online
    buffer.AppendFormatted("   // online\n");
@@ -3826,11 +3887,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fInputDataFormatModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"InputDataFormat\",(char*)fConfigData[index]->fModes->fInputDataFormat.Data());\n");
-   // DataBaseMode
-   buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseMode\",gAnalyzer->GetDataBase()->GetType());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDataBaseModeModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseMode\",(char*)fConfigData[index]->fModes->fDataBaseMode.Data());\n");
    // BatchMode
    buffer.AppendFormatted("      if (index==0) {\n");
    buffer.AppendFormatted("         if (gAnalyzer->isBatchMode())\n");
@@ -3849,6 +3905,27 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fShowSplashScreenModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"ShowSplashScreen\",(char*)fConfigData[index]->fModes->fShowSplashScreen.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // DataBase
+   buffer.AppendFormatted("   // database\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBaseModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"DataBase\");\n");
+   // Type
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Type\",gAnalyzer->GetDataBase()->GetType());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fTypeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Type\",(char*)fConfigData[index]->fDataBase->fType.Data());\n");
+   // Name
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Name\",gAnalyzer->GetDataBaseConnection());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fNameModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Name\",(char*)fConfigData[index]->fDataBase->fName.Data());\n");
+   // Path
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Path\",(char*)gAnalyzer->GetDataBaseDir());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fPathModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Path\",(char*)fConfigData[index]->fDataBase->fPath.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // online
@@ -3903,11 +3980,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"OutputFilePath\",(char*)gAnalyzer->GetOutputDir());\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fPaths->fOutputFilePathModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"OutputFilePath\",(char*)fConfigData[index]->fPaths->fOutputFilePath.Data());\n");
-   // DataBaseFilePath
-   buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseFilePath\",(char*)gAnalyzer->GetDataBaseDir());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fPaths->fDataBaseFilePathModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseFilePath\",(char*)fConfigData[index]->fPaths->fDataBaseFilePath.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // Tasks
@@ -4148,8 +4220,6 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fAnalyzingModeModified;\n");
    buffer.AppendFormatted("         ROMEString  fInputDataFormat;\n");
    buffer.AppendFormatted("         bool        fInputDataFormatModified;\n");
-   buffer.AppendFormatted("         ROMEString  fDataBaseMode;\n");
-   buffer.AppendFormatted("         bool        fDataBaseModeModified;\n");
    buffer.AppendFormatted("         ROMEString  fBatchMode;\n");
    buffer.AppendFormatted("         bool        fBatchModeModified;\n");
    buffer.AppendFormatted("         ROMEString  fShowSplashScreen;\n");
@@ -4157,6 +4227,19 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Modes *fModes;\n");
    buffer.AppendFormatted("      bool   fModesModified;\n");
+   // database
+   buffer.AppendFormatted("      // database;\n");
+   buffer.AppendFormatted("      class DataBase {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fType;\n");
+   buffer.AppendFormatted("         bool        fTypeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fName;\n");
+   buffer.AppendFormatted("         bool        fNameModified;\n");
+   buffer.AppendFormatted("         ROMEString  fPath;\n");
+   buffer.AppendFormatted("         bool        fPathModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      DataBase *fDataBase;\n");
+   buffer.AppendFormatted("      bool   fDataBaseModified;\n");
    // online
    buffer.AppendFormatted("      // online;\n");
    buffer.AppendFormatted("      class Online {\n");
@@ -4187,8 +4270,6 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fInputFilePathModified;\n");
    buffer.AppendFormatted("         ROMEString  fOutputFilePath;\n");
    buffer.AppendFormatted("         bool        fOutputFilePathModified;\n");
-   buffer.AppendFormatted("         ROMEString  fDataBaseFilePath;\n");
-   buffer.AppendFormatted("         bool        fDataBaseFilePathModified;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Paths *fPaths;\n");
    buffer.AppendFormatted("      bool   fPathsModified;\n");
@@ -4277,6 +4358,7 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fRunNumbersModified = false;\n");
    buffer.AppendFormatted("         fEventNumbersModified = false;\n");
    buffer.AppendFormatted("         fModesModified = false;\n");
+   buffer.AppendFormatted("         fDataBaseModified = false;\n");
    buffer.AppendFormatted("         fOnlineModified = false;\n");
    buffer.AppendFormatted("         fSocketInterfaceModified = false;\n");
    buffer.AppendFormatted("         fPathsModified = false;\n");
@@ -5536,7 +5618,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->sql) 
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDatabase.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDatabase.obj\n\n");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDatabase.obj\n\n");
    // all
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortCut.Data(),mainProgName.Data());
    // make obj
@@ -5588,6 +5670,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEString.obj $(ROMESYS)/src/ROMEString.cpp \n");
+   buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEStrArray.obj $(ROMESYS)/src/ROMEStrArray.cpp \n");
+   buffer.AppendFormatted("obj/ROMEStr2DArray.obj: $(ROMESYS)/src/ROMEStr2DArray.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEStr2DArray.obj $(ROMESYS)/src/ROMEStr2DArray.cpp \n");
+   buffer.AppendFormatted("obj/ROMEPath.obj: $(ROMESYS)/src/ROMEPath.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEPath.obj $(ROMESYS)/src/ROMEPath.cpp \n");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEXMLDataBase.obj $(ROMESYS)/src/ROMEXMLDataBase.cpp \n");
    if (this->sql) {
@@ -5647,7 +5735,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDataBase.obj\n\n");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj\n\n");
    // all
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
    // make obj
@@ -5689,6 +5777,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEString.cpp -o obj/ROMEString.obj\n");
+   buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEStrArray.cpp -o obj/ROMEStrArray.obj\n");
+   buffer.AppendFormatted("obj/ROMEStr2DArray.obj: $(ROMESYS)/src/ROMEStr2DArray.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEStr2DArray.cpp -o obj/ROMEStr2DArray.obj\n");
+   buffer.AppendFormatted("obj/ROMEPath.obj: $(ROMESYS)/src/ROMEPath.cpp $(ROMESYS)/bin/romebuilder.exe\n");
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEPath.cpp -o obj/ROMEPath.obj\n");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) $(ROMESYS)/src/ROMEXMLDataBase.cpp -o obj/ROMEXMLDataBase.obj\n");
    if (this->sql) {

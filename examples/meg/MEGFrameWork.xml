@@ -49,7 +49,7 @@
 					<FolderName>CMCalib</FolderName>
 					<FolderTitle>Photo Multiplier Calibration</FolderTitle>
 					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</ArraySize>
-					<DataBaseAccess>true</DataBaseAccess>
+					<DataBaseAccess>false</DataBaseAccess>
 					<Author>
 						<AuthorName>Matthias Schneebeli</AuthorName>
 					</Author>
@@ -59,31 +59,31 @@
 						<FieldName>ADCPedestal</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>ADC Pedestal</FieldComment>
-						<DataBasePath>runTable/CMCalib.ADCPedestal</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>ADCGain</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>ADC Gain</FieldComment>
-						<DataBasePath>runTable/CMCalib.ADCGain</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XECalibGain[0,%d]/gain",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCOffset</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>TDC Offset</FieldComment>
-						<DataBasePath>runTable/CMCalib.TDCOffset</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCXScale</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>TDC X-Axis Scale</FieldComment>
-						<DataBasePath>runTable/CMCalib.TDCXScale</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 				</Folder>
 				<Folder>
 					<FolderName>CMPMTInfo</FolderName>
 					<FolderTitle>Photo Multiplier Info</FolderTitle>
-					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</ArraySize>
+					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</ArraySize>
 					<DataBaseAccess>true</DataBaseAccess>
 					<ChangeableClassFile>true</ChangeableClassFile>
 					<Author>
@@ -92,52 +92,40 @@
 					<FolderVersion>1</FolderVersion>
 					<FolderDescription>Container Class for Calorimeter Photo Multiplier Information.</FolderDescription>
 					<Field>
-						<FieldName>PMID</FieldName>
-						<FieldType>Int_t</FieldType>
-						<FieldComment>Photo Multiplier ID</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.PMID</DataBasePath>
-					</Field>
-					<Field>
 						<FieldName>ADCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>ADC Number</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.ADCID</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>TDC Number</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.TDCID</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/LPTdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Address</FieldName>
 						<FieldType>TString</FieldType>
 						<FieldComment>Address</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.Address</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/name;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>X</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>X-Coordinate</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.X</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/x;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Y</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Y-Coordinate</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.Y</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/y;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Z</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Z-Coordinate</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.Z</DataBasePath>
-					</Field>
-					<Field>
-						<FieldName>DeadFlag</FieldName>
-						<FieldType>Bool_t</FieldType>
-						<FieldComment>Dead Photo Multiplier Flag</FieldComment>
-						<DataBasePath>runTable/CMPMTInfo.DeadFlag</DataBasePath>
+						<DataBasePath>"/RunCatalog(id=%d)/XEConf{id}/XEParam{}(@XEAssign_definition)/XEGeometry/z;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 				</Folder>
 				<Folder>
@@ -306,31 +294,6 @@
 					<FieldComment>Event Number</FieldComment>
 				</Field>
 			</Folder>
-			<Folder>
-				<FolderName>Test</FolderName>
-				<FolderTitle>Test</FolderTitle>
-				<ArraySize>variable</ArraySize>
-				<Author>
-					<AuthorName>Matthias Schneebeli</AuthorName>
-				</Author>
-				<FolderVersion>1</FolderVersion>
-				<FolderDescription>Test</FolderDescription>
-				<Include>
-					<IncludeName>TRef.h</IncludeName>
-					<IncludeType>global</IncludeType>
-				</Include>
-				<Field>
-					<FieldName>Test</FieldName>
-					<FieldType>Int_t</FieldType>
-					<FieldComment>Test</FieldComment>
-					<ArraySize>5</ArraySize>
-				</Field>
-				<Field>
-					<FieldName>ref</FieldName>
-					<FieldType>TRef</FieldType>
-					<FieldComment>ref</FieldComment>
-				</Field>
-			</Folder>
 		</Folder>
 	</Folders>
 	<Tasks>
@@ -359,7 +322,7 @@
 				<HistFolderName>adc0</HistFolderName>
 				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -370,7 +333,7 @@
 				<HistFolderName>adc1</HistFolderName>
 				<HistFolderTitle>ADC1 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -537,14 +500,6 @@
 			<Branch>
 				<BranchName>Trigger</BranchName>
 				<RelatedFolder>Trigger</RelatedFolder>
-			</Branch>
-		</Tree>
-		<Tree>
-			<TreeName>Test</TreeName>
-			<TreeTitle>Test Data</TreeTitle>
-			<Branch>
-				<BranchName>Test</BranchName>
-				<RelatedFolder>Test</RelatedFolder>
 			</Branch>
 		</Tree>
 	</Trees>

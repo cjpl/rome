@@ -68,7 +68,7 @@ void MEGTADCPedestal::Init()
 
 void MEGTADCPedestal::BeginOfRun()
 {
-   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    char name[80],title[80];
    for (int j=0;j<nPMT;j++) {
       sprintf(name,"adc0_%i%i%i",j/100,(j%100)/10,j%10);
@@ -85,7 +85,7 @@ void MEGTADCPedestal::BeginOfRun()
 
 void MEGTADCPedestal::Event()
 {
-   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
 
    for (int i=0;i<nPMT;i++) {
       MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(i);
@@ -97,7 +97,7 @@ void MEGTADCPedestal::Event()
 
 void MEGTADCPedestal::EndOfRun()
 {
-   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    int nLXePMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    int ipmt,i,j;
    double *pedestal = new double[nPMT*2];    //pedestal

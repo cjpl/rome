@@ -65,7 +65,7 @@ void MEGTReadMidas::Event()
    // Read Midas Banks and fill theme to folder
    float invalid = gAnalyzer->GetGSP()->GetInvalidValue();
 
-   const int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   const int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    const int nFTDC = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfFTDC();
    const int nCTDC = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfCTDC();
    const int nVTDC = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfVTDC();
@@ -136,7 +136,7 @@ void MEGTReadMidas::Event()
       gAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)gAnalyzer->GetADC1BankAt(iadc));
       gAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
-	  
+
    delete vfTDC;
    return;
 }

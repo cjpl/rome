@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2004/11/11 12:55:27  schneebeli_m
+  Implemented XML database with new path rules
+
   Revision 1.9  2004/10/14 09:53:41  schneebeli_m
   ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 
@@ -85,6 +88,7 @@ public:
    bool  NewPathAttribute(const char* path,const char* name,const char* value);
    bool  NewPathNextElement(const char* path,const char* name,const char* value);
    bool  NewPathPrevElement(const char* path,const char* name,const char* value);
+   int   NewPathLastElement(const char* path,const char* name,const char* value);
    bool  NewPathChildElement(const char* path,const char* name,const char* value);
    bool  HasPathChildren(const char* path);
    bool  WritePathFile(const char* file);

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.14  2004/11/11 12:55:28  schneebeli_m
+//  Implemented XML database with new path rules
+//
 //  Revision 1.13  2004/10/14 09:53:41  schneebeli_m
 //  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 //
@@ -544,6 +547,19 @@ bool ROMEXML::NewPathPrevElement(const char* path,const char* name,const char* v
    xmlNodeSetContent(node,(xmlChar*)value);
    xmlAddPrevSibling(xpathObj->nodesetval->nodeTab[0],node);
    return true;
+}
+int ROMEXML::NewPathLastElement(const char* path,const char* name,const char* value) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return false;
+   }
+   xmlNodePtr node = xmlNewNode(NULL,(xmlChar*)name);
+   xmlNodeSetContent(node,(xmlChar*)value);
+   xmlAddNextSibling(xpathObj->nodesetval->nodeTab[xpathObj->nodesetval->nodeNr-1],node);
+   return xpathObj->nodesetval->nodeNr;
 }
 
 bool ROMEXML::NewPathChildElement(const char* path,const char* name,const char* value) {

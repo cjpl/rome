@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.26  2004/11/11 12:55:27  schneebeli_m
+//  Implemented XML database with new path rules
+//
 //  Revision 1.25  2004/10/20 09:22:16  schneebeli_m
 //  bugs removed
 //
@@ -245,8 +248,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    CleanTasks();
 
    // Root Interpreter
-   gROME->GetApplication()->Run(true);
-   cout << endl;
+   if (!gROME->isBatchMode()) {
+      gROME->GetApplication()->Run(true);
+      cout << endl;
+   }
 
    // Terminate
    if (!this->Termination()) {
@@ -606,7 +611,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          else {
             n = read(fMidasFileHandle, pevent+1, pevent->data_size);
             if (n != (int) pevent->data_size) readError = true;
-            if ((int) (pevent+1)->data_size <= 0) readError = true;
+//            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
       }
       // check input

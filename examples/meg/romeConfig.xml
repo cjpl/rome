@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Thu Oct 14 11:43:02 2004
+<!-- created by ROME on Thu Nov 11 12:59:44 2004
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
           <RunNumbers>6625</RunNumbers>
-          <EventNumbers>10011-10020</EventNumbers>
+          <EventNumbers></EventNumbers>
           <Modes>
                <AnalyzingMode>offline</AnalyzingMode>
                <InputDataFormat>midas</InputDataFormat>
-               <DataBaseMode>xml</DataBaseMode>
                <BatchMode>false</BatchMode>
-               <ShowSplashScreen>true</ShowSplashScreen>
+               <ShowSplashScreen>false</ShowSplashScreen>
           </Modes>
+          <DataBase>
+               <Type>xml</Type>
+               <Name>LPDataBase</Name>
+               <Path>C:\Data\analysis\MEG\DataBase6625/</Path>
+          </DataBase>
           <Online>
                <Host></Host>
                <Experiment></Experiment>
@@ -23,7 +27,6 @@
           <Paths>
                <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
                <OutputFilePath>C:\Data\analysis\MEG\Calib/</OutputFilePath>
-               <DataBaseFilePath>C:\Data\analysis\MEG\DataBase/</DataBaseFilePath>
           </Paths>
           <Tasks>
                <Task>
@@ -96,9 +99,9 @@
                <Tree>
                     <TreeName>CMPMTData</TreeName>
                     <Read>false</Read>
-                    <Write>false</Write>
-                    <Fill>false</Fill>
-                    <CompressionLevel>0</CompressionLevel>
+                    <Write>true</Write>
+                    <Fill>true</Fill>
+                    <CompressionLevel>1</CompressionLevel>
                     <MaxNumberOfEntries>0</MaxNumberOfEntries>
                </Tree>
                <Tree>
@@ -117,14 +120,6 @@
                     <CompressionLevel>0</CompressionLevel>
                     <MaxNumberOfEntries>0</MaxNumberOfEntries>
                </Tree>
-               <Tree>
-                    <TreeName>Test</TreeName>
-                    <Read>false</Read>
-                    <Write>false</Write>
-                    <Fill>false</Fill>
-                    <CompressionLevel>0</CompressionLevel>
-                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
-               </Tree>
           </Trees>
           <GlobalSteeringParameters>
                <SteeringParameterField>
@@ -137,7 +132,7 @@
                          <SPGroupName>Numbers</SPGroupName>
                          <SteeringParameterField>
                               <SPName>NumberOfPMT</SPName>
-                              <SPValue>257</SPValue>
+                              <SPValue>256</SPValue>
                          </SteeringParameterField>
                          <SteeringParameterField>
                               <SPName>NumberOfFTDC</SPName>
@@ -159,8 +154,4 @@
                </SteeringParameterGroup>
           </GlobalSteeringParameters>
      </MainConfiguration>
-     <RunConfiguration>
-          <RunNumbers>6625</RunNumbers>
-          <EventNumbers>1-100</EventNumbers>
-     </RunConfiguration>
 </Configuration>

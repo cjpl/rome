@@ -37,11 +37,6 @@
 					<xs:documentation>Describes the format of the input data.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="DataBaseMode" type="DataBaseType" default="none" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the data base, to which the framework should be connected.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="BatchMode" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If the program runs in batch mode, it makes no graphical output.</xs:documentation>
@@ -50,6 +45,28 @@
 			<xs:element name="ShowSplashScreen" type="xs:boolean" default="true" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Program shows a splash screen, when starting up.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DataBaseDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the data base, to which the framework should be connected.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Type" type="DataBaseType" default="none">
+				<xs:annotation>
+					<xs:documentation>The type of the data base.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Name" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the data base.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Path" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The path to the data base.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -101,11 +118,6 @@
 			<xs:element name="OutputFilePath" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The path of all output files.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="DataBaseFilePath" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The path of the database files.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -253,6 +265,11 @@
 			<xs:element name="Modes" type="ModeDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the modes in which the framework can run.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBase" type="DataBaseDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the data base, to which the framework should be connected.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Online" type="OnlineDesc" minOccurs="0">

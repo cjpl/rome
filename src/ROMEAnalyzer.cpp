@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.37  2004/11/11 12:55:27  schneebeli_m
+//  Implemented XML database with new path rules
+//
 //  Revision 1.36  2004/10/20 09:22:16  schneebeli_m
 //  bugs removed
 //
@@ -144,13 +147,18 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
-   gROME = (ROMEAnalyzer*)gPassToROME;
 
-   consoleStartScreen();
+   gROME = (ROMEAnalyzer*)gPassToROME;
 
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
+
+   if (this->isBatchMode()) {
+      redirectOutput();
+   }
+
+   consoleStartScreen();
 
    if (isSplashScreen()) startSplashScreen();
 
@@ -163,7 +171,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    cout << "----------------" << endl;
    cout << "q : Terminates the program" << endl;
    cout << "e : Ends the program" << endl;
-   cout << "s : Stopps the program" << endl;
+   cout << "s : Stops the program" << endl;
    cout << "r : Restarts the program" << endl;
    cout << "c : Continuous Analysis" << endl;
    cout << "o : Step by step Analysis" << endl;
