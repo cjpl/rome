@@ -26,5 +26,6 @@ void FOTTab::Init()
 
    //ROMEFolder
    gMonitor->UpdateRunInfo();
-   cout<<gMonitor->GetRunInfo()->GetRunMode()<<endl;
+   if(gMonitor->GetRunInfo())
+      cout<<gMonitor->GetRunInfo()->GetRunMode()<<endl;
 }

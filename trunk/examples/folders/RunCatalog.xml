@@ -40,4 +40,8 @@
     <id>9</id>
     <comment>folders test database - 9</comment>
   </RunCatalog>
+  <RunCatalog>
+    <id>100</id>
+    <comment>folders test database - 100</comment>
+  </RunCatalog>
 </FODataBase>

@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.16  2005/02/25 17:10:44  sawada
+  small bug fix.
+
   Revision 1.15  2005/02/25 16:14:00  sawada
   bug fix and example for ROMEFolder
 
@@ -135,6 +138,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
    buffer.AppendFormatted("   fSocketInterfaceSocket = 0;\n");
    buffer.AppendFormatted("   fSocketInterfaceHost = \"\";\n");
+   buffer.AppendFormatted("   fNetFolder = 0;\n");
    buffer.AppendFormatted("\n");
    // Steering 
    if (numOfSteering[numOfTabHierarchy]>0) {
@@ -270,6 +274,11 @@ bool ArgusBuilder::WriteMonitorCpp() {
       buffer.AppendFormatted("\nbool %sMonitor::Update%s() {\n",shortCut.Data(),folderName[i].Data());
       // ROMEFolder
       if(folderDefinedInROME[i]){
+	 buffer.AppendFormatted("   if(!fNetFolder){\n");
+	 buffer.AppendFormatted("      cout<<\"Warning: \"<<gMonitor->GetProgramName()<<\" is not connected to ROOT server.\"<<endl;\n");
+	 buffer.AppendFormatted("      cout<<\"%s is not updated.\"<<endl;\n",folderName[i].Data());
+	 buffer.AppendFormatted("      return true;\n");
+	 buffer.AppendFormatted("   }\n");
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("   if(f%sFolder)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolder;\n",folderName[i].Data());

@@ -281,11 +281,6 @@
 					<xs:documentation>If this value is &apos;true&apos;, the fields of this folder are read from the data base at the beginning of each run.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element minOccurs="0" name="FolderShortCut" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>Short cut of experiment name of the ROME project which have this folder.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element minOccurs="0" name="ROMEProjectPath" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Path to the ROME project which have this folder.</xs:documentation>
