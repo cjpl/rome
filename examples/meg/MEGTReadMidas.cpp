@@ -120,12 +120,12 @@ void MEGTReadMidas::Event()
    for (i=0;i<nPMT;i++) {
       iadc = gAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
       itdc = gAnalyzer->GetCMPMTInfoAt(i)->GetTDCID();
-      gAnalyzer->GetCMPMTDataAt(i)->SetADC0Data((Float_t)gAnalyzer->GetADC0BankAt(iadc));
-      gAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)gAnalyzer->GetADC1BankAt(iadc));
+      gAnalyzer->GetCMPMTDataAt(i)->SetADC0Data((Float_t)gAnalyzer->GetADCBankAt(0,iadc));
+      gAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)gAnalyzer->GetADCBankAt(1,iadc));
       gAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
-   if (gAnalyzer->GetCurrentEventNumber()==1234)
-      this->StartRootInterpreter("End of Task");
+//   if (gAnalyzer->GetCurrentEventNumber()==1234)
+//      this->StartRootInterpreter("End of Task");
 
    delete vfTDC;
    return;

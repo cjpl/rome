@@ -294,11 +294,28 @@
 					<FieldComment>Event Number</FieldComment>
 				</Field>
 			</Folder>
+			<Folder>
+				<FolderName>test</FolderName>
+				<ArraySize>variable</ArraySize>
+				<ChangeableClassFile>true</ChangeableClassFile>
+				<Field>
+					<FieldName>test</FieldName>
+					<FieldType>Int_t</FieldType>
+					<ArraySize>4</ArraySize>
+				</Field>
+			</Folder>
+			<Folder>
+				<FolderName>subtest</FolderName>
+				<Folder>
+					<FolderName>subsubtest</FolderName>
+				</Folder>
+			</Folder>
 		</Folder>
 	</Folders>
 	<Tasks>
 		<Task>
 			<TaskName>ReadMidas</TaskName>
+			<ChangeableClassFile>true</ChangeableClassFile>
 			<Author>
 				<AuthorName>Matthias Schneebeli</AuthorName>
 			</Author>
@@ -323,6 +340,7 @@
 				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
 				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
+				<HistArrayStartIndex>10</HistArrayStartIndex>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -519,8 +537,21 @@
 				<RelatedFolder>Trigger</RelatedFolder>
 			</Branch>
 		</Tree>
+		<Tree>
+			<TreeName>test</TreeName>
+			<Branch>
+				<BranchName>test</BranchName>
+				<RelatedFolder>test</RelatedFolder>
+			</Branch>
+		</Tree>
 	</Trees>
 	<GlobalSteeringParameters>
+		<SteeringParameterField>
+			<SPFieldName>text</SPFieldName>
+			<SPFieldType>std::string</SPFieldType>
+			<SPFieldInitialization>"teststring"</SPFieldInitialization>
+			<SPFieldComment>text</SPFieldComment>
+		</SteeringParameterField>
 		<SteeringParameterField>
 			<SPFieldName>InvalidValue</SPFieldName>
 			<SPFieldType>Float_t</SPFieldType>
@@ -563,6 +594,15 @@
 				</SteeringParameterField>
 			</SteeringParameterGroup>
 		</SteeringParameterGroup>
+		<SteeringParameterGroup>
+			<SPGroupName>test</SPGroupName>
+			<SteeringParameterField>
+				<SPFieldName>test</SPFieldName>
+				<SPFieldType>Int_t</SPFieldType>
+				<SPFieldInitialization>257</SPFieldInitialization>
+				<SPFieldComment>test</SPFieldComment>
+			</SteeringParameterField>
+		</SteeringParameterGroup>
 	</GlobalSteeringParameters>
 	<MidasBanks>
 		<EventHeader>
@@ -577,12 +617,13 @@
 			<BankType>unsigned long</BankType>
 		</Bank>
 		<Bank>
-			<BankName>ADC0</BankName>
+			<BankName>ADC</BankName>
 			<BankType>unsigned short</BankType>
-		</Bank>
-		<Bank>
-			<BankName>ADC1</BankName>
-			<BankType>unsigned short</BankType>
+			<BankArray>
+				<BASize>2</BASize>
+				<BAStartIndex>0</BAStartIndex>
+				<BANumberOfDigits>2</BANumberOfDigits>
+			</BankArray>
 		</Bank>
 		<Bank>
 			<BankName>CTDC</BankName>

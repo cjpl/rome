@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Wed Nov 24 15:39:02 2004
+<!-- created by ROME on Mon Jan 17 09:53:09 2005
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -127,8 +127,20 @@
                     <CompressionLevel>0</CompressionLevel>
                     <MaxNumberOfEntries>0</MaxNumberOfEntries>
                </Tree>
+               <Tree>
+                    <TreeName>test</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
           </Trees>
           <GlobalSteeringParameters>
+               <SteeringParameterField>
+                    <SPName>text</SPName>
+                    <SPValue>my text</SPValue>
+               </SteeringParameterField>
                <SteeringParameterField>
                     <SPName>InvalidValue</SPName>
                     <SPValue>-1000.000000</SPValue>
@@ -158,6 +170,13 @@
                               <SPValue>228</SPValue>
                          </SteeringParameterField>
                     </SteeringParameterGroup>
+               </SteeringParameterGroup>
+               <SteeringParameterGroup>
+                    <SPGroupName>test</SPGroupName>
+                    <SteeringParameterField>
+                         <SPName>test</SPName>
+                         <SPValue>257</SPValue>
+                    </SteeringParameterField>
                </SteeringParameterGroup>
           </GlobalSteeringParameters>
      </MainConfiguration>
