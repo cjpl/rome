@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.31  2004/10/05 08:12:33  schneebeli_m
+//  linked on linux
+//
 //  Revision 1.30  2004/10/05 07:52:44  schneebeli_m
 //  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 //
@@ -45,6 +48,8 @@
 #include <sys/io.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <sys/select.h>
+#include <sys/socket.h>
 #include <TThread.h>
 #define O_RDONLY_BINARY O_RDONLY
 #endif
@@ -290,11 +295,6 @@ void ROMEAnalyzer::CreateHistoFolders()
       }
    }
 }
-
-
-
-
-
 
 #ifndef HAVE_MIDAS
 #define PTYPE int
