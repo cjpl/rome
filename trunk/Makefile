@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.4  2005/03/26 16:53:42  sawada
+#  libxml replaced by mxml.
+#
 #  Revision 1.3  2005/02/21 23:07:50  sawada
 #  several UNIX support
 #
@@ -18,8 +21,8 @@
 #
 #####################################################################
 #
-INCLUDE := -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags) $(shell xml2-config --cflags)
-LIBRARY := -g $(shell root-config --libs) $(shell xml2-config --libs)
+INCLUDE := -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags)
+LIBRARY := -g $(shell root-config --libs)
 SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp BuilderFolder.cpp \
       BuilderSteering.cpp BuilderWindow.cpp Builder.cpp
 
@@ -60,9 +63,9 @@ endif
 
 all: $(TARGET)
 
-bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp bin
+bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c bin
 	g++ $(CFLAGS) -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
-	$(ROMESYS)/src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
+	$(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(INCLUDE) $(LIBRARY)
 
 bin:
 	@if [ ! -d  bin ] ; then \
