@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2004/07/09 16:08:36  schneebeli
+  don't display empty histo folders
+
   Revision 1.16  2004/07/09 14:43:44  schneebeli
   removed minor errors
 
@@ -65,7 +68,7 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
    char parent[10][100];
    char tmp[100];
    const xmlChar *name, *value;
-   int type,i,isub=0;
+   int type,i,j,isub=0;
    strcpy(parent[0],"GetMainFolder()");
 
    if (makeOutput) cout << "Folders:" << endl;
@@ -272,12 +275,32 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
                   numOfValue[numOfFolder]++;
                }
                if (type == 15 && !strcmp((const char*)name,"Fields")) {
+                  for (i=0;i<numOfValue[numOfFolder];i++) {
+                     for (j=i+1;j<numOfValue[numOfFolder];j++) {
+                        if (!strcmp(valueName[numOfFolder][i],valueName[numOfFolder][j])) {
+                           cout << "\nFolder '" << folderName[numOfFolder] << "' has two fields with the name '" << valueName[numOfFolder][i] << "' !" << endl;
+                           cout << "Terminating program." << endl;
+                           return false;
+                        }
+                     }
+                  }
                   break;
                }
             }
          }
       }
-      if (type == 15 && !strcmp((const char*)name,"Folder")) break;
+      if (type == 15 && !strcmp((const char*)name,"Folder")) {
+         for (i=0;i<numOfFolder;i++) {
+            for (j=i+1;j<numOfFolder;j++) {
+               if (!strcmp(folderName[i],folderName[j])) {
+                  cout << "\nFolder '" << folderName[i] << "' is defined twice !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         break;
+      }
    }
    numOfFolder++;
    return true;
@@ -598,7 +621,7 @@ bool ROMEBuilder::WriteFolderH() {
 bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
    char parent[10][100];
    const xmlChar *name, *value;
-   int type,i,isub=0;
+   int type,i,j,isub=0;
    int empty,depth=0,index[20];
    char tmp[100];
    strcpy(parent[0],"GetMainTask()");
@@ -889,12 +912,32 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
                   numOfHistos[numOfTask]++;
                }
                if (type == 15 && !strcmp((const char*)name,"Histos")) {
+                  for (i=0;i<numOfHistos[numOfTask];i++) {
+                     for (j=i+1;j<numOfHistos[numOfTask];j++) {
+                        if (!strcmp(histoName[numOfTask][i],histoName[numOfTask][j])) {
+                           cout << "\nTask '" << taskName[numOfTask] << "' has two histos with the name '" << histoName[numOfTask][i] << "' !" << endl;
+                           cout << "Terminating program." << endl;
+                           return false;
+                        }
+                     }
+                  }
                   break;
                }
             }
          }
       }
-      if (type == 15 && !strcmp((const char*)name,"Task")) break;
+      if (type == 15 && !strcmp((const char*)name,"Task")) {
+         for (i=0;i<numOfTask;i++) {
+            for (j=i+1;j<numOfTask;j++) {
+               if (!strcmp(taskName[i],taskName[j])) {
+                  cout << "\nTask '" << taskName[i] << "' is defined twice !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         break;
+      }
    }
    numOfTask++;
    return true;
@@ -1377,6 +1420,10 @@ bool ROMEBuilder::WriteTaskH() {
       sprintf(buffer+strlen(buffer),"   // Constructor\n");
       sprintf(buffer+strlen(buffer),"   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut,taskName[iTask],shortCut);
       sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fVersion = %s;",version[iTask]);
+      if (numOfHistos[iTask]>0) 
+         sprintf(buffer+strlen(buffer)," fHasHistograms = true;");
+      else
+         sprintf(buffer+strlen(buffer)," fHasHistograms = false;");
       for (i=0;i<numOfHistos[iTask];i++) {
          sprintf(buffer+strlen(buffer)," f%sAccumulation = true;",histoName[iTask][i]);
       }
@@ -1528,7 +1575,7 @@ bool ROMEBuilder::WriteTaskH() {
 
 bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
-   int type,i;
+   int type,i,j;
 
 // read XML file
 //===============
@@ -1598,19 +1645,39 @@ bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
                   cout << "Terminating program." << endl;
                   return false;
                }
+               for (i=0;i<numOfBranch[numOfTree];i++) {
+                  for (j=i+1;j<numOfBranch[numOfTree];j++) {
+                     if (!strcmp(branchName[numOfTree][i],branchName[numOfTree][j])) {
+                        cout << "\nTree '" << treeName[numOfTree] << "' has two branches with the name '" << branchName[numOfTree] << "' !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                  }
+               }
                break;
             }
          }
       }
 
-      if (type == 15 && !strcmp((const char*)name,"Trees")) break;
+      if (type == 15 && !strcmp((const char*)name,"Trees")) {
+         for (i=0;i<numOfTree;i++) {
+            for (j=i+1;j<numOfTree;j++) {
+               if (!strcmp(treeName[i],treeName[j])) {
+                  cout << "\nTree '" << treeName[i] << "' is defined twice !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         break;
+      }
    }
    numOfTree++;
    return true;
 }
 bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
-   int type,i;
+   int type,i,j;
 
 // read XML file
 //===============
@@ -1763,12 +1830,32 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
                   numOfStructFields[numOfBank]++;
                }
                if (type == 15 && !strcmp((const char*)name,bankName[numOfBank])) {
+                  for (i=0;i<numOfStructFields[numOfBank];i++) {
+                     for (j=i+1;j<numOfStructFields[numOfBank];j++) {
+                        if (!strcmp(structFieldName[numOfBank][i],structFieldName[numOfBank][j])) {
+                           cout << "\nStructure of bank '" << bankName[numOfBank] << "' has two fields with the name '" << structFieldName[numOfBank] << "' !" << endl;
+                           cout << "Terminating program." << endl;
+                           return false;
+                        }
+                     }
+                  }
                   break;
                }
             }
          }
       }
-      if (type == 15 && !strcmp((const char*)name,"MidasBanks")) break;
+      if (type == 15 && !strcmp((const char*)name,"MidasBanks")) {
+         for (i=0;i<numOfBank;i++) {
+            for (j=i+1;j<numOfTree;j++) {
+               if (!strcmp(bankName[i],bankName[j])) {
+                  cout << "\nMidas bank '" << bankName[i] << "' is defined twice !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         break;
+      }
    }
    numOfBank++;
    return true;
@@ -1848,7 +1935,9 @@ bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
          depth--;
          if (makeOutput) cout << endl;;
       }
-      if (type == 15 && !strcmp((const char*)name,"GeneralSteeringParameters")) break;
+      if (type == 15 && !strcmp((const char*)name,"GeneralSteeringParameters")) {
+         break;
+      }
    }
    numOfSteering++;
    return true;
@@ -2278,7 +2367,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"};\n\n");
 
 
-   // ClearFolders
+   // Initialize Folders
    sprintf(buffer+strlen(buffer),"void %sAnalyzer::InitFolders() {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   int i;\n");
    for (i=0;i<numOfFolder;i++) {
@@ -2302,7 +2391,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       }
    }
    sprintf(buffer+strlen(buffer),"};\n\n");
-
 
    // Configuration File
    sprintf(buffer+strlen(buffer),"\n// Configuration File\n");

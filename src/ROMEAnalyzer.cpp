@@ -225,15 +225,15 @@ void ROMEAnalyzer::CreateHistoFolders()
    TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
    TList *taskList = fMainTask->GetListOfTasks();
    for (i=0;i<taskList->GetSize();i++) {
-      TTask *task = (TTask*)taskList->At(i);
-      if (!task->IsActive()) continue;
+      ROMETask *task = (ROMETask*)taskList->At(i);
+      if (!task->IsActive() || !task->hasHistograms()) continue;
       sprintf(name,"%sHistos",task->GetName());
       sprintf(title,"Histograms of Task '%s'",task->GetName());
       TFolder *folder = fHistoFolder->AddFolder(name,title);
       TList *subTaskList = task->GetListOfTasks();
       for (j=0;j<subTaskList->GetSize();j++) {
-         TTask *task = (TTask*)subTaskList->At(j);
-         if (!task->IsActive()) continue;
+         ROMETask *task = (ROMETask*)subTaskList->At(j);
+         if (!task->IsActive() || !task->hasHistograms()) continue;
          sprintf(name,"%sHistos",task->GetName());
          sprintf(title,"Histograms of Task '%s'",task->GetName());
          folder->AddFolder(name,title);

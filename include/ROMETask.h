@@ -8,14 +8,15 @@
 
 class ROMETask : public TTask {
 private:
-   TStopwatch watch;          // Stopwatch
-   char fTitle[100];          // Task title
-   char fName[100];           // Task name
-   char timeString[14];       // Elapsed Time in a readable format
-   TFolder *fHistoFolder;     // Histogram Folder of this Task in the Memory
+   TStopwatch     fWatch;          // Stopwatch
+   char           fTitle[100];     // Task title
+   char           fName[100];      // Task name
+   char           fTimeString[14]; // Elapsed Time in a readable format
+   TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 protected:
-   ROMEAnalyzer *fAnalyzer;    // Handle to the Analyzer Class (should be overriden by each Task)
-   Int_t        fVersion;     // Version of Task
+   ROMEAnalyzer*  fAnalyzer;       // Handle to the Analyzer Class (should be overriden by each Task)
+   Int_t          fVersion;        // Version of Task
+   Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer);
@@ -28,11 +29,12 @@ public:
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
 
-   Int_t GetVersion() { return fVersion; };
-   TFolder *GetHistoFolder() { return fHistoFolder; };
+   Bool_t   hasHistograms()  { return fHasHistograms; };
+   Int_t    GetVersion()     { return fVersion; };
+   TFolder* GetHistoFolder() { return fHistoFolder; };
 protected:
-   void TimeStart();
-   void TimeEnd();
+   void  TimeStart();
+   void  TimeEnd();
    char* GetTime();
 
    ClassDef(ROMETask,1)

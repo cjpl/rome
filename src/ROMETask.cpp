@@ -79,22 +79,22 @@ void ROMETask::Exec(Option_t *option)
 void ROMETask::TimeStart()
 {
    // Starts the Tasks stopwatch
-   watch.Start(false);
+   fWatch.Start(false);
 }
 void ROMETask::TimeEnd()
 {
    // Ends the Tasks stopwatch
-   watch.Stop();
+   fWatch.Stop();
 }
 char* ROMETask::GetTime()
 {
    // Returns the elapsed time in a readable format
-   int runTime = (int)watch.RealTime();
-   int milli = (int)((watch.RealTime()-runTime)*1000);
-   sprintf(timeString, "%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
+   int runTime = (int)fWatch.RealTime();
+   int milli = (int)((fWatch.RealTime()-runTime)*1000);
+   sprintf(fTimeString, "%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
            (runTime % 3600) / 600, (runTime % 600) / 60, (runTime % 60) / 10,
            runTime % 10,milli);
-   return timeString;
+   return fTimeString;
 }
 
 
