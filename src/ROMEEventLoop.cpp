@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.44  2005/01/24 15:45:15  schneebeli_m
+//  ss_millitime
+//
 //  Revision 1.43  2005/01/24 15:25:09  schneebeli_m
 //  Seperated DAQ classes
 //
@@ -447,7 +450,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
    // Update Statistics
    stat->processedEvents++;
    int time;
-   time = ss_millitime();
+   time = gROME->ss_millitime();
    if (fStatisticsTimeOfLastEvent == 0)
       fStatisticsTimeOfLastEvent = time;
    if (time - fStatisticsTimeOfLastEvent != 0)

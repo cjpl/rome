@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.51  2005/01/24 15:45:04  schneebeli_m
+//  ss_millitime
+//
 //  Revision 1.50  2005/01/24 15:38:04  schneebeli_m
 //  ss_millitime
 //
@@ -105,6 +108,7 @@
 #include <sys/socket.h>
 #include <TThread.h>
 #define O_RDONLY_BINARY O_RDONLY
+#include <sys/time.h>
 #endif
 #if defined ( __linux__ )
 #include <sys/io.h>
