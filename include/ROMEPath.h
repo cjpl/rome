@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
+  ROMEStrArray and ROMEStr2DArray change
+
   Revision 1.2  2004/11/11 13:17:37  schneebeli_m
   detail
 
@@ -54,7 +57,7 @@ public:
    const char* GetTableConstraintAt(int i)   { return fTableConstraints->At(i).Data(); };
    const char* GetTableDBConstraintAt(int i) { return fTableDBConstraints->At(i).Data(); };
    int         GetNumberOfTableConnectionAt(int iTable) { return fTableConnection->GetEntriesFastAt(iTable); };
-   const char* GetTableConnectionAt(int iTable,int iConnection) { if (fTableConnection->At(iTable,iConnection)==NULL) return ""; return fTableConnection->At(iTable,iConnection).Data(); };
+   const char* GetTableConnectionAt(int iTable,int iConnection) { if (fTableConnection->At(iTable,iConnection).Length()==0) return ""; return fTableConnection->At(iTable,iConnection).Data(); };
    const char* GetOrderTableName() { return fOrderTableName.Data(); };
    const char* GetOrderFieldName() { return fOrderFieldName.Data(); };
    int         GetOrderIndexAt(int i)  { return fOrderIndex[i]; };
@@ -72,39 +75,30 @@ protected:
    // setters for decode
    void  SetTableNameAt(int i,const char* name) { fTableNames->AddAtAndExpand(name,i); };
    void  SetTableNameAt(int i,TString& name) { fTableNames->AddAtAndExpand(name,i); };
-   void  SetTableNameAt(int i,TSubString& name) { fTableNames->AddAtAndExpand(name,i); };
    void  SetTableConstraintAt(int i,const char* constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableConstraintAt(int i,TString& constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
-   void  SetTableConstraintAt(int i,TSubString& constraint) { fTableConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableDBConstraintAt(int i,const char* constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableDBConstraintAt(int i,TString& constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
-   void  SetTableDBConstraintAt(int i,TSubString& constraint) { fTableDBConstraints->AddAtAndExpand(constraint,i); };
    void  SetTableConnectionAt(int iTable,int iConnection,const char* connectionName) { fTableConnection->SetAt(connectionName,iTable,iConnection); };
    void  SetTableConnectionAt(int iTable,int iConnection,TString& connectionName) { fTableConnection->SetAt(connectionName,iTable,iConnection); };
-   void  SetTableConnectionAt(int iTable,int iConnection,TSubString& connectionName) { fTableConnection->SetAt(connectionName,iTable,iConnection); };
 
    void  SetOrderTableName(const char* name) { fOrderTableName = name; };
    void  SetOrderTableName(TString& name) { fOrderTableName = name; };
-   void  SetOrderTableName(TSubString& name) { fOrderTableName = name; };
    void  SetOrderFieldName(const char* name) { fOrderFieldName = name; };
    void  SetOrderFieldName(TString& name) { fOrderFieldName = name; };
-   void  SetOrderFieldName(TSubString& name) { fOrderFieldName = name; };
    void  SetOrderIndexAt(int i,int index) { fOrderIndex.AddAt(index,i); };
    void  SetOrderArray(bool flag) { fOrderArray = flag; };
 
    void  SetFieldName(const char* name) { fFieldName = name; };
    void  SetFieldName(TString& name) { fFieldName = name; };
-   void  SetFieldName(TSubString& name) { fFieldName = name; };
    void  SetFieldIndexAt(int i,int index) { fFieldIndex.AddAt(index,i); };
    void  SetFieldArray(bool flag) { fFieldArray = flag; };
 
    // setters for decode constraint
    void  SetConstraintFieldAt(int i,const char* field) { fConstraintField->AddAtAndExpand(field,i); };
    void  SetConstraintFieldAt(int i,TString& field) { fConstraintField->AddAtAndExpand(field,i); };
-   void  SetConstraintFieldAt(int i,TSubString& field) { fConstraintField->AddAtAndExpand(field,i); };
    void  SetConstraintValueAt(int i,const char* value) { fConstraintValue->AddAtAndExpand(value,i); };
    void  SetConstraintValueAt(int i,TString& value) { fConstraintValue->AddAtAndExpand(value,i); };
-   void  SetConstraintValueAt(int i,TSubString& value) { fConstraintValue->AddAtAndExpand(value,i); };
 
    // internal methods
    int   MinPosition(int i1=-1,int i2=-1,int i3=-1,int i4=-1);

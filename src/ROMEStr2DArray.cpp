@@ -6,6 +6,9 @@
 //  Handles character string array of array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
+//  ROMEStrArray and ROMEStr2DArray change
+//
 //  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
 //  detail
 //
@@ -59,11 +62,6 @@ Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx) const
 void ROMEStr2DArray::SetAt(TString &str, Int_t idx, Int_t idy)
 {
    this->SetAt(str.Data(),idx,idy);
-}
-void ROMEStr2DArray::SetAt(TSubString &str, Int_t idx, Int_t idy)
-{
-   TString temp = str;
-   this->SetAt(temp.Data(),idx,idy);
 }
 void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
 {
@@ -128,13 +126,13 @@ void ROMEStr2DArray::RemoveAll()
 TString ROMEStr2DArray::At(Int_t idx, Int_t idy) const
 {
    if (idx<0||idx>=array->GetEntriesFast())
-      return NULL;
+      return "";
    if (array->At(idx)==NULL)
-      return NULL;
+      return "";
    TObjArray *subArray = (TObjArray*)array->At(idx);
    if (idy<0||idy>=subArray->GetEntriesFast())
-      return NULL;
+      return "";
    if (subArray->At(idy)==NULL)
-      return NULL;
+      return "";
    return ((TObjString*)subArray->At(idy))->GetString();
 }

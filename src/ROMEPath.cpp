@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.2  2004/11/11 14:07:15  schneebeli_m
+//  ROMEStrArray and ROMEStr2DArray change
+//
 //  Revision 1.1  2004/11/11 12:56:58  schneebeli_m
 //  Implemented XML database with new path rules
 //
@@ -73,8 +76,8 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
          cout << "\nInvalid constraint expression : " << substr.Data() << "." << endl;
          return false;
       }
-      this->SetConstraintFieldAt(iconst,substr(0,iequal));
-      this->SetConstraintValueAt(iconst,substr(iequal+1,substr.Length()-iequal-1));
+      this->SetConstraintFieldAt(iconst,((TString)substr(0,iequal)).Data());
+      this->SetConstraintValueAt(iconst,((TString)substr(iequal+1,substr.Length()-iequal-1)).Data());
       iconst++;
    }
    return true;
@@ -131,7 +134,7 @@ bool ROMEPath::Decode(const char* dataBasePath)
             cout << "\nNo table name specified." << endl;
             return false;
          }
-         this->SetTableNameAt(nTable,subPath(0,index));
+         this->SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
       }
       // handle '('
       if (i1!=-1) {
@@ -140,14 +143,14 @@ bool ROMEPath::Decode(const char* dataBasePath)
                cout << "\nData base constraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
                return false;
             }
-            this->SetTableDBConstraintAt(nTable,subPath(iat1+1,iat2-iat1-1));
+            this->SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
          }
          else {
             if ((index=subPath.Index(")",1,i1,TString::kExact))==-1) {
                cout << "\nConstraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
                return false;
             }
-            this->SetTableConstraintAt(nTable,subPath(i1+1,index-i1-1));
+            this->SetTableConstraintAt(nTable,((TString)subPath(i1+1,index-i1-1)).Data());
          }
       }
       // handle '['
@@ -230,7 +233,7 @@ bool ROMEPath::Decode(const char* dataBasePath)
       return true;
    }
    else {
-      this->SetFieldName(path(0,index));
+      this->SetFieldName(((TString)path(0,index)).Data());
       this->SetFieldArray(true);
    }
    path = path(index+1,path.Length());

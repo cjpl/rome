@@ -6,6 +6,9 @@
 //  Handles character string array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
+//  ROMEStrArray and ROMEStr2DArray change
+//
 //  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
 //  detail
 //
@@ -62,10 +65,6 @@ void ROMEStrArray::Add(TString &str)
 {
    this->AddLast(str);
 }
-void ROMEStrArray::Add(TSubString &str)
-{
-   this->AddLast(str);
-}
 void ROMEStrArray::Add(const char* str)
 {
    this->AddLast(str);
@@ -74,11 +73,6 @@ void ROMEStrArray::Add(const char* str)
 void ROMEStrArray::AddFirst(TString &str)
 {
    this->AddFirst(str.Data());
-}
-void ROMEStrArray::AddFirst(TSubString &str)
-{
-   TString temp = str;
-   this->AddFirst(temp.Data());
 }
 void ROMEStrArray::AddFirst(const char* str)
 {
@@ -92,11 +86,6 @@ void ROMEStrArray::AddLast(TString &str)
 {
    this->AddLast(str.Data());
 }
-void ROMEStrArray::AddLast(TSubString &str)
-{
-   TString temp = str;
-   this->AddLast(temp.Data());
-}
 void ROMEStrArray::AddLast(const char* str)
 {
    if (array->At(array->GetLast())!=NULL) {
@@ -108,11 +97,6 @@ void ROMEStrArray::AddLast(const char* str)
 void ROMEStrArray::AddAt(TString &str, Int_t idx)
 {
    this->AddAt(str.Data(),idx);
-}
-void ROMEStrArray::AddAt(TSubString &str, Int_t idx)
-{
-   TString temp = str;
-   this->AddAt(temp.Data(),idx);
 }
 void ROMEStrArray::AddAt(const char* str, Int_t idx)
 {
@@ -128,11 +112,6 @@ void ROMEStrArray::AddAtAndExpand(TString &str, Int_t idx)
 {
    this->AddAtAndExpand(str.Data(),idx);
 }
-void ROMEStrArray::AddAtAndExpand(TSubString &str, Int_t idx)
-{
-   TString temp = str;
-   this->AddAtAndExpand(temp.Data(),idx);
-}
 void ROMEStrArray::AddAtAndExpand(const char* str, Int_t idx)
 {
    if (idx>=0&&idx<array->GetEntriesFast()) {
@@ -146,11 +125,6 @@ void ROMEStrArray::AddAtAndExpand(const char* str, Int_t idx)
 Int_t ROMEStrArray::AddAtFree(TString &str)
 {
    return array->AddAtFree(new TObjString(str));
-}
-Int_t ROMEStrArray::AddAtFree(TSubString &str)
-{
-   TString temp = str;
-   return array->AddAtFree(new TObjString(temp));
 }
 Int_t ROMEStrArray::AddAtFree(const char* str)
 {

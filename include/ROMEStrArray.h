@@ -2,6 +2,9 @@
   ROMEStrArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
+  ROMEStrArray and ROMEStr2DArray change
+
   Revision 1.2  2004/11/11 13:17:37  schneebeli_m
   detail
 
@@ -31,22 +34,16 @@ public:
    Bool_t           IsEmpty() const;
 
    void             Add(TString &str);
-   void             Add(TSubString &str);
    void             Add(const char* str);
    virtual void     AddFirst(TString &str);
-   virtual void     AddFirst(TSubString &strr);
    virtual void     AddFirst(const char* str);
    virtual void     AddLast(TString &str);
-   virtual void     AddLast(TSubString &str);
    virtual void     AddLast(const char* str);
    virtual void     AddAt(TString &str, Int_t idx);
-   virtual void     AddAt(TSubString &str, Int_t idx);
    virtual void     AddAt(const char* str, Int_t idx);
    virtual void     AddAtAndExpand(TString &str, Int_t idx);
-   virtual void     AddAtAndExpand(TSubString &str, Int_t idx);
    virtual void     AddAtAndExpand(const char* str, Int_t idx);
    virtual Int_t    AddAtFree(TString &str);
-   virtual Int_t    AddAtFree(TSubString &str);
    virtual Int_t    AddAtFree(const char* str);
    virtual void     RemoveAt(Int_t idx);
    virtual void     RemoveAll();

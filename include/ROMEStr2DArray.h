@@ -2,6 +2,9 @@
   ROMEStr2DArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
+  ROMEStrArray and ROMEStr2DArray change
+
   Revision 1.2  2004/11/11 13:17:37  schneebeli_m
   detail
 
@@ -31,7 +34,6 @@ public:
    Int_t            GetEntriesFastAt(Int_t idx) const;  //only OK when no gaps
 
    virtual void     SetAt(TString &str, Int_t idx, Int_t idy);
-   virtual void     SetAt(TSubString &str, Int_t idx, Int_t idy);
    virtual void     SetAt(const char* str, Int_t idx, Int_t idy);
    virtual void     RemoveAt(Int_t idx, Int_t idy);
    virtual void     RemoveAllAt(Int_t idx);
