@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.11  2004/10/25 08:34:06  schneebeli_m
+#  *** empty log message ***
+#
 #  Revision 1.10  2004/10/21 13:03:51  schneebeli_m
 #  *** empty log message ***
 #
@@ -20,21 +23,6 @@ rootlib := $(shell root-config --libs)
 rootlib2 := -L$(ROOTSYS)/lib/ -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint \
 	    -lPostscript -lMatrix -lPhysics -lpthread -lm -ldl -rdynamic
 LIBRARY := $(rootlib2) -lxml2 -lz -lpthread -lg2c
-
-all: prebuilder romebuilder.exe
-
-prebuilder:
-ifdef MIDASSYS
-	@echo "..."
-	@echo ">>>> Midas support included in this ROMEbuilder! <<<<"
-	@echo "..."
-LIBRARY += -L$(MIDASSYS)/linux/lib -lmidas
-CFLAGS := -DHAVE_MIDAS
-else
-	@echo "..."
-	@echo "<<<< No Midas support for this ROMEbuilder! >>>>"
-	@echo "..."
-endif
 
 romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
 	g++ $(CFLAGS) -o $(ROMESYS)/bin/$@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp \
