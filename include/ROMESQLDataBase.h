@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2004/12/03 14:42:08  schneebeli_m
+  some minor changes
+
   Revision 1.10  2004/11/21 00:10:41  sawada
   error handling
 
@@ -84,7 +87,7 @@ public:
    bool   NextRow(){return fSQL->NextRow();}
    int    GetNumberOfFields(){return fSQL->GetNumberOfFields();}
    char*  GetField(int fieldNumber){return fSQL->GetField(fieldNumber);}
-   void   FreeResult(){return fSQL->FreeResult();}
+   void   FreeResult(){fSQL->FreeResult();}
    bool   DataSeek(my_ulonglong offset);
 
 protected:

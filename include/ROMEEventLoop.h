@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2004/12/03 14:42:08  schneebeli_m
+  some minor changes
+
   Revision 1.10  2004/12/02 17:46:43  sawada
   Macintosh port
 
@@ -47,6 +50,10 @@ protected:
    // Status
    Int_t         fRunStatus;                       //! Run Status flag
    Int_t         fEventStatus;                     //! Event Status flag
+
+   // Stop at
+   Int_t         fStopAtRun;                       //! Stop execution at this run
+   Int_t         fStopAtEvent;                     //! Stop execution at this event
 
    // Statistics update
    int           fStatisticsTimeOfLastEvent;       //! Time of last Event

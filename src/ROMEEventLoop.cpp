@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.31  2004/12/03 14:42:08  schneebeli_m
+//  some minor changes
+//
 //  Revision 1.30  2004/12/02 17:46:43  sawada
 //  Macintosh port
 //
@@ -792,13 +795,17 @@ bool ROMEEventLoop::UserInput()
    bool wait = false;
    bool first = true;
    bool interpreter = false;
+   bool hit = false;
 
-   if (fContinuous && time(NULL) < fUserInputLastTime+0.1)
+   if (fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) {
+      cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r";
+      wait = true;
+   }
+   else if (fContinuous && time(NULL) < fUserInputLastTime+0.1)
       return true;
    time(&fUserInputLastTime);
 
    while (wait||first) {
-
       first = false;
       if (!fContinuous)
          wait = true;
@@ -807,6 +814,7 @@ bool ROMEEventLoop::UserInput()
 
       interpreter = false;
       while (gROME->ss_kbhit()) {
+         hit = true;
          char ch = gROME->ss_getchar(0);
          if (ch == -1) {
             ch = getchar();
@@ -814,18 +822,18 @@ bool ROMEEventLoop::UserInput()
          if (ch == 'q') {
             return false;
          }
-	 if (ch == 'e') {
+	      if (ch == 'e') {
             this->SetTerminate();
             wait = false;
-	 }
+         }
          if (ch == 's') {
-	    cout << "Stopped                          \r";
-	    wait = true;
-	 }
-	 if (ch == 'r') {
+            cout << "Stopped at event " << gROME->GetCurrentEventNumber() << "                      \r";
+            wait = true;
+         }
+         if (ch == 'r') {
             wait = false;
-	 }
-	 if (ch == 'o') {
+         }
+         if (ch == 'o') {
             cout << "Step by step mode                 " << endl;
             fContinuous = false;
          }
@@ -833,7 +841,49 @@ bool ROMEEventLoop::UserInput()
             cout << "Continues mode                    " << endl;
             fContinuous = true;
             wait = false;
-	 }
+         }
+         if (ch == 'g') {
+            char *cstop;
+            ROMEString number;
+            // run number
+            cout << "                                  \r";
+            cout << "Run number :";
+            while (true) {
+               ch = gROME->ss_getchar(0);
+               if (ch == 0)
+                  continue;
+               if (ch == 13)
+                  break;
+               cout << ch;
+               number += ch;
+            }
+            cout << "                                  \r";
+            int inumber = strtol(number.Data(),&cstop,10);
+            if (inumber!=0) 
+               fStopAtRun = inumber;
+            else
+               fStopAtRun = gROME->GetCurrentRunNumber();
+            // event number
+            number.Resize(0);
+            cout << "                                  \r";
+            cout << "Event number :";
+            while (true) {
+               ch = gROME->ss_getchar(0);
+               if (ch == 0)
+                  continue;
+               if (ch == 13)
+                  break;
+               cout << ch;
+               number += ch;
+            }
+            cout << "                                  \r";
+            inumber = strtol(number.Data(),&cstop,10);
+            if (inumber!=0) 
+               fStopAtEvent = inumber;
+            else
+               fStopAtEvent = -1;
+            wait = false;
+         }
          if (ch == 'i') {
             interpreter = true;
             wait = false;
@@ -844,6 +894,8 @@ bool ROMEEventLoop::UserInput()
          gROME->GetApplication()->Run(true);
       }
    }
+   if (hit)
+      time(&fProgressTimeOfLastEvent);
 
    return true;
 }

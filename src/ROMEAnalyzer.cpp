@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.41  2004/12/03 14:42:08  schneebeli_m
+//  some minor changes
+//
 //  Revision 1.40  2004/12/02 17:46:43  sawada
 //  Macintosh port
 //
@@ -187,6 +190,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    cout << "r : Restarts the program" << endl;
    cout << "c : Continuous Analysis" << endl;
    cout << "o : Step by step Analysis" << endl;
+   cout << "g : Run until event #" << endl;
    cout << "i : Root interpreter" << endl;
    cout << endl;
 

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.76  2004/12/03 14:42:08  schneebeli_m
+  some minor changes
+
   Revision 1.75  2004/12/02 17:46:43  sawada
   Macintosh port
 
@@ -2887,6 +2890,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    int fileHandle;
 
    ROMEString format;
+   // max folder name length
    int nameLen = -1;
    int typeLen = 12;
    int scl = shortCut.Length();
@@ -2894,13 +2898,25 @@ bool ROMEBuilder::WriteAnalyzerH() {
       if (typeLen<(int)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
       if (nameLen<(int)folderName[i].Length()) nameLen = folderName[i].Length();
    }
+   // max task name length
    int taskLen=0;
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (taskLen<(int)taskHierarchyName[i].Length()) taskLen = taskHierarchyName[i].Length();
    }
 
-
-
+   // max task switch name length
+   int switchLen = -1;
+   ROMEString switchString;
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      int index = taskHierarchyParentIndex[i];
+      switchString = taskHierarchyName[i].Data();
+      while (index!=-1) {
+         switchString.Insert(0,"_");
+         switchString.Insert(0,taskHierarchyName[index].Data());
+         index = taskHierarchyParentIndex[index];
+      }
+      if (switchLen<(int)switchString.Length()) switchLen = switchString.Length();
+   }
 
    // File name
    hFile.SetFormatted("%s/include/framework/%sAnalyzer.h",outDir.Data(),shortCut.Data());
@@ -2965,7 +2981,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Task Switches Structure
    buffer.AppendFormatted("// Task Switches Structure\n");
    buffer.AppendFormatted("typedef struct{\n");
-   ROMEString switchString;
    for (i=0;i<numOfTaskHierarchy;i++) {
       int index = taskHierarchyParentIndex[i];
       switchString = taskHierarchyName[i].Data();
@@ -2974,7 +2989,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
          switchString.Insert(0,taskHierarchyName[index].Data());
          index = taskHierarchyParentIndex[index];
       }
-      buffer.AppendFormatted("   int %s;   //! %s Task\n",switchString.Data(),switchString.Data());
+      format.SetFormatted("   int %%s;%%%ds  //! %%s Task\n",switchLen-switchString.Length());
+      buffer.AppendFormatted((char*)format.Data(),switchString.Data(),"",switchString.Data());
+//      buffer.AppendFormatted("   int %s;   //! %s Task\n",switchString.Data(),switchString.Data());
    }
    buffer.AppendFormatted("} TaskSwitches;\n");
 
@@ -3003,7 +3020,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Task Fields
    buffer.AppendFormatted("   // Task Fields\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
-      format.SetFormatted("   ROMETask* f%%s%%03dTask%%%ds;  // Handle to %%s Task\n",taskLen-taskHierarchyName[i].Length());
+      format.SetFormatted("   ROMETask* f%%s%%03dTask;%%%ds  // Handle to %%s Task\n",taskLen-taskHierarchyName[i].Length());
       buffer.AppendFormatted((char*)format.Data(),taskHierarchyName[i].Data(),i,"",taskHierarchyName[i].Data());
    }
    buffer.AppendFormatted("\n");
@@ -3060,29 +3077,29 @@ bool ROMEBuilder::WriteAnalyzerH() {
       if (numOfValue[i] > 0) {
          int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
          if (folderArray[i]=="1") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,8+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,1+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,4+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else if (folderArray[i]=="variable") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
             buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
             buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
             buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
       }

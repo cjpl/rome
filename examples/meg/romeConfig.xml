@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Tue Nov 23 10:20:35 2004
+<!-- created by ROME on Wed Nov 24 15:39:02 2004
  -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
      <MainConfiguration>
@@ -133,10 +133,6 @@
                     <SPName>InvalidValue</SPName>
                     <SPValue>-1000.000000</SPValue>
                </SteeringParameterField>
-               <SteeringParameterField>
-                    <SPName>Testfield2</SPName>
-                    <SPValue>128</SPValue>
-               </SteeringParameterField>
                <SteeringParameterGroup>
                     <SPGroupName>PMT</SPGroupName>
                     <SteeringParameterGroup>
@@ -160,20 +156,6 @@
                          <SteeringParameterField>
                               <SPName>NumberOfLXePMT</SPName>
                               <SPValue>228</SPValue>
-                         </SteeringParameterField>
-                    </SteeringParameterGroup>
-               </SteeringParameterGroup>
-               <SteeringParameterGroup>
-                    <SPGroupName>Testgroup</SPGroupName>
-                    <SteeringParameterField>
-                         <SPName>Testfield</SPName>
-                         <SPValue>128</SPValue>
-                    </SteeringParameterField>
-                    <SteeringParameterGroup>
-                         <SPGroupName>TestSubgroup</SPGroupName>
-                         <SteeringParameterField>
-                              <SPName>TestSubfield</SPName>
-                              <SPValue>128</SPValue>
                          </SteeringParameterField>
                     </SteeringParameterGroup>
                </SteeringParameterGroup>
