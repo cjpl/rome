@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/02/05 23:16:23  sawada
+  Removed TROOT,VoidFuncPtr_t.
+  small bug fix.
+
   Revision 1.9  2005/02/03 09:11:07  sawada
   function type of thread function on Windows.
 
@@ -366,7 +370,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   virtual void %s()\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   {\n");
          buffer.AppendFormatted("      cout<<endl\n");
-         buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n");
+         buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("          <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
          buffer.AppendFormatted("          <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
          buffer.AppendFormatted("          <<\"   void %s();\"<<endl\n",threadFunctionName[iTab][i].Data());
