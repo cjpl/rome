@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.3  2005/01/31 10:21:29  sawada
+   * make clean.
+   * changed template of tabs.
+
   Revision 1.2  2005/01/30 20:39:39  sawada
   * Makefile of builder
   * Tab enable/disable
@@ -179,12 +183,6 @@ bool ArgusBuilder::WriteTabCpp() {
             buffer.AppendFormatted("\n\n#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabName[iTab].Data());
             buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),tabName[iTab].Data());
             // Functions
-            buffer.AppendFormatted("//Destructer\n");
-            buffer.AppendFormatted("%sT%s::~%sT%s()\n{\n}\n\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-            buffer.AppendFormatted("//Constructer\n");
-            buffer.AppendFormatted("%sT%s::%sT%s(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options,\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-            buffer.AppendFormatted("Pixel_t back):%sT%s_Base(p, w, h, options, back) \n{\n}\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-	    buffer.AppendFormatted("\n");
             buffer.AppendFormatted("void %sT%s::Init()\n",shortCut.Data(),tabName[iTab].Data());
             buffer.AppendFormatted("{\n");
             buffer.AppendFormatted("}\n");
@@ -299,11 +297,19 @@ bool ArgusBuilder::WriteTabH() {
       // Class
       buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("protected:\n");
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("public:\n");
       // Constructor
-      buffer.AppendFormatted("   %sT%s(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0,\n",shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("         Pixel_t back = GetDefaultFrameBackground());\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("   virtual ~%sT%s();\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   %sT%s(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0, Pixel_t back = GetDefaultFrameBackground())\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      :%sT%s_Base(p, w, h, options, back)\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   ~%sT%s()\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   void Init();\n");
       // Fields
       buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),tabName[iTab].Data(),tabVersion[iTab].Data());
