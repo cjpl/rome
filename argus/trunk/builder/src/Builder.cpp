@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.26  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.25  2005/03/12 22:56:39  sawada
   small change in Makefile
 
@@ -401,10 +405,12 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      name = xml->GetName();
                      // folder
                      if (type == 1 && !strcmp((const char*)name,"Folder")) {
+                        recursiveFolderDepth = 0;
                         if (!ReadXMLFolder()) return;
                      }
                      // rome folder
                      if (type == 1 && !strcmp((const char*)name,"ROMEFolder")) {
+                        recursiveFolderDepth = 0;
 			romefolder = true;
                         if (!ReadXMLROMEFolder()) return;
                      }
@@ -432,7 +438,6 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                if (!strcmp((const char*)name,"Tabs")) {
                   // initialization
                   numOfTab = -1;
-                  parent[0] = "fTab";
                   // output
                   if (makeOutput) cout << "\n\nTabs:" << endl;
                   while (xml->NextLine()) {
@@ -1507,4 +1512,39 @@ void ArgusBuilder::setValue(ROMEString* buf,char *destination,char *source,char 
       else
          buf->AppendFormatted("%s",source);
    }
+}
+
+bool ArgusBuilder::IsNumber(const char *type)
+{
+   if (
+      !strcmp(type,"int") ||
+      !strcmp(type,"unsigned int") ||
+      !strcmp(type,"Int_t") ||
+      !strcmp(type,"UInt_t") ||
+      !strcmp(type,"long") ||
+      !strcmp(type,"unsigned long") ||
+      !strcmp(type,"Long_t") ||
+      !strcmp(type,"ULong_t") ||
+      !strcmp(type,"short") ||
+      !strcmp(type,"unsigned short") ||
+      !strcmp(type,"Short_t") ||
+      !strcmp(type,"UShort_t") ||
+      !strcmp(type,"long long") ||
+      !strcmp(type,"unsigned long long") ||
+      !strcmp(type,"Style_t") ||
+      !strcmp(type,"Marker_t") ||
+      !strcmp(type,"Color_t") ||
+      !strcmp(type,"Font_t") ||
+      !strcmp(type,"Version_t") ||
+      !strcmp(type,"bool") ||
+      !strcmp(type,"Bool_t") ||
+      !strcmp(type,"float") ||
+      !strcmp(type,"Float_t") ||
+      !strcmp(type,"double") ||
+      !strcmp(type,"Double_t") ||
+      !strcmp(type,"Stat_t") ||
+      !strcmp(type,"Axis_t"))
+      return true;
+   else
+      return false;   
 }

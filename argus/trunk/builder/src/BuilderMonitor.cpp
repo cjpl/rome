@@ -3,6 +3,10 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.20  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.19  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -236,8 +240,12 @@ bool ArgusBuilder::WriteMonitorCpp() {
    // clean up folders
    buffer.AppendFormatted("\n// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sMonitor::CleanUpFolders() {\n",shortCut.Data());
-   if(numOfFolder)
-      buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i]>0 && !folderDataBase[i] && folderArray[i]=="variable") {
+         buffer.AppendFormatted("   int i;\n");
+         break;
+      }
+   }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="variable") {
@@ -253,8 +261,12 @@ bool ArgusBuilder::WriteMonitorCpp() {
    // reset folders
    buffer.AppendFormatted("// Reset Folders\n");
    buffer.AppendFormatted("\nvoid %sMonitor::ResetFolders() {\n",shortCut.Data());
-   if(numOfFolder)
-      buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i]>0 && !folderDataBase[i] && folderArray[i]!="1") {
+         buffer.AppendFormatted("   int i;\n");
+         break;
+      }
+   }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="1") {
@@ -306,9 +318,15 @@ bool ArgusBuilder::WriteMonitorCpp() {
       }
       // ODB folder
       else if(folderConnectionType[i] == "ODB"){
-         buffer.AppendFormatted("   HNDLE hkey;\n");
          buffer.AppendFormatted("   INT   size;\n");
          ROMEString tid;
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueArray[i][j]!="1") {
+               buffer.AppendFormatted("   HNDLE hkey;\n");
+               buffer.AppendFormatted("   Int_t i;\n");
+               break;
+            }
+         }
          for (j=0;j<numOfValue[i];j++) {
             GetMidasTID(&tid, (char*)valueType[i][j].Data());
             if (valueArray[i][j]=="1") {
@@ -318,22 +336,34 @@ bool ArgusBuilder::WriteMonitorCpp() {
                buffer.AppendFormatted("   f%sFolder->Set%s(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
             }
             else {
-               buffer.AppendFormatted("      %s %s_%s[%s];\n",valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),valueArray[i][j].Data());
-               buffer.AppendFormatted("      size = sizeof(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data());
-               buffer.AppendFormatted("      db_find_key(fMidasOnlineDataBase, 0, %s, &hkey);\n",valueDataBasePath[i][j].Data());
-               buffer.AppendFormatted("      db_get_data(fMidasOnlineDataBase, hkey, %s_%s, &size, %s);\n",folderName[i].Data(),valueName[i][j].Data(),tid.Data());
-               buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
-               buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s_%s[i]);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-               buffer.AppendFormatted("      }\n");               
+               buffer.AppendFormatted("   %s %s_%s[%s];\n",valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),valueArray[i][j].Data());
+               buffer.AppendFormatted("   size = sizeof(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("   db_find_key(fMidasOnlineDataBase, 0, %s, &hkey);\n",valueDataBasePath[i][j].Data());
+               buffer.AppendFormatted("   db_get_data(fMidasOnlineDataBase, hkey, %s_%s, &size, %s);\n",folderName[i].Data(),valueName[i][j].Data(),tid.Data());
+               buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
+               buffer.AppendFormatted("      f%sFolder->Set%sAt(i,(%s)%s_%s[i]);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("   }\n");               
             }
          }
       }
       else if(folderConnectionType[i] == "ROMEDataBase"){
          // ROMEDataBase Folder
          buffer.AppendFormatted("   ROMEString path;\n");
-         buffer.AppendFormatted("   int i;\n");
          buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-         buffer.AppendFormatted("   char *cstop;\n");
+         if(folderArray[i]!="1")
+            buffer.AppendFormatted("   int i;\n");
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueArray[i][j]!="1") {
+               buffer.AppendFormatted("   int j;\n");
+               break;
+            }
+         }
+         for (j=0;j<numOfValue[i];j++) {
+            if (IsNumber(valueType[i][j].Data())){
+               buffer.AppendFormatted("   char *cstop;\n");
+               break;
+            }
+         }
          if (folderArray[i] == "1") {
             for (j=0;j<numOfValue[i];j++) {
                if (folderArray[i]=="1") {
@@ -349,19 +379,18 @@ bool ArgusBuilder::WriteMonitorCpp() {
                      buffer.AppendFormatted("      f%sFolder->Set%s(%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                   }
                   else {
-                     buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",valueArray[i][j].Data());
-                     buffer.AppendFormatted("      if (values->At(0,i).Length()!=0)\n");
-                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,i).Data()",(char*)valueType[i][j].Data(),1);
-                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                     buffer.AppendFormatted("   for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
+                     buffer.AppendFormatted("      if (values->At(0,j).Length()!=0)\n");
+                     setValue(&buf,(char*)valueName[i][j].Data(),"values->At(0,j).Data()",(char*)valueType[i][j].Data(),1);
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(j,(%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                      buffer.AppendFormatted("      else\n");
-                     buffer.AppendFormatted("         f%sFolder->Set%sAt(i,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                     buffer.AppendFormatted("         f%sFolder->Set%sAt(j,%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                      buffer.AppendFormatted("   }\n");
                   }
                }
             }
          }
          else{
-            buffer.AppendFormatted("   int j;\n");
             for (j=0;j<numOfValue[i];j++) {
                buffer.AppendFormatted("   values->RemoveAll();\n");
                buffer.AppendFormatted("   path.SetFormatted(%s);\n",valueDataBasePath[i][j].Data());
@@ -390,9 +419,6 @@ bool ArgusBuilder::WriteMonitorCpp() {
          buffer.AppendFormatted("   values->RemoveAll();\n");
          buffer.AppendFormatted("   delete values;\n");
       }
-      else if(folderConnectionType[i] == "TSocket"){
-         buffer.AppendFormatted("   cout<<\"Update via TSocket is not supported yes\"<<endl;\n");
-      }
       buffer.AppendFormatted("   return true;\n");
       buffer.AppendFormatted("};\n");
    }
@@ -414,7 +440,12 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("};\n\n");
    // Initialize Array Folders
    buffer.AppendFormatted("\nvoid %sMonitor::InitArrayFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] && folderArray[i]!="1" && folderArray[i]!="variable") {
+         buffer.AppendFormatted("   int i;\n");
+         break;
+      }
+   }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0 ) {
          if (folderArray[i]!="1" && folderArray[i]!="variable") {
@@ -433,8 +464,6 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("}\n\n");
    // Connect netfolder server
    buffer.AppendFormatted("\nbool %sMonitor::ConnectServer() {\n",shortCut.Data());   
-   buffer.AppendFormatted("   char str[80];\n");
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (fSocketInterfaceSocket) {\n");
    buffer.AppendFormatted("      // disconnect first\n");
    buffer.AppendFormatted("      fSocketInterfaceSocket->Close();\n");

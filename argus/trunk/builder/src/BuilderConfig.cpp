@@ -3,6 +3,10 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.7  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -36,11 +40,11 @@
 #include "ArgusBuilder.h"
 
 bool ArgusBuilder::WriteConfigCpp() {
-   int i;
+   int i,j,k;
    ROMEString cppFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
-   int lenTot,j,ll;
+   int lenTot,ll;
    char* pos;
    int fileHandle;
    ROMEString format;
@@ -257,7 +261,17 @@ bool ArgusBuilder::WriteConfigCpp() {
    // Set Configuration
    buffer.AppendFormatted("\n// Set Configuration\n");
    buffer.AppendFormatted("bool %sConfig::SetConfiguration() {\n",shortCut.Data());
-   buffer.AppendFormatted("   char* cstop;\n");
+   bool need_cstop = false;
+   for (i=0;i<numOfTabHierarchy;i++) {
+      for (j=0;j<numOfSteering[i];j++) {
+         for (k=0;k<numOfSteerFields[i][j];k++) {
+            if(IsNumber(steerFieldType[i][j][k].Data()))
+               need_cstop = true;
+         }
+      }
+   }
+   if(need_cstop)
+      buffer.AppendFormatted("   char *cstop;\n");
    // Window
    buffer.AppendFormatted("   if (fConfigData->fWindow->fScaleModified) {\n");
    buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData->fWindow->fScale.Data()));\n");

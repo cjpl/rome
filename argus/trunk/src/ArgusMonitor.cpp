@@ -2,6 +2,10 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.13  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.12  2005/02/24 23:41:54  sawada
   bug fix of read parameter.
 
@@ -114,7 +118,6 @@ bool ArgusMonitor::Start(int argc, char **argv)
    }
    
    if (!ReadParameters(argc,argv)) return false;
-   int j;
    
 #if defined( HAVE_MIDAS )
    // Connect to the experiment

@@ -2,6 +2,10 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.13  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.12  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -93,7 +97,7 @@ private:
    bool readTabs;
    bool readGlobalSteeringParameters;
 
-   ROMEString parent[maxNumberOfTabs];
+   ROMEString parent[maxNumberOfFolders];
    int recursiveTabDepth;
    int recursiveFolderDepth;
    int recursiveSteerDepth;
@@ -213,5 +217,6 @@ public:
    void GetFormat(ROMEString *buf,char *type);
    void GetMidasTID(ROMEString *buf,char *type);
    void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
+   bool IsNumber(const char *type);
 };
 #endif   // ArgusBuilder_H

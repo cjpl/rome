@@ -3,6 +3,10 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/03/13 08:40:43  sawada
+  modified handling of recursiveDepth.
+  removed unused variables.
+
   Revision 1.10  2005/03/13 01:13:58  sawada
   small bug fix.
 
@@ -79,8 +83,8 @@ bool ArgusBuilder::ReadXMLFolder() {
       if (type == 1 && (!strcmp((const char*)name,"Folder") ||  !strcmp((const char*)name,"ROMEFolder"))) {
          // set folder as parent for subsequent folders
          recursiveFolderDepth++;
-         if (parent[recursiveFolderDepth].Length()==0)
-            parent[recursiveFolderDepth] = folderName[currentNumberOfFolders].Data();
+//         if (parent[recursiveFolderDepth].Length()==0)
+         parent[recursiveFolderDepth] = folderName[currentNumberOfFolders].Data();
          // read subfolder
          if ((!strcmp((const char*)name,"Folder")&&!ReadXMLFolder()) || (!strcmp((const char*)name,"ROMEFolder")&&!ReadXMLROMEFolder())) 
             return false;
