@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2004/11/21 00:10:41  sawada
+  error handling
+
   Revision 1.9  2004/11/19 16:26:24  sawada
   speed up with reading order array at once.
 
@@ -50,8 +53,6 @@ protected:
   ROMEString fFieldList;
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
-  ROMEString fOrderPhrase;
-  ROMEString fLimitPhrase;
   ROMESQL    *fSQL;
 public:
    ROMESQLDataBase();
@@ -84,6 +85,7 @@ public:
    int    GetNumberOfFields(){return fSQL->GetNumberOfFields();}
    char*  GetField(int fieldNumber){return fSQL->GetField(fieldNumber);}
    void   FreeResult(){return fSQL->FreeResult();}
+   bool   DataSeek(my_ulonglong offset);
 
 protected:
    bool   MakePhrase(ROMEPath *dataBasePath);
