@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.21  2005/01/14 08:29:53  sawada
+//  bug fix. removed FreeResult from Write().
+//
 //  Revision 1.20  2004/12/08 09:40:15  sawada
 //  added unistd.h for getpass. and small change
 //
@@ -656,11 +659,9 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
 #else
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){
          cout<<"Invalid input for database write."<<endl;
-         fSQL->FreeResult();
          delete path;
          return false;
       }
-      fSQL->FreeResult();
 #endif
       if(!path->IsOrderArray())
          break;
