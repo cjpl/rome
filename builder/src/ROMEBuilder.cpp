@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.103  2005/02/07 18:12:53  schneebeli_m
+  suppress fortran analyzer
+
   Revision 1.102  2005/01/27 16:21:05  schneebeli_m
   print method & no gROME in path
 
@@ -2447,7 +2450,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+//               xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
@@ -2746,10 +2749,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Midas Bank Initialisation
    buffer.AppendFormatted("// Midas Bank Initialisation\n");
    buffer.AppendFormatted("void %sAnalyzer::InitMidasBanks() {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
    for (i=0;i<numOfBank;i++) {
       // Bank Array
       if (bankArrayDigit[i]>0) {
-         buffer.AppendFormatted("   for (int i=%d;i<%d;i++)\n",bankArrayStart[i],bankArraySize[i]+bankArrayStart[i]);
+         buffer.AppendFormatted("   for (i=%d;i<%d;i++)\n",bankArrayStart[i],bankArraySize[i]+bankArrayStart[i]);
          buffer.AppendFormatted("      this->Init%sBank(i);\n",bankName[i].Data());
       }
       // Single Bank
@@ -3583,6 +3587,16 @@ bool ROMEBuilder::WriteAnalyzerF() {
 
    int nb;
    int fileHandle;
+
+   bool writeFortran = false;
+   for (i=0;i<numOfTask;i++) {
+      if (taskFortran[i]) {
+         writeFortran = true;
+         break;
+      }
+   }
+   if (!writeFortran)
+      return true;
 
    // File name
    fFile.SetFormatted("%s/src/framework/%sFAnalyzer.f",outDir.Data(),shortCut.Data());
@@ -6039,8 +6053,8 @@ int main(int argc, char *argv[])
          romeb->makeOutput = true;
          romeb->midas = false;
          romeb->noLink = true;
-         romeb->outDir = "C:/Data/Testprojects/Dance/";
-         xmlFile = "C:/Data/Testprojects/Dance/dance.xml";
+         romeb->outDir = "C:/Data/Testprojects/dance2/test/";
+         xmlFile = "C:/Data/Testprojects/dance2/test/dance.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {
