@@ -18,6 +18,7 @@ toBool */
 #endif
 
 // midas
+#ifndef HAVE_MIDAS
 #define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */
 #define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
 #define EVENTID_MESSAGE  ((short) 0x8002)  /**< Message events    */
@@ -28,6 +29,7 @@ typedef struct {
    unsigned long int time_stamp;
    unsigned long int data_size;
 } EVENT_HEADER;
+#endif
 
 // General
 #define gDebugLevel 0
@@ -36,8 +38,6 @@ typedef struct {
 #define gPrintProgress 0
 
 #define gFileNameLength 300
-
-#define gMidasEventSize 1000000
 
 #define gTaskInit       "init"
 #define gTaskBeginOfRun "bof"

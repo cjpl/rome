@@ -3,7 +3,7 @@
 //                                                                      //
 // ROMETask                                                             //
 //                                                                      //
-//  The Base Class for all Tasks in the Data Analysis Tool. 
+//  The Base Class for all Tasks in ROME. 
 //  The following methods should be overriden by derived Classes :
 //    Init
 //    BeginOfRun

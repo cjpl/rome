@@ -31,6 +31,9 @@ public:
    char outDir[descriptionLength];
    bool makeOutput;
    bool noLink;
+   bool offline;
+   bool sql;
+   bool writeRunNumber;
 
 private:
    char shortCut[nameLength];
@@ -44,7 +47,7 @@ private:
    char folderName[numberOfFolders][nameLength];
    char parentFolderName[numberOfFolders][nameLength];
    char folderTitle[numberOfFolders][commentLength];
-   char folderArray[numberOfFolders][nameLength];
+   char folderArray[numberOfFolders][textLength];
    bool dataBase[numberOfFolders];
 
    char valueName[numberOfFolders][maxNumberOfValues][nameLength];
@@ -106,6 +109,11 @@ private:
    char structFieldName[numberOfBanks][maxNumberOfStructFields][nameLength];
    char structFieldType[numberOfBanks][maxNumberOfStructFields][nameLength];
    char structFieldSize[numberOfBanks][maxNumberOfStructFields][nameLength];
+   char bankHeaderFolder[nameLength];
+   char bankHeaderEventID[nameLength];
+   char bankHeaderTriggerMask[nameLength];
+   char bankHeaderSerialNumber[nameLength];
+   char bankHeaderTimeStamp[nameLength];
 
 // steering
    int numOfSteering;
@@ -157,8 +165,11 @@ public:
    bool WriteAnalyzerH();
    void WriteSteerConfigWrite(char *buffer,int numOfSteer);
    void WriteSteerConfigRead(char *buffer,int numSteer);
+   bool WriteIOCpp();
+   bool WriteIOH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
+   bool WriteRunTableH();
    bool WriteMain();
    void WriteMakefile();
    void WriteHTMLDoku();

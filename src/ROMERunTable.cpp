@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////////
 #include "ROMERunTable.h"
 
-ClassImp(ROMERunTable)
-
 TString*  ROMERunTable::GetFile()           
 { 
    return fFile;           

@@ -2,11 +2,12 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "ROME"
-!define PRODUCT_VERSION "2.00"
+!define PRODUCT_VERSION "1.00"
 !define PRODUCT_PUBLISHER "Matthias Schneebeli (PSI)"
-!define PRODUCT_WEB_SITE "http://meg.web.psi.ch/"
+!define PRODUCT_WEB_SITE "http://midas.psi.ch/rome/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
+!include StrFunc.nsh
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "ROMESetup.exe"
@@ -17,6 +18,20 @@ UninstallIcon "icons\rome.ico"
 DirText "Setup will install $(^Name) in the following folder.$\r$\n$\r$\nTo install in a different folder, click Browse and select another folder."
 ShowInstDetails show
 ShowUnInstDetails show
+BrandingText /TRIMCENTER "Paul Scherrer Institute (PSI)"
+SetFont "Times New Roman" 10
+AddBrandingImage top 120 10
+
+Page directory showImage
+
+Function showImage
+  GetTempFileName $0
+  File /oname=$0 icons\rome_simple.bmp
+  SetBrandingImage $0
+  Delete $0
+FunctionEnd
+
+Page instfiles
 
 Section "builder" SEC01
   SetOutPath "$INSTDIR\builder\src"
@@ -24,6 +39,11 @@ Section "builder" SEC01
   File "builder\src\ROMEBuilder.cpp"
   SetOutPath "$INSTDIR\builder\include"
   File "builder\include\ROMEBuilder.h"
+  
+  SetOutPath "$INSTDIR\icons\rome.bmp"
+  File "icons\rome.bmp"
+  SetOutPath "$INSTDIR\icons\rome.ico"
+  File "icons\rome.ico"
 SectionEnd
 
 Section "rome" SEC02
@@ -50,13 +70,18 @@ Section "documentation" SEC04
   File "documentation\*.*"
 SectionEnd
 
+${StrStr}
+VAR ind
 VAR reg
 Section "registry" SEC05
   ReadRegStr $reg HKCU "Environment" "path"
   WriteRegStr HKCU "Environment" "ROMESYS" "$INSTDIR\"
+  ${StrStr} $ind $reg "%ROMESYS%\bin"
+  StrCmp $ind "" notfound found
+notfound:
   WriteRegStr HKCU "Environment" "path" "$reg;%ROMESYS%\bin;"
+found:
 SectionEnd
-
 
 Section -AdditionalIcons
   CreateDirectory "$SMPROGRAMS\ROME"

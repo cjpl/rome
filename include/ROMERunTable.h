@@ -28,8 +28,6 @@ public:
    void SetNumberOfFiles (Int_t    number)         { fNumberOfFiles  = number;         };
    void SetFile          (TString* file);
    void SetFolder        (TString* folder);
-
-   ClassDef(ROMERunTable,1)
 };
 
 #endif   // ROMERunTable_H

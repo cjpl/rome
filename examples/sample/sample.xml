@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Matthias Schneebeli (PSI) -->
+<XYZ>
+	<Folder>
+		<SubFolder FolderName="CMPMTData" Array="257">
+			<Fields>
+				<ADC Type="Float_t" Initialisation="0" Comment="// ADC Data"/>
+			</Fields>
+		</SubFolder>
+		<SubFolder FolderName="CMCalib" Array="257" DataBase="yes">
+			<Fields>
+				<ADCPedestal Type="Float_t" Initialisation="0" Comment="// ADC Pedestal"/>
+			</Fields>
+		</SubFolder>
+		<SubFolder FolderName="CMPMTInfo" Array="257" DataBase="yes">
+			<Fields>
+				<PMID Type="Int_t" Initialisation="0" Comment="// Photo Multiplier ID"/>
+				<ADCID Type="Int_t" Initialisation="0" Comment="// ADC Number"/>
+			</Fields>
+		</SubFolder>
+		<SubFolder FolderName="Trigger">
+			<Fields>
+				<ID Type="Int_t" Initialisation="0" Comment="// event ID"/>
+				<Eventnumber Type="Int_t" Initialisation="0" Comment="// Event Number"/>
+			</Fields>
+		</SubFolder>
+	</Folder>
+	<Task>
+		<SubTask Name="ReadMidas"/>
+		<SubTask Name="ADCCalib">
+			<Histos>
+				<ADCHisto Type="TH1F" ArraySize="257" FolderName="adc" Title="ADC" NumberOfBinsX="500" XMin="0" XMax="500"/>
+			</Histos>
+		</SubTask>
+	</Task>
+	<Trees>
+		<Tree Name="Data" Title="Calorimeter PMT Data">
+			<Branch Name="PMTData" Folder="CMPMTData"/>
+		</Tree>
+	</Trees>
+	<MidasBanks>
+		<ADC0 Type="unsigned short"/>
+	</MidasBanks>
+</XYZ>

@@ -21,9 +21,6 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter calibration data." />
 					<Fields>
-						<RunNumber Type="Int_t" Initialisation="0" Comment="Run Number" />
-						<TimeStamp Type="Int_t" Initialisation="0" Comment="Time Stamp" />
-						<RunDescription Type="TString" Initialisation="0" Comment="Run Description" />
 						<ADCPedestal Type="Float_t" Initialisation="0" Comment="ADC Pedestal" />
 						<ADCGain Type="Float_t" Initialisation="0" Comment="ADC Gain" />
 						<TDCOffset Type="Float_t" Initialisation="0" Comment="TDC Offset" />
@@ -35,9 +32,6 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter Photo Multiplier Information." />
 					<Fields>
-						<RunNumber Type="Int_t" Initialisation="0" Comment="Run Number" />
-						<TimeStamp Type="Int_t" Initialisation="0" Comment="Time Stamp" />
-						<RunDescription Type="TString" Initialisation="0" Comment="Run Description" />
 						<PMID Type="Int_t" Initialisation="0" Comment="Photo Multiplier ID" />
 						<ADCID Type="Int_t" Initialisation="0" Comment="ADC Number" />
 						<TDCID Type="Int_t" Initialisation="0" Comment="TDC Number" />

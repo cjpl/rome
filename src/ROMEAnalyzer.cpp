@@ -3,9 +3,9 @@
 //                                                                      //
 // ROMEAnalyzer                                                         //
 //                                                                      //
-//  Basic class in the Data Analysis Tool. This class is the base-class
+//  Basic class in ROME. This class is the base-class
 //  for the analysis dependent main class, which should implement the 
-//  Containers, Trees and Task definitions.
+//  Folders, Trees and Task definitions.
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #if defined( _MSC_VER )
@@ -18,7 +18,6 @@
 #include <sys/io.h>
 #include <TThread.h>
 #endif
-
 
 #include <sys/stat.h>
 #include <libxml/xmlreader.h>
@@ -33,6 +32,7 @@
 #include <TList.h>
 #include <TObjString.h>
 #include <TROOT.h>
+#include <TBrowser.h>
 #include "ROMEAnalyzer.h"
 #include "ROMEEventLoop.h"
 #include "ROMETree.h"
@@ -40,28 +40,55 @@
 #include "ROMEStatic.h"
 #include <Riostream.h>
 
-ClassImp(ROMEAnalyzer)
-
 ROMEAnalyzer::ROMEAnalyzer()
 {
 // Folder,Task and Tree initialisation
 
    int i=0;
+   fSplashScreen = true;
    fBatchMode = false;
-   fRunStatus = false;
-
-   fTreeObjects = new TObjArray(0);
 }
+//#include<ROMESQL.h>
+//#include"C:\Data\analysis\MEG\ROME .NET\MEGFrameWork\MEGEventLoop.h"
 
 bool ROMEAnalyzer::Start(int argc, char **argv) 
 {
 // Starts the Data Analysis Tool
 
+/*   this->SetDataBaseDir("C:/Data/analysis/MEG/DataBase/");
+   this->SetInputDir("C:/Data/analysis/MEG/Data/");
+   ((MEGEventLoop*)fMainTask)->ReadXMLRunTable();
+   ((MEGEventLoop*)fMainTask)->InitXMLDataBase();
+   ROMESQL *fSQL = new ROMESQL();
+   fSQL->Connect("pc4466.psi.ch","rome","rome","MEGDataBase");
+//   fSQL->DeleteDataBase("megDataBase");
+//   fSQL->CreateDataBase("MEGDataBase");
+//   fSQL->CreateTable("runTable","runNumber INT,CMCalib INT,CMPMTInfo INT");
+//   fSQL->DeleteTable("CMCalib");
+//   fSQL->CreateTable("CMCalib","id INT,arrayIndex INT,ADCPedestal FLOAT,ADCGain FLOAT,TDCOffset FLOAT,TDCXScale FLOAT");
+//   fSQL->DeleteTable("CMPMTInfo");
+//   fSQL->CreateTable("CMPMTInfo","id INT,arrayIndex INT,PMID INT,ADCID INT,TDCID INT,Address TEXT,X FLOAT,Y FLOAT,Z FLOAT,DeadFlag INT");
+//   fSQL->InsertRow("runTable","runNumber,CMCalib,CMPMTInfo","6625,1,1");
+//   fSQL->InsertRow("runTable","runNumber,CMCalib,CMPMTInfo","96625,-1,-1");
+//   fSQL->DeleteRow("CMCalib","ADCPedestal=0");
+
+//   fSQL->InsertRow("CMCalib","id,arrayIndex,ADCPedestal,ADCGain,TDCOffset,TDCXScale","1,0,0,0,0,0");
+/*
+   char str[200];
+   for (int i=0;i<=256;i++) {
+      MEGCMPMTInfo* info = ((MEGAnalyzer*)this)->GetCMPMTInfoAt(i);
+      sprintf(str,"1,%d,%d,%d,%d,'%s',%f,%f,%f,%d",i,info->GetPMID(),info->GetADCID(),info->GetTDCID(),info->GetAddress().Data(),info->GetX(),info->GetY(),info->GetZ(),info->GetDeadFlag());
+      fSQL->InsertRow("CMPMTInfo","id,arrayIndex,PMID,ADCID,TDCID,Address,X,Y,Z,DeadFlag",str);
+   }
+*//*
+   return false;
+*/
+
    consoleStartScreen();
 
    if (!ReadParameters(argc,argv)) return false;
 
-   startSplashScreen();
+   if (isSplashScreen()) startSplashScreen();
 
    CreateHistoFolders();
 
@@ -73,32 +100,9 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask();
 
-   return true;
-}
+   if (!isBatchMode()) TBrowser *t = new TBrowser();
 
-void ROMEAnalyzer::CreateHistoFolders() 
-{
-   // Creates a Folder for each active Task
-   int i,j;
-   char name[1000];
-   char title[1000];
-   TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
-   TList *taskList = fMainTask->GetListOfTasks();
-   for (i=0;i<taskList->GetSize();i++) {
-      TTask *task = (TTask*)taskList->At(i);
-      if (!task->IsActive()) continue;
-      sprintf(name,"%sHistos",task->GetName());
-      sprintf(title,"Histograms of Task '%s'",task->GetName());
-      TFolder *folder = fHistoFolder->AddFolder(name,title);
-      TList *subTaskList = task->GetListOfTasks();
-      for (j=0;j<subTaskList->GetSize();j++) {
-         TTask *task = (TTask*)subTaskList->At(j);
-         if (!task->IsActive()) continue;
-         sprintf(name,"%sHistos",task->GetName());
-         sprintf(title,"Histograms of Task '%s'",task->GetName());
-         folder->AddFolder(name,title);
-      }
-   }
+   return true;
 }
 
 bool ROMEAnalyzer::ReadParameters(int argc, char *argv[]) 
@@ -109,23 +113,24 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    char workDir[workDirLen];
    getcwd(workDir,workDirLen);
    sprintf(workDir,"%s/",workDir);
-   this->SetDataBaseDir(workDir);
-   this->SetInputDir(workDir);
-   this->SetOutputDir(workDir);
+   this->GetIO()->SetDataBaseDir(workDir);
+   this->GetIO()->SetInputDir(workDir);
+   this->GetIO()->SetOutputDir(workDir);
 
    char configFile[100] = "romeConfig.xml";
 
-   if (argc==1) {
-      cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
-      cout << "  -b       Batch Mode (no Argument)" << endl;
-      cout << "  -m       Analysing Mode : (online/[offline])" << endl;
-      cout << "  -f       Input Data Format : ([midas]/root)" << endl;
-      cout << "  -r       Runnumbers" << endl;
-      cout << "  -e       Eventnumbers" << endl;
-      cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
-      return false;
-   }
    for (i=1;i<argc;i++) {
+      if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")) {
+         cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
+         cout << "  -b       Batch Mode (no Argument)" << endl;
+         cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
+         cout << "  -m       Analysing Mode : (online/[offline])" << endl;
+         cout << "  -f       Input Data Format : ([midas]/root)" << endl;
+         cout << "  -r       Runnumbers" << endl;
+         cout << "  -e       Eventnumbers" << endl;
+         cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
+	      return false;
+      }
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
          html.MakeAll(true);
@@ -168,30 +173,71 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (!strcmp(argv[i],"-b")) {
          fBatchMode = true;
       }
-      if (!strcmp(argv[i],"-m")) {
-         if (!strcmp(argv[i+1],"online")) fOnLineMode = true;
-         else fOnLineMode = false;
+      else if (!strcmp(argv[i],"-ns")) {
+         fSplashScreen = false;
+      }
+      else if (!strcmp(argv[i],"-m")) {
+         if (!strcmp(argv[i+1],"online")) this->GetIO()->SetOnline();
+         else this->GetIO()->SetOffline();
          i++;
       }
-      if (!strcmp(argv[i],"-f")) {
-         if (!strcmp(argv[i+1],"root")) fRootMode = true;
-         else fRootMode = false;
+      else if (!strcmp(argv[i],"-f")) {
+         if (!strcmp(argv[i+1],"root")) this->GetIO()->SetRoot();
+         else this->GetIO()->SetMidas();
          i++;
       }
-      if (!strcmp(argv[i],"-r")&&i<argc-1) {
-         fRunNumberString = argv[i+1];
-         fRunNumber = ROMEStatic::decodeRunNumbers(argv[i+1]);
+      else if (!strcmp(argv[i],"-r")&&i<argc-1) {
+         this->GetIO()->SetRunNumbers(argv[i+1]);
          i++;
       }
-      if (!strcmp(argv[i],"-e")&&i<argc-1) {
-         fEventNumberString = argv[i+1];
-         fEventNumber = ROMEStatic::decodeRunNumbers(argv[i+1]);
+      else if (!strcmp(argv[i],"-e")&&i<argc-1) {
+         this->GetIO()->SetEventNumbers(argv[i+1]);
          i++;
+      }
+      else {
+         cout << "Inputlineparameter '" << argv[i] << "' not available." << endl;
+         cout << "Available inputlineparameter are : " << endl;
+         cout << endl;
+         cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
+         cout << "  -b       Batch Mode (no Argument)" << endl;
+         cout << "  -ns      Splash Screen is not displayed (no Argument)" << endl;
+         cout << "  -m       Analysing Mode : (online/[offline])" << endl;
+         cout << "  -f       Input Data Format : ([midas]/root)" << endl;
+         cout << "  -r       Runnumbers" << endl;
+         cout << "  -e       Eventnumbers" << endl;
+         cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
+	      return false;
       }
    }
 
    return true;
 }
+
+void ROMEAnalyzer::CreateHistoFolders() 
+{
+   // Creates a Folder for each active Task
+   int i,j;
+   char name[1000];
+   char title[1000];
+   TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
+   TList *taskList = fMainTask->GetListOfTasks();
+   for (i=0;i<taskList->GetSize();i++) {
+      TTask *task = (TTask*)taskList->At(i);
+      if (!task->IsActive()) continue;
+      sprintf(name,"%sHistos",task->GetName());
+      sprintf(title,"Histograms of Task '%s'",task->GetName());
+      TFolder *folder = fHistoFolder->AddFolder(name,title);
+      TList *subTaskList = task->GetListOfTasks();
+      for (j=0;j<subTaskList->GetSize();j++) {
+         TTask *task = (TTask*)subTaskList->At(j);
+         if (!task->IsActive()) continue;
+         sprintf(name,"%sHistos",task->GetName());
+         sprintf(title,"Histograms of Task '%s'",task->GetName());
+         folder->AddFolder(name,title);
+      }
+   }
+}
+
 /*
    const int workDirLen = 1000;
    char workDir[workDirLen];
