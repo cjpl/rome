@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.83  2005/01/06 10:33:42  schneebeli_m
+  Added Makefile.usr
+
   Revision 1.82  2005/01/05 10:37:05  schneebeli_m
   Bank enumeration
 
@@ -2586,7 +2589,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
    // Constructor
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TRint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("// Folder, Task, Tree and Data Base initialisation\n");
+   buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
@@ -4911,7 +4914,13 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
          buffer.AppendFormatted("%s            fSteeringModified = false;\n",blank.Data());
          buffer.AppendFormatted("%s            fSteering = new Steering();\n",blank.Data());
       }
+      for (j=0;j<numOfTaskHierarchy;j++) {
+         if (taskHierarchyParentIndex[j]!=i)
+            continue;
+         buffer.AppendFormatted("%s            f%sTask = new %sTask();\n",blank.Data(),taskHierarchyName[j].Data(),taskHierarchyName[j].Data());
+      }
       buffer.AppendFormatted("%s         };\n",blank.Data());
+      // Sub classes
       WriteTaskConfigClass(buffer,i,tab+1);
       buffer.AppendFormatted("%s      };\n",blank.Data());
       buffer.AppendFormatted("%s      %sTask *f%sTask;\n",blank.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data());
@@ -5907,6 +5916,7 @@ void ROMEBuilder::WriteMakefile() {
    shortcut.ToLower();
    ROMEString mainprogname(mainProgName);
    mainprogname.ToLower();
+
 #if defined( _MSC_VER )
    // libs
    buffer.Resize(0);
@@ -6095,6 +6105,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj\n\n");
    // all
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
+   // user makefile
+   buffer.AppendFormatted("-include Makefile.usr\n");
    // make obj
    buffer.AppendFormatted("obj:\n");
    buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
@@ -6163,6 +6175,23 @@ void ROMEBuilder::WriteMakefile() {
    fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
    write(fileHandle,buffer.Data(), buffer.Length());
    close(fileHandle);
+   // Write Makefile.usr
+   struct stat buf;
+   makeFile = "Makefile.usr";
+   ROMEString usrBuffer;
+   if( stat( makeFile.Data(), &buf )) {
+      fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
+      usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("# Description:\n");
+      usrBuffer.AppendFormatted("# 1) Add mySource.obj to the list of objects, e.g. objects += mySource.obj\n");
+      usrBuffer.AppendFormatted("# 2) Add compile statment, e.g.\n");
+      usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
+      usrBuffer.AppendFormatted("#          g++ -g -c $(flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#\n");
+      write(fileHandle,usrBuffer.Data(), usrBuffer.Length());
+      close(fileHandle);
+   }
 }
 
 void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer) 
