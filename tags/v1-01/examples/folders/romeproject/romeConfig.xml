@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by ROME on Fri Feb 25 17:35:44 2005
+ -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+     <MainConfiguration>
+          <RunNumbers></RunNumbers>
+          <EventNumbers></EventNumbers>
+          <Modes>
+               <AnalyzingMode>online</AnalyzingMode>
+               <InputDataFormat>midas</InputDataFormat>
+               <BatchMode>false</BatchMode>
+               <ShowSplashScreen>true</ShowSplashScreen>
+          </Modes>
+          <DataBase>
+               <Type>none</Type>
+               <Connection></Connection>
+          </DataBase>
+          <Online>
+               <Host></Host>
+               <Experiment></Experiment>
+          </Online>
+          <SocketInterface>
+               <PortNumber>9090</PortNumber>
+               <AvailableOffline>false</AvailableOffline>
+          </SocketInterface>
+          <Paths>
+               <InputFilePath>/</InputFilePath>
+               <OutputFilePath>/</OutputFilePath>
+          </Paths>
+          <Tasks/>
+     </MainConfiguration>
+</Configuration>
