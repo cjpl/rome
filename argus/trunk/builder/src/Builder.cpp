@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/02/02 18:19:24  sawada
+  small bug fix.
+
   Revision 1.4  2005/02/01 21:53:24  sawada
   implemented thread functions of tabs.
 
@@ -695,6 +698,24 @@ void ArgusBuilder::WriteMakefile() {
    }
    buffer.AppendFormatted("obj/%sDict.o: src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sDict.cpp -o obj/%sDict.o\n",shortCut.Data(),shortCut.Data());
+   ROMEString dictionarybat;
+   WriteDictionaryBat(dictionarybat);
+   buffer.AppendFormatted("src/monitor/%sDict.cpp: ",shortCut.Data());
+   buffer.AppendFormatted("$(ARGUSSYS)/ArgusMonitor.h $(ARGUSSYS)/ArgusTextDialog.h $(ARGUSSYS)/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i])
+            buffer.AppendFormatted("include/monitor/%sF%s_Base.h ",shortCut.Data(),folderName[i].Data());
+         else
+            buffer.AppendFormatted("include/monitor/%sF%s.h ",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("include/tabs/%sT%s_Base.h ",shortCut.Data(),tabName[i].Data());
+      buffer.AppendFormatted("include/tabs/%sT%s.h ",shortCut.Data(),tabName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("	%s\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean::\n");
    buffer.AppendFormatted("	rm -f obj/*.o src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
