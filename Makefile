@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.13  2004/12/09 08:18:00  schneebeli_m
+#  -lg2c removed
+#
 #  Revision 1.12  2004/12/02 17:46:43  sawada
 #  Macintosh port
 #
@@ -22,7 +25,7 @@
 #####################################################################
 #
 INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags) $(shell xml2-config --cflags)
-LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs) -lpthread -lg2c
+LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs) -lpthread
 
 ## for Macintosh
 ifeq ($(shell uname),Darwin)
