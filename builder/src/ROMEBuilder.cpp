@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.35  2004/08/02 16:02:33  schneebeli_m
+  Bugs removed
+
   Revision 1.34  2004/08/02 15:58:21  schneebeli_m
   Bugs removed
 
@@ -3957,7 +3960,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormated("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormated("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormated("rootthreadlibs := -lThread\n");
-   buffer.AppendFormated("xmllibs := -lxml2 -lz -liconv\n");
+   buffer.AppendFormated("xmllibs := -lxml2 -lz\n");
    if (this->sql) 
       buffer.AppendFormated("sqllibs := -lmysql\n");
    else
