@@ -19,6 +19,7 @@ public:
    virtual void InitDataBase() = 0;
    virtual void UpdateDataBase() = 0;
    virtual void ConnectTrees() = 0;
+   virtual void InitMidasBanks() = 0;
 private:
    void ReadRootFiles();
 //   void ProcessMessage(HNDLE hBuf, HNDLE id, EVENT_HEADER * pheader, void *message);

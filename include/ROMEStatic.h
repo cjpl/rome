@@ -61,7 +61,6 @@ public:
       arr.Set(na);
       return arr;
    }
-
 /********************************************************************\
     Routine: ss_kbhit
 \********************************************************************/
@@ -77,64 +76,68 @@ public:
 #endif
    }
 /********************************************************************\
-   bk_locate
+   bk_find
 /********************************************************************/
 
    typedef struct {
-      unsigned long int data_size;                    /**< Size in bytes */
-      unsigned long int flags;                        /**< internal flag */
+      unsigned long int data_size;
+      unsigned long int flags;
    } BANK_HEADER;
+   typedef struct {
+      char name[4];
+      unsigned short int type;
+      unsigned short int data_size;
+   } BANK;
+
+   typedef struct {
+      char name[4];
+      unsigned long int type;
+      unsigned long int data_size;
+   } BANK32;
    static bool bk_is32(void *event)
    {
       return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
    }
-   static int bk_locate(void *event, const char *name, void *pdata)
+   static int bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata)
    {
-      typedef struct {
-         char name[4];                       /**< - */
-         unsigned short int type;                          /**< - */
-         unsigned short int data_size;                     /**< - */
-      } BANK;
-
-      typedef struct {
-         char name[4];                       /**< - */
-         unsigned long int type;                         /**< - */
-         unsigned long int data_size;                    /**< - */
-      } BANK32;
       int tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
       BANK *pbk;
       BANK32 *pbk32;
-      unsigned long int dname;
-   
-      if (bk_is32(event)) {
-         pbk32 = (BANK32 *) (((BANK_HEADER *) event) + 1);
+      unsigned long dname;
+
+      if (bk_is32(pbkh)) {
+         pbk32 = (BANK32 *) (((BANK_HEADER *)pbkh) + 1);
          strncpy((char *) &dname, name, 4);
          do {
-            if (*((unsigned long int *) pbk32->name) == dname) {
+            if (*((unsigned long *) pbk32->name) == dname) {
                *((void **) pdata) = pbk32 + 1;
                if (tid_size[pbk32->type & 0xFF] == 0)
-                  return pbk32->data_size;
-               return pbk32->data_size / tid_size[pbk32->type & 0xFF];
+                  *bklen = pbk32->data_size;
+               else
+                  *bklen = pbk32->data_size / tid_size[pbk32->type & 0xFF];
+   
+               *bktype = pbk32->type;
+               return 1;
             }
             pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
-         } while ((unsigned long int) pbk32 - (unsigned long int) event <
-                  ((BANK_HEADER *) event)->data_size + sizeof(BANK_HEADER));
+         } while ((unsigned long) pbk32 - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
       } else {
-         pbk = (BANK *) (((BANK_HEADER *) event) + 1);
+         pbk = (BANK *) (((BANK_HEADER *)pbkh) + 1);
          strncpy((char *) &dname, name, 4);
          do {
-            if (*((unsigned long int *) pbk->name) == dname) {
+            if (*((unsigned long *) pbk->name) == dname) {
                *((void **) pdata) = pbk + 1;
                if (tid_size[pbk->type & 0xFF] == 0)
-                  return pbk->data_size;
-               return pbk->data_size / tid_size[pbk->type & 0xFF];
+                  *bklen = pbk->data_size;
+               else
+                  *bklen = pbk->data_size / tid_size[pbk->type & 0xFF];
+   
+               *bktype = pbk->type;
+               return 1;
             }
             pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
-         } while ((unsigned long int) pbk - (unsigned long int) event <
-                  ((BANK_HEADER *) event)->data_size + sizeof(BANK_HEADER));
+         } while ((unsigned long) pbk - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
       }
-   
-      /* bank not found */
       *((void **) pdata) = NULL;
       return 0;
    }

@@ -6,6 +6,7 @@ const int numberOfTasks = 200;
 const int numberOfFolders = 100;
 const int numberOfTrees = 20;
 const int numberOfBranches = 10;
+const int numberOfBanks = 20;
 const int authorNameLength = 50;
 const int versionLength = 5;
 const int nameLength = 20;
@@ -16,6 +17,7 @@ const int maxNumberOfGetters = 10;
 const int maxNumberOfSetters = 10;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 10;
+const int maxNumberOfStructFields = 50;
 const int bufferLength = 100000;
 
 class ROMEBuilder
@@ -47,6 +49,7 @@ private:
    char valueRef[numberOfFolders][maxNumberOfValues][nameLength];
    char valueInit[numberOfFolders][maxNumberOfValues][nameLength];
    char valueComment[numberOfFolders][maxNumberOfValues][commentLength];
+
    char getter[numberOfFolders][maxNumberOfGetters][nameLength];
    char setter[numberOfFolders][maxNumberOfSetters][nameLength];
    char getterType[numberOfFolders][maxNumberOfGetters][nameLength];
@@ -82,6 +85,16 @@ private:
    char branchName[numberOfTrees][numberOfBranches][nameLength];
    char branchFolder[numberOfTrees][numberOfBranches][nameLength];
 
+// banks
+   int numOfBank;
+   int numOfStructFields[numberOfBanks];
+   char bankName[numberOfBanks][nameLength];
+   char bankType[numberOfBanks][nameLength];
+   char bankStructName[numberOfBanks][nameLength];
+   char structFieldName[numberOfBanks][maxNumberOfStructFields][nameLength];
+   char structFieldType[numberOfBanks][maxNumberOfStructFields][nameLength];
+   char structFieldSize[numberOfBanks][maxNumberOfStructFields][nameLength];
+
 // general
    int numOfInclude[numberOfTasks];
    bool overWriteCpp[numberOfTasks];
@@ -105,6 +118,7 @@ public:
    bool XMLToFolder(xmlTextReaderPtr reader);
    bool XMLToTask(xmlTextReaderPtr reader);
    bool XMLToTree(xmlTextReaderPtr reader);
+   bool XMLToMidasBanks(xmlTextReaderPtr reader);
    bool WriteAnalyzer();
    void WriteMakefile();
    void WriteHTMLDoku();
@@ -112,6 +126,7 @@ public:
    void startBuilder(char* xmlFile);
    void GetFormat(char *buf,char *type);
    void setValue(char *buf,char *destination,char *source,char *type);
+   bool isFloatingType(char *type);
 };
 
 #endif   // ROMEBuilder_H

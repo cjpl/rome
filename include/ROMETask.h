@@ -12,7 +12,6 @@ private:
    char fTitle[100];          // Task title
    char fName[100];           // Task name
    char timeString[10];       // Elapsed Time in a readable format
-   Bool_t fHistoAccumulation; // Histogram Accumulation Flag
    TFolder *fHistoFolder;     // Histogram Folder of this Task in the Memory
 protected:
    ROMEAnalyzer *fAnalyzer;    // Handle to the Analyzer Class (should be overriden by each Task)
@@ -31,8 +30,6 @@ public:
 
    Int_t GetVersion() { return fVersion; };
    TFolder *GetHistoFolder() { return fHistoFolder; };
-   Bool_t isHistoAccumulation() { return fHistoAccumulation; };
-   void SetHistoAccumulation(Bool_t flag) { fHistoAccumulation = flag; };
 protected:
    void TimeStart();
    void TimeEnd();

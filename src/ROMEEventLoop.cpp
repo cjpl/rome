@@ -161,10 +161,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             // read event header
             EVENT_HEADER *pevent;
             bool readError = false;
-            int n = read(midFileHandle,fAnalyzer->GetMidasEvent(), sizeof(EVENT_HEADER));
+            int n = read(midFileHandle,fAnalyzer->GetEventHeader(), sizeof(EVENT_HEADER));
             if (n < (int)sizeof(EVENT_HEADER)) readError = true;
             else {
-               pevent = (EVENT_HEADER*)fAnalyzer->GetMidasEvent();
+               pevent = (EVENT_HEADER*)fAnalyzer->GetEventHeader();
                n = 0;
                if (pevent->data_size <= 0) readError = true;
                else {
@@ -175,6 +175,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             if (readError) {
                if (n > 0) cout << "Unexpected end of file\n";
                fAnalyzer->EndOfRun();
+               continue;
+            }
+            pevent = (EVENT_HEADER*)fAnalyzer->GetEventHeader();
+
+            if (pevent->event_id == EVENTID_EOR) fAnalyzer->EndOfRun();
+            if (pevent->event_id == EVENTID_EOR || pevent->event_id < 0) {
                continue;
             }
          }
@@ -221,6 +227,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // Event
+         if (fAnalyzer->isMidas()) InitMidasBanks();
          ExecuteTasks(gTaskEvent);
          CleanTasks();
 

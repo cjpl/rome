@@ -27,7 +27,6 @@ ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TT
    strcpy(fName,name);
    fAnalyzer = analyzer;
    fRunTime = 0;
-   fHistoAccumulation = true;
 }
 void ROMETask::Exec(Option_t *option)
 {

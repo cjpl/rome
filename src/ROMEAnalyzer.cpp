@@ -20,6 +20,7 @@
 #endif
 
 
+#include <sys/stat.h>
 #include <libxml/xmlreader.h>
 #include <fcntl.h>
 #include <TMessage.h>
@@ -103,218 +104,111 @@ void ROMEAnalyzer::CreateHistoFolders()
 bool ROMEAnalyzer::ReadParameters(int argc, char *argv[]) 
 {
    // Reads the Inputlineparameters
-   int i,j,k;
-   char str[1000];
+   int i;
    const int workDirLen = 1000;
    char workDir[workDirLen];
    getcwd(workDir,workDirLen);
+   sprintf(workDir,"%s/",workDir);
+   this->SetDataBaseDir(workDir);
+   this->SetInputDir(workDir);
+   this->SetOutputDir(workDir);
 
-   sprintf(str,"%s/",workDir);
-   SetConfigDir(str);
-   SetDataBaseDir(str);
-   SetInputDir(str);
-   sprintf(str,"%s/%s",workDir,"Output/");
-   SetOutputDir(str);
+   char configFile[100] = "romeConfig.xml";
 
    if (argc==1) {
-      cout << "  -c       Configuration-File path" << endl;
-      cout << "  -d       The Inputparameters are read from the config.xml file (Argument path to the config.xml file)" << endl;
-      cout << "  -i       Inputfile path" << endl;
-      cout << "  -o       Outputfile path" << endl;
+      cout << "  -i       Configuration file (default ROMEConfig.xml)" << endl;
       cout << "  -b       Batch Mode (no Argument)" << endl;
       cout << "  -m       Analysing Mode : (online/[offline])" << endl;
-      cout << "  -df      Input Data Format : ([midas]/root)" << endl;
+      cout << "  -f       Input Data Format : ([midas]/root)" << endl;
       cout << "  -r       Runnumbers" << endl;
       cout << "  -e       Eventnumbers" << endl;
-      cout << "  -ta      Taskselection" << endl;
-      cout << "             Set tasks activate/inactivate in the order of their" << endl;
-      cout << "             appearance in the list of tasks." << endl;
-      cout << "             e.g. -ta 1,0,1,0,0,..." << endl;
-      cout << "  -th      Histoselection" << endl;
-      cout << "             Set Histogram Accumulationflag for each task in" << endl;
-      cout << "             the order of their appearance in the list of tasks." << endl;
-      cout << "             e.g. -th 1,0,1,0,0,..." << endl;
-      cout << "  -tasks   Displays a List of all Tasks (no Argument)" << endl;
-      cout << "  -tr      Treeselection" << endl;
-      cout << "             Set read-, write-, accumulation and fillstate of the" << endl;
-      cout << "             trees in the order of their appearance in the list of" << endl;
-      cout << "             trees. [r,w,f,a;r,w,f,a;...]" << endl;
-      cout << "             e.g. -tr 1,0,1,0;1,1,1,1;..." << endl;
-      cout << "  -trees   Displays a List of all Trees (no Argument)" << endl;
       cout << "  -docu    Generates a Root-Html-Documentation (no Argument)" << endl;
       return false;
    }
-   if (!strcmp(argv[1],"-tasks")) {
-      TList *taskList = fMainTask->GetListOfTasks();
-      for (i=0;i<taskList->GetSize();i++) {
-         TTask *task = (TTask*)taskList->At(i);
-         cout << "   " << task->GetName() << endl;
-         TList *subTaskList = task->GetListOfTasks();
-         for (j=0;j<subTaskList->GetSize();j++) {
-            TTask *task = (TTask*)subTaskList->At(j);
-            cout << "      " << task->GetName() << endl;
-         }
-      }
-      return false;
-   }
-   if (!strcmp(argv[1],"-trees")) {
-      TTree *tree;
-      for (i=0;i<fTreeObjects->GetEntries();i++) {
-         tree = this->GetTreeObjectAt(i)->GetTree();
-         cout << "   " << tree->GetName() << endl;
-      }
-      return false;
-   }
-   char arg[100][200];
-   if (!strcmp(argv[1],"-d")) {
-      if (argc>2) {
-         sprintf(str,argv[2]);
-         if (argv[2][0]!='/'&&strlen(argv[2])>1&&argv[2][1]!=':') {
-            sprintf(str,"%s/%s",workDir,argv[2]);
-         }
-         SetConfigDir(str);
-      }
-      argc = ReadROMEConfigXML(arg);
-      if (argc==-1) return false;
-   }
-   else {
-      for (i=0;i<argc;i++) strcpy(arg[i],argv[i]);
-   }
-
    for (i=1;i<argc;i++) {
-      if (!strcmp(arg[i],"-docu")) {
+      if (!strcmp(argv[i],"-docu")) {
          THtml html;
          html.MakeAll(true);
          return false;
       }
-      if (!strcmp(arg[i],"-b")) {
-         fBatchMode = true;
-      }
-      if (!strcmp(arg[i],"-m")) {
-         if (!strcmp(arg[i+1],"online")) fOnLineMode = true;
-         else fOnLineMode = false;
-         i++;
-      }
-      if (!strcmp(arg[i],"-df")) {
-         if (!strcmp(arg[i+1],"root")) fRootMode = true;
-         else fRootMode = false;
-         i++;
-      }
-      if (!strcmp(arg[i],"-c")&&i<argc-1) {
-         sprintf(str,arg[i+1]);
-         if (arg[i+1][0]!='/'&&strlen(arg[i+1])>1&&arg[i+1][1]!=':') {
-            sprintf(str,"%s/%s",workDir,arg[i+1]);
-         }
-         strcat(str,"/");
-         SetConfigDir(str);
-         i++;
-      }
-      if (!strcmp(arg[i],"-db")&&i<argc-1) {
-         sprintf(str,arg[i+1]);
-         if (arg[i+1][0]!='/'&&strlen(arg[i+1])>1&&arg[i+1][1]!=':') {
-            sprintf(str,"%s/%s",workDir,arg[i+1]);
-         }
-         strcat(str,"/");
-         SetDataBaseDir(str);
-         i++;
-      }
-      if (!strcmp(arg[i],"-i")&&i<argc-1) {
-         sprintf(str,arg[i+1]);
-         if (arg[i+1][0]!='/'&&strlen(arg[i+1])>1&&arg[i+1][1]!=':') {
-            sprintf(str,"%s/%s",workDir,arg[i+1]);
-         }
-         strcat(str,"/");
-         SetInputDir(str);
-         i++;
-      }
-      if (!strcmp(arg[i],"-o")&&i<argc-1) {
-         sprintf(str,arg[i+1]);
-         if (arg[i+1][0]!='/'&&strlen(arg[i+1])>1&&arg[i+1][1]!=':') {
-            sprintf(str,"%s/%s",workDir,arg[i+1]);
-         }
-         strcat(str,"/");
-         SetOutputDir(str);
-         i++;
-      }
-      if (!strcmp(arg[i],"-r")&&i<argc-1) {
-         fRunNumber = ROMEStatic::decodeRunNumbers(arg[i+1]);
-         i++;
-      }
-      if (!strcmp(arg[i],"-e")&&i<argc-1) {
-         fEventNumber = ROMEStatic::decodeRunNumbers(arg[i+1]);
-         i++;
-      }
-      if (!strcmp(arg[i],"-ta")&&i<argc-1) {
-         int ntask=0;
-         TArrayI flags = ROMEStatic::decodeRunNumbers(arg[i+1]);
-         int nflags = flags.GetSize();
-         TList *taskList = fMainTask->GetListOfTasks();
-         for (j=0;j<taskList->GetSize();j++) {
-            TTask *task = (TTask*)taskList->At(j);
-            if (!flags.At(ntask)) task->SetActive(false);
-            ntask++;
-            if (ntask>=nflags) break;
-            TList *subTaskList = task->GetListOfTasks();
-            for (k=0;k<subTaskList->GetSize();k++) {
-               TTask *task = (TTask*)subTaskList->At(k);
-               if (!flags.At(ntask)) task->SetActive(false);
-               ntask++;
-               if (ntask>=nflags) break;
-            }
-            if (ntask>=nflags) break;
-         }
-         i++;
-      }
-      if (!strcmp(arg[i],"-th")&&i<argc-1) {
-         int ntask=0;
-         TArrayI flags = ROMEStatic::decodeRunNumbers(arg[i+1]);
-         int nflags = flags.GetSize();
-         TList *taskList = fMainTask->GetListOfTasks();
-         for (j=0;j<taskList->GetSize();j++) {
-            ROMETask *task = (ROMETask*)taskList->At(j);
-            if (flags.At(ntask)) task->SetHistoAccumulation(true);
-            else task->SetHistoAccumulation(false);
-            ntask++;
-            if (ntask>=nflags) break;
-            TList *subTaskList = task->GetListOfTasks();
-            for (k=0;k<subTaskList->GetSize();k++) {
-               ROMETask *task = (ROMETask*)subTaskList->At(k);
-               if (flags.At(ntask)) task->SetHistoAccumulation(true);
-               else task->SetHistoAccumulation(false);
-               ntask++;
-               if (ntask>=nflags) break;
-            }
-            if (ntask>=nflags) break;
-         }
-         i++;
-      }
-      if (!strcmp(arg[i],"-tr")&&i<argc-1) {
-         TArrayI flags = ROMEStatic::decodeRunNumbers(arg[i+1]);
-         ROMETree *datTree;
-         for (j=0;j<fTreeObjects->GetEntries();j++) {
-            datTree = this->GetTreeObjectAt(j);
-            if (flags.GetSize()>j*4) datTree->SetRead(toBool(flags.At(j*4)));
-            if (flags.GetSize()>j*4+1) datTree->SetWrite(toBool(flags.At(j*4+1)));
-            if (flags.GetSize()>j*4+2) datTree->SetFill(toBool(flags.At(j*4+2)));
-            if (flags.GetSize()>j*4+3) datTree->SetAccumulation(toBool(flags.At(j*4+3)));
-         }
+      if (!strcmp(argv[i],"-i")&&i<argc-1) {
+         strcpy(configFile,argv[i+1]);
          i++;
       }
    }
+   char answer[10];
+   struct stat buf;
+   if( stat( configFile, &buf )) {
+      cout << "Configuration file '" << configFile << "' not found." << endl;
+      cout << "Do you like the framework to generate a new configuration file ([y]/n) ? ";
+      cin >> answer;
+      if (strstr(answer,"n")==NULL) {
+         cout << "\nThe framework generated a new configuration file." << endl;
+         cout << "Please edit this file and restart the program.\n" << endl;
+         if (!WriteROMEConfigXML(configFile)) {
+            cout << "\nTerminate program.\n" << endl;
+            return false;
+         }
+      }
+      else {
+         cout << "\nTerminate program.\n" << endl;
+      }
+      return false;
+   }
+   if (!ReadROMEConfigXML(configFile)) {
+      cout << "\nTerminate program.\n" << endl;
+      return false;
+   }
+   if (!WriteROMEConfigXML(configFile)) {
+      cout << "\nTerminate program.\n" << endl;
+      return false;
+   }
+
+   for (i=1;i<argc;i++) {
+      if (!strcmp(argv[i],"-b")) {
+         fBatchMode = true;
+      }
+      if (!strcmp(argv[i],"-m")) {
+         if (!strcmp(argv[i+1],"online")) fOnLineMode = true;
+         else fOnLineMode = false;
+         i++;
+      }
+      if (!strcmp(argv[i],"-f")) {
+         if (!strcmp(argv[i+1],"root")) fRootMode = true;
+         else fRootMode = false;
+         i++;
+      }
+      if (!strcmp(argv[i],"-r")&&i<argc-1) {
+         fRunNumberString = argv[i+1];
+         fRunNumber = ROMEStatic::decodeRunNumbers(argv[i+1]);
+         i++;
+      }
+      if (!strcmp(argv[i],"-e")&&i<argc-1) {
+         fEventNumberString = argv[i+1];
+         fEventNumber = ROMEStatic::decodeRunNumbers(argv[i+1]);
+         i++;
+      }
+   }
+
    return true;
 }
+/*
+   const int workDirLen = 1000;
+   char workDir[workDirLen];
+   getcwd(workDir,workDirLen);
+   sprintf(workDir,"%s/",workDir);
 
-
-int ROMEAnalyzer::ReadROMEConfigXML(char buffer[][200]) {
+void ROMEAnalyzer::WriteROMEConfigXML(char *configFile) {
+}
+bool ROMEAnalyzer::ReadROMEConfigXML(char *configFile) {
 // Read the romeConfig.xml file
+
    int nres = 1;
-   strcpy(buffer[0]," ");
    int type;
    const xmlChar *name,*value;
+
    xmlTextReaderPtr reader;
-   char filename[gFileNameLength];
-   sprintf(filename,"%sromeConfig.xml",GetConfigDir());
-   reader = xmlReaderForFile(filename, NULL, 0);
+   reader = xmlReaderForFile(configFile, NULL, 0);
    if (reader != NULL) {
       while (xmlTextReaderRead(reader)) {
          type = xmlTextReaderNodeType(reader);
@@ -324,13 +218,11 @@ int ROMEAnalyzer::ReadROMEConfigXML(char buffer[][200]) {
                type = xmlTextReaderNodeType(reader);
                name = xmlTextReaderConstName(reader);
                if (type == 1) {
-                  sprintf(buffer[nres],"-%s",(const char*)name);
                   nres++;
                   xmlTextReaderRead(reader);
                   type = xmlTextReaderNodeType(reader);
                   value = xmlTextReaderConstValue(reader);
                   if (value!=NULL && type==3) {
-                     strcpy(buffer[nres],(const char*)value);
                      nres++;
                   }
                }
@@ -341,12 +233,12 @@ int ROMEAnalyzer::ReadROMEConfigXML(char buffer[][200]) {
       }
       xmlFreeTextReader(reader);
    } else {
-      cout << "Unable to open " << filename << endl;
-      return -1;
+      cout << "Unable to open " << configFile << endl;
+      return false;
    }
-   return nres;
+   return true;
 }
-
+*/
 
 void *server_thread(void *arg)
 //  Server histograms to remove clients
@@ -464,5 +356,14 @@ void *root_server_loop(void *arg)
       th->Run();
 #endif
    } while (1);
+}
+
+
+void ROMEAnalyzer::intToNDigitsChar(char *buffer,int numberOfDigits,int number)
+{
+   for (int i=0;i<numberOfDigits;i++) 
+      buffer[i] = 48+(int)((number % (int)pow(10,numberOfDigits-i)) / (int)pow(10,numberOfDigits-i-1));
+   
+   buffer[numberOfDigits] = 0;
 }
 

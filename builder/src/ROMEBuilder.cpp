@@ -13,6 +13,8 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <libxml/xmlreader.h>
+#include <float.h>
+#include <math.h>
 
 //MEGFrameWork.xml -o C:/Data/analysis/MEG/ROME/MEGFrameWork/ -v -nl
 //MEGDriftChamber.xml -o C:/Data/analysis/MEG/ROME/MEGDriftChamber/ -v -nl
@@ -95,18 +97,21 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
          if (!strcmp((const char*)name,"Author")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
             if (value != NULL) strcpy(author[numOfFolder],(const char*)value);
+            else strcpy(author[numOfFolder],mainAuthor);
             xmlFree((void*)value);
          }
          // read version
          else if (!strcmp((const char*)name,"Version")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Number");
-            strcpy(version[numOfFolder],(const char*)value);
+            if (value != NULL) strcpy(version[numOfFolder],(const char*)value);
+            else strcpy(version[numOfFolder],"1");
             xmlFree((void*)value);
          }
          // read description
          else if (!strcmp((const char*)name,"ClassDescription")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            strcpy(classDescription[numOfFolder],(const char*)value);
+            if (value != NULL) strcpy(classDescription[numOfFolder],(const char*)value);
+            else strcpy(classDescription[numOfFolder],"");
             xmlFree((void*)value);
          }
          // read additional getters
@@ -118,7 +123,12 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
                if (type == 1) {
                   strcpy(getter[numOfFolder][numOfGetters[numOfFolder]],(const char*)name);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  strcpy(getterType[numOfFolder][numOfGetters[numOfFolder]],(const char*)value);
+                  if (value != NULL) strcpy(getterType[numOfFolder][numOfGetters[numOfFolder]],(const char*)value);
+                  else {
+                     cout << "Getter '" << getter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   xmlFree((void*)value);
                   numOfGetters[numOfFolder]++;
                }
@@ -136,7 +146,12 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
                if (type == 1) {
                   strcpy(setter[numOfFolder][numOfSetters[numOfFolder]],(const char*)name);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  strcpy(setterType[numOfFolder][numOfSetters[numOfFolder]],(const char*)value);
+                  if (value != NULL) strcpy(setterType[numOfFolder][numOfSetters[numOfFolder]],(const char*)value);
+                  else {
+                     cout << "Setter '" << getter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   xmlFree((void*)value);
                   numOfSetters[numOfFolder]++;
                }
@@ -172,15 +187,23 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
                   strcpy(valueName[numOfFolder][numOfValue[numOfFolder]],(const char*)name);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
                   if (value!=NULL) strcpy(valueType[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
+                  else {
+                     cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   xmlFree((void*)value);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Reference");
                   if (value!=NULL) strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
+                  else strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
                   xmlFree((void*)value);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
                   if (value!=NULL) strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
+                  else strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
                   xmlFree((void*)value);
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
                   if (value!=NULL) strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
+                  else strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],"");
                   xmlFree((void*)value);
                   numOfValue[numOfFolder]++;
                }
@@ -497,7 +520,12 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
          numOfInclude[numOfTask] = 0;
          // task name
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-         strcpy(taskName[numOfTask],(const char*)value);
+         if (value!=NULL) strcpy(taskName[numOfTask],(const char*)value);
+         else {
+            cout << "SubTask without a name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          xmlFree((void*)value);
          // language
          fortranFlag[numOfTask] = false;
@@ -520,19 +548,22 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
          // author
          if (!strcmp((const char*)name,"Author")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-            strcpy(author[numOfTask],(const char*)value);
+            if (value!=NULL) strcpy(author[numOfTask],(const char*)value);
+            else strcpy(author[numOfTask],mainAuthor);
             xmlFree((void*)value);
          }
          // version
          else if (!strcmp((const char*)name,"Version")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Number");
-            strcpy(version[numOfTask],(const char*)value);
+            if (value!=NULL) strcpy(version[numOfTask],(const char*)value);
+            else strcpy(version[numOfTask],"1");
             xmlFree((void*)value);
          }
          // description
          else if (!strcmp((const char*)name,"ClassDescription")) {
             value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            strcpy(classDescription[numOfTask],(const char*)value);
+            if (value!=NULL) strcpy(classDescription[numOfTask],(const char*)value);
+            else strcpy(classDescription[numOfTask],"");
             xmlFree((void*)value);
          }
          // includes
@@ -952,6 +983,8 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
             sprintf(format,"   TObjArray* f%%ss;%%%ds // %%s\n",nameLen-strlen(histoName[iTask][i]));
             sprintf(buffer+strlen(buffer),format,histoName[iTask][i],"",histoTitle[iTask][i]);
          }
+         sprintf(format,"   bool       f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",nameLen-strlen(histoName[iTask][i]));
+         sprintf(buffer+strlen(buffer),format,histoName[iTask][i],"",histoName[iTask][i]);
       }
 
 // Methods
@@ -961,7 +994,11 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       // Constructor and Event Methods
       sprintf(buffer+strlen(buffer),"   // Constructor\n");
       sprintf(buffer+strlen(buffer),"   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut,taskName[iTask],shortCut);
-      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fVersion = %s; };\n",version[iTask]);
+      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fVersion = %s;",version[iTask]);
+      for (i=0;i<numOfHistos[iTask];i++) {
+         sprintf(buffer+strlen(buffer)," f%sAccumulation = true;",histoName[iTask][i]);
+      }
+      sprintf(buffer+strlen(buffer)," };\n");
       sprintf(buffer+strlen(buffer),"   // Event Methods\n");
       sprintf(buffer+strlen(buffer),"   virtual void Init();\n");
       sprintf(buffer+strlen(buffer),"   virtual void BeginOfRun();\n");
@@ -999,6 +1036,8 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
             }
             sprintf(buffer+strlen(buffer),"   %s* Get%sHandleAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i],histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
          }
+         sprintf(buffer+strlen(buffer),"   Bool_t is%sAccumulation() { return f%sAccumulation; };\n",histoName[iTask][i],histoName[iTask][i]);
+         sprintf(buffer+strlen(buffer),"   void Set%sAccumulation(Bool_t flag) { f%sAccumulation = flag; };\n",histoName[iTask][i],histoName[iTask][i]);
       }
 
 // Footer
@@ -1061,11 +1100,11 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       }
       for (i=0;i<numOfHistos[iTask];i++) {
          if (!strcmp(histoArray[iTask][i],"1")) {
-            sprintf(buffer+strlen(buffer),"   if (!isHistoAccumulation()) f%s->Reset();\n",histoName[iTask][i]);
+            sprintf(buffer+strlen(buffer),"   if (!is%sAccumulation()) f%s->Reset();\n",histoName[iTask][i],histoName[iTask][i]);
          }
          else {
-            sprintf(buffer+strlen(buffer),"   for (j=0;j<%s;j++) {\n",histoArray[iTask][i]);
-            sprintf(buffer+strlen(buffer),"      if (!isHistoAccumulation()) ((%s*)f%ss->At(j))->Reset();\n",histoType[iTask][i],histoName[iTask][i]);
+            sprintf(buffer+strlen(buffer),"   if (!is%sAccumulation()) {\n",histoName[iTask][i]);
+            sprintf(buffer+strlen(buffer),"       for (j=0;j<%s;j++) ((%s*)f%ss->At(j))->Reset();\n",histoArray[iTask][i],histoType[iTask][i],histoName[iTask][i]);
             sprintf(buffer+strlen(buffer),"   }\n");
          }
       }
@@ -1102,35 +1141,67 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
 
 bool ROMEBuilder::XMLToTree(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
-   bool finished = false;
-   int type,depth,isub=0;
+   int type,i;
 
 // read XML file
 //===============
 
+   if (makeOutput) cout << "\n\nTrees:" << endl;
+
    while (xmlTextReaderRead(reader)) {
       type = xmlTextReaderNodeType(reader);
       name = xmlTextReaderConstName(reader);
-      depth = xmlTextReaderDepth(reader)-2;
-// Trees
       if (type == 1 && !strcmp((const char*)name,"Tree")) {
          numOfTree++;
          numOfBranch[numOfTree] = 0;
+         // tree name
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
          if (value!=NULL) strcpy(treeName[numOfTree],(const char*)value);
+         else {
+            cout << "Tree without a name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          xmlFree((void*)value);
+         // tree title
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Title");
          if (value!=NULL) strcpy(treeTitle[numOfTree],(const char*)value);
+         else strcpy(treeTitle[numOfTree],"");
          xmlFree((void*)value);
+         // output
+         if (makeOutput) cout << "   " << treeName[numOfTree] << endl;
+
          while (xmlTextReaderRead(reader)) {
             type = xmlTextReaderNodeType(reader);
             name = xmlTextReaderConstName(reader);
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
+               // branch name
                value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
                if (value!=NULL) strcpy(branchName[numOfTree][numOfBranch[numOfTree]],(const char*)value);
+               else {
+                  cout << "Branch without a name in Tree '" << treeName[numOfTree] << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
                xmlFree((void*)value);
+               // branch folder
                value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Folder");
                if (value!=NULL) strcpy(branchFolder[numOfTree][numOfBranch[numOfTree]],(const char*)value);
+               else {
+                  cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' has no Folder specified!" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               bool found = false;
+               for (i=0;i<numOfFolder;i++) {
+                  if (!strcmp(folderName[i],branchFolder[numOfTree][numOfBranch[numOfTree]]))
+                     found = true;
+               }
+               if (!found) {
+                  cout << "Folder of Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' not existing !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
                xmlFree((void*)value);
                numOfBranch[numOfTree]++;
             }
@@ -1143,6 +1214,80 @@ bool ROMEBuilder::XMLToTree(xmlTextReaderPtr reader) {
       if (type == 15 && !strcmp((const char*)name,"Trees")) break;
    }
    numOfTree++;
+   return true;
+}
+//============================================================
+//                     Midas Banks
+//============================================================
+
+bool ROMEBuilder::XMLToMidasBanks(xmlTextReaderPtr reader) {
+   const xmlChar *name, *value;
+   int type;
+
+// read XML file
+//===============
+
+   if (makeOutput) cout << "\n\nBanks:" << endl;
+
+   while (xmlTextReaderRead(reader)) {
+      type = xmlTextReaderNodeType(reader);
+      name = xmlTextReaderConstName(reader);
+      if (type == 1) {
+         numOfBank++;
+         numOfStructFields[numOfBank] = 0;
+         // bank name
+         strcpy(bankName[numOfBank],(const char*)name);
+         // bank type
+         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
+         if (value!=NULL) strcpy(bankType[numOfBank],(const char*)value);
+         else {
+            cout << "Bank '" << bankName[numOfBank] << "' has no type !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         xmlFree((void*)value);
+         // bank structure name
+         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"StructName");
+         if (value!=NULL) strcpy(bankStructName[numOfBank],(const char*)value);
+         else strcpy(bankStructName[numOfBank],"");
+         xmlFree((void*)value);
+         // output
+         if (makeOutput) cout << "   " << bankName[numOfBank] << endl;
+
+         if (!strcmp(bankType[numOfBank],"structure")||!strcmp(bankType[numOfBank],"struct")) {
+            while (xmlTextReaderRead(reader)) {
+               type = xmlTextReaderNodeType(reader);
+               name = xmlTextReaderConstName(reader);
+               if (type == 1) {
+                  // field name
+                  strcpy(structFieldName[numOfBank][numOfStructFields[numOfBank]],(const char*)name);
+                  // field type
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
+                  if (value!=NULL) strcpy(structFieldType[numOfBank][numOfStructFields[numOfBank]],(const char*)value);
+                  else {
+                     cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]] << "' of Bank '" << bankName[numOfBank] << "' has no type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
+                  xmlFree((void*)value);
+                  // field size
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"PackedSize");
+                  if (value!=NULL) strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],(const char*)value);
+                  else strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
+                  xmlFree((void*)value);
+                  // output
+                  if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]] << endl;
+                  numOfStructFields[numOfBank]++;
+               }
+               if (type == 15 && !strcmp((const char*)name,bankName[numOfBank])) {
+                  break;
+               }
+            }
+         }
+      }
+      if (type == 15 && !strcmp((const char*)name,"MidasBanks")) break;
+   }
+   numOfBank++;
    return true;
 }
 
@@ -1219,12 +1364,17 @@ bool ROMEBuilder::WriteAnalyzer() {
 // Header Files
 //--------------
 
+   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
+   sprintf(buffer+strlen(buffer),"#include <direct.h>\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
+
    sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TROOT.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TObjArray.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROME.h>\n");
    sprintf(buffer+strlen(buffer),"#include %c%sAnalyzer.h%c\n",34,shortCut,34);
    sprintf(buffer+strlen(buffer),"#include %c%sEventLoop.h%c\n",34,shortCut,34);
@@ -1313,8 +1463,9 @@ bool ROMEBuilder::WriteAnalyzer() {
       if (taskLen<(int)strlen(taskName[i])) taskLen = strlen(taskName[i]);
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(format,"   TTask* %%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-strlen(taskName[i]));
+      sprintf(format,"   %%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-strlen(taskName[i]));
       sprintf(buffer+strlen(buffer),format,taskName[i],"",shortCut,taskName[i],taskName[i],"");
+      sprintf(buffer+strlen(buffer),"   ((%sT%s*)%sTask)->SetActive(false);\n",shortCut,taskName[i],taskName[i]);
    }
    for (i=0;i<numOfTask;i++) {
       if (!strcmp(parentTaskName[i],"GetMainTask()")) strcpy(parentt,parentTaskName[i]);
@@ -1348,49 +1499,265 @@ bool ROMEBuilder::WriteAnalyzer() {
 
    sprintf(buffer+strlen(buffer),"};\n\n");
 
-// Splash Screen
-//---------------
-   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
-   sprintf(buffer+strlen(buffer),"LPDWORD lpThreadId;\n");
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   CloseHandle(CreateThread(NULL,1024,&SplashThread,0,0,lpThreadId));\n");
+// Configuration File
+//--------------------
+
+   // ReadROMEConfigXML
+   //-------------------
+   sprintf(buffer+strlen(buffer),"\n// Configuration File\n");
+   sprintf(buffer+strlen(buffer),"//--------------------\n");
+   sprintf(buffer+strlen(buffer),"bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   const xmlChar *name,*value;\n");
+   sprintf(buffer+strlen(buffer),"   int type;\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
+   sprintf(buffer+strlen(buffer),"   reader = xmlReaderForFile(configFile, NULL, 0);\n");
+   sprintf(buffer+strlen(buffer),"   if (reader == NULL) {\n");
+   sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
+   sprintf(buffer+strlen(buffer),"      return false;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   while (xmlTextReaderRead(reader)) {\n");
+   sprintf(buffer+strlen(buffer),"      type = xmlTextReaderNodeType(reader);\n");
+   sprintf(buffer+strlen(buffer),"      name = xmlTextReaderConstName(reader);\n");
+   // Modes
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"Modes\")) {\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"AnalyzingMode\");\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"online\"))\n");
+   sprintf(buffer+strlen(buffer),"               fOnLineMode = true;\n");
+   sprintf(buffer+strlen(buffer),"            else\n");
+   sprintf(buffer+strlen(buffer),"               fOnLineMode = false;\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
+   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"InputDataFormat\");\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"root\"))\n");
+   sprintf(buffer+strlen(buffer),"               fRootMode = true;\n");
+   sprintf(buffer+strlen(buffer),"            else\n");
+   sprintf(buffer+strlen(buffer),"               fRootMode = false;\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
+   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"BatchMode\");\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\"))\n");
+   sprintf(buffer+strlen(buffer),"               fBatchMode = true;\n");
+   sprintf(buffer+strlen(buffer),"            else\n");
+   sprintf(buffer+strlen(buffer),"               fBatchMode = false;\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
+   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   // Run Numbers
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"RunNumbers\")) {\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Numbers\");\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+   sprintf(buffer+strlen(buffer),"            fRunNumberString = (const char*)value;\n");
+   sprintf(buffer+strlen(buffer),"            fRunNumber = ROMEStatic::decodeRunNumbers((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
+   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   // Event Numbers
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"EventNumbers\")) {\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Numbers\");\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+   sprintf(buffer+strlen(buffer),"            fEventNumberString = (const char*)value;\n");
+   sprintf(buffer+strlen(buffer),"            fEventNumber = ROMEStatic::decodeRunNumbers((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"         }\n");
+   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   // Paths
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"InputFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
+   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) SetInputDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"OutputFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
+   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) SetOutputDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"DataBaseFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
+   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
+   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
+   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) SetDataBaseDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      }\n");
+   // Tasks
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Active\");\n");
+      sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+      sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) %sTask->SetActive();\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"         }\n");
+      sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"      }\n");
+   }
+   // Trees
+   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Read\");\n");
+      sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+      sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) Get%sTree()->SetRead(true);\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"         }\n");
+      sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Write\");\n");
+      sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+      sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) Get%sTree()->SetWrite(true);\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"         }\n");
+      sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Fill\");\n");
+      sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+      sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) Get%sTree()->SetFill(true);\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"         }\n");
+      sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Accumulate\");\n");
+      sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
+      sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) Get%sTree()->SetAccumulation(true);\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"         }\n");
+      sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"      }\n");
+   }
+   sprintf(buffer+strlen(buffer),"      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
+   sprintf(buffer+strlen(buffer),"         break;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   xmlFreeTextReader(reader);\n");
+   sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
+
+   // WriteROMEConfigXML
+   //--------------------
+   sprintf(buffer+strlen(buffer),"bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
+   sprintf(buffer+strlen(buffer),"   writer = xmlNewTextWriterFilename(configFile, 0);\n");
+   sprintf(buffer+strlen(buffer),"   if (writer == NULL) {\n");
+   sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
+   sprintf(buffer+strlen(buffer),"      return false;\n");
+   sprintf(buffer+strlen(buffer),"   }\n\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" \");\n");
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"#if defined ( __linux__ )\n");
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   \n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Configuration\");\n");
+   //modes
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Modes\");\n");
+   sprintf(buffer+strlen(buffer),"   if (isOnline())\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"AnalyzingMode\",BAD_CAST \"online\");\n");
+   sprintf(buffer+strlen(buffer),"   else\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"AnalyzingMode\",BAD_CAST \"offline\");\n");
+   sprintf(buffer+strlen(buffer),"   if (isMidas())\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"midas\");\n");
+   sprintf(buffer+strlen(buffer),"   else\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"root\");\n");
+   sprintf(buffer+strlen(buffer),"   if (isBatchMode())\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"BatchMode\",BAD_CAST \"yes\");\n");
+   sprintf(buffer+strlen(buffer),"   else\n");
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"BatchMode\",BAD_CAST \"no\");\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   //run numbers
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"RunNumbers\");\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteAttribute(writer, BAD_CAST \"Numbers\",BAD_CAST fRunNumberString.Data());\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   //event numbers
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"EventNumbers\");\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteAttribute(writer, BAD_CAST \"Numbers\",BAD_CAST fEventNumberString.Data());\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   //paths
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Paths\");\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"InputFilePath\", BAD_CAST this->GetInputDir());\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"OutputFilePath\", BAD_CAST this->GetOutputDir());\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"DataBaseFilePath\", BAD_CAST this->GetDataBaseDir());\n");
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
    sprintf(buffer+strlen(buffer),"\n");
 
-// Console Screen
-//----------------
+   //tasks
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Tasks\");\n");
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"   if (%sTask->IsActive())\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Active\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Active\",BAD_CAST \"no\");\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"   if (((%sT%s*)%sTask)->is%sAccumulation())\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"yes\");\n");
+         sprintf(buffer+strlen(buffer),"   else\n");
+         sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"no\");\n");
+         sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+      }
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+   }
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
 
-   char prog[100];
-   sprintf(prog,"%s%s",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::consoleStartScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   int i;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl;\n");   
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*\";\n");
-   int len1 = ((39-(double)strlen(prog))/2+0.5);
-   int len2 = ((39-(double)strlen(prog))/2);
-   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len1);
-   sprintf(buffer+strlen(buffer),"   cout << \"%s\";\n",prog);
-   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len2);
-   sprintf(buffer+strlen(buffer),"   cout << \"*\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*   generated by the ROME Environment   *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*             %s              *\" << endl;\n",romeVersion);
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl << endl;\n");
+   //trees
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Trees\");\n");
+   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"   if (Get%sTree()->isRead())\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Read\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Read\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"   if (Get%sTree()->isWrite())\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Write\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Write\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"   if (Get%sTree()->isFill())\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Fill\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Fill\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"   if (Get%sTree()->isAccumulation())\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   }
+   sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
+   sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
+   sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"   \n");
+
+// Midas Bank Methodes
+//---------------------
+
+   sprintf(buffer+strlen(buffer),"\n// Midas Bank Getters\n");
+   sprintf(buffer+strlen(buffer),"//--------------------\n");
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         sprintf(buffer+strlen(buffer),"%s* %sAnalyzer::Get%sBankAt(int index) {\n",bankStructName[i],shortCut,bankName[i]);
+         sprintf(buffer+strlen(buffer),"   if (this->f%sBankExists)\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"      return f%sBankPointer+index;\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"   return NULL;\n");
+         sprintf(buffer+strlen(buffer),"}\n");
+      }
+      else {
+         sprintf(buffer+strlen(buffer),"%s %sAnalyzer::Get%sBankAt(int index) {\n",bankType[i],shortCut,bankName[i]);
+         sprintf(buffer+strlen(buffer),"   if (this->f%sBankExists)\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"      return *(f%sBankPointer+index);\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"   return (%s)exp(999);\n",bankType[i]);
+         sprintf(buffer+strlen(buffer),"}\n");
+      }
+      sprintf(buffer+strlen(buffer),"void %sAnalyzer::Init%sBank() {\n",shortCut,bankName[i]);
+      sprintf(buffer+strlen(buffer),"   unsigned long bktype;\n");
+      sprintf(buffer+strlen(buffer),"   EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetEventHeader();\n");
+      sprintf(buffer+strlen(buffer),"   pevent++;\n");
+      sprintf(buffer+strlen(buffer),"   if (ROMEStatic::bk_find(pevent, \"%s\", (unsigned long*)&f%sBankLength, &bktype, &f%sBankPointer)) {\n",bankName[i],bankName[i],bankName[i]);
+      sprintf(buffer+strlen(buffer),"      f%sBankExists = true;\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"      return;\n");
+      sprintf(buffer+strlen(buffer),"   }\n");
+      sprintf(buffer+strlen(buffer),"   f%sBankExists = false;\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"   f%sBankPointer = NULL;\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"   f%sBankLength = 0;\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"   return;\n");
+      sprintf(buffer+strlen(buffer),"}\n");
+
+      sprintf(buffer+strlen(buffer),"int %sAnalyzer::Get%sBankEntries() {\n",shortCut,bankName[i]);
+      sprintf(buffer+strlen(buffer),"   return f%sBankLength;\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"}\n\n");
+   }
 
 // Write DataBase Functions
 //--------------------------
@@ -1502,6 +1869,50 @@ bool ROMEBuilder::WriteAnalyzer() {
       }
    }
 
+// Splash Screen
+//---------------
+   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
+   sprintf(buffer+strlen(buffer),"LPDWORD lpThreadId;\n");
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   CloseHandle(CreateThread(NULL,1024,&SplashThread,0,0,lpThreadId));\n");
+   sprintf(buffer+strlen(buffer),"}\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"#if defined ( __linux__ )\n");
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   \n");
+   sprintf(buffer+strlen(buffer),"}\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+// Console Screen
+//----------------
+
+   char prog[100];
+   sprintf(prog,"%s%s",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::consoleStartScreen() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   int i;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl;\n");   
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*\";\n");
+   int len1 = ((39-(double)strlen(prog))/2+0.5);
+   int len2 = ((39-(double)strlen(prog))/2);
+   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len1);
+   sprintf(buffer+strlen(buffer),"   cout << \"%s\";\n",prog);
+   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len2);
+   sprintf(buffer+strlen(buffer),"   cout << \"*\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*   generated by the ROME Environment   *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*             %s              *\" << endl;\n",romeVersion);
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl << endl;\n");
+   sprintf(buffer+strlen(buffer),"}\n");
+   sprintf(buffer+strlen(buffer),"   \n");
+
 // Close cpp-File
 //----------------
    sprintf(cppFile,"%s%sAnalyzer.cpp",outDir,shortCut);
@@ -1525,7 +1936,7 @@ bool ROMEBuilder::WriteAnalyzer() {
 // h-File
 //--------
 
-   if (overWriteH) {
+   if (true) {
 
 // Header Files
 //--------------
@@ -1555,6 +1966,19 @@ bool ROMEBuilder::WriteAnalyzer() {
             sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[i]);
          }
       }
+      // bank structures
+      for (i=0;i<numOfBank;i++) {
+         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+            sprintf(buffer+strlen(buffer),"typedef struct {\n");
+            for (j=0;j<numOfStructFields[i];j++) {
+               if (strlen(structFieldSize[i][j])>0)
+                  sprintf(buffer+strlen(buffer),"   %s %s : %s;\n",structFieldType[i][j],structFieldName[i][j],structFieldSize[i][j]);
+               else
+                  sprintf(buffer+strlen(buffer),"   %s %s;\n",structFieldType[i][j],structFieldName[i][j]);
+            }
+            sprintf(buffer+strlen(buffer),"} %s;\n",bankStructName[i]);
+         }
+      }
 
 // Class
 //-------
@@ -1567,6 +1991,8 @@ bool ROMEBuilder::WriteAnalyzer() {
 
       sprintf(buffer+strlen(buffer),"protected:\n");
 
+      // Folder Fields
+      sprintf(buffer+strlen(buffer),"   // Folder Fields\n");
       for (i=0;i<numOfFolder;i++) {
          if (numOfValue[i] > 0) {
             if (!strcmp(folderArray[i],"yes")) {
@@ -1579,6 +2005,44 @@ bool ROMEBuilder::WriteAnalyzer() {
             }
          }
       }
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Task Fields
+      sprintf(buffer+strlen(buffer),"   // Task Fields\n");
+      for (i=0;i<numOfTask;i++) {
+         sprintf(format,"   ROMETask* %%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
+         sprintf(buffer+strlen(buffer),format,taskName[i],"",taskName[i]);
+      }
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Bank Fields
+      int bankNameLen = -1;
+      int bankTypeLen = -1;
+      for (i=0;i<numOfBank;i++) {
+         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+            if (bankTypeLen<(int)strlen(bankStructName[i])) bankTypeLen = strlen(bankStructName[i]);
+         }
+         else {
+            if (bankTypeLen<(int)strlen(bankType[i])) bankTypeLen = strlen(bankType[i]);
+         }
+         if (bankNameLen<(int)strlen(bankName[i])) bankNameLen = strlen(bankName[i]);
+      }
+      sprintf(buffer+strlen(buffer),"   // Bank Fields\n");
+      for (i=0;i<numOfBank;i++) {
+         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankStructName[i]),bankNameLen-strlen(bankName[i]));
+            sprintf(buffer+strlen(buffer),format,bankStructName[i],"",bankName[i],"",bankName[i]);
+         }
+         else {
+            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankType[i]),bankNameLen-strlen(bankName[i]));
+            sprintf(buffer+strlen(buffer),format,bankType[i],"",bankName[i],"",bankName[i]);
+         }
+         sprintf(format,"   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-strlen(bankName[i]));
+         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+         sprintf(format,"   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-strlen(bankName[i]));
+         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+      }
+      sprintf(buffer+strlen(buffer),"\n");
 
 // Methods
 //---------
@@ -1587,6 +2051,7 @@ bool ROMEBuilder::WriteAnalyzer() {
       // Constructor
       sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n\n",shortCut);
       // Getters
+      sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
       for (i=0;i<numOfFolder;i++) {
          if (numOfValue[i] > 0) {
             int lt = typeLen-strlen(folderName[i])-scl+nameLen-strlen(folderName[i]);
@@ -1607,14 +2072,9 @@ bool ROMEBuilder::WriteAnalyzer() {
          }
       }
       sprintf(buffer+strlen(buffer),"\n");
-      for (i=0;i<numOfTree;i++) {
-         sprintf(buffer+strlen(buffer),"   ROMETree* Get%sTree() { return (ROMETree*)fTreeObjects->At(%d); };\n",treeName[i],i);
-         sprintf(buffer+strlen(buffer),"   Bool_t    is%sFillEvent() { return ((ROMETree*)fTreeObjects->At(%d))->isFillEvent(); };\n",treeName[i],i);
-         sprintf(buffer+strlen(buffer),"   void      Set%sFillEvent(Bool_t flag) { ((ROMETree*)fTreeObjects->At(%d))->SetFillEvent(flag); };\n",treeName[i],i);
-      }
-      sprintf(buffer+strlen(buffer),"\n");
 
       // Setters
+      sprintf(buffer+strlen(buffer),"   // Folder Setters\n");
       for (i=0;i<numOfFolder;i++) {
          if (numOfValue[i] > 0) {
             if (!strcmp(folderArray[i],"yes")) {
@@ -1654,15 +2114,50 @@ bool ROMEBuilder::WriteAnalyzer() {
             }
          }
       }
-// public
-      sprintf(buffer+strlen(buffer),"\npublic:\n");
-      sprintf(buffer+strlen(buffer),"   void startSplashScreen();\n");
-      sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Configuration file
+      sprintf(buffer+strlen(buffer),"   // Configuration File\n");
+      sprintf(buffer+strlen(buffer),"   bool ReadROMEConfigXML(char *configFile);\n");
+      sprintf(buffer+strlen(buffer),"   bool WriteROMEConfigXML(char *configFile);\n");
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Trees
+      sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
+      for (i=0;i<numOfTree;i++) {
+         sprintf(buffer+strlen(buffer),"   ROMETree* Get%sTree() { return (ROMETree*)fTreeObjects->At(%d); };\n",treeName[i],i);
+         sprintf(buffer+strlen(buffer),"   Bool_t    is%sFillEvent() { return ((ROMETree*)fTreeObjects->At(%d))->isFillEvent(); };\n",treeName[i],i);
+         sprintf(buffer+strlen(buffer),"   void      Set%sFillEvent(Bool_t flag) { ((ROMETree*)fTreeObjects->At(%d))->SetFillEvent(flag); };\n",treeName[i],i);
+      }
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Banks
+      sprintf(buffer+strlen(buffer),"   // Bank Methodes\n");
+      for (i=0;i<numOfBank;i++) {
+         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+            sprintf(buffer+strlen(buffer),"   %s* Get%sBankAt(int index);\n",bankStructName[i],bankName[i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"   %s Get%sBankAt(int index);\n",bankType[i],bankName[i]);
+         }
+         sprintf(buffer+strlen(buffer),"   int Get%sBankEntries();\n",bankName[i]);
+         sprintf(buffer+strlen(buffer),"   void Init%sBank();\n",bankName[i]);
+      }
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Data Base
+      sprintf(buffer+strlen(buffer),"   // Data Base Methodes\n");
       for (i=0;i<numOfFolder;i++) {
          if (dataBase[i]) {
             sprintf(buffer+strlen(buffer),"   void Write%sDataBase(ROMETask* task);\n",folderName[i]);
          }
       }
+      sprintf(buffer+strlen(buffer),"\n");
+
+      // Private
+      sprintf(buffer+strlen(buffer),"private:\n");
+      sprintf(buffer+strlen(buffer),"   void startSplashScreen();\n");
+      sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
 
 // Footer
 //--------
@@ -1728,6 +2223,7 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
    sprintf(buffer+strlen(buffer),"#include \"ROME.h\"\n");
    sprintf(buffer+strlen(buffer),"#include \"%sEventLoop.h\"\n",shortCut);
 
@@ -1739,6 +2235,17 @@ bool ROMEBuilder::WriteAnalyzer() {
 
 // User Functions
 //----------------
+
+// Midas Bank Initialisation
+//---------------------------
+   sprintf(buffer+strlen(buffer),"   // Midas Bank Initialisation\n");
+   sprintf(buffer+strlen(buffer),"void %sEventLoop::InitMidasBanks() {\n",shortCut);
+   for (i=0;i<numOfBank;i++) {
+      sprintf(buffer+strlen(buffer),"   fAnalyzer->Init%sBank();\n",bankName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"}\n",shortCut);
+   sprintf(buffer+strlen(buffer),"\n");
+
 
    ndb = 0;
    for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
@@ -2030,6 +2537,7 @@ bool ROMEBuilder::WriteAnalyzer() {
    // Constructor and Event Methods
    sprintf(buffer+strlen(buffer),"   %sEventLoop(const char *name,const char *title,%sAnalyzer *analyzer):ROMEEventLoop(name,title,analyzer)\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fAnalyzer->SetCurrentRunTablePos(0); };\n");
+   sprintf(buffer+strlen(buffer),"   void InitMidasBanks();\n");
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   void ReadRunTable();\n");
       sprintf(buffer+strlen(buffer),"   void SaveRunTable();\n");
@@ -2245,6 +2753,10 @@ void ROMEBuilder::startBuilder(char* xmlFile)
                   if (!strcmp((const char*)name,"Trees")) {
                      numOfTree = -1;
                      if (!XMLToTree(reader)) return;
+                  }
+                  if (!strcmp((const char*)name,"MidasBanks")) {
+                     numOfBank = -1;
+                     if (!XMLToMidasBanks(reader)) return;
                   }
                }
             }
@@ -2786,4 +3298,18 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type)
       sprintf(buf,"%s = %s",destination,source);
    }
 }
+bool ROMEBuilder::isFloatingType(char *type)
+{
+   if (
+       !strcmp(type,"float") ||
+       !strcmp(type,"Float_t") ||
 
+       !strcmp(type,"double") ||
+       !strcmp(type,"Double_t") ||
+
+       !strcmp(type,"Stat_t") ||
+       !strcmp(type,"Axis_t")) {
+      return true;
+   }
+   return false;
+}

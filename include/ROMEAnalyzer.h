@@ -29,7 +29,9 @@ protected:
    TString    fOutputDir;                 //! General Output Directory
    Int_t      fIndexOfCurrentRunNumber;   //! Index of currently Analyzed Run Number
    TArrayI    fRunNumber;                 //! Run Numbers to Analyze
+   TString    fRunNumberString;           //! Run Numbers in Input String Format
    TArrayI    fEventNumber;               //! Event Numbers to Analyze
+   TString    fEventNumberString;         //! Event Numbers in Input String Format
    TObjArray* fTreeObjects;               //! Handle to Tree Objects
    TTask*     fMainTask;                  //! Handle to Main Task
    TFolder*   fMainFolder;                //! Handle to Main Folder
@@ -73,7 +75,7 @@ public:
    TList*     GetRunTable() { return fRunTable; };
    int        GetCurrentRunTablePos() { return fCurrentRunTablePos; };
 
-   void*      GetMidasEvent() { return (void*)fMidasEvent; };
+   EVENT_HEADER* GetEventHeader() { return (EVENT_HEADER*)fMidasEvent; };
 
    void       SetConfigDir(char* dir) { fConfigDir = dir; }
    void       SetDataBaseDir(char* dir) { fDataBaseDir = dir; }
@@ -86,19 +88,16 @@ public:
    bool       Start(int argc=0, char **argv=NULL);
 
 private:
-   bool ReadParameters(int argc, char *argv[]);
-   int  ReadROMEConfigXML(char buffer[][200]);
    void CreateHistoFolders();
+
+   bool ReadParameters(int argc, char *argv[]);
+   virtual bool ReadROMEConfigXML(char *configFile) = 0;
+   virtual bool WriteROMEConfigXML(char *configFile) = 0;
+
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
 
-   static void intToNDigitsChar(char *buffer,int numberOfDigits,int number)
-   {
-      for (int i=0;i<numberOfDigits;i++) 
-         buffer[i] = 48+(int)((number % (int)pow(10,numberOfDigits-i)) / (int)pow(10,numberOfDigits-i-1));
-      
-      buffer[numberOfDigits] = 0;
-   }
+   static void intToNDigitsChar(char *buffer,int numberOfDigits,int number);
 
    ClassDef(ROMEAnalyzer,1)
 };
