@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2005/02/06 01:26:55  sawada
+  moved byte swapping functions to ROMEMidas
+
   Revision 1.12  2005/01/24 15:25:06  schneebeli_m
   Seperated DAQ classes
 
@@ -125,21 +128,6 @@ protected:
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;
-   
-   //byte swapping
-#if defined( __ppc__ )
-#if !defined(HAVE_MIDAS)
-   void bk_swap(void *event, bool force);
-#endif
-   void ByteSwap(UShort_t  *x);
-   void ByteSwap(Short_t   *x){ByteSwap((UShort_t* )x);};
-   void ByteSwap(UInt_t    *x);
-   void ByteSwap(Int_t     *x){ByteSwap((UInt_t*   )x);};
-   void ByteSwap(Float_t   *x){ByteSwap((UInt_t*   )x);};
-   void ByteSwap(ULong64_t *x);
-   void ByteSwap(Long64_t  *x){ByteSwap((ULong64_t*)x);};
-   void ByteSwap(Double_t  *x){ByteSwap((ULong64_t*)x);};
-#endif
 };
 
 #endif   // ROMEEventLoop_H

@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.3  2005/02/06 01:26:55  sawada
+//  moved byte swapping functions to ROMEMidas
+//
 //  Revision 1.2  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -303,3 +306,136 @@ bool ROMEMidas::Termination() {
    return true;
 }
 
+
+#if defined( __ppc__ )
+#if !defined(HAVE_MIDAS)
+/**
+Swaps bytes from little endian to big endian or vice versa for a whole event.
+
+An event contains a flag which is set by bk_init() to identify
+the endian format of an event. If force is FALSE, this flag is evaluated and
+the event is only swapped if it is in the "wrong" format for this system.
+An event can be swapped to the "wrong" format on purpose for example by a
+front-end which wants to produce events in a "right" format for a back-end
+analyzer which has different byte ordering.
+@param event pointer to data area of event
+@param force If TRUE, the event is always swapped, if FALSE, the event
+is only swapped if it is in the wrong format.
+@return 1==event has been swap, 0==event has not been swapped.
+*/
+void ROMEMidas::bk_swap(void *event, bool force)
+{
+   BANK_HEADER *pbh;
+   BANK *pbk;
+   BANK32 *pbk32;
+   void *pdata;
+   UShort_t type;
+   bool b32;
+   
+   pbh = (BANK_HEADER *) event;
+   
+   // only swap if flags in high 16-bit
+   if (pbh->flags < 0x10000 && !force)
+      return;
+   
+   // swap bank header 
+   ByteSwap((UInt_t   *)&pbh->data_size);
+   ByteSwap((UInt_t   *)&pbh->flags);   
+   
+   // check for 32bit banks
+   b32 = ((pbh->flags & (1<<4)) > 0);
+   
+   pbk = (BANK *) (pbh + 1);
+   pbk32 = (BANK32 *) pbk;
+   
+   // scan event
+   while ((Seek_t) pbk - (Seek_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
+      // swap bank header
+      if (b32) {
+         ByteSwap((UInt_t *)&pbk32->type);
+         ByteSwap((UInt_t *)&pbk32->data_size);
+         pdata = pbk32 + 1;
+         type = (UShort_t) pbk32->type;
+      } else {
+         ByteSwap((UShort_t *)&pbk->type);
+         ByteSwap((UShort_t *)&pbk->data_size);
+         pdata = pbk + 1;
+         type = pbk->type;
+      }
+      
+      // pbk points to next bank
+      if (b32) {
+         pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
+         pbk = (BANK *) pbk32;
+      } else {
+         pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
+         pbk32 = (BANK32 *) pbk;
+      }
+      
+      switch (type) {
+         case TID_WORD:
+         case TID_SHORT:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((UShort_t*)pdata);
+               pdata = (void *) (((UShort_t *) pdata) + 1);
+            }
+            break;
+            
+         case TID_DWORD:
+         case TID_INT:
+         case TID_BOOL:
+         case TID_FLOAT:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((UInt_t*)pdata);
+               pdata = (void *) (((UInt_t *) pdata) + 1);
+            }
+            break;
+            
+         case TID_DOUBLE:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((ULong64_t*)pdata);
+               pdata = (void *) (((ULong64_t *) pdata) + 1);
+            }
+            break;
+      }
+   }   
+   return;
+}
+#endif //if !defined(HAVE_MIDAS)
+
+// Byte swapping big endian <-> little endian
+void ROMEMidas::ByteSwap(UShort_t *x) 
+{
+   Byte_t _tmp;
+   _tmp= *((Byte_t *)(x));
+   *((Byte_t *)(x)) = *(((Byte_t *)(x))+1);
+   *(((Byte_t *)(x))+1) = _tmp;
+}
+
+void ROMEMidas::ByteSwap(UInt_t *x) 
+{
+   Byte_t _tmp;
+   _tmp= *((Byte_t *)(x));
+   *((Byte_t *)(x)) = *(((Byte_t *)(x))+3);
+   *(((Byte_t *)(x))+3) = _tmp;
+   _tmp= *(((Byte_t *)(x))+1);
+   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+2); 
+   *(((Byte_t *)(x))+2) = _tmp;
+}
+
+void ROMEMidas::ByteSwap(ULong64_t *x) { 
+   Byte_t _tmp;
+   _tmp= *((Byte_t *)(x));
+   *((Byte_t *)(x)) = *(((Byte_t *)(x))+7);
+   *(((Byte_t *)(x))+7) = _tmp;
+   _tmp= *(((Byte_t *)(x))+1);
+   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+6);
+   *(((Byte_t *)(x))+6) = _tmp;
+   _tmp= *(((Byte_t *)(x))+2);
+   *(((Byte_t *)(x))+2) = *(((Byte_t *)(x))+5);
+   *(((Byte_t *)(x))+5) = _tmp;
+   _tmp= *(((Byte_t *)(x))+3);
+   *(((Byte_t *)(x))+3) = *(((Byte_t *)(x))+4);
+   *(((Byte_t *)(x))+4) = _tmp;
+}
+#endif // if defined( __ppc__ )
