@@ -2,7 +2,11 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/11/19 16:26:24  sawada
+  speed up with reading order array at once.
+
   Revision 1.8  2004/11/18 15:23:23  sawada
+
   Modify handling the order of array.
   Enable inverse order.
   Enable to send sql query from user tasks.
@@ -46,6 +50,8 @@ protected:
   ROMEString fFieldList;
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
+  ROMEString fOrderPhrase;
+  ROMEString fLimitPhrase;
   ROMESQL    *fSQL;
 public:
    ROMESQLDataBase();
@@ -77,12 +83,13 @@ public:
    bool   NextRow(){return fSQL->NextRow();}
    int    GetNumberOfFields(){return fSQL->GetNumberOfFields();}
    char*  GetField(int fieldNumber){return fSQL->GetField(fieldNumber);}
+   void   FreeResult(){return fSQL->FreeResult();}
 
 protected:
    bool   MakePhrase(ROMEPath *dataBasePath);
    bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint);
    void   ResetPhrase();
-   bool   InRange(int value,int b1 = -INT_MIN,int b2=INT_MAX){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
+   bool   InRange(int value,int b1,int b2){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
 };
 
 #endif   // ROMESQLDataBase_H

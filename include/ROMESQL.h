@@ -2,7 +2,11 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/11/19 16:26:24  sawada
+  speed up with reading order array at once.
+
   Revision 1.8  2004/11/18 15:23:23  sawada
+
   Modify handling the order of array.
   Enable inverse order.
   Enable to send sql query from user tasks.
@@ -53,10 +57,12 @@ public:
    bool ReplaceField(char *table,char* field,char* value,char* constraint);
    bool ExistField(char *table,char* field);
    bool MakeQuery(char* query,bool store);
-   int GetNumberOfRows();
+   int  GetNumberOfRows();
    bool NextRow();
-   int GetNumberOfFields();
+   bool DataSeek(my_ulonglong offset);
+   int  GetNumberOfFields();
    char* GetField(int fieldNumber);
+   void FreeResult(){mysql_free_result(result);}
 };
 
 #endif   // ROMESQL_H

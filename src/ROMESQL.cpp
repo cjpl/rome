@@ -6,7 +6,11 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.13  2004/11/19 16:26:24  sawada
+//  speed up with reading order array at once.
+//
 //  Revision 1.12  2004/11/18 15:23:23  sawada
+//
 //  Modify handling the order of array.
 //  Enable inverse order.
 //  Enable to send sql query from user tasks.
@@ -194,6 +198,24 @@ bool ROMESQL::NextRow() {
       cout << "NextRow error : no query result" << endl;
       return false;
    }
+   row = mysql_fetch_row(result);
+   if( !row ) {
+      cout << "NextRow error :" << mysql_error(&mysql) << endl;
+      return false;
+   }
+   return true;
+}
+
+bool ROMESQL::DataSeek(my_ulonglong offset) {
+   if( !result ) {
+      cout << "DataSeek error : no query result" << endl;
+      return false;
+   }
+   if( mysql_num_rows(result) <= offset ) {
+      cout << "DataSeek error : offset is larger than number of results"<<endl;
+      return false;
+   }
+   mysql_data_seek(result,offset);
    row = mysql_fetch_row(result);
    if( !row ) {
       cout << "NextRow error :" << mysql_error(&mysql) << endl;

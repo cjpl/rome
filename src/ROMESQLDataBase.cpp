@@ -6,7 +6,11 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.15  2004/11/19 16:26:24  sawada
+//  speed up with reading order array at once.
+//
 //  Revision 1.14  2004/11/18 15:23:23  sawada
+//
 //  Modify handling the order of array.
 //  Enable inverse order.
 //  Enable to send sql query from user tasks.
@@ -74,6 +78,8 @@ void ROMESQLDataBase:: ResetPhrase(){
    fFieldList.Resize(0);
    fFromPhrase.Resize(0);
    fWherePhrase.Resize(0);
+   fOrderPhrase.Resize(0);
+   fLimitPhrase.Resize(0);
 }
 
 bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint){
@@ -198,6 +204,19 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
       fFieldList.Remove(fFieldList.Length()-1,1);
    }
    
+   if(path->IsOrderArray()){
+      //limit phrase
+      if(!fLimitPhrase.Length())
+	 fLimitPhrase.AppendFormatted("%d",TMath::Abs(path->GetOrderIndexAt(1)-path->GetOrderIndexAt(0))+1);
+      
+      //order phrase
+      if(!fOrderPhrase.Length() && strlen(path->GetOrderTableName())>0 && strlen(path->GetOrderFieldName())>0)
+	 fOrderPhrase.AppendFormatted("%s.%s",path->GetOrderTableName(),path->GetOrderFieldName());
+   }
+   else if(!fLimitPhrase.Length()){
+      fLimitPhrase = "1";
+   }
+
 #ifdef SQLDEBUG
    cout<<endl<<"******************************************************************************"<<endl;
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
@@ -244,14 +263,17 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 	 sqlQuery += fWherePhrase;
 	 sqlQuery += " LIMIT 1;";
 	 if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
-	    cout << "\nWrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;
+	    cout << "\nWrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;	    
+	    fSQL->FreeResult();
             return false;
 	 }
 	 fSQL->NextRow();
 	 temp = fSQL->GetField(0);
 	 if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data())){
+	    fSQL->FreeResult();
 	    return false;
 	 }
+	 fSQL->FreeResult();
       }
       
       //add relation to the next table
@@ -283,7 +305,6 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
       cout<<"\t  ... OK"<<endl;
 #endif
    }
-
    return true;
 }
 
@@ -389,42 +410,61 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       return false;
    }
    
+   sqlQuery = "SELECT ";
+   sqlQuery += fFieldList;
+   if(path->IsOrderArray())
+      sqlQuery.AppendFormatted(",%s",fOrderPhrase.Data());
+   sqlQuery.ReplaceAll(RSQLDB_STR,"");
+   sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
+   if(fWherePhrase.Length())
+      sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+   if(fOrderPhrase.Length())
+      sqlQuery.AppendFormatted(" ORDER BY %s",fOrderPhrase.Data());
+   if(fLimitPhrase.Length())
+      sqlQuery.AppendFormatted(" LIMIT %s",fLimitPhrase.Data());
+   sqlQuery += ";";
+   
+   if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
+      cout<<"\nInvalid input for database read."<<endl;
+      fSQL->FreeResult();
+      delete path;
+      return false;
+   }
+   if(!fSQL->GetNumberOfRows()){
+      cout << "\nWarning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName();
+      cout<<" was not found. Default value will be used."<<endl;
+      fSQL->FreeResult();
+      delete path;
+      return false;
+   }
+   
+   int nRow = fSQL->GetNumberOfRows();
+   int iRow;
+   int indices[nRow];
+   int position=0;
+   if(path->IsOrderArray()){
+      for(iRow=0;iRow<nRow;iRow++){
+	 fSQL->NextRow();
+	 indices[iRow]=atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1));
+      }
+   }
+
    for(iOrder=path->GetOrderIndexAt(0),iArray=0
 	  ;!path->IsOrderArray()|| InRange(iOrder,path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
 	  ;iOrder+=path->GetOrderIndexAt(2),iArray++){
-      sqlQuery = "SELECT ";
-      sqlQuery += fFieldList;
-      sqlQuery.ReplaceAll(RSQLDB_STR,"");
-      if(fFromPhrase.Length())
-	 sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
-      if(fWherePhrase.Length())
-	 sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
       if(path->IsOrderArray()){
-	 if(!sqlQuery.Contains("WHERE"))
-	    sqlQuery += " WHERE ";
-	 else
-	    sqlQuery += " AND ";
-	 sqlQuery.AppendFormatted("%s.%s='%d'"
-				  , strlen(path->GetOrderTableName()) ? path->GetOrderTableName()
-				  : path->GetTableNameAt(path->GetNumberOfTables()-1)
-				  , strlen(path->GetOrderFieldName()) ? path->GetOrderFieldName() : "idx"
-				  ,iOrder);
+	 position = TMath::BinarySearch(nRow,indices,iOrder);
+	 if(!fSQL->DataSeek(position) || iOrder != atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1))){
+	    cout << "\nWarning: "
+		 <<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName()
+		 <<"("<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iOrder<<")"
+		 <<" was not found. Default value will be used."<<endl;
+	    continue;
+	 }
       }
-      sqlQuery += (" LIMIT 1;");
-      
-      if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
-	 cout<<"\nInvalid input for database read."<<endl;
-	 delete path;
-	 return false;
+      else{
+	 fSQL->NextRow();
       }
-      if(!fSQL->GetNumberOfRows()){
-	 cout << "\nWarning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName();
-	 if(path->IsOrderArray())
-	    cout<<"("<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iOrder<<")";
-	 cout<<" was not found. Default value will be used."<<endl;
-	 continue;
-      }
-      fSQL->NextRow();
       for(iField=path->GetFieldIndexAt(0),jArray=0
 	     ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
 	     ;iField+=path->GetFieldIndexAt(2),jArray++){
@@ -435,7 +475,8 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       if(!path->IsOrderArray())
 	 break;
    }
-      
+   
+   fSQL->FreeResult();      
    delete path;
    return true;
 }
@@ -504,10 +545,12 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
       sqlQuery += " LIMIT 1;";
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
 	 cout << "\nInvalid input for database write."<< endl;
+	 fSQL->FreeResult();
 	 delete path;
 	 return false;
       }      
       exist = fSQL->GetNumberOfRows()!=0;
+      fSQL->FreeResult();
       
       if(!exist){ // insert new record
 	 sqlQuery = "INSERT INTO ";
@@ -574,9 +617,11 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
 #else
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){
 	 cout<<"\nInvalid input for database write."<<endl;
+	 fSQL->FreeResult();
 	 delete path;
 	 return false;
       }
+      fSQL->FreeResult();
 #endif
       if(!path->IsOrderArray())
 	 break;
@@ -593,6 +638,8 @@ void ROMESQLDataBase::Print() {
 	<< "   FIELD : " << temp         << endl
 	<< "   FROM  : " << fFromPhrase  << endl
 	<< "   WHERE : " << fWherePhrase << endl
+	<< "   ORDER : " << fOrderPhrase << endl
+	<< "   LIMIT : " << fLimitPhrase << endl
 	<< "******************************************************************************"<<endl
 	<< endl;
 }
