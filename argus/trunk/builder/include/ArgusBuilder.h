@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.7  2005/02/22 10:43:31  sawada
+  User defined menus.
+
   Revision 1.6  2005/02/21 19:06:55  sawada
   changed platform specifying macros
 
@@ -40,6 +43,8 @@
 #include "ROMEString.h"
 
 const int maxNumberOfTabs = 200;
+const int maxNumberOfTabMenus = 5;
+const int maxNumberOfTabMenuItems = 20;
 const int maxNumberOfFolders = 100;
 const int maxNumberOfSteering = 20;
 const int maxNumberOfSteeringField = 100;
@@ -112,6 +117,11 @@ private:
       
 // tab hierarchy
    int        numOfTabHierarchy;
+   int        numOfTabMenu[2*maxNumberOfTabs];
+   int        numOfTabMenuItem[2*maxNumberOfTabs][maxNumberOfTabMenus];
+   ROMEString tabHierarchyMenuTitle[2*maxNumberOfTabs][maxNumberOfTabMenus];
+   int        tabHierarchyMenuItemID[2*maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
+   ROMEString tabHierarchyMenuItemTitle[2*maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
    ROMEString tabHierarchyName[2*maxNumberOfTabs];
    ROMEString tabHierarchyTitle[2*maxNumberOfTabs];
    int        tabHierarchyParentIndex[2*maxNumberOfTabs];

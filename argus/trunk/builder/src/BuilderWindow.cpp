@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.6  2005/02/22 10:43:31  sawada
+  User defined menus.
+
   Revision 1.5  2005/02/04 22:58:46  sawada
   ROMEFolder
 
@@ -25,14 +28,15 @@
 #include "ArgusBuilder.h"
 
 bool ArgusBuilder::WriteWindowCpp() {
-   int i;
+   int i,j,k;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString format;
+   ROMEString menuTitle;
    char fileBuffer[bufferLength];
    ROMEString parentt;
    ROMEString buf;
-   int nb,lenTot,j,ll;
+   int nb,lenTot,ll;
    char *pos;
    int fileHandle;
    ROMEString classDescription;
@@ -181,11 +185,18 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("  // Process messages coming from widgets associated with the dialog.  \n");
+   buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
    buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
    buffer.AppendFormatted("   case kC_COMMAND:    \n");
    buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
    buffer.AppendFormatted("      case kCM_MENU:\n");
+   for (i=0;i<numOfTabHierarchy;i++) {
+      buffer.AppendFormatted("         if (%d<=param1&&param1<%d) {\n"
+			     ,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems,(i+2)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+      buffer.AppendFormatted("            f%s%03dTab->MenuClicked(param1-%d);\n"
+			     ,tabHierarchyName[i].Data(),i,(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+      buffer.AppendFormatted("         }\n");
+   }
    buffer.AppendFormatted("         switch (param1) {\n");
    buffer.AppendFormatted("         case M_FILE_EXIT:\n");
    buffer.AppendFormatted("            CloseWindow();\n");
@@ -201,7 +212,34 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      case kCM_LISTBOX:\n");
    buffer.AppendFormatted("         break;      \n");
    buffer.AppendFormatted("      case kCM_TAB:\n");
-   buffer.AppendFormatted("         //printf(\"Tab item %%ld activated\\n\", param1);\n");
+   for (i=0;i<numOfTabHierarchy;i++) {
+      buffer.AppendFormatted("         if (param1==%d) {\n",i);
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabHierarchyName[i].Data(),i);
+      for (j=0;j<numOfTabMenu[i];j++) {
+	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabHierarchyName[i].Data(),j);
+	 for (k=0;k<numOfTabMenuItem[i][j];k++) {
+	    buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n",tabHierarchyName[i].Data(),j
+				   ,tabHierarchyMenuItemTitle[i][j][k].Data()
+				   ,tabHierarchyMenuItemID[i][j][k]+(i+1)*maxNumberOfTabMenus*maxNumberOfTabMenuItems);
+	 }
+	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabHierarchyName[i].Data(),j);
+	 buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",tabHierarchyMenuTitle[i][j].Data(),tabHierarchyName[i].Data(),j);
+	 buffer.AppendFormatted("                              new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
+      }
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else {\n");
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(false);\n",tabHierarchyName[i].Data(),i);
+      for (j=0;j<numOfTabMenu[i];j++) {
+	 menuTitle = tabHierarchyMenuTitle[i][j];
+	 menuTitle.ReplaceAll("&","");
+	 buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menuTitle.Data());
+      }
+      buffer.AppendFormatted("         }\n");
+   }
+   buffer.AppendFormatted("         MapSubwindows();\n");
+   buffer.AppendFormatted("         Resize(500,500);\n");
+   buffer.AppendFormatted("         Resize(500,501);\n");
+   buffer.AppendFormatted("         MapWindow();\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      break;\n");    
@@ -334,7 +372,10 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   TGMenuBar           *fMenuBar;\n");
    buffer.AppendFormatted("   TGPopupMenu         *fMenuFile;\n");
-   buffer.AppendFormatted("   TGTab               *fTab;\n");
+   buffer.AppendFormatted("   TGTab               *fTab;\n"); 
+   for (i=0;i<numOfTabHierarchy;i++) {
+      buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n",tabHierarchyName[i].Data(),maxNumberOfTabMenuItems);
+   }
    buffer.AppendFormatted("   enum CommandIdentifiers {\n");
    buffer.AppendFormatted("      M_FILE_EXIT,\n");
    buffer.AppendFormatted("      M_FILE_CONNECT\n");
