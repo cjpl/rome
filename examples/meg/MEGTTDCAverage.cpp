@@ -32,11 +32,11 @@
 // If more histogram functions are needed use the following function the get
 // a handle to the histogram and use the root functions.
 //
-// Get<Histogram Name>Handle()
+// Get<Histogram Name>()
 //
 // For histogram arrays use :
 //
-// Get<Histogram Name>HandleAt(int index)
+// Get<Histogram Name>At(int index)
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 

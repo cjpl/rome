@@ -39,11 +39,11 @@
 // If more histogram functions are needed use the following function the get
 // a handle to the histogram and use the root functions.
 //
-// Get<Histogram Name>Handle()
+// Get<Histogram Name>()
 //
 // For histogram arrays use :
 //
-// Get<Histogram Name>HandleAt(int index)
+// Get<Histogram Name>At(int index)
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
@@ -65,33 +65,33 @@ void MEGTCharge::BeginOfRun()
    for (int j=0;j<nMapHistos;j++) {
       sprintf(name,"frontmap%i%i",j/10,j%10);
       sprintf(title,"Front side Map for event %d",j+1);
-      GetFrontMapHistoHandleAt(j)->SetName(name);
-      GetFrontMapHistoHandleAt(j)->SetTitle(title);
+      GetFrontMapHistoAt(j)->SetName(name);
+      GetFrontMapHistoAt(j)->SetTitle(title);
 
       sprintf(name,"backmap%i%i",j/10,j%10);
       sprintf(title,"Back side Map for event %d",j+1);
-      GetBackMapHistoHandleAt(j)->SetName(name);
-      GetBackMapHistoHandleAt(j)->SetTitle(title);
+      GetBackMapHistoAt(j)->SetName(name);
+      GetBackMapHistoAt(j)->SetTitle(title);
 
       sprintf(name,"topmap%i%i",j/10,j%10);
       sprintf(title,"Top side Map for event %d",j+1);
-      GetTopMapHistoHandleAt(j)->SetName(name);
-      GetTopMapHistoHandleAt(j)->SetTitle(title);
+      GetTopMapHistoAt(j)->SetName(name);
+      GetTopMapHistoAt(j)->SetTitle(title);
 
       sprintf(name,"bottommap%i%i",j/10,j%10);
       sprintf(title,"Bottom side Map for event %d",j+1);
-      GetBottomMapHistoHandleAt(j)->SetName(name);
-      GetBottomMapHistoHandleAt(j)->SetTitle(title);
+      GetBottomMapHistoAt(j)->SetName(name);
+      GetBottomMapHistoAt(j)->SetTitle(title);
 
       sprintf(name,"rightmap%i%i",j/10,j%10);
       sprintf(title,"Right side Map for event %d",j+1);
-      GetRightMapHistoHandleAt(j)->SetName(name);
-      GetRightMapHistoHandleAt(j)->SetTitle(title);
+      GetRightMapHistoAt(j)->SetName(name);
+      GetRightMapHistoAt(j)->SetTitle(title);
 
       sprintf(name,"leftmap%i%i",j/10,j%10);
       sprintf(title,"Left side Map for event %d",j+1);
-      GetLeftMapHistoHandleAt(j)->SetName(name);
-      GetLeftMapHistoHandleAt(j)->SetTitle(title);
+      GetLeftMapHistoAt(j)->SetName(name);
+      GetLeftMapHistoAt(j)->SetTitle(title);
    }
 }
 

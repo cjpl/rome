@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.59  2004/10/14 15:09:12  schneebeli_m
+  changed Get[Histo]Handle() -> Get[Histo]
+
   Revision 1.58  2004/10/14 10:53:17  schneebeli_m
   bug fixed
 
@@ -1174,11 +1177,11 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("// If more histogram functions are needed use the following function the get\n");
          buffer.AppendFormatted("// a handle to the histogram and use the root functions.\n");
          buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Get<Histogram Name>Handle()\n");
+         buffer.AppendFormatted("// Get<Histogram Name>()\n");
          buffer.AppendFormatted("//\n");
          buffer.AppendFormatted("// For histogram arrays use :\n");
          buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Get<Histogram Name>HandleAt(int index)\n");
+         buffer.AppendFormatted("// Get<Histogram Name>At(int index)\n");
       }
       buffer.AppendFormatted("//                                                                            //\n");
       buffer.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
@@ -1438,7 +1441,7 @@ bool ROMEBuilder::WriteTaskH() {
                buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
 				buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   %s* Get%sHandle() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%s() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
             if (histoType[iTask][i][2]==49) {
@@ -1451,7 +1454,7 @@ bool ROMEBuilder::WriteTaskH() {
                buffer.AppendFormatted("   void Fill%sAt(int index,double x,double y,double z,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
 				buffer.AppendFormatted("   void Draw%sAt(int index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   %s* Get%sHandleAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%sAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   Bool_t is%sAccumulation() { return f%sAccumulation; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   void Set%sAccumulation(Bool_t flag) { f%sAccumulation = flag; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());

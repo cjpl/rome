@@ -33,11 +33,11 @@
 // If more histogram functions are needed use the following function the get
 // a handle to the histogram and use the root functions.
 //
-// Get<Histogram Name>Handle()
+// Get<Histogram Name>()
 //
 // For histogram arrays use :
 //
-// Get<Histogram Name>HandleAt(int index)
+// Get<Histogram Name>At(int index)
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
@@ -73,13 +73,13 @@ void MEGTADCPedestal::BeginOfRun()
    for (int j=0;j<nPMT;j++) {
       sprintf(name,"adc0_%i%i%i",j/100,(j%100)/10,j%10);
       sprintf(title,"ADC0 of PMT %s",gAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
-      GetADC0HistoHandleAt(j)->SetName(name);
-      GetADC0HistoHandleAt(j)->SetTitle(title);
+      GetADC0HistoAt(j)->SetName(name);
+      GetADC0HistoAt(j)->SetTitle(title);
 
       sprintf(name,"adc1_%i%i%i",j/100,(j%100)/10,j%10);
       sprintf(title,"ADC1 of PMT %s",gAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
-      GetADC1HistoHandleAt(j)->SetName(name);
-      GetADC1HistoHandleAt(j)->SetTitle(title);
+      GetADC1HistoAt(j)->SetName(name);
+      GetADC1HistoAt(j)->SetTitle(title);
    }
 }
 
@@ -130,11 +130,11 @@ void MEGTADCPedestal::EndOfRun()
    for(ipmt=0 ; ipmt<nPMT ; ipmt++){
    	for(i=0;i<2;i++){
          if(i==0) {
-            hist = GetADC0HistoHandleAt(ipmt);
+            hist = GetADC0HistoAt(ipmt);
             hist->SetXTitle("raw ADC 0 Sum[ch]");
          }
          else {
-            hist = GetADC1HistoHandleAt(ipmt);
+            hist = GetADC1HistoAt(ipmt);
             hist->SetXTitle("raw ADC 1 Sum[ch]");
          }
     	   float xmin = hist->GetMean() - 50.;
