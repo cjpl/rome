@@ -2,6 +2,10 @@
   ROMEConfig.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/03/13 08:43:14  sawada
+  removed or comment out unused variables.
+  made virtual destructor of ROMEConfig and ROMEDataBase.
+
   Revision 1.2  2004/10/15 11:51:28  schneebeli_m
   bugs removed
 
@@ -20,6 +24,7 @@ class ROMEConfig
 protected:
 public:
    ROMEConfig() {};
+   virtual ~ROMEConfig() {};
 
    virtual bool WriteConfigurationFile(char *file) = 0;
    virtual bool ReadConfigurationFile(char *file) = 0;

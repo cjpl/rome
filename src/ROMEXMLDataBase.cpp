@@ -6,6 +6,10 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.11  2005/03/13 08:43:14  sawada
+//  removed or comment out unused variables.
+//  made virtual destructor of ROMEConfig and ROMEDataBase.
+//
 //  Revision 1.10  2005/03/03 19:24:32  sawada
 //  compatibility with SQL and XML database.
 //
@@ -62,8 +66,9 @@ bool ROMEXMLDataBase::Init(const char* path,const char* connection) {
 
 bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
 {
-   int i,j,k,ii,istart,iend,index;
-   int iValue=0,jValue=0;
+//   int istart,iend;
+   int i,j,k,ii,index;
+//   int iValue=0,jValue=0;
    ROMEString value;
    ROMEString val;
    ROMEString id;
@@ -386,8 +391,9 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
 
 bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
 {
-   int i,j,ii,istart,iend,istep;
-   int iValue=0,jValue=0;
+//   int istep;
+   int i,j,ii,istart,iend;
+//   int iValue=0,jValue=0;
    ROMEString value;
    ROMEString constraint;
    ROMEString id;
@@ -398,7 +404,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    ROMEString xmlFieldPath;
    ROMEString xmlBasePath;
    ROMEString xmlTablePath;
-   ROMEStrArray *array;
+//   ROMEStrArray *array;
    ROMEPath *path = new ROMEPath();
 
    // decode path

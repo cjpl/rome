@@ -2,6 +2,10 @@
   ROMEDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/03/13 08:43:14  sawada
+  removed or comment out unused variables.
+  made virtual destructor of ROMEConfig and ROMEDataBase.
+
   Revision 1.3  2005/01/27 16:21:06  schneebeli_m
   print method & no gROME in path
 
@@ -21,7 +25,7 @@
 class ROMEDataBase {
 public:
    ROMEDataBase() {};
-   ~ROMEDataBase() {};
+   virtual ~ROMEDataBase() {};
    virtual bool   Init(const char* path,const char* connection) = 0;
    virtual bool   Read(ROMEStr2DArray *values,const char *path,int runNumber) = 0;
    virtual bool   Write(ROMEStr2DArray* values,const char *path,int runNumber) = 0;

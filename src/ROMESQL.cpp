@@ -6,6 +6,10 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.14  2005/03/13 08:43:14  sawada
+//  removed or comment out unused variables.
+//  made virtual destructor of ROMEConfig and ROMEDataBase.
+//
 //  Revision 1.13  2004/11/19 16:26:24  sawada
 //  speed up with reading order array at once.
 //
@@ -152,7 +156,6 @@ bool ROMESQL::ExistField(char *table,char* field)
 
 bool ROMESQL::ReadField(char *table,char* field,char* constraint)
 {
-   char* defaultRow = "ROMESQL : invalid value";
    char sqlquery[128];
    sprintf(sqlquery,"select %s from %s where %s;",field,table,constraint);
    if (mysql_query(&mysql,sqlquery)) {

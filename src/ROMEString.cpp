@@ -7,6 +7,10 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.8  2005/03/13 08:43:14  sawada
+//  removed or comment out unused variables.
+//  made virtual destructor of ROMEConfig and ROMEDataBase.
+//
 //  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
 //  implemented task hierarchy
 //
@@ -52,7 +56,6 @@ bool ROMEString::SetFormatted(char* format,...)
    bool res;
    va_list ap;
    va_start(ap,format);
-   char* c="";
    this->Resize(0);
    res = FormatString(this,format,ap);
    va_end(ap);

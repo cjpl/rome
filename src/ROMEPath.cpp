@@ -6,6 +6,10 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.9  2005/03/13 08:43:14  sawada
+//  removed or comment out unused variables.
+//  made virtual destructor of ROMEConfig and ROMEDataBase.
+//
 //  Revision 1.8  2005/03/03 19:24:32  sawada
 //  compatibility with SQL and XML database.
 //
@@ -60,7 +64,6 @@ ROMEPath::ROMEPath() {
 }
 
 ROMEPath::~ROMEPath() {
-   int i;
    delete fTableNames;
    delete fTableAbsolutePaths;
    delete fTableConstraints;
