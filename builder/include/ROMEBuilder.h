@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.31  2005/03/23 15:51:26  schneebeli_m
+  BankFieldArray
+
   Revision 1.30  2005/03/23 09:06:11  schneebeli_m
   libxml replaced by mxml, Bool SP error
 
@@ -214,6 +217,9 @@ private:
    ROMEString structFieldName[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldType[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldSize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   int bankFieldArraySize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   int bankFieldArrayStart[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   int bankFieldArrayDigit[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    bool  bankHasHeader;
    ROMEString bankHeaderFolder;
    ROMEString bankHeaderEventID;
