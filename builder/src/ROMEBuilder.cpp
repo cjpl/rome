@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.119  2005/03/28 12:18:30  sawada
+  make dictionary
+
   Revision 1.118  2005/03/23 15:51:27  schneebeli_m
   BankFieldArray
 
@@ -7453,7 +7456,10 @@ void ROMEBuilder::WriteMakefile() {
    WriteDictionaryBat(dictionarybat);
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
-   buffer.AppendFormatted("%sDict.h: ",shortCut.Data());
+   buffer.AppendFormatted("%sDict.h: dictionary\n",shortCut.Data());
+   buffer.AppendFormatted("%sDict.cpp: dictionary\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("dictionary: ");
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
