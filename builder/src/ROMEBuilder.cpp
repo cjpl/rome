@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2004/07/09 17:47:51  schneebeli
+  directory structure added
+
   Revision 1.17  2004/07/09 16:08:36  schneebeli
   don't display empty histo folders
 
@@ -327,7 +330,7 @@ bool ROMEBuilder::WriteFolderCpp() {
 // cpp-File
 //----------
 
-      sprintf(cppFile,"%s%s%s.cpp",outDir,shortCut,folderName[iFold]);
+      sprintf(cppFile,"%s/src/framework/%s%s.cpp",outDir,shortCut,folderName[iFold]);
 // Description
 //-------------
       sprintf(buffer,"//// Author: %s\n",author[iFold]);
@@ -361,7 +364,7 @@ bool ROMEBuilder::WriteFolderCpp() {
 // Header Files
 //--------------
 
-         sprintf(buffer+strlen(buffer),"#include %c%s%s.h%c\n",34,shortCut,folderName[iFold],34);
+         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[iFold]);
 
          sprintf(buffer+strlen(buffer),"\nClassImp(%s%s)\n",shortCut,folderName[iFold]);
 
@@ -476,7 +479,7 @@ bool ROMEBuilder::WriteFolderH() {
          for (j=0;j<numOfFolder;j++) {
             sprintf(str,"%s*",folderName[j]);
             if (!strcmp(valueType[iFold][i],folderName[j]) || !strcmp(valueType[iFold][i],str)) {
-               sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[j]);
+               sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[j]);
 
                strcpy(str,shortCut);
                strcat(str,valueType[iFold][i]);
@@ -597,7 +600,7 @@ bool ROMEBuilder::WriteFolderH() {
 // Close h-File
 //--------------
 
-      sprintf(hFile,"%s%s%s.h",outDir,shortCut,folderName[iFold]);
+      sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
       fileHandle = open(hFile,O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
@@ -1190,7 +1193,7 @@ bool ROMEBuilder::WriteTaskCpp() {
 
       bool replaceHeader = true;
       bool replaceBody = true;
-      sprintf(cppFile,"%s%sT%s.cpp",outDir,shortCut,taskName[iTask]);
+      sprintf(cppFile,"%s/src/tasks/%sT%s.cpp",outDir,shortCut,taskName[iTask]);
       struct stat buf;
       int nb=0;
       if( !stat( cppFile, &buf )) {
@@ -1231,7 +1234,7 @@ bool ROMEBuilder::WriteTaskCpp() {
 //--------------
 
          if (replaceBody) {
-            sprintf(buffer,"\n\n#include %c%sT%s.h%c\n",34,shortCut,taskName[iTask],34);
+            sprintf(buffer,"\n\n#include <include/tasks/%sT%s.h>\n",shortCut,taskName[iTask]);
             sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
 
             sprintf(buffer+strlen(buffer),"\nClassImp(%sT%s)\n\n",shortCut,taskName[iTask]);
@@ -1301,7 +1304,7 @@ bool ROMEBuilder::WriteTaskF() {
          char taskname[20];
          for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
          taskname[i] = 0;
-         sprintf(fFile,"%s%sT%s.f",outDir,shortCut,taskName[iTask]);
+         sprintf(fFile,"%s/src/tasks/%sT%s.f",outDir,shortCut,taskName[iTask]);
          if( !stat( cppFile, &buf )) {
             fileHandle = open(fFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
             if (makeOutput) cout << "      " << fFile << endl;
@@ -1371,7 +1374,7 @@ bool ROMEBuilder::WriteTaskH() {
          }
       }
 
-      sprintf(buffer+strlen(buffer),"#include\"%sAnalyzer.h\"\n",shortCut);
+      sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
 
 // Class
 //-------
@@ -1552,7 +1555,7 @@ bool ROMEBuilder::WriteTaskH() {
 
 // Close h-File
 //--------------
-      sprintf(hFile,"%s%sT%s.h",outDir,shortCut,taskName[iTask]);
+      sprintf(hFile,"%s/include/tasks/%sT%s.h",outDir,shortCut,taskName[iTask]);
       fileHandle = open(hFile,O_RDONLY);
       int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
@@ -1950,7 +1953,7 @@ bool ROMEBuilder::WriteSteering() {
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
-   sprintf(hFile,"%s%sGeneralSteering.h",outDir,shortCut);
+   sprintf(hFile,"%s/include/framework/%sGeneralSteering.h",outDir,shortCut);
 
    if (numOfSteering==0) {
       remove(hFile);
@@ -2249,9 +2252,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"#include <ROMESQL.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEEventLoop.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROME.h>\n");
-   sprintf(buffer+strlen(buffer),"#include %c%sAnalyzer.h%c\n",34,shortCut,34);
+   sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"#include \"%sT%s.h\"\n",shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"#include <include/tasks/%sT%s.h>\n",shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
    sprintf(buffer+strlen(buffer),"#define MY_ENCODING \"ISO-8859-1\"\n");
@@ -2714,7 +2717,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   \n");
 
    // Close cpp-File
-   sprintf(cppFile,"%s%sAnalyzer.cpp",outDir,shortCut);
+   sprintf(cppFile,"%s/src/framework/%sAnalyzer.cpp",outDir,shortCut);
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -2779,15 +2782,15 @@ bool ROMEBuilder::WriteAnalyzerH() {
    sprintf(buffer+strlen(buffer),"#include <TClonesArray.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETask.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEAnalyzer.h>\n");
-   sprintf(buffer+strlen(buffer),"#include \"%sIO.h\"\n\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n\n",shortCut);
 
    if (numOfSteering!=0) {
-      sprintf(buffer+strlen(buffer),"#include \"%sGeneralSteering.h\"\n",shortCut);
+      sprintf(buffer+strlen(buffer),"#include <include/framework/%sGeneralSteering.h>\n",shortCut);
    }
 
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[i]);
+         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[i]);
       }
    }
 
@@ -2922,7 +2925,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Close h-File
    //--------------
 
-   sprintf(hFile,"%s%sAnalyzer.h",outDir,shortCut);
+   sprintf(hFile,"%s/include/framework/%sAnalyzer.h",outDir,shortCut);
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -2989,7 +2992,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
    sprintf(buffer+strlen(buffer),"#include <midas.h>\n");
    sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"#include \"%sIO.h\"\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n",shortCut);
 
    sprintf(buffer+strlen(buffer),"#include \"Riostream.h\"\n");
 
@@ -3556,7 +3559,7 @@ bool ROMEBuilder::WriteIOCpp() {
 // Close cpp-File
 //----------------
 
-   sprintf(cppFile,"%s%sIO.cpp",outDir,shortCut);
+   sprintf(cppFile,"%s/src/framework/%sIO.cpp",outDir,shortCut);
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -3612,7 +3615,7 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"#include<TClonesArray.h>\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[i]);
+         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[i]);
       }
    }
    sprintf(buffer+strlen(buffer),"\n");
@@ -3757,7 +3760,7 @@ bool ROMEBuilder::WriteIOH() {
    // Close h-File
    //--------------
 
-   sprintf(hFile,"%s%sIO.h",outDir,shortCut);
+   sprintf(hFile,"%s/include/framework/%sIO.h",outDir,shortCut);
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -3777,429 +3780,6 @@ bool ROMEBuilder::WriteIOH() {
    return true;
 }
 
-
-bool ROMEBuilder::WriteEventLoopCpp() {
-   int i;
-
-   char cppFile[500];
-   char buffer[bufferLength];
-   char fileBuffer[bufferLength];
-
-   char format[100];
-   int nb,j,k,iFold=0,ll;
-   const int bufferSize = 600;
-   char str[bufferSize];
-   char tmp[bufferSize];
-   int fileHandle;
-
-// Description
-//-------------
-   sprintf(buffer,"//// Author: %s\n",mainAuthor);
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   ll = 74-strlen(shortCut);
-   sprintf(format,"// %%s%%-%d.%ds //\n",ll,ll);
-   sprintf(buffer+strlen(buffer),format,shortCut,"EventLoop");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Derivated form ROMEEventLoop. Implements some DataBase specific methods.   //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
-
-// Header Files
-//--------------
-
-   sprintf(buffer+strlen(buffer),"#include <winsock.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <mysql.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
-   sprintf(buffer+strlen(buffer),"#include \"ROME.h\"\n");
-   sprintf(buffer+strlen(buffer),"#include \"%sEventLoop.h\"\n",shortCut);
-
-   sprintf(buffer+strlen(buffer),"#include \"Riostream.h\"\n");
-
-   sprintf(buffer+strlen(buffer),"#define MY_ENCODING \"ISO-8859-1\"\n");
-
-// User Functions
-//----------------
-
-// Midas Bank Initialisation
-//---------------------------
-   sprintf(buffer+strlen(buffer),"   // Midas Bank Initialisation\n");
-   sprintf(buffer+strlen(buffer),"void %sEventLoop::InitMidasBanks() {\n",shortCut);
-   for (i=0;i<numOfBank;i++) {
-      sprintf(buffer+strlen(buffer),"   fAnalyzer->Init%sBank();\n",bankName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"}\n",shortCut);
-   sprintf(buffer+strlen(buffer),"\n");
-
-
-   int ndb = 0;
-   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
-   if (ndb>0) {
-// Data Base Methods
-//===================
-// ReadSQLDataBase
-//-----------------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::ReadSQLDataBase() {\n",shortCut);
-      sprintf(buffer+strlen(buffer),"}\n");
-
-// ReadXMLRunTable
-//-----------------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::ReadXMLRunTable() {\n",shortCut);
-
-      sprintf(buffer+strlen(buffer),"   TString runDescription;\n");
-      sprintf(buffer+strlen(buffer),"   const xmlChar *name,*value;\n");
-      sprintf(buffer+strlen(buffer),"   char *cstop;\n");
-      sprintf(buffer+strlen(buffer),"   int type,timeStamp,runNumber;\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
-      sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sRunTable.xml\",fAnalyzer->GetInputDir());\n");
-      sprintf(buffer+strlen(buffer),"   reader = xmlReaderForFile(filename, NULL, 0);\n");
-      sprintf(buffer+strlen(buffer),"   if (reader != NULL) {\n");
-      sprintf(buffer+strlen(buffer),"      while (xmlTextReaderRead(reader)) {\n");
-      sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
-      sprintf(buffer+strlen(buffer),"         name = xmlTextReaderConstName(reader);\n");
-      sprintf(buffer+strlen(buffer),"         if (type == 1 && !strcmp((const char*)name,\"Entry\")) {\n");
-
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"TimeStamp\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) timeStamp = strtol((const char*)value,&cstop,10);\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"RunNumber\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) runNumber = strtol((const char*)value,&cstop,10);\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"RunDescription\");\n");
-      sprintf(buffer+strlen(buffer),"            if (value!=NULL) runDescription = (char*)value;\n");
-      sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"            TString *files = new TString[%d];\n",ndb);
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"            value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"%sFile\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"            if (value!=NULL) files[%d] = (char*)value;\n",ndb);
-            sprintf(buffer+strlen(buffer),"            else files[%d] = \"\";\n",ndb);
-            sprintf(buffer+strlen(buffer),"            xmlFree((void*)value);\n");
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"            fAnalyzer->GetRunTable()->AddLast(new ROMERunTable(timeStamp,runNumber,runDescription,%d,files));\n",ndb);
-
-      sprintf(buffer+strlen(buffer),"         }\n");
-      sprintf(buffer+strlen(buffer),"         if (type == 15 && !strcmp((const char*)name,\"RunTable\")) break;\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"      xmlFreeTextReader(reader);\n");
-      sprintf(buffer+strlen(buffer),"   } else {\n");
-      sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-
-      sprintf(buffer+strlen(buffer),"}\n\n");
-// SaveRunTable
-//--------------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::SaveXMLRunTable() {\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   int i=0;\n");
-      sprintf(buffer+strlen(buffer),"   char chr[100];\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
-      sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sRunTable.xml\",fAnalyzer->GetOutputDir());\n");
-      sprintf(buffer+strlen(buffer),"   writer = xmlNewTextWriterFilename(filename, 0);\n");
-      sprintf(buffer+strlen(buffer),"   if (writer == NULL) {\n");
-      sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"      return;\n");
-      sprintf(buffer+strlen(buffer),"   }\n\n");
-      sprintf(buffer+strlen(buffer),"   // Header\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
-      sprintf(buffer+strlen(buffer),"   // Object\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"RunTable\");\n");
-      sprintf(buffer+strlen(buffer),"   for (i=0;i<fAnalyzer->GetRunTable()->GetSize();i++) {\n");
-      sprintf(buffer+strlen(buffer),"      ROMERunTable* runTable = (ROMERunTable*)fAnalyzer->GetRunTable()->At(i);\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterStartElement(writer, BAD_CAST \"Entry\");\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%d\",runTable->GetTimeStamp());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"TimeStamp\",BAD_CAST chr);\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%d\",runTable->GetRunNumber());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"RunNumber\",BAD_CAST chr);\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(chr,\"%%s\",runTable->GetRunDescription().Data());\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"RunDescription\",BAD_CAST chr);\n");
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"      if (strcmp(runTable->GetFile()[%d].Data(),\"\")) {\n",ndb);
-            sprintf(buffer+strlen(buffer),"         sprintf(chr,\"%%s\",runTable->GetFile()[%d].Data());\n",ndb);
-            sprintf(buffer+strlen(buffer),"         xmlTextWriterWriteAttribute(writer, BAD_CAST \"%sFile\",BAD_CAST chr);\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      }\n");
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
-      sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
-      sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
-      sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-
-// InitDataBase
-//--------------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::InitXMLDataBase()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   XMLUpdate();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-
-// UpdateDataBase
-//----------------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::UpdateXMLDataBase()\n{\n",shortCut);
-
-      sprintf(buffer+strlen(buffer),"   int pos = fAnalyzer->GetCurrentRunTablePos();\n");
-      sprintf(buffer+strlen(buffer),"   if (pos>=fAnalyzer->GetRunTable()->GetSize()) return;\n");
-      sprintf(buffer+strlen(buffer),"   int runNum = ((ROMERunTable*)fAnalyzer->GetRunTable()->At(pos))->GetRunNumber();\n");
-      sprintf(buffer+strlen(buffer),"   if (runNum>fAnalyzer->GetCurrentRunNumber()) return;\n");
-      sprintf(buffer+strlen(buffer),"   for (pos++;runNum<=fAnalyzer->GetCurrentRunNumber() && pos<fAnalyzer->GetRunTable()->GetSize();pos++)\n");
-      sprintf(buffer+strlen(buffer),"      runNum = ((ROMERunTable*)fAnalyzer->GetRunTable()->At(pos))->GetRunNumber();\n");
-      sprintf(buffer+strlen(buffer),"   pos--;\n");
-      sprintf(buffer+strlen(buffer),"   if (pos>=fAnalyzer->GetRunTable()->GetSize()) return;\n");
-      sprintf(buffer+strlen(buffer),"   fAnalyzer->SetCurrentRunTablePos(pos);\n");
-      sprintf(buffer+strlen(buffer),"   XMLUpdate();\n");
-      sprintf(buffer+strlen(buffer),"}\n\n");
-   
-// Update
-//--------
-      sprintf(buffer+strlen(buffer),"void %sEventLoop::XMLUpdate()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   int i;\n");
-      sprintf(buffer+strlen(buffer),"   int pos = fAnalyzer->GetCurrentRunTablePos();\n");
-      sprintf(buffer+strlen(buffer),"   ROMERunTable* runTab = (ROMERunTable*)fAnalyzer->GetRunTable()->At(pos);\n");
-      sprintf(buffer+strlen(buffer),"   for (i=0;i<runTab->GetNumberOfFiles();i++) {\n");
-      sprintf(buffer+strlen(buffer),"      if (!strcmp(runTab->GetFile()[i].Data(),\"\")) continue;\n");
-   
-      sprintf(buffer+strlen(buffer),"      const xmlChar *name,*value;\n");
-      sprintf(buffer+strlen(buffer),"      char *cstop;\n");
-      sprintf(buffer+strlen(buffer),"      int type;\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextReaderPtr reader;\n");
-      sprintf(buffer+strlen(buffer),"      char filename[gFileNameLength];\n");
-      sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s%%s\",fAnalyzer->GetDataBaseDir(),runTab->GetFile()[i].Data());\n");
-      sprintf(buffer+strlen(buffer),"      reader = xmlReaderForFile(filename, NULL, 0);\n");
-      sprintf(buffer+strlen(buffer),"      if (reader != NULL) {\n");
-      sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
-      sprintf(buffer+strlen(buffer),"            type = xmlTextReaderNodeType(reader);\n");
-      sprintf(buffer+strlen(buffer),"            name = xmlTextReaderConstName(reader);\n");
-      ndb = 0;
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"            if (i == %d) {\n",ndb);
-            sprintf(buffer+strlen(buffer),"               int number=0;\n",ndb);
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"               %s %s = %s;\n",valueType[i][j],valueName[i][j],valueInit[i][j]);
-            }
-            if (strcmp(folderArray[i],"1")) {
-               sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp((const char*)name,\"%ss\")) {\n",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"%s\");\n",valueName[i][j]);
-                  char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
-                  sprintf(buffer+strlen(buffer),"                  if (value!=NULL) %s;\n",bufft);
-                  sprintf(buffer+strlen(buffer),"                  xmlFree((void*)value);\n");
-               }
-               sprintf(buffer+strlen(buffer),"                  while (xmlTextReaderRead(reader)) {\n");
-               sprintf(buffer+strlen(buffer),"                     type = xmlTextReaderNodeType(reader);\n");
-               sprintf(buffer+strlen(buffer),"                     name = xmlTextReaderConstName(reader);\n");
-               sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",folderName[i]);
-               sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Number\");\n");
-               sprintf(buffer+strlen(buffer),"                        if (value!=NULL) number = strtol((const char*)value,&cstop,10);\n");
-               sprintf(buffer+strlen(buffer),"                        xmlFree((void*)value);\n");
-               sprintf(buffer+strlen(buffer),"                     }\n");
-   
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                        xmlTextReaderRead(reader);\n");
-                  sprintf(buffer+strlen(buffer),"                        type = xmlTextReaderNodeType(reader);\n");
-                  sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderConstValue(reader);\n");
-                  char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
-                  sprintf(buffer+strlen(buffer),"                        if (value!=NULL && type==3) %s;\n",bufft);
-                  sprintf(buffer+strlen(buffer),"                     }\n");
-               }
-               sprintf(buffer+strlen(buffer),"                     if (type == 15 && !strcmp((const char*)name,\"%s\")) {\n",folderName[i]);
-               sprintf(str,"                        fAnalyzer->Set%sObject(number",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(tmp,",%s",valueName[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,");\n");
-               strcat(buffer,str);
-   
-               sprintf(buffer+strlen(buffer),"                     }\n");
-               sprintf(buffer+strlen(buffer),"                  }\n");
-   
-               sprintf(buffer+strlen(buffer),"               }\n");
-               sprintf(buffer+strlen(buffer),"               if (type == 15 && !strcmp((const char*)name,\"%ss\")) break;\n",folderName[i]);
-            }
-            else {
-            }
-            sprintf(buffer+strlen(buffer),"            }\n",folderName[i]);
-            ndb++;
-         }
-      }
-      sprintf(buffer+strlen(buffer),"         }\n");
-      sprintf(buffer+strlen(buffer),"         xmlFreeTextReader(reader);\n");
-      sprintf(buffer+strlen(buffer),"      } else {\n");
-      sprintf(buffer+strlen(buffer),"         fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-   
-      sprintf(buffer+strlen(buffer),"}\n");
-   }
-
-// ConnectTrees
-//--------------
-   sprintf(buffer+strlen(buffer),"void %sEventLoop::ConnectTrees()\n{\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   TBranchElement *bb;\n");
-   for (i=0;i<numOfTree;i++) {
-      for (j=0;j<numOfBranch[i];j++) {
-         for (k=0;k<numOfFolder;k++) {
-            if (!strcmp(branchFolder[i][j],folderName[k])) iFold = k;
-         }
-         sprintf(buffer+strlen(buffer),"   bb = (TBranchElement*)fAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j]);
-         if (strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(fAnalyzer->Get%sObjectsAddress());\n",folderName[iFold]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(fAnalyzer->Get%sObjectAddress());\n",folderName[iFold]);
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer),"}\n\n");
-
-// Close cpp-File
-//----------------
-
-   sprintf(cppFile,"%s%sEventLoop.cpp",outDir,shortCut);
-   fileHandle = open(cppFile,O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
-      }
-   }
-   if (!identical) {
-      fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
-      close(fileHandle);
-   }
-   return true;
-}
-
-bool ROMEBuilder::WriteEventLoopH() {
-   int i;
-
-   char hFile[500];
-   char buffer[bufferLength];
-   char fileBuffer[bufferLength];
-
-   int nb;
-   int fileHandle;
-
-// Header Files
-//--------------
-
-   sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
-
-   sprintf(buffer+strlen(buffer),"#ifndef %sEventLoop_H\n",shortCut);
-   sprintf(buffer+strlen(buffer),"#define %sEventLoop_H\n\n",shortCut);
-
-   sprintf(buffer+strlen(buffer),"#include<ROMEEventLoop.h>\n");
-   sprintf(buffer+strlen(buffer),"#include\"%sAnalyzer.h\"\n",shortCut);
-
-// Class
-//-------
-
-   sprintf(buffer+strlen(buffer),"\nclass %sEventLoop : public ROMEEventLoop\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-
-// Fields
-//--------
-
-   sprintf(buffer+strlen(buffer),"protected:\n");
-
-   sprintf(buffer+strlen(buffer),"   %sAnalyzer* fAnalyzer; // Handle to %sAnalyzer class\n\n",shortCut,shortCut);
-
-// Methods
-//---------
-
-   sprintf(buffer+strlen(buffer),"\npublic:\n");
-   // Constructor and Event Methods
-   sprintf(buffer+strlen(buffer),"   %sEventLoop(const char *name,const char *title,%sAnalyzer *analyzer):ROMEEventLoop(name,title,analyzer)\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fAnalyzer->SetCurrentRunTablePos(0); };\n");
-   sprintf(buffer+strlen(buffer),"   void InitMidasBanks();\n");
-   int ndb = 0;
-   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
-   if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   void ReadSQLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable();\n");
-      sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable();\n");
-      sprintf(buffer+strlen(buffer),"   void InitXMLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase();\n");
-      sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");
-   }
-   else {
-      sprintf(buffer+strlen(buffer),"   void ReadSQLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void SaveSQLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable() {};\n");
-      sprintf(buffer+strlen(buffer),"   void InitXMLDataBase() {};\n");
-      sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase() {};\n");
-      sprintf(buffer+strlen(buffer),"   void XMLUpdate() {};\n");
-   }
-   sprintf(buffer+strlen(buffer),"   void ConnectTrees();\n");
-
-// Footer
-//--------
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-   sprintf(buffer+strlen(buffer),"#endif   // %sEventLoop_H\n",shortCut);
-
-// Close h-File
-//--------------
-
-   sprintf(hFile,"%s%sEventLoop.h",outDir,shortCut);
-   fileHandle = open(hFile,O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
-      }
-   }
-   if (!identical) {
-      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
-      close(fileHandle);
-   }
-   return true;
-}
 
 bool ROMEBuilder::WriteRunTableH() {
    int i;
@@ -4211,7 +3791,7 @@ bool ROMEBuilder::WriteRunTableH() {
    int nb,ndb=0;
    int fileHandle;
 
-   sprintf(hFile,"%s%sRunTable.h",outDir,shortCut);
+   sprintf(hFile,"%s/include/framework/%sRunTable.h",outDir,shortCut);
    for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
    if (ndb==0) {
       remove(hFile);
@@ -4316,7 +3896,7 @@ bool ROMEBuilder::WriteMain() {
    int fileHandle;
 
    sprintf(buffer,"#include <TApplication.h>\n");
-   sprintf(buffer+strlen(buffer),"#include \"%sAnalyzer.h\"\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
    sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"int main(int argc, char *argv[])\n");
@@ -4337,7 +3917,7 @@ bool ROMEBuilder::WriteMain() {
    sprintf(buffer+strlen(buffer),"   return 0;\n");
    sprintf(buffer+strlen(buffer),"}\n");
 
-   sprintf(hFile,"%smain.cpp",outDir);
+   sprintf(hFile,"%s/src/framework/main.cpp",outDir);
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -4412,7 +3992,8 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-o")&&i<argc-1) {
          strcpy(romeb->outDir,argv[i+1]);
-         strcat(romeb->outDir,"/");
+         if (romeb->outDir[strlen(romeb->outDir)-1]!='/' && romeb->outDir[strlen(romeb->outDir)-1]!='\\') 
+            strcat(romeb->outDir,"/");
          i++;
       }
       else if (argv[i][0]=='-') {
@@ -4436,6 +4017,25 @@ int main(int argc, char *argv[])
          cout << "Inputfile '" << xmlFile << "' not found." << endl;
       return 1;
    }
+   char path[1000];
+   strcpy(path,romeb->outDir);
+   path[strlen(path)-1] = 0;
+   if (stat( path, &buf )) {
+      cout << "Outputpath '" << romeb->outDir << "' not found." << endl;
+      return 1;
+   }
+   sprintf(path,"%s/src",romeb->outDir);
+   _mkdir(path);
+   sprintf(path,"%s/src/tasks",romeb->outDir);
+   _mkdir(path);
+   sprintf(path,"%s/src/framework",romeb->outDir);
+   _mkdir(path);
+   sprintf(path,"%s/include/",romeb->outDir);
+   _mkdir(path);
+   sprintf(path,"%s/include/tasks",romeb->outDir);
+   _mkdir(path);
+   sprintf(path,"%s/include/framework",romeb->outDir);
+   _mkdir(path);
 
    romeb->startBuilder(xmlFile);
 
@@ -4548,6 +4148,10 @@ void ROMEBuilder::startBuilder(char* xmlFile)
       system("make");
 #endif
 #if defined( _MSC_VER )
+   const int workDirLen = 1000;
+   char workDir[workDirLen];
+   getcwd(workDir,workDirLen);
+   cout << "working dir = " << workDir << endl;
       system("nmake -f Makefile.win");
 #endif
    }
@@ -4577,7 +4181,7 @@ void ROMEBuilder::WriteMakefile() {
       sprintf(buffer+strlen(buffer)," /DHAVE_SQL");
    sprintf(buffer+strlen(buffer),"\n");
    // includes
-   sprintf(buffer+strlen(buffer),"Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ ");
+   sprintf(buffer+strlen(buffer),"Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tasks/ /Iinclude/framework/ ");
    if (!this->offline) 
       sprintf(buffer+strlen(buffer)," /I$(MIDASSYS)/include/");
    if (this->sql) 
@@ -4606,21 +4210,21 @@ void ROMEBuilder::WriteMakefile() {
    // compile
    for (i=0;i<numOfFolder;i++) {
       if (numOfGetters[i]==0) continue;
-      sprintf(buffer+strlen(buffer),"obj/%s%s.obj: %s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
-      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj %s%s.cpp \n",shortCut,folderName[i],shortCut,folderName[i]);
+      sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
+      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut,folderName[i],shortCut,folderName[i]);
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: %sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
-      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj %sT%s.cpp \n",shortCut,taskName[i],shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tasks/%sT%s.cpp \n",shortCut,taskName[i],shortCut,taskName[i]);
    }
-   sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: %sAnalyzer.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj %sAnalyzer.cpp \n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/%sIO.obj: %sIO.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sIO.obj %sIO.cpp \n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj src/framework/%sAnalyzer.cpp \n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"obj/%sIO.obj: src/framework/%sIO.cpp\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sIO.obj src/framework/%sIO.cpp \n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"obj/%sDict.obj: %sDict.cpp\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/main.obj: main.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/main.obj main.cpp \n");
+   sprintf(buffer+strlen(buffer),"obj/main.obj: src/framework/main.cpp\n");
+   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
 
    sprintf(buffer+strlen(buffer),"obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEAnalyzer.obj $(ROMESYS)/src/ROMEAnalyzer.cpp \n");
@@ -4698,11 +4302,12 @@ void ROMEBuilder::WriteDictionaryBat(char* buffer1,char* buffer2)
    sprintf(buffer2+strlen(buffer2),"-I$ROMESYS/include ");
    sprintf(buffer2+strlen(buffer2),"-I$ROOTSYS ");
 #endif
+   sprintf(buffer2+strlen(buffer2),"-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) sprintf(buffer2+strlen(buffer2),"%s%s.h ",shortCut,folderName[i]);
+      if (numOfValue[i] > 0) sprintf(buffer2+strlen(buffer2),"include/framework/%s%s.h ",shortCut,folderName[i]);
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer2+strlen(buffer2),"%sT%s.h ",shortCut,taskName[i]);
+      sprintf(buffer2+strlen(buffer2),"include/tasks/%sT%s.h ",shortCut,taskName[i]);
    }
    sprintf(buffer2+strlen(buffer2),"ROMETask.h ROMETreeInfo.h\n");
    strcat(buffer2,"\0");
