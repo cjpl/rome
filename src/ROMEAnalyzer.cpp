@@ -33,12 +33,15 @@
 #include <TObjString.h>
 #include <TROOT.h>
 #include <TBrowser.h>
+#include <TH1.h>
 #include "ROMEAnalyzer.h"
 #include "ROMEEventLoop.h"
 #include "ROMETree.h"
 #include "ROMETask.h"
 #include "ROMEStatic.h"
 #include <Riostream.h>
+
+void *root_server_loop(void *arg);
 
 ROMEAnalyzer::ROMEAnalyzer()
 {

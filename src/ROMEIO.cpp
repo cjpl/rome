@@ -21,6 +21,7 @@
 #endif
 #include <fcntl.h>
 
+#include <TROOT.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
 #include "Riostream.h"
