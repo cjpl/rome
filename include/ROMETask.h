@@ -2,6 +2,9 @@
   ROMETask.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2004/11/23 09:22:21  schneebeli_m
+  User called Root Interpreter
+
   Revision 1.12  2004/11/17 16:13:00  schneebeli_m
   remove executetask
 
@@ -28,9 +31,10 @@ private:
    ROMEString     fTimeString; // Elapsed Time in a readable format
    TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 protected:
-   Int_t          fVersion;        // Version of Task
-   Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
-   char           fEventID;        // TriggerID for event method
+   Int_t          fVersion;            // Version of Task
+   Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
+   char           fEventID;            // TriggerID for event method
+   ROMEString     fCurrentEventMethod; // Current event method name
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title);
@@ -46,6 +50,8 @@ protected:
    virtual void Event() = 0;
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
+
+   void StartRootInterpreter(const char* message = NULL);
 
    void  TimeStart();
    void  TimeEnd();

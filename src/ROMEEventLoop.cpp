@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.29  2004/11/23 09:22:21  schneebeli_m
+//  User called Root Interpreter
+//
 //  Revision 1.28  2004/11/16 16:14:01  schneebeli_m
 //  implemented task hierarchy
 //
@@ -810,6 +813,7 @@ bool ROMEEventLoop::UserInput()
          }
       }
       if (interpreter) {
+         cout << endl << "End of event number " << gROME->GetCurrentEventNumber() << " of run number " << gROME->GetCurrentRunNumber() << endl;
          gROME->GetApplication()->Run(true);
       }
    }

@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.18  2004/11/23 09:22:21  schneebeli_m
+//  User called Root Interpreter
+//
 //  Revision 1.17  2004/11/17 16:12:46  schneebeli_m
 //  remove executetask
 //
@@ -48,6 +51,7 @@ void ROMETask::Exec(Option_t *option)
    // EndOfRun
    // Terminate
    if (!strncmp(option,"i",1)) {
+      fCurrentEventMethod = "Init";
       ROMEString foldername;
       foldername.SetFormatted("%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
@@ -55,23 +59,34 @@ void ROMETask::Exec(Option_t *option)
       Init();
    }
    else if (!strncmp(option,"b",1)) {
+      fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
       BeginOfRun();
    }
    else if (!strncmp(option,"e",1)) {
+      fCurrentEventMethod = "EndOfRun";
       EndOfRun();
    }
    else if (!strncmp(option,"t",1)) {
+      fCurrentEventMethod = "Terminate";
       Terminate();
       if (gShowTime) {
          cout << "Task '" << fName.Data() << "' : run time = " << GetTime() << endl;
       }
    }
    else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
+      fCurrentEventMethod = "Event";
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();
    }
+}
+
+void ROMETask::StartRootInterpreter(const char* message) {
+   cout << endl << "In method " << fCurrentEventMethod.Data() << " of task " << fName.Data() << " of event number " << gROME->GetCurrentEventNumber() << " of run number " << gROME->GetCurrentRunNumber() << endl;
+   if (message) 
+      cout << message << endl;
+   gROME->GetApplication()->Run(true);
 }
 
 // Time methods
