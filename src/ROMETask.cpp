@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.17  2004/11/17 16:12:46  schneebeli_m
+//  remove executetask
+//
 //  Revision 1.16  2004/11/16 16:14:01  schneebeli_m
 //  implemented task hierarchy
 //
@@ -68,71 +71,6 @@ void ROMETask::Exec(Option_t *option)
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();
-   }
-}
-
-void TTask::ExecuteTasks(Option_t *option)
-{
-   // Execute all the subtasks of a task.
-
-   fOption = option;
-   fOption += ",";
-   fOption += this->GetName();
-
-   TIter next(fTasks);
-   TTask *task;
-   while((task=(TTask*)next())) {
-      if (fgBreakPoint) return;
-      if (!task->IsActive()) continue;
-      if (task->fHasExecuted) {
-         task->ExecuteTasks(fOption);
-         continue;
-      }
-      if (task->fBreakin == 1) {
-         printf("Break at entry of task: %s\n",task->GetName());
-         fgBreakPoint = this;
-         task->fBreakin++;
-         return;
-      }
-
-      if (gDebug > 1) {
-         TROOT::IndentLevel();
-         cout<<"Execute task:"<<task->GetName()<<" : "<<task->GetTitle()<<endl;
-         TROOT::IncreaseDirLevel();
-      }
-      task->Exec(fOption);
-      task->fHasExecuted = kTRUE;
-      task->ExecuteTasks(fOption);
-      if (gDebug > 1) TROOT::DecreaseDirLevel();
-      if (task->fBreakout == 1) {
-         printf("Break at exit of task: %s\n",task->GetName());
-         fgBreakPoint = this;
-         task->fBreakout++;
-         return;
-      }
-   }
-}
-void ROMETask::GetParentTaskNames(ROMEStrArray &names) 
-{
-   int is,ie,num=0;
-   if ((is = fOption.Index("mainTask",8,0,TString::kExact))==-1)
-      return;
-   ROMEString str = fOption(is+8,fOption.Length()-is-8);
-   ROMEString name;
-   if (str.Length()==0)
-      return;
-   while (str[0]==',') {
-      if ((ie = str.Index(",",1,1,TString::kExact))==-1) {
-         name = str(1,str.Length()-1);
-         names.AddAtAndExpand(name,num);
-         return;
-      }
-      else {
-         name = str(1,ie-1);
-         str = str(ie,str.Length()-ie);
-         names.AddAtAndExpand(name,num);
-         num++;
-      }
    }
 }
 

@@ -2,6 +2,9 @@
   ROMETask.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2004/11/17 16:13:00  schneebeli_m
+  remove executetask
+
   Revision 1.11  2004/11/16 16:14:00  schneebeli_m
   implemented task hierarchy
 
@@ -43,8 +46,6 @@ protected:
    virtual void Event() = 0;
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
-
-   void GetParentTaskNames(ROMEStrArray &names);
 
    void  TimeStart();
    void  TimeEnd();
