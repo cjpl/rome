@@ -8,13 +8,13 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.26  2004/09/25 01:36:36  schneebeli_m
+//  implemented FW dependent EventLoop and DataBase classes
+//
 //  Revision 1.25  2004/09/25 01:34:48  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
 //  Revision 1.24  2004/09/23 15:48:16  midas
-//  Added $Log$
-//  Added Revision 1.25  2004/09/25 01:34:48  schneebeli_m
-//  Added implemented FW dependent EventLoop and DataBase classes
 //  Added tag in header
 //
 //////////////////////////////////////////////////////////////////////////
