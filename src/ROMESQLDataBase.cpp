@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.10  2004/11/17 10:17:21  sawada
+//  code cleanup
+//
 //  Revision 1.9  2004/11/16 21:59:45  sawada
 //  read/write field array at once.
 //
@@ -37,16 +40,15 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>
 #include <TObjString.h>
-#include <limits.h>
-#ifdef __linux__
-#include <unistd.h>
-#endif
 
 #include <ROMEAnalyzer.h>
 #include <ROMESQLDataBase.h>
 #include <ROMEPath.h>
 #include <ROMEStrArray.h>
 #include <ROMEPath.h>
+
+const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
+const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = new ROMESQL();
@@ -74,15 +76,18 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
    int        iField;
    
    //field list 
-   if(!fFieldList.Length()){
-      iField=path->GetFieldIndexAt(0);
-      do{
+   if(!fFieldList.Length()){      
+      for(iField=path->GetFieldIndexAt(0)
+	     ;!path->IsFieldArray()||iField<=path->GetFieldIndexAt(1)
+	     ;iField+=path->GetFieldIndexAt(2)){
 	 temp = path->GetFieldName();
 	 if(path->IsFieldArray())
 	    temp.AppendFormatted("$%d",iField);     
-	 fFieldList.AppendFormatted("%s.%s$$$$$,",path->GetTableNameAt(path->GetNumberOfTables()-1),temp.Data());
-	 iField+=path->GetFieldIndexAt(2);
-      }while(iField<=path->GetFieldIndexAt(1));
+	 fFieldList.AppendFormatted("%s.%s%s,",path->GetTableNameAt(path->GetNumberOfTables()-1)
+				    ,temp.Data(),RSQLDB_STR);
+	 if(!path->IsFieldArray())
+	    break;
+      }
       fFieldList.Remove(fFieldList.Length()-1,1);
    }
    
@@ -152,7 +157,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 	 
 	 ROMEPath *dbpath = new ROMEPath();
 	 int is1,ie1,is2,ie2,is3,ie3;
-	 int itmp[5];
+	 int itmp;
 	 ROMEString temp  =  path->GetTableNameAt(iTable+1);
          temp += "=\"";
 	 ROMEString val = path->GetTableNameAt(iTable);
@@ -169,7 +174,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
                   if ((ie1=value.Index(")",1,is1+3,TString::kIgnoreCase))==-1)
                      ie1 = value.Length();
 		  dbConstraint = value(is1+3,ie1-is1-3);
-		  if(dbConstraint.Index("_",1,0,TString::kIgnoreCase)!=-1){
+		  if(dbConstraint.Contains ("_")){
 		     value.Remove(is1+1,2);
 		     value.Insert(is1,val);
 		  }
@@ -181,17 +186,16 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
 			if(is2>is1)
 			   break;
 			is3 = is2+1;
-			itmp[0] = value.Length();
-			if ((itmp[1]=value.Index("/",1,is3,TString::kIgnoreCase))==-1)
-			   itmp[1] = INT_MAX;
-			if ((itmp[2]=value.Index("{",1,is3,TString::kIgnoreCase))==-1)
-			   itmp[2] = INT_MAX;
-			if ((itmp[3]=value.Index("(",1,is3,TString::kIgnoreCase))==-1)
-			   itmp[3] = INT_MAX;
-			if ((itmp[4]=value.Index("[",1,is3,TString::kIgnoreCase))==-1)
-			   itmp[4] = INT_MAX;
-			ie2 = TMath::MinElement(5,itmp)+1;
-			ie3=ie2-1;
+			ie2 = value.Length();
+			if ((itmp=value.Index("/",1,is3,TString::kIgnoreCase))!=-1)
+			   ie2 = TMath::Min(ie2,itmp);
+			if ((itmp=value.Index("{",1,is3,TString::kIgnoreCase))!=-1)
+			   ie2 = TMath::Min(ie2,itmp);
+			if ((itmp=value.Index("(",1,is3,TString::kIgnoreCase))!=-1)
+			   ie2 = TMath::Min(ie2,itmp);
+			if ((itmp=value.Index("[",1,is3,TString::kIgnoreCase))!=-1)
+			   ie2 = TMath::Min(ie2,itmp);
+			ie3=ie2;
 		     }
 		     tname = value(is3,ie3-is3);
 		     newdbConstraint.Resize(0);
@@ -243,15 +247,16 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
       cout<<"\t  ... OK"<<endl;
 #endif
    }
+
    return true;
 }
 
-bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
-   ROMEString path = dataBasePath;
+bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
+   ROMEString path = connection;
+   ROMEString database = dataBase;
    ROMEString server;
    ROMEString user;
    ROMEString passwd;
-   ROMEString database;
    ROMEString port;
    ROMEString prompt;
    int is,ie;
@@ -263,6 +268,7 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
       return false;
    }
    istart+=8;
+   
    //search for user
    is = istart;
    if ((ie=path.Index("@",1,is,TString::kIgnoreCase))==-1) {
@@ -283,24 +289,17 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
    }
    //search for server
    is = istart;
-   if ((ie=path.Index("/",1,is,TString::kIgnoreCase))==-1) {
-      database = "";
+   server = path(is,path.Length());
+   //search for port
+   if ((ie=server.Index(":",1,0,TString::kIgnoreCase))==-1) {
+      port = "0";
    }
-   else {
-      istart = ie+1;
-      server = path(is,ie-is);
-      //search for port
-      if ((ie=server.Index(":",1,0,TString::kIgnoreCase))==-1) {
-	 port = "0";
-      }
-      else{
-	 port = server(ie+1,server.Length()-ie-1);
-	 server.Remove(ie,server.Length()-ie);
-      }
-      //search for database
-      database = path(istart,path.Length());
+   else{
+      port = server(ie+1,server.Length()-ie-1);
+      server.Remove(ie,server.Length()-ie);
    }
-
+   
+   //ask password when password is "?"
    if(passwd.Length()==1 && passwd(0) == '?'){
 #ifdef __linux__
       prompt.AppendFormatted("%s@%s's password: ",user.Data(),server.Data());
@@ -322,12 +321,12 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
 
 bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    int iField;
-   int iArray;
+   int iOrder;
    int iRow;
    ROMEPath *path = new ROMEPath();
    ROMEString fieldName;
    ROMEString sqlQuery;
-   int i,j;
+   int iArray,jArray;
    
    if (!path->Decode(dataBasePath)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
@@ -345,23 +344,15 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    
    sqlQuery = "SELECT ";
    sqlQuery += fFieldList;
-   sqlQuery.ReplaceAll("$$$$$","");
-   if(fFromPhrase.Length()){
-      sqlQuery += " FROM ";
-      sqlQuery += fFromPhrase;
-   }
-   if(fWherePhrase.Length()){
-      sqlQuery += " WHERE ";
-      sqlQuery += fWherePhrase;
-   }
-   if(fOrderPhrase.Length()){
-      sqlQuery += " ORDER BY ";
-      sqlQuery += fOrderPhrase;
-   }
-   if(fLimitPhrase.Length()){
-      sqlQuery += " LIMIT ";
-      sqlQuery += fLimitPhrase;
-   }
+   sqlQuery.ReplaceAll(RSQLDB_STR,"");
+   if(fFromPhrase.Length())
+      sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
+   if(fWherePhrase.Length())
+      sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+   if(fOrderPhrase.Length())
+      sqlQuery.AppendFormatted(" ORDER BY %s",fOrderPhrase.Data());
+   if(fLimitPhrase.Length())
+      sqlQuery.AppendFormatted(" LIMIT %s",fLimitPhrase.Data());
    sqlQuery += ";";
    
    if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
@@ -374,28 +365,29 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    for(iRow=0;iRow<path->GetOrderIndexAt(0);iRow++){
       fSQL->NextRow();
    }
-   iArray=path->GetOrderIndexAt(0);
-   i=0;
-   do{
-      if(iArray>=fSQL->GetNumberOfRows()){
+
+   for(iOrder=path->GetOrderIndexAt(0),iArray=0
+	  ;!path->IsOrderArray()||iOrder<=path->GetOrderIndexAt(1);
+       iOrder+=path->GetOrderIndexAt(2),iArray++){
+      if(iOrder>=fSQL->GetNumberOfRows()){
 	 cout << "\nWarning: There is missing data in SQL Database for "
 	      << path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName() << endl;
 	 break;
       }
-      if(i!=0){
+      if(iArray!=0){
 	 for(iRow=0;iRow<path->GetOrderIndexAt(2);iRow++)
 	    fSQL->NextRow();
       }
-      iField=path->GetFieldIndexAt(0);
-      j=0;
-      do{
-	 values->SetAt(fSQL->GetField(j),i,j);
-	 iField+=path->GetFieldIndexAt(2);
-	 j++;
-      }while(iField<=path->GetFieldIndexAt(1));
-      i++;
-      iArray+=path->GetOrderIndexAt(2);
-   }while(iArray<=path->GetOrderIndexAt(1));
+      for(iField=path->GetFieldIndexAt(0),jArray=0
+	     ;!path->IsFieldArray()||iField<=path->GetFieldIndexAt(1)
+	     ;iField+=path->GetFieldIndexAt(2),jArray++){
+	 values->SetAt(fSQL->GetField(jArray),iArray,jArray);
+	 if(!path->IsFieldArray())
+	    break;
+      }
+      if(!path->IsOrderArray())
+	 break;
+   }
       
    delete path;
    return true;
@@ -403,13 +395,13 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
 
 bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
    int iField;
-   int iArray;
+   int iOrder;
    ROMEPath *path = new ROMEPath();
    ROMEString fieldName;
    ROMEString sqlQuery;
    ROMEString setPhrase;
    ROMEString temp;
-   int i,j;
+   int iArray,jArray;
    int istart;
    bool exist;
    
@@ -440,29 +432,27 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
    setPhrase.ReplaceAll(" AND ",",");
    setPhrase.ReplaceAll(" and ",",");
    setPhrase.ReplaceAll(" And ",",");	
-   
-   iArray=path->GetOrderIndexAt(0);
-   i=0;
-   do{
+      
+   for(iOrder=path->GetOrderIndexAt(0),iArray=0
+	  ;!path->IsOrderArray()||iOrder<=path->GetOrderIndexAt(1)
+	  ;iOrder+=path->GetOrderIndexAt(2),iArray++){
       //check if the row exists
       sqlQuery = "SELECT ";
       sqlQuery += fFieldList;
-      sqlQuery.ReplaceAll("$$$$$","");
+      sqlQuery.ReplaceAll(RSQLDB_STR,"");
       sqlQuery += " FROM ";
       sqlQuery += fFromPhrase;
-      if(fWherePhrase.Length()){
-	 sqlQuery += " WHERE ";
-	 sqlQuery += fWherePhrase;
-      }
+      if(fWherePhrase.Length())
+	 sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
       if(path->IsOrderArray()){
 	 if(!sqlQuery.Contains("WHERE"))
 	    sqlQuery += " WHERE ";
 	 else
 	    sqlQuery += " AND ";
-	 sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
+	 sqlQuery.AppendFormatted("%s.%s='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
 				  strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
 				  ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
-				  ,iArray);
+				  ,iOrder);
       }
       sqlQuery += " LIMIT 1;";
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
@@ -472,73 +462,78 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
       }      
       exist = fSQL->GetNumberOfRows()!=0;
       
-      if(!exist)
+      if(!exist){ // insert new record
 	 sqlQuery = "INSERT INTO ";
-      else
-	 sqlQuery = "UPDATE ";
-      sqlQuery += fFromPhrase;
-      sqlQuery += " SET ";
-      sqlQuery += fFieldList;
+	 sqlQuery += fFromPhrase;
+	 sqlQuery += " SET ";
+	 sqlQuery += fFieldList;
+	 for(iField=path->GetFieldIndexAt(0),jArray=0,istart=0
+		;!path->IsFieldArray()||iField<=path->GetFieldIndexAt(1)
+		;iField+=path->GetFieldIndexAt(2),jArray++){
+	    if ((istart=sqlQuery.Index(RSQLDB_STR,RSQLDB_STR_LEN,istart,TString::kIgnoreCase))!=-1) {
+	       temp.Resize(0);
+	       temp.AppendFormatted("='%s'",values->At(iArray,jArray).Data());
+	       sqlQuery.Remove(istart,RSQLDB_STR_LEN);
+	       sqlQuery.Insert(istart,temp);
+	    }
+	    if(!path->IsFieldArray())
+	       break;
+	 }	 
+	 if(setPhrase.Length())
+            sqlQuery.AppendFormatted(",%s",setPhrase.Data());
+         if(path->IsOrderArray()){
+	    sqlQuery.AppendFormatted(",%s.%s ='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
+				     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
+				     ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
+				     ,iOrder);
+	 }
+         sqlQuery += ";";
+      }
 
-      istart=0;
-      iField=path->GetFieldIndexAt(0);
-      j=0;
-      do{
-	 if ((istart=sqlQuery.Index("$$$$$",5,istart,TString::kIgnoreCase))!=-1) {
-	    temp = "=";
-	    temp += values->At(i,j).Data();
-	    sqlQuery.Remove(istart,5);
-	    sqlQuery.Insert(istart,temp);
+      else{ //update existing record
+	 sqlQuery = "UPDATE ";
+	 sqlQuery += fFromPhrase;
+	 sqlQuery += " SET ";
+	 sqlQuery += fFieldList;	 
+	 for(iField=path->GetFieldIndexAt(0),jArray=0,istart=0
+		;!path->IsFieldArray()||iField<=path->GetFieldIndexAt(1)
+		;iField+=path->GetFieldIndexAt(2),jArray++){
+	    if ((istart=sqlQuery.Index(RSQLDB_STR,RSQLDB_STR_LEN,istart,TString::kIgnoreCase))!=-1) {
+	       temp.Resize(0);
+	       temp.AppendFormatted("='%s'",values->At(iArray,jArray).Data());
+	       sqlQuery.Remove(istart,RSQLDB_STR_LEN);
+	       sqlQuery.Insert(istart,temp);
+	    }
+	    if(!path->IsFieldArray())
+	       break;
 	 }
-	 iField+=path->GetFieldIndexAt(2);
-	 j++;
-      }while(iField<=path->GetFieldIndexAt(1));
-      
-      if(exist){ // row exists
-	 if(fWherePhrase.Length()){
-	    sqlQuery += " WHERE ";
-	    sqlQuery += fWherePhrase;
-	 }
+	 if(fWherePhrase.Length())
+	    sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
 	 if(path->IsOrderArray()){
 	    if(sqlQuery.Contains("WHERE"))
 	       sqlQuery += " AND ";
 	    else
 	       sqlQuery += " WHERE ";
-	    sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
+	    sqlQuery.AppendFormatted("%s.%s ='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
 				     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
 				     ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
-				     ,iArray);
+				     ,iOrder);
 	 }
 	 sqlQuery += " LIMIT 1;";
-      }
-      else{ // row does not exist
-	 if(setPhrase.Length()){
-            sqlQuery += ",";
-            sqlQuery += setPhrase;
-         }
-         if(path->IsOrderArray()){
-            sqlQuery += ",";
-	    sqlQuery.AppendFormatted("%s.%s = %d",path->GetTableNameAt(path->GetNumberOfTables()-1),
-				     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
-				     ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
-				     ,iArray);
-         }
-         sqlQuery += ";";
       }
       
 #ifdef SQLDEBUG
       cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
 #else
-      cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){
 	 cout<<"\nInvalid input for database write."<<endl;
 	 delete path;
 	 return false;
       }
 #endif
-      i++;
-      iArray+=path->GetOrderIndexAt(2);
-   }while(iArray<=path->GetOrderIndexAt(1));	 
+      if(!path->IsOrderArray())
+	 break;
+   }
    
    delete path;
    return true;
