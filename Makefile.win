@@ -1,0 +1,6 @@
+ROOTINC = /I$(ROOTSYS)/include/
+LIBRARY = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib
+
+ROMEBuilder.exe:  Builder/src/ROMEBuilder.cpp 
+	cl /GX /I%ROMESYS%/Builder/include/ /I%ROMESYS%/include/ $(ROOTINC) /Fo%ROMESYS%/bin/ROMEBuilder.obj /Fe%ROMESYS%/bin/ROMEBuilder.exe Builder/src/ROMEBuilder.cpp $(LIBRARY)
+
