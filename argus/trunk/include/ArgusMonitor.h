@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.6  2005/02/21 23:07:50  sawada
+  several UNIX support
+
   Revision 1.5  2005/02/06 00:39:35  sawada
    Changed TRint to TApplication
    Stop method of thread function
@@ -29,7 +32,7 @@
 #include <ROMEString.h>
 #include <ROMEDataBase.h>
 #include <ArgusConfig.h>
-#if defined(HAVE_MIDAS)
+#if defined( HAVE_MIDAS )
 #include <midas.h>
 #endif
 
@@ -37,7 +40,7 @@ class ArgusMonitor : public TObject
 {
 protected:
    // Application
-#if defined(USE_TRINT)
+#if defined( USE_TRINT )
    TRint*        fApplication;                 //! Application Handle
 #else
    TApplication* fApplication;                 //! Application Handle
@@ -85,7 +88,7 @@ protected:
    
 public:
    ArgusMonitor() {};
-#if defined (USE_TRINT)
+#if defined( USE_TRINT )
    ArgusMonitor(TRint *app);
 #else
    ArgusMonitor(TApplication *app);
@@ -93,7 +96,7 @@ public:
    ~ArgusMonitor();
    
    // Application Handle
-#if defined (USE_TRINT)
+#if defined( USE_TRINT )
    TRint* GetApplication() { return fApplication; };
 #else
    TApplication* GetApplication() { return fApplication; };

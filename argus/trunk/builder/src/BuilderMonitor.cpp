@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/02/21 23:07:50  sawada
+  several UNIX support
+
   Revision 1.11  2005/02/21 19:06:56  sawada
   changed platform specifying macros
 
@@ -108,7 +111,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
    // Constructor
-#if defined(USE_TRINT)
+#if defined( USE_TRINT )
    buffer.AppendFormatted("%sMonitor::%sMonitor(TRint *app):ArgusMonitor(app) {\n",shortCut.Data(),shortCut.Data());
 #else
    buffer.AppendFormatted("%sMonitor::%sMonitor(TApplication *app):ArgusMonitor(app) {\n",shortCut.Data(),shortCut.Data());
@@ -523,7 +526,7 @@ bool ArgusBuilder::WriteMonitorH() {
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-#if defined(USE_TRINT)
+#if defined( USE_TRINT )
    buffer.AppendFormatted("   %sMonitor(TRint *app);\n",shortCut.Data());
 #else
    buffer.AppendFormatted("   %sMonitor(TApplication *app);\n",shortCut.Data());

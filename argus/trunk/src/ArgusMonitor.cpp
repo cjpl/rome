@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.10  2005/02/21 23:07:50  sawada
+  several UNIX support
+
   Revision 1.9  2005/02/21 19:06:56  sawada
   changed platform specifying macros
 
@@ -53,7 +56,7 @@
 #include <sys/socket.h>
 #include <TThread.h>
 #endif
-#if !defined( R__MACOSX )
+#ifndef R__MACOSX
 #include <sys/io.h>
 #endif
 #include <sys/stat.h>
@@ -77,7 +80,7 @@ void writeLineToProcess(const char* str) {
    ArgusMonitor::LineToProcess = str;
 }
 
-#if defined(USE_TRINT)
+#if defined( USE_TRINT )
 ArgusMonitor::ArgusMonitor(TRint *app)
 #else
 ArgusMonitor::ArgusMonitor(TApplication *app)
@@ -112,7 +115,7 @@ bool ArgusMonitor::Start(int argc, char **argv)
    
    int j;
 
-#if defined(HAVE_MIDAS)
+#if defined( HAVE_MIDAS )
    // Connect to the experiment
    if (cm_connect_experiment(gArgus->GetOnlineHost(), gArgus->GetOnlineExperiment(),gArgus->GetProgramName(), NULL) != SUCCESS) {
       cout << "\nCannot connect to experiment" << endl;
@@ -157,7 +160,7 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 
    char host_name[256] = "";
    char exp_name[32] = "";
-#if defined(HAVE_MIDAS)
+#if defined( HAVE_MIDAS )
    cm_get_environment(host_name,sizeof(host_name),exp_name,sizeof(exp_name));
 #endif
    

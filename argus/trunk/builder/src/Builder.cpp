@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.14  2005/02/21 23:07:50  sawada
+  several UNIX support
+
   Revision 1.13  2005/02/21 19:06:55  sawada
   changed platform specifying macros
 
@@ -635,31 +638,64 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqllibs := \n");
       buffer.AppendFormatted("sqlcflags := \n");
    }
-   if (this->midas) {
-#if defined( R__LINUX )
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib");
+#if defined( R__ALPHA )
+   buffer.AppendFormatted("oscflags :=\n");
+   buffer.AppendFormatted("oslibs := -lc -lbsd\n");
+#elif defined ( R__SGI )
+   buffer.AppendFormatted("oscflags :=\n");
+   buffer.AppendFormatted("oslibs :=\n");
+#elif defined ( R__FBSD )
+   buffer.AppendFormatted("oscflags :=\n");
+   buffer.AppendFormatted("oslibs := -lbsd -lcompat\n");
 #elif defined ( R__MACOSX )
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib");
+   buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
+   buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
+   buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+#elif defined ( R__LINUX )
+   buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
+   buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
+#elif defined ( R__SOLARIS )
+   buffer.AppendFormatted("oscflags :=\n");
+   buffer.AppendFormatted("oslibs := -lsocket -lnsl\n");
 #else
-      buffer.AppendFormatted("midaslibs :=");
+   buffer.AppendFormatted("oscflags :=\n");
+   buffer.AppendFormatted("oslibs :=\n");
 #endif
-      buffer.AppendFormatted(" -lmidas\n");
+   if (this->midas) {
+#if defined( R__ALPHA )
+      buffer.AppendFormatted("midascflags := -DOSF1 -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/osf1/lib -lmidas\n");
+#elif defined ( R__SGI )
+      buffer.AppendFormatted("midascflags := -DOS_ULTRIX -DNO_PTY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/ultrix/lib -lmidas\n");
+#elif defined ( R__FBSD )
+      buffer.AppendFormatted("midascflags := -DOS_FREEBSD -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/freeBSD/lib -lmidas\n");
+#elif defined ( R__MACOSX )
+      buffer.AppendFormatted("midascflags := -DOS_LINUX -DOS_DARWIN -DHAVE_STRLCPY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib -lmidas\n");
+#elif defined ( R__LINUX )
+      buffer.AppendFormatted("midascflags := -DOS_LINUX -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib -lmidas\n");
+#elif defined ( R__SOLARIS )
+      buffer.AppendFormatted("midascflags := -DOS_SOLARIS -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/solaris/lib -lmidas\n");
+#else
       buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
+      buffer.AppendFormatted("midaslibs := -lmidas\n");
+#endif
    }
    else{
       buffer.AppendFormatted("midaslibs := \n");
       buffer.AppendFormatted("midascflags := \n");
    }
-   buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS)");
-#if defined( R__LINUX )
-   buffer.AppendFormatted(" -lutil");
-#endif
+   buffer.AppendFormatted("clibs := -lHtml $(SYSLIBS)");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
+   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
    // includes
    buffer.AppendFormatted("Includes := -I$(ARGUSSYS)/include/ -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tabs/ -Iinclude/monitor/");
    if(this->romefolder)
