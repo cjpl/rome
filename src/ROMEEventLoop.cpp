@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.36  2004/12/06 16:03:02  sawada
+//  code cleanup (tab -> space)
+//
 //  Revision 1.35  2004/12/06 11:16:51  schneebeli_m
 //  user input on linux
 //
@@ -182,7 +185,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          ExecuteTasks("b");
          CleanTasks();
       }
-	  
+          
       // Loop over Events
       //------------------
       if (gShowTime) TimeStart();
@@ -559,8 +562,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       this->ConnectTrees();
    }
    else {
-	   cout << "Severe program failure." << endl << endl;
-	   return false;
+           cout << "Severe program failure." << endl << endl;
+           return false;
    }
    return true;
 }
@@ -617,9 +620,9 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
 #if defined( __ppc__ )
       //byte swapping
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
-	      ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
-	      ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-	      bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+              bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       gROME->InitMidasBanks();
 
@@ -834,7 +837,7 @@ bool ROMEEventLoop::UserInput()
          if (ch == 'q') {
             return false;
          }
-	      if (ch == 'e') {
+              if (ch == 'e') {
             this->SetTerminate();
             wait = false;
          }
@@ -1065,30 +1068,30 @@ void ROMEEventLoop::bk_swap(void *event, bool force)
       }
       
       switch (type) {
-	 case TID_WORD:
-	 case TID_SHORT:
-	    while ((Seek_t) pdata < (Seek_t) pbk) {
-	       ByteSwap((UShort_t*)pdata);
-	       pdata = (void *) (((UShort_t *) pdata) + 1);
-	    }
-	    break;
-	    
-	 case TID_DWORD:
-	 case TID_INT:
-	 case TID_BOOL:
-	 case TID_FLOAT:
-	    while ((Seek_t) pdata < (Seek_t) pbk) {
-	       ByteSwap((UInt_t*)pdata);
-	       pdata = (void *) (((UInt_t *) pdata) + 1);
-	    }
-	    break;
-	    
-	 case TID_DOUBLE:
-	    while ((Seek_t) pdata < (Seek_t) pbk) {
-	       ByteSwap((ULong64_t*)pdata);
-	       pdata = (void *) (((ULong64_t *) pdata) + 1);
-	    }
-	    break;
+         case TID_WORD:
+         case TID_SHORT:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((UShort_t*)pdata);
+               pdata = (void *) (((UShort_t *) pdata) + 1);
+            }
+            break;
+            
+         case TID_DWORD:
+         case TID_INT:
+         case TID_BOOL:
+         case TID_FLOAT:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((UInt_t*)pdata);
+               pdata = (void *) (((UInt_t *) pdata) + 1);
+            }
+            break;
+            
+         case TID_DOUBLE:
+            while ((Seek_t) pdata < (Seek_t) pbk) {
+               ByteSwap((ULong64_t*)pdata);
+               pdata = (void *) (((ULong64_t *) pdata) + 1);
+            }
+            break;
       }
    }   
    return;

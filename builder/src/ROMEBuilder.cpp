@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.78  2004/12/06 16:03:02  sawada
+  code cleanup (tab -> space)
+
   Revision 1.77  2004/12/06 09:04:34  schneebeli_m
   minor changes
 
@@ -1556,7 +1559,7 @@ bool ROMEBuilder::WriteTaskH() {
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArray[iTask][i]=="1") {
             if (histoType[iTask][i][2]==49) {
-					buffer.AppendFormatted("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else if (histoType[iTask][i][2]==50) {
                buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
@@ -1564,7 +1567,7 @@ bool ROMEBuilder::WriteTaskH() {
             else if (histoType[iTask][i][2]==51) {
                buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
-				buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   %s* Get%s() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
@@ -1577,7 +1580,7 @@ bool ROMEBuilder::WriteTaskH() {
             else if (histoType[iTask][i][2]==51) {
                buffer.AppendFormatted("   void Fill%sAt(int index,double x,double y,double z,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
-				buffer.AppendFormatted("   void Draw%sAt(int index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   void Draw%sAt(int index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   %s* Get%sAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   Bool_t is%sAccumulation() { return f%sAccumulation; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
@@ -5847,7 +5850,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortCut.Data(),mainProgName.Data());
    // make obj
    buffer.AppendFormatted("obj:\n");
-	buffer.AppendFormatted("\tif not exist obj mkdir obj\n");
+   buffer.AppendFormatted("\tif not exist obj mkdir obj\n");
    // link
    buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortCut.Data(),mainProgName.Data());
    if (haveFortranTask)
@@ -5978,10 +5981,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
    // make obj
    buffer.AppendFormatted("obj:\n");
-	buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
-	buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
-	buffer.AppendFormatted("\t\tmkdir obj; \\\n");
-	buffer.AppendFormatted("\tfi;\n");
+   buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
+   buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
+   buffer.AppendFormatted("\t\tmkdir obj; \\\n");
+   buffer.AppendFormatted("\tfi;\n");
    // link
    buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("	g++ -g -o $@ $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.17  2004/12/06 16:03:02  sawada
+//  code cleanup (tab -> space)
+//
 //  Revision 1.16  2004/12/02 17:46:43  sawada
 //  Macintosh port
 //
@@ -324,8 +327,8 @@ bool ROMEXML::OpenFileForPath(const char* file) {
    // Load XML document
    doc = xmlParseFile(file);
    if (doc == NULL) {
-  	   fprintf(stderr, "Error: unable to parse file \"%s\"\n", file);
-  	   return false;
+      fprintf(stderr, "Error: unable to parse file \"%s\"\n", file);
+      return false;
    }
 
    // Create xpath evaluation context

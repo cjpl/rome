@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.46  2004/12/06 16:03:02  sawada
+//  code cleanup (tab -> space)
+//
 //  Revision 1.45  2004/12/06 11:25:23  schneebeli_m
 //  user input on linux
 //
@@ -320,7 +323,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          cout << "Available inputlineparameter are : " << endl;
          cout << endl;
          ParameterUsage();
-	      return false;
+              return false;
       }
    }
 
