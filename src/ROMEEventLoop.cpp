@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.38  2005/01/05 10:36:20  schneebeli_m
+//  Tree file write error
+//
 //  Revision 1.37  2004/12/07 15:03:12  schneebeli_m
 //  online steering
 //
@@ -937,18 +940,20 @@ bool ROMEEventLoop::UserInput()
 bool ROMEEventLoop::Disconnect() {
    // Disconnects the current run. Called after the EndOfRun tasks.
 
-   TFile *f1;
    // Write non accumulative output tree files
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
+   TFile *fTreeFile;
    ROMEString runNumberString;
    gROME->GetCurrentRunNumberString(runNumberString);
    for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
       romeTree = gROME->GetTreeObjectAt(j);
+      fTreeFile = fTreeFiles[j];
       if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
          cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
+         fTreeFile->cd();
          tree->Write("",TObject::kOverwrite);
       }
    }
