@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.22  2005/01/07 11:37:32  schneebeli_m
+  Bank Arrays, Folder Array Getter
+
   Revision 1.21  2005/01/05 10:37:05  schneebeli_m
   Bank enumeration
 
@@ -170,9 +173,9 @@ private:
    int numOfStructFields[maxNumberOfBanks];
    ROMEString bankName[maxNumberOfBanks];
    ROMEString bankType[maxNumberOfBanks];
-   int bankEnumLow[maxNumberOfBanks];
-   int bankEnumHigh[maxNumberOfBanks];
-   int bankEnumDigit[maxNumberOfBanks];
+   int bankArraySize[maxNumberOfBanks];
+   int bankArrayStart[maxNumberOfBanks];
+   int bankArrayDigit[maxNumberOfBanks];
    ROMEString structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];

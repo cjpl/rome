@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2005/01/07 11:37:32  schneebeli_m
+  Bank Arrays, Folder Array Getter
+
   Revision 1.10  2004/10/25 08:03:41  schneebeli_m
   html docu and tree switches
 
@@ -48,7 +51,8 @@ public:
    { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries; 
      if (maxEntries>0) fTree->SetCircular(maxEntries);
      TObjArray *branches = fTree->GetListOfBranches();
-     for (int i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
+     for (int i=0;i<branches->GetEntriesFast();i++) 
+        ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
      fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n"; };
    TTree *GetTree() { return fTree; };
    Bool_t isRead() { return fSwitches.fRead!=0; };

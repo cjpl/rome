@@ -487,24 +487,24 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="EnumerateDesc">
+	<xs:complexType name="BankArrayDesc">
 		<xs:annotation>
-			<xs:documentation>Description of bank enumeration. Bank enumeration is used for bank names containing numbers. For example, if there are banks EV01 to EV04 which all contain the same kind of data, one can specifie the bank name as 'EV' and define an enumeration from 1 to 4 with 2 digits.</xs:documentation>
+			<xs:documentation>Description of  a bank array. Bank arrays are used for banks that are numbered. For example, if there are banks EV01 to EV04 which all contain the same kind of data, one can specifie the bank name as 'EV' and define an array of size 4 with start index 1 and with 2 digits.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="LowerBoundary" type="xs:integer">
+			<xs:element name="BASize" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>The lowest bank number.</xs:documentation>
+					<xs:documentation>The size of the bank array.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="UpperBoundary" type="xs:integer">
+			<xs:element name="BAStartIndex" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>The highest bank number.</xs:documentation>
+					<xs:documentation>The starting index of the bank array.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="NumberOfDigits" type="xs:integer">
+			<xs:element name="BANumberOfDigits" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>Number of digits to write.</xs:documentation>
+					<xs:documentation>Number of digits to add to the bank name.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -524,9 +524,9 @@
 					<xs:documentation>The type of the bank.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Enumerate" type="EnumerateDesc" minOccurs="0">
+			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the bank enumeration.</xs:documentation>
+					<xs:documentation>Describes a bank array.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -568,9 +568,9 @@
 					<xs:documentation>Describes the fields of the structured bank.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Enumerate" type="EnumerateDesc" minOccurs="0">
+			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the bank enumeration.</xs:documentation>
+					<xs:documentation>Describes a bank array.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
