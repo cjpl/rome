@@ -6,6 +6,9 @@
    Contents:     Midas XML Library
 
    $Log$
+   Revision 1.3  2005/03/29 07:12:52  schneebeli_m
+   node=NULL
+
    Revision 1.2  2005/03/23 11:48:47  schneebeli_m
    link error on linux
 
@@ -690,7 +693,7 @@ PMXML_NODE mxml_find_node(PMXML_NODE tree, char *xml_path)
    Return first found node. For syntax see mxml_find_nodes()
 */
 {
-   PMXML_NODE *node, pnode;
+   PMXML_NODE *node=NULL, pnode;
    int n;
 
    n = mxml_find_nodes(tree, xml_path, &node);
