@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.9  2005/02/25 13:51:02  sawada
+  added folderShortCut and ROMEProjectPath
+
   Revision 1.8  2005/02/24 23:25:01  sawada
   Removed thread flag in builder.
   Added ProcessMessageThread.
@@ -92,6 +95,8 @@ private:
    int        numOfValue[maxNumberOfFolders];
    int        numOfFolderInclude[maxNumberOfFolders];
    ROMEString folderName[maxNumberOfFolders];
+   ROMEString folderShortCut[maxNumberOfFolders];
+   ROMEString folderRomeProjPath[maxNumberOfFolders];
    ROMEString folderDescription[maxNumberOfFolders];
    ROMEString folderParentName[maxNumberOfFolders];
    ROMEString folderTitle[maxNumberOfFolders];

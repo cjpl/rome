@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.17  2005/02/25 13:51:02  sawada
+  added folderShortCut and ROMEProjectPath
+
   Revision 1.16  2005/02/24 23:25:01  sawada
   Removed thread flag in builder.
   Added ProcessMessageThread.
@@ -372,6 +375,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      }
                      // rome folder
                      if (type == 1 && !strcmp((const char*)name,"ROMEFolder")) {
+			romefolder = true;
                         if (!ReadXMLROMEFolder()) return;
                      }
                      // folders end
@@ -534,6 +538,7 @@ void ArgusBuilder::WriteMakefile() {
    ROMEString buffer;
    int i;
    ROMEString shortcut(shortCut);
+   ROMEString romeFolderInclude;
    shortcut.ToLower();
    ROMEString mainprogname(mainProgName);
    mainprogname.ToLower();
@@ -567,8 +572,12 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
    if (this->sql) 
       buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
-   if (this->romefolder)
-      buffer.AppendFormatted(" /I$(ROME%s_DIR)/include",shortCut.Data());
+   //ROMEFolder include
+   for (i=0;i<numOfFolder;i++) {
+      romeFolderInclude.SetFormatted(" /I%s",folderRomeProjPath[i].Data());
+      if(!buffer.Contains(romeFolderInclude))
+	 buffer.AppendFormatted("%s",romeFolderInclude.Data());
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // objects
@@ -706,8 +715,12 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
    // includes
    buffer.AppendFormatted("Includes := -I$(ARGUSSYS)/include/ -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tabs/ -Iinclude/monitor/");
-   if(this->romefolder)
-      buffer.AppendFormatted(" -I$(ROME%s_DIR)/include/framework",shortCut.Data());
+   //ROMEFolder include
+   for (i=0;i<numOfFolder;i++) {
+      romeFolderInclude.SetFormatted(" -I%s",folderRomeProjPath[i].Data());
+      if(!buffer.Contains(romeFolderInclude))
+	 buffer.AppendFormatted("%s",romeFolderInclude.Data());
+   }
    buffer.AppendFormatted("\n");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
@@ -746,8 +759,8 @@ void ArgusBuilder::WriteMakefile() {
    // compile
    for (i=0;i<numOfFolder;i++) {
       if(folderDefinedInROME[i]){
-         buffer.AppendFormatted("obj/%s%s.o: $(ROME%s_DIR)/src/framework/%s%s.cpp $(ROME%s_DIR)/include/framework/%s%s.h\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),shortCut.Data(),folderName[i].Data());
-         buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) $(ROME%s_DIR)/src/framework/%s%s.cpp -o obj/%s%s.o\n",shortCut.Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("obj/%s%s.o: %s/src/framework/%s%s.cpp %s/include/framework/%s%s.h\n",folderShortCut[i].Data(),folderName[i].Data(),folderRomeProjPath[i].Data(),folderShortCut[i].Data(),folderName[i].Data(),folderRomeProjPath[i].Data(),folderShortCut[i].Data(),folderName[i].Data());
+         buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) %s/src/framework/%s%s.cpp -o obj/%s%s.o\n",folderRomeProjPath[i].Data(),folderShortCut[i].Data(),folderName[i].Data(),folderShortCut[i].Data(),folderName[i].Data());
       }
       else{
          buffer.AppendFormatted("obj/%s%s.o: src/monitor/%s%s.cpp include/monitor/%s%s.h\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
@@ -798,19 +811,15 @@ void ArgusBuilder::WriteMakefile() {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
-   ROMEString romeprojectdir[2];
-   romeprojectdir[0].SetFormatted("$ROME%s_DIR",shortCut.Data());
-   romeprojectdir[1].SetFormatted("$(ROME%s_DIR)",shortCut.Data());
-   dictionarybat.ReplaceAll(romeprojectdir[0],romeprojectdir[1]);
    buffer.AppendFormatted("src/monitor/%sDict.cpp: ",shortCut.Data());
    buffer.AppendFormatted("$(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if(folderDefinedInROME[i]){
-         buffer.AppendFormatted("$(ROME%s_DIR)/",shortCut.Data());
+         buffer.AppendFormatted("%s/",folderRomeProjPath[i].Data());
          if (folderUserCode[i])
-            buffer.AppendFormatted("include/framework/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("include/framework/%s%s_Base.h ",folderShortCut[i].Data(),folderName[i].Data());
          else
-            buffer.AppendFormatted("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());            
+            buffer.AppendFormatted("include/framework/%s%s.h ",folderShortCut[i].Data(),folderName[i].Data());            
       }
       else{
          if (numOfValue[i] > 0) {
@@ -866,6 +875,7 @@ void ArgusBuilder::WriteMakefile() {
 void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer) 
 {
    // writes a script file that executes rootcint
+   ROMEString romeFolderInclude;
    int i;
    buffer.Resize(0);
    buffer.AppendFormatted("rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
@@ -873,24 +883,26 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   if(this->romefolder)
-      buffer.AppendFormatted("-I%%ROME%s_DIR%%/include/framework ",shortCut.Data());
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("-I$ARGUSSYS/include ");
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   if(this->romefolder)
-      buffer.AppendFormatted("-I$ROME%s_DIR/include/framework ",shortCut.Data());
 #endif
+   //ROMEFolder include
+   for (i=0;i<numOfFolder;i++) {
+      romeFolderInclude.SetFormatted(" -I%s",folderRomeProjPath[i].Data());
+      if(!buffer.Contains(romeFolderInclude))
+	 buffer.AppendFormatted("%s",romeFolderInclude.Data());
+   }
    buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/monitor ");
    buffer.AppendFormatted("ArgusMonitor.h ArgusTextDialog.h TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if(folderDefinedInROME[i]){
             if (folderUserCode[i])
-               buffer.AppendFormatted("$ROME%s_DIR/include/framework/%s%s_Base.h ",shortCut.Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("%s/include/framework/%s%s_Base.h ",folderRomeProjPath[i].Data(),folderShortCut[i].Data(),folderName[i].Data());
             else
-               buffer.AppendFormatted("$ROME%s_DIR/include/framework/%s%s.h ",shortCut.Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("%s/include/framework/%s%s.h ",folderRomeProjPath[i].Data(),folderShortCut[i].Data(),folderName[i].Data());
       }
       else{
          if (numOfValue[i] > 0) {
@@ -1057,7 +1069,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    }
    for (i=0;i<depth;i++) buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("</ul>\n");
-   buffer.AppendFormatted("The bold folders are data folders. The others are only used to structure the frame work.\n");
+   buffer.AppendFormatted("The bold folders are data folders. The others are only used to structure the framework.\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("In the following all folders will be described.\n");
    buffer.AppendFormatted("<p>\n");

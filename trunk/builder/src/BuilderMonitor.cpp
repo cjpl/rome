@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.14  2005/02/25 13:51:02  sawada
+  added folderShortCut and ROMEProjectPath
+
   Revision 1.13  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -498,7 +501,7 @@ bool ArgusBuilder::WriteMonitorH() {
          buffer.AppendFormatted("#include \"include/monitor/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
       }
       if (folderDefinedInROME[i]) {
-         buffer.AppendFormatted("#include \"%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("#include \"include/framework/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
