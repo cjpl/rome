@@ -1,10 +1,14 @@
 // Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
-//                                                                      //
-// ROMEXML                                                             //
-//                                                                      //
+//
+//  ROMEXML
+//
 //  XML file access.
-//                                                                      //
+//  $Log$
+//  Revision 1.8  2004/09/16 23:48:25  midas
+//  Added Log in header
+//
+//
 //////////////////////////////////////////////////////////////////////////
 #if defined ( __linux__ )
 #include <string.h>
