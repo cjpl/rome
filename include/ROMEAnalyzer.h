@@ -6,9 +6,6 @@
 #include <TTask.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
-#ifdef HAVE_MIDAS
-#include <midas.h>
-#endif
 
 class ROMEAnalyzer : public TObject
 {
@@ -20,8 +17,6 @@ protected:
    TTask*     fMainTask;                  //! Handle to Main Task
    TFolder*   fMainFolder;                //! Handle to Main Folder
    TFile*     fHistoFiles;                //! Handle to Histogram Files
-   TList*     fRunTable;                  //! RunTable Objects
-   int        fCurrentRunTablePos;        //! Current RunTable Position
 
    Bool_t     fFillEvent;                 //! Fill Event Flag
 
@@ -47,11 +42,8 @@ public:
    // main objects
    TFolder*   GetMainFolder() { return fMainFolder; }
    TTask*     GetMainTask() { return fMainTask; }
-   TList*     GetRunTable() { return fRunTable; };
-   int        GetCurrentRunTablePos() { return fCurrentRunTablePos; };
    TFile*     GetHistoFileHandle() { return fHistoFiles; };
 
-   void       SetCurrentRunTablePos(int pos) { fCurrentRunTablePos = pos; };
    void       SetHistoFileHandle(TFile *file) { fHistoFiles = file; };
 
    // Fill Event Flag
@@ -67,6 +59,8 @@ public:
    bool       Start(int argc=0, char **argv=NULL);
 
    virtual void InitFolders() = 0;
+   virtual void InitTaskSwitches() = 0;
+   virtual void UpdateTaskSwitches() = 0;
 
 private:
    void CreateHistoFolders();

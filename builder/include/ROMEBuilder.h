@@ -3,18 +3,13 @@
 
 #include <ROMEXML.h>
 
-const int numberOfTasks = 200;
-const int numberOfFolders = 100;
-const int numberOfTrees = 20;
-const int numberOfBranches = 10;
-const int numberOfBanks = 20;
-const int numberOfSteering = 20;
-const int numberOfSteeringField = 100;
-const int authorNameLength = 50;
-const int versionLength = 5;
-const int nameLength = 20;
-const int descriptionLength = 500;
-const int commentLength = 60;
+const int maxNumberOfTasks = 200;
+const int maxNumberOfFolders = 100;
+const int maxNumberOfTrees = 20;
+const int maxNumberOfBranches = 10;
+const int maxNumberOfBanks = 20;
+const int maxNumberOfSteering = 20;
+const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
 const int maxNumberOfGetters = 10;
 const int maxNumberOfSetters = 10;
@@ -22,132 +17,129 @@ const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 10;
 const int maxNumberOfStructFields = 50;
 const int bufferLength = 100000;
-const int textLength = 100;
+
 
 class ROMEBuilder
 {
 public:
-   char romeVersion[20];
+   char* romeVersion;
 
-   char outDir[descriptionLength];
-   bool makeOutput;
-   bool noLink;
-   bool offline;
-   bool sql;
+   char* outDir;
+   bool  makeOutput;
+   bool  noLink;
+   bool  offline;
+   bool  sql;
 
 private:
    ROMEXML* xml;
 
-   char shortCut[nameLength];
+   char* shortCut;
 
 // folders
    int numOfFolder;
-   int numOfValue[numberOfFolders];
-   int numOfGetters[numberOfFolders];
-   int numOfSetters[numberOfFolders];
+   int numOfValue[maxNumberOfFolders];
+   int numOfFolderInclude[maxNumberOfTasks];
 
-   char folderName[numberOfFolders][nameLength];
-   char folderDescription[numberOfFolders][descriptionLength];
-   char parentFolderName[numberOfFolders][nameLength];
-   char folderTitle[numberOfFolders][commentLength];
-   char folderArray[numberOfFolders][textLength];
-   bool dataBase[numberOfFolders];
+   char* folderName[maxNumberOfFolders];
+   char* folderDescription[maxNumberOfFolders];
+   char* folderParentName[maxNumberOfFolders];
+   char* folderTitle[maxNumberOfFolders];
+   char* folderArray[maxNumberOfFolders];
+   char* folderAuthor[maxNumberOfFolders];
+   char* folderVersion[maxNumberOfFolders];
+   char* folderInclude[maxNumberOfTasks][maxNumberOfInclude];
+   bool  folderLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
+   bool folderDataBase[maxNumberOfFolders];
+   bool folderUserCode[maxNumberOfFolders];
 
-   char valueName[numberOfFolders][maxNumberOfValues][nameLength];
-   char valueType[numberOfFolders][maxNumberOfValues][nameLength];
-   char valueRef[numberOfFolders][maxNumberOfValues][nameLength];
-   char valueInit[numberOfFolders][maxNumberOfValues][nameLength];
-   char valueComment[numberOfFolders][maxNumberOfValues][commentLength];
-   char dataBasePath[numberOfFolders][maxNumberOfValues][descriptionLength];
-   char valueArray[numberOfFolders][maxNumberOfValues][nameLength];
-
-   char getter[numberOfFolders][maxNumberOfGetters][nameLength];
-   char setter[numberOfFolders][maxNumberOfSetters][nameLength];
-   char getterType[numberOfFolders][maxNumberOfGetters][nameLength];
-   char setterType[numberOfFolders][maxNumberOfSetters][nameLength];
+   char* valueName[maxNumberOfFolders][maxNumberOfValues];
+   char* valueType[maxNumberOfFolders][maxNumberOfValues];
+   char* valueRef[maxNumberOfFolders][maxNumberOfValues];
+   char* valueInit[maxNumberOfFolders][maxNumberOfValues];
+   char* valueComment[maxNumberOfFolders][maxNumberOfValues];
+   char* valueDataBasePath[maxNumberOfFolders][maxNumberOfValues];
+   char* valueArray[maxNumberOfFolders][maxNumberOfValues];
 
 // task
+
    int numOfTask;
-   int numOfHistos[numberOfTasks];
-   char taskName[numberOfTasks][nameLength];
-   char taskEventID[numberOfTasks][nameLength];
-   char taskDescription[numberOfTasks][descriptionLength];
-   bool fortranFlag[numberOfTasks];
-   char parentTaskName[numberOfTasks][nameLength];
-   char histoName[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoType[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoArray[numberOfTasks][maxNumberOfHistos][textLength];
-   char histoTitle[numberOfTasks][maxNumberOfHistos][commentLength];
-   char histoFolderName[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoFolderTitle[numberOfTasks][maxNumberOfHistos][commentLength];
-   char histoXBin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoXMin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoXMax[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoYBin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoYMin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoYMax[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoZBin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoZMin[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoZMax[numberOfTasks][maxNumberOfHistos][nameLength];
-   int numOfTaskSteering[numberOfTasks];
-   int numOfTaskSteerFields[numberOfTasks][numberOfSteering];
-   char taskSteerName[numberOfTasks][numberOfSteering][nameLength];
-   char taskSteerParent[numberOfTasks][numberOfSteering][nameLength];
-   int  taskSteerDepth[numberOfTasks][numberOfSteering];
-   char taskSteerFieldName[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
-   char taskSteerFieldType[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
-   char taskSteerFieldInit[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
-   char taskSteerFieldComment[numberOfTasks][numberOfSteering][numberOfSteeringField][commentLength];
+   int numOfHistos[maxNumberOfTasks];
+   int numOfTaskSteering[maxNumberOfTasks];
+   int numOfTaskSteerFields[maxNumberOfTasks][maxNumberOfSteering];
+   int numOfTaskInclude[maxNumberOfTasks];
+   char* taskName[maxNumberOfTasks];
+   char* taskEventID[maxNumberOfTasks];
+   char* taskDescription[maxNumberOfTasks];
+   bool  taskFortran[maxNumberOfTasks];
+   char* taskParentName[maxNumberOfTasks];
+   char* taskAuthor[maxNumberOfTasks];
+   char* taskVersion[maxNumberOfTasks];
+   char* taskInclude[maxNumberOfTasks][maxNumberOfInclude];
+   bool  taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
+   char* histoName[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoType[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoArray[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoTitle[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoXBin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoXMin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoXMax[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoYBin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoYMin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoYMax[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoZBin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoZMin[maxNumberOfTasks][maxNumberOfHistos];
+   char* histoZMax[maxNumberOfTasks][maxNumberOfHistos];
+   char* taskSteerName[maxNumberOfTasks][maxNumberOfSteering];
+   char* taskSteerParent[maxNumberOfTasks][maxNumberOfSteering];
+   int   taskSteerDepth[maxNumberOfTasks][maxNumberOfSteering];
+   char* taskSteerFieldName[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   char* taskSteerFieldType[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   char* taskSteerFieldInit[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   char* taskSteerFieldComment[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
 
 // tree
    int numOfTree;
-   int numOfBranch[numberOfTrees];
-   char treeName[numberOfTrees][nameLength];
-   char treeTitle[numberOfTrees][commentLength];
-   char branchName[numberOfTrees][numberOfBranches][nameLength];
-   char branchFolder[numberOfTrees][numberOfBranches][nameLength];
+   int numOfBranch[maxNumberOfTrees];
+   char* treeName[maxNumberOfTrees];
+   char* treeTitle[maxNumberOfTrees];
+   char* branchName[maxNumberOfTrees][maxNumberOfBranches];
+   char* branchFolder[maxNumberOfTrees][maxNumberOfBranches];
 
 // banks
    int numOfBank;
-   int numOfStructFields[numberOfBanks];
-   char bankName[numberOfBanks][nameLength];
-   char bankType[numberOfBanks][nameLength];
-   char bankStructName[numberOfBanks][nameLength];
-   char structFieldName[numberOfBanks][maxNumberOfStructFields][nameLength];
-   char structFieldType[numberOfBanks][maxNumberOfStructFields][nameLength];
-   char structFieldSize[numberOfBanks][maxNumberOfStructFields][nameLength];
-   char bankHeaderFolder[nameLength];
-   char bankHeaderEventID[nameLength];
-   char bankHeaderTriggerMask[nameLength];
-   char bankHeaderSerialNumber[nameLength];
-   char bankHeaderTimeStamp[nameLength];
+   int numOfStructFields[maxNumberOfBanks];
+   char* bankName[maxNumberOfBanks];
+   char* bankType[maxNumberOfBanks];
+   char* bankStructName[maxNumberOfBanks];
+   char* structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
+   char* structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
+   char* structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
+   bool  bankHasHeader;
+   char* bankHeaderFolder;
+   char* bankHeaderEventID;
+   char* bankHeaderTriggerMask;
+   char* bankHeaderSerialNumber;
+   char* bankHeaderTimeStamp;
 
 // steering
    int numOfSteering;
-   int numOfSteerFields[numberOfSteering];
-   char steerName[numberOfSteering][nameLength];
-   char steerParent[numberOfSteering][nameLength];
-   int  steerDepth[numberOfSteering];
-   char steerFieldName[numberOfSteering][numberOfSteeringField][nameLength];
-   char steerFieldType[numberOfSteering][numberOfSteeringField][nameLength];
-   char steerFieldInit[numberOfSteering][numberOfSteeringField][nameLength];
-   char steerFieldComment[numberOfSteering][numberOfSteeringField][commentLength];
-
-// general
-   int numOfInclude[numberOfTasks];
-   bool overWriteCpp[numberOfTasks];
-   bool overWriteH[numberOfTasks];
-   char author[numberOfTasks][authorNameLength];
-   char version[numberOfTasks][versionLength];
-   char include[numberOfTasks][maxNumberOfInclude][nameLength];
-   bool localFlag[numberOfTasks][maxNumberOfInclude];
+   int numOfSteerFields[maxNumberOfSteering];
+   char* steerName[maxNumberOfSteering];
+   char* steerParent[maxNumberOfSteering];
+   int   steerDepth[maxNumberOfSteering];
+   char* steerFieldName[maxNumberOfSteering][maxNumberOfSteeringField];
+   char* steerFieldType[maxNumberOfSteering][maxNumberOfSteeringField];
+   char* steerFieldInit[maxNumberOfSteering][maxNumberOfSteeringField];
+   char* steerFieldComment[maxNumberOfSteering][maxNumberOfSteeringField];
 
 // main
-   char mainAuthor[authorNameLength];
-   char mainInstitute[descriptionLength];
-   char mainCollaboration[descriptionLength];
-   char mainEmail[descriptionLength];
-   char mainProgName[nameLength];
+   char* mainAuthor;
+   char* mainInstitute;
+   char* mainCollaboration;
+   char* mainEmail;
+   char* mainProgName;
 
 public:
    ROMEBuilder() {};
@@ -175,11 +167,10 @@ public:
    bool WriteIOH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
-   bool WriteRunTableH();
    bool WriteMain();
    void WriteMakefile();
    void WriteHTMLDoku();
-   void WriteDictionaryBat(char* buffer1,char* buffer2);
+   void WriteDictionaryBat(char* buffer);
    void startBuilder(char* xmlFile);
    void GetFormat(char *buf,char *type);
    void setValue(char *buf,char *destination,char *source,char *type,int version);

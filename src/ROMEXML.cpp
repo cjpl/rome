@@ -46,27 +46,70 @@ bool ROMEXML::OpenFileForRead(char* file) {
    return true;
 }
 
-bool ROMEXML::GetAttribute(char* name,char* value) {
+int ROMEXML::GetAttribute(char* name,char* value,unsigned int valueSize) {
    const xmlChar* val = xmlTextReaderGetAttribute(reader,(xmlChar*)name);
    if (val==NULL) {
       xmlFree((void*)val);
-      return false;
+      return 0;
+   }
+   if (valueSize<strlen((const char*)val)) {
+      xmlFree((void*)val);
+      return -1;
    }
    strcpy(value,(char*)val);
    xmlFree((void*)val);
-   return true;
+   return 1;
 }
 
-bool ROMEXML::GetValue(char* value) {
+char* ROMEXML::GetAttribute(char* name,char* defaultValue) {
+   const xmlChar* val = xmlTextReaderGetAttribute(reader,(xmlChar*)name);
+   if (val==NULL) {
+      if (defaultValue==0) return NULL;
+      char* value = new char[strlen(defaultValue)+1];
+      strcpy(value,defaultValue);
+      xmlFree((void*)val);
+      return value;
+   }
+   char* value = new char[strlen((char*)val)+1];
+   strcpy(value,(char*)val);
+   xmlFree((void*)val);
+   return value;
+}
+
+int ROMEXML::GetValue(char* value,unsigned int valueSize) {
    if (xmlTextReaderRead(reader)==0)
-      return false;
+      return 0;
    int type = xmlTextReaderNodeType(reader);
    const xmlChar* val = xmlTextReaderConstValue(reader);
    if (val!=NULL && type==3) {
+      if (valueSize<strlen((const char*)val)) {
+         xmlFree((void*)val);
+         return -1;
+      }
       strcpy(value,(char*)val);
-      return true;
+      return 1;
    }
-   return false;
+   xmlFree((void*)val);
+   return 0;
+}
+
+char* ROMEXML::GetValue(char* defaultValue) {
+   if (xmlTextReaderRead(reader)==0) {
+      char* value = new char[strlen(defaultValue)+1];
+      strcpy(value,defaultValue);
+      return value;
+   }
+   int type = xmlTextReaderNodeType(reader);
+   const xmlChar* val = xmlTextReaderConstValue(reader);
+   if (val!=NULL && type==3) {
+      char* value = new char[strlen((char*)val)+1];
+      strcpy(value,(char*)val);
+      return value;
+   }
+   char* value = new char[strlen(defaultValue)+1];
+   strcpy(value,defaultValue);
+   xmlFree((void*)val);
+   return value;
 }
 
 bool ROMEXML::OpenFileForWrite(char* file) {

@@ -19,36 +19,38 @@ public:
    ~ROMEXML();
 
    // read
-   bool OpenFileForRead(char* file);
-   bool NextLine() { return xmlTextReaderRead(reader)!=0; };
+   bool  OpenFileForRead(char* file);
+   bool  NextLine() { return xmlTextReaderRead(reader)!=0; };
    char* GetName() { return (char*)xmlTextReaderConstName(reader); };
-   int GetType() { return xmlTextReaderNodeType(reader); };
-   int GetDepth() { return xmlTextReaderDepth(reader); };
-   bool isEmpty() { return xmlTextReaderIsEmptyElement(reader)!=0; };
-   bool GetAttribute(char* name,char* value);
-   bool GetValue(char* value);
+   int   GetType() { return xmlTextReaderNodeType(reader); };
+   int   GetDepth() { return xmlTextReaderDepth(reader); };
+   bool  isEmpty() { return xmlTextReaderIsEmptyElement(reader)!=0; };
+   int   GetAttribute(char* name,char* value,unsigned int valueSize);
+   char* GetAttribute(char* name,char* defaultValue);
+   int   GetValue(char* value,unsigned int valueSize);
+   char* GetValue(char* defaultValue);
    // write
-   bool OpenFileForWrite(char* file);
-   bool StartElement(char* name);
-   bool EndElement();
-   bool EndDocument();
-   bool WriteAttribute(char* name,char* value);
-   bool WriteElement(char* name,char* value);
+   bool  OpenFileForWrite(char* file);
+   bool  StartElement(char* name);
+   bool  EndElement();
+   bool  EndDocument();
+   bool  WriteAttribute(char* name,char* value);
+   bool  WriteElement(char* name,char* value);
    // path
-   bool OpenFileForPath(char* file);
-   bool ExistPath(char* path);
-   bool GetPathAttribute(char* path,char* name,char* value);
-   bool GetPathValue(char* path,char* value);
-   bool ReplacePathAttributeValue(char* path,char* name,char* value);
-   bool ReplacePathAttributeName(char* path,char* name,char* newName);
-   bool ReplacePathName(char* path,char* name);
-   bool ReplacePathValue(char* path,char* value);
-   bool NewPathAttribute(char* path,char* name,char* value);
-   bool NewPathNextElement(char* path,char* name,char* value);
-   bool NewPathPrevElement(char* path,char* name,char* value);
-   bool NewPathChildElement(char* path,char* name,char* value);
-   bool HasPathChildren(char* path);
-   bool WritePathFile(char* file);
+   bool  OpenFileForPath(char* file);
+   bool  ExistPath(char* path);
+   bool  GetPathAttribute(char* path,char* name,char* value);
+   bool  GetPathValue(char* path,char* value);
+   bool  ReplacePathAttributeValue(char* path,char* name,char* value);
+   bool  ReplacePathAttributeName(char* path,char* name,char* newName);
+   bool  ReplacePathName(char* path,char* name);
+   bool  ReplacePathValue(char* path,char* value);
+   bool  NewPathAttribute(char* path,char* name,char* value);
+   bool  NewPathNextElement(char* path,char* name,char* value);
+   bool  NewPathPrevElement(char* path,char* name,char* value);
+   bool  NewPathChildElement(char* path,char* name,char* value);
+   bool  HasPathChildren(char* path);
+   bool  WritePathFile(char* file);
 };
 
 #endif   // ROMEXML_H

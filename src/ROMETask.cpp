@@ -23,7 +23,7 @@ ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TT
    strcpy(fTitle,title);
    strcpy(fName,name);
    fAnalyzer = analyzer;
-   strcpy(fEventID,"all");
+   fEventID = "all";
 }
 void ROMETask::Exec(Option_t *option)
 {
@@ -53,7 +53,7 @@ void ROMETask::Exec(Option_t *option)
          cout << "Task '" << fName << "' : run time = " << GetTime() << endl;
       }
    }
-   else if (!strcmp(fEventID,"all") || !strcmp(option,fEventID)) {
+   else if (!strcmp(fEventID.Data(),"all") || !strcmp(option,fEventID.Data())) {
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();

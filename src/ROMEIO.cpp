@@ -20,20 +20,23 @@
 #define O_RDONLY_BINARY O_RDONLY
 #endif
 #include <fcntl.h>
+#include <time.h>
 
 #include <TArrayI.h>
+#include <TString.h>
 #include <TROOT.h>
+#include <TTask.h>
 #include <TFolder.h>
 #include <ROMEIO.h>
 #include "Riostream.h"
 
 #if defined HAVE_MIDAS
 #include <midas.h>
+#define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 {
-   // just print message text which comes after event header
-   printf("%s\n", message);
+//   printf("%s\n", message);
 }
 #endif
 
@@ -41,13 +44,15 @@ ROMEIO::ROMEIO() {
    fAnalysisMode = kAnalyzeOffline; 
    fDataFormat = kRoot; 
    fDataBase = kDataBaseNone; 
-   fIndexOfCurrentRunNumber = 0; 
-   fRunStatus = kAnalyze;
+   fCurrentRunNumber = 0; 
+   fEventStatus = kAnalyze;
    fTreeAccumulation = false;
    fTreeObjects = new TObjArray(0);
    fSequentialNumber = 0;
    fTreeInfo = new ROMETreeInfo();
-   strcpy(fEventID,"all");
+   fEventID = "all";
+   fTriggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
+   fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
 }
 
 ROMEIO::~ROMEIO() {
@@ -55,17 +60,14 @@ ROMEIO::~ROMEIO() {
    for (int j=0;j<GetTreeObjectEntries();j++) {
       romeTree = GetTreeObjectAt(j);
       if (romeTree->isWrite()) {
-         treeFiles[j]->Close();
+         if (treeFiles[j]!=NULL)
+            treeFiles[j]->Close();
       }
    }
 }
 
 
 bool ROMEIO::Init() {
-   if (this->GetNumberOfRunNumbers()<=0) {
-      cout << "No run numbers specified." << endl << endl;
-      return false;
-   }
    // Tree file Initialisation
    treeFiles = new TFile*[GetTreeObjectEntries()];
    char filename[gFileNameLength];
@@ -74,6 +76,7 @@ bool ROMEIO::Init() {
    TTree *tree;
    GetCurrentRunNumberString(runNumberString);
    for (int j=0;j<GetTreeObjectEntries();j++) {
+      treeFiles[j] = NULL;
       romeTree = GetTreeObjectAt(j);
       if (romeTree->isWrite() && this->isTreeAccumulation()) {
          tree = romeTree->GetTree();
@@ -82,48 +85,102 @@ bool ROMEIO::Init() {
          tree->SetDirectory(treeFiles[j]);
       }
    }
-   // Data Base Initialisation
-   if (this->isSQLDataBase()) {
-      if (!this->InitSQLDataBase())
-         return false;
-      if (!this->ReadSQLDataBase())
-         return false;
-   }
-   else if (this->isXMLDataBase()){
-      if (!this->ReadXMLDataBase())
-         return false;
-   }
 
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS
       // Connect to the Frontend
-      int requestId,status;
+      int requestId,i;
+
       cout << "Program is running online." << endl << endl;
-      status = cm_connect_experiment("", "","Consumer", NULL);
-      if (status != SUCCESS) {
+
+      // Connect to the experiment
+      if (cm_connect_experiment("", "",(char*)fProgramName.Data(), NULL) != SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }
 
-      /* open the "system" buffer, 1M size */
+      // open the "system" buffer, 1M size
       bm_open_buffer("SYSTEM", EVENT_BUFFER_SIZE, &fMidasBuffer);
 
-      /* set the buffer cache size */
+      // set the buffer cache size
       bm_set_cache_size(fMidasBuffer, 100000, 0);
 
-      /* place a request for a specific event id */
+      // place a request for a specific event id
       bm_request_event(fMidasBuffer, 1, TRIGGER_ALL,GET_SOME, &requestId,NULL);
 
-      /* place a request for system messages */
+      // place a request for system messages
       cm_msg_register(ProcessMessage);
 
-      /*Registers a callback function for run transitions.*/
+      // turn off watchdog if in debug mode
+#ifdef MIDAS_DEBUG
+      cm_set_watchdog_params(TRUE, 0);
+#endif
+
+      // Registers a callback function for run transitions.
       if (cm_register_transition(TR_START, NULL) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, NULL) != CM_SUCCESS) {
          cout << "Cannot connect to experiment" << endl;
          return false;
       }
-      return true;
+
+      // Connect to the online database
+      if (cm_get_experiment_database(&fMidasOnlineDataBase, NULL)!= CM_SUCCESS) {
+         cout << "Cannot connect to the online database" << endl;
+         return false;
+      }
+
+      // Get Runnumber
+      int size = sizeof(fCurrentRunNumber);
+      if (db_get_value(fMidasOnlineDataBase,0,"/Runinfo/Run number",&fCurrentRunNumber,&size,TID_INT,false)!= CM_SUCCESS) {
+         cout << "Cannot read runnumber from the online database" << endl;
+         return false;
+      }
+
+      // Initialize the online database
+      HNDLE hKey;
+      TString str;
+      str = "//Trigger/Statistics";
+      str.Insert(1,fProgramName.Data());
+      // Trigger Statistics
+      db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fTriggerStatisticsString.Data(), TRUE);
+      db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
+      if (db_open_record(fMidasOnlineDataBase, hKey, &fTriggerStatistics, sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
+         cout << "Cannot open trigger statistics record, probably other analyzer is using it" << endl;
+         return false;
+      }
+
+      // Scaler Statistics
+      str="//Scaler/Statistics";
+      str.Insert(1,fProgramName.Data());
+      db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fScalerStatisticsString.Data(), TRUE);
+      db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
+      if (db_open_record(fMidasOnlineDataBase, hKey, &fScalerStatistics, sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
+         cout << "Cannot open scaler statistics record, probably other analyzer is using it" << endl;
+         return false;
+      }
+
+      // Tree Switches
+      for (i=0;i<GetTreeObjectEntries();i++) {
+         str="//Tree switches/";
+         str.Insert(1,fProgramName.Data());
+         str.Append(GetTreeObjectAt(i)->GetTree()->GetName());
+         db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
+         db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
+         if (db_set_record(fMidasOnlineDataBase,hKey,GetTreeObjectAt(i)->GetSwitches(),GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
+            cout << "Cannot write to tree switches record." << endl;
+            return false;
+         }
+         if (db_open_record(fMidasOnlineDataBase, hKey, GetTreeObjectAt(i)->GetSwitches(), GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
+            cout << "Cannot open tree switches record, probably other analyzer is using it" << endl;
+            return false;
+         }
+      }
+
+      // Experiment dependent ODB initializations
+      InitODB();
+
+      // Set Event Status
+      fEventStatus = kAnalyze;
 #else
       cout << "Need Midas support for Online Modus !!" << endl;
       cout << "Please link the midas library into this project." << endl;
@@ -136,31 +193,64 @@ bool ROMEIO::Init() {
    }
    else if (this->isOffline()&&this->isMidas()) {
       cout << "Program is running offline." << endl << endl;
-      return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
       cout << "Program is running offline." << endl << endl;
-      return true;
    }
-   cout << "Severe program failure." << endl << endl;
-   return false;
+   else {
+      cout << "Severe program failure." << endl << endl;
+      return false;
+   }
+
+   if (this->isOffline()&&this->GetNumberOfRunNumbers()<=0) {
+      cout << "No run numbers specified." << endl << endl;
+      return false;
+   }
+
+   // Data Base Initialisation
+   if (this->isSQLDataBase()) {
+      if (!this->InitSQLDataBase())
+         return false;
+      if (!this->ReadSQLDataBase())
+         return false;
+   }
+   else if (this->isXMLDataBase()){
+      if (!this->ReadXMLDataBase())
+         return false;
+   }
+
+   return true;
 }
-bool ROMEIO::Connect(Int_t runNumber) {
-   this->SetAnalyze();
+bool ROMEIO::Connect(Int_t runNumberIndex) {
+   // Statistics
+   fTriggerStatistics.processedEvents = 0;
+   fTriggerStatistics.eventsPerSecond = 0;
+   fTriggerStatistics.writtenEvents = 0;
+   fTimeOfLastEvent = 0;
+   fLastEvent = 0;
+   // Progress Display
+   fProgressDelta = 10000;
+   fProgressLast = time(NULL);
+   fProgressLastEvent = 0;
+   fProgressWrite = false;
+   // Status
+   fRunStatus = kRunning;
+   fEventStatus = kAnalyze;
    char runNumberString[6];
 
-   if (this->GetNumberOfRunNumbers()<=runNumber) {
-      this->SetTerminate();
-      return true;
+   if (this->isOffline()) {
+      if (this->GetNumberOfRunNumbers()<=runNumberIndex) {
+         this->SetTerminate();
+         return true;
+      }
+      fCurrentRunNumber = fRunNumber.At(runNumberIndex);
    }
-   fIndexOfCurrentRunNumber = runNumber;
-   GetRunNumberStringAt(runNumberString,runNumber);
    fTreeInfo->SetRunNumber(this->GetCurrentRunNumber());
+   GetCurrentRunNumberString(runNumberString);
 
    char filename[gFileNameLength];
    ROMETree *romeTree;
    TTree *tree;
-   GetCurrentRunNumberString(runNumberString);
    for (int j=0;j<GetTreeObjectEntries();j++) {
       romeTree = GetTreeObjectAt(j);
       if (romeTree->isWrite() && !this->isTreeAccumulation()) {
@@ -182,11 +272,6 @@ bool ROMEIO::Connect(Int_t runNumber) {
    }
 
    if (this->isOnline()&&this->isMidas()) {
-      return true;
-   }
-   else if (this->isOnline()&&this->isRoot()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
-      return false;
    }
    else if (this->isOffline()&&this->isMidas()) {
       // Open Midas File
@@ -198,7 +283,6 @@ bool ROMEIO::Connect(Int_t runNumber) {
          return false;
       }
       cout << "Reading Midas-File run" << runNumberString << ".mid" << endl;
-      return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
       // Read Trees
@@ -242,16 +326,16 @@ bool ROMEIO::Connect(Int_t runNumber) {
          return false;
       }
       ConnectTrees();
-
-      // Get Number of Events for ROOT Mode
-      return true;
    }
-   cout << "Severe program failure." << endl << endl;
-   return false;
+   else {
+	   cout << "Severe program failure." << endl << endl;
+	   return false;
+   }
+   return true;
 }
 
 bool ROMEIO::ReadEvent(Int_t event) {
-   this->SetAnalyze();
+   fEventStatus = kAnalyze;
    this->ClearFolders();
    int timeStamp = 0;
 
@@ -259,41 +343,50 @@ bool ROMEIO::ReadEvent(Int_t event) {
 #if defined HAVE_MIDAS
       int runNumber,trans;
       if (cm_query_transition(&trans, &runNumber, NULL)) {
-         cout << trans << endl;
          if (trans == TR_START) {
-            printf("---> Run %d started.\n", runNumber);
-            fRunStatus = kAnalyze;
+            printf("\n\nRun %d started\n", runNumber);
+            fEventStatus = kAnalyze;
+            fRunStatus = kRunning;
          }
          if (trans == TR_STOP) {
-            printf("---> Run %d stopped.\n", runNumber);
-            fRunStatus = kEndOfRun;
+            printf("\n\nRun %d stopped\n", runNumber);
+            fEventStatus = kEndOfRun;
+            fRunStatus = kStopped;
          }
       }
-      int size = sizeof(fMidasEvent);
-      int status = bm_receive_event(fMidasBuffer, fMidasEvent, &size, ASYNC);
-      if (status != BM_SUCCESS) {
-         fRunStatus = kContinue;
-         return true;
-      }
+      int status = cm_yield(100);
       if (status == RPC_SHUTDOWN || status == SS_ABORT) {
-         fRunStatus = kTerminate;
+         fEventStatus = kTerminate;
+         return false;
+      }
+      if (fRunStatus == kStopped) {
+         fEventStatus = kContinue;
          return true;
       }
+      int size = sizeof(fMidasEvent);
+      status = bm_receive_event(fMidasBuffer, fMidasEvent, &size, ASYNC);
+      if (status != BM_SUCCESS) {
+         fEventStatus = kContinue;
+         return true;
+      }
+
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->event_id;
       timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
       this->InitMidasBanks();
       fTreeInfo->SetEventNumber(fCurrentEventNumber);
       fTreeInfo->SetTimeStamp(timeStamp);
-      return true;
-#else
-      cout << "Need Midas support for Online Modus !!" << endl;
-      cout << "Please link the midas library into this project." << endl;
-      return false;
+
+      // Update Statistics
+      fTriggerStatistics.processedEvents++;
+      int time;
+      time = ss_millitime();
+      if (fTimeOfLastEvent == 0)
+         fTimeOfLastEvent = time;
+      if (time - fTimeOfLastEvent != 0)
+         fTriggerStatistics.eventsPerSecond = (fTriggerStatistics.processedEvents-fLastEvent)/(time-fTimeOfLastEvent)*1000.0;
+      fTimeOfLastEvent = time;
+      fLastEvent = fTriggerStatistics.processedEvents;
 #endif
-   }
-   else if (this->isOnline()&&this->isRoot()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
-      return false;
    }
    else if (this->isOffline()&&this->isMidas()) {
       // read event header
@@ -312,7 +405,8 @@ bool ROMEIO::ReadEvent(Int_t event) {
       }
       if (readError) {
          if (n > 0) cout << "Unexpected end of file\n";
-         fRunStatus = kEndOfRun;
+         fEventStatus = kEndOfRun;
+         return true;
       }
 
       int eventId = ((EVENT_HEADER*)fMidasEvent)->event_id;
@@ -320,15 +414,20 @@ bool ROMEIO::ReadEvent(Int_t event) {
       fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->serial_number;
       timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
 
-      if (eventId == EVENTID_EOR || eventId < 0) {
-         fRunStatus = kContinue;
+      if (eventId < 0) {
+         fEventStatus = kContinue;
+         return true;
       }
-      if (eventId == EVENTID_EOR) fRunStatus = kEndOfRun;
+      if (eventId == EVENTID_EOR) {
+         fEventStatus = kEndOfRun;
+         return true;
+      }
 
-      if (fRunStatus==kAnalyze) this->InitMidasBanks();
+      if (fEventStatus==kAnalyze) this->InitMidasBanks();
       fTreeInfo->SetEventNumber(fCurrentEventNumber);
       fTreeInfo->SetTimeStamp(timeStamp);
-      return true;
+
+      fTriggerStatistics.processedEvents++;
    }
    else if (this->isOffline()&&this->isRoot()) {
       ROMETree *romeTree;
@@ -353,21 +452,49 @@ bool ROMEIO::ReadEvent(Int_t event) {
          }  
       }
       if (!found) {
-         fRunStatus = kEndOfRun;
+         fEventStatus = kEndOfRun;
          return true;
       }
       fTreeInfo->SetEventNumber(fCurrentEventNumber);
       fTreeInfo->SetTimeStamp(timeStamp);
-      return true;
+   
+      fTriggerStatistics.processedEvents++;
+   }
+   else {
+      cout << "Severe program failure." << endl << endl;
+      return false;
    }
 
-   cout << "Severe program failure." << endl << endl;
-   return false;
+   return true;
 }
 
 bool ROMEIO::WriteEvent() {
    // Fill Trees
    FillTrees();
+   return true;
+}
+bool ROMEIO::Update() {
+   // Progress Display
+   if (fProgressDelta>1) {
+      if ((int)fTriggerStatistics.processedEvents >= fProgressLastEvent + fProgressDelta) {
+         time(&fProgressLast);
+         fProgressLastEvent = (int)fTriggerStatistics.processedEvents;
+         fProgressWrite = true;
+      } 
+      else {
+         if (time(NULL) > fProgressLast+1)
+            fProgressDelta /= 10;
+      }
+   }
+   if ((fProgressDelta==1 || !((int)fTriggerStatistics.processedEvents%fProgressDelta) && fProgressWrite)) {
+      cout << (int)fTriggerStatistics.processedEvents << " events processed\r";
+      fProgressWrite = false;
+   }
+ 
+   // ODB update
+   db_send_changed_records();
+   cout << "update" << endl;;
+
    return true;
 }
 
@@ -377,8 +504,9 @@ bool ROMEIO::UserInput() {
       char ch = ROMEStatic::ss_getchar(0);
       if (ch == -1)
          ch = getchar();
-      if (ch == 's') 
-         fRunStatus = kEndOfRun;
+      if (ch == 's') {
+         fEventStatus = kTerminate;
+      }
       if (ch == 'q')
          return false;
    }
@@ -413,48 +541,36 @@ bool ROMEIO::Disconnect() {
    f1->Close();
 
    if (this->isOnline()&&this->isMidas()) {
-      return true;
-   }
-   else if (this->isOnline()&&this->isRoot()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
-      return false;
    }
    else if (this->isOffline()&&this->isMidas()) {
       close(fMidasFileHandle);
-      return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
       for (int j=0;j<GetTreeObjectEntries();j++) {
          if (GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
       }
       delete [] fRootFiles;
-      return true;
    }
-   cout << "Severe program failure." << endl << endl;
-   return false;
+   else {
+      cout << "Severe program failure." << endl << endl;
+      return false;
+   }
+   return true;
 }
 
 bool ROMEIO::Terminate() {
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS
       cm_disconnect_experiment();
-#else
-      cout << "Need Midas support for Online Modus !!" << endl;
-      cout << "Please link the midas library into this project." << endl;
-      return false;
 #endif
-      return true;
-   }
-   else if (this->isOnline()&&this->isRoot()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
-      return false;
    }
    else if (this->isOffline()&&this->isMidas()) {
-      return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
-      return true;
    }
-   cout << "Severe program failure." << endl << endl;
-   return false;
+   else {
+      cout << "Severe program failure." << endl << endl;
+      return false;
+   }
+   return true;
 }

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.28  2004/07/28 07:32:11  schneebeli_m
+  online stuff
+
   Revision 1.27  2004/07/20 16:18:41  schneebeli
   minor errors
 
@@ -93,12 +96,14 @@
 
 #include "ROMEBuilder.h"
 
+
 bool ROMEBuilder::ReadXMLFolder() {
-   char parent[10][100];
-   char tmp[100];
+   // read the folder definitions out of the xml file
+   char* parent[maxNumberOfFolders];
+   char* tmp;
    char* name;
-   int type,i,j,isub=0;
-   strcpy(parent[0],"GetMainFolder()");
+   int type,i,j,isub=0,res,res1,res2;
+   parent[0] = "GetMainFolder()";
 
    if (makeOutput) cout << "Folders:" << endl;
    while (xml->NextLine()) {
@@ -107,42 +112,51 @@ bool ROMEBuilder::ReadXMLFolder() {
       // read subfolder
       if (type == 1 && !strcmp((const char*)name,"SubFolder")) {
          numOfFolder++;
+         if (numOfFolder>=maxNumberOfFolders) {
+            cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          // default initialisation
-         strcpy(version[numOfFolder],"1");
-         strcpy(author[numOfFolder],mainAuthor);
+         folderAuthor[numOfFolder] = new char[strlen(mainAuthor)+1];
+         strcpy(folderAuthor[numOfFolder],mainAuthor);
+         folderVersion[numOfFolder] = new char[2];
+         strcpy(folderVersion[numOfFolder],"1");
+         folderDescription[numOfFolder] = new char[1];
          strcpy(folderDescription[numOfFolder],"");
-         strcpy(folderTitle[numOfFolder],"");
-         strcpy(folderArray[numOfFolder],"1");
-         dataBase[numOfFolder] = false;
+         folderDataBase[numOfFolder] = false;
+         folderUserCode[numOfFolder] = false;
          numOfValue[numOfFolder] = 0;
-         numOfGetters[numOfFolder] = 0;
-         numOfSetters[numOfFolder] = 0;
-         numOfInclude[numOfFolder] = 0;
          // set parent
-         strcpy(parentFolderName[numOfFolder],parent[isub]);
+         folderParentName[numOfFolder] = parent[isub];
          // read folder name
-         if (!xml->GetAttribute("Name",folderName[numOfFolder])) {
-            if (!xml->GetAttribute("FolderName",folderName[numOfFolder])) {
-               cout << "Folder " << numOfFolder << " has no name defined !" << endl;
-               cout << "Terminating program." << endl;
-               return false;
-            }
+         folderName[numOfFolder] = xml->GetAttribute("Name",NULL);
+         folderName[numOfFolder] = xml->GetAttribute("FolderName",folderName[numOfFolder]);
+         if (folderName[numOfFolder]==NULL) {
+            cout << "Folder " << (numOfFolder+1) << " has no name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
          // read folder title
-         xml->GetAttribute("Title",folderTitle[numOfFolder]);
-         xml->GetAttribute("FolderTitle",folderTitle[numOfFolder]);
+         folderTitle[numOfFolder] = xml->GetAttribute("Title","");
+         folderTitle[numOfFolder] = xml->GetAttribute("FolderTitle",folderTitle[numOfFolder]);
          // read array flag
-         xml->GetAttribute("ArraySize",folderArray[numOfFolder]);
-         xml->GetAttribute("Array",folderArray[numOfFolder]);
+         folderArray[numOfFolder] = xml->GetAttribute("ArraySize","1");
+         folderArray[numOfFolder] = xml->GetAttribute("Array",folderArray[numOfFolder]);
          // read data base flag
-         strcpy(tmp,"");
-         xml->GetAttribute("DataBase",tmp);
+         tmp = xml->GetAttribute("DataBase","no");
          if (!strcmp(tmp,"yes")) 
-            dataBase[numOfFolder] = true;
+            folderDataBase[numOfFolder] = true;
+         delete [] tmp;
+         // read user code flag
+         tmp = xml->GetAttribute("UserCode","no");
+         if (!strcmp(tmp,"yes")) 
+            folderUserCode[numOfFolder] = true;
+         delete [] tmp;
 
          // set folder as parent for subsequent folders
          isub++;
-         strcpy(parent[isub],folderName[numOfFolder]);
+         parent[isub] = folderName[numOfFolder];
 
          // output
          if (makeOutput) for (i=0;i<isub;i++) cout << "   ";
@@ -156,68 +170,37 @@ bool ROMEBuilder::ReadXMLFolder() {
       if (type == 1) {
          // read author
          if (!strcmp((const char*)name,"Author")) {
-            xml->GetAttribute("Name",author[numOfFolder]);
+            delete [] folderAuthor[numOfFolder];
+            folderAuthor[numOfFolder] = xml->GetAttribute("Name",mainAuthor);
          }
          // read version
          else if (!strcmp((const char*)name,"Version")) {
-            xml->GetAttribute("Number",version[numOfFolder]);
+            delete [] folderVersion[numOfFolder];
+            folderVersion[numOfFolder] = xml->GetAttribute("Number","1");
          }
          // read description
          else if (!strcmp((const char*)name,"Description")) {
-            xml->GetAttribute("Text",folderDescription[numOfFolder]);
+            delete [] folderDescription[numOfFolder];
+            folderDescription[numOfFolder] = xml->GetAttribute("Text","");
          }
-         // read additional getters
-         else if (!strcmp((const char*)name,"AdditionalGetters")) {
-            numOfGetters[numOfFolder] = 0;
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1) {
-                  strcpy(getter[numOfFolder][numOfGetters[numOfFolder]],(const char*)name);
-                  if (!xml->GetAttribute("Type",getterType[numOfFolder][numOfGetters[numOfFolder]])) {
-                     cout << "Getter '" << getter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  numOfGetters[numOfFolder]++;
-               }
-               if (type == 15 && !strcmp((const char*)name,"AdditionalGetters")) {
-                  break;
-               }
-            }
-         }
-         // read additional setters
-         else if (!strcmp((const char*)name,"AdditionalSetters")) {
-            numOfSetters[numOfFolder] = 0;
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1) {
-                  strcpy(setter[numOfFolder][numOfSetters[numOfFolder]],(const char*)name);
-                  if (!xml->GetAttribute("Type",setterType[numOfFolder][numOfGetters[numOfFolder]])) {
-                     cout << "Setter '" << setter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  numOfSetters[numOfFolder]++;
-               }
-               if (type == 15 && !strcmp((const char*)name,"AdditionalSetters")) {
-                  break;
-               }
-            }
-         }
-         // read includes
+         // includes
          else if (!strcmp((const char*)name,"Include")) {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
                if (type == 1) {
-                  strcpy(include[numOfFolder][numOfInclude[numOfFolder]],(const char*)name);
-                  localFlag[numOfFolder][numOfInclude[numOfFolder]] = false;
-                  xml->GetAttribute("Type",tmp);
+                  folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] = (char*)name;
+                  folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
+                  tmp = xml->GetAttribute("Type","global");
                   if (strcmp(tmp,"local")) 
-                     localFlag[numOfFolder][numOfInclude[numOfFolder]] = true;
-                  numOfInclude[numOfFolder]++;
+                     folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = true;
+                  delete [] tmp;
+                  numOfFolderInclude[numOfFolder]++;
+                  if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
+                     cout << "Maximal number of inludes in folder '" << folderName[numOfFolder] << "' reached : " << maxNumberOfInclude << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && !strcmp((const char*)name,"Include")) {
                   break;
@@ -231,44 +214,50 @@ bool ROMEBuilder::ReadXMLFolder() {
                name = xml->GetName();
                if (type == 1) {
                   // field name
-                  strcpy(valueName[numOfFolder][numOfValue[numOfFolder]],name);
+                  valueName[numOfFolder][numOfValue[numOfFolder]] = name;
                   // field type
-                  if (!xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]])) {
+                  valueType[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Type",NULL);
+                  if (valueType[numOfFolder][numOfValue[numOfFolder]]==NULL) {
                      cout << "Field '" << valueType[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field reference flag
-                  strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
-                  xml->GetAttribute("Reference",valueRef[numOfFolder][numOfValue[numOfFolder]]);
+                  valueRef[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Reference","no");
                   // field initialisation
                   if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
-                     strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
+                     valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Initialisation","' '");
                   else
-                     strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
-                  xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]]);
-                  xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]]);
+                     valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Initialisation","0");
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]]);
                   // field comment
-                  strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],"");
-                  xml->GetAttribute("Comment",valueComment[numOfFolder][numOfValue[numOfFolder]]);
+                  valueComment[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Comment"," ");
                   if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
-                     strcpy(tmp,valueComment[numOfFolder][numOfValue[numOfFolder]]);
+                     tmp = valueComment[numOfFolder][numOfValue[numOfFolder]];
+                     valueComment[numOfFolder][numOfValue[numOfFolder]] = new char[strlen(tmp)+4];
                      sprintf(valueComment[numOfFolder][numOfValue[numOfFolder]],"// %s",tmp);
+                     delete [] tmp;
                   }
                   // data base path
-                  sprintf(dataBasePath[numOfFolder][numOfValue[numOfFolder]],"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
-                  xml->GetAttribute("DataBasePath",dataBasePath[numOfFolder][numOfValue[numOfFolder]]);
+                  tmp = new char[2+strlen(folderName[numOfFolder])+strlen(valueName[numOfFolder][numOfValue[numOfFolder]])];
+                  sprintf(tmp,"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
+                  valueDataBasePath[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("DataBasePath",tmp);
+                  delete [] tmp;
                   // array
-                  sprintf(valueArray[numOfFolder][numOfValue[numOfFolder]],"0");
-                  xml->GetAttribute("Array",valueArray[numOfFolder][numOfValue[numOfFolder]]);
-                  xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]]);
-                  if (strcmp(valueArray[numOfFolder][numOfValue[numOfFolder]],"0") && dataBase[numOfFolder]) {
+                  valueArray[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Array","0");
+                  valueArray[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]]);
+                  if (strcmp(valueArray[numOfFolder][numOfValue[numOfFolder]],"0") && folderDataBase[numOfFolder]) {
                      cout << "Value '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "', which has data base access, can not be an array !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field count
                   numOfValue[numOfFolder]++;
+                  if (numOfValue[numOfFolder]>=maxNumberOfValues) {
+                     cout << "Maximal number of fields in folder '" << folderName[numOfFolder] << "' reached : " << maxNumberOfValues << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && !strcmp((const char*)name,"Fields")) {
                   for (i=0;i<numOfValue[numOfFolder];i++) {
@@ -303,7 +292,7 @@ bool ROMEBuilder::ReadXMLFolder() {
 }
 
 bool ROMEBuilder::WriteFolderCpp() {
-   char cppFile[500];
+   char* cppFile = NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -318,13 +307,19 @@ bool ROMEBuilder::WriteFolderCpp() {
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (numOfValue[iFold] == 0) continue;
-// cpp-File
-//----------
 
+      // File name
+      delete [] cppFile;
+      cppFile = new char[strlen(outDir)+strlen(shortCut)+strlen(folderName[iFold])+20];
       sprintf(cppFile,"%s/src/framework/%s%s.cpp",outDir,shortCut,folderName[iFold]);
-// Description
-//-------------
-      sprintf(buffer,"//// Author: %s\n",author[iFold]);
+
+      if (!folderUserCode[iFold]) {
+         remove(cppFile);
+         continue;
+      }
+
+      // Description
+      sprintf(buffer,"//// Author: %s\n",folderAuthor[iFold]);
       sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       ll = 74-strlen(shortCut);
@@ -334,9 +329,12 @@ bool ROMEBuilder::WriteFolderCpp() {
       pos = folderDescription[iFold];
       lenTot = strlen(folderDescription[iFold]);
       while (pos-folderDescription[iFold] < lenTot) {
-         if (lenTot+(folderDescription[iFold]-pos)<74) i=75;
-         else for (i=74;pos[i]!=32&&i>0;i--) {}
-         if (i<=0) i=75;
+         if (lenTot+(folderDescription[iFold]-pos)<74) 
+            i=min(75,lenTot);
+         else 
+            for (i=74;pos[i]!=32&&i>0;i--) {}
+         if (i<=0) 
+            i=min(75,lenTot);
          pos[i] = 0;
          sprintf(buffer+strlen(buffer),"// %-74.74s   \n",pos);
          pos = pos+i+1;
@@ -345,58 +343,43 @@ bool ROMEBuilder::WriteFolderCpp() {
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"/////////////////////////////////////----///////////////////////////////////////\n\n");
+      sprintf(buffer+strlen(buffer),"/////////////////////////////////////----///////////////////////////////////////");
 
-// Close cpp-File
-//----------------
-
+      // Write File
       struct stat buf;
       if( stat( cppFile, &buf )) {
-// Header Files
-//--------------
-
-         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[iFold]);
+         // Header Files
+         sprintf(buffer+strlen(buffer),"\n\n#include <include/framework/%s%s.h>\n",shortCut,folderName[iFold]);
 
          sprintf(buffer+strlen(buffer),"\nClassImp(%s%s)\n",shortCut,folderName[iFold]);
 
-// User Functions
-//----------------
-
-         for (i=0;i<numOfGetters[iFold];i++) {
-            sprintf(buffer+strlen(buffer),"\n%s %s%s::%s()\n{\n}\n\n",getterType[iFold][i],shortCut,folderName[iFold],getter[iFold][i]);
-         }
          writeFile = true;
       }
       else {
-         if (numOfGetters[iFold]==0) {
-            remove(cppFile);
+         // compare old and new file
+         fileHandle = open(cppFile,O_RDONLY);
+         nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+         pBuffer = fileBuffer;
+         char *pend = "/////////////////////////////////////----///////////////////////////////////////";
+         pBuffer = strstr(pBuffer,pend);
+         if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
+            if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
+            continue;
          }
-         else {
-            // compare old and new file
-            fileHandle = open(cppFile,O_RDONLY);
-            nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-            pBuffer = fileBuffer;
-            char *pend = "/////////////////////////////////////----///////////////////////////////////////";
-            pBuffer = strstr(pBuffer,pend);
-            if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
-               if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
-               continue;
+         bufferLen = nb-(pBuffer-fileBuffer);
+         close(fileHandle);
+         writeFile = false;
+         for (i=0;i<pBuffer-fileBuffer;i++) {
+            if (buffer[i] != fileBuffer[i]) {
+               writeFile = true;
+               break;
             }
-            bufferLen = nb-(pBuffer-fileBuffer);
-            close(fileHandle);
-            writeFile = false;
-            for (i=0;i<pBuffer-fileBuffer;i++) {
-               if (buffer[i] != fileBuffer[i]) {
-                  writeFile = true;
-                  break;
-               }
-            }
-            fileBuffer[nb] = 0;
-            sprintf(format,"%%-%d.%ds",bufferLen-80);
-            sprintf(buffer+strlen(buffer),format,pBuffer+80);
          }
+         fileBuffer[nb] = 0;
+         sprintf(format,"%%-%d.%ds",bufferLen-80,bufferLen-80);
+         sprintf(buffer+strlen(buffer),format,pBuffer+80);
       }
-      if (writeFile && numOfGetters[iFold]>0) {
+      if (writeFile) {
          // write file
          fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
@@ -408,23 +391,33 @@ bool ROMEBuilder::WriteFolderCpp() {
          close(fileHandle);
       }
    }
+   delete [] cppFile;
    return true;
 }
 
 bool ROMEBuilder::WriteFolderH() {
-   char hFile[500];
+   char* hFile = NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
+   char *tmp;
 
    int nb,j,i;
-   const int bufferSize = 600;
-   char str[bufferSize];
+   char* str = NULL;
    int fileHandle;
    char format[100];
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (numOfValue[iFold] == 0) continue;
+
+      // File name
+      delete [] hFile;
+      hFile = new char[strlen(outDir)+strlen(shortCut)+strlen(folderName[iFold])+30];
+      if (folderUserCode[iFold])
+         sprintf(hFile,"%s/include/framework/%s%s_Base.h",outDir,shortCut,folderName[iFold]);
+      else
+         sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
+
       // Description
       sprintf(buffer,               "////////////////////////////////////////////////////////////////////////////////\n");
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
@@ -437,10 +430,15 @@ bool ROMEBuilder::WriteFolderH() {
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
-      // Header Files
-
-      sprintf(buffer+strlen(buffer),"#ifndef %s%s_H\n",shortCut,folderName[iFold]);
-      sprintf(buffer+strlen(buffer),"#define %s%s_H\n\n",shortCut,folderName[iFold]);
+      // Header
+      if (folderUserCode[iFold]) {
+         sprintf(buffer+strlen(buffer),"#ifndef %s%s_Base_H\n",shortCut,folderName[iFold]);
+         sprintf(buffer+strlen(buffer),"#define %s%s_Base_H\n\n",shortCut,folderName[iFold]);
+      }
+      else {
+         sprintf(buffer+strlen(buffer),"#ifndef %s%s_H\n",shortCut,folderName[iFold]);
+         sprintf(buffer+strlen(buffer),"#define %s%s_H\n\n",shortCut,folderName[iFold]);
+      }
 
       sprintf(buffer+strlen(buffer),"#include <TObject.h>\n");
 
@@ -451,12 +449,12 @@ bool ROMEBuilder::WriteFolderH() {
          }
       }
 
-      for (i=0;i<numOfInclude[iFold];i++) {
-         if (localFlag[iFold][i]) {
-            sprintf(buffer+strlen(buffer),"#include \"%s\"\n",include[iFold][i]);
+      for (i=0;i<numOfFolderInclude[iFold];i++) {
+         if (folderLocalFlag[iFold][i]) {
+            sprintf(buffer+strlen(buffer),"#include \"%s\"\n",folderInclude[iFold][i]);
          }
          else {
-            sprintf(buffer+strlen(buffer),"#include <%s>\n",include[iFold][i]);
+            sprintf(buffer+strlen(buffer),"#include <%s>\n",folderInclude[iFold][i]);
          }
       }
       for (i=0;i<numOfValue[iFold];i++) {
@@ -468,27 +466,29 @@ bool ROMEBuilder::WriteFolderH() {
 
       for (i=0;i<numOfValue[iFold];i++) {
          for (j=0;j<numOfFolder;j++) {
+            delete [] str;
+            str = new char[strlen(folderName[j])+2];
             sprintf(str,"%s*",folderName[j]);
             if (!strcmp(valueType[iFold][i],folderName[j]) || !strcmp(valueType[iFold][i],str)) {
                sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[j]);
 
-               strcpy(str,shortCut);
-               strcat(str,valueType[iFold][i]);
-               strcpy(valueType[iFold][i],str);
-               continue;
+               tmp = valueType[iFold][i];
+               valueType[iFold][i] = new char[strlen(tmp)+strlen(shortCut)+1];
+               sprintf(valueType[iFold][i],"%s%s",shortCut,tmp);
+               delete [] tmp;
+               break;
             }
          }
       }
 
-
-
       // Class
-
-      sprintf(buffer+strlen(buffer),"\nclass %s%s : public TObject\n",shortCut,folderName[iFold]);
+      if (folderUserCode[iFold])
+         sprintf(buffer+strlen(buffer),"\nclass %s%s_Base : public TObject\n",shortCut,folderName[iFold]);
+      else
+         sprintf(buffer+strlen(buffer),"\nclass %s%s : public TObject\n",shortCut,folderName[iFold]);
       sprintf(buffer+strlen(buffer),"{\n");
 
       // Fields
-
       sprintf(buffer+strlen(buffer),"protected:\n");
       int typeLen = 5;
       int nameLen = 8;
@@ -524,7 +524,10 @@ bool ROMEBuilder::WriteFolderH() {
 
       sprintf(buffer+strlen(buffer),"public:\n");
       // Constructor
-      sprintf(buffer+strlen(buffer),"   %s%s( ",shortCut,folderName[iFold]);
+      if (folderUserCode[iFold])
+         sprintf(buffer+strlen(buffer),"   %s%s_Base( ",shortCut,folderName[iFold]);
+      else
+         sprintf(buffer+strlen(buffer),"   %s%s( ",shortCut,folderName[iFold]);
       for (i=0;i<numOfValue[iFold];i++) {
          if (!strcmp(valueArray[iFold][i],"0"))
             sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
@@ -557,12 +560,6 @@ bool ROMEBuilder::WriteFolderH() {
             sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,lb,lb);
             sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"");
          }
-      }
-      // User Getters
-      for (i=0;i<numOfGetters[iFold];i++) {
-         int lb = nameLen-strlen(getter[iFold][i]);
-         sprintf(format,"   %%-%ds %%s();\n",typeLen,lb);
-         sprintf(buffer+strlen(buffer),format,getterType[iFold][i],getter[iFold][i]);
       }
       sprintf(buffer+strlen(buffer),"\n");
 
@@ -613,18 +610,19 @@ bool ROMEBuilder::WriteFolderH() {
       sprintf(buffer+strlen(buffer),"fModified = false; ");
       sprintf(buffer+strlen(buffer),"};\n");
 
-// Footer
-//--------
-
-      sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s,%s)\n",shortCut,folderName[iFold],version[iFold]);
+      // Footer
+      if (folderUserCode[iFold])
+         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s_Base,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
+      else
+         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
       sprintf(buffer+strlen(buffer),"};\n\n");
 
-      sprintf(buffer+strlen(buffer),"#endif   // %s%s_H\n",shortCut,folderName[iFold]);
+      if (folderUserCode[iFold])
+         sprintf(buffer+strlen(buffer),"#endif   // %s%s_Base_H\n",shortCut,folderName[iFold]);
+      else
+         sprintf(buffer+strlen(buffer),"#endif   // %s%s_H\n",shortCut,folderName[iFold]);
 
-// Close h-File
-//--------------
-
-      sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
+      // Write File
       fileHandle = open(hFile,O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
@@ -641,20 +639,65 @@ bool ROMEBuilder::WriteFolderH() {
          nb = write(fileHandle,&buffer, strlen(buffer));
          close(fileHandle);
       }
+
+      // User H-File
+      struct stat buf;
+      sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
+      if (folderUserCode[iFold] && stat( hFile, &buf )) {
+         // Description
+         sprintf(buffer,               "////////////////////////////////////////////////////////////////////////////////\n");
+         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+         sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
+         sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
+         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+         sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+         sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
+         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+         sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+
+         // Header
+         sprintf(buffer+strlen(buffer),"#ifndef %s%s_H\n",shortCut,folderName[iFold]);
+         sprintf(buffer+strlen(buffer),"#define %s%s_H\n\n",shortCut,folderName[iFold]);
+
+         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s_Base.h>\n",shortCut,folderName[iFold]);
+
+         // Class
+         sprintf(buffer+strlen(buffer),"\nclass %s%s : public %s%s_Base\n",shortCut,folderName[iFold],shortCut,folderName[iFold]);
+         sprintf(buffer+strlen(buffer),"{\n");
+         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
+         sprintf(buffer+strlen(buffer),"};\n\n");
+         sprintf(buffer+strlen(buffer),"#endif   // %s%s_H\n",shortCut,folderName[iFold]);
+         // Write File
+         fileHandle = open(hFile,O_RDONLY);
+         nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+         bool identical = true;
+         for (i=0;i<nb||i<(int)strlen(buffer);i++) {
+            if (buffer[i] != fileBuffer[i]) {
+               identical = false;
+            }
+         }
+         if (!identical) {
+            fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+            close(fileHandle);
+            fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+            if (makeOutput) cout << "      " << hFile << endl;
+            nb = write(fileHandle,&buffer, strlen(buffer));
+            close(fileHandle);
+         }
+      }
    }
+   delete [] hFile;
    return true;
 }
 
 bool ROMEBuilder::ReadXMLTask() {
-   char parent[10][100];
-   char *name;
+   char* parent[maxNumberOfTasks];
+   char* tmp;
+   char* name;
    int type,i,j,isub=0;
    int empty,depth=0,index[20];
-   char tmp[100];
-   strcpy(parent[0],"GetMainTask()");
-
-// read XML file
-//===============
+   parent[0] = "GetMainTask()";
 
    if (makeOutput) cout << "\n\nTasks:" << endl;
    while (xml->NextLine()) {
@@ -663,42 +706,54 @@ bool ROMEBuilder::ReadXMLTask() {
       empty = xml->isEmpty();
       if (type == 1 && !strcmp((const char*)name,"SubTask")) {
          numOfTask++;
+         if (numOfTask>=maxNumberOfTasks) {
+            cout << "Maximal number of tasks reached : " << maxNumberOfTasks << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          // initialisation
          index[0] = 0;
          numOfTaskSteering[numOfTask] = 0;
          numOfTaskSteerFields[numOfTask][0] = 0;
-         strcpy(taskSteerName[numOfTask][0],"Steering");
-         strcpy(taskSteerParent[numOfTask][0],"");
-         taskSteerDepth[numOfTask][0] = 0;
-         strcpy(parentTaskName[numOfTask],parent[isub]);
-         strcpy(version[numOfTask],"1");
-         strcpy(author[numOfTask],mainAuthor);
-         strcpy(taskDescription[numOfTask],"");
          numOfHistos[numOfTask] = 0;
-         numOfInclude[numOfTask] = 0;
+         numOfTaskInclude[numOfTask] = 0;
+         taskSteerDepth[numOfTask][0] = 0;
+         taskAuthor[numOfTask] = new char[strlen(mainAuthor)+1];
+         strcpy(taskAuthor[numOfTask],mainAuthor);
+         taskVersion[numOfTask] = new char[2];
+         strcpy(taskVersion[numOfTask],"1");
+         taskDescription[numOfTask] = new char[1];
+         strcpy(taskDescription[numOfTask],"");
+
+         taskSteerName[numOfTask][0] = "Steering";
+         taskSteerParent[numOfTask][0] = "";
+         taskParentName[numOfTask] = parent[isub];
+
          // task name
-         if (!xml->GetAttribute("Name",taskName[numOfTask])) {
-            cout << "SubTask without a name !" << endl;
+         taskName[numOfTask] = xml->GetAttribute("Name",NULL);
+         if (taskName[numOfTask]==NULL) {
+            cout << "Task " << (numOfTask+1) << " has no name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // trigger id
-         strcpy(taskEventID[numOfTask],"all");
-         xml->GetAttribute("EventID",taskEventID[numOfTask]);
+         taskEventID[numOfTask] = xml->GetAttribute("EventID","all");
          // language
-         fortranFlag[numOfTask] = false;
-         xml->GetAttribute("Language",tmp);
-         if (!strcmp(tmp,"Fortran")) fortranFlag[numOfTask] = true;
+         taskFortran[numOfTask] = false;
+         tmp = xml->GetAttribute("Language","c++");
+         if (!strcmp(tmp,"Fortran")) 
+            taskFortran[numOfTask] = true;
+         delete [] tmp;
+
+         // output
+         if (makeOutput) for (i=0;i<isub+1;i++) cout << "   ";
+         if (makeOutput) cout << taskName[numOfTask] << endl;
 
          // handle subtask
          if (!empty) {
             isub++;
-            strcpy(parent[isub],taskName[numOfTask]);
+            parent[isub] = taskName[numOfTask];
          }
-
-         // output
-         if (makeOutput) for (i=0;i<isub;i++) cout << "   ";
-         if (makeOutput) cout << taskName[numOfTask] << endl;
       }
       if (type == 15 && !strcmp((const char*)name,"SubTask")) {
          isub--;
@@ -706,15 +761,18 @@ bool ROMEBuilder::ReadXMLTask() {
       if (type == 1) {
          // author
          if (!strcmp((const char*)name,"Author")) {
-            xml->GetAttribute("Name",author[numOfTask]);
+            delete [] taskAuthor[numOfTask];
+            taskAuthor[numOfTask] = xml->GetAttribute("Name",mainAuthor);
          }
          // version
          else if (!strcmp((const char*)name,"Version")) {
-            xml->GetAttribute("Number",version[numOfTask]);
+            delete [] taskVersion[numOfTask];
+            taskVersion[numOfTask] = xml->GetAttribute("Number","1");
          }
          // description
          else if (!strcmp((const char*)name,"Description")) {
-            xml->GetAttribute("Text",taskDescription[numOfTask]);
+            delete [] taskDescription[numOfTask];
+            taskDescription[numOfTask] = xml->GetAttribute("Text","");
          }
          // includes
          else if (!strcmp((const char*)name,"Include")) {
@@ -722,12 +780,18 @@ bool ROMEBuilder::ReadXMLTask() {
                type = xml->GetType();
                name = xml->GetName();
                if (type == 1) {
-                  strcpy(include[numOfTask][numOfInclude[numOfTask]],(const char*)name);
-                  localFlag[numOfTask][numOfInclude[numOfTask]] = false;
-                  xml->GetAttribute("Type",tmp);
+                  taskInclude[numOfTask][numOfTaskInclude[numOfTask]] = (char*)name;
+                  taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = false;
+                  tmp = xml->GetAttribute("Type","global");
                   if (strcmp(tmp,"local")) 
-                     localFlag[numOfTask][numOfInclude[numOfTask]] = true;
-                  numOfInclude[numOfTask]++;
+                     taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = true;
+                  delete [] tmp;
+                  numOfTaskInclude[numOfTask]++;
+                  if (numOfTaskInclude[numOfTask]>=maxNumberOfInclude) {
+                     cout << "Maximal number of inludes in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfInclude << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && !strcmp((const char*)name,"Include")) {
                   break;
@@ -742,13 +806,18 @@ bool ROMEBuilder::ReadXMLTask() {
                empty = xml->isEmpty();
                if (type == 1 && !empty) {
                   numOfTaskSteering[numOfTask]++;
+                  if (numOfTaskSteering[numOfTask]>=maxNumberOfSteering) {
+                     cout << "Maximal number of steering parameter classes in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfSteering << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                   depth++;
                   index[depth] = numOfTaskSteering[numOfTask];
                   numOfTaskSteerFields[numOfTask][index[depth]] = 0;
                   // steering name
-                  strcpy(taskSteerName[numOfTask][index[depth]],(const char*)name);
+                  taskSteerName[numOfTask][index[depth]] = (char*)name;
                   // parent name
-                  strcpy(taskSteerParent[numOfTask][index[depth]],taskSteerName[numOfTask][index[depth-1]]);
+                  taskSteerParent[numOfTask][index[depth]] = taskSteerName[numOfTask][index[depth-1]];
                   // depth
                   taskSteerDepth[numOfTask][index[depth]] = depth;
                   // output
@@ -757,31 +826,37 @@ bool ROMEBuilder::ReadXMLTask() {
                }
                if (type == 1 && empty) {
                   // field name
-                  strcpy(taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)name);
+                  taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = (char*)name;
                   // field type
-                  if (!xml->GetAttribute("Type",taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]])) {
+                  taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Type",NULL);
+                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]==NULL) {
                      cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << " has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field initialisation
                   if (!strcmp(taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"TString"))
-                     strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
+                     taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Initialisation","' '");
                   else
-                     strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
-                  xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
-                  xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                     taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Initialisation","0");
+                  taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
                   // field comment
-                  strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
-                  xml->GetAttribute("Comment",taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                  taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Comment","");
                   if (taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]][0]!='/') {
-                     strcpy(tmp,taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                     tmp = taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]];
+                     taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = new char[strlen(tmp)+4];
                      sprintf(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"// %s",tmp);
+                     delete [] tmp;
                   }
                   // output
                   if (makeOutput) for (i=0;i<depth+2;i++) cout << "   ";
                   if (makeOutput) cout << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << endl;
                   numOfTaskSteerFields[numOfTask][index[depth]]++;
+                  if (numOfTaskSteerFields[numOfTask][index[depth]]>=maxNumberOfSteeringField) {
+                     cout << "Maximal number of fields in steering parameter class '" << taskSteerName[numOfTask][index[depth]] << "' in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfSteeringField << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && strcmp((const char*)name,"SteeringParameters")) {
                   depth--;
@@ -798,48 +873,51 @@ bool ROMEBuilder::ReadXMLTask() {
                name = xml->GetName();
                if (type == 1) {
                   // histo name
-                  strcpy(histoName[numOfTask][numOfHistos[numOfTask]],(const char*)name);
+                  histoName[numOfTask][numOfHistos[numOfTask]] = (char*)name;
                   // histo type
-                  if (!xml->GetAttribute("Type",histoType[numOfTask][numOfHistos[numOfTask]])) {
+                  histoType[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Type",NULL);
+                  if (histoType[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no type defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo array size
-                  strcpy(histoArray[numOfTask][numOfHistos[numOfTask]],"1");
-                  xml->GetAttribute("ArraySize",histoArray[numOfTask][numOfHistos[numOfTask]]);
+                  histoArray[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ArraySize","1");
                   // histo title
-                  strcpy(histoTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]]);
+                  histoTitle[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Title","");
                   // histo folder name
-                  if (!xml->GetAttribute("FolderName",histoFolderName[numOfTask][numOfHistos[numOfTask]])) {
+                  histoFolderName[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Type",NULL);
+                  if (histoFolderName[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Folder Name defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo folder title
-                  strcpy(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  xml->GetAttribute("FolderTitle",histoFolderTitle[numOfTask][numOfHistos[numOfTask]]);
+                  histoFolderTitle[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("FolderTitle","");
                   // histo xbins
-                  if (!xml->GetAttribute("NumberOfBinsX",histoXBin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoXBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsX",NULL);
+                  if (histoXBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of X bins defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo xmin
-                  if (!xml->GetAttribute("XMin",histoXMin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoXMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("XMin",NULL);
+                  if (histoXMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X minimum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo xmax
-                  if (!xml->GetAttribute("XMax",histoXMax[numOfTask][numOfHistos[numOfTask]])) {
+                  histoXMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("XMax",NULL);
+                  if (histoXMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X maximum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo ybins
-                  if (!xml->GetAttribute("NumberOfBinsY",histoYBin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoYBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsY",NULL);
+                  if (histoYBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Y bins defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -847,7 +925,8 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   // histo ymin
-                  if (!xml->GetAttribute("YMin",histoYMin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoYMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("YMin",NULL);
+                  if (histoYMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y minimum defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -855,7 +934,8 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   // histo ymax
-                  if (!xml->GetAttribute("YMax",histoYMax[numOfTask][numOfHistos[numOfTask]])) {
+                  histoYMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("YMax",NULL);
+                  if (histoYMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y maximum defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -863,7 +943,8 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   // histo zbins
-                  if (!xml->GetAttribute("NumberOfBinsZ",histoZBin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoZBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsZ",NULL);
+                  if (histoZBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Z bins defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -871,7 +952,8 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   // histo zmin
-                  if (!xml->GetAttribute("ZMin",histoZMin[numOfTask][numOfHistos[numOfTask]])) {
+                  histoZMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ZMin",NULL);
+                  if (histoZMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z minimum defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -879,7 +961,8 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   // histo zmax
-                  if (!xml->GetAttribute("ZMax",histoZMax[numOfTask][numOfHistos[numOfTask]])) {
+                  histoZMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ZMax",NULL);
+                  if (histoZMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
                         cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z maximum defined !" << endl;
                         cout << "Terminating program." << endl;
@@ -887,6 +970,11 @@ bool ROMEBuilder::ReadXMLTask() {
                      }
                   }
                   numOfHistos[numOfTask]++;
+                  if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
+                     cout << "Maximal number of histos in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfHistos << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && !strcmp((const char*)name,"Histos")) {
                   for (i=0;i<numOfHistos[numOfTask];i++) {
@@ -922,7 +1010,7 @@ bool ROMEBuilder::ReadXMLTask() {
 bool ROMEBuilder::WriteTaskSteeringClass(char *buffer,int numSteer,int numTask) {
    char format[100];
    char sc[20];
-   char blank[20];
+   char blank[200];
    int j,i;
    int typeLen = -1;
    int nameLen = -1;
@@ -1004,30 +1092,38 @@ bool ROMEBuilder::WriteTaskSteeringClass(char *buffer,int numSteer,int numTask) 
 }
 void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask) {
    int i,j;
-   char tmp[300];
-   char getter[300];
+   char* tmp;
+   char* getter;
    if (numSteer==0)
       sprintf(buffer+strlen(buffer),"   xml->StartElement(\"SteeringParameters\");\n");
    else
       sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskSteerName[numTask][numSteer]);
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
+      getter = new char[strlen(taskSteerFieldName[numTask][numSteer][i])+8];
       sprintf(getter,"->Get%s()",taskSteerFieldName[numTask][numSteer][i]);
       int ind = numSteer;
       while (strcmp(taskSteerParent[numTask][ind],"")) {
          for (j=0;j<numOfTaskSteering[numTask];j++) {
             if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
-               strcpy(tmp,getter);
+               tmp = getter;
+               getter = new char[strlen(tmp)+strlen(taskSteerName[numTask][ind])+8];
                sprintf(getter,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
+               delete [] tmp;
                ind = j;
                break;
             }
          }
       }
-      strcpy(tmp,getter);
+      tmp = getter;
+      getter = new char[strlen(shortCut)+strlen(tmp)+2*strlen(taskName[numTask])+20];
       sprintf(getter,"((%sT%s*)%sTask)->GetSP()%s",shortCut,taskName[numTask],taskName[numTask],tmp);
+      delete [] tmp;
+      tmp = new char[5];
       GetFormat(tmp,taskSteerFieldType[numTask][numSteer][i]);
       sprintf(buffer+strlen(buffer),"   sprintf(value,\"%s\",%s);\n",tmp,getter);
       sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"%s\",value);\n",taskSteerFieldName[numTask][numSteer][i]);
+      delete [] getter;
+      delete [] tmp;
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
       if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
@@ -1037,21 +1133,24 @@ void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTas
    sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
 }
 void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask) {
-   char tmp[300];
-   char value[300];
-   char path[300];
-   char setter[300];
+   char* tmp=NULL;
+   char value[100];
+   char* path=NULL;
+   char* setter=NULL;
    int i,j;
-   char blank[100];
+   char blank[200];
    strcpy(blank,"      ");
 
+   path = new char[1];
    strcpy(path,"");
    int ind = numSteer;
    while (strcmp(taskSteerParent[numTask][ind],"")) {
       for (j=0;j<numOfTaskSteering[numTask];j++) {
          if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
-            strcpy(tmp,path);
+            tmp = path;
+            path = new char[strlen(taskSteerName[numTask][ind])+strlen(tmp)+8];
             sprintf(path,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
+            delete [] tmp;
             ind = j;
             strcat(blank,"      ");
             break;
@@ -1068,11 +1167,13 @@ void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask
    sprintf(buffer+strlen(buffer),"%s                     name = xml->GetName();\n",blank);
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
       setValue(value,"","tmp",taskSteerFieldType[numTask][numSteer][i],1);
+      setter = new char[30+strlen(shortCut)+2*strlen(taskName[numTask])+strlen(path)+strlen(taskSteerFieldName[numTask][numSteer][i])+strlen(taskSteerFieldType[numTask][numSteer][i])+strlen(value)];
       sprintf(setter,"((%sT%s*)%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut,taskName[numTask],taskName[numTask],path,taskSteerFieldName[numTask][numSteer][i],taskSteerFieldType[numTask][numSteer][i],value);
       sprintf(buffer+strlen(buffer),"%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerFieldName[numTask][numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s                        if (xml->GetValue(tmp)) \n",blank);
+      sprintf(buffer+strlen(buffer),"%s                        if (xml->GetValue(tmp,sizeof(value))) \n",blank);
       sprintf(buffer+strlen(buffer),"%s                           %s;\n",blank,setter);
       sprintf(buffer+strlen(buffer),"%s                     }\n",blank);
+      delete [] setter;
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
       if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
@@ -1086,9 +1187,10 @@ void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask
    sprintf(buffer+strlen(buffer),"%s                        break;\n",blank);
    sprintf(buffer+strlen(buffer),"%s                  }\n",blank);
    sprintf(buffer+strlen(buffer),"%s               }\n",blank);
+   delete [] path;
 }
 bool ROMEBuilder::WriteTaskCpp() {
-   char cppFile[500];
+   char* cppFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -1101,13 +1203,13 @@ bool ROMEBuilder::WriteTaskCpp() {
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      // File name
+      delete [] cppFile;
+      cppFile = new char[18+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
+      sprintf(cppFile,"%s/src/tasks/%sT%s.cpp",outDir,shortCut,taskName[iTask]);
 
-// cpp-File
-//----------
-
-// Description
-//-------------
-      sprintf(buffer,"//// Author: %s\n",author[iTask]);
+      // Description
+      sprintf(buffer,"//// Author: %s\n",taskAuthor[iTask]);
       sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       ll = 73-strlen(shortCut);
@@ -1155,8 +1257,7 @@ bool ROMEBuilder::WriteTaskCpp() {
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       sprintf(buffer+strlen(buffer),"/////////////////////////////////////----///////////////////////////////////////");
 
-// Tests
-//-------
+      // Write file
       char shortcut[10];
       for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
       shortcut[i] = 0;
@@ -1166,7 +1267,6 @@ bool ROMEBuilder::WriteTaskCpp() {
 
       bool replaceHeader = true;
       bool replaceBody = true;
-      sprintf(cppFile,"%s/src/tasks/%sT%s.cpp",outDir,shortCut,taskName[iTask]);
       struct stat buf;
       int nb=0;
       if( !stat( cppFile, &buf )) {
@@ -1215,7 +1315,7 @@ bool ROMEBuilder::WriteTaskCpp() {
 // User Functions
 //----------------
 
-            if (fortranFlag[iTask]) {
+            if (taskFortran[iTask]) {
                sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sinit_();\n",shortcut,taskname);
                sprintf(buffer+strlen(buffer),"void %sT%s::Init()\n{\n",shortcut,taskname);
                sprintf(buffer+strlen(buffer),"   %sT%s_Init_();\n",shortcut,taskname);
@@ -1256,12 +1356,12 @@ bool ROMEBuilder::WriteTaskCpp() {
          close(fileHandle);
       }
    }
+   delete [] cppFile;
    return true;
 }
 
 bool ROMEBuilder::WriteTaskF() {
-   char cppFile[500];
-   char fFile[500];
+   char* fFile=NULL;
    char buffer[bufferLength];
 
    int nb,i;
@@ -1270,18 +1370,23 @@ bool ROMEBuilder::WriteTaskF() {
 
    if (makeOutput) cout << "\n   Output F-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
-      if (fortranFlag[iTask]) {
+      if (taskFortran[iTask]) {
+         // File name
+         delete [] fFile;
+         fFile = new char[16+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
+         sprintf(fFile,"%s/src/tasks/%sT%s.f",outDir,shortCut,taskName[iTask]);
+
          char shortcut[10];
          for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
          shortcut[i] = 0;
          char taskname[20];
          for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
          taskname[i] = 0;
-         sprintf(fFile,"%s/src/tasks/%sT%s.f",outDir,shortCut,taskName[iTask]);
-         if( !stat( cppFile, &buf )) {
+         if( !stat( fFile, &buf )) {
             fileHandle = open(fFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
             if (makeOutput) cout << "      " << fFile << endl;
 
+            // Methods
             sprintf(buffer,               "      subroutine %st%sinit()\n\n",shortcut,taskname);
             sprintf(buffer+strlen(buffer),"      return\n");
             sprintf(buffer+strlen(buffer),"      end\n\n");
@@ -1303,10 +1408,11 @@ bool ROMEBuilder::WriteTaskF() {
          }
       }
    }
+   delete [] fFile;
    return true;
 }
 bool ROMEBuilder::WriteTaskH() {
-   char hFile[500];
+   char* hFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -1315,10 +1421,12 @@ bool ROMEBuilder::WriteTaskH() {
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      // File name
+      delete [] hFile;
+      hFile = new char[20+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
+      sprintf(hFile,"%s/include/tasks/%sT%s.h",outDir,shortCut,taskName[iTask]);
 
-// Header Files
-//--------------
-
+      // Description
       sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.               //\n");
@@ -1330,6 +1438,7 @@ bool ROMEBuilder::WriteTaskH() {
       sprintf(buffer+strlen(buffer),"//                                                                            //\n");
       sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
+      // Header
       sprintf(buffer+strlen(buffer),"#ifndef %sT%s_H\n",shortCut,taskName[iTask]);
       sprintf(buffer+strlen(buffer),"#define %sT%s_H\n\n",shortCut,taskName[iTask]);
 
@@ -1338,25 +1447,22 @@ bool ROMEBuilder::WriteTaskH() {
       sprintf(buffer+strlen(buffer),"#include<TH3.h>\n");
       sprintf(buffer+strlen(buffer),"#include<ROMETask.h>\n");
          
-      for (i=0;i<numOfInclude[iTask];i++) {
-         if (localFlag[iTask][i]) {
-            sprintf(buffer+strlen(buffer),"#include\"%s\"\n",include[iTask][i]);
+      for (i=0;i<numOfTaskInclude[iTask];i++) {
+         if (taskLocalFlag[iTask][i]) {
+            sprintf(buffer+strlen(buffer),"#include\"%s\"\n",taskInclude[iTask][i]);
          }
          else {
-            sprintf(buffer+strlen(buffer),"#include<%s>\n",include[iTask][i]);
+            sprintf(buffer+strlen(buffer),"#include<%s>\n",taskInclude[iTask][i]);
          }
       }
 
       sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
 
-// Class
-//-------
-
+      // Class
       sprintf(buffer+strlen(buffer),"\nclass %sT%s : public ROMETask\n",shortCut,taskName[iTask]);
       sprintf(buffer+strlen(buffer),"{\n");
 
-// Fields
-//--------
+      // Fields
       if (numOfTaskSteering[iTask]>0) {
          sprintf(buffer+strlen(buffer),"private:\n");
          WriteTaskSteeringClass(buffer,0,iTask);
@@ -1388,14 +1494,13 @@ bool ROMEBuilder::WriteTaskH() {
          sprintf(buffer+strlen(buffer),format,histoName[iTask][i],"",histoName[iTask][i]);
       }
 
-// Methods
-//---------
 
+      // Methods
       sprintf(buffer+strlen(buffer),"public:\n");
       // Constructor and Event Methods
       sprintf(buffer+strlen(buffer),"   // Constructor\n");
       sprintf(buffer+strlen(buffer),"   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut,taskName[iTask],shortCut);
-      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; strcpy(fEventID,\"%s\"); fVersion = %s;",taskEventID[iTask],version[iTask]);
+      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fEventID = \"%s\"; fVersion = %s;",taskEventID[iTask],taskVersion[iTask]);
       if (numOfHistos[iTask]>0) 
          sprintf(buffer+strlen(buffer)," fHasHistograms = true;");
       else
@@ -1454,9 +1559,9 @@ bool ROMEBuilder::WriteTaskH() {
          sprintf(buffer+strlen(buffer),"   void Set%sAccumulation(Bool_t flag) { f%sAccumulation = flag; };\n",histoName[iTask][i],histoName[iTask][i]);
       }
 
-// Footer
-//--------
-      sprintf(buffer+strlen(buffer),"\n   ClassDef(%sT%s,%s)\n",shortCut,taskName[iTask],version[iTask]);
+
+      // Footer
+      sprintf(buffer+strlen(buffer),"\n   ClassDef(%sT%s,%s)\n",shortCut,taskName[iTask],taskVersion[iTask]);
       sprintf(buffer+strlen(buffer),"};\n\n");
 
       // Histo Inline Methods
@@ -1526,9 +1631,7 @@ bool ROMEBuilder::WriteTaskH() {
 
       sprintf(buffer+strlen(buffer),"#endif   // %sT%s_H\n",shortCut,taskName[iTask]);
 
-// Close h-File
-//--------------
-      sprintf(hFile,"%s/include/tasks/%sT%s.h",outDir,shortCut,taskName[iTask]);
+      // Write File
       fileHandle = open(hFile,O_RDONLY);
       int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
@@ -1546,6 +1649,7 @@ bool ROMEBuilder::WriteTaskH() {
          close(fileHandle);
       }
    }
+   delete [] hFile;
    return true;
 }
 
@@ -1560,16 +1664,21 @@ bool ROMEBuilder::ReadXMLTree() {
       name = xml->GetName();
       if (type == 1 && !strcmp((const char*)name,"Tree")) {
          numOfTree++;
+         if (numOfTree>=maxNumberOfTrees) {
+            cout << "Maximal number of trees reached : " << maxNumberOfTrees << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          numOfBranch[numOfTree] = 0;
          // tree name
-         if (!xml->GetAttribute("Name",treeName[numOfTree])) {
+         treeName[numOfTree] = xml->GetAttribute("Name",NULL);
+         if (treeName[numOfTree]==NULL) {
             cout << "Tree without a name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // tree title
-         strcpy(treeTitle[numOfTree],"");
-         xml->GetAttribute("Title",treeTitle[numOfTree]);
+         treeTitle[numOfTree] = xml->GetAttribute("Title","");
          // output
          if (makeOutput) cout << "   " << treeName[numOfTree] << endl;
 
@@ -1578,13 +1687,15 @@ bool ROMEBuilder::ReadXMLTree() {
             name = xml->GetName();
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
                // branch name
-               if (!xml->GetAttribute("Name",branchName[numOfTree][numOfBranch[numOfTree]])) {
+               branchName[numOfTree][numOfBranch[numOfTree]] = xml->GetAttribute("Name",NULL);
+               if (branchName[numOfTree][numOfBranch[numOfTree]]==NULL) {
                   cout << "Branch without a name in Tree '" << treeName[numOfTree] << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                // branch folder
-               if (!xml->GetAttribute("Folder",branchFolder[numOfTree][numOfBranch[numOfTree]])) {
+               branchFolder[numOfTree][numOfBranch[numOfTree]] = xml->GetAttribute("Folder",NULL);
+               if (branchFolder[numOfTree][numOfBranch[numOfTree]]==NULL) {
                   cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' has no Folder specified!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
@@ -1600,6 +1711,11 @@ bool ROMEBuilder::ReadXMLTree() {
                   return false;
                }
                numOfBranch[numOfTree]++;
+               if (numOfBranch[numOfTree]>=maxNumberOfBranches) {
+                  cout << "Maximal number of branches in tree '" << treeName[numOfTree] << "' reached : " << maxNumberOfBranches << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
             }
             if (type == 15 && !strcmp((const char*)name,"Tree")) {
                if (numOfBranch[numOfTree] == 0) {
@@ -1639,7 +1755,9 @@ bool ROMEBuilder::ReadXMLTree() {
 }
 bool ROMEBuilder::ReadXMLMidasBanks() {
    char *name;
+   char *tmp;
    int type,i,j;
+   bankHasHeader = false;
 
    if (makeOutput) cout << "\n\nBanks:" << endl;
 
@@ -1647,24 +1765,22 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp("EventHeader",(const char*)name)) {
+         bankHasHeader = true;
          // folder
-         if (!xml->GetAttribute("Folder",bankHeaderFolder)) {
+         bankHeaderFolder = xml->GetAttribute("Folder",NULL);
+         if (bankHeaderFolder==NULL) {
             cout << "Midas event header has no folder !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // EventID
-         strcpy(bankHeaderEventID,"");
-         xml->GetAttribute("EventID",bankHeaderEventID);
+         bankHeaderEventID = xml->GetAttribute("EventID","");
          // TriggerMask
-         strcpy(bankHeaderTriggerMask,"");
-         xml->GetAttribute("TriggerMask",bankHeaderTriggerMask);
+         bankHeaderTriggerMask = xml->GetAttribute("TriggerMask","");
          // SerialNumber
-         strcpy(bankHeaderSerialNumber,"");
-         xml->GetAttribute("SerialNumber",bankHeaderSerialNumber);
+         bankHeaderSerialNumber = xml->GetAttribute("SerialNumber","");
          // TimeStamp
-         strcpy(bankHeaderTimeStamp,"");
-         xml->GetAttribute("TimeStamp",bankHeaderTimeStamp);
+         bankHeaderTimeStamp = xml->GetAttribute("TimeStamp","");
          // Tests
          int iFold = -1;
          for (i=0;i<numOfFolder;i++) {
@@ -1732,18 +1848,26 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
       }
       else if (type == 1) {
          numOfBank++;
+         if (numOfBank>=maxNumberOfBanks) {
+            cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          numOfStructFields[numOfBank] = 0;
          // bank name
-         strcpy(bankName[numOfBank],(const char*)name);
+         bankName[numOfBank] = (char*)name;
          // bank type
-         if (!xml->GetAttribute("Type",bankType[numOfBank])) {
+         bankType[numOfBank] = xml->GetAttribute("Type",NULL);
+         if (bankType[numOfBank]==NULL) {
             cout << "Bank '" << bankName[numOfBank] << "' has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // bank structure name
-         sprintf(bankStructName[numOfBank],"%sStruct",bankName[numOfBank]);
-         xml->GetAttribute("StructName",bankStructName[numOfBank]);
+         tmp = new char[strlen(bankName[numOfBank])+7];
+         sprintf(tmp,"%sStruct",bankName[numOfBank]);
+         bankStructName[numOfBank] = xml->GetAttribute("StructName",tmp);
+         delete [] tmp;
          // output
          if (makeOutput) cout << "   " << bankName[numOfBank] << endl;
 
@@ -1753,19 +1877,24 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                name = xml->GetName();
                if (type == 1) {
                   // field name
-                  strcpy(structFieldName[numOfBank][numOfStructFields[numOfBank]],(const char*)name);
+                  structFieldName[numOfBank][numOfStructFields[numOfBank]] = (char*)name;
                   // field type
-                  if (!xml->GetAttribute("Type",structFieldType[numOfBank][numOfStructFields[numOfBank]])) {
+                  structFieldType[numOfBank][numOfStructFields[numOfBank]] = xml->GetAttribute("Type",NULL);
+                  if (structFieldType[numOfBank][numOfStructFields[numOfBank]]==NULL) {
                      cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]] << "' of Bank '" << bankName[numOfBank] << "' has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field size
-                  strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
-                  xml->GetAttribute("PackedSize",structFieldSize[numOfBank][numOfStructFields[numOfBank]]);
+                  structFieldSize[numOfBank][numOfStructFields[numOfBank]] = xml->GetAttribute("PackedSize","");
                   // output
                   if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]] << endl;
                   numOfStructFields[numOfBank]++;
+                  if (numOfStructFields[numOfBank]>=maxNumberOfStructFields) {
+                     cout << "Maximal number of fields in bank '" << bankName[numOfBank] << "' reached : " << maxNumberOfStructFields << " !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
                }
                if (type == 15 && !strcmp((const char*)name,bankName[numOfBank])) {
                   for (i=0;i<numOfStructFields[numOfBank];i++) {
@@ -1801,12 +1930,12 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
 
 bool ROMEBuilder::ReadXMLSteering() {
    char *name;
-   char tmp[100];
+   char *tmp;
    int i,type,empty,depth=0,index[20];
    index[0] = 0;
    numOfSteerFields[0] = 0;
-   strcpy(steerName[0],"GeneralSteering");
-   strcpy(steerParent[0],"");
+   steerName[0] = "GeneralSteering";
+   steerParent[0] = "";
    steerDepth[0] = 0;
 
    if (makeOutput) cout << "\n\nSteering:" << endl;
@@ -1817,13 +1946,18 @@ bool ROMEBuilder::ReadXMLSteering() {
       empty = xml->isEmpty();
       if (type == 1 && !empty) {
          numOfSteering++;
+         if (numOfSteering>=maxNumberOfSteering) {
+            cout << "Maximal number of steering parameter classes reached : " << maxNumberOfSteering << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          depth++;
          index[depth] = numOfSteering;
          numOfSteerFields[index[depth]] = 0;
          // bank name
-         strcpy(steerName[index[depth]],(const char*)name);
+         steerName[index[depth]] = (char*)name;
          // parent name
-         strcpy(steerParent[index[depth]],steerName[index[depth-1]]);
+         steerParent[index[depth]] = steerName[index[depth-1]];
          // depth
          steerDepth[index[depth]] = depth;
          // output
@@ -1832,31 +1966,37 @@ bool ROMEBuilder::ReadXMLSteering() {
       }
       if (type == 1 && empty) {
          // field name
-         strcpy(steerFieldName[index[depth]][numOfSteerFields[index[depth]]],(const char*)name);
+         steerFieldName[index[depth]][numOfSteerFields[index[depth]]] = (char*)name;
          // field type
-         if (!xml->GetAttribute("Type",steerFieldType[index[depth]][numOfSteerFields[index[depth]]])) {
+         steerFieldType[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Type",NULL);
+         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]==NULL) {
             cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << " has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // field initialisation
          if (!strcmp(steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"TString"))
-            strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
+            steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Initialisation","' '");
          else
-            strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
-         xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
-         xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
+            steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Initialisation","0");
+         steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
          // field comment
-         strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
-         xml->GetAttribute("Comment",steerFieldComment[index[depth]][numOfSteerFields[index[depth]]]);
+         steerFieldComment[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Comment","");
          if (steerFieldComment[index[depth]][numOfSteerFields[index[depth]]][0]!='/') {
-            strcpy(tmp,steerFieldComment[index[depth]][numOfSteerFields[index[depth]]]);
+            tmp = steerFieldComment[index[depth]][numOfSteerFields[index[depth]]];
+            steerFieldComment[index[depth]][numOfSteerFields[index[depth]]] = new char[strlen(tmp)+4];
             sprintf(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"// %s",tmp);
+            delete [] tmp;
          }
          // output
          if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
          if (makeOutput) cout << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << endl;
          numOfSteerFields[index[depth]]++;
+         if (numOfSteerFields[index[depth]]>=maxNumberOfSteeringField) {
+            cout << "Maximal number of fields in steering parameter class '" << steerName[index[depth]] << "' reached : " << maxNumberOfSteeringField << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
       }
       if (type == 15 && strcmp((const char*)name,"GeneralSteeringParameters")) {
          depth--;
@@ -1873,10 +2013,11 @@ bool ROMEBuilder::ReadXMLSteering() {
 bool ROMEBuilder::WriteSteering() {
    int i;
 
-   char hFile[500];
+   char* hFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
+   hFile = new char[40+strlen(outDir)+strlen(shortCut)];
    sprintf(hFile,"%s/include/framework/%sGeneralSteering.h",outDir,shortCut);
 
    if (numOfSteering==0) {
@@ -1886,8 +2027,7 @@ bool ROMEBuilder::WriteSteering() {
 
    if (makeOutput) cout << "\n   Output Files:" << endl;
 
-// Description
-//-------------
+   // Description
    sprintf(buffer,"//// Author: %s\n",mainAuthor);
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
@@ -1903,9 +2043,7 @@ bool ROMEBuilder::WriteSteering() {
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
-// Header Files
-//--------------
-
+   // Header
    sprintf(buffer+strlen(buffer),"#ifndef %sGeneralSteering_H\n",shortCut);
    sprintf(buffer+strlen(buffer),"#define %sGeneralSteering_H\n\n",shortCut);
 
@@ -1930,12 +2068,14 @@ bool ROMEBuilder::WriteSteering() {
       close(fileHandle);
    }
 
+
+   delete [] hFile;
    return true;
 }
 bool ROMEBuilder::WriteSteeringClass(char *buffer,int numOfSteer) {
    char format[100];
    char sc[20];
-   char blank[20];
+   char blank[200];
    int j,i;
    int typeLen = -1;
    int nameLen = -1;
@@ -2087,7 +2227,7 @@ void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
       setValue(value,"","tmp",steerFieldType[numSteer][i],1);
       sprintf(setter,"this->GetGSP()%s->Set%s((%s)%s)",path,steerFieldName[numSteer][i],steerFieldType[numSteer][i],value);
       sprintf(buffer+strlen(buffer),"%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerFieldName[numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s               if (xml->GetValue(tmp)) \n",blank);
+      sprintf(buffer+strlen(buffer),"%s               if (xml->GetValue(tmp,sizeof(tmp))) \n",blank);
       sprintf(buffer+strlen(buffer),"%s                  %s;\n",blank,setter);
       sprintf(buffer+strlen(buffer),"%s            }\n",blank);
    }
@@ -2107,7 +2247,7 @@ void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
 bool ROMEBuilder::WriteAnalyzerCpp() {
    int i;
 
-   char cppFile[500];
+   char* cppFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -2128,8 +2268,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
    }
 
-// Description
-//-------------
+
+   // File name
+   cppFile = new char[30+strlen(outDir)+strlen(shortCut)];
+   sprintf(cppFile,"%s/src/framework/%sAnalyzer.cpp",outDir,shortCut);
+   // Description
    sprintf(buffer,"//// Author: %s\n",mainAuthor);
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
@@ -2158,9 +2301,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
-// Header Files
-//--------------
-
+   // Header
    sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
    sprintf(buffer+strlen(buffer),"#include <direct.h>\n");
    sprintf(buffer+strlen(buffer),"#endif\n");
@@ -2191,16 +2332,29 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    int numAuthors = 1;
    char (*authors)[50] = new char[numOfTask+1][50];
    strcpy(authors[0],mainAuthor);
-   for (i=0;i<numOfTask;i++) {
+   for (i=0;i<numOfFolder;i++) {
       same = false;
       for (j=0;j<i+1;j++) {
-         if (!strcmp(authors[j],author[i])) {
+         if (!strcmp(authors[j],folderAuthor[i])) {
             same = true;
             break;
          }
       }
       if (!same) {
-         strcpy(authors[numAuthors],author[i]);
+         strcpy(authors[numAuthors],folderAuthor[i]);
+         numAuthors++;
+      }
+   }
+   for (i=0;i<numOfTask;i++) {
+      same = false;
+      for (j=0;j<i+1;j++) {
+         if (!strcmp(authors[j],taskAuthor[i])) {
+            same = true;
+            break;
+         }
+      }
+      if (!same) {
+         strcpy(authors[numAuthors],taskAuthor[i]);
          numAuthors++;
       }
    }
@@ -2230,8 +2384,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut);
 
    for (i=0;i<numOfFolder;i++) {
-      if (!strcmp(parentFolderName[i],"GetMainFolder()")) strcpy(parentt,parentFolderName[i]);
-      else sprintf(parentt,"%sFolder",parentFolderName[i]);
+      if (!strcmp(folderParentName[i],"GetMainFolder()")) strcpy(parentt,folderParentName[i]);
+      else sprintf(parentt,"%sFolder",folderParentName[i]);
       sprintf(format,"   TFolder* %%sFolder%%%ds = %%s->AddFolder(\"%%s\",\"%%s\");\n",nameLen-strlen(folderName[i]));
       sprintf(buffer+strlen(buffer),format,folderName[i],"",parentt,folderName[i],folderTitle[i]);
    }
@@ -2275,22 +2429,16 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       if (taskLen<(int)strlen(taskName[i])) taskLen = strlen(taskName[i]);
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(format,"   %%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-strlen(taskName[i]));
+      sprintf(format,"   f%%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-strlen(taskName[i]));
       sprintf(buffer+strlen(buffer),format,taskName[i],"",shortCut,taskName[i],taskName[i],"");
-      sprintf(buffer+strlen(buffer),"   ((%sT%s*)%sTask)->SetActive(false);\n",shortCut,taskName[i],taskName[i]);
+      sprintf(buffer+strlen(buffer),"   ((%sT%s*)f%sTask)->SetActive(false);\n",shortCut,taskName[i],taskName[i]);
    }
    for (i=0;i<numOfTask;i++) {
-      if (!strcmp(parentTaskName[i],"GetMainTask()")) strcpy(parentt,parentTaskName[i]);
-      else sprintf(parentt,"%sTask",parentTaskName[i]);
-      sprintf(buffer+strlen(buffer),"   %s->Add(%sTask);\n",parentt,taskName[i]);
+      if (!strcmp(taskParentName[i],"GetMainTask()")) strcpy(parentt,taskParentName[i]);
+      else sprintf(parentt,"f%sTask",taskParentName[i]);
+      sprintf(buffer+strlen(buffer),"   %s->Add(f%sTask);\n",parentt,taskName[i]);
    }
    sprintf(buffer+strlen(buffer),"\n");
-
-   // RunTable
-   sprintf(buffer+strlen(buffer),"   // RunTable\n");
-   sprintf(buffer+strlen(buffer),"   fRunTable = new TList();\n");
-
-   sprintf(buffer+strlen(buffer),"};\n");
 
    sprintf(buffer+strlen(buffer),"%sAnalyzer::~%sAnalyzer() {\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"   delete fIO;\n");
@@ -2327,14 +2475,29 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    }
    sprintf(buffer+strlen(buffer),"};\n\n");
 
+   // Initialize Task Switches
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::InitTaskSwitches() {\n",shortCut);
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"   ((DCIO*)fIO)->GetTaskSwitches()->%s = f%sTask->IsActive();\n",taskName[i],taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"};\n\n");
+
+   // Update Task Switches
+   sprintf(buffer+strlen(buffer),"void %sAnalyzer::UpdateTaskSwitches() {\n",shortCut);
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"   if (((DCIO*)fIO)->GetTaskSwitches()->%s)\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"      f%sTask->SetActive(true);\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"   else\n");
+      sprintf(buffer+strlen(buffer),"      f%sTask->SetActive(false);\n",taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"};\n\n");
+
    // Configuration File
    sprintf(buffer+strlen(buffer),"\n// Configuration File\n");
    sprintf(buffer+strlen(buffer),"//--------------------\n");
    sprintf(buffer+strlen(buffer),"bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   char *cstop;\n");
    sprintf(buffer+strlen(buffer),"   char *name;\n");
-   sprintf(buffer+strlen(buffer),"   char value[100];\n");
-   sprintf(buffer+strlen(buffer),"   char tmp[100];\n");
+   sprintf(buffer+strlen(buffer),"   char value[1000];\n");
    sprintf(buffer+strlen(buffer),"   int type;\n");
    sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
    sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForRead(configFile)) {\n");
@@ -2347,31 +2510,31 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Modes
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Modes\")) {\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"AnalyzingMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"AnalyzingMode\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"online\"))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOnline();\n");
    sprintf(buffer+strlen(buffer),"         else\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOffline();\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"InputDataFormat\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"InputDataFormat\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"root\"))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRoot();\n");
    sprintf(buffer+strlen(buffer),"         else\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetMidas();\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"BatchMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"BatchMode\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"yes\"))\n");
    sprintf(buffer+strlen(buffer),"            fBatchMode = true;\n");
    sprintf(buffer+strlen(buffer),"         else\n");
    sprintf(buffer+strlen(buffer),"            fBatchMode = false;\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"ShowSplashScreen\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"ShowSplashScreen\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"no\"))\n");
    sprintf(buffer+strlen(buffer),"            fSplashScreen = false;\n");
    sprintf(buffer+strlen(buffer),"         else\n");
    sprintf(buffer+strlen(buffer),"            fSplashScreen = true;\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"DataBaseMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"DataBaseMode\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"sql\")||!strcmp(value,\"SQL\"))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetSQLDataBase();\n");
    sprintf(buffer+strlen(buffer),"         else if (!strcmp(value,\"xml\")||!strcmp(value,\"XML\")) {\n");
@@ -2380,31 +2543,31 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"      }\n");
    // Run Numbers
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value))\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value,sizeof(value)))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRunNumbers(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Event Numbers
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"EventNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value))\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value,sizeof(value)))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetEventNumbers(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Paths
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
    sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
    sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetInputDir(value);\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
    sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
    sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOutputDir(value);\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value)) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
    sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
    sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetDataBaseDir(value);\n");
@@ -2419,9 +2582,10 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp(name,\"%s\")) {\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"               int empty = xml->isEmpty();\n");
       sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Active\",value);\n");
-      sprintf(buffer+strlen(buffer),"               if (!strcmp(value,\"yes\"))\n");
-      sprintf(buffer+strlen(buffer),"                  %sTask->SetActive();\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Active\",value,sizeof(value));\n");
+      sprintf(buffer+strlen(buffer),"               if (!strcmp(value,\"yes\")) {\n");
+      sprintf(buffer+strlen(buffer),"                  f%sTask->SetActive();\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"               }\n");
       sprintf(buffer+strlen(buffer),"               if (!empty) {\n");
       sprintf(buffer+strlen(buffer),"                  while (xml->NextLine()) {\n");
       sprintf(buffer+strlen(buffer),"                     type = xml->GetType();\n");
@@ -2429,9 +2593,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       for (j=0;j<numOfHistos[i];j++) {
          sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp(name,\"%s\")) {\n",histoName[i][j]);
          sprintf(buffer+strlen(buffer),"                        strcpy(value,\"\");\n");
-         sprintf(buffer+strlen(buffer),"                        xml->GetAttribute(\"Accumulate\",value);\n");
+         sprintf(buffer+strlen(buffer),"                        xml->GetAttribute(\"Accumulate\",value,sizeof(value));\n");
          sprintf(buffer+strlen(buffer),"                        if (!strcmp(value,\"no\"))\n");
-         sprintf(buffer+strlen(buffer),"                           ((%sT%s*)%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"                           ((%sT%s*)f%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
          sprintf(buffer+strlen(buffer),"                     }\n");
       }
       WriteTaskSteerConfigRead(buffer,0,i);
@@ -2448,7 +2612,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Trees
    sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Trees\")) {\n");
    sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"Accumulation\",value);\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"Accumulation\",value,sizeof(value));\n");
    sprintf(buffer+strlen(buffer),"         if (!strcmp((const char*)value,\"yes\"))\n");
    sprintf(buffer+strlen(buffer),"            this->GetIO()->SetTreeAccumulation();\n");
    sprintf(buffer+strlen(buffer),"         while (xml->NextLine()) {\n");
@@ -2457,11 +2621,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i]);
       sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Read\",value);\n");
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Read\",value,sizeof(value));\n");
       sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
       sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetRead(true);\n",i);
       sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Write\",value);\n");
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Write\",value,sizeof(value));\n");
       sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
       sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
       sprintf(buffer+strlen(buffer),"            }\n");
@@ -2482,10 +2646,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"}\n");
 
    // WriteROMEConfigXML
-   //--------------------
    sprintf(buffer+strlen(buffer),"bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
-   sprintf(buffer+strlen(buffer),"   char value[1000];\n");
    sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForWrite(configFile))\n");
    sprintf(buffer+strlen(buffer),"      return false;\n");
    sprintf(buffer+strlen(buffer),"\n");
@@ -2535,13 +2697,13 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   xml->StartElement( \"Tasks\");\n");
    for (i=0;i<numOfTask;i++) {
       sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"   if (%sTask->IsActive())\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"   if (f%sTask->IsActive())\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"yes\");\n");
       sprintf(buffer+strlen(buffer),"   else\n");
       sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"no\");\n");
       for (j=0;j<numOfHistos[i];j++) {
          sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"   if (((%sT%s*)%sTask)->is%sAccumulation())\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"   if (((%sT%s*)f%sTask)->is%sAccumulation())\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
          sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"yes\");\n");
          sprintf(buffer+strlen(buffer),"   else\n");
          sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
@@ -2624,7 +2786,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   \n");
 
    // Close cpp-File
-   sprintf(cppFile,"%s/src/framework/%sAnalyzer.cpp",outDir,shortCut);
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -2641,13 +2802,15 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+
+   delete [] cppFile;
    return true;
 }
 
 bool ROMEBuilder::WriteAnalyzerH() {
    int i;
 
-   char hFile[500];
+   char* hFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -2669,6 +2832,12 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
 
 
+
+   // File name
+   hFile = new char[35+strlen(outDir)+strlen(shortCut)];
+   sprintf(hFile,"%s/include/framework/%sAnalyzer.h",outDir,shortCut);
+
+   // Description
    sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
@@ -2680,6 +2849,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
+   // Header
    sprintf(buffer+strlen(buffer),"#ifndef %sAnalyzer_H\n",shortCut);
    sprintf(buffer+strlen(buffer),"#define %sAnalyzer_H\n\n",shortCut);
 
@@ -2701,16 +2871,11 @@ bool ROMEBuilder::WriteAnalyzerH() {
       }
    }
 
-
    // Class
-   //-------
-
    sprintf(buffer+strlen(buffer),"\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
 
    // Fields
-   //--------
-
    sprintf(buffer+strlen(buffer),"protected:\n");
 
    // Folder Fields
@@ -2732,7 +2897,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Task Fields
    sprintf(buffer+strlen(buffer),"   // Task Fields\n");
    for (i=0;i<numOfTask;i++) {
-      sprintf(format,"   ROMETask* %%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
+      sprintf(format,"   ROMETask* f%%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
       sprintf(buffer+strlen(buffer),format,taskName[i],"",taskName[i]);
    }
    sprintf(buffer+strlen(buffer),"\n");
@@ -2743,9 +2908,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
       sprintf(buffer+strlen(buffer),"\n   %sGeneralSteering* fGeneralSteeringParameters; // Handle to the GeneralSteering Class\n",shortCut);
    }
 
-   // Methods
-   //---------
 
+   // Methods
    sprintf(buffer+strlen(buffer),"public:\n");
    // Constructor
    sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n",shortCut);
@@ -2754,6 +2918,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    sprintf(buffer+strlen(buffer),"   %sIO* GetIO() { return (%sIO*)fIO; };\n\n",shortCut,shortCut);
 
    sprintf(buffer+strlen(buffer),"   void InitFolders();\n\n");
+   sprintf(buffer+strlen(buffer),"   void InitTaskSwitches();\n\n");
+   sprintf(buffer+strlen(buffer),"   void UpdateTaskSwitches();\n\n");
 
    // Getters
    sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
@@ -2804,7 +2970,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Data Base
    sprintf(buffer+strlen(buffer),"   // Data Base Methodes\n");
    for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
+      if (folderDataBase[i]) {
          sprintf(buffer+strlen(buffer),"   void Write%sDataBase() { this->GetIO()->Write%sDataBase(); };\n",folderName[i],folderName[i]);
       }
    }
@@ -2824,16 +2990,11 @@ bool ROMEBuilder::WriteAnalyzerH() {
    sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
 
    // Footer
-   //--------
-
    sprintf(buffer+strlen(buffer),"};\n\n");
 
    sprintf(buffer+strlen(buffer),"#endif   // %sAnalyzer_H\n",shortCut);
 
-   // Close h-File
-   //--------------
-
-   sprintf(hFile,"%s/include/framework/%sAnalyzer.h",outDir,shortCut);
+   // Write File
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -2850,13 +3011,15 @@ bool ROMEBuilder::WriteAnalyzerH() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+
+   delete [] hFile;
    return true;
 }
 
 bool ROMEBuilder::WriteIOCpp() {
    int i;
 
-   char cppFile[500];
+   char* cppFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -2864,8 +3027,11 @@ bool ROMEBuilder::WriteIOCpp() {
    int nb,j,k,iFold=0,ll;
    int fileHandle;
 
-// Description
-//-------------
+   // File name
+   cppFile = new char[25+strlen(outDir)+strlen(shortCut)];
+   sprintf(cppFile,"%s/src/framework/%sIO.cpp",outDir,shortCut);
+
+   // Description
    sprintf(buffer,"//// Author: %s\n",mainAuthor);
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
@@ -2885,23 +3051,16 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
-// Header Files
-//--------------
-
+   // Header
    sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <TTask.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETree.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETreeInfo.h>\n");
-   sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
-   sprintf(buffer+strlen(buffer),"#include <midas.h>\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
    sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n",shortCut);
 
    sprintf(buffer+strlen(buffer),"#include \"Riostream.h\"\n");
-
-   // User Functions
-   //----------------
 
    // constructor
    sprintf(buffer+strlen(buffer),"// Constructor\n");
@@ -2946,9 +3105,42 @@ bool ROMEBuilder::WriteIOCpp() {
       }
       sprintf(buffer+strlen(buffer),"   this->AddTree(tree);\n\n");
    }
+   sprintf(buffer+strlen(buffer),"   fProgramName = \"%s%s\";\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"   fTaskSwitchesString =  \"");
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"%s = BOOL : 0\\n",taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"\";\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    sprintf(buffer+strlen(buffer),"%sIO::~%sIO() {\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
+   // Task switches call back
+   sprintf(buffer+strlen(buffer),"// Task switches call back\n");
+   sprintf(buffer+strlen(buffer),"bool ROMEIO::fTaskSwitchesChanged = false;\n");
+   sprintf(buffer+strlen(buffer),"void TaskSwitchesChanged(int hDB,int hKey,void *info) {\n");
+   sprintf(buffer+strlen(buffer),"   ROMEIO::fTaskSwitchesChanged = true;\n");
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
+   // Initialize ODB
+   sprintf(buffer+strlen(buffer),"// InitODB\n");
+   sprintf(buffer+strlen(buffer),"bool %sIO::InitODB() {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   HNDLE hKey;\n");
+   sprintf(buffer+strlen(buffer),"   TString str;\n");
+   sprintf(buffer+strlen(buffer),"   str = \"/%s%s/Task switches\";\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"   db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fTaskSwitchesString.Data(), TRUE);\n");
+   sprintf(buffer+strlen(buffer),"   db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);\n");
+   sprintf(buffer+strlen(buffer),"   if (db_set_record(fMidasOnlineDataBase,hKey,&fTaskSwitches,sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
+   sprintf(buffer+strlen(buffer),"      cout << \"Cannot write to task switches record.\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"      return false;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   if (db_open_record(fMidasOnlineDataBase, hKey, &fTaskSwitches, sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
+   sprintf(buffer+strlen(buffer),"      cout << \"Cannot open task switches record, probably other analyzer is using it\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"      return false;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // clear folders
@@ -2956,7 +3148,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"void %sIO::ClearFolders() {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   int i;\n");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0 && !dataBase[i]) {
+      if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (!strcmp(folderArray[i],"1")) {
             sprintf(buffer+strlen(buffer),"   f%sObject->Reset();\n",folderName[i]);
          }
@@ -2966,15 +3158,17 @@ bool ROMEBuilder::WriteIOCpp() {
             sprintf(buffer+strlen(buffer),"   }\n");
          }
       }
-      if (!strcmp(folderName[i],bankHeaderFolder)) {
-         if (strcmp(bankHeaderEventID,""))
-            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->event_id);\n",folderName[i],bankHeaderEventID);
-         if (strcmp(bankHeaderTriggerMask,""))
-            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->trigger_mask);\n",folderName[i],bankHeaderTriggerMask);
-         if (strcmp(bankHeaderSerialNumber,""))
-            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->serial_number);\n",folderName[i],bankHeaderSerialNumber);
-         if (strcmp(bankHeaderTimeStamp,""))
-            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->time_stamp);\n",folderName[i],bankHeaderTimeStamp);
+      if (bankHasHeader) {
+         if (!strcmp(folderName[i],bankHeaderFolder)) {
+            if (strcmp(bankHeaderEventID,""))
+               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->event_id);\n",folderName[i],bankHeaderEventID);
+            if (strcmp(bankHeaderTriggerMask,""))
+               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->trigger_mask);\n",folderName[i],bankHeaderTriggerMask);
+            if (strcmp(bankHeaderSerialNumber,""))
+               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->serial_number);\n",folderName[i],bankHeaderSerialNumber);
+            if (strcmp(bankHeaderTimeStamp,""))
+               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->time_stamp);\n",folderName[i],bankHeaderTimeStamp);
+         }
       }
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
@@ -3019,7 +3213,10 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"      }\n");
       sprintf(buffer+strlen(buffer),"   }\n");
    }
-   sprintf(buffer+strlen(buffer),"   if (written) fSequentialNumber++;\n");
+   sprintf(buffer+strlen(buffer),"   if (written) {\n");
+   sprintf(buffer+strlen(buffer),"      fSequentialNumber++;\n");
+   sprintf(buffer+strlen(buffer),"      fTriggerStatistics.writtenEvents++;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
    sprintf(buffer+strlen(buffer),"}\n");
    sprintf(buffer+strlen(buffer),"\n");
 
@@ -3093,7 +3290,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    int ndb = 0;
-   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
+   for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
    // SQL Init
    sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
@@ -3120,10 +3317,10 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
       sprintf(buffer+strlen(buffer),"   int i;\n");
       for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
+         if (folderDataBase[i]) {
             if (strcmp(folderArray[i],"1")) {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j]);
                   sprintf(buffer+strlen(buffer),"   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
                   sprintf(buffer+strlen(buffer),"      fSQL->NextRow();\n");
                   sprintf(buffer+strlen(buffer),"      res = fSQL->GetField(0);\n");
@@ -3134,7 +3331,7 @@ bool ROMEBuilder::WriteIOCpp() {
             }
             else {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j]);
                   sprintf(buffer+strlen(buffer),"   fSQL->NextRow();\n");
                   sprintf(buffer+strlen(buffer),"   res = fSQL->GetField(0);\n");
                   setValue(buf,valueName[i][j],"res",valueType[i][j],1);
@@ -3154,7 +3351,6 @@ bool ROMEBuilder::WriteIOCpp() {
    // ReadXMLDataBase
    sprintf(buffer+strlen(buffer),"bool %sIO::ReadXMLDataBase() {\n",shortCut);
    if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   int i;\n");
       sprintf(buffer+strlen(buffer),"   char *cstop;\n");
       sprintf(buffer+strlen(buffer),"   char *name;\n");
       sprintf(buffer+strlen(buffer),"   int type;\n");
@@ -3162,7 +3358,6 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"   char filename[200];\n");
       sprintf(buffer+strlen(buffer),"   char path[200];\n");
       sprintf(buffer+strlen(buffer),"   char value[200];\n");
-      sprintf(buffer+strlen(buffer),"   char buf[400];\n");
       sprintf(buffer+strlen(buffer),"   char runNumberString[6];\n");
       sprintf(buffer+strlen(buffer),"   this->GetCurrentRunNumberString(runNumberString);\n");
       sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%s/RunTable.xml\",this->GetInputDir());\n");
@@ -3189,7 +3384,7 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"         return false; \n");
       sprintf(buffer+strlen(buffer),"   }; \n");
       for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
+         if (folderDataBase[i]) {
             sprintf(buffer+strlen(buffer),"   if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {;\n",folderName[i]);
             sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s%%s\",this->GetDataBaseDir(),dbFile);\n");
             sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForRead(filename)) { \n");
@@ -3201,7 +3396,7 @@ bool ROMEBuilder::WriteIOCpp() {
             sprintf(buffer+strlen(buffer),"         name = xml->GetName();\n");
             sprintf(buffer+strlen(buffer),"         if (type == 1 && !strcmp(name,\"%s\")) {\n",folderName[i]);
             sprintf(buffer+strlen(buffer),"            strcpy(value,\"0\");\n");
-            sprintf(buffer+strlen(buffer),"            xml->GetAttribute(\"Number\",value);\n");
+            sprintf(buffer+strlen(buffer),"            xml->GetAttribute(\"Number\",value,sizeof(value));\n");
             sprintf(buffer+strlen(buffer),"            int num = strtol(value,&cstop,10);\n");
             sprintf(buffer+strlen(buffer),"            while (xml->NextLine()) {\n");
             sprintf(buffer+strlen(buffer),"               type = xml->GetType();\n");
@@ -3209,7 +3404,7 @@ bool ROMEBuilder::WriteIOCpp() {
             if (!strcmp(folderArray[i],"1")) {
                for (j=0;j<numOfValue[i];j++) {
                   sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value)) {\n");
+                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value,sizeof(value))) {\n");
                   setValue(buf,valueName[i][j],"value",valueType[i][j],1);
                   sprintf(buffer+strlen(buffer),"                     f%sObject->Set%s((%s)%s);\n",folderName[i],valueName[i][j],valueType[i][j],buf);
                   sprintf(buffer+strlen(buffer),"                  };\n");
@@ -3219,7 +3414,7 @@ bool ROMEBuilder::WriteIOCpp() {
             else {
                for (j=0;j<numOfValue[i];j++) {
                   sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value)) {\n");
+                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value,sizeof(value))) {\n");
                   setValue(buf,valueName[i][j],"value",valueType[i][j],1);
                   sprintf(buffer+strlen(buffer),"                     ((%s%s*)f%sObjects->At(num))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
                   sprintf(buffer+strlen(buffer),"                  };\n");
@@ -3244,7 +3439,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"}\n");
 
    for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
+      if (folderDataBase[i]) {
          sprintf(buffer+strlen(buffer),"void %sIO::Write%sDataBase() {\n",shortCut,folderName[i]);
          sprintf(buffer+strlen(buffer),"   // SQL\n");
          sprintf(buffer+strlen(buffer),"   if (this->isSQLDataBase()) {\n");
@@ -3376,10 +3571,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"   delete body;\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
-
-
-   // Close cpp-File
-   sprintf(cppFile,"%s/src/framework/%sIO.cpp",outDir,shortCut);
+   // Write File
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -3396,13 +3588,15 @@ bool ROMEBuilder::WriteIOCpp() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+
+   delete [] cppFile;
    return true;
 }
 bool ROMEBuilder::WriteIOH() {
    int i,j;
 
    char format[100];
-   char hFile[500];
+   char* hFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
@@ -3417,6 +3611,12 @@ bool ROMEBuilder::WriteIOH() {
       if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
    }
 
+
+   // File name
+   hFile = new char[30+strlen(outDir)+strlen(shortCut)];
+   sprintf(hFile,"%s/include/framework/%sIO.h",outDir,shortCut);
+
+   // Description
    sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
@@ -3428,11 +3628,13 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"//                                                                            //\n");
    sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
+   // Header
    sprintf(buffer+strlen(buffer),"#ifndef %sIO_H\n",shortCut);
    sprintf(buffer+strlen(buffer),"#define %sIO_H\n\n",shortCut);
 
    sprintf(buffer+strlen(buffer),"#include<ROMEIO.h>\n");
    sprintf(buffer+strlen(buffer),"#include<TClonesArray.h>\n");
+   sprintf(buffer+strlen(buffer),"#include<TString.h>\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[i]);
@@ -3441,7 +3643,8 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"\n");
 
    // bank structures
-   sprintf(buffer+strlen(buffer),"   // Bank Structures\n");
+   if (numOfBank>0)
+      sprintf(buffer+strlen(buffer),"   // Bank Structures\n");
    for (i=0;i<numOfBank;i++) {
       if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
          sprintf(buffer+strlen(buffer),"typedef struct {\n");
@@ -3454,27 +3657,36 @@ bool ROMEBuilder::WriteIOH() {
          sprintf(buffer+strlen(buffer),"} %s;\n",bankStructName[i]);
       }
    }
-
-
+   sprintf(buffer+strlen(buffer),"\n");
 
    // Class
 
    sprintf(buffer+strlen(buffer),"\nclass %sIO : public ROMEIO\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
+   sprintf(buffer+strlen(buffer),"private:\n");
+
+   // Task Switches Structure
+   sprintf(buffer+strlen(buffer),"   // Task Switches Structure\n");
+   sprintf(buffer+strlen(buffer),"   struct TaskSwitches{\n");
+   for (i=0;i<numOfTask;i++) {
+      sprintf(buffer+strlen(buffer),"      int %s;   //! %s Task\n",taskName[i],taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"   } fTaskSwitches;               //! Task Switches\n\n");
+   sprintf(buffer+strlen(buffer),"   TString fTaskSwitchesString;   //! String describing Task Switches\n");
+   sprintf(buffer+strlen(buffer),"\n");
 
    // Fields
-   //--------
 
    // Pointers to Folders
    sprintf(buffer+strlen(buffer),"   // Pointers to Folders\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (strcmp(folderArray[i],"1")) {
-            sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
+            sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds //! Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
             sprintf(buffer+strlen(buffer),format,"",folderName[i],"",shortCut,folderName[i]);
          }
          else {
-            sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
+            sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds //! Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
             sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i]);
          }
       }
@@ -3511,7 +3723,10 @@ bool ROMEBuilder::WriteIOH() {
       }
       sprintf(buffer+strlen(buffer),"\n");
    }
- 
+
+
+   sprintf(buffer+strlen(buffer),"\npublic:\n");
+
    sprintf(buffer+strlen(buffer),"\n");
    // Methods
 
@@ -3531,6 +3746,18 @@ bool ROMEBuilder::WriteIOH() {
    }
    sprintf(buffer+strlen(buffer)-1,");\n");
    sprintf(buffer+strlen(buffer),"   ~%sIO();\n",shortCut);
+
+   // Task Switches
+   sprintf(buffer+strlen(buffer),"   // Task Switches\n");
+   sprintf(buffer+strlen(buffer),"   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
+   sprintf(buffer+strlen(buffer),"   int           GetTaskSwitchesSize() { return sizeof(TaskSwitches); };\n");
+   sprintf(buffer+strlen(buffer),"   char*         GetTaskSwitchesString() { return (char*)fTaskSwitchesString.Data(); };\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // ODB
+   sprintf(buffer+strlen(buffer),"   // ODB Methodes\n");
+   sprintf(buffer+strlen(buffer),"   bool InitODB();\n");
+   sprintf(buffer+strlen(buffer),"\n");
 
    // Banks
    if (numOfBank>0) {
@@ -3552,10 +3779,11 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
    sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
    sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadXMLDataBase();\n\n");
+   sprintf(buffer+strlen(buffer),"   bool ReadXMLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"\n");
 
    for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
+      if (folderDataBase[i]) {
          sprintf(buffer+strlen(buffer),"   void Write%sDataBase();\n",folderName[i]);
       }
    }
@@ -3572,15 +3800,11 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"   void NextFile(char* nextFile,char* file);\n");
 
    // Footer
-   //--------
    sprintf(buffer+strlen(buffer),"};\n\n");
 
    sprintf(buffer+strlen(buffer),"#endif   // %sIO_H\n",shortCut);
 
-   // Close h-File
-   //--------------
-
-   sprintf(hFile,"%s/include/framework/%sIO.h",outDir,shortCut);
+   // Write File
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
@@ -3597,18 +3821,23 @@ bool ROMEBuilder::WriteIOH() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+
+   delete [] hFile;
    return true;
 }
 
 bool ROMEBuilder::WriteMain() {
    int i;
 
-   char hFile[500];
+   char* cppFile=NULL;
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
    int nb;
    int fileHandle;
+
+   cppFile = new char[25+strlen(outDir)];
+   sprintf(cppFile,"%s/src/framework/main.cpp",outDir);
 
    sprintf(buffer,"#include <TApplication.h>\n");
    sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
@@ -3637,8 +3866,7 @@ bool ROMEBuilder::WriteMain() {
    sprintf(buffer+strlen(buffer),"   return 0;\n");
    sprintf(buffer+strlen(buffer),"}\n");
 
-   sprintf(hFile,"%s/src/framework/main.cpp",outDir);
-   fileHandle = open(hFile,O_RDONLY);
+   fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    for (i=0;i<nb||i<(int)strlen(buffer);i++) {
@@ -3647,19 +3875,22 @@ bool ROMEBuilder::WriteMain() {
       }
    }
    if (!identical) {
-      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
-      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile << endl;
+      fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << cppFile << endl;
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+
+   delete [] cppFile;
    return true;
 }
 int main(int argc, char *argv[])
 {
    ROMEBuilder* romeb = new ROMEBuilder();
 
+   romeb->romeVersion = new char[20];
    strcpy(romeb->romeVersion,"Version 1.00");
    
    char xmlFile[1000];
@@ -3688,6 +3919,7 @@ int main(int argc, char *argv[])
    cout << romeb->offline << endl;
    romeb->offline = false;
    
+   romeb->outDir = new char[strlen(workDir)+2];
    strcpy(romeb->outDir,workDir);
    strcat(romeb->outDir,"/");
 
@@ -3721,6 +3953,8 @@ int main(int argc, char *argv[])
          i++;
       }
       else if (!strcmp(argv[i],"-o")&&i<argc-1) {
+         delete [] romeb->outDir;
+         romeb->outDir = new char[strlen(argv[i+1])+2];
          strcpy(romeb->outDir,argv[i+1]);
          if (romeb->outDir[strlen(romeb->outDir)-1]!='/' && romeb->outDir[strlen(romeb->outDir)-1]!='\\') 
             strcat(romeb->outDir,"/");
@@ -3747,7 +3981,7 @@ int main(int argc, char *argv[])
          cout << "Inputfile '" << xmlFile << "' not found." << endl;
       return 1;
    }
-   char path[1000];
+   char* path = new char[strlen(romeb->outDir)+30];
    strcpy(path,romeb->outDir);
    path[strlen(path)-1] = 0;
    if (stat( path, &buf )) {
@@ -3784,6 +4018,8 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
+   delete [] path;
+
    romeb->startBuilder(xmlFile);
 
    return 0;
@@ -3802,10 +4038,15 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    numOfBank = 0;
    numOfSteering = 0;
 
+   mainAuthor = new char[1];
    strcpy(mainAuthor,"");
+   mainInstitute = new char[1];
    strcpy(mainInstitute,"");
+   mainCollaboration = new char[1];
    strcpy(mainCollaboration,"");
+   mainEmail = new char[1];
    strcpy(mainEmail,"");
+   mainProgName = new char[1];
    strcpy(mainProgName,"");
       
    if (!xml->OpenFileForRead(xmlFile)) return;
@@ -3813,7 +4054,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1) {
-         strcpy(shortCut,(const char*)name);
+         shortCut = (char*)name;
          while (xml->NextLine()&&!finished) {
             type = xml->GetType();
             name = xml->GetName();
@@ -3823,13 +4064,18 @@ void ROMEBuilder::startBuilder(char* xmlFile)
             }
             if (type == 1) {
                if (!strcmp((const char*)name,"Author")) {
-                  xml->GetAttribute("Name",mainAuthor);
-                  xml->GetAttribute("Institute",mainInstitute);
-                  xml->GetAttribute("Collaboration",mainCollaboration);
-                  xml->GetAttribute("Email",mainEmail);
+                  delete [] mainAuthor;
+                  delete [] mainInstitute;
+                  delete [] mainCollaboration;
+                  delete [] mainEmail;
+                  mainAuthor = xml->GetAttribute("Name",mainAuthor);
+                  mainInstitute = xml->GetAttribute("Institute",mainInstitute);
+                  mainCollaboration = xml->GetAttribute("Collaboration",mainCollaboration);
+                  mainEmail = xml->GetAttribute("Email",mainEmail);
                }
                if (!strcmp((const char*)name,"Programname")) {
-                  xml->GetAttribute("Name",mainProgName);
+                  delete [] mainProgName;
+                  mainProgName = xml->GetAttribute("Name",mainProgName);
                }
                if (!strcmp((const char*)name,"Folder")) {
                   numOfFolder = -1;
@@ -3869,14 +4115,12 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (!WriteMain()) return;
    delete xml;
 
-   char buffer1[100];
-   char buffer2[10000];
+   char buffer[10000];
 // Dictionary
    if (makeOutput) cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
-   WriteDictionaryBat(buffer1,buffer2);
+   WriteDictionaryBat(buffer);
    chdir(outDir);
-   system(buffer1);
-   system(buffer2);
+   system(buffer);
 
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut << " Project." << endl;
@@ -3936,7 +4180,7 @@ void ROMEBuilder::WriteMakefile() {
    // objects
    sprintf(buffer+strlen(buffer),"objects =");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfGetters[i]==0) continue;
+      if (!folderUserCode[i]) continue;
       sprintf(buffer+strlen(buffer)," obj/%s%s.obj",shortCut,folderName[i]);
    }
    for (i=0;i<numOfTask;i++) {
@@ -3956,7 +4200,7 @@ void ROMEBuilder::WriteMakefile() {
    sprintf(buffer+strlen(buffer),"	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut,mainProgName);
    // compile
    for (i=0;i<numOfFolder;i++) {
-      if (numOfGetters[i]==0) continue;
+      if (!folderUserCode[i]) continue;
       sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
       sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut,folderName[i],shortCut,folderName[i]);
    }
@@ -4087,7 +4331,7 @@ void ROMEBuilder::WriteMakefile() {
       sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    }
 #endif
-   char makeFile[500];
+   char makeFile[20];
 #if defined ( __linux__ )
    sprintf(makeFile,"Makefile");
 #endif
@@ -4101,45 +4345,43 @@ void ROMEBuilder::WriteMakefile() {
    close(fileHandle);
 }
 
-void ROMEBuilder::WriteDictionaryBat(char* buffer1,char* buffer2) 
+void ROMEBuilder::WriteDictionaryBat(char* buffer) 
 {
    // writes a script file that executes rootcint
    int i;
 
+   sprintf(buffer,"rootcint -f %sDict.cpp -c ",shortCut);
 #if defined( _MSC_VER )
-   sprintf(buffer1,"@del %sDict.cpp > nul\n",shortCut);
+   sprintf(buffer+strlen(buffer),"-I%%ROMESYS%%/include ");
+   sprintf(buffer+strlen(buffer),"-I%%ROOTSYS%% ");
 #endif
 #if defined ( __linux__ )
-   sprintf(buffer1,"rm %sDict.cpp\n",shortCut);
+   sprintf(buffer+strlen(buffer),"-I$ROMESYS/include ");
+   sprintf(buffer+strlen(buffer),"-I$ROOTSYS ");
 #endif
-   sprintf(buffer2,"rootcint %sDict.cpp -c ",shortCut);
-#if defined( _MSC_VER )
-   sprintf(buffer2+strlen(buffer2),"-I%%ROMESYS%%/include ");
-   sprintf(buffer2+strlen(buffer2),"-I%%ROOTSYS%% ");
-#endif
-#if defined ( __linux__ )
-   sprintf(buffer2+strlen(buffer2),"-I$ROMESYS/include ");
-   sprintf(buffer2+strlen(buffer2),"-I$ROOTSYS ");
-#endif
-   sprintf(buffer2+strlen(buffer2),"-Iinclude -Iinclude/tasks -Iinclude/framework ");
+   sprintf(buffer+strlen(buffer),"-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) sprintf(buffer2+strlen(buffer2),"include/framework/%s%s.h ",shortCut,folderName[i]);
+      if (numOfValue[i] > 0) {
+         sprintf(buffer+strlen(buffer),"include/framework/%s%s.h ",shortCut,folderName[i]);
+         if (folderUserCode[i])
+            sprintf(buffer+strlen(buffer),"include/framework/%s%s_Base.h ",shortCut,folderName[i]);
+      }
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer2+strlen(buffer2),"include/tasks/%sT%s.h ",shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"include/tasks/%sT%s.h ",shortCut,taskName[i]);
    }
-   sprintf(buffer2+strlen(buffer2),"ROMETask.h ROMETreeInfo.h \n");
-   strcat(buffer2,"\0");
+   sprintf(buffer+strlen(buffer),"ROMETask.h ROMETreeInfo.h \n");
+   strcat(buffer,"\0");
 
 #if defined( _MSC_VER )
-   char batFile[500];
+   char* batFile = new char[20+strlen(outDir)];
    sprintf(batFile,"%smakeDictionary.bat",outDir);
    int fileHandle = open(batFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
    fileHandle = open(batFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer1, strlen(buffer1));
-   write(fileHandle,buffer2, strlen(buffer2));
+   write(fileHandle,buffer, strlen(buffer));
    close(fileHandle);
+   delete [] batFile;
 #endif
 }
 
@@ -4147,13 +4389,11 @@ void ROMEBuilder::WriteHTMLDoku() {
 
    int i=0,j=0,k=0;
    char buffer[100000];
-   char htmlFile[500];
    char parentt[100] = "";
    int depthold=0;
    int depth=0;
 
-// Header
-//--------
+   // Header
    sprintf(buffer,"<HTML>\n");
    sprintf(buffer+strlen(buffer),"<HEAD>\n");
    sprintf(buffer+strlen(buffer),"<TITLE>%s%s Manual</TITLE>\n",shortCut,mainProgName);
@@ -4220,9 +4460,9 @@ void ROMEBuilder::WriteHTMLDoku() {
    depth=0;
    for (i=0;i<numOfTask;i++) {
       depth=0;
-      if (strcmp(parentTaskName[i],"GetMainTask()")) {
+      if (strcmp(taskParentName[i],"GetMainTask()")) {
          depth++;
-         strcpy(parentt,parentTaskName[i]);
+         strcpy(parentt,taskParentName[i]);
          for (j=0;j<100;j++) {
             for (k=0;k<numOfTask;k++) {
                if (!strcmp(parentt,taskName[k])) break;
@@ -4231,7 +4471,7 @@ void ROMEBuilder::WriteHTMLDoku() {
                cout << "Invalid task structure." << endl;
                return;
             }
-            if (!strcmp(parentTaskName[k],"GetMainTask()")) break;
+            if (!strcmp(taskParentName[k],"GetMainTask()")) break;
             depth++;
          }
       }
@@ -4285,9 +4525,9 @@ void ROMEBuilder::WriteHTMLDoku() {
    depth=0;
    for (i=0;i<numOfFolder;i++) {
       depth=0;
-      if (strcmp(parentFolderName[i],"GetMainFolder()")) {
+      if (strcmp(folderParentName[i],"GetMainFolder()")) {
          depth++;
-         strcpy(parentt,parentFolderName[i]);
+         strcpy(parentt,folderParentName[i]);
          for (j=0;j<100;j++) {
             for (k=0;k<numOfFolder;k++) {
                if (!strcmp(parentt,folderName[k])) break;
@@ -4296,7 +4536,7 @@ void ROMEBuilder::WriteHTMLDoku() {
                cout << "Invalid folder structure." << endl;
                return;
             }
-            if (!strcmp(parentFolderName[k],"GetMainFolder()")) break;
+            if (!strcmp(folderParentName[k],"GetMainFolder()")) break;
             depth++;
          }
       }
@@ -4486,8 +4726,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    sprintf(buffer+strlen(buffer),"<p>\n");
    sprintf(buffer+strlen(buffer),"\n");
 
-// Footer
-//--------
+   // Footer
    sprintf(buffer+strlen(buffer),"<HR>\n");
    sprintf(buffer+strlen(buffer),"<p>\n");
    sprintf(buffer+strlen(buffer),"\n");
@@ -4504,6 +4743,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    sprintf(buffer+strlen(buffer),"</BODY>\n");
    sprintf(buffer+strlen(buffer),"</HTML>\n");
 
+   char *htmlFile = new char[6+strlen(outDir)+strlen(shortCut)+strlen(mainProgName)];
    sprintf(htmlFile,"%s%s%s.html",outDir,shortCut,mainProgName);
    int fileHandle = open(htmlFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
@@ -4511,6 +4751,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    write(fileHandle,buffer, strlen(buffer));
    close(fileHandle);
    if (makeOutput) cout << htmlFile << endl;
+   delete [] htmlFile;
 }
 
 void ROMEBuilder::GetFormat(char *buf,char *type) 

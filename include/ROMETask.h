@@ -2,6 +2,7 @@
 #define ROMETask_H
 
 #include <TTask.h>
+#include <TString.h>
 #include <TStopwatch.h>
 #include <ROMEAnalyzer.h>
 
@@ -16,7 +17,7 @@ protected:
    ROMEAnalyzer*  fAnalyzer;       // Handle to the Analyzer Class (should be overriden by each Task)
    Int_t          fVersion;        // Version of Task
    Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
-   char           fEventID[10];  // TriggerID for event method
+   TString        fEventID;        // TriggerID for event method
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer);
