@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.111  2005/03/17 17:46:48  sawada
+  small bug fix.
+
   Revision 1.110  2005/03/17 15:44:02  schneebeli_m
   Makefile for windows
 
@@ -6688,9 +6691,9 @@ void ROMEBuilder::WriteMakefile() {
 // ------------------
 #if defined( R__UNIX )
    compileFormatFrame.SetFormatted("	g++ -c $(Flags) $(Includes) src/framework/%s%%s.cpp -o obj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatFramF.SetFormatted("echo fortran tasks not implemented on unix\n");
+   compileFormatFramF.SetFormatted("	@echo fortran tasks not implemented on unix\n");
    compileFormatTasks.SetFormatted("	g++ -c $(Flags) $(Includes) src/tasks/%sT%%s.cpp -o obj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTaskF.SetFormatted("echo fortran tasks not implemented on unix\n");
+   compileFormatTaskF.SetFormatted("	@echo fortran tasks not implemented on unix\n");
    compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
 #endif
@@ -6792,7 +6795,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(UserClassHeaders)\n",shortCut.Data());
-   buffer.AppendFormatted("	%s  $(UserClassHeaders)\n",dictionarybat.Data());
+   dictionarybat.Remove(dictionarybat.Length()-1);
+   buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
