@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.10  2005/03/13 01:13:58  sawada
+  small bug fix.
+
   Revision 1.9  2005/03/12 01:21:00  sawada
   Nested tab.
 
@@ -289,26 +292,27 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
    // count folders
    numOfFolder++;
    currentNumberOfFolders = numOfFolder;
-   if (numOfFolder>=maxNumberOfFolders) {
+   if (currentNumberOfFolders>=maxNumberOfFolders) {
       cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
       cout << "Terminating program." << endl;
       return false;
    }
    // initialisation
-   folderName[numOfFolder] = "";
-   folderTitle[numOfFolder] = "";
-   folderArray[numOfFolder] = "1";
-   folderDataBase[numOfFolder] = true;
-   folderUserCode[numOfFolder] = false;
-   folderVersion[numOfFolder] = "1";
-   folderDescription[numOfFolder] = "";
-   folderAuthor[numOfFolder] = mainAuthor;
-   folderDefinedInROME[numOfFolder] = true;
-   folderConnectionType[numOfFolder] = "Socket";
-   numOfFolderInclude[numOfFolder] = 0;
-   numOfValue[numOfFolder] = 1;//dummy
+   folderName[currentNumberOfFolders] = "";
+   folderTitle[currentNumberOfFolders] = "";
+   folderArray[currentNumberOfFolders] = "1";
+   folderDataBase[currentNumberOfFolders] = true;
+   folderUserCode[currentNumberOfFolders] = false;
+   folderVersion[currentNumberOfFolders] = "1";
+   folderDescription[currentNumberOfFolders] = "";
+   folderAuthor[currentNumberOfFolders] = mainAuthor;
+   folderDefinedInROME[currentNumberOfFolders] = true;
+   folderConnectionType[currentNumberOfFolders] = "Socket";
+   numOfFolderInclude[currentNumberOfFolders] = 0;
+   numOfValue[currentNumberOfFolders] = 1;//dummy
+   folderRomeProjPath[currentNumberOfFolders] = "./";
    // set parent
-   folderParentName[numOfFolder] = parent[recursiveFolderDepth];
+   folderParentName[currentNumberOfFolders] = parent[recursiveFolderDepth];
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
@@ -326,29 +330,29 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
       }
       // folder name
       if (type == 1 && !strcmp((const char*)name,"FolderName")) {
-         xml->GetValue(folderName[numOfFolder],folderName[numOfFolder]);
-         currentFolderName = folderName[numOfFolder];
+         xml->GetValue(folderName[currentNumberOfFolders],folderName[currentNumberOfFolders]);
+         currentFolderName = folderName[currentNumberOfFolders];
          // output
          if (makeOutput) for (i=0;i<recursiveFolderDepth;i++) cout << "   ";
-         if (makeOutput) folderName[numOfFolder].WriteLine();
+         if (makeOutput) folderName[currentNumberOfFolders].WriteLine();
       }
       // folder title
       if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
-         xml->GetValue(folderTitle[numOfFolder],folderTitle[numOfFolder]);
+         xml->GetValue(folderTitle[currentNumberOfFolders],folderTitle[currentNumberOfFolders]);
       // folder ROME project path for ROMEFolder
       if (type == 1 && !strcmp((const char*)name,"ROMEProjectPath"))
-         xml->GetValue(folderRomeProjPath[numOfFolder],folderRomeProjPath[numOfFolder]);
+         xml->GetValue(folderRomeProjPath[currentNumberOfFolders],folderRomeProjPath[currentNumberOfFolders]);
       // folder array size
       if (type == 1 && !strcmp((const char*)name,"ArraySize"))
-         xml->GetValue(folderArray[numOfFolder],folderArray[numOfFolder]);
+         xml->GetValue(folderArray[currentNumberOfFolders],folderArray[currentNumberOfFolders]);
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
-         xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+         xml->GetValue(folderDescription[currentNumberOfFolders],folderDescription[currentNumberOfFolders]);
       // folder with changeble class file
       if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderUserCode[numOfFolder] = true;
+            folderUserCode[currentNumberOfFolders] = true;
       }
       // folder author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
@@ -357,7 +361,7 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
             name = xml->GetName();
             // author name
             if (type == 1 && !strcmp((const char*)name,"AuthorName"))
-               xml->GetValue(folderAuthor[numOfFolder],folderAuthor[numOfFolder]);
+               xml->GetValue(folderAuthor[currentNumberOfFolders],folderAuthor[currentNumberOfFolders]);
             if (type == 15 && !strcmp((const char*)name,"Author"))
                break;
          }
