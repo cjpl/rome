@@ -23,7 +23,7 @@
 				<Folder>
 					<FolderName>CMPMTData</FolderName>
 					<FolderTitle>ADC and TDC Values of Photo Multipliers</FolderTitle>
-					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</ArraySize>
 					<Author>
 						<AuthorName>Matthias Schneebeli</AuthorName>
 					</Author>
@@ -48,7 +48,7 @@
 				<Folder>
 					<FolderName>CMCalib</FolderName>
 					<FolderTitle>Photo Multiplier Calibration</FolderTitle>
-					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</ArraySize>
 					<DataBaseAccess>true</DataBaseAccess>
 					<Author>
 						<AuthorName>Matthias Schneebeli</AuthorName>
@@ -83,7 +83,7 @@
 				<Folder>
 					<FolderName>CMPMTInfo</FolderName>
 					<FolderTitle>Photo Multiplier Info</FolderTitle>
-					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</ArraySize>
 					<DataBaseAccess>true</DataBaseAccess>
 					<ChangeableClassFile>true</ChangeableClassFile>
 					<Author>
@@ -344,7 +344,6 @@
 		</Task>
 		<Task>
 			<TaskName>ADCPedestal</TaskName>
-			<TaskEventId>1</TaskEventId>
 			<Author>
 				<AuthorName>Matthias Schneebeli</AuthorName>
 			</Author>
@@ -360,7 +359,7 @@
 				<HistFolderName>adc0</HistFolderName>
 				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -371,7 +370,7 @@
 				<HistFolderName>adc1</HistFolderName>
 				<HistFolderTitle>ADC1 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</HistArraySize>
+				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
 				<HistXNbins>4096</HistXNbins>
 				<HistXmin>0</HistXmin>
 				<HistXmax>4096</HistXmax>
@@ -393,6 +392,7 @@
 		</Task>
 		<Task>
 			<TaskName>TDCAverage</TaskName>
+			<TaskEventId>1</TaskEventId>
 			<Author>
 				<AuthorName>Matthias Schneebeli</AuthorName>
 			</Author>
@@ -426,7 +426,7 @@
 				<HistFolderName>frontmap</HistFolderName>
 				<HistFolderTitle>Front side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
@@ -440,7 +440,7 @@
 				<HistFolderName>backmap</HistFolderName>
 				<HistFolderTitle>Back side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
@@ -454,7 +454,7 @@
 				<HistFolderName>topmap</HistFolderName>
 				<HistFolderTitle>Top side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
@@ -468,7 +468,7 @@
 				<HistFolderName>bottommap</HistFolderName>
 				<HistFolderTitle>Bottom side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
@@ -482,7 +482,7 @@
 				<HistFolderName>rightmap</HistFolderName>
 				<HistFolderTitle>Right side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
@@ -496,7 +496,7 @@
 				<HistFolderName>leftmap</HistFolderName>
 				<HistFolderTitle>Left side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
 				<HistXNbins>6</HistXNbins>
 				<HistXmin>-20</HistXmin>
 				<HistXmax>20</HistXmax>
