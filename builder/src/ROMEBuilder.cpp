@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.121  2005/04/01 14:59:02  schneebeli_m
+  negligible
+
   Revision 1.120  2005/04/01 14:56:22  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -8330,11 +8333,6 @@ void ROMEBuilder::WriteMakefile() {
       close(fileHandle);
    }
 }
-/*
-   configDep.AppendFormatted(" $(ROMESYS)/include/ROMEStr2DArray.h");
-   configDep.AppendFormatted(" $(TaskIncludes)");
-   configDep.AppendFormatted(" include/framework/%sEventLoop.h",shortCut.Data());
-*/
 void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer) 
 {
    // writes a script file that executes rootcint
