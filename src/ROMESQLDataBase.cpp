@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.20  2004/12/08 09:40:15  sawada
+//  added unistd.h for getpass. and small change
+//
 //  Revision 1.19  2004/12/06 16:03:02  sawada
 //  code cleanup (tab -> space)
 //
@@ -73,6 +76,9 @@
 #include <ROMEPath.h>
 #include <ROMEStrArray.h>
 #include <ROMEPath.h>
+#if defined ( __linux__ ) || defined ( __APPLE__ )
+#include <unistd.h>
+#endif
 
 const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
@@ -138,8 +144,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
                   ie3=ie2-1;
                }
                tname = value(is3,ie3-is3);
-               newpathString.Resize(0);
-               newpathString.AppendFormatted("%s=%s.%s_%s"
+               newpathString.SetFormatted("%s=%s.%s_%s"
                                              ,pathString.Data(),currentTableName
                                              ,tname.Data()
                                              ,pathString.Data());
@@ -366,7 +371,7 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    
    if(passwd.Length()==1 && passwd(0) == '?'){
 #if defined ( __linux__ ) || defined (  __APPLE__  )
-      prompt.AppendFormatted("%s@%s's password: ",user.Data(),server.Data());
+      prompt.SetFormatted("%s@%s's password: ",user.Data(),server.Data());
       passwd = getpass(prompt.Data());
 #endif
 // please implement similar function for windows
@@ -597,8 +602,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
                 ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
                 ;iField+=path->GetFieldIndexAt(2),jArray++){
             if ((istart=sqlQuery.Index(RSQLDB_STR,RSQLDB_STR_LEN,istart,TString::kIgnoreCase))!=-1) {
-               temp.Resize(0);
-               temp.AppendFormatted("='%s'",values->At(iArray,jArray).Data());
+               temp.SetFormatted("='%s'",values->At(iArray,jArray).Data());
                sqlQuery.Remove(istart,RSQLDB_STR_LEN);
                sqlQuery.Insert(istart,temp);
             }
@@ -625,8 +629,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath) {
                 ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
                 ;iField+=path->GetFieldIndexAt(2),jArray++){
             if ((istart=sqlQuery.Index(RSQLDB_STR,RSQLDB_STR_LEN,istart,TString::kIgnoreCase))!=-1) {
-               temp.Resize(0);
-               temp.AppendFormatted("='%s'",values->At(iArray,jArray).Data());
+               temp.SetFormatted("='%s'",values->At(iArray,jArray).Data());
                sqlQuery.Remove(istart,RSQLDB_STR_LEN);
                sqlQuery.Insert(istart,temp);
             }
