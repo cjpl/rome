@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2004/07/06 08:01:08  schneebeli
+  lots of stuff changed
+
   Revision 1.10  2004/06/30 15:32:12  schneebeli
   ms
 
@@ -238,6 +241,13 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
                      sprintf(valueComment[numOfFolder][numOfValue[numOfFolder]],"// %s",tmp);
                   }
                   xmlFree((void*)value);
+                  // data base path
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"DataBasePath");
+                  if (value!=NULL) strcpy(dataBasePath[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
+                  else {
+                     sprintf(dataBasePath[numOfFolder][numOfValue[numOfFolder]],"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
+                  }
+                  xmlFree((void*)value);
                   // field count
                   numOfValue[numOfFolder]++;
                }
@@ -462,18 +472,18 @@ bool ROMEBuilder::WriteFolderH() {
       sprintf(buffer+strlen(buffer),"\n");
       if (this->writeRunNumber) {
          sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","// Run Number");
+         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","  // Run Number");
          sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
          sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","// Event Number");
       }
       else {
          sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","//! Run Number");
+         sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","  //! Run Number");
          sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
          sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","//! Event Number");
       }
       sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-11);
-      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","//! Modified Folder Flag");
+      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","   //! Modified Folder Flag");
       sprintf(buffer+strlen(buffer),"\n");
 
       // Methods
@@ -517,11 +527,13 @@ bool ROMEBuilder::WriteFolderH() {
       }
       sprintf(buffer+strlen(buffer),"\n");
 
+      // Run and Eventnumber
       sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,nameLen-9,nameLen-9);
       sprintf(buffer+strlen(buffer),format,"Int_t","RunNumber","","RunNumber","");
       sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,nameLen-11,nameLen-11);
       sprintf(buffer+strlen(buffer),format,"Int_t","EventNumber","","EventNumber","");
       sprintf(buffer+strlen(buffer),"\n");
+      // Modifier
       sprintf(format,"   %%-%ds is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
       sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","Modified","");
       sprintf(buffer+strlen(buffer),"\n");
@@ -531,6 +543,12 @@ bool ROMEBuilder::WriteFolderH() {
          sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
          sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
       }
+      sprintf(buffer+strlen(buffer),"\n");
+      // Run and Eventnumber
+      sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds };\n",nameLen-9,typeLen,nameLen-9,nameLen-9,nameLen-9);
+      sprintf(buffer+strlen(buffer),format,"RunNumber","","Int_t","RunNumber","","RunNumber","","RunNumber","");
+      sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds };\n",nameLen-11,typeLen,nameLen-11,nameLen-11,nameLen-11);
+      sprintf(buffer+strlen(buffer),format,"EventNumber","","Int_t","EventNumber","","EventNumber","","EventNumber","");
       sprintf(buffer+strlen(buffer),"\n");
       // Set All
       sprintf(buffer+strlen(buffer),"   void SetAll(");
@@ -2112,25 +2130,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"%sAnalyzer::%sAnalyzer() {\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"// Folder, Task, Tree and Data Base initialisation\n");
    sprintf(buffer+strlen(buffer),"\n");
-   // IO
-   sprintf(buffer+strlen(buffer),"   fIO = new %sIO(",shortCut);
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1"))
-            sprintf(buffer+strlen(buffer),"f%sObjects,",folderName[i]);
-         else
-            sprintf(buffer+strlen(buffer),"f%sObject,",folderName[i]);
-      }
-   }
-   sprintf(buffer+strlen(buffer)-1,");\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
    // Steering 
    if (numOfSteering!=0) {
       sprintf(buffer+strlen(buffer),"   fGeneralSteeringParameters = new %sGeneralSteering();\n",shortCut);
    }
    // Folder 
-   sprintf(buffer+strlen(buffer),"// Folder initialisation\n");
+   sprintf(buffer+strlen(buffer),"   // Folder initialisation\n");
    sprintf(buffer+strlen(buffer),"   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut,shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut);
 
@@ -2154,9 +2159,23 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    }
    sprintf(buffer+strlen(buffer),"\n");
 
+   // IO
+   sprintf(buffer+strlen(buffer),"   // IO Class initialisation\n");
+   sprintf(buffer+strlen(buffer),"   fIO = new %sIO(",shortCut);
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (strcmp(folderArray[i],"1"))
+            sprintf(buffer+strlen(buffer),"f%sObjects,",folderName[i]);
+         else
+            sprintf(buffer+strlen(buffer),"f%sObject,",folderName[i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer)-1,");\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
 
    // Task
-   sprintf(buffer+strlen(buffer),"// Task initialisation\n");
+   sprintf(buffer+strlen(buffer),"   // Task initialisation\n");
    sprintf(buffer+strlen(buffer),"   fMainTask = new ROMEEventLoop(\"mainTask\",\"Main Task of %s%s\",this);\n",shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"   fMainFolder->Add(fMainTask);\n");
    sprintf(buffer+strlen(buffer),"   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
@@ -2178,7 +2197,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"\n");
 
    // Tree
-   sprintf(buffer+strlen(buffer),"// Tree initialisation\n");
+   sprintf(buffer+strlen(buffer),"   // Tree initialisation\n");
    sprintf(buffer+strlen(buffer),"   TTree *tree;\n\n");
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"   tree = new TTree(\"%s\",\"%s\");\n",treeName[i],treeTitle[i]);
@@ -2197,7 +2216,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
     }
 
    // RunTable
-   sprintf(buffer+strlen(buffer),"// RunTable\n");
+   sprintf(buffer+strlen(buffer),"   // RunTable\n");
    sprintf(buffer+strlen(buffer),"   fRunTable = new TList();\n");
 
    sprintf(buffer+strlen(buffer),"};\n\n");
@@ -2211,6 +2230,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          if (strcmp(folderArray[i],"1")) {
             sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",folderArray[i]);
             sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s(",folderName[i],shortCut,folderName[i]);
+            if (this->writeRunNumber) {
+               sprintf(buffer+strlen(buffer),"0,0,");
+            }
             for (j=0;j<numOfValue[i];j++) {
                sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
@@ -2219,6 +2241,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          }
          else {
             sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
+            if (this->writeRunNumber) {
+               sprintf(buffer+strlen(buffer),"0,0,");
+            }
             for (j=0;j<numOfValue[i];j++) {
                sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
@@ -2263,18 +2288,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetMidas();\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"OutputTreeFormat\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"Synchronized\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetSynchronizedMode();\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"IndexFile\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetIndexFileMode();\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetEventNumberMode();\n");
-   sprintf(buffer+strlen(buffer),"            else\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetNoTreeMode();\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"BatchMode\");\n");
    sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
    sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\"))\n");
@@ -2293,10 +2306,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"DataBaseMode\");\n");
    sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"sql\")||!strcmp((const char*)value,\"SQL\"))\n");
+   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"sql\")||!strcmp((const char*)value,\"SQL\")) {\n");
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"xml\")||!strcmp((const char*)value,\"XML\"))\n");
+   sprintf(buffer+strlen(buffer),"            }\n");
+   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"xml\")||!strcmp((const char*)value,\"XML\")) {\n");
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetXMLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"            }\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
@@ -2382,13 +2397,16 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"IOMode\");\n");
    sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"Synchronized\"))\n");
+   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"Synchronized\")) {\n");
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetSynchronizedMode();\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"IndexFile\"))\n");
+   sprintf(buffer+strlen(buffer),"            }\n");
+   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"IndexFile\")) {\n");
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetIndexFileMode();\n");
+   sprintf(buffer+strlen(buffer),"            }\n");
    if (this->writeRunNumber) {
-      sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\"))\n");
+      sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\")) {\n");
       sprintf(buffer+strlen(buffer),"               this->GetIO()->SetEventNumberMode();\n");
+      sprintf(buffer+strlen(buffer),"            }\n");
    }
    else {
       sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"EventNumber\")) {\n");
@@ -2398,8 +2416,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       sprintf(buffer+strlen(buffer),"               return false;\n");
       sprintf(buffer+strlen(buffer),"            }\n");
    }
-   sprintf(buffer+strlen(buffer),"            else\n");
+   sprintf(buffer+strlen(buffer),"            else {\n");
    sprintf(buffer+strlen(buffer),"               this->GetIO()->SetNoTreeMode();\n");
+   sprintf(buffer+strlen(buffer),"            }\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
@@ -2456,14 +2475,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"midas\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"root\");\n");
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isSynchronizedMode())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"OutputTreeFormat\",BAD_CAST \"Synchronized\");\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isIndexFileMode())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"OutputTreeFormat\",BAD_CAST \"IndexFile\");\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isEventNumberMode())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"OutputTreeFormat\",BAD_CAST \"EventNumber\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"OutputTreeFormat\",BAD_CAST \"none\");\n");
    sprintf(buffer+strlen(buffer),"   if (isBatchMode())\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"BatchMode\",BAD_CAST \"yes\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
@@ -2524,14 +2535,18 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   else\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulation\",BAD_CAST \"no\");\n");
 
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isSynchronizedMode())\n");
+   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isSynchronizedMode()) {\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"Synchronized\");\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isIndexFileMode())\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isIndexFileMode()) {\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"IndexFile\");\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isEventNumberMode())\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isEventNumberMode()) {\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"EventNumber\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
+   sprintf(buffer+strlen(buffer),"   else {\n");
    sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"IOMode\",BAD_CAST \"none\");\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",treeName[i]);
       sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isRead())\n",i);
@@ -2880,12 +2895,72 @@ bool ROMEBuilder::WriteIOCpp() {
 
    // User Functions
    //----------------
+
+   // fill runnumbers
+   sprintf(buffer+strlen(buffer),"// Fill Runnumbers to Folders\n");
+   sprintf(buffer+strlen(buffer),"void %sIO::FillRunNumbersToFolders() {\n",shortCut);
+   if (writeRunNumber) {
+      sprintf(buffer+strlen(buffer),"   if (this->isNoTreeMode())\n");
+      sprintf(buffer+strlen(buffer),"      return;\n");
+      sprintf(buffer+strlen(buffer),"   int i;\n");
+      sprintf(buffer+strlen(buffer),"   int runNumber = GetCurrentRunNumber();\n");
+      for (i=0;i<numOfFolder;i++) {
+         if (numOfValue[i]>0) {
+            bool found = false;
+            for (j=0;j<numOfTree;j++) {
+               for (k=0;k<numOfBranch[j];k++) {
+                  if (!strcmp(folderName[i],branchFolder[j][k])) {
+                     found = true;
+                  }
+               }
+            }
+            if (!found) continue;
+            if (!strcmp(folderArray[i],"1")) {
+               sprintf(buffer+strlen(buffer),"   f%sObject->SetRunNumber(runNumber);\n",folderName[i]);
+            }
+            else {
+               sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
+               sprintf(buffer+strlen(buffer),"      %s%s* %sObject = (%s%s*)f%sObjects->At(i);\n",shortCut,folderName[i],folderName[i],shortCut,folderName[i],folderName[i]);
+               sprintf(buffer+strlen(buffer),"      %sObject->SetRunNumber(runNumber);\n",folderName[i]);
+               sprintf(buffer+strlen(buffer),"   }\n");
+            }
+         }
+      }
+   }
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
+   // fill tree
    sprintf(buffer+strlen(buffer),"// Tree Filling\n");
    sprintf(buffer+strlen(buffer),"void %sIO::FillTrees() {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   if (this->isNoTreeMode())\n");
    sprintf(buffer+strlen(buffer),"      return;\n");
    sprintf(buffer+strlen(buffer),"   ROMETree *datTree;\n");
    sprintf(buffer+strlen(buffer),"   int i;\n");
+   sprintf(buffer+strlen(buffer),"   // Fill Run and Event Numbers;\n");
+   sprintf(buffer+strlen(buffer),"   int eventNumber = GetCurrentEventNumber();\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i]>0) {
+         bool found = false;
+         for (j=0;j<numOfTree;j++) {
+            for (k=0;k<numOfBranch[j];k++) {
+               if (!strcmp(folderName[i],branchFolder[j][k])) {
+                  found = true;
+               }
+            }
+         }
+         if (!found) continue;
+         if (!strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"   f%sObject->SetEventNumber(eventNumber);\n",folderName[i]);
+         }
+         else {
+            sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"      %s%s* %sObject = (%s%s*)f%sObjects->At(i);\n",shortCut,folderName[i],folderName[i],shortCut,folderName[i],folderName[i]);
+            sprintf(buffer+strlen(buffer),"      %sObject->SetEventNumber(eventNumber);\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"   }\n");
+         }
+      }
+   }
+   sprintf(buffer+strlen(buffer),"   // Fill Trees;\n");
    sprintf(buffer+strlen(buffer),"   bool write = false;\n");
    sprintf(buffer+strlen(buffer),"   if (fFillTreeFirst && this->isIndexFileMode()) {\n");
    for (i=0;i<numOfTree;i++) {
@@ -2899,7 +2974,7 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"   }\n");
    sprintf(buffer+strlen(buffer),"   fFillTreeFirst = false;\n");
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   datTree = GetTreeObjectAt(%d);\n",i);
+      sprintf(buffer+strlen(buffer),"   datTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
       sprintf(buffer+strlen(buffer),"   if (datTree->isWrite()) {\n");
       sprintf(buffer+strlen(buffer),"      if (this->isSynchronizedMode()) {\n");
       sprintf(buffer+strlen(buffer),"         datTree->GetTree()->Fill();\n");
@@ -2993,7 +3068,6 @@ bool ROMEBuilder::WriteIOCpp() {
    // Connect Trees
    sprintf(buffer+strlen(buffer),"// Connect Trees\n");
    sprintf(buffer+strlen(buffer),"void %sIO::ConnectTrees()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"/*\n");
    sprintf(buffer+strlen(buffer),"   TBranchElement *bb;\n");
    for (i=0;i<numOfTree;i++) {
       for (j=0;j<numOfBranch[i];j++) {
@@ -3002,63 +3076,43 @@ bool ROMEBuilder::WriteIOCpp() {
          }
          sprintf(buffer+strlen(buffer),"   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j]);
          if (strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(this->Get%sObjectsAddress());\n",folderName[iFold]);
+            sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->f%sObjects);\n",folderName[iFold]);
          }
          else {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(this->Get%sObjectAddress());\n",folderName[iFold]);
+            sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->f%sObject);\n",folderName[iFold]);
          }
       }
    }
-      sprintf(buffer+strlen(buffer),"*/\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // SQL Read
    char buf[200];
    sprintf(buffer+strlen(buffer),"bool %sIO::ReadSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"   char constraint[100];\n");
-   sprintf(buffer+strlen(buffer),"   char field[100];\n");
    sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
-   sprintf(buffer+strlen(buffer),"   bool reading = true;\n");
-   sprintf(buffer+strlen(buffer),"   long ind;\n");
+   sprintf(buffer+strlen(buffer),"   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
-         sprintf(buffer+strlen(buffer),"   sprintf(constraint,\"runNumber=%%d\",this->GetCurrentRunNumber());\n");
-         sprintf(buffer+strlen(buffer),"   res = fSQL->ReadField(\"runTable\",\"%s\",constraint);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"   if (!strcmp(res,\"ROMESQL : error\")) return false;\n");
-         sprintf(buffer+strlen(buffer),"   if (!strcmp(res,\"ROMESQL : empty\")) return false;\n");
-         sprintf(buffer+strlen(buffer),"   ind = strtol(res,&cstop,10);\n");
-         sprintf(buffer+strlen(buffer),"   if (ind>-1) {\n");
-         sprintf(buffer+strlen(buffer),"      sprintf(constraint,\"id=%%d\",ind);\n");
          if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"      res = fSQL->ReadField(\"%s\",\"",folderName[i]);
             for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"%s,",valueName[i][j]);
-            }
-            sprintf(buffer+strlen(buffer)-1,"\",constraint);\n");
-            sprintf(buffer+strlen(buffer),"      if (!strcmp(res,\"ROMESQL : error\")) return false;\n");
-            sprintf(buffer+strlen(buffer),"      if (!strcmp(res,\"ROMESQL : empty\")) return false;\n");
-            sprintf(buffer+strlen(buffer),"      reading = true;\n");
-            sprintf(buffer+strlen(buffer),"      for (int k=0;reading;k++) {\n");
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"         res = fSQL->GetField(%d);\n",j);
-               sprintf(buffer+strlen(buffer),"         if (!strcmp(res,\"ROMESQL : error\")) return false;\n");
+               sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+               sprintf(buffer+strlen(buffer),"   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
+               sprintf(buffer+strlen(buffer),"      fSQL->NextRow();\n");
+               sprintf(buffer+strlen(buffer),"      res = fSQL->GetField(0);\n");
                setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-               sprintf(buffer+strlen(buffer),"         ((%s%s*)f%sObjects->At(k))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+               sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+               sprintf(buffer+strlen(buffer),"   }\n");
             }
-            sprintf(buffer+strlen(buffer),"         reading = fSQL->NextField();\n");
-            sprintf(buffer+strlen(buffer),"      }\n");
          }
          else {
             for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"      res = fSQL->ReadField(\"%s\",\"%s\",constraint);\n",folderName[i],valueName[i][j]);
-               sprintf(buffer+strlen(buffer),"      if (!strcmp(res,\"ROMESQL : error\")) return false;\n");
-               sprintf(buffer+strlen(buffer),"      if (!strcmp(res,\"ROMESQL : empty\")) return false;\n");
+               sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+               sprintf(buffer+strlen(buffer),"   fSQL->NextRow();\n");
+               sprintf(buffer+strlen(buffer),"   res = fSQL->GetField(0);\n");
                setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-               sprintf(buffer+strlen(buffer),"      f%sObject->Set%s((%s)%s);\n",folderName[i],valueName[i][j],valueType[i][j],buf);
+               sprintf(buffer+strlen(buffer),"   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
             }
          }
-         sprintf(buffer+strlen(buffer),"   }\n");
       }
    }
    sprintf(buffer+strlen(buffer),"   return true;\n");
@@ -3611,6 +3665,7 @@ bool ROMEBuilder::WriteIOH() {
    sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
    sprintf(buffer+strlen(buffer),"   void ConnectTrees();\n");
    sprintf(buffer+strlen(buffer),"   void FillTrees();\n");
+   sprintf(buffer+strlen(buffer),"   void FillRunNumbersToFolders();\n");
 
    // Footer
    //--------

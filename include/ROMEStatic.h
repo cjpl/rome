@@ -63,6 +63,15 @@ public:
       arr.Set(na);
       return arr;
    }
+
+   static char* strtok_x(char *str,char* sub,char** tail) {
+      int l = strlen(str);
+      char* start = strtok(str,"/");
+      *tail = str+strlen(str)+1;
+      if (*tail>str+l) *tail = NULL;
+      return start;
+   }
+
 /********************************************************************\
     Routine: ss_kbhit
 \********************************************************************/

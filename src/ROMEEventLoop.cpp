@@ -19,7 +19,7 @@
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
-ROMEEventLoop::ROMEEventLoop(const char *name,const char *title,ROMEAnalyzer *analyzer):TTask(name,title)
+ROMEEventLoop::ROMEEventLoop(const char *name,const char *title,ROMEAnalyzer *analyzer):ROMETask(name,title,analyzer)
 {
    // Initialisation of Class
    fAnalyzer = analyzer;
@@ -51,11 +51,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Initialisation
    //----------------
 
+   fAnalyzer->ClearFolders();
    if (!fAnalyzer->GetIO()->Init()) {
       cout << "Terminating Program !" << endl;
       return;
    }
-
+ 
    ExecuteTasks(gTaskInit);
    CleanTasks();
 
@@ -77,12 +78,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       ExecuteTasks(gTaskBeginOfRun);
       CleanTasks();
 
+      if (gShowTime) TimeStart();
       // Loop over Events
       //------------------
       for (i=0;!fAnalyzer->GetIO()->isTerminate()&&!fAnalyzer->GetIO()->isEndOfRun();i++) {
          if (!((i+1)%1000) && fAnalyzer->GetIO()->isOffline()) cout << i+1 << " events processed\r";
 
-         fAnalyzer->ClearFolders();
          fAnalyzer->SetFillEvent();
 
          if (!fAnalyzer->GetIO()->ReadEvent(i)) {
@@ -111,6 +112,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
       }
+      if (gShowTime) TimeEnd();
 
       cout << i << " events processed" << endl<<endl;
 
@@ -131,6 +133,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (!fAnalyzer->GetIO()->Terminate()) {
       cout << "Terminating Program !" << endl;
       return;
+   }
+   if (gShowTime) {
+      cout << "Program : run time = " << GetTime() << endl;
    }
 }
 

@@ -55,6 +55,7 @@ private:
    char valueRef[numberOfFolders][maxNumberOfValues][nameLength];
    char valueInit[numberOfFolders][maxNumberOfValues][nameLength];
    char valueComment[numberOfFolders][maxNumberOfValues][commentLength];
+   char dataBasePath[numberOfFolders][maxNumberOfValues][descriptionLength];
 
    char getter[numberOfFolders][maxNumberOfGetters][nameLength];
    char setter[numberOfFolders][maxNumberOfSetters][nameLength];

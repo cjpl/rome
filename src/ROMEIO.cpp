@@ -119,6 +119,7 @@ bool ROMEIO::Connect(Int_t runNumber) {
    }
    fIndexOfCurrentRunNumber = runNumber;
    GetRunNumberStringAt(runNumberString,runNumber);
+   this->FillRunNumbersToFolders();
 
    // Update Data Base
    if (this->isSQLDataBase()) {
@@ -152,9 +153,10 @@ bool ROMEIO::Connect(Int_t runNumber) {
       char runNumberString[6];
       GetCurrentRunNumberString(runNumberString);
       if (!this->isTreeAccumulation()) {
-         this->fIndexTree->Reset();
+//         this->fIndexTree->Reset();
          fFillTreeFirst = true;
       }
+      bool treeRead = false;
       for (int j=0;j<GetTreeObjectEntries();j++) {
          datTree = GetTreeObjectAt(j);
          tree = datTree->GetTree();
@@ -162,20 +164,26 @@ bool ROMEIO::Connect(Int_t runNumber) {
             tree->Reset();
          }
          if (datTree->isRead()) {
+            treeRead = true;
             sprintf(filename,"%s%s%s.root",GetInputDir(),tree->GetName(),runNumberString);
             fRootFiles[j] = new TFile(filename,"READ");
             tree = (TTree*)fRootFiles[j]->FindObjectAny(tree->GetName());
             datTree->SetTree(tree);
+            cout << "Reading Root-File " << tree->GetName() << runNumberString << ".root" << endl;
          }
+      }
+      if (!treeRead) {
+         cout << "No input root file specified for running in root mode." << endl << endl;
+         return false;
       }
       ConnectTrees();
 
       // Get Number of Events for ROOT Mode
-      int numberOfEntries = 2147483647;
+      fNumberOfEntries = 0;
       for (int i=0;i<GetTreeObjectEntries();i++) {
          if (GetTreeObjectAt(i)->isRead()) {
-            numberOfEntries = (int)GetTreeObjectAt(i)->GetTree()->GetEntries();
-            break;
+            int num = (int)GetTreeObjectAt(i)->GetTree()->GetEntries();
+            if (num>fNumberOfEntries) fNumberOfEntries = num;
          }
       }
       return true;
@@ -202,11 +210,15 @@ bool ROMEIO::ReadEvent(Int_t eventNumber) {
       }
       int size = sizeof(fMidasEvent);
       int status = bm_receive_event(fMidasBuffer, fMidasEvent, &size, ASYNC);
-      if (status != BM_SUCCESS) return true;
+      if (status != BM_SUCCESS) {
+         fRunStatus = kContinue;
+         return true;
+      }
       if (status == RPC_SHUTDOWN || status == SS_ABORT) {
          fRunStatus = kTerminate;
          return true;
       }
+      fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->event_id;
       this->InitMidasBanks();
       return true;
 #else
@@ -238,17 +250,23 @@ bool ROMEIO::ReadEvent(Int_t eventNumber) {
          if (n > 0) cout << "Unexpected end of file\n";
          fRunStatus = kEndOfRun;
       }
-      pevent = (EVENT_HEADER*)fMidasEvent;
 
-      if (pevent->event_id == EVENTID_EOR || pevent->event_id < 0) {
+      int eventId = ((EVENT_HEADER*)fMidasEvent)->event_id;
+      fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->serial_number;
+
+      if (eventId == EVENTID_EOR || eventId < 0) {
          fRunStatus = kContinue;
       }
-      if (pevent->event_id == EVENTID_EOR) fRunStatus = kEndOfRun;
+      if (eventId == EVENTID_EOR) fRunStatus = kEndOfRun;
 
       if (fRunStatus==kAnalyze) this->InitMidasBanks();
       return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
+      if (eventNumber>=fNumberOfEntries) {
+         fRunStatus = kEndOfRun;
+         return true;
+      }
       for (int j=0;j<GetTreeObjectEntries();j++) {
          if (GetTreeObjectAt(j)->isRead()) {
             GetTreeObjectAt(j)->GetTree()->GetEntry(eventNumber);

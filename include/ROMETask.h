@@ -3,15 +3,15 @@
 
 #include <TDatime.h>
 #include <TTask.h>
+#include <TStopwatch.h>
 #include "ROMEAnalyzer.h"
 
 class ROMETask : public TTask {
 private:
-   Int_t fStartTime;          // Start time of Task
-   Int_t fRunTime;            // Elapsed time of Task
+   TStopwatch watch;          // Stopwatch
    char fTitle[100];          // Task title
    char fName[100];           // Task name
-   char timeString[10];       // Elapsed Time in a readable format
+   char timeString[14];       // Elapsed Time in a readable format
    TFolder *fHistoFolder;     // Histogram Folder of this Task in the Memory
 protected:
    ROMEAnalyzer *fAnalyzer;    // Handle to the Analyzer Class (should be overriden by each Task)

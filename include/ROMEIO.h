@@ -16,6 +16,7 @@
 #ifndef __CINT__
   #include <ROMESQL.h>
 #endif
+#include <Riostream.h>
 
 class ROMEIO {
 
@@ -65,6 +66,7 @@ private:
    Int_t      fIndexOfCurrentRunNumber;         //! Index of currently Analyzed Run Number
    TArrayI    fRunNumber;                       //! Run Numbers to Analyze
    TString    fRunNumberString;                 //! Run Numbers in Input String Format
+   Int_t      fCurrentEventNumber;              //! Index of currently Analyzed Event Number
    TArrayI    fEventNumber;                     //! Event Numbers to Analyze
    TString    fEventNumberString;               //! Event Numbers in Input String Format
 
@@ -72,6 +74,8 @@ private:
    int        fMidasBuffer;                     //! Midas Online Buffer
    TFile**    fRootFiles;                       //! Root files
    char       fMidasEvent[1000000];             //! Midas Inputdata Stack for an Event
+
+   int        fNumberOfEntries;                 //! Number of entries in input root files
 
 protected:
 
@@ -97,13 +101,14 @@ public:
      fTreeMode = kNone;
      fTreeAccumulation = false;
      fTreeObjects = new TObjArray(0);
+     fNumberOfEntries = 2147483647;
 //     fIndexObject = new ROMEIndexObject();
 //     fNameObject = new ROMENameObject();
 
-     fIndexTree = new TTree("IndexTree","Index to other Trees"); 
+/*     fIndexTree = new TTree("IndexTree","Index to other Trees"); 
      fIndexTree->Branch("Index","ROMEIndexObject",&fIndexObject,32000,99);
      fIndexTree->Branch("Name","ROMENameObject",&fNameObject,32000,99);
-   };
+*/   };
 
    // methods
 
@@ -190,15 +195,18 @@ public:
                   fRunNumberString = numbers;
                   fRunNumber = ROMEStatic::decodeRunNumbers(numbers); }
 
+   int        GetCurrentEventNumber() { return fCurrentEventNumber; }
    char*      GetEventNumberStringOriginal() { return (char*)fEventNumberString.Data(); }
 
    void       SetEventNumbers(char* numbers) { 
                   fEventNumberString = numbers;
                   fEventNumber = ROMEStatic::decodeRunNumbers(numbers); }
 
+
 private:
    virtual void ConnectTrees() = 0;
    virtual void FillTrees() = 0;
+   virtual void FillRunNumbersToFolders() = 0;
 
    virtual void InitXMLDataBase() = 0;
    virtual void ReadXMLRunTable() = 0;
