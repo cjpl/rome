@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/03/18 12:10:09  sawada
+  added status bar.
+
   Revision 1.11  2005/03/12 22:26:10  sawada
   small change.
 
@@ -134,6 +137,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title)\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fStatusBarSwitch = true;\n");
    for (i=0;i<numOfTabHierarchy;i++) {
       int index = tabHierarchyParentIndex[i];
       ROMEString switchString = tabHierarchyName[i].Data();
@@ -152,6 +156,12 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sWindow::Start()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   // Create status bar\n");
+   buffer.AppendFormatted("   Int_t parts[] = {5};\n");
+   buffer.AppendFormatted("   fStatusBar = new TGStatusBar(this,50,10,kHorizontalFrame);\n");
+   buffer.AppendFormatted("   fStatusBar->SetParts(parts,sizeof(parts)/sizeof(Int_t));\n");
+   buffer.AppendFormatted("   if(fStatusBarSwitch)\n");
+   buffer.AppendFormatted("      this->AddFrame(fStatusBar,new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX,0,0,2,0));\n");
    buffer.AppendFormatted("   // Create menu\n");
    buffer.AppendFormatted("   fMenuFile = new TGPopupMenu(fClient->GetRoot());\n");
    buffer.AppendFormatted("   fMenuFile->AddEntry(\"&Connect to ...\", M_FILE_CONNECT);\n");
@@ -362,6 +372,7 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#include <TGMenu.h>\n");
    buffer.AppendFormatted("#include <TGTab.h>\n");
+   buffer.AppendFormatted("#include <TGStatusBar.h>\n");
    for (i=0;i<numOfTabHierarchy;i++) {
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabName[i].Data());
    }
@@ -386,6 +397,8 @@ bool ArgusBuilder::WriteWindowH() {
    // Class
    buffer.AppendFormatted("class %sWindow:public TGMainFrame {  \n",shortCut.Data());
    buffer.AppendFormatted("private:\n");
+   buffer.AppendFormatted("   TGStatusBar         *fStatusBar;\n");
+   buffer.AppendFormatted("   Bool_t              fStatusBarSwitch;\n");
    buffer.AppendFormatted("   TGMenuBar           *fMenuBar;\n");
    buffer.AppendFormatted("   TGPopupMenu         *fMenuFile;\n");
    buffer.AppendFormatted("   TGTab               *fTab;\n");
@@ -422,7 +435,10 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("   ~%sWindow();\n",shortCut.Data());
    buffer.AppendFormatted("   bool Start();\n");
    buffer.AppendFormatted("\n");
-   // Tab Getters
+   // Status bar
+   buffer.AppendFormatted("   void SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; };\n");
+   buffer.AppendFormatted("   Bool_t GetStatusBarSwitch() { return fStatusBarSwitch; };\n");
+   buffer.AppendFormatted("   TGStatusBar* GetStatusBar() { return fStatusBar; };\n");
    // Tab Switches
    buffer.AppendFormatted("   // Tab Switches\n");
    buffer.AppendFormatted("   TabSwitches* GetTabSwitches() { return &fTabSwitches; };\n");
