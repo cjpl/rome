@@ -66,40 +66,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="EventRequestDesc">
-		<xs:annotation>
-			<xs:documentation>Description of one requested eventtype of the online system.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="EventID" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="TriggerMask" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SamplingRate" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="EventRequestsDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the event requests to the online system..</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="EventRequest" type="EventRequestDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>A requested eventtype of the online system.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="OnlineDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the online specific configuration.</xs:documentation>
@@ -113,11 +79,6 @@
 			<xs:element name="Experiment" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The name of the online experiment.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="EventRequests" type="EventRequestsDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Event requests to the online system.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

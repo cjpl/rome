@@ -624,6 +624,55 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="BanksDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the banks in a midas event.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a bank of the framework.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StructuredBank" type="StructuredBankDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes structured bank of the framework.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EventDefinitionDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a midas event.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EventName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the event.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventID" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventTriggerMask" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventSamplingRate" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Banks" type="BanksDesc">
+				<xs:annotation>
+					<xs:documentation>Describes the banks in a midas event.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:element name="ROMEFrameworkDefinition">
 		<xs:annotation>
 			<xs:documentation>Description of a ROME framework.</xs:documentation>
@@ -727,14 +776,9 @@
 									<xs:documentation>Describes event header data.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
-							<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:element name="EventDefinition" type="EventDefinitionDesc" minOccurs="0" maxOccurs="unbounded">
 								<xs:annotation>
-									<xs:documentation>Describes a bank of the framework.</xs:documentation>
-								</xs:annotation>
-							</xs:element>
-							<xs:element name="StructuredBank" type="StructuredBankDesc" minOccurs="0" maxOccurs="unbounded">
-								<xs:annotation>
-									<xs:documentation>Describes structured bank of the framework.</xs:documentation>
+									<xs:documentation>Describes a midas event.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.29  2005/03/21 10:39:40  schneebeli_m
+  Midas event definition implemented
+
   Revision 1.28  2005/03/18 16:12:57  schneebeli_m
   Event request & Histo in romeConfig
 
@@ -63,6 +66,7 @@ const int maxNumberOfFolders = 100;
 const int maxNumberOfTrees = 20;
 const int maxNumberOfBranches = 10;
 const int maxNumberOfBanks = 20;
+const int maxNumberOfEvents = 5;
 const int maxNumberOfSteering = 20;
 const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
@@ -192,16 +196,21 @@ private:
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
 
 // banks
-   int numOfBank;
-   int numOfStructFields[maxNumberOfBanks];
-   ROMEString bankName[maxNumberOfBanks];
-   ROMEString bankType[maxNumberOfBanks];
-   int bankArraySize[maxNumberOfBanks];
-   int bankArrayStart[maxNumberOfBanks];
-   int bankArrayDigit[maxNumberOfBanks];
-   ROMEString structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
-   ROMEString structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
-   ROMEString structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
+   int numOfEvent;
+   int numOfBank[maxNumberOfEvents];
+   int numOfStructFields[maxNumberOfEvents][maxNumberOfBanks];
+   ROMEString eventName[maxNumberOfEvents];
+   ROMEString eventID[maxNumberOfEvents];
+   ROMEString eventTriggerMask[maxNumberOfEvents];
+   ROMEString eventSamplingRate[maxNumberOfEvents];
+   ROMEString bankName[maxNumberOfEvents][maxNumberOfBanks];
+   ROMEString bankType[maxNumberOfEvents][maxNumberOfBanks];
+   int bankArraySize[maxNumberOfEvents][maxNumberOfBanks];
+   int bankArrayStart[maxNumberOfEvents][maxNumberOfBanks];
+   int bankArrayDigit[maxNumberOfEvents][maxNumberOfBanks];
+   ROMEString structFieldName[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString structFieldType[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString structFieldSize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
    bool  bankHasHeader;
    ROMEString bankHeaderFolder;
    ROMEString bankHeaderEventID;
