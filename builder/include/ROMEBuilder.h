@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.26  2005/03/08 11:00:36  sawada
+  Improvement Makefile for UNIX.
+
   Revision 1.25  2005/01/25 16:36:22  schneebeli_m
   histo label
 
@@ -62,7 +65,7 @@ const int maxNumberOfSetters = 10;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 10;
 const int maxNumberOfStructFields = 50;
-const int bufferLength = 100000;
+const int bufferLength = 500000;
 
 
 class ROMEBuilder
