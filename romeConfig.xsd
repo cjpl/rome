@@ -327,6 +327,45 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="BankDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a midas bank.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BankName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the bank.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>If true, this bank will be analyzed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EventDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a midas event.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EventName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the event.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>If true, this event type will be analyzed.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a midas bank.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="ConfigurationDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the configuration.</xs:documentation>
@@ -369,7 +408,7 @@
 			</xs:element>
 			<xs:element name="Tasks" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the file paths the framework is using.</xs:documentation>
+					<xs:documentation>Describes the tasks in the framework.</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -383,7 +422,7 @@
 			</xs:element>
 			<xs:element name="Trees" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the file paths the framework is using.</xs:documentation>
+					<xs:documentation>Describes the trees in the framework.</xs:documentation>
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
@@ -414,6 +453,20 @@
 						<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>Describes a steering parameter group.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Midas" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the midas dependent part of the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Event" type="EventDesc" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes a midas event.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>

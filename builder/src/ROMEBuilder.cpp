@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.115  2005/03/21 14:08:39  schneebeli_m
+  midas banks in config
+
   Revision 1.114  2005/03/21 10:39:40  schneebeli_m
   Midas event definition implemented
 
@@ -2953,6 +2956,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       for (j=0;j<numOfBank[i];j++) {
          buffer.AppendFormatted("   f%sBankActive = true;\n",bankName[i][j].Data());
       }
+      buffer.AppendFormatted("   f%sEventActive = true;\n",eventName[i].Data());
    }
    buffer.AppendFormatted("   SetNumberOfEventRequests(%d);\n",numOfEvent);
    for (i=0;i<numOfEvent;i++) {
@@ -2989,6 +2993,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
    for (i=0;i<numOfEvent;i++) {
       for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("// %s bank\n",bankName[i][j].Data());
          // Bank Array
          if (bankArrayDigit[i][j]>0) {
             // Functions
@@ -3017,7 +3022,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                buffer.AppendFormatted("}\n");
             }
             buffer.AppendFormatted("void %sAnalyzer::Init%sBank(int bankIndex) {\n",shortCut.Data(),bankName[i][j].Data());
-            buffer.AppendFormatted("   if (f%sBankActive) {\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   if (f%sEventActive && f%sBankActive && GetEventID()==%s) {\n",eventName[i].Data(),bankName[i][j].Data(),eventID[i].Data());
             buffer.AppendFormatted("      fLast%sBankExists[bankIndex] = f%sBankExists[bankIndex];\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankPointer[bankIndex] = f%sBankPointer[bankIndex];\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankLength[bankIndex] = f%sBankLength[bankIndex];\n",bankName[i][j].Data(),bankName[i][j].Data());
@@ -3071,7 +3076,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                buffer.AppendFormatted("}\n");
             }
             buffer.AppendFormatted("void %sAnalyzer::Init%sBank() {\n",shortCut.Data(),bankName[i][j].Data());
-            buffer.AppendFormatted("   if (f%sBankActive) {\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   if (f%sEventActive && f%sBankActive && GetEventID()==%s) {\n",eventName[i].Data(),bankName[i][j].Data(),eventID[i].Data());
             buffer.AppendFormatted("      fLast%sBankExists = f%sBankExists;\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankPointer = f%sBankPointer;\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankLength = f%sBankLength;\n",bankName[i][j].Data(),bankName[i][j].Data());
@@ -3600,61 +3605,63 @@ bool ROMEBuilder::WriteAnalyzerH() {
             if (bankNameLen<(int)bankName[i][j].Length()+bankArrayDigit[i][j]) bankNameLen = bankName[i][j].Length()+bankArrayDigit[i][j];
          }
       }
-      buffer.AppendFormatted("   // Bank Fields\n");
-      for (i=0;i<numOfEvent;i++) {
-         for (j=0;j<numOfBank[i];j++) {
-            // Bank Array
-            if (bankArrayDigit[i][j]>0) {
-               if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
-                  format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-                  format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-               }
-               else {
-                  format.SetFormatted("   %%s*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-                  format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-               }
-               format.SetFormatted("   int%%%ds f%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-               format.SetFormatted("   int%%%ds fLast%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-               format.SetFormatted("   bool%%%ds f%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
-               format.SetFormatted("   bool%%%ds fLast%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+   }
+   buffer.AppendFormatted("   // Bank Fields\n");
+   for (i=0;i<numOfEvent;i++) {
+      for (j=0;j<numOfBank[i];j++) {
+         // Bank Array
+         if (bankArrayDigit[i][j]>0) {
+            if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
+               format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+               format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
             }
-            // Single Bank
             else {
-               if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
-                  format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-                  format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-               }
-               else {
-                  format.SetFormatted("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-                  format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
-                  buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-               }
-               format.SetFormatted("   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-               format.SetFormatted("   int%%%ds fLast%%sBankLength;  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-               format.SetFormatted("   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
-               format.SetFormatted("   bool%%%ds fLast%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
-               buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+               format.SetFormatted("   %%s*%%%ds f%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+               format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer[%%d]; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
             }
-            format.SetFormatted("   bool%%%ds f%%sBankActive;  %%%ds //! Active Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
+            format.SetFormatted("   int%%%ds f%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+            format.SetFormatted("   int%%%ds fLast%%sBankLength[%%d];  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+            format.SetFormatted("   bool%%%ds f%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+            format.SetFormatted("   bool%%%ds fLast%%sBankExists[%%d];  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),bankArraySize[i][j]+bankArrayStart[i][j],"",bankName[i][j].Data());
+         }
+         // Single Bank
+         else {
+            if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
+               format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+               format.SetFormatted("   %%sStruct*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankName[i][j].Length()-6,bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankName[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+            }
+            else {
+               format.SetFormatted("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+               format.SetFormatted("   %%s*%%%ds fLast%%sBankPointer; %%%ds //! Pointer to the %%s Bank of the last event\n",bankTypeLen-bankType[i][j].Length(),bankNameLen-bankName[i][j].Length());
+               buffer.AppendFormatted((char*)format.Data(),bankType[i][j].Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+            }
+            format.SetFormatted("   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+            format.SetFormatted("   int%%%ds fLast%%sBankLength;  %%%ds //! Length  of the %%s Bank of the last event\n",bankTypeLen-2,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+            format.SetFormatted("   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
+            format.SetFormatted("   bool%%%ds fLast%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank of the last event\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
             buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
          }
+         format.SetFormatted("   bool%%%ds f%%sBankActive;  %%%ds //! Active Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i][j].Length());
+         buffer.AppendFormatted((char*)format.Data(),"",bankName[i][j].Data(),"",bankName[i][j].Data());
       }
-      buffer.AppendFormatted("\n");
+      format.SetFormatted("   bool%%%ds f%%sEventActive;  %%%ds //! Active Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-eventName[i].Length());
+      buffer.AppendFormatted((char*)format.Data(),"",eventName[i].Data(),"",eventName[i].Data());
    }
+   buffer.AppendFormatted("\n");
 
    // Task Switches
    buffer.AppendFormatted("   // Task Switches\n");
@@ -3741,8 +3748,12 @@ bool ROMEBuilder::WriteAnalyzerH() {
                buffer.AppendFormatted("   int GetLast%sBankEntries();\n",bankName[i][j].Data());
                buffer.AppendFormatted("   void Init%sBank();\n",bankName[i][j].Data());
             }
+            buffer.AppendFormatted("   bool is%sBankActive() { return f%sBankActive; };\n",bankName[i][j].Data(),bankName[i][j].Data());
+            buffer.AppendFormatted("   void Set%sBankActive(bool flag) { f%sBankActive = flag; };\n",bankName[i][j].Data(),bankName[i][j].Data());
          }
       }
+      buffer.AppendFormatted("   bool is%sEventActive() { return f%sEventActive; };\n",eventName[i].Data(),eventName[i].Data());
+      buffer.AppendFormatted("   void Set%sEventActive(bool flag) { f%sEventActive = flag; };\n",eventName[i].Data(),eventName[i].Data());
       buffer.AppendFormatted("\n");
    }
 
@@ -4419,6 +4430,43 @@ bool ROMEBuilder::WriteConfigCpp() {
       classT.SetFormatted("ConfigData::GlobalSteering");
       WriteSteeringConfigRead(buffer,0,numOfTaskHierarchy,xml,pathT,pointerT,classT);
    }
+   // midas banks
+   for (i=0;i<numOfEvent;i++) {
+      // Active
+      buffer.AppendFormatted("   // %s Event\n",eventName[i].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[child::EventName='%s']/Active\",fConfigData[index]->f%sEvent->fActive,\"\");\n",eventName[i].Data(),eventName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sEvent->fActive==\"\")\n",eventName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sEvent->fActiveModified = false;\n",eventName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sEvent->fActiveModified = true;\n",eventName[i].Data());
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("   // %s Bank\n",bankName[i][j].Data());
+         buffer.AppendFormatted("   fConfigData[index]->f%sEvent->f%sBank = new ConfigData::%sEvent::%sBank();\n",eventName[i].Data(),bankName[i][j].Data(),eventName[i].Data(),bankName[i][j].Data());
+         // Read
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/Event[child::EventName='%s']/Bank[child::BankName='%s']/Active\",fConfigData[index]->f%sEvent->f%sBank->fActive,\"\");\n",eventName[i].Data(),bankName[i][j].Data(),eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("   if (fConfigData[index]->f%sEvent->f%sBank->fActive==\"\")\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("      fConfigData[index]->f%sEvent->f%sBank->fActiveModified = false;\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->f%sEvent->f%sBank->fActiveModified = true;\n",eventName[i].Data(),bankName[i][j].Data());
+         // Check Modified
+         buffer.AppendFormatted("   if (fConfigData[index]->f%sEvent->f%sBank->fActiveModified)\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("      fConfigData[index]->f%sEvent->f%sBankModified = true;\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->f%sEvent->f%sBankModified = false;\n",eventName[i].Data(),bankName[i][j].Data());
+      }
+      // Check Modified
+      buffer.AppendFormatted("   if (\n");
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("       fConfigData[index]->f%sEvent->f%sBankModified ||\n",eventName[i].Data(),bankName[i][j].Data());
+      }
+      buffer.AppendFormatted("       fConfigData[index]->f%sEvent->fActiveModified) {\n",eventName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sEventModified = true;\n",eventName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->fMidasModified = true;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sEventModified = false;\n",eventName[i].Data());
+   }
+   // end
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
@@ -4675,6 +4723,35 @@ bool ROMEBuilder::WriteConfigCpp() {
       WriteSteeringConfigSet(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT);
    }
 
+   // midas banks
+   buffer.AppendFormatted("   // midas banks\n");
+   for (i=0;i<numOfEvent;i++) {
+      buffer.AppendFormatted("   // %s event\n",eventName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sEventModified) {\n",eventName[i].Data());
+      // Active
+      buffer.AppendFormatted("      if (fConfigData[modIndex]->f%sEvent->fActiveModified) {\n",eventName[i].Data());
+      buffer.AppendFormatted("         if (fConfigData[index]->f%sEvent->fActive==\"true\")\n",eventName[i].Data());
+      buffer.AppendFormatted("            gAnalyzer->Set%sEventActive(true);\n",eventName[i].Data());
+      buffer.AppendFormatted("         else\n");
+      buffer.AppendFormatted("            gAnalyzer->Set%sEventActive(false);\n",eventName[i].Data());
+      buffer.AppendFormatted("      }\n");
+      // Banks
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("      // %s bank\n",bankName[i][j].Data());
+         buffer.AppendFormatted("      if (fConfigData[modIndex]->f%sEvent->f%sBankModified) {\n",eventName[i].Data(),bankName[i][j].Data());
+         // Active
+         buffer.AppendFormatted("         if (fConfigData[modIndex]->f%sEvent->f%sBank->fActiveModified) {\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("            if (fConfigData[index]->f%sEvent->f%sBank->fActive==\"true\")\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("               gAnalyzer->Set%sBankActive(true);\n",bankName[i][j].Data());
+         buffer.AppendFormatted("            else\n");
+         buffer.AppendFormatted("               gAnalyzer->Set%sBankActive(false);\n",bankName[i][j].Data());
+         buffer.AppendFormatted("         }\n");
+         // end
+         buffer.AppendFormatted("      }\n");
+      }
+      buffer.AppendFormatted("   }\n");
+   }
+   // end
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
@@ -4921,6 +4998,47 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   }\n");
    }
 
+   // Midas banks
+   buffer.AppendFormatted("   // midas banks\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fMidasModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Midas\");\n");
+   for (i=0;i<numOfEvent;i++) {
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sEventModified || index==0) {\n",eventName[i].Data());
+      buffer.AppendFormatted("         xml->StartElement(\"Event\");\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"EventName\",\"%s\");\n",eventName[i].Data());
+      // active
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->is%sEventActive())\n",eventName[i].Data());
+      buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"true\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"false\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sEvent->fActiveModified)\n",eventName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"Active\",(char*)fConfigData[index]->f%sEvent->fActive.Data());\n",eventName[i].Data());
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("         if (fConfigData[index]->f%sEvent->f%sBankModified || index==0) {\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("            // %s bank\n",bankName[i][j].Data());
+         buffer.AppendFormatted("            xml->StartElement(\"Bank\");\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"BankName\",\"%s\");\n",bankName[i][j].Data());
+         // active
+         buffer.AppendFormatted("            if (index==0) {\n");
+         buffer.AppendFormatted("               if (gAnalyzer->is%sBankActive())\n",bankName[i][j].Data());
+         buffer.AppendFormatted("                  xml->WriteElement(\"Active\",\"true\");\n");
+         buffer.AppendFormatted("               else\n");
+         buffer.AppendFormatted("                  xml->WriteElement(\"Active\",\"false\");\n");
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("            else if (fConfigData[index]->f%sEvent->f%sBank->fActiveModified)\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("               xml->WriteElement(\"Active\",(char*)fConfigData[index]->f%sEvent->f%sBank->fActive.Data());\n",eventName[i].Data(),bankName[i][j].Data());
+         // end
+         buffer.AppendFormatted("            xml->EndElement();\n");
+         buffer.AppendFormatted("         }\n");
+      }
+      buffer.AppendFormatted("         xml->EndElement();\n");
+      buffer.AppendFormatted("      }\n");
+   }
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // end
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
 
@@ -4950,7 +5068,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    return true;
 }
 bool ROMEBuilder::WriteConfigH() {
-   int i;
+   int i,j;
 
    ROMEString hFile;
    ROMEString buffer;
@@ -5091,8 +5209,37 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      GlobalSteering *fGlobalSteering;\n");
    buffer.AppendFormatted("      bool            fGlobalSteeringModified;\n");
-   buffer.AppendFormatted("   public:\n");
+   // midas banks
+   buffer.AppendFormatted("      // midas banks\n");
+   for (i=0;i<numOfEvent;i++) {
+      buffer.AppendFormatted("      // %s event\n",eventName[i].Data());
+      buffer.AppendFormatted("      class %sEvent {\n",eventName[i].Data());
+      buffer.AppendFormatted("      public:\n");
+      buffer.AppendFormatted("         ROMEString  fActive;\n");
+      buffer.AppendFormatted("         bool        fActiveModified;\n");
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("         // %s bank\n",bankName[i][j].Data());
+         buffer.AppendFormatted("         class %sBank {\n",bankName[i][j].Data());
+         buffer.AppendFormatted("         public:\n");
+         buffer.AppendFormatted("            ROMEString  fActive;\n");
+         buffer.AppendFormatted("            bool        fActiveModified;\n");
+         buffer.AppendFormatted("         };\n");
+         buffer.AppendFormatted("         %sBank *f%sBank;\n",bankName[i][j].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("         bool   f%sBankModified;\n",bankName[i][j].Data());
+      }
+      buffer.AppendFormatted("         %sEvent() {\n",eventName[i].Data());
+      for (j=0;j<numOfBank[i];j++) {
+         buffer.AppendFormatted("            f%sBankModified = false;\n",bankName[i][j].Data());
+         buffer.AppendFormatted("            f%sBank = new %sBank();\n",bankName[i][j].Data(),bankName[i][j].Data());
+      }
+      buffer.AppendFormatted("         };\n");
+      buffer.AppendFormatted("      };\n");
+      buffer.AppendFormatted("      %sEvent *f%sEvent;\n",eventName[i].Data(),eventName[i].Data());
+      buffer.AppendFormatted("      bool   f%sEventModified;\n",eventName[i].Data());
+   }
+   buffer.AppendFormatted("      bool   fMidasModified;\n");
    // Constructor
+   buffer.AppendFormatted("   public:\n");
    buffer.AppendFormatted("      ConfigData() {\n");
    buffer.AppendFormatted("         fRunNumbersModified = false;\n");
    buffer.AppendFormatted("         fEventNumbersModified = false;\n");
@@ -5122,6 +5269,11 @@ bool ROMEBuilder::WriteConfigH() {
       buffer.AppendFormatted("         fGlobalSteeringModified = false;\n");
       buffer.AppendFormatted("         fGlobalSteering = new GlobalSteering();\n");
    }
+   for (i=0;i<numOfEvent;i++) {
+      buffer.AppendFormatted("         f%sEventModified = false;\n",eventName[i].Data());
+      buffer.AppendFormatted("         f%sEvent = new %sEvent();\n",eventName[i].Data(),eventName[i].Data());
+   }
+   buffer.AppendFormatted("         fMidasModified = false;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");

@@ -658,12 +658,12 @@
 			</xs:element>
 			<xs:element name="EventTriggerMask" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask.</xs:documentation>
+					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask. This value has no effect in offline mode.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="EventSamplingRate" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer.</xs:documentation>
+					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer. This value has no effect in offline mode.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Banks" type="BanksDesc">
