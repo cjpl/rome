@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.33  2004/08/02 15:31:52  schneebeli_m
+  Bugs removed
+
   Revision 1.32  2004/08/02 15:20:39  schneebeli_m
   Bugs removed
 
@@ -3980,6 +3983,7 @@ void ROMEBuilder::WriteMakefile() {
    // objects
    buffer.AppendFormated("objects :=");
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUserCode[i]) continue;
       buffer.AppendFormated(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
