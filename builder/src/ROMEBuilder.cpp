@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.109  2005/03/11 17:56:12  sawada
+  Added XXXGlobalSteering.h to dependence of XXXAnalyzer.obj.
+
   Revision 1.108  2005/03/08 15:23:27  sawada
   Added UserClassHeaders and task dependences in Makefile for UNIX.
 
@@ -6414,10 +6417,10 @@ void ROMEBuilder::startBuilder(char* xmlFile)
 
    ROMEString buffer;
 // Dictionary
-   if (makeOutput) cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
-   WriteDictionaryBat(buffer);
    chdir(outDir.Data());
 #if defined ( R__VISUAL_CPLUSPLUS )
+   if (makeOutput) cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
+   WriteDictionaryBat(buffer);
    system(buffer);
 #endif
 
@@ -6747,6 +6750,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(addprefix include/tasks/,$(addsuffix .h,$(TaskBases)))");
    buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(Folders)))");
    buffer.AppendFormatted(" $(addprefix include/framework/,$(addsuffix .h,$(FolderBases)))");
+   if (numOfSteering[numOfTaskHierarchy]>0) {
+      buffer.AppendFormatted(" include/framework/%sGlobalSteering.h",shortCut.Data());
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp include/framework/%sEventLoop.h include/framework/%sAnalyzer.h include/framework/%sMidas.h include/framework/%sRoot.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
