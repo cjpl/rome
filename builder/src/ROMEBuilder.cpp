@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.104  2005/02/07 18:47:35  schneebeli_m
+  GSP sdt::string
+
   Revision 1.103  2005/02/07 18:12:53  schneebeli_m
   suppress fortran analyzer
 
@@ -3749,6 +3752,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("%sConfig::%sConfig() {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   fConfigData = new ConfigData*[1];\n");
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = 0;\n");
    buffer.AppendFormatted("}\n\n");
 
    // Read Configuration File
