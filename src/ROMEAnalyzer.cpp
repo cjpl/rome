@@ -52,41 +52,10 @@ ROMEAnalyzer::ROMEAnalyzer()
    fTerminate = false;
 
 }
-//#include<ROMESQL.h>
-//#include"C:\Data\analysis\MEG\ROME .NET\MEGFrameWork\MEGEventLoop.h"
 
 bool ROMEAnalyzer::Start(int argc, char **argv) 
 {
 // Starts the Data Analysis Tool
-
-/*   this->SetDataBaseDir("C:/Data/analysis/MEG/DataBase/");
-   this->SetInputDir("C:/Data/analysis/MEG/Data/");
-   ((MEGEventLoop*)fMainTask)->ReadXMLRunTable();
-   ((MEGEventLoop*)fMainTask)->InitXMLDataBase();
-   ROMESQL *fSQL = new ROMESQL();
-   fSQL->Connect("pc4466.psi.ch","rome","rome","MEGDataBase");
-//   fSQL->DeleteDataBase("megDataBase");
-//   fSQL->CreateDataBase("MEGDataBase");
-//   fSQL->CreateTable("runTable","runNumber INT,CMCalib INT,CMPMTInfo INT");
-//   fSQL->DeleteTable("CMCalib");
-//   fSQL->CreateTable("CMCalib","id INT,arrayIndex INT,ADCPedestal FLOAT,ADCGain FLOAT,TDCOffset FLOAT,TDCXScale FLOAT");
-//   fSQL->DeleteTable("CMPMTInfo");
-//   fSQL->CreateTable("CMPMTInfo","id INT,arrayIndex INT,PMID INT,ADCID INT,TDCID INT,Address TEXT,X FLOAT,Y FLOAT,Z FLOAT,DeadFlag INT");
-//   fSQL->InsertRow("runTable","runNumber,CMCalib,CMPMTInfo","6625,1,1");
-//   fSQL->InsertRow("runTable","runNumber,CMCalib,CMPMTInfo","96625,-1,-1");
-//   fSQL->DeleteRow("CMCalib","ADCPedestal=0");
-
-//   fSQL->InsertRow("CMCalib","id,arrayIndex,ADCPedestal,ADCGain,TDCOffset,TDCXScale","1,0,0,0,0,0");
-/*
-   char str[200];
-   for (int i=0;i<=256;i++) {
-      MEGCMPMTInfo* info = ((MEGAnalyzer*)this)->GetCMPMTInfoAt(i);
-      sprintf(str,"1,%d,%d,%d,%d,'%s',%f,%f,%f,%d",i,info->GetPMID(),info->GetADCID(),info->GetTDCID(),info->GetAddress().Data(),info->GetX(),info->GetY(),info->GetZ(),info->GetDeadFlag());
-      fSQL->InsertRow("CMPMTInfo","id,arrayIndex,PMID,ADCID,TDCID,Address,X,Y,Z,DeadFlag",str);
-   }
-*//*
-   return false;
-*/
 
    consoleStartScreen();
 
@@ -242,54 +211,6 @@ void ROMEAnalyzer::CreateHistoFolders()
       }
    }
 }
-
-/*
-   const int workDirLen = 1000;
-   char workDir[workDirLen];
-   getcwd(workDir,workDirLen);
-   sprintf(workDir,"%s/",workDir);
-
-void ROMEAnalyzer::WriteROMEConfigXML(char *configFile) {
-}
-bool ROMEAnalyzer::ReadROMEConfigXML(char *configFile) {
-// Read the romeConfig.xml file
-
-   int nres = 1;
-   int type;
-   const xmlChar *name,*value;
-
-   xmlTextReaderPtr reader;
-   reader = xmlReaderForFile(configFile, NULL, 0);
-   if (reader != NULL) {
-      while (xmlTextReaderRead(reader)) {
-         type = xmlTextReaderNodeType(reader);
-         name = xmlTextReaderConstName(reader);
-         if (type == 1 && !strcmp((const char*)name,"Configuration")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
-               if (type == 1) {
-                  nres++;
-                  xmlTextReaderRead(reader);
-                  type = xmlTextReaderNodeType(reader);
-                  value = xmlTextReaderConstValue(reader);
-                  if (value!=NULL && type==3) {
-                     nres++;
-                  }
-               }
-               if (type == 15 && !strcmp((const char*)name,"Configuration")) break;
-            }
-            break;
-         }
-      }
-      xmlFreeTextReader(reader);
-   } else {
-      cout << "Unable to open " << configFile << endl;
-      return false;
-   }
-   return true;
-}
-*/
 
 void *server_thread(void *arg)
 //  Server histograms to remove clients

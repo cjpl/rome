@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.23  2004/07/15 10:21:19  schneebeli
+  running on linux
+
   Revision 1.22  2004/07/15 09:13:36  schneebeli
   running on linux
 
@@ -2112,7 +2115,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"#include <TROOT.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TObjArray.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
+   sprintf(buffer+strlen(buffer),"#if defined HAVE_SQL\n");
    sprintf(buffer+strlen(buffer),"#include <ROMESQL.h>\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEEventLoop.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROME.h>\n");
@@ -3025,6 +3030,7 @@ bool ROMEBuilder::WriteIOCpp() {
    // SQL Init
    sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
+   sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
       sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
@@ -3032,41 +3038,50 @@ bool ROMEBuilder::WriteIOCpp() {
    else {
       sprintf(buffer+strlen(buffer),"   return true;\n");
    }
+   sprintf(buffer+strlen(buffer),"#else\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"No sql database access -> regenerate program !\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   return false;\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // SQL Read
    char buf[200];
    sprintf(buffer+strlen(buffer),"bool %sIO::ReadSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
+   sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
       sprintf(buffer+strlen(buffer),"   int i;\n");
       for (i=0;i<numOfFolder;i++) {
-      if (dataBase[i]) {
-         if (strcmp(folderArray[i],"1")) {
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
-               sprintf(buffer+strlen(buffer),"   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
-               sprintf(buffer+strlen(buffer),"      fSQL->NextRow();\n");
-               sprintf(buffer+strlen(buffer),"      res = fSQL->GetField(0);\n");
-               setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-               sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
-               sprintf(buffer+strlen(buffer),"   }\n");
+         if (dataBase[i]) {
+            if (strcmp(folderArray[i],"1")) {
+               for (j=0;j<numOfValue[i];j++) {
+                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+                  sprintf(buffer+strlen(buffer),"   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
+                  sprintf(buffer+strlen(buffer),"      fSQL->NextRow();\n");
+                  sprintf(buffer+strlen(buffer),"      res = fSQL->GetField(0);\n");
+                  setValue(buf,valueName[i][j],"res",valueType[i][j],1);
+                  sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+                  sprintf(buffer+strlen(buffer),"   }\n");
+               }
             }
-         }
-         else {
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
-               sprintf(buffer+strlen(buffer),"   fSQL->NextRow();\n");
-               sprintf(buffer+strlen(buffer),"   res = fSQL->GetField(0);\n");
-               setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-               sprintf(buffer+strlen(buffer),"   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+            else {
+               for (j=0;j<numOfValue[i];j++) {
+                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",dataBasePath[i][j]);
+                  sprintf(buffer+strlen(buffer),"   fSQL->NextRow();\n");
+                  sprintf(buffer+strlen(buffer),"   res = fSQL->GetField(0);\n");
+                  setValue(buf,valueName[i][j],"res",valueType[i][j],1);
+                  sprintf(buffer+strlen(buffer),"   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+               }
             }
          }
       }
    }
-   }
    sprintf(buffer+strlen(buffer),"   return true;\n");
+   sprintf(buffer+strlen(buffer),"#else\n");
+   sprintf(buffer+strlen(buffer),"   cout << \"No sql database access -> regenerate program !\" << endl;\n");
+   sprintf(buffer+strlen(buffer),"   return false;\n");
+   sprintf(buffer+strlen(buffer),"#endif\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // ReadXMLDataBase
