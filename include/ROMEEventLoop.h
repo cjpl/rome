@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/10/15 12:30:49  schneebeli_m
+  online eventloop logic
+
   Revision 1.8  2004/10/01 14:33:29  schneebeli_m
   Fixed some tree file problems
 
@@ -27,10 +30,11 @@ protected:
    };
    // Event Status
    enum {
-      kAnalyze   = 0,
-      kContinue  = 1,
-      kEndOfRun  = 2,
-      kTerminate = 3
+      kAnalyze     = 0,
+      kContinue    = 1,
+      kBeginOfRun  = 2,
+      kEndOfRun    = 3,
+      kTerminate   = 4
    };
 
    // Midas
@@ -93,15 +97,17 @@ protected:
    void       SetStopped()  { fRunStatus = kStopped; };
 
    // Event Status
-   Bool_t     isAnalyze()   { return fEventStatus==kAnalyze; };
-   Bool_t     isContinue()  { return fEventStatus==kContinue; };
-   Bool_t     isEndOfRun()  { return fEventStatus==kEndOfRun; };
-   Bool_t     isTerminate() { return fEventStatus==kTerminate; };
+   Bool_t     isAnalyze()    { return fEventStatus==kAnalyze;    };
+   Bool_t     isContinue()   { return fEventStatus==kContinue;   };
+   Bool_t     isBeginOfRun() { return fEventStatus==kBeginOfRun; };
+   Bool_t     isEndOfRun()   { return fEventStatus==kEndOfRun;   };
+   Bool_t     isTerminate()  { return fEventStatus==kTerminate;  };
 
-   void       SetAnalyze()   { fEventStatus = kAnalyze; };
-   void       SetContinue()  { fEventStatus = kContinue; };
-   void       SetEndOfRun()  { fEventStatus = kEndOfRun; };
-   void       SetTerminate() { fEventStatus = kTerminate; };
+   void       SetAnalyze()    { fEventStatus = kAnalyze;    };
+   void       SetContinue()   { fEventStatus = kContinue;   };
+   void       SetBeginOfRun() { fEventStatus = kBeginOfRun; };
+   void       SetEndOfRun()   { fEventStatus = kEndOfRun;   };
+   void       SetTerminate()  { fEventStatus = kTerminate;  };
 
    // event methods
    bool Initialize();

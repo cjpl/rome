@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.22  2004/10/15 12:30:49  schneebeli_m
+//  online eventloop logic
+//
 //  Revision 1.21  2004/10/14 09:53:41  schneebeli_m
 //  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 //
@@ -72,6 +75,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       this->InitTrees();
       return;
    }
+   if (gROME->isOnline()) {
+      this->SetStopped();
+   }
+   else {
+      this->SetRunning();
+   }
 
 // Event loop
    if (fgBeginTask) {
@@ -129,8 +138,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          this->UpdateTaskSwitches();
          ROMEAnalyzer::fTaskSwitchesChanged = false;
       }
-      ExecuteTasks("b");
-      CleanTasks();
+      if (this->isRunning()) {
+         ExecuteTasks("b");
+         CleanTasks();
+      }
 	  
       // Loop over Events
       //------------------
@@ -160,6 +171,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             return;
          }
          if (this->isEndOfRun()) {
+            break;
+         }
+         if (this->isBeginOfRun()) {
+            this->SetAnalyze();
             break;
          }
          if (this->isTerminate()) {
@@ -401,8 +416,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    fProgressLastEvent = 0;
    fProgressWrite = false;
    // Status
-   fRunStatus = kRunning;
-   fEventStatus = kAnalyze;
+   this->SetRunning();
+   this->SetAnalyze();
 
    if (gROME->isOffline()) {
       if (gROME->GetNumberOfRunNumbers()<=runNumberIndex) {
@@ -507,7 +522,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
    
-   fEventStatus = kAnalyze;
+   this->SetAnalyze();
    this->ResetFolders();
    int timeStamp = 0;
 
@@ -522,29 +537,30 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       if (cm_query_transition(&trans, &runNumber, NULL)) {
          if (trans == TR_START) {
             gROME->SetCurrentRunNumber(runNumber);
-            fEventStatus = kAnalyze;
-            fRunStatus = kRunning;
+            this->SetBeginOfRun();
+            this->SetRunning();
+            return true;
          }
          if (trans == TR_STOP) {
-            fEventStatus = kEndOfRun;
-            fRunStatus = kStopped;
+            this->SetEndOfRun();
+            this->SetStopped();
             return true;
          }
       }
       int status = cm_yield(100);
       if (status == RPC_SHUTDOWN || status == SS_ABORT) {
-         fEventStatus = kTerminate;
+         this->SetTerminate();
          return false;
       }
-      if (fRunStatus == kStopped) {
-         fEventStatus = kContinue;
+      if (this->isStopped()) {
+         this->SetContinue();
          return true;
       }
       int size = gROME->GetMidasEventSize();
       void* mEvent = gROME->GetMidasEvent();
       status = bm_receive_event(fMidasBuffer, mEvent, &size, ASYNC);
       if (status != BM_SUCCESS) {
-         fEventStatus = kContinue;
+         this->SetContinue();
          return true;
       }
 
@@ -587,30 +603,30 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       // check input
       if (readError) {
          if (n > 0) cout << "Unexpected end of file\n";
-         fEventStatus = kEndOfRun;
+         this->SetEndOfRun();
          return true;
       }
       if (pevent->event_id < 0) {
-         fEventStatus = kContinue;
+         this->SetContinue();
          return true;
       }
       if (pevent->event_id == EVENTID_EOR) {
-         fEventStatus = kEndOfRun;
+         this->SetEndOfRun();
          return true;
       }
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) { 
-         fEventStatus = kContinue;
+         this->SetContinue();
          return true;
       }
 
       // check event numbers
       int status = gROME->CheckEventNumber(event);
       if (status==0) {
-         fEventStatus = kContinue;
+         this->SetContinue();
          return true;
       }
       if (status==-1) {
-         fEventStatus = kEndOfRun;
+         this->SetEndOfRun();
          return true;
       }
 
@@ -647,17 +663,17 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          }  
       }
       if (!found) {
-         fEventStatus = kEndOfRun;
+         this->SetEndOfRun();
          return true;
       }
       // check event numbers
       int status = gROME->CheckEventNumber(event);
       if (status==0) {
-         fEventStatus = kContinue;
+         this->SetContinue();
          return true;
       }
       if (status==-1) {
-         fEventStatus = kEndOfRun;
+         this->SetEndOfRun();
          return true;
       }
    
@@ -745,7 +761,7 @@ bool ROMEEventLoop::UserInput()
             return false;
          }
          if (ch == 'e') {
-            fEventStatus = kTerminate;
+            this->SetTerminate();
             wait = false;
          }
          if (ch == 's') {
