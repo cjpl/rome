@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.116  2005/03/21 17:29:46  schneebeli_m
+  minor changes
+
   Revision 1.115  2005/03/21 14:08:39  schneebeli_m
   midas banks in config
 
@@ -2971,7 +2974,15 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Midas Bank Initialisation
    buffer.AppendFormatted("// Midas Bank Initialisation\n");
    buffer.AppendFormatted("void %sAnalyzer::InitMidasBanks() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
+   bool done = false;
+   for (i=0;i<numOfEvent && !done;i++) {
+      for (j=0;j<numOfBank[i] && !done;j++) {
+         if (bankArrayDigit[i][j]>0) {
+            buffer.AppendFormatted("   int i;\n");
+            done = true;
+         }
+      }
+   }
    for (i=0;i<numOfEvent;i++) {
       for (j=0;j<numOfBank[i];j++) {
          // Bank Array
@@ -5396,6 +5407,22 @@ bool ROMEBuilder::WriteMidasCpp() {
    buffer.AppendFormatted("   ROMEEventLoop::fTaskSwitchesChanged = true;\n");
    buffer.AppendFormatted("}\n\n");
 
+   // Fill Bank Header to Folder
+   buffer.AppendFormatted("// Fill Bank Header to Folder\n");
+   buffer.AppendFormatted("bool %sMidas::InitHeader() {\n",shortCut.Data());
+   if (bankHasHeader) {
+      if (bankHeaderEventID!="")
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->event_id);\n",bankHeaderFolder.Data(),bankHeaderEventID.Data());
+      if (bankHeaderTriggerMask!="")
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->trigger_mask);\n",bankHeaderFolder.Data(),bankHeaderTriggerMask.Data());
+      if (bankHeaderSerialNumber!="")
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->serial_number);\n",bankHeaderFolder.Data(),bankHeaderSerialNumber.Data());
+      if (bankHeaderTimeStamp!="")
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->time_stamp);\n",bankHeaderFolder.Data(),bankHeaderTimeStamp.Data());
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
    // Initialize ODB
    buffer.AppendFormatted("// InitODB\n");
    buffer.AppendFormatted("bool %sMidas::InitODB() {\n",shortCut.Data());
@@ -5495,6 +5522,7 @@ bool ROMEBuilder::WriteMidasH() {
    // methods
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool InitODB();\n");
+   buffer.AppendFormatted("   bool InitHeader();\n");
 
    buffer.AppendFormatted("\n");
    // Footer
@@ -6269,18 +6297,6 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
             buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->SetModified(false);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
-         }
-      }
-      if (bankHasHeader) {
-         if (folderName[i]==bankHeaderFolder) {
-            if (bankHeaderEventID!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->event_id);\n",folderName[i].Data(),bankHeaderEventID.Data());
-            if (bankHeaderTriggerMask!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->trigger_mask);\n",folderName[i].Data(),bankHeaderTriggerMask.Data());
-            if (bankHeaderSerialNumber!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->serial_number);\n",folderName[i].Data(),bankHeaderSerialNumber.Data());
-            if (bankHeaderTimeStamp!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)gAnalyzer->GetRawDataEvent())->time_stamp);\n",folderName[i].Data(),bankHeaderTimeStamp.Data());
          }
       }
    }

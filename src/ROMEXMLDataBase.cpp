@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.13  2005/03/21 17:29:47  schneebeli_m
+//  minor changes
+//
 //  Revision 1.12  2005/03/17 15:44:52  schneebeli_m
 //  GetAbsolutePath error removed
 //
@@ -69,9 +72,7 @@ bool ROMEXMLDataBase::Init(const char* path,const char* connection) {
 
 bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
 {
-//   int istart,iend;
    int i,j,k,ii,index;
-//   int iValue=0,jValue=0;
    ROMEString value;
    ROMEString val;
    ROMEString id;
@@ -80,7 +81,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    ROMEPath *path = new ROMEPath();
    bool handleArray = false;
    ROMEString basePath;
-   ROMEXML *xml;
+   ROMEXML *xml=NULL;
    ROMEStr2DArray pointerArray;
    ROMEStr2DArray fieldArray;
    char *cstop;
@@ -389,9 +390,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
 
 bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
 {
-//   int istep;
    int i,j,ii,istart,iend;
-//   int iValue=0,jValue=0;
    ROMEString value;
    ROMEString constraint;
    ROMEString id;
@@ -402,7 +401,6 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    ROMEString xmlFieldPath;
    ROMEString xmlBasePath;
    ROMEString xmlTablePath;
-//   ROMEStrArray *array;
    ROMEPath *path = new ROMEPath();
 
    // decode path

@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.57  2005/03/21 17:29:47  schneebeli_m
+//  minor changes
+//
 //  Revision 1.56  2005/03/17 15:44:51  schneebeli_m
 //  GetAbsolutePath error removed
 //
@@ -487,8 +490,8 @@ int ResponseFunction(TSocket *fSocket) {
 
       TCollection *folders = folder->GetListOfFolders();
       TIterator *iterFolders = folders->MakeIterator();
+      ROMEString str;
       while (obj = iterFolders->Next()) {
-         ROMEString str;
          str.SetFormatted("%s",obj->GetName());
          names->Add(new TObjString(str.Data()));
       }

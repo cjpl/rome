@@ -7,7 +7,11 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.49  2005/03/21 17:29:47  schneebeli_m
+//  minor changes
+//
 //  Revision 1.48  2005/02/21 21:29:07  sawada
+//
 //  Changed OS specifying macros
 //  Support for DEC,Ultrix,FreeBSD,Solaris
 //
@@ -344,13 +348,24 @@ bool ROMEEventLoop::Initialize() {
    this->InitTaskSwitches();
    this->InitSingleFolders();
 
+   if (!fActiveDAQ->Initialize())
+      return false;
+
+   if (gROME->isOffline()&&gROME->GetNumberOfRunNumbers()<=0) {
+      gROME->Println("No run numbers specified.\n");
+      return false;
+   }
+
    // Accumulative output tree file initialisation
    fTreeFiles = new TFile*[gROME->GetTreeObjectEntries()];
    ROMEString filename;
    ROMEString runNumberString;
    ROMETree *romeTree;
    TTree *tree;
-   gROME->GetRunNumberStringAt(runNumberString,0);
+   if (gROME->isOffline())
+      gROME->GetRunNumberStringAt(runNumberString,0);
+   else
+      gROME->GetCurrentRunNumberString(runNumberString);
    for (j=0;j<gROME->GetTreeObjectEntries();j++) {
       fTreeFiles[j] = NULL;
       romeTree = gROME->GetTreeObjectAt(j);
@@ -361,16 +376,6 @@ bool ROMEEventLoop::Initialize() {
          tree->SetDirectory(fTreeFiles[j]);
       }
    }
-
-
-   if (!fActiveDAQ->Initialize())
-      return false;
-
-   if (gROME->isOffline()&&gROME->GetNumberOfRunNumbers()<=0) {
-      gROME->Println("No run numbers specified.\n");
-      return false;
-   }
-
 
    return true;
 }
@@ -468,6 +473,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
 
    if (!fActiveDAQ->ReadEvent(event))
       return false;
+
 
    // Update Statistics
    stat->processedEvents++;

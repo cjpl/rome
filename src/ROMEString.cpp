@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.9  2005/03/21 17:29:47  schneebeli_m
+//  minor changes
+//
 //  Revision 1.8  2005/03/13 08:43:14  sawada
 //  removed or comment out unused variables.
 //  made virtual destructor of ROMEConfig and ROMEDataBase.
@@ -71,7 +74,7 @@ bool ROMEString::FormatString(ROMEString* string,char* format,va_list parameters
    char* pp;
    bool    asterisk;
    int     additionalDigits;
-   int     numberOfDigits;
+   int     numberOfDigits=0;
    int     precision;
    char*   stringValue;
    int     integerValue;

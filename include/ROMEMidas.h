@@ -2,7 +2,11 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/03/21 17:29:47  schneebeli_m
+  minor changes
+
   Revision 1.3  2005/02/21 21:29:07  sawada
+
   Changed OS specifying macros
   Support for DEC,Ultrix,FreeBSD,Solaris
 
@@ -26,6 +30,7 @@ protected:
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
    int        fMidasFileHandle;                 //! Handle to Midas Inputfile
+   bool       fStopRequest;                     //! True if a Stop transition message was received
 
    int        fTimeStamp;                       //! Current time stamp
 
@@ -44,6 +49,7 @@ public:
    bool Termination();
 
    virtual bool InitODB() = 0;
+   virtual bool InitHeader() = 0;
 
    //byte swapping
 #ifndef R__BYTESWAP

@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.7  2005/03/21 17:29:47  schneebeli_m
+//  minor changes
+//
 //  Revision 1.6  2005/03/18 16:12:57  schneebeli_m
 //  Event request & Histo in romeConfig
 //
@@ -50,6 +53,7 @@ void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 #endif
 
 ROMEMidas::ROMEMidas() {
+   fStopRequest = false;
 }
 
 bool ROMEMidas::Initialize() {
@@ -209,17 +213,23 @@ bool ROMEMidas::ReadEvent(int event) {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       int runNumber,trans;
-      if (cm_query_transition(&trans, &runNumber, NULL)) {
+      if (cm_query_transition(&trans, &runNumber, NULL) || fStopRequest) {
          if (trans == TR_START) {
             gROME->SetCurrentRunNumber(runNumber);
             this->SetBeginOfRun();
             this->SetRunning();
             return true;
          }
-         if (trans == TR_STOP) {
-            this->SetEndOfRun();
-            this->SetStopped();
-            return true;
+         if (trans == TR_STOP || fStopRequest) {
+            fStopRequest = true;
+            int numberOfBytes;
+            bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+            if (numberOfBytes <= 0) {
+               this->SetEndOfRun();
+               this->SetStopped();
+               fStopRequest = false;
+               return true;
+            }
          }
       }
       int status = cm_yield(100);
@@ -312,6 +322,7 @@ bool ROMEMidas::ReadEvent(int event) {
 
       gROME->InitMidasBanks();
    }
+   this->InitHeader();
    return true;
 }
 bool ROMEMidas::Disconnect() {
