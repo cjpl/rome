@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.10  2004/10/21 13:03:51  schneebeli_m
+#  *** empty log message ***
+#
 #  Revision 1.9  2004/10/20 00:18:32  pierre
 #  correct Midas support and romebuilder image name
 #
@@ -16,7 +19,7 @@ INCLUDE :=-I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -I$(ROOTSYS)/inclu
 rootlib := $(shell root-config --libs)
 rootlib2 := -L$(ROOTSYS)/lib/ -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint \
 	    -lPostscript -lMatrix -lPhysics -lpthread -lm -ldl -rdynamic
-LIBRARY := $(rootlib2) -lxml2 -lz -lpthread
+LIBRARY := $(rootlib2) -lxml2 -lz -lpthread -lg2c
 
 all: prebuilder romebuilder.exe
 

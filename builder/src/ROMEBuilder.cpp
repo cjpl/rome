@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.63  2004/10/21 13:03:51  schneebeli_m
+  *** empty log message ***
+
   Revision 1.62  2004/10/20 09:22:16  schneebeli_m
   bugs removed
 
@@ -194,12 +197,6 @@
 #include "ROMEBuilder.h"
 #include <Riostream.h>
 
-//MEGFrameWork.xml -o C:/Data/analysis/MEG/ROME/MEGFrameWork/ -v -nl
-//MEGDriftChamber.xml -o C:/Data/analysis/MEG/ROME/MEGDriftChamber/ -v -nl
-//MEGTest.xml -o C:/Data/analysis/MEG/ROME/MEGTest/ -v -nl
-
-
-
 bool ROMEBuilder::ReadXMLFolder() {
    // read the folder definitions out of the xml file
    ROMEString tmp;
@@ -343,7 +340,7 @@ bool ROMEBuilder::ReadXMLFolder() {
          valueName[numOfFolder][numOfValue[numOfFolder]] = "";
          valueType[numOfFolder][numOfValue[numOfFolder]] = "";
          valueComment[numOfFolder][numOfValue[numOfFolder]] = "";
-         valueArray[numOfFolder][numOfValue[numOfFolder]] = "0";
+         valueArray[numOfFolder][numOfValue[numOfFolder]] = "1";
          valueDataBasePath[numOfFolder][numOfValue[numOfFolder]] = "";
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -616,14 +613,14 @@ bool ROMEBuilder::WriteFolderH() {
       int nameLenT = 0;
       for (i=0;i<numOfValue[iFold];i++) {
          if (typeLen<valueType[iFold][i].Length()) typeLen = valueType[iFold][i].Length();
-         if (valueArray[iFold][i]=="0")
+         if (valueArray[iFold][i]=="1")
             nameLenT = (int)valueName[iFold][i].Length();
          else
             nameLenT = (int)(valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
          if (nameLen<nameLenT) nameLen = nameLenT;
       }
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]!="0") {
+         if (valueArray[iFold][i]!="1") {
             format.SetFormatted("   %%-%ds %%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i].Data(),nameLen-valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
             buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
@@ -646,7 +643,7 @@ bool ROMEBuilder::WriteFolderH() {
       else
          buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0") {
+         if (valueArray[iFold][i]=="1") {
             if (valueType[iFold][i]=="TRef") {
                buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
             }
@@ -659,7 +656,7 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted(" )\n");
       buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0")
+         if (valueArray[iFold][i]=="1")
             buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          else {
             buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
@@ -672,7 +669,7 @@ bool ROMEBuilder::WriteFolderH() {
       // Getters
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-valueName[iFold][i].Length();
-         if (valueArray[iFold][i]!="0") {
+         if (valueArray[iFold][i]!="1") {
             if (valueType[iFold][i]=="TRef") {
                format.SetFormatted("   %%-%ds Get%%sAt(int index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted((char*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
@@ -702,7 +699,7 @@ bool ROMEBuilder::WriteFolderH() {
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-valueName[iFold][i].Length();
-         if (valueArray[iFold][i]=="0") {
+         if (valueArray[iFold][i]=="1") {
             if (valueType[iFold][i]=="TRef") {
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
@@ -732,7 +729,7 @@ bool ROMEBuilder::WriteFolderH() {
       // Set All
       buffer.AppendFormatted("   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0") {
+         if (valueArray[iFold][i]=="1") {
             if (valueType[iFold][i]=="TRef") {
                buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
             }
@@ -745,7 +742,7 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted(" )\n");
       buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0") {
+         if (valueArray[iFold][i]=="1") {
             buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          }
       }
@@ -755,7 +752,7 @@ bool ROMEBuilder::WriteFolderH() {
       // Reset
       buffer.AppendFormatted("   void Reset() {");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueArray[iFold][i]=="0") {
+         if (valueArray[iFold][i]=="1") {
             buffer.AppendFormatted("%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          else {
@@ -782,7 +779,7 @@ bool ROMEBuilder::WriteFolderH() {
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
       if (nb==(int)buffer.Length()) {
-         for (i=0;i<nb;i++) {
+         for (i=0;i<nb&&i<(int)buffer.Length();i++) {
             if (buffer[i] != fileBuffer[i]) {
                identical = false;
                break;
@@ -829,13 +826,13 @@ bool ROMEBuilder::WriteFolderH() {
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
-            if (valueArray[iFold][i]=="0")
+            if (valueArray[iFold][i]=="1")
                buffer.AppendFormatted("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          buffer.Resize(buffer.Length()-1);
          buffer.AppendFormatted(" ) : %s%s_Base( ",shortCut.Data(),folderName[iFold].Data());
          for (i=0;i<numOfValue[iFold];i++) {
-            if (valueArray[iFold][i]=="0")
+            if (valueArray[iFold][i]=="1")
                buffer.AppendFormatted("%s,",valueName[iFold][i].Data());
          }
          buffer.Resize(buffer.Length()-1);
@@ -849,7 +846,7 @@ bool ROMEBuilder::WriteFolderH() {
          nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
          bool identical = true;
          if (nb==(int)buffer.Length()) {
-            for (i=0;i<nb;i++) {
+            for (i=0;i<nb&&i<(int)buffer.Length();i++) {
                if (buffer[i] != fileBuffer[i]) {
                   identical = false;
                   break;
@@ -1139,58 +1136,60 @@ bool ROMEBuilder::WriteTaskCpp() {
       buffer.AppendFormatted("// \n");
       buffer.AppendFormatted("// \n");
       buffer.AppendFormatted("// This header has been generated by the ROMEBuilder.\n");
-      buffer.AppendFormatted("// The event methods have been written by %s.\n",taskAuthor[iTask].Data());
-      fileHandle = open(cppFile.Data(),O_RDONLY);
-      int n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-      fileBuffer[n] = 0;
-      bool first = true;
-      for (j=0;j<numOfFolder;j++) {
-         str = "Get";
-         str.Append(folderName[j]);
-         if (strstr(fileBuffer,str.Data())) {
+      if (!taskFortran[iTask]) {
+         buffer.AppendFormatted("// The event methods have been written by %s.\n",taskAuthor[iTask].Data());
+         fileHandle = open(cppFile.Data(),O_RDONLY);
+         int n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+         fileBuffer[n] = 0;
+         bool first = true;
+         for (j=0;j<numOfFolder;j++) {
+            str = "Get";
+            str.Append(folderName[j]);
+            if (strstr(fileBuffer,str.Data())) {
+               if (first) {
+                  buffer.AppendFormatted("// \n");
+                  buffer.AppendFormatted("// Please note: The following information is only correct after executing the\n");
+                  buffer.AppendFormatted("//              ROMEBuilder.\n");
+                  buffer.AppendFormatted("// \n");
+                  buffer.AppendFormatted("// This task accesses the following folders :\n");
+                  first = false;
+               }
+               buffer.AppendFormatted("//    %s\n",folderName[j].Data());
+            }
+         }
+         close(fileHandle);
+         buffer.AppendFormatted("// \n");
+         if (numOfHistos[iTask]>0) {
             if (first) {
-               buffer.AppendFormatted("// \n");
                buffer.AppendFormatted("// Please note: The following information is only correct after executing the\n");
                buffer.AppendFormatted("//              ROMEBuilder.\n");
                buffer.AppendFormatted("// \n");
-               buffer.AppendFormatted("// This task accesses the following folders :\n");
                first = false;
             }
-            buffer.AppendFormatted("//    %s\n",folderName[j].Data());
+            buffer.AppendFormatted("// This task contains the following histgrams :\n");
+            for (i=0;i<numOfHistos[iTask];i++) {
+               buffer.AppendFormatted("//    %s\n",histoName[iTask][i].Data());
+            }
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// The histograms are created and saved automaticaly by the task.\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// The following method can be used to fill a histogram :\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// Fill<Histogram Name>(double value,double weight)\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// For histogram arrays use :\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// Fill<Histogram Name>At(int index,double value,double weight)\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// If more histogram functions are needed use the following function the get\n");
+            buffer.AppendFormatted("// a handle to the histogram and use the root functions.\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// Get<Histogram Name>()\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// For histogram arrays use :\n");
+            buffer.AppendFormatted("//\n");
+            buffer.AppendFormatted("// Get<Histogram Name>At(int index)\n");
          }
-      }
-      close(fileHandle);
-      buffer.AppendFormatted("// \n");
-      if (numOfHistos[iTask]>0) {
-         if (first) {
-            buffer.AppendFormatted("// Please note: The following information is only correct after executing the\n");
-            buffer.AppendFormatted("//              ROMEBuilder.\n");
-            buffer.AppendFormatted("// \n");
-            first = false;
-         }
-         buffer.AppendFormatted("// This task contains the following histgrams :\n");
-         for (i=0;i<numOfHistos[iTask];i++) {
-            buffer.AppendFormatted("//    %s\n",histoName[iTask][i].Data());
-         }
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// The histograms are created and saved automaticaly by the task.\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// The following method can be used to fill a histogram :\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Fill<Histogram Name>(double value,double weight)\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// For histogram arrays use :\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Fill<Histogram Name>At(int index,double value,double weight)\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// If more histogram functions are needed use the following function the get\n");
-         buffer.AppendFormatted("// a handle to the histogram and use the root functions.\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Get<Histogram Name>()\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// For histogram arrays use :\n");
-         buffer.AppendFormatted("//\n");
-         buffer.AppendFormatted("// Get<Histogram Name>At(int index)\n");
       }
       buffer.AppendFormatted("//                                                                            //\n");
       buffer.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
@@ -1200,6 +1199,98 @@ bool ROMEBuilder::WriteTaskCpp() {
       bool replaceBody = true;
       struct stat buf;
       int nb=0;
+      // fortran task
+      if (taskFortran[iTask]) {
+         ROMEString shortcut(shortCut);
+         shortcut.ToLower();
+         ROMEString taskname(taskName[iTask]);
+         taskname.ToLower();
+         ROMEString ShortCut(shortCut);
+         ShortCut.ToUpper();
+         ROMEString TaskName(taskName[iTask]);
+         TaskName.ToUpper();
+
+         // Header
+         buffer.AppendFormatted("\n\n#include <include/tasks/%sT%s.h>\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("#include <Riostream.h>\n");
+
+         buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
+
+         // User Functions
+#if defined( _MSC_VER )
+         buffer.AppendFormatted("extern \"C\" void %sT%s_INIT();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_INIT();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %sT%s_BEGINOFRUN();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_BEGINOFRUN();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %sT%s_EVENT();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_EVENT();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %sT%s_ENDOFRUN();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_ENDOFRUN();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %sT%s_TERMINATE();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_TERMINATE();\n",ShortCut.Data(),TaskName.Data());
+         buffer.AppendFormatted("}\n\n");
+#endif
+#if defined ( __linux__ )
+         buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %st%s_init_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %st%s_beginofrun_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %st%s_beginofrun_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %st%s_event_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %st%s_event_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %st%s_endofrun_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %st%s_endofrun_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("}\n\n");
+         buffer.AppendFormatted("extern \"C\" void %st%s_terminate_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %st%s_terminate_();\n",shortcut.Data(),taskname.Data());
+         buffer.AppendFormatted("}\n\n");
+#endif
+         bool writeFile = false;
+         if( !stat( cppFile.Data(), &buf )) {
+            fileHandle = open(cppFile.Data(),O_RDONLY);
+            nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+            close(fileHandle);
+            if (buffer.Length()!=nb) {
+               writeFile = true;
+            }
+            else {
+               for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+                  if (buffer[i] != fileBuffer[i]) {
+                     writeFile = true;
+                     break;
+                  }
+               }
+            }
+         }
+         else {
+            writeFile = true;
+         }
+         if (writeFile) {
+            fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+            close(fileHandle);
+            fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+            nb = write(fileHandle,buffer.Data(), buffer.Length());
+            if (makeOutput) cout << "yy      " << cppFile.Data() << endl;
+         }
+         return true;
+      }
+      // c++ task
       if( !stat( cppFile.Data(), &buf )) {
          replaceBody = false;
          fileHandle = open(cppFile.Data(),O_RDONLY);
@@ -1241,40 +1332,11 @@ bool ROMEBuilder::WriteTaskCpp() {
             buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
 
             // User Functions
-            ROMEString shortcut(shortCut);
-            shortcut.ToLower();
-            ROMEString taskname(taskName[iTask]);
-            taskname.ToLower();
-
-            if (taskFortran[iTask]) {
-               buffer.AppendFormatted("extern \"C\" void %st%sinit_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("   %sT%s_Init_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("}\n\n");
-               buffer.AppendFormatted("extern \"C\" void %st%sbeginofrun_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("   %sT%s_BeginOfRun_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("}\n\n");
-               buffer.AppendFormatted("extern \"C\" void %st%sevent_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("   %sT%s_Event_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("}\n\n");
-               buffer.AppendFormatted("extern \"C\" void %st%sendofrun_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("   %sT%s_EndOfRun_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("}\n\n");
-               buffer.AppendFormatted("extern \"C\" void %st%sterminate_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("   %sT%s_Terminate_();\n",shortcut.Data(),taskname.Data());
-               buffer.AppendFormatted("}\n\n");
-            }
-            else {
-               buffer.AppendFormatted("void %sT%s::Init()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-               buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-               buffer.AppendFormatted("void %sT%s::Event()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-               buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-               buffer.AppendFormatted("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-            }
+            buffer.AppendFormatted("void %sT%s::Init()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+            buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+            buffer.AppendFormatted("void %sT%s::Event()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+            buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+            buffer.AppendFormatted("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
 
             nb = write(fileHandle,buffer.Data(), buffer.Length());
          }
@@ -1299,32 +1361,32 @@ bool ROMEBuilder::WriteTaskF() {
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (taskFortran[iTask]) {
          // File name
-         fFile.SetFormatted("%s/src/tasks/%sT%s.f",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+         fFile.SetFormatted("%s/src/tasks/%sTF%s.f",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
          ROMEString shortcut(shortCut);
          shortcut.ToLower();
          ROMEString taskname(taskName[iTask]);
          taskname.ToLower();
 
-         if( !stat( fFile.Data(), &buf )) {
+         if( stat( fFile.Data(), &buf )) {
             fileHandle = open(fFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
             if (makeOutput) cout << "      " << fFile.Data() << endl;
 
             // Methods
             buffer.Resize(0);
-            buffer.AppendFormatted("      subroutine %st%sinit()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormatted("      subroutine %st%s_init()\n\n",shortcut.Data(),taskname.Data());
             buffer.AppendFormatted("      return\n");
             buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%sbeginofrun()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormatted("      subroutine %st%s_beginofrun()\n\n",shortcut.Data(),taskname.Data());
             buffer.AppendFormatted("      return\n");
             buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%sevent()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormatted("      subroutine %st%s_event()\n\n",shortcut.Data(),taskname.Data());
             buffer.AppendFormatted("      return\n");
             buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%sendofrun()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormatted("      subroutine %st%s_endofrun()\n\n",shortcut.Data(),taskname.Data());
             buffer.AppendFormatted("      return\n");
             buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%sterminate()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormatted("      subroutine %st%s_terminate()\n\n",shortcut.Data(),taskname.Data());
             buffer.AppendFormatted("      return\n");
             buffer.AppendFormatted("      end\n\n");
 
@@ -1581,7 +1643,7 @@ bool ROMEBuilder::WriteTaskH() {
       int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
       if (nb==(int)buffer.Length()) {
-         for (i=0;i<nb;i++) {
+         for (i=0;i<nb&&i<(int)buffer.Length();i++) {
             if (buffer[i] != fileBuffer[i]) {
                identical = false;
                break;
@@ -2166,7 +2228,7 @@ bool ROMEBuilder::WriteSteering(int iTask) {
    int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -2665,12 +2727,54 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("   \n");
 
+   bool haveFortranTask = false;
+   for (i=0;i<numOfTask;i++) {
+      if (taskFortran[i]) {
+         haveFortranTask = true;
+         break;
+      }
+   }
+
+   if (haveFortranTask) {
+      buffer.AppendFormatted("// Interface to Fortran Tasks\n");
+      for (i=0;i<numOfFolder;i++) {
+         for (j=0;j<numOfValue[i];j++) {
+            if (!isNumber(valueType[i][j]))
+                continue;
+            if (folderArray[i]=="1") {
+               if (valueArray[i][j]=="1") {
+                  buffer.AppendFormatted("extern \"C\" float Get%s_Get%s_C() {\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("   return (float)gAnalyzer->Get%s()->Get%s();\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("}\n");
+               }
+               else {
+                  buffer.AppendFormatted("extern \"C\" float Get%s_Get%sAt_C(int j) {\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("   return (float)gAnalyzer->Get%s()->Get%sAt(j);\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("}\n");
+               }
+            }
+            else {
+               if (valueArray[i][j]=="1") {
+                  buffer.AppendFormatted("extern \"C\" float Get%sAt_Get%s_C(int i) {\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("   return (float)gAnalyzer->Get%sAt(i)->Get%s();\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("}\n");
+               }
+               else {
+                  buffer.AppendFormatted("extern \"C\" float Get%sAt_Get%sAt_C(int i,int j) {\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("   return (float)gAnalyzer->Get%sAt(j)->Get%sAt(j);\n",folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("}\n");
+               }
+            }
+         }
+      }
+   }
+
    // Close cpp-File
    fileHandle = open(cppFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -2966,7 +3070,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -2980,6 +3084,105 @@ bool ROMEBuilder::WriteAnalyzerH() {
       close(fileHandle);
       fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
       if (makeOutput) cout << "      " << hFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
+      close(fileHandle);
+   }
+
+   return true;
+}
+
+bool ROMEBuilder::WriteAnalyzerF() {
+   int i,j;
+
+   ROMEString fFile;
+   ROMEString buffer;
+   char fileBuffer[bufferLength];
+
+   int nb;
+   int fileHandle;
+
+   // File name
+   fFile.SetFormatted("%s/src/framework/%sFAnalyzer.f",outDir.Data(),shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+
+   // Folder Fields
+   for (i=0;i<numOfFolder;i++) {
+      for (j=0;j<numOfValue[i];j++) {
+         if (!isNumber(valueType[i][j]))
+            continue;
+         if (folderArray[i]=="1") {
+            if (valueArray[i][j]=="1") {
+               buffer.AppendFormatted("      real function Get%s_Get%s\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("         interface to real function\n     &      Get%s_Get%s_C\n     &      [C, ALIAS:'_Get%s_Get%s_C'] ()\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("         end\n");
+               buffer.AppendFormatted("         Get%s_Get%s = Get%s_Get%s_C()\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      end\n");
+               buffer.AppendFormatted("      subroutine Get%s_Set%s(value)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return\n");
+               buffer.AppendFormatted("      end\n");
+            }
+            else {
+               buffer.AppendFormatted("      real function Get%s_Get%sAt(j)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("         interface to real function\n     &      Get%s_Get%sAt_C\n     &      [C, ALIAS:'_Get%s_Get%sAt_C'] (j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("            integer j[value]\n");
+               buffer.AppendFormatted("         end\n");
+               buffer.AppendFormatted("         Get%s_Get%sAt = Get%s_Get%sAt_C(j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      end\n");
+               buffer.AppendFormatted("      subroutine Get%s_Set%sAt(j,value)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return\n");
+               buffer.AppendFormatted("      end\n");
+            }
+         }
+         else {
+            if (valueArray[i][j]=="1") {
+               buffer.AppendFormatted("      real function Get%sAt_Get%s(i)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("         interface to real function\n     &      Get%sAt_Get%s_C\n     &      [C, ALIAS:'_Get%sAt_Get%s_C'] (i)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("            integer i[value]\n");
+               buffer.AppendFormatted("         end\n");
+               buffer.AppendFormatted("         Get%sAt_Get%s = Get%sAt_Get%s_C(i)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      end\n");
+               buffer.AppendFormatted("      subroutine Get%sAt_Set%s(i,value)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return\n");
+               buffer.AppendFormatted("      end\n");
+            }
+            else {
+               buffer.AppendFormatted("      real function Get%sAt_Get%sAt(i,j)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("         interface to real function\n     &      Get%sAt_Get%sAt_C\n     &      [C, ALIAS:'_Get%sAt_Get%sAt_C'] (i,j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("            integer i[value]\n");
+               buffer.AppendFormatted("            integer j[value]\n");
+               buffer.AppendFormatted("         end\n");
+               buffer.AppendFormatted("         Get%sAt_Get%sAt = Get%sAt_Get%sAt_C(i,j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      end\n");
+               buffer.AppendFormatted("      subroutine Get%sAt_Set%sAt(i,j,value)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return\n");
+               buffer.AppendFormatted("      end\n");
+            }
+         }
+      }
+   }
+   buffer.AppendFormatted("\n");
+
+   // Write File
+   fileHandle = open(fFile.Data(),O_RDONLY);
+   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+   bool identical = true;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
+      }
+   }
+   else
+      identical = false;
+   if (!identical) {
+      fileHandle = open(fFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+      fileHandle = open(fFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << fFile.Data() << endl;
       nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
@@ -3708,7 +3911,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   // tasks\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fTasksModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Tasks\");\n");
-   bool romeStringDeclared = false;
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("      if (fConfigData[index]->f%sTaskModified || index==0) {\n",taskName[i].Data());
       buffer.AppendFormatted("         // %s task\n",taskName[i].Data());
@@ -3848,7 +4050,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -4128,7 +4330,7 @@ bool ROMEBuilder::WriteConfigH() {
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -4552,7 +4754,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("   new(gAnalyzer->Get%s()) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
-               if (valueArray[i][j]=="0")
+               if (valueArray[i][j]=="1")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
             }
             buffer.Resize(buffer.Length()-1);
@@ -4571,7 +4773,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
             buffer.AppendFormatted("     new((*gAnalyzer->Get%ss())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
-               if (valueArray[i][j]=="0")
+               if (valueArray[i][j]=="1")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
             }
             buffer.Resize(buffer.Length()-1);
@@ -4675,7 +4877,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -4802,7 +5004,7 @@ bool ROMEBuilder::WriteEventLoopH() {
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -4870,7 +5072,7 @@ bool ROMEBuilder::WriteMain() {
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
    if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb;i++) {
+      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
             break;
@@ -5229,6 +5431,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (makeOutput) cout << "\n\nFramework :" << endl;
    if (!WriteAnalyzerCpp()) return;
    if (!WriteAnalyzerH()) return;
+   if (!WriteAnalyzerF()) return;
    if (!WriteConfigCpp()) return;
    if (!WriteConfigH()) return;
    if (!WriteEventLoopCpp()) return;
@@ -5244,7 +5447,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    system(buffer);
 
 // Linking
-   if (makeOutput && !noLink) cout << "\nLinking " << shortCut << " Project." << endl;
+   if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
    if (!noLink) {
 #if defined ( __linux__ )
@@ -5267,6 +5470,13 @@ void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    int i;
+   bool haveFortranTask = false;
+   for (i=0;i<numOfTask;i++) {
+      if (taskFortran[i]) {
+         haveFortranTask = true;
+         break;
+      }
+   }
 
    ROMEString shortcut(shortCut);
    shortcut.ToLower();
@@ -5296,6 +5506,8 @@ void ROMEBuilder::WriteMakefile() {
    if (this->sql) 
       buffer.AppendFormatted(" /DHAVE_SQL");
    buffer.AppendFormatted("\n");
+   // fortran flags
+   buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortcut.Data());
    // includes
    buffer.AppendFormatted("Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tasks/ /Iinclude/framework/ ");
    if (this->midas) 
@@ -5307,13 +5519,18 @@ void ROMEBuilder::WriteMakefile() {
    // objects
    buffer.AppendFormatted("objects =");
    for (i=0;i<numOfFolder;i++) {
-      if (!folderUserCode[i]) continue;
-      buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
+      if (folderUserCode[i])
+         buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
+      if (taskFortran[i]) {
+         buffer.AppendFormatted(" obj/%sTF%s.obj",shortCut.Data(),taskName[i].Data());
+      }
       buffer.AppendFormatted(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   if (haveFortranTask)
+      buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->sql) 
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDatabase.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDatabase.obj\n\n");
@@ -5324,14 +5541,22 @@ void ROMEBuilder::WriteMakefile() {
 	buffer.AppendFormatted("\tif not exist obj mkdir obj\n");
    // link
    buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+   if (haveFortranTask)
+      buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries) /link /nodefaultlib:\"libcmtd.lib\" /FORCE:MULTIPLE\n\n",shortCut.Data(),mainProgName.Data());
+   else
+      buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
    // compile
    for (i=0;i<numOfFolder;i++) {
-      if (!folderUserCode[i]) continue;
-      buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp $(ROMESYS)/bin/romebuilder.exe\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-      buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      if (folderUserCode[i]) {
+         buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp $(ROMESYS)/bin/romebuilder.exe\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      }
    }
    for (i=0;i<numOfTask;i++) {
+      if (taskFortran[i]) {
+         buffer.AppendFormatted("obj/%sTF%s.obj: src/tasks/%sTF%s.f $(ROMESYS)/bin/romebuilder.exe\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+         buffer.AppendFormatted("	df $(FortranFlags) /compile_only /object:obj\\%sTF%s.obj src\\tasks\\%sTF%s.f \n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      }
       buffer.AppendFormatted("obj/%sT%s.obj: src/tasks/%sT%s.cpp $(ROMESYS)/bin/romebuilder.exe\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
       buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tasks/%sT%s.cpp \n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
    }
@@ -5343,6 +5568,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sConfig.obj src/framework/%sConfig.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
+   if (haveFortranTask) {
+      buffer.AppendFormatted("obj/%sFAnalyzer.obj: src/framework/%sFAnalyzer.f $(ROMESYS)/bin/romebuilder.exe\n",shortCut.Data(),shortCut.Data());
+      buffer.AppendFormatted("	df $(FortranFlags) /compile_only /object:obj\\%sFAnalyzer.obj src\\framework\\%sFAnalyzer.f \n",shortCut.Data(),shortCut.Data());
+   }
 
    buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp $(ROMESYS)/bin/romebuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEAnalyzer.obj $(ROMESYS)/src/ROMEAnalyzer.cpp \n");
@@ -5384,7 +5613,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("midaslibs := -lmidas\n");
    else
       buffer.AppendFormatted("midaslibs := \n");
-   buffer.AppendFormatted("clibs := -lpthread -lHtml -lutil $(SYSLIBS)\n");
+   buffer.AppendFormatted("clibs := -lpthread -lHtml -lutil $(SYSLIBS) -lg2c\n");
    buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
@@ -6063,6 +6292,21 @@ void ROMEBuilder::setValue(ROMEString* buf,char *destination,char *source,char *
          buf->AppendFormatted("%s",source);
    }
 }
+bool ROMEBuilder::isNumber(ROMEString& string)
+{
+   if (string!="float"&&string!="Float_t"&&
+       string!="double"&&string!="Double_t"&&
+       string!="int"&&string!="Int_t"&&
+       string!="unsigned int"&&string!="UInt_t"&&
+       string!="long"&&string!="Long_t"&&
+       string!="unsigned long"&&string!="ULong_t"&&
+       string!="short"&&string!="Short_t"&&
+       string!="unsigned short"&&string!="UShort_t"&&
+       string!="long long"&&string!="unsigned long long")
+      return false;
+   return true;
+}
+
 bool ROMEBuilder::isFloatingType(char *type)
 {
    if (

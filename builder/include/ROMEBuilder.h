@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2004/10/21 13:03:51  schneebeli_m
+  *** empty log message ***
+
   Revision 1.16  2004/10/14 09:53:41  schneebeli_m
   ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
 
@@ -186,6 +189,7 @@ public:
    bool WriteSteering(int iTask);
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
+   bool WriteAnalyzerF();
    bool WriteConfigCpp();
    bool WriteConfigH();
    bool WriteEventLoopCpp();
@@ -198,6 +202,7 @@ public:
    void GetFormat(ROMEString *buf,char *type);
    void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
    bool isFloatingType(char *type);
+   bool isNumber(ROMEString& string);
 };
 
 #endif   // ROMEBuilder_H
