@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.7  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.6  2005/02/03 11:44:54  sawada
   IO to MIDAS ODB
 
@@ -142,9 +145,9 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 
    ROMEString configFile("argusConfig.xml");
 
-#if defined(HAVE_MIDAS)
    char host_name[256] = "";
    char exp_name[32] = "";
+#if defined(HAVE_MIDAS)
    cm_get_environment(host_name,sizeof(host_name),exp_name,sizeof(exp_name));
 #endif
    

@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.9  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.8  2005/02/03 11:44:54  sawada
   IO to MIDAS ODB
 
@@ -259,6 +262,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    numOfFolder = -1;
    numOfTab = -1;
    thread = false;
+   romefolder = false;
 
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
@@ -332,6 +336,10 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      // folder
                      if (type == 1 && !strcmp((const char*)name,"Folder")) {
                         if (!ReadXMLFolder()) return;
+                     }
+                     // rome folder
+                     if (type == 1 && !strcmp((const char*)name,"ROMEFolder")) {
+                        if (!ReadXMLROMEFolder()) return;
                      }
                      // folders end
                      if (type == 15 && !strcmp((const char*)name,"Folders")) {
@@ -501,9 +509,9 @@ void ArgusBuilder::WriteMakefile() {
    buffer.Resize(0);
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib \n");
-   buffer.AppendFormatted("xmllibs = $(ARGUSSYS)/lib_win/libxml2.lib $(ARGUSSYS)/lib_win/iconv.lib $(ARGUSSYS)/lib_win/zlib.lib\n");
+   buffer.AppendFormatted("xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
    if (this->sql) 
-      buffer.AppendFormatted("sqllibs = $(ARGUSSYS)/lib_win/libmySQL.lib $(ARGUSSYS)/lib_win/mysys.lib $(ARGUSSYS)/lib_win/mysqlclient.lib\n");
+      buffer.AppendFormatted("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
    else
       buffer.AppendFormatted("sqllibs = \n");
    if (this->midas)
@@ -521,11 +529,13 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /DHAVE_SQL");
    buffer.AppendFormatted("\n");
    // includes
-   buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/monitor/ ");
+   buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/monitor/ ");
    if (this->midas) 
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
    if (this->sql) 
-      buffer.AppendFormatted(" /I$(ARGUSSYS)/include/mysql/");
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
+   if (this->romefolder)
+      buffer.AppendFormatted(" /I$(ROME%s_DIR)/include",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // objects
@@ -558,7 +568,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sWindow.obj src/monitor/%sWindow.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sConfig.obj: src/monitor/%sConfig.cpp include/monitor/%sConfig.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sConfig.obj src/monitor/%sConfig.cpp \n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp $(ARGUSSYS)/bin/argusbuilder.exe\n");
+   buffer.AppendFormatted("obj/main.obj: src/monitor/main.cpp $(ARGUSSYS)/bin/argusbuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/main.obj src/monitor/main.cpp \n");
    buffer.AppendFormatted("obj/ArgusMonitor.obj: $(ARGUSSYS)/src/ArgusMonitor.cpp $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ArgusMonitor.obj $(ARGUSSYS)/src/ArgusMonitor.cpp \n");
@@ -566,9 +576,9 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ArgusTextDialog.obj $(ARGUSSYS)/src/ArgusTextDialog.cpp \n");
    buffer.AppendFormatted("obj/TNetFolder.obj: $(ARGUSSYS)/src/TNetFolder.cpp $(ARGUSSYS)/include/TNetFolder.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/TNetFolder.obj $(ARGUSSYS)/src/TNetFolder.cpp \n");
-   buffer.AppendFormatted("obj/ROMEXML.obj: $(ARGUSSYS)/src/ROMEXML.cpp $(ARGUSSYS)/include/ROMEXML.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
-   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ARGUSSYS)/src/ROMEXML.cpp \n");
-   buffer.AppendFormatted("obj/ROMEString.obj: $(ARGUSSYS)/src/ROMEString.cpp $(ARGUSSYS)/include/ROMEString.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
+   buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
+   buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEString.obj $(ROMESYS)/src/ROMEString.cpp \n");
    buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h $(ARGUSSYS)/bin/argusbuilder.exe\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/ROMEStrArray.obj $(ROMESYS)/src/ROMEStrArray.cpp \n");
@@ -592,7 +602,10 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
-   buffer.AppendFormatted("rootthreadlibs := -lThread\n");
+   if(this->thread)
+      buffer.AppendFormatted("rootthreadlibs := -lThread\n");
+   else
+      buffer.AppendFormatted("rootthreadlibs := \n");
    buffer.AppendFormatted("xmllibs :=  $(shell xml2-config --libs)\n");
    buffer.AppendFormatted("xmlcflags :=  $(shell xml2-config --cflags)\n");
    if (this->sql){
@@ -629,7 +642,10 @@ void ArgusBuilder::WriteMakefile() {
    // flags
    buffer.AppendFormatted("Flags := $(%suserflags) $(rootcflags) $(xmlcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
    // includes
-   buffer.AppendFormatted("Includes := -I$(ARGUSSYS)/include/ -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tabs/ -Iinclude/monitor/\n");
+   buffer.AppendFormatted("Includes := -I$(ARGUSSYS)/include/ -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tabs/ -Iinclude/monitor/");
+   if(this->romefolder)
+      buffer.AppendFormatted(" -I$(ROME%s_DIR)/include/framework",shortCut.Data());
+   buffer.AppendFormatted("\n");
 #if defined( __APPLE__ )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("Flags += -DOS_DARWIN -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
@@ -640,7 +656,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("objects :=");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUserCode[i]) continue;
-      buffer.AppendFormatted(" obj/%sF%s.o",shortCut.Data(),folderName[i].Data());
+      buffer.AppendFormatted(" obj/%s%s.o",shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted(" obj/%sT%s.o",shortCut.Data(),tabName[i].Data());
@@ -666,8 +682,14 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
    // compile
    for (i=0;i<numOfFolder;i++) {
-      buffer.AppendFormatted("obj/%sF%s.o: src/monitor/%sF%s.cpp include/monitor/%sF%s.h\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-      buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sF%s.cpp -o obj/%sF%s.o\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      if(folderDefinedInROME[i]){
+         buffer.AppendFormatted("obj/%s%s.o: $(ROME%s_DIR)/src/framework/%s%s.cpp $(ROME%s_DIR)/include/framework/%s%s.h\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) $(ROME%s_DIR)/src/framework/%s%s.cpp -o obj/%s%s.o\n",shortCut.Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      }
+      else{
+         buffer.AppendFormatted("obj/%s%s.o: src/monitor/%s%s.cpp include/monitor/%s%s.h\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%s%s.cpp -o obj/%s%s.o\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      }
    }
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("obj/%sT%s.o: src/tabs/%sT%s.cpp include/tabs/%sT%s.h\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
@@ -713,14 +735,27 @@ void ArgusBuilder::WriteMakefile() {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
+   ROMEString romeprojectdir[2];
+   romeprojectdir[0].SetFormatted("$ROME%s_DIR",shortCut.Data());
+   romeprojectdir[1].SetFormatted("$(ROME%s_DIR)",shortCut.Data());
+   dictionarybat.ReplaceAll(romeprojectdir[0],romeprojectdir[1]);
    buffer.AppendFormatted("src/monitor/%sDict.cpp: ",shortCut.Data());
    buffer.AppendFormatted("$(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
+      if(folderDefinedInROME[i]){
+         buffer.AppendFormatted("$(ROME%s_DIR)/",shortCut.Data());
          if (folderUserCode[i])
-            buffer.AppendFormatted("include/monitor/%sF%s_Base.h ",shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("include/framework/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
          else
-            buffer.AppendFormatted("include/monitor/%sF%s.h ",shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());            
+      }
+      else{
+         if (numOfValue[i] > 0) {
+            if (folderUserCode[i])
+               buffer.AppendFormatted("include/monitor/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
+            else
+               buffer.AppendFormatted("include/monitor/%s%s.h ",shortCut.Data(),folderName[i].Data());
+         }
       }
    }
    for (i=0;i<numOfTab;i++) {
@@ -775,20 +810,32 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
+   if(this->romefolder)
+      buffer.AppendFormatted("-I%%ROME%s_DIR%%/include/framework ",shortCut.Data());
 #endif
 #if defined ( __linux__ ) || defined ( __APPLE__ )
    buffer.AppendFormatted("-I$ARGUSSYS/include ");
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
+   if(this->romefolder)
+      buffer.AppendFormatted("-I$ROME%s_DIR/include/framework ",shortCut.Data());
 #endif
-   buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/monitor -Iinclude/framework  -Iinclude/tabs ");
+   buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/monitor ");
    buffer.AppendFormatted("ArgusMonitor.h ArgusTextDialog.h TNetFolder.h include/monitor/%sMonitor.h include/monitor/%sWindow.h ",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (folderUserCode[i])
-            buffer.AppendFormatted("include/monitor/%sF%s_Base.h ",shortCut.Data(),folderName[i].Data());
-         else
-            buffer.AppendFormatted("include/monitor/%sF%s.h ",shortCut.Data(),folderName[i].Data());
+      if(folderDefinedInROME[i]){
+            if (folderUserCode[i])
+               buffer.AppendFormatted("$ROME%s_DIR/include/framework/%s%s_Base.h ",shortCut.Data(),shortCut.Data(),folderName[i].Data());
+            else
+               buffer.AppendFormatted("$ROME%s_DIR/include/framework/%s%s.h ",shortCut.Data(),shortCut.Data(),folderName[i].Data());
+      }
+      else{
+         if (numOfValue[i] > 0) {
+            if (folderUserCode[i])
+               buffer.AppendFormatted("include/monitor/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
+            else
+               buffer.AppendFormatted("include/monitor/%s%s.h ",shortCut.Data(),folderName[i].Data());
+         }
       }
    }
    for (i=0;i<numOfTab;i++) {

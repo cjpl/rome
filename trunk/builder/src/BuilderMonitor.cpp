@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/02/04 22:58:46  sawada
+  ROMEFolder
+
   Revision 1.6  2005/02/04 15:10:05  sawada
   ODB and ROMEDataBase folders.
 
@@ -107,19 +110,26 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut.Data(),shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
+      if(folderDefinedInROME[i]) continue;
       if (folderParentName[i]=="GetMainFolder()") parentt = folderParentName[i];
       else parentt.SetFormatted("%sFolder",folderParentName[i].Data());
       format.SetFormatted("   TFolder* %%sFolder%%%ds = %%s->AddFolder(\"%%s\",\"%%s\");\n",nameLen-folderName[i].Length());
       buffer.AppendFormatted((char*)format.Data(),folderName[i].Data(),"",parentt.Data(),folderName[i].Data(),folderTitle[i].Data());
    }
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
+      if(folderDefinedInROME[i]){
+         if (folderArray[i]=="1") 
+            buffer.AppendFormatted("\n   f%sFolder = 0;\n",folderName[i].Data());
+         else
+            buffer.AppendFormatted("\n   f%sFolders = 0;\n",folderName[i].Data());
+      }
+      else if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("\n   f%sFolder = new %sF%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("\n   f%sFolder = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   %sFolder->Add(f%sFolder);\n",folderName[i].Data(),folderName[i].Data());
          }
          else {
-            buffer.AppendFormatted("\n   f%sFolders = new TClonesArray(\"%sF%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("\n   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
          }
       }
@@ -130,6 +140,11 @@ bool ArgusBuilder::WriteMonitorCpp() {
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
    // StartMonitor
    buffer.AppendFormatted("\nbool %sMonitor::StartMonitor() {\n",shortCut.Data());
+   buffer.AppendFormatted("  // connect to server\n");
+   buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost())){\n");
+   buffer.AppendFormatted("      gMonitor->ConnectServer();\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   InitSingleFolders();\n");
    buffer.AppendFormatted("   // Update Data Base\n");
    buffer.AppendFormatted("   if (!ReadSingleDataBaseFolders()) {\n");
@@ -143,15 +158,10 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
+   // NerFolder
    buffer.AppendFormatted("   if(!gWindow->Start()){\n");
    buffer.AppendFormatted("      delete gWindow;\n");
    buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("\n");
-   // NerFolder
-   buffer.AppendFormatted("  // connect to server\n");
-   buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost())){\n");
-   buffer.AppendFormatted("      gWindow->ConnectServer();\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fApplication->Run();\n");
@@ -166,9 +176,9 @@ bool ArgusBuilder::WriteMonitorCpp() {
          if (folderDataBase[i] && folderArray[i]=="1")
             buffer.AppendFormatted("   if(!Update%s()) return false;\n",folderName[i].Data());
       }
-      buffer.AppendFormatted("   return true;\n");
-      buffer.AppendFormatted("}\n\n");
    }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
    // ReadArrayDataBaseFolders
    buffer.AppendFormatted("\nbool %sMonitor::ReadArrayDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
@@ -176,9 +186,9 @@ bool ArgusBuilder::WriteMonitorCpp() {
          if (folderDataBase[i]&&folderArray[i]!="1")
             buffer.AppendFormatted("   if(!Update%s()) return false;\n",folderName[i].Data());
       }
-      buffer.AppendFormatted("   return true;\n");
-      buffer.AppendFormatted("}\n\n");
    }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
    // clean up folders
    buffer.AppendFormatted("\n// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sMonitor::CleanUpFolders() {\n",shortCut.Data());
@@ -188,7 +198,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   for (i=gMonitor->Get%ss()->GetEntriesFast()-1;i>=0;i--) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      if (((%sF%s*)gMonitor->Get%sAt(i))->isModified())\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      if (((%s%s*)gMonitor->Get%sAt(i))->isModified())\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("         break;\n");
             buffer.AppendFormatted("      gMonitor->Get%ss()->RemoveAt(i);\n",folderName[i].Data());
             buffer.AppendFormatted("   }\n");
@@ -208,36 +218,45 @@ bool ArgusBuilder::WriteMonitorCpp() {
          }
          else if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   for (i=0;i<gMonitor->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      ((%sF%s*)gMonitor->Get%sAt(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      ((%s%s*)gMonitor->Get%sAt(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
          else {
             buffer.AppendFormatted("   for (i=0;i<gMonitor->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      ((%sF%s*)gMonitor->Get%sAt(i))->SetModified(false);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      ((%s%s*)gMonitor->Get%sAt(i))->SetModified(false);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
-         }
-      }
-      if (bankHasHeader) {
-         if (folderName[i]==bankHeaderFolder) {
-            if (bankHeaderEventID!="")
-               buffer.AppendFormatted("   gMonitor->Get%s()->Set%s(gMonitor->GetEventHeader()->event_id);\n",folderName[i].Data(),bankHeaderEventID.Data());
-            if (bankHeaderTriggerMask!="")
-               buffer.AppendFormatted("   gMonitor->Get%s()->Set%s(gMonitor->GetEventHeader()->trigger_mask);\n",folderName[i].Data(),bankHeaderTriggerMask.Data());
-            if (bankHeaderSerialNumber!="")
-               buffer.AppendFormatted("   gMonitor->Get%s()->Set%s(gMonitor->GetEventHeader()->serial_number);\n",folderName[i].Data(),bankHeaderSerialNumber.Data());
-            if (bankHeaderTimeStamp!="")
-               buffer.AppendFormatted("   gMonitor->Get%s()->Set%s(gMonitor->GetEventHeader()->time_stamp);\n",folderName[i].Data(),bankHeaderTimeStamp.Data());
          }
       }
    }
    buffer.AppendFormatted("}\n\n");
    //Update Folders
    for (i=0;i<numOfFolder;i++) {
-      if (!folderDataBase[i] || numOfValue[i]==0)
+      if (!folderDataBase[i] || (numOfValue[i]==0 && !folderDefinedInROME[i]))
          continue;
       buffer.AppendFormatted("\nbool %sMonitor::Update%s() {\n",shortCut.Data(),folderName[i].Data());
-      //ODB folder
-      if(folderConnectionType[i] == "ODB"){
+      // ROMEFolder
+      if(folderDefinedInROME[i]){
+         if (folderArray[i]=="1") {
+            buffer.AppendFormatted("   if(f%sFolder)\n",folderName[i].Data());
+            buffer.AppendFormatted("      delete f%sFolder;\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolder = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   if (!f%sFolder){\n",folderName[i].Data());
+            buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
+         }
+         else {
+            buffer.AppendFormatted("   if(f%sFolders)\n",folderName[i].Data());
+            buffer.AppendFormatted("      delete f%sFolders;\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolders = (%s%s*) gMonitor->GetNetFolder()->FindObjectAny(\"%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   if (!f%sFolders){\n",folderName[i].Data());
+            buffer.AppendFormatted("      cout<<\"%s not available\"<<endl;\n",folderName[i].Data());
+            buffer.AppendFormatted("      retrun false;\n");
+            buffer.AppendFormatted("   }\n");
+         }
+      }
+      // ODB folder
+      else if(folderConnectionType[i] == "ODB"){
          buffer.AppendFormatted("   HNDLE hkey;\n");
          buffer.AppendFormatted("   INT   size;\n");
          ROMEString tid;
@@ -303,7 +322,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
                if (valueArray[i][j]=="1") {
                   buffer.AppendFormatted("      if (values->At(i,0).Length()!=0)\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,0).Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("         ((%sF%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                   buffer.AppendFormatted("      else\n");
                   buffer.AppendFormatted("         ((%s%Fs*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                }
@@ -311,9 +330,9 @@ bool ArgusBuilder::WriteMonitorCpp() {
                   buffer.AppendFormatted("      for (j=0;j<%s;j++) {\n",valueArray[i][j].Data());
                   buffer.AppendFormatted("         if (values->At(i,j).Length()!=0)\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"values->At(i,j).Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                   buffer.AppendFormatted("         else\n");
-                  buffer.AppendFormatted("            ((%sF%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                   buffer.AppendFormatted("      }\n");
                   buffer.AppendFormatted("   }\n");
                }
@@ -331,9 +350,9 @@ bool ArgusBuilder::WriteMonitorCpp() {
    // Initialize Single Folders
    buffer.AppendFormatted("\nvoid %sMonitor::InitSingleFolders() {\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
+      if (numOfValue[i] > 0 ) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   new(gMonitor->Get%s()) %sF%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   new(gMonitor->Get%s()) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
                if (valueArray[i][j]=="1")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
@@ -351,7 +370,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
       if (numOfValue[i] > 0) {
          if (folderArray[i]!="1" && folderArray[i]!="variable") {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
-            buffer.AppendFormatted("     new((*gMonitor->Get%ss())[i]) %sF%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("     new((*gMonitor->Get%ss())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
                if (valueArray[i][j]=="1")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
@@ -445,7 +464,10 @@ bool ArgusBuilder::WriteMonitorH() {
    // includes
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         buffer.AppendFormatted("#include \"include/monitor/%sF%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("#include \"include/monitor/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+      if (folderDefinedInROME[i]) {
+         buffer.AppendFormatted("#include \"%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
@@ -460,9 +482,9 @@ bool ArgusBuilder::WriteMonitorH() {
    // Folder Fields
    buffer.AppendFormatted("   // Folder fields\n");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
+      if (numOfValue[i] > 0 || folderDefinedInROME[i]) {
          if (folderArray[i]=="1") {
-            format.SetFormatted("   %%sF%%s*%%%ds f%%sFolder; %%%ds // Handle to %%s%%s Folder\n",typeLen-folderName[i].Length()-scl,nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s*%%%ds f%%sFolder; %%%ds // Handle to %%s%%s Folder\n",typeLen-folderName[i].Length()-scl,nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data());
          }
          else {
@@ -484,30 +506,61 @@ bool ArgusBuilder::WriteMonitorH() {
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
+      if(folderDefinedInROME[i]){
          if (folderDataBase[i])
             buffer.AppendFormatted("   bool Update%s();\n",folderName[i].Data());
          int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
          if (folderArray[i]=="1") {
-            format.SetFormatted("   %%sF%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   %%sF%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,4+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,4+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else if (folderArray[i]=="variable") {
-            format.SetFormatted("   %%sF%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
             buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
             buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
             buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted("     return (%sF%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
             format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%sF%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
+            buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+         }
+      }
+      else if (numOfValue[i] > 0) {
+         if (folderDataBase[i])
+            buffer.AppendFormatted("   bool Update%s();\n",folderName[i].Data());
+         int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
+         if (folderArray[i]=="1") {
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,4+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+         }
+         else if (folderArray[i]=="variable") {
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
+            buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
+            buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
+            buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
+            buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+         }
+         else {
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
             format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
