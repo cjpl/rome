@@ -9,6 +9,12 @@
 			<xs:enumeration value="ULong_t"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="IncludeType">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="global"/>
+			<xs:enumeration value="local"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="HistTypeDesc">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="TH1C"/>
@@ -45,16 +51,18 @@
 			<xs:element name="AuthorEmail" type="xs:string" minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="FrameworkDesc">
+	<xs:complexType name="ExperimentDesc">
 		<xs:sequence>
+			<xs:element name="ExperimentName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ExperimentShortCut" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="ProgramName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Description" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="FrameworkDescription" type="xs:string" minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="IncludeDesc">
 		<xs:sequence>
 			<xs:element name="IncludeName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="IncludeType" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="IncludeType" type="IncludeType" default="global" minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">
@@ -67,7 +75,7 @@
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterGroupDesc">
 		<xs:sequence>
-			<xs:element name="SPGroupName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SPGroupName" type="xs:string"/>
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
@@ -80,7 +88,8 @@
 			<xs:element name="FieldName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="FieldType" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="FieldComment" type="xs:string" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="ArraySize" type="xs:string" minOccurs="0" maxOccurs="1" default="1"/>
+			<xs:element name="FieldInitialization" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ArraySize" type="xs:string" default="1" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="DataBasePath" type="xs:string" minOccurs="0" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
@@ -88,11 +97,11 @@
 		<xs:sequence>
 			<xs:element name="FolderName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="FolderTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="ArraySize" type="xs:string" minOccurs="0" maxOccurs="1" default="1"/>
-			<xs:element name="DataBaseAccess" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
-			<xs:element name="ChangeableClassFile" type="xs:boolean" minOccurs="0" maxOccurs="1" default="true"/>
+			<xs:element name="ArraySize" type="xs:string" default="1" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="DataBaseAccess" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="ChangeableClassFile" type="xs:boolean" default="true" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="Author" type="AuthorDesc" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="FolderVersion" type="xs:integer" minOccurs="0" maxOccurs="1" default="1"/>
+			<xs:element name="FolderVersion" type="xs:integer" default="1" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="FolderDescription" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded"/>
@@ -111,14 +120,20 @@
 			<xs:element name="HistType" type="HistTypeDesc" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="HistArraySize" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Xmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Xmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistXmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistXmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="HistYNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Ymin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Ymax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistYmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistYmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="HistZNbins" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Zmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Zmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistZmin" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="HistZmax" type="xs:integer" minOccurs="0" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParametersDesc">
+		<xs:sequence>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TaskDesc">
@@ -130,8 +145,7 @@
 			<xs:element name="TaskDescription" type="xs:string" minOccurs="0" maxOccurs="1"/>
 			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded"/>
 			<xs:element name="Histogram" type="HistogramDesc" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
-			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded"/>
+			<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:annotation>
@@ -147,7 +161,7 @@
 		<xs:sequence>
 			<xs:element name="TreeName" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="TreeTitle" type="xs:string" minOccurs="0" maxOccurs="1"/>
-			<xs:element name="Branch" type="BranchDesc" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:annotation>
@@ -178,19 +192,17 @@
 	<xs:complexType name="StructuredBankDesc">
 		<xs:sequence>
 			<xs:element name="BankName" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="BankField" type="BankFieldDesc" minOccurs="1" maxOccurs="unbounded"/>
+			<xs:element name="BankField" type="BankFieldDesc" minOccurs="0" maxOccurs="unbounded"/>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:annotation>
 		<xs:documentation>Describe overall document</xs:documentation>
 	</xs:annotation>
-	<xs:element name="Experiment">
+	<xs:element name="ROMEFrameworkDefinition">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="ExperimentName" type="xs:string" minOccurs="0" maxOccurs="1"/>
-				<xs:element name="ExperimentShortCut" type="xs:string" maxOccurs="1"/>
+				<xs:element name="Experiment" type="ExperimentDesc" minOccurs="1" maxOccurs="1"/>
 				<xs:element name="Author" type="AuthorDesc" minOccurs="0" maxOccurs="1"/>
-				<xs:element name="Framework" type="FrameworkDesc" minOccurs="0" maxOccurs="1"/>
 				<xs:element name="Folders" minOccurs="1" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
@@ -208,7 +220,7 @@
 				<xs:element name="Trees" minOccurs="0" maxOccurs="1">
 					<xs:complexType>
 						<xs:sequence>
-							<xs:element name="Tree" type="TreeDesc" minOccurs="1" maxOccurs="unbounded"/>
+							<xs:element name="Tree" type="TreeDesc" minOccurs="0" maxOccurs="unbounded"/>
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>

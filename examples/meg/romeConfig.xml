@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Tue Oct 05 09:49:55 2004
+<!-- created by ROME on Fri Oct 08 12:01:43 2004
  -->
 <Configuration>
-     <Modes AnalyzingMode="offline" OnlineHost="megonln01" OnlineExperiment="meglp" InputDataFormat="midas" BatchMode="no" ShowSplashScreen="yes" DataBaseMode="xml"/>
-     <RunNumbers Numbers="6625"/>
+     <Modes AnalyzingMode="offline" InputDataFormat="midas" DataBaseMode="xml" BatchMode="no" ShowSplashScreen="yes"/>
+     <Online Host="" Experiment=""/>
+     <SocketInterface PortNumber="0" AvailableOffline="no"/>
+     <RunNumbers Numbers="6625,96625"/>
      <EventNumbers Numbers=""/>
      <Paths>
           <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
@@ -36,12 +38,12 @@
           </Charge>
      </Tasks>
      <Trees Accumulation="no">
-          <CMPMTData Read="no" Write="no"/>
-          <CMHit Read="no" Write="no"/>
-          <Trigger Read="no" Write="no"/>
-          <Test Read="no" Write="no"/>
+          <CMPMTData Read="no" Write="yes" MaxNumberOfEntries="0"/>
+          <CMHit Read="no" Write="no" MaxNumberOfEntries="0"/>
+          <Trigger Read="no" Write="no" MaxNumberOfEntries="0"/>
+          <Test Read="no" Write="no" MaxNumberOfEntries="0"/>
      </Trees>
-     <GeneralSteeringParameters>
+     <GlobalSteeringParameters>
           <InvalidValue>-1000.000000</InvalidValue>
           <PMT>
                <Numbers>
@@ -52,5 +54,5 @@
                     <NumberOfLXePMT>228</NumberOfLXePMT>
                </Numbers>
           </PMT>
-     </GeneralSteeringParameters>
+     </GlobalSteeringParameters>
 </Configuration>

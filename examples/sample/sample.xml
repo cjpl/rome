@@ -1,44 +1,90 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Matthias Schneebeli (PSI) -->
-<Experiment ShortCut="XYZ">
-	<Folder>
-		<SubFolder Name="PMTData" Array="257">
-			<Fields>
-				<Field Name="ADC" Type="Float_t" Comment="// ADC Data"/>
-			</Fields>
-		</SubFolder>
-		<SubFolder Name="Calib" Array="257" DataBase="yes">
-			<Fields>
-				<Field Name="ADCPedestal" Type="Float_t" Comment="// ADC Pedestal"/>
-			</Fields>
-		</SubFolder>
-		<SubFolder Name="PMTInfo" Array="257" DataBase="yes">
-			<Fields>
-				<Field Name="PMID" Type="Int_t" Comment="// Photo Multiplier ID"/>
-				<Field Name="ADCID" Type="Int_t" Comment="// ADC Number"/>
-			</Fields>
-		</SubFolder>
-		<SubFolder Name="Trigger">
-			<Fields>
-				<Field Name="ID" Type="Int_t" Comment="// event ID"/>
-				<Field Name="Eventnumber" Type="Int_t" Comment="// Event Number"/>
-			</Fields>
-		</SubFolder>
-	</Folder>
-	<Task>
-		<SubTask Name="ReadMidas"/>
-		<SubTask Name="ADCCalib">
-			<Histos>
-				<Histo Name="ADCHisto" Type="TH1F" ArraySize="257" FolderName="adc" Title="ADC" NumberOfBinsX="500" XMin="0" XMax="500"/>
-			</Histos>
-		</SubTask>
-	</Task>
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>XYZ</ExperimentShortCut>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>PMTData</FolderName>
+			<ArraySize>257</ArraySize>
+			<Field>
+				<FieldName>ADC</FieldName>
+				<FieldType>Float_t</FieldType>
+				<FieldComment>ADC Data</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Calib</FolderName>
+			<ArraySize>257</ArraySize>
+			<DataBaseAccess>true</DataBaseAccess>
+			<Field>
+				<FieldName>ADCPedestal</FieldName>
+				<FieldType>Float_t</FieldType>
+				<FieldComment>ADC Pedestal</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>PMTInfo</FolderName>
+			<ArraySize>257</ArraySize>
+			<DataBaseAccess>true</DataBaseAccess>
+			<Field>
+				<FieldName>PMID</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Photo Multiplier ID</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>ADCID</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>ADC Number</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Trigger</FolderName>
+			<Field>
+				<FieldName>ID</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>event ID</FieldComment>
+			</Field>
+			<Field>
+				<FieldName>Eventnumber</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Event Number</FieldComment>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>ReadMidas</TaskName>
+		</Task>
+		<Task>
+			<TaskName>ADCCalib</TaskName>
+			<Histogram>
+				<HistName>ADCHisto</HistName>
+				<HistTitle>ADC</HistTitle>
+				<HistFolderName>adc</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistArraySize>257</HistArraySize>
+				<HistXNbins>500</HistXNbins>
+				<HistXmin>0</HistXmin>
+				<HistXmax>500</HistXmax>
+			</Histogram>
+		</Task>
+	</Tasks>
 	<Trees>
-		<Tree Name="Data" Title="PMT Data">
-			<Branch Name="PMTData" Folder="PMTData"/>
+		<Tree>
+			<TreeName>Data</TreeName>
+			<TreeTitle>PMT Data</TreeTitle>
+			<Branch>
+				<BranchName>PMTData</BranchName>
+				<RelatedFolder>PMTData</RelatedFolder>
+			</Branch>
 		</Tree>
 	</Trees>
 	<MidasBanks>
-		<Bank Name="ADC0" Type="unsigned short"/>
+		<Bank>
+			<BankName>ADC0</BankName>
+			<BankType>unsigned short</BankType>
+		</Bank>
 	</MidasBanks>
-</Experiment>
+</ROMEFrameworkDefinition>

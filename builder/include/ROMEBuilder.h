@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2004/10/08 12:03:17  schneebeli_m
+  Changed XML format, included a rome.xsd schema file
+
   Revision 1.14  2004/10/05 07:52:44  schneebeli_m
   dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 
@@ -49,6 +52,19 @@ private:
    ROMEString shortCut;
    ROMEString experimentName;
 
+   bool readExperiment;
+   bool readAuthor;
+   bool readFolders;
+   bool readTasks;
+   bool readTrees;
+   bool readGlobalSteeringParameters;
+   bool readMidasBanks;
+
+   ROMEString parent[maxNumberOfTasks];
+   ROMEString parentSteer[maxNumberOfTasks];
+   int recursiveDepth;
+   int recursiveSteerDepth;
+
 // folders
    int numOfFolder;
    int numOfValue[maxNumberOfFolders];
@@ -77,8 +93,6 @@ private:
 
    int numOfTask;
    int numOfHistos[maxNumberOfTasks];
-   int numOfTaskSteering[maxNumberOfTasks];
-   int numOfTaskSteerFields[maxNumberOfTasks][maxNumberOfSteering];
    int numOfTaskInclude[maxNumberOfTasks];
    ROMEString taskName[maxNumberOfTasks];
    ROMEString taskEventID[maxNumberOfTasks];
@@ -104,13 +118,17 @@ private:
    ROMEString histoZBin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZMin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZMax[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString taskSteerName[maxNumberOfTasks][maxNumberOfSteering];
-   ROMEString taskSteerParent[maxNumberOfTasks][maxNumberOfSteering];
-   int   taskSteerDepth[maxNumberOfTasks][maxNumberOfSteering];
-   ROMEString taskSteerFieldName[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString taskSteerFieldType[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString taskSteerFieldInit[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString taskSteerFieldComment[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+
+// steering
+
+   int numOfSteering[maxNumberOfTasks+1];
+   int numOfSteerFields[maxNumberOfTasks+1][maxNumberOfSteering];
+   ROMEString steerName[maxNumberOfTasks+1][maxNumberOfSteering];
+   ROMEString steerParent[maxNumberOfTasks+1][maxNumberOfSteering];
+   ROMEString steerFieldName[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldType[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldInit[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldComment[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
 
 // tree
    int numOfTree;
@@ -125,7 +143,6 @@ private:
    int numOfStructFields[maxNumberOfBanks];
    ROMEString bankName[maxNumberOfBanks];
    ROMEString bankType[maxNumberOfBanks];
-   ROMEString bankStructName[maxNumberOfBanks];
    ROMEString structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
@@ -136,23 +153,13 @@ private:
    ROMEString bankHeaderSerialNumber;
    ROMEString bankHeaderTimeStamp;
 
-// steering
-   int numOfSteering;
-   int numOfSteerFields[maxNumberOfSteering];
-   ROMEString steerName[maxNumberOfSteering];
-   ROMEString steerParent[maxNumberOfSteering];
-   int   steerDepth[maxNumberOfSteering];
-   ROMEString steerFieldName[maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString steerFieldType[maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString steerFieldInit[maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString steerFieldComment[maxNumberOfSteering][maxNumberOfSteeringField];
-
 // main
    ROMEString mainAuthor;
    ROMEString mainInstitute;
    ROMEString mainCollaboration;
    ROMEString mainEmail;
    ROMEString mainProgName;
+   ROMEString mainDescription;
 
 public:
    ROMEBuilder() {};
@@ -161,21 +168,18 @@ public:
    bool WriteFolderCpp();
    bool WriteFolderH();
    bool ReadXMLTask();
-   bool WriteTaskSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask);
-   void WriteTaskSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask);
-   void WriteTaskSteerConfigRead(ROMEString& buffer,int numSteer,int numTask);
+   bool WriteSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
+   void WriteSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask,int tab);
+   void WriteSteerConfigRead(ROMEString& buffer,int numSteer,int numTask,int tab);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
    bool ReadXMLTree();
    bool ReadXMLMidasBanks();
-   bool ReadXMLSteering();
-   bool WriteSteering();
-   bool WriteSteeringClass(ROMEString& buffer,int numOfSteer);
+   bool ReadXMLSteering(int iTask);
+   bool WriteSteering(int iTask);
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
-   void WriteSteerConfigWrite(ROMEString& buffer,int numOfSteer);
-   void WriteSteerConfigRead(ROMEString& buffer,int numSteer);
    bool WriteIOCpp();
    bool WriteIOH();
    bool WriteEventLoopCpp();

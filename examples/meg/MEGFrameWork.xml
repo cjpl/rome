@@ -1,224 +1,706 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Matthias Schneebeli (PSI) -->
-<Experiment ShortCut="MEG" Name="Mu-E-Gamma">
-	<Author Name="Matthias Schneebeli" Institute="Paul Scherrer Institute (PSI)" Collaboration="Mu-E-Gamma (MEG)" Email="matthias.schneebeli@psi.ch"/>
-	<Program Name="Framework"/>
-	<Folder>
-		<SubFolder Name="megData" Title="MEG Data Root Folder">
-			<SubFolder Name="cm" Title="Calorimeter">
-				<SubFolder Name="CMPMTData" Title="ADC and TDC Values of Photo Multipliers" ArraySize="gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Folder Class for Calorimeter Photo Multiplier data."/>
-					<Fields>
-						<Field Name="ADC0Data" Type="Float_t" Comment="ADC Data of Photo Multipliers (low resolution)"/>
-						<Field Name="ADC1Data" Type="Float_t" Comment="ADC Data of Photo Multipliers (high resolution)"/>
-						<Field Name="TDCData" Type="Float_t" Comment="TDC Data of Photo Multipliers"/>
-					</Fields>
-				</SubFolder>
-				<SubFolder Name="CMCalib" Title="Photo Multiplier Calibration" ArraySize="gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" DataBase="yes">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Container Class for Calorimeter calibration data."/>
-					<Fields>
-						<Field Name="ADCPedestal" Type="Float_t" Comment="ADC Pedestal" DataBasePath="runTable/CMCalib.ADCPedestal"/>
-						<Field Name="ADCGain" Type="Float_t" Comment="ADC Gain" DataBasePath="runTable/CMCalib.ADCGain"/>
-						<Field Name="TDCOffset" Type="Float_t" Comment="TDC Offset" DataBasePath="runTable/CMCalib.TDCOffset"/>
-						<Field Name="TDCXScale" Type="Float_t" Comment="TDC X-Axis Scale" DataBasePath="runTable/CMCalib.TDCXScale"/>
-					</Fields>
-				</SubFolder>
-				<SubFolder Name="CMPMTInfo" Title="Photo Multiplier Info" ArraySize="gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" DataBase="yes" UserCode="yes">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Container Class for Calorimeter Photo Multiplier Information."/>
-					<Fields>
-						<Field Name="PMID" Type="Int_t" Comment="Photo Multiplier ID" DataBasePath="runTable/CMPMTInfo.PMID"/>
-						<Field Name="ADCID" Type="Int_t" Comment="ADC Number" DataBasePath="runTable/CMPMTInfo.ADCID"/>
-						<Field Name="TDCID" Type="Int_t" Comment="TDC Number" DataBasePath="runTable/CMPMTInfo.TDCID"/>
-						<Field Name="Address" Type="TString" Initialisation="' '" Comment="Address" DataBasePath="runTable/CMPMTInfo.Address"/>
-						<Field Name="X" Type="Float_t" Comment="X-Coordinate" DataBasePath="runTable/CMPMTInfo.X"/>
-						<Field Name="Y" Type="Float_t" Comment="Y-Coordinate" DataBasePath="runTable/CMPMTInfo.Y"/>
-						<Field Name="Z" Type="Float_t" Comment="Z-Coordinate" DataBasePath="runTable/CMPMTInfo.Z"/>
-						<Field Name="DeadFlag" Type="Bool_t" Initialisation="false" Comment="Dead Photo Multiplier Flag" DataBasePath="runTable/CMPMTInfo.DeadFlag"/>
-					</Fields>
-				</SubFolder>
-				<SubFolder Name="CMScaler" Title="Scaler">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Container Class for Calorimeter Scaler data."/>
-					<Fields>
-						<Field Name="Scaler" Type="Float_t" Comment="  Scaler Data"/>
-					</Fields>
-				</SubFolder>
-				<SubFolder Name="CMHit" Title="Hit">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Container Class for Calorimeter hit data."/>
-					<Fields>
-						<Field Name="Energy" Type="Float_t" Comment="Energy"/>
-						<Field Name="PosX" Type="Float_t" Comment="X Position"/>
-						<Field Name="PosY" Type="Float_t" Comment="Y Position"/>
-						<Field Name="PosZ" Type="Float_t" Comment="Z Position"/>
-						<Field Name="Time" Type="Float_t" Comment="Time"/>
-						<Field Name="XAverage" Type="Float_t" Comment="X Average"/>
-						<Field Name="YAverage" Type="Float_t" Comment="Y Average"/>
-						<Field Name="QFront" Type="Float_t" Comment="Charge on Front Face"/>
-						<Field Name="QBack" Type="Float_t" Comment="Charge on Back Face"/>
-						<Field Name="QTop" Type="Float_t" Comment="Charge on Top Face"/>
-						<Field Name="QBottom" Type="Float_t" Comment="Charge on Bottom Face"/>
-						<Field Name="QRight" Type="Float_t" Comment="Charge on Right Face"/>
-						<Field Name="QLeft" Type="Float_t" Comment="Charge on Left Face"/>
-						<Field Name="QRaw" Type="Float_t" Comment="Raw total charge"/>
-						<Field Name="QSum" Type="Float_t" Comment="Total charge"/>
-						<Field Name="NHit" Type="Float_t" Comment="Number of hits"/>
-					</Fields>
-				</SubFolder>
-				<SubFolder Name="CMHV" Title="High Voltage">
-					<Author Name="Matthias Schneebeli"/>
-					<Version Number="1"/>
-					<Description Text="Container Class for High Voltage data."/>
-					<Fields>
-						<Field Name="Voltage" Type="Float_t" Comment="Voltage"/>
-						<Field Name="Current" Type="Float_t" Comment="Current"/>
-					</Fields>
-				</SubFolder>
-			</SubFolder>
-			<!--cm-->
-			<SubFolder Name="Environment" Title="Environment">
-				<Author Name="Matthias Schneebeli"/>
-				<Version Number="1"/>
-				<Description Text="Container Class for Environment data."/>
-				<Fields>
-					<Field Name="Temp" Type="Int_t" Comment="temp"/>
-				</Fields>
-			</SubFolder>
-			<SubFolder Name="Trigger" Title="Trigger">
-				<Author Name="Matthias Schneebeli"/>
-				<Version Number="1"/>
-				<Description Text="Container Class for Trigger data."/>
-				<Fields>
-					<Field Name="ID" Type="Int_t" Comment="event ID"/>
-					<Field Name="Mask" Type="Int_t" Comment="Trigger Mask"/>
-					<Field Name="Time" Type="Int_t" Comment="Time stamp"/>
-					<Field Name="Eventnumber" Type="Int_t" Comment="Event Number"/>
-				</Fields>
-			</SubFolder>
-			<SubFolder Name="Test" Title="Test" ArraySize="variable">
-				<Author Name="Matthias Schneebeli"/>
-				<Version Number="1"/>
-				<Description Text="Test."/>
-				<Includes>
-					<Include Name="TRef.h" Type="global"/>
-				</Includes>
-				<Fields>
-					<Field Name="Test" Type="Int_t" Comment="Test" Array="5"/>
-					<Field Name="ref" Type="TRef" Comment="ref"/>
-				</Fields>
-			</SubFolder>
-		</SubFolder>
-		<!--megData-->
-	</Folder>
-	<Task>
-		<SubTask Name="ReadMidas">
-			<Author Name="Matthias Schneebeli"/>
-			<Version Number="1"/>
-			<Description Text="Reads Midas Data."/>
-		</SubTask>
-		<SubTask Name="ADCPedestal" EventID="1">
-			<Author Name="Matthias Schneebeli"/>
-			<Version Number="1"/>
-			<Description Text="Calculates the ADC Pedestal."/>
-			<Includes>
-				<Include Name="MEG.h" Type="local"/>
-			</Includes>
-			<Histos>
-				<Histo Name="ADC0Histo" Type="TH1F" ArraySize="gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" FolderName="adc0" FolderTitle="ADC0 Histograms" Title="ADC0 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096"/>
-				<Histo Name="ADC1Histo" Type="TH1F" ArraySize="gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" FolderName="adc1" FolderTitle="ADC1 Histograms" Title="ADC1 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096"/>
-			</Histos>
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentName>Mu-E-Gamma</ExperimentName>
+		<ExperimentShortCut>MEG</ExperimentShortCut>
+		<ProgramName>Framework</ProgramName>
+		<FrameworkDescription>Framework for the Mu-E-Gamma experiment.</FrameworkDescription>
+	</Experiment>
+	<Author>
+		<AuthorName>Matthias Schneebeli</AuthorName>
+		<AuthorInstitute>Paul Scherrer Institute (PSI)</AuthorInstitute>
+		<AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+		<AuthorEmail>matthias.schneebeli@psi.ch</AuthorEmail>
+	</Author>
+	<Folders>
+		<Folder>
+			<FolderName>megData</FolderName>
+			<FolderTitle>MEG Data Root Folder</FolderTitle>
+			<Folder>
+				<FolderName>cm</FolderName>
+				<FolderTitle>Calorimeter</FolderTitle>
+				<Folder>
+					<FolderName>CMPMTData</FolderName>
+					<FolderTitle>ADC and TDC Values of Photo Multipliers</FolderTitle>
+					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Folder Class for Calorimeter Photo Multiplier data.</FolderDescription>
+					<Field>
+						<FieldName>ADC0Data</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>ADC Data of Photo Multipliers (low resolution)</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>ADC1Data</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>ADC Data of Photo Multipliers (high resolution)</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>TDCData</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>TDC Data of Photo Multipliers</FieldComment>
+					</Field>
+				</Folder>
+				<Folder>
+					<FolderName>CMCalib</FolderName>
+					<FolderTitle>Photo Multiplier Calibration</FolderTitle>
+					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<DataBaseAccess>true</DataBaseAccess>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Container Class for Calorimeter calibration data.</FolderDescription>
+					<Field>
+						<FieldName>ADCPedestal</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>ADC Pedestal</FieldComment>
+						<DataBasePath>runTable/CMCalib.ADCPedestal</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>ADCGain</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>ADC Gain</FieldComment>
+						<DataBasePath>runTable/CMCalib.ADCGain</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>TDCOffset</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>TDC Offset</FieldComment>
+						<DataBasePath>runTable/CMCalib.TDCOffset</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>TDCXScale</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>TDC X-Axis Scale</FieldComment>
+						<DataBasePath>runTable/CMCalib.TDCXScale</DataBasePath>
+					</Field>
+				</Folder>
+				<Folder>
+					<FolderName>CMPMTInfo</FolderName>
+					<FolderTitle>Photo Multiplier Info</FolderTitle>
+					<ArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</ArraySize>
+					<DataBaseAccess>true</DataBaseAccess>
+					<ChangeableClassFile>true</ChangeableClassFile>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Container Class for Calorimeter Photo Multiplier Information.</FolderDescription>
+					<Field>
+						<FieldName>PMID</FieldName>
+						<FieldType>Int_t</FieldType>
+						<FieldComment>Photo Multiplier ID</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.PMID</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>ADCID</FieldName>
+						<FieldType>Int_t</FieldType>
+						<FieldComment>ADC Number</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.ADCID</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>TDCID</FieldName>
+						<FieldType>Int_t</FieldType>
+						<FieldComment>TDC Number</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.TDCID</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>Address</FieldName>
+						<FieldType>TString</FieldType>
+						<FieldComment>Address</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.Address</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>X</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>X-Coordinate</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.X</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>Y</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Y-Coordinate</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.Y</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>Z</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Z-Coordinate</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.Z</DataBasePath>
+					</Field>
+					<Field>
+						<FieldName>DeadFlag</FieldName>
+						<FieldType>Bool_t</FieldType>
+						<FieldComment>Dead Photo Multiplier Flag</FieldComment>
+						<DataBasePath>runTable/CMPMTInfo.DeadFlag</DataBasePath>
+					</Field>
+				</Folder>
+				<Folder>
+					<FolderName>CMScaler</FolderName>
+					<FolderTitle>Scaler</FolderTitle>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Container Class for Calorimeter Scaler data.</FolderDescription>
+					<Field>
+						<FieldName>Scaler</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Scaler Data</FieldComment>
+					</Field>
+				</Folder>
+				<Folder>
+					<FolderName>CMHit</FolderName>
+					<FolderTitle>Hit</FolderTitle>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Container Class for Calorimeter hit data.</FolderDescription>
+					<Field>
+						<FieldName>Energy</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Energy</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>PosX</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>X Position</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>PosY</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Y Position</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>PosZ</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Z Position</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>Time</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Time</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>XAverage</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>X Average</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>YAverage</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Y Average</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QFront</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Front Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QBack</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Back Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QTop</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Top Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QBottom</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Bottom Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QRight</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Right Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QLeft</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Charge on Left Face</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QRaw</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Raw total charge</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>QSum</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Total charge</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>NHit</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Number of hits</FieldComment>
+					</Field>
+				</Folder>
+				<Folder>
+					<FolderName>CMHV</FolderName>
+					<FolderTitle>High Voltage</FolderTitle>
+					<Author>
+						<AuthorName>Matthias Schneebeli</AuthorName>
+					</Author>
+					<FolderVersion>1</FolderVersion>
+					<FolderDescription>Container Class for High Voltage data.</FolderDescription>
+					<Field>
+						<FieldName>Voltage</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Voltage</FieldComment>
+					</Field>
+					<Field>
+						<FieldName>Current</FieldName>
+						<FieldType>Float_t</FieldType>
+						<FieldComment>Current</FieldComment>
+					</Field>
+				</Folder>
+			</Folder>
+			<Folder>
+				<FolderName>Environment</FolderName>
+				<FolderTitle>Environment</FolderTitle>
+				<Author>
+					<AuthorName>Matthias Schneebeli</AuthorName>
+				</Author>
+				<FolderVersion>1</FolderVersion>
+				<FolderDescription>Container Class for Environment data.</FolderDescription>
+				<Field>
+					<FieldName>Temp</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>temp</FieldComment>
+				</Field>
+			</Folder>
+			<Folder>
+				<FolderName>Trigger</FolderName>
+				<FolderTitle>Trigger</FolderTitle>
+				<Author>
+					<AuthorName>Matthias Schneebeli</AuthorName>
+				</Author>
+				<FolderVersion>1</FolderVersion>
+				<FolderDescription>Container Class for Trigger data.</FolderDescription>
+				<Field>
+					<FieldName>ID</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>event ID</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>Mask</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Trigger Mask</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>Time</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Time stamp</FieldComment>
+				</Field>
+				<Field>
+					<FieldName>Eventnumber</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Event Number</FieldComment>
+				</Field>
+			</Folder>
+			<Folder>
+				<FolderName>Test</FolderName>
+				<FolderTitle>Test</FolderTitle>
+				<ArraySize>variable</ArraySize>
+				<Author>
+					<AuthorName>Matthias Schneebeli</AuthorName>
+				</Author>
+				<FolderVersion>1</FolderVersion>
+				<FolderDescription>Test</FolderDescription>
+				<Include>
+					<IncludeName>TRef.h</IncludeName>
+					<IncludeType>global</IncludeType>
+				</Include>
+				<Field>
+					<FieldName>Test</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Test</FieldComment>
+					<ArraySize>5</ArraySize>
+				</Field>
+				<Field>
+					<FieldName>ref</FieldName>
+					<FieldType>TRef</FieldType>
+					<FieldComment>ref</FieldComment>
+				</Field>
+			</Folder>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>ReadMidas</TaskName>
+			<Author>
+				<AuthorName>Matthias Schneebeli</AuthorName>
+			</Author>
+			<TaskVersion>1</TaskVersion>
+			<TaskDescription>Reads Midas Data.</TaskDescription>
+		</Task>
+		<Task>
+			<TaskName>ADCPedestal</TaskName>
+			<TaskEventId>1</TaskEventId>
+			<Author>
+				<AuthorName>Matthias Schneebeli</AuthorName>
+			</Author>
+			<TaskVersion>1</TaskVersion>
+			<TaskDescription>Calculates the ADC Pedestal.</TaskDescription>
+			<Include>
+				<IncludeName>MEG.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Histogram>
+				<HistName>ADC0Histo</HistName>
+				<HistTitle>ADC0 Histograms</HistTitle>
+				<HistFolderName>adc0</HistFolderName>
+				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
+				<HistType>TH1F</HistType>
+				<HistArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</HistArraySize>
+				<HistXNbins>4096</HistXNbins>
+				<HistXmin>0</HistXmin>
+				<HistXmax>4096</HistXmax>
+			</Histogram>
+			<Histogram>
+				<HistName>ADC1Histo</HistName>
+				<HistTitle>ADC1 Histograms</HistTitle>
+				<HistFolderName>adc1</HistFolderName>
+				<HistFolderTitle>ADC1 Histograms</HistFolderTitle>
+				<HistType>TH1F</HistType>
+				<HistArraySize>gAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()</HistArraySize>
+				<HistXNbins>4096</HistXNbins>
+				<HistXmin>0</HistXmin>
+				<HistXmax>4096</HistXmax>
+			</Histogram>
 			<SteeringParameters>
-				<Field Name="PedestalThreshold" Type="Float_t" Initialisation="500" Comment="Pedestal Threshold"/>
-				<Field Name="PedestalSpreadThreshold" Type="Float_t" Initialisation="1" Comment="Pedestal Spread Threshold"/>
+				<SteeringParameterField>
+					<SPFieldName>PedestalThreshold</SPFieldName>
+					<SPFieldType>Float_t</SPFieldType>
+					<SPFieldInitialization>500</SPFieldInitialization>
+					<SPFieldComment>Pedestal Threshold</SPFieldComment>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>PedestalSpreadThreshold</SPFieldName>
+					<SPFieldType>Float_t</SPFieldType>
+					<SPFieldInitialization>1</SPFieldInitialization>
+					<SPFieldComment>Pedestal Spread Threshold</SPFieldComment>
+				</SteeringParameterField>
 			</SteeringParameters>
-		</SubTask>
-		<SubTask Name="TDCAverage">
-			<Author Name="Matthias Schneebeli"/>
-			<Version Number="1"/>
-			<Description Text="Calculates the TDC Average."/>
-			<Histos>
-				<Histo Name="TDCAverageHisto" Type="TH1F" ArraySize="1" Title="TDC Avarage Histogram" NumberOfBinsX="400" XMin="-200" XMax="200"/>
-			</Histos>
-		</SubTask>
-		<SubTask Name="Charge">
-			<Author Name="Matthias Schneebeli"/>
-			<Version Number="1"/>
-			<Description Text="Calculates the Charge."/>
-			<Includes>
-				<Include Name="MEG.h" Type="local"/>
-			</Includes>
-			<Histos>
-				<Histo Name="FrontMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-				<Histo Name="BackMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-				<Histo Name="TopMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-				<Histo Name="BottomMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-				<Histo Name="RightMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-				<Histo Name="LeftMapHisto" Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20"/>
-			</Histos>
+		</Task>
+		<Task>
+			<TaskName>TDCAverage</TaskName>
+			<Author>
+				<AuthorName>Matthias Schneebeli</AuthorName>
+			</Author>
+			<TaskVersion>1</TaskVersion>
+			<TaskDescription>Calculates the TDC Average.</TaskDescription>
+			<Histogram>
+				<HistName>TDCAverageHisto</HistName>
+				<HistTitle>TDC Avarage Histogram</HistTitle>
+				<HistFolderName>tdc</HistFolderName>
+				<HistFolderTitle>TDC Avarage Histogram</HistFolderTitle>
+				<HistType>TH1F</HistType>
+				<HistXNbins>400</HistXNbins>
+				<HistXmin>-200</HistXmin>
+				<HistXmax>200</HistXmax>
+			</Histogram>
+		</Task>
+		<Task>
+			<TaskName>Charge</TaskName>
+			<Author>
+				<AuthorName>Matthias Schneebeli</AuthorName>
+			</Author>
+			<TaskVersion>1</TaskVersion>
+			<TaskDescription>Calculates the Charge.</TaskDescription>
+			<Include>
+				<IncludeName>MEG.h</IncludeName>
+				<IncludeType>local</IncludeType>
+			</Include>
+			<Histogram>
+				<HistName>FrontMapHisto</HistName>
+				<HistTitle>Front side Map Histograms</HistTitle>
+				<HistFolderName>frontmap</HistFolderName>
+				<HistFolderTitle>Front side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
+			<Histogram>
+				<HistName>BackMapHisto</HistName>
+				<HistTitle>Back side Map Histograms</HistTitle>
+				<HistFolderName>backmap</HistFolderName>
+				<HistFolderTitle>Back side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
+			<Histogram>
+				<HistName>TopMapHisto</HistName>
+				<HistTitle>Top side Map Histograms</HistTitle>
+				<HistFolderName>topmap</HistFolderName>
+				<HistFolderTitle>Top side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
+			<Histogram>
+				<HistName>BottomMapHisto</HistName>
+				<HistTitle>Bottom side Map Histograms</HistTitle>
+				<HistFolderName>bottommap</HistFolderName>
+				<HistFolderTitle>Bottom side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
+			<Histogram>
+				<HistName>RightMapHisto</HistName>
+				<HistTitle>Right side Map Histograms</HistTitle>
+				<HistFolderName>rightmap</HistFolderName>
+				<HistFolderTitle>Right side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
+			<Histogram>
+				<HistName>LeftMapHisto</HistName>
+				<HistTitle>Left side Map Histograms</HistTitle>
+				<HistFolderName>leftmap</HistFolderName>
+				<HistFolderTitle>Left side Map Histograms</HistFolderTitle>
+				<HistType>TH2F</HistType>
+				<HistArraySize>GetSP()-&gt;GetNumberOfMapHistos()</HistArraySize>
+				<HistXNbins>6</HistXNbins>
+				<HistXmin>-20</HistXmin>
+				<HistXmax>20</HistXmax>
+				<HistYNbins>6</HistYNbins>
+				<HistYmin>-20</HistYmin>
+				<HistYmax>20</HistYmax>
+			</Histogram>
 			<SteeringParameters>
-				<Field Name="NumberOfMapHistos" Type="Int_t" Initialisation="10" Comment="Number of Map Histograms"/>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfMapHistos</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>10</SPFieldInitialization>
+					<SPFieldComment>Number of Map Histograms</SPFieldComment>
+				</SteeringParameterField>
 			</SteeringParameters>
-		</SubTask>
-	</Task>
+		</Task>
+	</Tasks>
 	<Trees>
-		<Tree Name="CMPMTData" Title="Calorimeter PMT Data">
-			<Branch Name="PMTData" Folder="CMPMTData"/>
+		<Tree>
+			<TreeName>CMPMTData</TreeName>
+			<TreeTitle>Calorimeter PMT Data</TreeTitle>
+			<Branch>
+				<BranchName>PMTData</BranchName>
+				<RelatedFolder>CMPMTData</RelatedFolder>
+			</Branch>
 		</Tree>
-		<Tree Name="CMHit" Title="Calorimeter Hit">
-			<Branch Name="CMHit" Folder="CMHit"/>
+		<Tree>
+			<TreeName>CMHit</TreeName>
+			<TreeTitle>Calorimeter Hit</TreeTitle>
+			<Branch>
+				<BranchName>CMHit</BranchName>
+				<RelatedFolder>CMHit</RelatedFolder>
+			</Branch>
 		</Tree>
-		<Tree Name="Trigger" Title="Trigger Data">
-			<Branch Name="Trigger" Folder="Trigger"/>
+		<Tree>
+			<TreeName>Trigger</TreeName>
+			<TreeTitle>Trigger Data</TreeTitle>
+			<Branch>
+				<BranchName>Trigger</BranchName>
+				<RelatedFolder>Trigger</RelatedFolder>
+			</Branch>
 		</Tree>
-		<Tree Name="Test" Title="Test Data">
-			<Branch Name="Test" Folder="Test"/>
+		<Tree>
+			<TreeName>Test</TreeName>
+			<TreeTitle>Test Data</TreeTitle>
+			<Branch>
+				<BranchName>Test</BranchName>
+				<RelatedFolder>Test</RelatedFolder>
+			</Branch>
 		</Tree>
 	</Trees>
-	<GeneralSteeringParameters>
-		<Group Name="PMT">
-			<Group Name="Numbers">
-				<Field Name="NumberOfPMT" Type="Int_t" Initialisation="257" Comment="Number of PMTs"/>
-				<Field Name="NumberOfFTDC" Type="Int_t" Initialisation="64" Comment="Number of FTDCs"/>
-				<Field Name="NumberOfCTDC" Type="Int_t" Initialisation="80" Comment="Number of CTDCs"/>
-				<Field Name="NumberOfVTDC" Type="Int_t" Initialisation="128" Comment="Number of VTDCs"/>
-				<Field Name="NumberOfLXePMT" Type="Int_t" Initialisation="228" Comment="Number of LXePMTs"/>
-			</Group>
-		</Group>
-		<Field Name="InvalidValue" Type="Float_t" Initialisation="-1000" Comment="Invalid Value"/>
-	</GeneralSteeringParameters>
+	<GlobalSteeringParameters>
+		<SteeringParameterField>
+			<SPFieldName>InvalidValue</SPFieldName>
+			<SPFieldType>Float_t</SPFieldType>
+			<SPFieldInitialization>-1000</SPFieldInitialization>
+			<SPFieldComment>Invalid Value</SPFieldComment>
+		</SteeringParameterField>
+		<SteeringParameterGroup>
+			<SPGroupName>PMT</SPGroupName>
+			<SteeringParameterGroup>
+				<SPGroupName>Numbers</SPGroupName>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfPMT</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>257</SPFieldInitialization>
+					<SPFieldComment>Number of PMTs</SPFieldComment>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfFTDC</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>64</SPFieldInitialization>
+					<SPFieldComment>Number of FTDCs</SPFieldComment>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfCTDC</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>80</SPFieldInitialization>
+					<SPFieldComment>Number of CTDCs</SPFieldComment>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfVTDC</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>128</SPFieldInitialization>
+					<SPFieldComment>Number of VTDCs</SPFieldComment>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>NumberOfLXePMT</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>228</SPFieldInitialization>
+					<SPFieldComment>Number of LXePMTs</SPFieldComment>
+				</SteeringParameterField>
+			</SteeringParameterGroup>
+		</SteeringParameterGroup>
+	</GlobalSteeringParameters>
 	<MidasBanks>
-		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="Eventnumber" TimeStamp="Time"/>
-		<Bank Name="SCLR" Type="unsigned long"/>
-		<Bank Name="ADC0" Type="unsigned short"/>
-		<Bank Name="ADC1" Type="unsigned short"/>
-		<Bank Name="FTDC" Type="struct" StructName="LRS1875">
-			<Field Name="data" Type="unsigned short" PackedSize="12"/>
-			<Field Name="q1" Type="unsigned short" PackedSize="4"/>
-			<Field Name="channel" Type="unsigned short" PackedSize="6"/>
-			<Field Name="q2" Type="unsigned short" PackedSize="1"/>
-			<Field Name="range" Type="unsigned short" PackedSize="1"/>
-			<Field Name="event" Type="unsigned short" PackedSize="3"/>
-			<Field Name="geo_addr" Type="unsigned short" PackedSize="5"/>
+		<EventHeader>
+			<Folder>Trigger</Folder>
+			<EventId>ID</EventId>
+			<TriggerMask>Mask</TriggerMask>
+			<SerialNumber>Eventnumber</SerialNumber>
+			<TimeStamp>Time</TimeStamp>
+		</EventHeader>
+		<Bank>
+			<BankName>SCLR</BankName>
+			<BankType>unsigned long</BankType>
 		</Bank>
-		<Bank Name="VTDC" Type="struct" StructName="CAEN775">
-			<Field Name="data" Type="unsigned short" PackedSize="12"/>
-			<Field Name="overflow" Type="unsigned short" PackedSize="1"/>
-			<Field Name="underflow" Type="unsigned short" PackedSize="1"/>
-			<Field Name="valid" Type="unsigned short" PackedSize="1"/>
-			<Field Name="q1" Type="unsigned short" PackedSize="1"/>
-			<Field Name="channel" Type="unsigned short" PackedSize="6"/>
-			<Field Name="q2" Type="unsigned short" PackedSize="2"/>
-			<Field Name="tag" Type="unsigned short" PackedSize="3"/>
-			<Field Name="geo_addr" Type="unsigned short" PackedSize="5"/>
+		<Bank>
+			<BankName>ADC0</BankName>
+			<BankType>unsigned short</BankType>
 		</Bank>
-		<Bank Name="CTDC" Type="unsigned long"/>
+		<Bank>
+			<BankName>ADC1</BankName>
+			<BankType>unsigned short</BankType>
+		</Bank>
+		<Bank>
+			<BankName>CTDC</BankName>
+			<BankType>unsigned long</BankType>
+		</Bank>
+		<StructuredBank>
+			<BankName>FTDC</BankName>
+			<BankField>
+				<BankFieldName>data</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>12</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>q1</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>4</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>channel</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>6</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>q2</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>range</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>event</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>3</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>geo_addr</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>5</BankFieldSize>
+			</BankField>
+		</StructuredBank>
+		<StructuredBank>
+			<BankName>VTDC</BankName>
+			<BankField>
+				<BankFieldName>data</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>12</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>overflow</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>underflow</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>valid</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>q1</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>1</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>channel</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>6</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>q2</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>2</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>tag</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>3</BankFieldSize>
+			</BankField>
+			<BankField>
+				<BankFieldName>geo_addr</BankFieldName>
+				<BankFieldType>unsigned short</BankFieldType>
+				<BankFieldSize>5</BankFieldSize>
+			</BankField>
+		</StructuredBank>
 	</MidasBanks>
-</Experiment>
+</ROMEFrameworkDefinition>

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.55  2004/10/08 12:03:17  schneebeli_m
+  Changed XML format, included a rome.xsd schema file
+
   Revision 1.54  2004/10/05 14:01:16  schneebeli_m
   Circular Trees
 
@@ -178,194 +181,229 @@
 
 bool ROMEBuilder::ReadXMLFolder() {
    // read the folder definitions out of the xml file
-   ROMEString parent[maxNumberOfFolders];
    ROMEString tmp;
    char* name;
-   int type,i,j,isub=0;
-   parent[0] = "GetMainFolder()";
+   int type,i,j;
+   ROMEString currentFolderName = "";
+   int currentNumberOfFolders;
 
-   if (makeOutput) cout << "Folders:" << endl;
+   // count folders
+   numOfFolder++;
+   currentNumberOfFolders = numOfFolder;
+   if (numOfFolder>=maxNumberOfFolders) {
+      cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+   // initialisation
+   folderName[numOfFolder] = "";
+   folderTitle[numOfFolder] = "";
+   folderArray[numOfFolder] = "1";
+   folderDataBase[numOfFolder] = false;
+   folderUserCode[numOfFolder] = false;
+   folderVersion[numOfFolder] = "1";
+   folderDescription[numOfFolder] = "";
+   folderAuthor[numOfFolder] = mainAuthor;
+   numOfFolderInclude[numOfFolder] = 0;
+   numOfValue[numOfFolder] = 0;
+
+   // set parent
+   folderParentName[numOfFolder] = parent[recursiveDepth];
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
-      // read subfolder
-      if (type == 1 && !strcmp((const char*)name,"SubFolder")) {
-         numOfFolder++;
-         if (numOfFolder>=maxNumberOfFolders) {
-            cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // default initialisation
-         numOfFolderInclude[numOfFolder] = 0;
-         folderAuthor[numOfFolder] = mainAuthor;
-         folderVersion[numOfFolder] = "1";
-         folderDescription[numOfFolder] = "";
-         folderDataBase[numOfFolder] = false;
-         folderUserCode[numOfFolder] = false;
-         numOfValue[numOfFolder] = 0;
-         // set parent
-         folderParentName[numOfFolder] = parent[isub];
-         // read folder name
-         xml->GetAttribute("Name",folderName[numOfFolder],"");
-         xml->GetAttribute("FolderName",folderName[numOfFolder],folderName[numOfFolder]);
-         if (folderName[numOfFolder]=="") {
-            cout << "Folder " << (numOfFolder+1) << " has no name !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // read folder title
-         xml->GetAttribute("Title",folderTitle[numOfFolder],"");
-         xml->GetAttribute("FolderTitle",folderTitle[numOfFolder],folderTitle[numOfFolder]);
-         // read array flag
-         xml->GetAttribute("ArraySize",folderArray[numOfFolder],"1");
-         xml->GetAttribute("Array",folderArray[numOfFolder],folderArray[numOfFolder]);
-         // read data base flag
-         xml->GetAttribute("DataBase",tmp,"no");
-         if (tmp == "yes") 
-            folderDataBase[numOfFolder] = true;
-         // read user code flag
-         xml->GetAttribute("UserCode",tmp,"no");
-         if (tmp == "yes") 
-            folderUserCode[numOfFolder] = true;
-
+      // subfolder
+      if (type == 1 && !strcmp((const char*)name,"Folder")) {
          // set folder as parent for subsequent folders
-         isub++;
-         parent[isub] = folderName[numOfFolder].Data();
-
+         recursiveDepth++;
+         parent[recursiveDepth] = folderName[numOfFolder].Data();
+         // read subfolder
+         if (!ReadXMLFolder()) 
+            return false;
+         continue;
+      }
+      // end folder
+      if (type == 15 && !strcmp((const char*)name,"Folder")) {
+         // check input
+         if (currentFolderName=="") {
+            cout << "The " << (currentNumberOfFolders+1) << ". Folder has no name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         recursiveDepth--;
+         return true;
+      }
+      // folder name
+      if (type == 1 && !strcmp((const char*)name,"FolderName")) {
+         xml->GetValue(folderName[numOfFolder],folderName[numOfFolder]);
+         currentFolderName = folderName[numOfFolder];
          // output
-         if (makeOutput) for (i=0;i<isub;i++) cout << "   ";
+         if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
          if (makeOutput) folderName[numOfFolder].WriteLine();
       }
-      // end subfolder
-      if (type == 15 && !strcmp((const char*)name,"SubFolder")) {
-         isub--;
+      // folder title
+      if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
+         xml->GetValue(folderTitle[numOfFolder],folderTitle[numOfFolder]);
+      // folder array size
+      if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+         xml->GetValue(folderArray[numOfFolder],folderArray[numOfFolder]);
+      // folder data base access
+      if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true") 
+            folderDataBase[numOfFolder] = true;
       }
-      // read folder content
-      if (type == 1) {
-         // read author
-         if (!strcmp((const char*)name,"Author")) {
-            xml->GetAttribute("Name",folderAuthor[numOfFolder],mainAuthor);
+      // folder with changeble class file
+      if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true") 
+            folderUserCode[numOfFolder] = true;
+      }
+      // folder version
+      if (type == 1 && !strcmp((const char*)name,"FolderVersion"))
+         xml->GetValue(folderVersion[numOfFolder],folderVersion[numOfFolder]);
+      // folder description
+      if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
+         xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+      // folder author
+      if (type == 1 && !strcmp((const char*)name,"Author")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // author name
+            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+               xml->GetValue(folderAuthor[numOfFolder],folderAuthor[numOfFolder]);
+            if (type == 15 && !strcmp((const char*)name,"Author"))
+               break;
          }
-         // read version
-         else if (!strcmp((const char*)name,"Version")) {
-            xml->GetAttribute("Number",folderVersion[numOfFolder],"1");
+         continue;
+      }
+      // folder include
+      if (type == 1 && !strcmp((const char*)name,"Include")) {
+         // include initialisation
+         folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] = "";
+         folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // include name
+            if (type == 1 && !strcmp((const char*)name,"IncludeName"))
+               xml->GetValue(folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]],folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]);
+            // include type
+            if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
+               xml->GetValue(tmp,"false");
+               if (tmp == "local") 
+                  folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = true;
+            }
+            // include end
+            if (type == 15 && !strcmp((const char*)name,"Include"))
+               break;
          }
-         // read description
-         else if (!strcmp((const char*)name,"Description")) {
-            xml->GetAttribute("Text",folderDescription[numOfFolder],"");
+         // check input
+         if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]=="") {
+            cout << "An Include of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
-         // includes
-         else if (!strcmp((const char*)name,"Includes")) {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1 && !strcmp((const char*)name,"Include")) {
-                  // include name
-                  xml->GetAttribute("Name",folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]],"");
-                  if (folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]]=="") {
-                     cout << "An Include of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // include type
-                  folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
-                  xml->GetAttribute("Type",tmp,"global");
-                  if (tmp=="local") 
-                     folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = true;
-                  numOfFolderInclude[numOfFolder]++;
-                  if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
-                     cout << "Maximal number of inludes in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
+         // count includes
+         numOfFolderInclude[numOfFolder]++;
+         if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
+            cout << "Maximal number of inludes in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         continue;
+      }
+      // folder field
+      if (type == 1 && !strcmp((const char*)name,"Field")) {
+         // field initialisation
+         bool readName = false;
+         bool readType = false;
+         valueName[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueType[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueComment[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueArray[numOfFolder][numOfValue[numOfFolder]] = "0";
+         valueDataBasePath[numOfFolder][numOfValue[numOfFolder]] = "";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // field name
+            if (type == 1 && !strcmp((const char*)name,"FieldName")) {
+               readName = true;
+               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],valueName[numOfFolder][numOfValue[numOfFolder]]);
+            }
+            // field type
+            if (type == 1 && !strcmp((const char*)name,"FieldType")) {
+               readType = true;
+               xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
+               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
+               else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
+               else
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+            }
+            // field initialization
+            if (type == 1 && !strcmp((const char*)name,"FieldInitialization")) {
+               if (!readName) {
+                  cout << "Please specify a field name befor the initial value in the " << (numOfValue[numOfFolder]+1) << ".field in folder '" << folderName[numOfFolder].Data() << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
                }
-               if (type == 15 && !strcmp((const char*)name,"Includes")) {
-                  break;
+               if (!readType) {
+                  cout << "Please specify a field type befor the initial value in field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' in folder  '" << folderName[numOfFolder].Data() << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],valueName[numOfFolder][numOfValue[numOfFolder]]);
+            }
+            // field comment
+            if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
+               xml->GetValue(valueComment[numOfFolder][numOfValue[numOfFolder]],valueComment[numOfFolder][numOfValue[numOfFolder]]);
+               if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
+                  valueComment[numOfFolder][numOfValue[numOfFolder]].Insert(0,"// ");
                }
             }
+            // field array size
+            if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+               xml->GetValue(valueArray[numOfFolder][numOfValue[numOfFolder]],valueArray[numOfFolder][numOfValue[numOfFolder]]);
+            // field data base path
+            if (type == 1 && !strcmp((const char*)name,"DataBasePath"))
+               xml->GetValue(valueDataBasePath[numOfFolder][numOfValue[numOfFolder]],valueDataBasePath[numOfFolder][numOfValue[numOfFolder]]);
+            // field end
+            if (type == 15 && !strcmp((const char*)name,"Field"))
+               break;
          }
-         // read fields
-         else if (!strcmp((const char*)name,"Fields")) {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1 && !strcmp((const char*)name,"Field")) {
-                  // field name
-                  xml->GetAttribute("Name",valueName[numOfFolder][numOfValue[numOfFolder]],"");
-                  if (valueName[numOfFolder][numOfValue[numOfFolder]]=="") {
-                     cout << "A Field of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // field type
-                  xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]],"");
-                  if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
-                     cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // field initialisation
-                  if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
-                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
-                  else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
-                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"NULL");
-                  else
-                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
-                  xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
-                  // field comment
-                  xml->GetAttribute("Comment",valueComment[numOfFolder][numOfValue[numOfFolder]]," ");
-                  if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
-                     valueComment[numOfFolder][numOfValue[numOfFolder]].Insert(0,"// ");
-                  }
-                  // data base path
-                  valueDataBasePath[numOfFolder][numOfValue[numOfFolder]].AppendFormatted("%s.%s",folderName[numOfFolder].Data(),valueName[numOfFolder][numOfValue[numOfFolder]].Data());
-                  xml->GetAttribute("DataBasePath",valueDataBasePath[numOfFolder][numOfValue[numOfFolder]],valueDataBasePath[numOfFolder][numOfValue[numOfFolder]]);
-                  // array
-                  xml->GetAttribute("Array",valueArray[numOfFolder][numOfValue[numOfFolder]],"0");
-                  xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]],valueArray[numOfFolder][numOfValue[numOfFolder]]);
-                  if (valueArray[numOfFolder][numOfValue[numOfFolder]]!="0" && folderDataBase[numOfFolder]) {
-                     cout << "Value '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "', which has data base access, can not be an array !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // field count
-                  numOfValue[numOfFolder]++;
-                  if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-                     cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-               }
-               if (type == 15 && !strcmp((const char*)name,"Fields")) {
-                  for (i=0;i<numOfValue[numOfFolder];i++) {
-                     for (j=i+1;j<numOfValue[numOfFolder];j++) {
-                        if (valueName[numOfFolder][i]==valueName[numOfFolder][j]) {
-                           cout << "\nFolder '" << folderName[numOfFolder].Data() << "' has two fields with the name '" << valueName[numOfFolder][i].Data() << "' !" << endl;
-                           cout << "Terminating program." << endl;
-                           return false;
-                        }
-                     }
-                  }
-                  break;
-               }
-            }
+         // check input
+         if (valueName[numOfFolder][numOfValue[numOfFolder]]=="") {
+            cout << "A Field of Folder '" << folderName[numOfFolder].Data() << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
-      }
-      if (type == 15 && !strcmp((const char*)name,"Folder")) {
-         for (i=0;i<numOfFolder;i++) {
-            for (j=i+1;j<numOfFolder;j++) {
-               if (folderName[i]==folderName[j]) {
-                  cout << "\nFolder '" << folderName[i].Data() << "' is defined twice !" << endl;
+         if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
+            cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         for (i=0;i<numOfValue[numOfFolder];i++) {
+            for (j=i+1;j<numOfValue[numOfFolder];j++) {
+               if (valueName[numOfFolder][i]==valueName[numOfFolder][j]) {
+                  cout << "\nFolder '" << folderName[numOfFolder].Data() << "' has two fields with the name '" << valueName[numOfFolder][i].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
             }
          }
-         break;
+         // count fields
+         numOfValue[numOfFolder]++;
+         if (numOfValue[numOfFolder]>=maxNumberOfValues) {
+            cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         continue;
       }
    }
-   numOfFolder++;
    return true;
 }
 
@@ -812,403 +850,307 @@ bool ROMEBuilder::WriteFolderH() {
 }
 
 bool ROMEBuilder::ReadXMLTask() {
-   ROMEString parent[maxNumberOfTasks];
+   // read the task definitions out of the xml file
    ROMEString tmp;
    char* name;
-   int type,i,j,isub=0;
-   int empty,depth=0,index[20];
-   parent[0] = "GetMainTask()";
+   int type,i,j;
+   ROMEString currentTaskName = "";
+   int currentNumberOfTasks;
 
-   if (makeOutput) cout << "\n\nTasks:" << endl;
+   // count tasks
+   numOfTask++;
+   currentNumberOfTasks = numOfTask;
+   if (numOfTask>=maxNumberOfTasks) {
+      cout << "Maximal number of tasks reached : " << maxNumberOfTasks << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+   // initialisation
+   taskName[numOfTask] = "";
+   taskEventID[numOfTask] = "a";
+   taskFortran[numOfTask] = false;
+   taskAuthor[numOfTask] = mainAuthor;
+   taskVersion[numOfTask] = "1";
+   taskDescription[numOfTask] = "";
+   numOfHistos[numOfTask] = 0;
+   numOfTaskInclude[numOfTask] = 0;
+   taskParentName[numOfTask] = parent[recursiveDepth];
+   numOfSteering[numOfTask] = -1;
+
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
-      empty = xml->isEmpty();
-      if (type == 1 && !strcmp((const char*)name,"SubTask")) {
-         numOfTask++;
-         if (numOfTask>=maxNumberOfTasks) {
-            cout << "Maximal number of tasks reached : " << maxNumberOfTasks << " !" << endl;
+      // subtask
+      if (type == 1 && !strcmp((const char*)name,"Task")) {
+         // set task as parent for subsequent tasks
+         recursiveDepth++;
+         parent[recursiveDepth] = taskName[numOfTask];
+         // read subtask
+         if (!ReadXMLTask()) 
+            return false;
+         continue;
+      }
+      // end task
+      if (type == 15 && !strcmp((const char*)name,"Task")) {
+         // check input
+         if (currentTaskName=="") {
+            cout << "The " << (currentNumberOfTasks+1) << ". Task has no name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // initialisation
-         index[0] = 0;
-         numOfTaskSteering[numOfTask] = 0;
-         numOfTaskSteerFields[numOfTask][0] = 0;
-         numOfHistos[numOfTask] = 0;
-         numOfTaskInclude[numOfTask] = 0;
-         taskSteerDepth[numOfTask][0] = 0;
-         taskAuthor[numOfTask] = mainAuthor;
-         taskVersion[numOfTask] = "1";
-         taskDescription[numOfTask] = "";
-
-         taskSteerName[numOfTask][0] = "Steering";
-         taskSteerParent[numOfTask][0] = "";
-         taskParentName[numOfTask] = parent[isub];
-
-         // task name
-         xml->GetAttribute("Name",taskName[numOfTask],"");
-         if (taskName[numOfTask]=="") {
-            cout << "Task " << (numOfTask+1) << " has no name !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // trigger id
-         xml->GetAttribute("EventID",taskEventID[numOfTask],"a");
-         // language
-         taskFortran[numOfTask] = false;
-         xml->GetAttribute("Language",tmp,"c++");
+         recursiveDepth--;
+         return true;
+      }
+      // task name
+      if (type == 1 && !strcmp((const char*)name,"TaskName")) {
+         xml->GetValue(taskName[numOfTask],taskName[numOfTask]);
+         currentTaskName = taskName[numOfTask];
+         // output
+         if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
+         if (makeOutput) taskName[numOfTask].WriteLine();
+      }
+      // task event id
+      if (type == 1 && !strcmp((const char*)name,"TaskEventId"))
+         xml->GetValue(taskEventID[numOfTask],taskEventID[numOfTask]);
+      // task language
+      if (type == 1 && !strcmp((const char*)name,"Language")) {
+         xml->GetValue(tmp,"c++");
          if (tmp == "Fortran") 
             taskFortran[numOfTask] = true;
-
-         // output
-         if (makeOutput) for (i=0;i<isub+1;i++) cout << "   ";
-         if (makeOutput) taskName[numOfTask].WriteLine();
-
-         // handle subtask
-         if (!empty) {
-            isub++;
-            parent[isub] = taskName[numOfTask];
-         }
       }
-      if (type == 15 && !strcmp((const char*)name,"SubTask")) {
-         isub--;
+      // task author
+      if (type == 1 && !strcmp((const char*)name,"Author"))
+         xml->GetValue(taskAuthor[numOfTask],taskAuthor[numOfTask]);
+      // task version
+      if (type == 1 && !strcmp((const char*)name,"TaskVersion"))
+         xml->GetValue(taskVersion[numOfTask],taskVersion[numOfTask]);
+      // task description
+      if (type == 1 && !strcmp((const char*)name,"TaskDescription"))
+         xml->GetValue(taskDescription[numOfTask],taskDescription[numOfTask]);
+      // task include
+      if (type == 1 && !strcmp((const char*)name,"Include")) {
+         // include initialisation
+         taskInclude[numOfTask][numOfTaskInclude[numOfTask]] = "";
+         taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = false;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // include name
+            if (type == 1 && !strcmp((const char*)name,"IncludeName"))
+               xml->GetValue(taskInclude[numOfTask][numOfTaskInclude[numOfTask]],taskInclude[numOfTask][numOfTaskInclude[numOfTask]]);
+            // include type
+            if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
+               xml->GetValue(tmp,"false");
+               if (tmp == "local") 
+                  taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = true;
+            }
+            // include end
+            if (type == 15 && !strcmp((const char*)name,"Include"))
+               break;
+         }
+         // check input
+         if (taskInclude[numOfTask][numOfTaskInclude[numOfTask]]=="") {
+            cout << "An Include of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         // count includes
+         numOfTaskInclude[numOfTask]++;
+         if (numOfTaskInclude[numOfTask]>=maxNumberOfInclude) {
+            cout << "Maximal number of inludes in Task '" << taskName[numOfTask].Data() << "' reached : " << numOfTaskInclude << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         continue;
       }
-      if (type == 1) {
-         // author
-         if (!strcmp((const char*)name,"Author")) {
-            xml->GetAttribute("Name",taskAuthor[numOfTask],mainAuthor);
+      // task histogram
+      if (type == 1 && !strcmp((const char*)name,"Histogram")) {
+         // histogram initialisation
+         histoName[numOfTask][numOfHistos[numOfTask]] = "";
+         histoTitle[numOfTask][numOfHistos[numOfTask]] = "";
+         histoFolderName[numOfTask][numOfHistos[numOfTask]] = "";
+         histoFolderTitle[numOfTask][numOfHistos[numOfTask]] = "";
+         histoType[numOfTask][numOfHistos[numOfTask]] = "";
+         histoArray[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoXBin[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoXMin[numOfTask][numOfHistos[numOfTask]] = "0";
+         histoXMax[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoYBin[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoYMin[numOfTask][numOfHistos[numOfTask]] = "0";
+         histoYMax[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoZBin[numOfTask][numOfHistos[numOfTask]] = "1";
+         histoZMin[numOfTask][numOfHistos[numOfTask]] = "0";
+         histoZMax[numOfTask][numOfHistos[numOfTask]] = "1";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // histo name
+            if (type == 1 && !strcmp((const char*)name,"HistName"))
+               xml->GetValue(histoName[numOfTask][numOfHistos[numOfTask]],histoName[numOfTask][numOfHistos[numOfTask]]);
+            // histo title
+            if (type == 1 && !strcmp((const char*)name,"HistTitle"))
+               xml->GetValue(histoTitle[numOfTask][numOfHistos[numOfTask]],histoTitle[numOfTask][numOfHistos[numOfTask]]);
+            // histo folder name
+            if (type == 1 && !strcmp((const char*)name,"HistFolderName"))
+               xml->GetValue(histoFolderName[numOfTask][numOfHistos[numOfTask]],histoFolderName[numOfTask][numOfHistos[numOfTask]]);
+            // histo folder title
+            if (type == 1 && !strcmp((const char*)name,"HistFolderTitle"))
+               xml->GetValue(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],histoFolderTitle[numOfTask][numOfHistos[numOfTask]]);
+            // histo type
+            if (type == 1 && !strcmp((const char*)name,"HistType"))
+               xml->GetValue(histoType[numOfTask][numOfHistos[numOfTask]],histoType[numOfTask][numOfHistos[numOfTask]]);
+            // histo array size
+            if (type == 1 && !strcmp((const char*)name,"HistArraySize"))
+               xml->GetValue(histoArray[numOfTask][numOfHistos[numOfTask]],histoArray[numOfTask][numOfHistos[numOfTask]]);
+            // histo number of x bins
+            if (type == 1 && !strcmp((const char*)name,"HistXNbins"))
+               xml->GetValue(histoXBin[numOfTask][numOfHistos[numOfTask]],histoXBin[numOfTask][numOfHistos[numOfTask]]);
+            // histo x min
+            if (type == 1 && !strcmp((const char*)name,"HistXmin"))
+               xml->GetValue(histoXMin[numOfTask][numOfHistos[numOfTask]],histoXMin[numOfTask][numOfHistos[numOfTask]]);
+            // histo x max
+            if (type == 1 && !strcmp((const char*)name,"HistXmax"))
+               xml->GetValue(histoXMax[numOfTask][numOfHistos[numOfTask]],histoXMax[numOfTask][numOfHistos[numOfTask]]);
+            // histo number of y bins
+            if (type == 1 && !strcmp((const char*)name,"HistYNbins"))
+               xml->GetValue(histoYBin[numOfTask][numOfHistos[numOfTask]],histoYBin[numOfTask][numOfHistos[numOfTask]]);
+            // histo y min
+            if (type == 1 && !strcmp((const char*)name,"HistYmin"))
+               xml->GetValue(histoYMin[numOfTask][numOfHistos[numOfTask]],histoYMin[numOfTask][numOfHistos[numOfTask]]);
+            // histo y max
+            if (type == 1 && !strcmp((const char*)name,"HistYmax"))
+               xml->GetValue(histoYMax[numOfTask][numOfHistos[numOfTask]],histoYMax[numOfTask][numOfHistos[numOfTask]]);
+            // histo number of z bins
+            if (type == 1 && !strcmp((const char*)name,"HistZNbins"))
+               xml->GetValue(histoZBin[numOfTask][numOfHistos[numOfTask]],histoZBin[numOfTask][numOfHistos[numOfTask]]);
+            // histo z min
+            if (type == 1 && !strcmp((const char*)name,"HistZmin"))
+               xml->GetValue(histoZMin[numOfTask][numOfHistos[numOfTask]],histoZMin[numOfTask][numOfHistos[numOfTask]]);
+            // histo z max
+            if (type == 1 && !strcmp((const char*)name,"HistZmax"))
+               xml->GetValue(histoZMax[numOfTask][numOfHistos[numOfTask]],histoZMax[numOfTask][numOfHistos[numOfTask]]);
+            // histo end
+            if (type == 15 && !strcmp((const char*)name,"Histogram"))
+               break;
          }
-         // version
-         else if (!strcmp((const char*)name,"Version")) {
-            xml->GetAttribute("Number",taskVersion[numOfTask],"1");
+         // check input
+         if (histoName[numOfTask][numOfHistos[numOfTask]]=="") {
+            cout << "A Histo of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
-         // description
-         else if (!strcmp((const char*)name,"Description")) {
-            xml->GetAttribute("Text",taskDescription[numOfTask],"");
+         if (histoType[numOfTask][numOfHistos[numOfTask]]=="") {
+            cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
-         // includes
-         else if (!strcmp((const char*)name,"Includes")) {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1 && !strcmp((const char*)name,"Include")) {
-                  // include name
-                  xml->GetAttribute("Name",taskInclude[numOfTask][numOfTaskInclude[numOfTask]],"");
-                  if (taskInclude[numOfTask][numOfTaskInclude[numOfTask]]=="") {
-                     cout << "An Include of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // include type
-                  taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = false;
-                  xml->GetAttribute("Type",tmp,"global");
-                  if (tmp=="local") 
-                     taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = true;
-                  numOfTaskInclude[numOfTask]++;
-                  if (numOfTaskInclude[numOfTask]>=maxNumberOfInclude) {
-                     cout << "Maximal number of inludes in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-               }
-               if (type == 15 && !strcmp((const char*)name,"Includes")) {
-                  break;
-               }
-            }
-         }
-         // steering parameters
-         else if (!strcmp((const char*)name,"SteeringParameters")) {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               empty = xml->isEmpty();
-               if (type == 1 && !strcmp((const char*)name,"Group")) {
-                  numOfTaskSteering[numOfTask]++;
-                  if (numOfTaskSteering[numOfTask]>=maxNumberOfSteering) {
-                     cout << "Maximal number of steering parameter classes in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  depth++;
-                  index[depth] = numOfTaskSteering[numOfTask];
-                  numOfTaskSteerFields[numOfTask][index[depth]] = 0;
-                  // steering name
-                  xml->GetAttribute("Name",taskSteerName[numOfTask][index[depth]],"");
-                  if (taskSteerName[numOfTask][index[depth]]=="") {
-                     cout << "A Steering Parameter Group of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // parent name
-                  taskSteerParent[numOfTask][index[depth]] = taskSteerName[numOfTask][index[depth-1]];
-                  // depth
-                  taskSteerDepth[numOfTask][index[depth]] = depth;
-                  // output
-                  if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
-                  if (makeOutput) taskSteerName[numOfTask][index[depth]].WriteLine();
-               }
-               if (type == 1 && !strcmp((const char*)name,"Field")) {
-                  // field name
-                  xml->GetAttribute("Name",taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
-                  if (taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="") {
-                     cout << "A Field of Steering Parameter Group '" << taskSteerName[numOfTask][index[depth]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // field type
-                  xml->GetAttribute("Type",taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
-                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="") {
-                     cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].Data() << " has no type !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // field initialisation
-                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="TString")
-                     xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
-                  else
-                     xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
-                  xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
-                  // field comment
-                  xml->GetAttribute("Comment",taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
-                  if (taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]][0]!='/') {
-                     taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].Insert(0,"// ");
-                  }
-                  // output
-                  if (makeOutput) for (i=0;i<depth+2;i++) cout << "   ";
-                  if (makeOutput) taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].WriteLine();
-                  numOfTaskSteerFields[numOfTask][index[depth]]++;
-                  if (numOfTaskSteerFields[numOfTask][index[depth]]>=maxNumberOfSteeringField) {
-                     cout << "Maximal number of fields in steering parameter class '" << taskSteerName[numOfTask][index[depth]].Data() << "' in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-               }
-               if (type == 15 && !strcmp((const char*)name,"Group")) {
-                  depth--;
-                  if (makeOutput) cout << endl;;
-               }
-               if (type == 15 && !strcmp((const char*)name,"SteeringParameters")) break;
-            }
-            numOfTaskSteering[numOfTask]++;
-         }
-         // histos
-         else if (!strcmp((const char*)name,"Histos")) {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1 && !strcmp((const char*)name,"Histo")) {
-                  // histo name
-                  xml->GetAttribute("Name",histoName[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoName[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "A Histo of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // histo type
-                  xml->GetAttribute("Type",histoType[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoType[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // histo array size
-                  xml->GetAttribute("ArraySize",histoArray[numOfTask][numOfHistos[numOfTask]],"1");
-                  // histo title
-                  xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  // histo folder name
-                  xml->GetAttribute("FolderName",histoFolderName[numOfTask][numOfHistos[numOfTask]],"");
-                  // histo folder title
-                  xml->GetAttribute("FolderTitle",histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  // histo xbins
-                  xml->GetAttribute("NumberOfBinsX",histoXBin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoXBin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of X bins defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // histo xmin
-                  xml->GetAttribute("XMin",histoXMin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoXMin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no X minimum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // histo xmax
-                  xml->GetAttribute("XMax",histoXMax[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoXMax[numOfTask][numOfHistos[numOfTask]]=="") {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no X maximum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-                  // histo ybins
-                  xml->GetAttribute("NumberOfBinsY",histoYBin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoYBin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of Y bins defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  // histo ymin
-                  xml->GetAttribute("YMin",histoYMin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoYMin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Y minimum defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  // histo ymax
-                  xml->GetAttribute("YMax",histoYMax[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoYMax[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Y maximum defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  // histo zbins
-                  xml->GetAttribute("NumberOfBinsZ",histoZBin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoZBin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of Z bins defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  // histo zmin
-                  xml->GetAttribute("ZMin",histoZMin[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoZMin[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Z minimum defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  // histo zmax
-                  xml->GetAttribute("ZMax",histoZMax[numOfTask][numOfHistos[numOfTask]],"");
-                  if (histoZMax[numOfTask][numOfHistos[numOfTask]]=="") {
-                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Z maximum defined !" << endl;
-                        cout << "Terminating program." << endl;
-                        return false;
-                     }
-                  }
-                  numOfHistos[numOfTask]++;
-                  if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
-                     cout << "Maximal number of histos in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfHistos << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
-               }
-               if (type == 15 && !strcmp((const char*)name,"Histos")) {
-                  for (i=0;i<numOfHistos[numOfTask];i++) {
-                     for (j=i+1;j<numOfHistos[numOfTask];j++) {
-                        if (histoName[numOfTask][i]==histoName[numOfTask][j]) {
-                           cout << "\nTask '" << taskName[numOfTask].Data() << "' has two histos with the name '" << histoName[numOfTask][i].Data() << "' !" << endl;
-                           cout << "Terminating program." << endl;
-                           return false;
-                        }
-                     }
-                  }
-                  break;
-               }
-            }
-         }
-      }
-      if (type == 15 && !strcmp((const char*)name,"Task")) {
-         for (i=0;i<numOfTask;i++) {
-            for (j=i+1;j<numOfTask;j++) {
-               if (taskName[i] == taskName[j]) {
-                  cout << "\nTask '" << taskName[i].Data() << "' is defined twice !" << endl;
+         for (i=0;i<numOfHistos[numOfTask];i++) {
+            for (j=i+1;j<numOfHistos[numOfTask];j++) {
+               if (histoName[numOfTask][i]==histoName[numOfTask][j]) {
+                  cout << "\nTask '" << taskName[numOfTask].Data() << "' has two histos with the name '" << histoName[numOfTask][i].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
             }
          }
-         break;
+         // count histos
+         numOfHistos[numOfTask]++;
+         if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
+            cout << "Maximal number of histos in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfHistos << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         continue;
+      }
+     // task steering parameters
+      if (type == 1 && !strcmp((const char*)name,"SteeringParameters")) {
+         // read steering parameter
+         steerName[numOfTask][0] = "Steering";
+         recursiveSteerDepth = 0;
+         parentSteer[0] = "";
+         if (!ReadXMLSteering(numOfTask)) 
+            return false;
+         numOfSteering[numOfTask]++;
       }
    }
-   numOfTask++;
    return true;
 }
-bool ROMEBuilder::WriteTaskSteeringClass(ROMEString &buffer,int numSteer,int numTask) {
+bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask,int tab) {
    ROMEString format;
    ROMEString sc;
-   ROMEString blank;
+   ROMEString blank="";
    int j,i;
    int typeLen = -1;
    int nameLen = -1;
-   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      if (typeLen<(int)taskSteerFieldType[numTask][numSteer][i].Length()) typeLen = taskSteerFieldType[numTask][numSteer][i].Length();
-      if (nameLen<(int)taskSteerFieldName[numTask][numSteer][i].Length()) nameLen = taskSteerFieldName[numTask][numSteer][i].Length();
+   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
+      if (typeLen<(int)steerFieldType[numTask][numSteer][i].Length()) typeLen = steerFieldType[numTask][numSteer][i].Length();
+      if (nameLen<(int)steerFieldName[numTask][numSteer][i].Length()) nameLen = steerFieldName[numTask][numSteer][i].Length();
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         if (typeLen<(int)taskSteerName[numTask][i].Length()+1) typeLen = taskSteerName[numTask][i].Length()+1;
-         if (nameLen<(int)taskSteerName[numTask][i].Length()) nameLen = taskSteerName[numTask][i].Length();
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         if (typeLen<(int)steerName[numTask][i].Length()+1) typeLen = steerName[numTask][i].Length()+1;
+         if (nameLen<(int)steerName[numTask][i].Length()) nameLen = steerName[numTask][i].Length();
       }
    }
-   sc = "";
-
-   blank = "";
-   for (i=0;i<taskSteerDepth[numTask][numSteer]+1;i++) {
+   if (tab==0)
+      sc = "MEG";
+   else 
+      sc = "";
+   for (i=0;i<tab;i++)
       blank.Append("   ");   
-   }
 
-   buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),taskSteerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
    buffer.AppendFormatted("%s{\n",blank.Data());
 
    buffer.AppendFormatted("%sprivate:\n",blank.Data());
 
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         WriteTaskSteeringClass(buffer,i,numTask);
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         WriteSteeringClass(buffer,i,numTask,tab+1);
       }
    }
 
    buffer.AppendFormatted("%sprotected:\n",blank.Data());
 
    // Fields
-   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldComment[numTask][numSteer][j].Data());
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-taskSteerName[numTask][i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data(),"",taskSteerName[numTask][i].Data());
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[numTask][i].Length());
+         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][i].Data(),steerName[numTask][i].Data(),"",steerName[numTask][i].Data());
       }
    }
    buffer.AppendFormatted("\n%spublic:\n",blank.Data());
    // Constructor
-   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),taskSteerName[numTask][numSteer].Data());
-   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      buffer.AppendFormatted("f%s = %s; ",taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldInit[numTask][numSteer][j].Data());
+   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      buffer.AppendFormatted("f%s = %s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         buffer.AppendFormatted("f%s = new %s(); ",taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data());
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][i].Data(),steerName[numTask][i].Data());
       }
    }
    buffer.AppendFormatted("};\n");
    // Getters
-   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldName[numTask][numSteer][j].Data());
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data());
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-taskSteerName[numTask][i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data(),"",taskSteerName[numTask][i].Data());
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[numTask][i].Length());
+         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][i].Data(),steerName[numTask][i].Data(),"",steerName[numTask][i].Data());
       }
    }
    // Setters
    buffer.AppendFormatted("\n");
-   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data());
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data());
    }
 
    // Footer
@@ -1216,53 +1158,63 @@ bool ROMEBuilder::WriteTaskSteeringClass(ROMEString &buffer,int numSteer,int num
 
    return true;
 }
-void ROMEBuilder::WriteTaskSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask) {
+void ROMEBuilder::WriteSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask,int tab) {
    int i,j;
    ROMEString tmp;
    ROMEString getter;
-   if (numSteer==0)
-      buffer.AppendFormatted("   xml->StartElement(\"SteeringParameters\");\n");
+   if (numSteer==0) {
+      if (tab==0) 
+         buffer.AppendFormatted("   xml->StartElement(\"GlobalSteeringParameters\");\n");
+      else
+         buffer.AppendFormatted("   xml->StartElement(\"SteeringParameters\");\n");
+   }
    else
-      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",taskSteerName[numTask][numSteer].Data());
-   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      getter.SetFormatted("->Get%s()",taskSteerFieldName[numTask][numSteer][i].Data());
+      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",steerName[numTask][numSteer].Data());
+   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
+      getter.SetFormatted("->Get%s()",steerFieldName[numTask][numSteer][i].Data());
       int ind = numSteer;
-      while (taskSteerParent[numTask][ind]!="") {
-         for (j=0;j<numOfTaskSteering[numTask];j++) {
-            if (taskSteerParent[numTask][ind]==taskSteerName[numTask][j]) {
-               getter.InsertFormatted(0,"->Get%s()",taskSteerName[numTask][ind].Data());
+      while (steerParent[numTask][ind]!="") {
+         for (j=0;j<numOfSteering[numTask];j++) {
+            if (steerParent[numTask][ind]==steerName[numTask][j]) {
+               getter.InsertFormatted(0,"->Get%s()",steerName[numTask][ind].Data());
                ind = j;
                break;
             }
          }
       }
-      getter.InsertFormatted(0,"((%sT%s*)f%sTask)->GetSP()",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data());
-      GetFormat(&tmp,(char*)taskSteerFieldType[numTask][numSteer][i].Data());
+      if (tab==0) 
+         getter.InsertFormatted(0,"GetGSP()");
+      else
+         getter.InsertFormatted(0,"((%sT%s*)f%sTask)->GetSP()",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data());
+      GetFormat(&tmp,(char*)steerFieldType[numTask][numSteer][i].Data());
       buffer.AppendFormatted("   value.SetFormatted(\"%s\",%s);\n",tmp.Data(),getter.Data());
-      buffer.AppendFormatted("   xml->WriteElement(\"%s\",value.Data());\n",taskSteerFieldName[numTask][numSteer][i].Data());
+      buffer.AppendFormatted("   xml->WriteElement(\"%s\",value.Data());\n",steerFieldName[numTask][numSteer][i].Data());
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         WriteTaskSteerConfigWrite(buffer,i,numTask);
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         WriteSteerConfigWrite(buffer,i,numTask,tab);
       }
    }
    buffer.AppendFormatted("   xml->EndElement();\n");
 }
-void ROMEBuilder::WriteTaskSteerConfigRead(ROMEString& buffer,int numSteer,int numTask) {
+void ROMEBuilder::WriteSteerConfigRead(ROMEString& buffer,int numSteer,int numTask,int tab) {
    ROMEString tmp;
    ROMEString value;
    ROMEString path;
    ROMEString setter;
    int i,j;
    ROMEString blank;
-   blank = "      ";
+   if (tab==0)
+      blank = "      ";
+   else
+      blank = "                     ";
 
    path = "";
    int ind = numSteer;
-   while (taskSteerParent[numTask][ind]!="") {
-      for (j=0;j<numOfTaskSteering[numTask];j++) {
-         if (taskSteerParent[numTask][ind]==taskSteerName[numTask][j]) {
-            path.InsertFormatted(0,"->Get%s()",taskSteerName[numTask][ind].Data());
+   while (steerParent[numTask][ind]!="") {
+      for (j=0;j<numOfSteering[numTask];j++) {
+         if (steerParent[numTask][ind]==steerName[numTask][j]) {
+            path.InsertFormatted(0,"->Get%s()",steerName[numTask][ind].Data());
             ind = j;
             blank.Append("      ");
             break;
@@ -1270,47 +1222,51 @@ void ROMEBuilder::WriteTaskSteerConfigRead(ROMEString& buffer,int numSteer,int n
       }
    }
    if (numSteer==0)
-      buffer.AppendFormatted("%s               if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
+      buffer.AppendFormatted("%sif (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),steerName[numTask][numSteer].Data());
    else
-      buffer.AppendFormatted("%s               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
+      buffer.AppendFormatted("%sif (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerName[numTask][numSteer].Data());
 
-   buffer.AppendFormatted("%s                  while (xml->NextLine()) {\n",blank.Data());
-   buffer.AppendFormatted("%s                     type = xml->GetType();\n",blank.Data());
-   buffer.AppendFormatted("%s                     name = xml->GetName();\n",blank.Data());
+   buffer.AppendFormatted("%s   while (xml->NextLine()) {\n",blank.Data());
+   buffer.AppendFormatted("%s      type = xml->GetType();\n",blank.Data());
+   buffer.AppendFormatted("%s      name = xml->GetName();\n",blank.Data());
    if (numSteer==0)
-      buffer.AppendFormatted("%s                     char *cstop;\n",blank.Data());
-   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      setValue(&value,"","value",(char*)taskSteerFieldType[numTask][numSteer][i].Data(),1);
-      setter.SetFormatted("((%sT%s*)f%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data(),path.Data(),taskSteerFieldName[numTask][numSteer][i].Data(),taskSteerFieldType[numTask][numSteer][i].Data(),value.Data());
-      buffer.AppendFormatted("%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),taskSteerFieldName[numTask][numSteer][i].Data());
-      buffer.AppendFormatted("%s                        if (xml->GetValue(value)) \n",blank.Data());
-      buffer.AppendFormatted("%s                           %s;\n",blank.Data(),setter.Data());
-      buffer.AppendFormatted("%s                     }\n",blank.Data());
+      buffer.AppendFormatted("%s      char *cstop;\n",blank.Data());
+   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
+      setValue(&value,"","value",(char*)steerFieldType[numTask][numSteer][i].Data(),1);
+      if (tab==0)
+         setter.SetFormatted("GetGSP()%s->Set%s((%s)%s)",path.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),value.Data());
+      else
+         setter.SetFormatted("((%sT%s*)f%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data(),path.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),value.Data());
+      buffer.AppendFormatted("%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerFieldName[numTask][numSteer][i].Data());
+      buffer.AppendFormatted("%s         if (xml->GetValue(value)) \n",blank.Data());
+      buffer.AppendFormatted("%s            %s;\n",blank.Data(),setter.Data());
+      buffer.AppendFormatted("%s      }\n",blank.Data());
    }
-   for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
-         WriteTaskSteerConfigRead(buffer,i,numTask);
+   for (i=0;i<numOfSteering[numTask];i++) {
+      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
+         WriteSteerConfigRead(buffer,i,numTask,tab);
       }
    }
    if (numSteer==0)
-      buffer.AppendFormatted("%s                     if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
+      buffer.AppendFormatted("%s   if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),steerName[numTask][numSteer].Data());
    else
-      buffer.AppendFormatted("%s                     if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
-   buffer.AppendFormatted("%s                        break;\n",blank.Data());
-   buffer.AppendFormatted("%s                  }\n",blank.Data());
-   buffer.AppendFormatted("%s               }\n",blank.Data());
+      buffer.AppendFormatted("%s   if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("%s      break;\n",blank.Data());
+   buffer.AppendFormatted("%s   }\n",blank.Data());
+   buffer.AppendFormatted("%s}\n",blank.Data());
 }
 bool ROMEBuilder::WriteTaskCpp() {
    ROMEString cppFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
 
-   int lenTot,ll,i;
+   int lenTot,ll,i,j;
    char *pBuffer=NULL;
    int bufferLen=0;
    char *pos;
    int fileHandle;
    ROMEString format;
+   ROMEString str;
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
@@ -1338,34 +1294,62 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("// %-74.74s   \n",pos);
          pos = pos+i+1;
       }
-      buffer.AppendFormatted("//                                                                            //\n");
-      buffer.AppendFormatted("//                                                                            //\n");
-      buffer.AppendFormatted("// This file has been generated by the ROMEBuilder.                           //\n");
-      buffer.AppendFormatted("//                                                                            //\n");
-      buffer.AppendFormatted("// This task contains the following histgrams :\n");
-      for (i=0;i<numOfHistos[iTask];i++) {
-         buffer.AppendFormatted("// %s\n",histoName[iTask][i].Data());
+      buffer.AppendFormatted("// \n");
+      buffer.AppendFormatted("// \n");
+      buffer.AppendFormatted("// This header has been generated by the ROMEBuilder.\n");
+      buffer.AppendFormatted("// The event methods have been written by %s.\n",taskAuthor[iTask].Data());
+      fileHandle = open(cppFile.Data(),O_RDONLY);
+      int n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+      fileBuffer[n] = 0;
+      bool first = true;
+      for (j=0;j<numOfFolder;j++) {
+         str = "Get";
+         str.Append(folderName[j]);
+         if (strstr(fileBuffer,str.Data())) {
+            if (first) {
+               buffer.AppendFormatted("// \n");
+               buffer.AppendFormatted("// Please note: The following information is only correct after executing the\n");
+               buffer.AppendFormatted("//              ROMEBuilder.\n");
+               buffer.AppendFormatted("// \n");
+               buffer.AppendFormatted("// This task accesses the following folders :\n");
+               first = false;
+            }
+            buffer.AppendFormatted("//    %s\n",folderName[j].Data());
+         }
       }
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// The histograms are created and saved automaticaly by the task.\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// The following methods can be used to fill the histogram and to set the\n");
-      buffer.AppendFormatted("// right name,title and binwidth of the histogram :\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// Fill<Histogram Name>(double value,double weight)\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// For histogram arrays use :\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// Fill<Histogram Name>At(int index,double value,double weight)\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// If more histogram functions are needed use the following function the get\n");
-      buffer.AppendFormatted("// a handle to the histogram and use the root functions.\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// Get<Histogram Name>Handle()\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// For histogram arrays use :\n");
-      buffer.AppendFormatted("//\n");
-      buffer.AppendFormatted("// Get<Histogram Name>HandleAt(int index)\n");
+      close(fileHandle);
+      buffer.AppendFormatted("// \n");
+      if (numOfHistos[iTask]>0) {
+         if (first) {
+            buffer.AppendFormatted("// Please note: The following information is only correct after executing the\n");
+            buffer.AppendFormatted("//              ROMEBuilder.\n");
+            buffer.AppendFormatted("// \n");
+            first = false;
+         }
+         buffer.AppendFormatted("// This task contains the following histgrams :\n");
+         for (i=0;i<numOfHistos[iTask];i++) {
+            buffer.AppendFormatted("//    %s\n",histoName[iTask][i].Data());
+         }
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// The histograms are created and saved automaticaly by the task.\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// The following method can be used to fill a histogram :\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// Fill<Histogram Name>(double value,double weight)\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// For histogram arrays use :\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// Fill<Histogram Name>At(int index,double value,double weight)\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// If more histogram functions are needed use the following function the get\n");
+         buffer.AppendFormatted("// a handle to the histogram and use the root functions.\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// Get<Histogram Name>Handle()\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// For histogram arrays use :\n");
+         buffer.AppendFormatted("//\n");
+         buffer.AppendFormatted("// Get<Histogram Name>HandleAt(int index)\n");
+      }
       buffer.AppendFormatted("//                                                                            //\n");
       buffer.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
 
@@ -1560,16 +1544,14 @@ bool ROMEBuilder::WriteTaskH() {
       buffer.AppendFormatted("\nclass %sT%s : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("{\n");
 
+      buffer.AppendFormatted("protected:\n");
       // Fields
-      if (numOfTaskSteering[iTask]>0) {
-         buffer.AppendFormatted("private:\n");
-         WriteTaskSteeringClass(buffer,0,iTask);
+      if (numOfSteering[iTask]>0) {
+         WriteSteeringClass(buffer,0,iTask,1);
          buffer.AppendFormatted("\n");
       }
 
-      buffer.AppendFormatted("protected:\n");
-
-      if (numOfTaskSteering[iTask]>0) {
+      if (numOfSteering[iTask]>0) {
          buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
       }
 
@@ -1604,13 +1586,13 @@ bool ROMEBuilder::WriteTaskH() {
       for (i=0;i<numOfHistos[iTask];i++) {
          buffer.AppendFormatted(" f%sAccumulation = true;",histoName[iTask][i].Data());
       }
-      if (numOfTaskSteering[iTask]>0) {
+      if (numOfSteering[iTask]>0) {
          buffer.AppendFormatted(" fSteering = new Steering();");
       }
       buffer.AppendFormatted(" };\n");
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
-      if (numOfTaskSteering[iTask]>0) {
+      if (numOfSteering[iTask]>0) {
          buffer.AppendFormatted("   Steering* GetSteeringParameters() { return fSteering; };\n");
          buffer.AppendFormatted("   Steering* GetSP() { return fSteering; };\n");
       }
@@ -1782,44 +1764,63 @@ bool ROMEBuilder::ReadXMLTree() {
    char *name;
    int type,i,j;
 
+   // output
    if (makeOutput) cout << "\n\nTrees:" << endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp((const char*)name,"Tree")) {
+         // count trees
          numOfTree++;
          if (numOfTree>=maxNumberOfTrees) {
             cout << "Maximal number of trees reached : " << maxNumberOfTrees << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
+         // tree initialisation
          numOfBranch[numOfTree] = 0;
-         // tree name
-         xml->GetAttribute("Name",treeName[numOfTree],"");
-         if (treeName[numOfTree]=="") {
-            cout << "Tree without a name !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // tree title
-         xml->GetAttribute("Title",treeTitle[numOfTree],"");
-         // output
-         if (makeOutput) cout << "   " << treeName[numOfTree].Data() << endl;
+         treeName[numOfTree] = "";
+         treeTitle[numOfTree] = "";
 
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
+            // tree name
+            if (type == 1 && !strcmp((const char*)name,"TreeName")) {
+               xml->GetValue(treeName[numOfTree],treeName[numOfTree]);
+               // output
+               if (makeOutput) cout << "   " << treeName[numOfTree].Data() << endl;
+            }
+            // tree title
+            if (type == 1 && !strcmp((const char*)name,"TreeTitle"))
+               xml->GetValue(treeTitle[numOfTree],treeTitle[numOfTree]);
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
-               // branch name
-               xml->GetAttribute("Name",branchName[numOfTree][numOfBranch[numOfTree]],"");
+               // branch initialisation
+               branchName[numOfTree][numOfBranch[numOfTree]] = "";
+               branchFolder[numOfTree][numOfBranch[numOfTree]] = "";
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // branch name
+                  if (type == 1 && !strcmp((const char*)name,"BranchName")) {
+                     xml->GetValue(branchName[numOfTree][numOfBranch[numOfTree]],branchName[numOfTree][numOfBranch[numOfTree]]);
+                     // output
+                     if (makeOutput) cout << "      " << branchName[numOfTree][numOfBranch[numOfTree]].Data() << endl;
+                  }
+                  // branch folder
+                  if (type == 1 && !strcmp((const char*)name,"RelatedFolder"))
+                     xml->GetValue(branchFolder[numOfTree][numOfBranch[numOfTree]],branchFolder[numOfTree][numOfBranch[numOfTree]]);
+                  // branch end
+                  if (type == 15 && !strcmp((const char*)name,"Branch"))
+                     break;
+               }
+               // input chaeck
                if (branchName[numOfTree][numOfBranch[numOfTree]]=="") {
                   cout << "Branch without a name in Tree '" << treeName[numOfTree].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
-               // branch folder
-               xml->GetAttribute("Folder",branchFolder[numOfTree][numOfBranch[numOfTree]],"");
                if (branchFolder[numOfTree][numOfBranch[numOfTree]]=="") {
                   cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' has no Folder specified!" << endl;
                   cout << "Terminating program." << endl;
@@ -1835,6 +1836,7 @@ bool ROMEBuilder::ReadXMLTree() {
                   cout << "Terminating program." << endl;
                   return false;
                }
+               // count branches
                numOfBranch[numOfTree]++;
                if (numOfBranch[numOfTree]>=maxNumberOfBranches) {
                   cout << "Maximal number of branches in tree '" << treeName[numOfTree].Data() << "' reached : " << maxNumberOfBranches << " !" << endl;
@@ -1843,6 +1845,12 @@ bool ROMEBuilder::ReadXMLTree() {
                }
             }
             if (type == 15 && !strcmp((const char*)name,"Tree")) {
+               // input check
+               if (treeName[numOfTree]=="") {
+                  cout << "Tree without a name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
                if (numOfBranch[numOfTree] == 0) {
                   cout << "Tree '" << treeName[numOfTree].Data() << "' has no Branch !" << endl;
                   cout << "Terminating program." << endl;
@@ -1863,6 +1871,7 @@ bool ROMEBuilder::ReadXMLTree() {
       }
 
       if (type == 15 && !strcmp((const char*)name,"Trees")) {
+         // input check
          for (i=0;i<numOfTree;i++) {
             for (j=i+1;j<numOfTree;j++) {
                if (treeName[i]==treeName[j]) {
@@ -1883,29 +1892,50 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
    int type,i,j;
    bankHasHeader = false;
 
+   // output
    if (makeOutput) cout << "\n\nBanks:" << endl;
 
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp("EventHeader",(const char*)name)) {
+         // output
+         if (makeOutput) cout << "   Header" << endl;
+         // header initialisation
          bankHasHeader = true;
-         // folder
-         xml->GetAttribute("Folder",bankHeaderFolder,"");
+         bankHeaderFolder = "";
+         bankHeaderEventID = "";
+         bankHeaderTriggerMask = "";
+         bankHeaderSerialNumber = "";
+         bankHeaderTimeStamp = "";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // header folder
+            if (type == 1 && !strcmp((const char*)name,"Folder"))
+               xml->GetValue(bankHeaderFolder,bankHeaderFolder);
+            // header EventID
+            if (type == 1 && !strcmp((const char*)name,"EventID"))
+               xml->GetValue(bankHeaderEventID,bankHeaderEventID);
+            // header TriggerMask
+            if (type == 1 && !strcmp((const char*)name,"TriggerMask"))
+               xml->GetValue(bankHeaderTriggerMask,bankHeaderTriggerMask);
+            // header SerialNumber
+            if (type == 1 && !strcmp((const char*)name,"SerialNumber"))
+               xml->GetValue(bankHeaderSerialNumber,bankHeaderSerialNumber);
+            // header TimeStamp
+            if (type == 1 && !strcmp((const char*)name,"TimeStamp"))
+               xml->GetValue(bankHeaderTimeStamp,bankHeaderTimeStamp);
+            // header end
+            if (type == 15 && !strcmp((const char*)name,"EventHeader"))
+               break;
+         }
+         // input check
          if (bankHeaderFolder=="") {
             cout << "Midas event header has no folder !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // EventID
-         xml->GetAttribute("EventID",bankHeaderEventID,"");
-         // TriggerMask
-         xml->GetAttribute("TriggerMask",bankHeaderTriggerMask,"");
-         // SerialNumber
-         xml->GetAttribute("SerialNumber",bankHeaderSerialNumber,"");
-         // TimeStamp
-         xml->GetAttribute("TimeStamp",bankHeaderTimeStamp,"");
-         // Tests
          int iFold = -1;
          for (i=0;i<numOfFolder;i++) {
             if (folderName[i]==bankHeaderFolder) {
@@ -1950,214 +1980,311 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
             }
          }
          if (!foundID) {
-            cout << "Midas event header : event id field '" << bankHeaderEventID.Data() << "' does not exist !" << endl;
+            cout << "Midas event header : event id field '" << bankHeaderEventID.Data() << "' does not exist in folder '" << bankHeaderFolder << "'!" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundMask) {
-            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask.Data() << "' does not exist !" << endl;
+            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask.Data() << "' does not exist in folder '" << bankHeaderFolder << "'!" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundNum) {
-            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber.Data() << "' does not exist !" << endl;
+            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber.Data() << "' does not exist '" << bankHeaderFolder << "'!" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundTime) {
-            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp.Data() << "' does not exist !" << endl;
+            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp.Data() << "' does not exist '" << bankHeaderFolder << "'!" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
       }
       else if (type == 1 && !strcmp((const char*)name,"Bank")) {
+         // count banks
          numOfBank++;
          if (numOfBank>=maxNumberOfBanks) {
             cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
+         // bank initialisation
          numOfStructFields[numOfBank] = 0;
-         // bank name
-         xml->GetAttribute("Name",bankName[numOfBank],"");
+         bankName[numOfBank] = "";
+         bankType[numOfBank] = "";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // bank name
+            if (type == 1 && !strcmp((const char*)name,"BankName")) {
+               xml->GetValue(bankName[numOfBank],bankName[numOfBank]);
+               // output
+               if (makeOutput) cout << "   " << bankName[numOfBank].Data() << endl;
+            }
+            // bank type
+            if (type == 1 && !strcmp((const char*)name,"BankType"))
+               xml->GetValue(bankType[numOfBank],bankType[numOfBank]);
+            // bank end
+            if (type == 15 && !strcmp((const char*)name,"Bank"))
+               break;
+         }
+         // input check
          if (bankName[numOfBank]=="") {
             cout << "A Midas Bank has no Name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // bank type
-         xml->GetAttribute("Type",bankType[numOfBank],"");
          if (bankType[numOfBank]=="") {
             cout << "Bank '" << bankName[numOfBank].Data() << "' has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // bank structure name
-         bankStructName[numOfBank].SetFormatted("%sStruct",bankName[numOfBank].Data());
-         xml->GetAttribute("StructName",bankStructName[numOfBank],bankStructName[numOfBank]);
-         // output
-         if (makeOutput) cout << "   " << bankName[numOfBank].Data() << endl;
-
-         if (bankType[numOfBank]=="structure"||bankType[numOfBank]=="struct") {
-            while (xml->NextLine()) {
-               type = xml->GetType();
-               name = xml->GetName();
-               if (type == 1 && !strcmp((const char*)name,"Field")) {
+      }
+      else if (type == 1 && !strcmp((const char*)name,"StructuredBank")) {
+         // count banks
+         numOfBank++;
+         if (numOfBank>=maxNumberOfBanks) {
+            cout << "Maximal number of banks reached : " << maxNumberOfBanks << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         // structured bank initialisation
+         numOfStructFields[numOfBank] = 0;
+         bankName[numOfBank] = "";
+         bankType[numOfBank] = "struct";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // structured bank name
+            if (type == 1 && !strcmp((const char*)name,"BankName")) {
+               xml->GetValue(bankName[numOfBank],bankName[numOfBank]);
+               // output
+               if (makeOutput) cout << "   " << bankName[numOfBank].Data() << endl;
+            }
+            // structured bank field
+            if (type == 1 && !strcmp((const char*)name,"BankField")) {
+               // structured bank field initialisation
+               structFieldName[numOfBank][numOfStructFields[numOfBank]] = "";
+               structFieldType[numOfBank][numOfStructFields[numOfBank]] = "";
+               structFieldSize[numOfBank][numOfStructFields[numOfBank]] = "";
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
                   // field name
-                  xml->GetAttribute("Name",structFieldName[numOfBank][numOfStructFields[numOfBank]],"");
-                  if (structFieldName[numOfBank][numOfStructFields[numOfBank]]=="") {
-                     cout << "A Field of the Midas Bank '" << bankName[numOfBank].Data() << "' has no Name !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (type == 1 && !strcmp((const char*)name,"BankFieldName")) {
+                     xml->GetValue(structFieldName[numOfBank][numOfStructFields[numOfBank]],structFieldName[numOfBank][numOfStructFields[numOfBank]]);
+                     // output
+                     if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << endl;
                   }
                   // field type
-                  xml->GetAttribute("Type",structFieldType[numOfBank][numOfStructFields[numOfBank]],"");
-                  if (structFieldType[numOfBank][numOfStructFields[numOfBank]]=="") {
-                     cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << "' of Bank '" << bankName[numOfBank].Data() << "' has no type !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
+                  if (type == 1 && !strcmp((const char*)name,"BankFieldType"))
+                     xml->GetValue(structFieldType[numOfBank][numOfStructFields[numOfBank]],structFieldType[numOfBank][numOfStructFields[numOfBank]]);
                   // field size
-                  xml->GetAttribute("PackedSize",structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
-                  // output
-                  if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << endl;
-                  numOfStructFields[numOfBank]++;
-                  if (numOfStructFields[numOfBank]>=maxNumberOfStructFields) {
-                     cout << "Maximal number of fields in bank '" << bankName[numOfBank].Data() << "' reached : " << maxNumberOfStructFields << " !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
-                  }
+                  if (type == 1 && !strcmp((const char*)name,"BankFieldSize"))
+                     xml->GetValue(structFieldSize[numOfBank][numOfStructFields[numOfBank]],structFieldSize[numOfBank][numOfStructFields[numOfBank]]);
+                  // field end
+                  if (type == 15 && !strcmp((const char*)name,"BankField"))
+                     break;
                }
-               if (type == 15 && !strcmp((const char*)name,"Bank")) {
-                  for (i=0;i<numOfStructFields[numOfBank];i++) {
-                     for (j=i+1;j<numOfStructFields[numOfBank];j++) {
-                        if (structFieldName[numOfBank][i]==structFieldName[numOfBank][j]) {
-                           cout << "\nStructure of bank '" << bankName[numOfBank].Data() << "' has two fields with the name '" << structFieldName[numOfBank][i].Data() << "' !" << endl;
-                           cout << "Terminating program." << endl;
-                           return false;
-                        }
+               // input check
+               if (structFieldName[numOfBank][numOfStructFields[numOfBank]]=="") {
+                  cout << "A field of the midas bank '" << bankName[numOfBank].Data() << "' has no name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               if (structFieldType[numOfBank][numOfStructFields[numOfBank]]=="") {
+                  cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << "' of bank '" << bankName[numOfBank].Data() << "' has no type !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               for (i=0;i<numOfStructFields[numOfBank];i++) {
+                  for (j=i+1;j<numOfStructFields[numOfBank];j++) {
+                     if (structFieldName[numOfBank][i]==structFieldName[numOfBank][j]) {
+                        cout << "\nStructure of bank '" << bankName[numOfBank].Data() << "' has two fields with the name '" << structFieldName[numOfBank][i].Data() << "' !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
                      }
                   }
-                  break;
                }
-            }
-         }
-      }
-      if (type == 15 && !strcmp((const char*)name,"MidasBanks")) {
-         for (i=0;i<numOfBank;i++) {
-            for (j=i+1;j<numOfTree;j++) {
-               if (bankName[i]==bankName[j]) {
-                  cout << "\nMidas bank '" << bankName[i].Data() << "' is defined twice !" << endl;
+               // count structured bank fields
+               numOfStructFields[numOfBank]++;
+               if (numOfStructFields[numOfBank]>=maxNumberOfStructFields) {
+                  cout << "Maximal number of fields in bank '" << bankName[numOfBank].Data() << "' reached : " << maxNumberOfStructFields << " !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
             }
+            // structured bank end
+            if (type == 15 && !strcmp((const char*)name,"StructuredBank"))
+               break;
          }
+         // input check
+         if (bankName[numOfBank]=="") {
+            cout << "A structured midas bank has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+      }
+      // midas bank end
+      if (type == 15 && !strcmp((const char*)name,"MidasBanks"))
          break;
+   }
+   for (i=0;i<numOfBank;i++) {
+      for (j=i+1;j<numOfTree;j++) {
+         if (bankName[i]==bankName[j]) {
+            cout << "\nMidas bank '" << bankName[i].Data() << "' is defined twice !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
       }
    }
    numOfBank++;
    return true;
 }
 
-bool ROMEBuilder::ReadXMLSteering() {
-   char *name;
-   int i,type,empty,depth=0,index[20];
-   index[0] = 0;
-   numOfSteerFields[0] = 0;
-   steerName[0] = "GeneralSteering";
-   steerParent[0] = "";
-   steerDepth[0] = 0;
+bool ROMEBuilder::ReadXMLSteering(int iTask) {
+   // read the steering parameter definitions out of the xml file
+   ROMEString tmp;
+   char* name;
+   int type,i,j;
+   ROMEString currentSteeringName = "";
+   int currentNumberOfSteerings;
 
-   if (makeOutput) cout << "\n\nSteering:" << endl;
+   // count steering parameters
+   numOfSteering[iTask]++;
+   currentNumberOfSteerings = numOfSteering[iTask];
+   if (numOfSteering[iTask]>=maxNumberOfTasks+1) {
+      cout << "Maximal number of steering parameters reached : " << (maxNumberOfTasks+1) << " !" << endl;
+      cout << "Terminating program." << endl;
+      return false;
+   }
+   // initialisation
+   if (numOfSteering[iTask]>0)
+      steerName[iTask][numOfSteering[iTask]] = "";
+   steerParent[iTask][numOfSteering[iTask]] = parentSteer[recursiveSteerDepth];
+   numOfSteerFields[iTask][numOfSteering[iTask]] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
-      empty = xml->isEmpty();
-      if (type == 1 && !strcmp((const char*)name,"Group")) {
-         numOfSteering++;
-         if (numOfSteering>=maxNumberOfSteering) {
-            cout << "Maximal number of steering parameter classes reached : " << maxNumberOfSteering << " !" << endl;
+      // end
+      if (type == 15 && !strcmp((const char*)name,"SteeringParameters"))
+         return true;
+      if (type == 15 && !strcmp((const char*)name,"GlobalSteeringParameters"))
+         return true;
+      // subgroup
+      if (type == 1 && !strcmp((const char*)name,"SteeringParameterGroup")) {
+         // set steering parameter group as parent for subsequent groups
+         recursiveSteerDepth++;
+         parentSteer[recursiveSteerDepth] = steerName[iTask][numOfSteering[iTask]];
+         // read subgroup
+         if (!ReadXMLSteering(iTask)) 
+            return false;
+         continue;
+      }
+      // end group
+      if (type == 15 && !strcmp((const char*)name,"SteeringParameterGroup")) {
+         // check input
+         if (currentSteeringName=="") {
+            cout << "The " << (currentNumberOfSteerings+1) << ". Steering Parameter Group has no name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         depth++;
-         index[depth] = numOfSteering;
-         numOfSteerFields[index[depth]] = 0;
-         // group name
-         xml->GetAttribute("Name",steerName[index[depth]],"");
-         if (steerName[index[depth]]=="") {
-            cout << "A Steering Parameter Group has no Name !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // parent name
-         steerParent[index[depth]] = steerName[index[depth-1]];
-         // depth
-         steerDepth[index[depth]] = depth;
+         recursiveSteerDepth--;
+         return true;
+      }
+      // group name
+      if (type == 1 && !strcmp((const char*)name,"SPGroupName")) {
+         xml->GetValue(steerName[iTask][numOfSteering[iTask]],steerName[iTask][numOfSteering[iTask]]);
+         currentSteeringName = steerName[iTask][numOfSteering[iTask]];
          // output
-         if (makeOutput) for (i=0;i<depth;i++) cout << "   ";
-         if (makeOutput) steerName[index[depth]].WriteLine();
+         if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
+         if (makeOutput) steerName[iTask][numOfSteering[iTask]].WriteLine();
       }
-      if (type == 1 && !strcmp((const char*)name,"Field")) {
-         // field name
-         xml->GetAttribute("Name",steerFieldName[index[depth]][numOfSteerFields[index[depth]]],"");
-         if (steerFieldName[index[depth]][numOfSteerFields[index[depth]]]=="") {
-            cout << "A Field of Steering Parameter Group '" << steerName[index[depth]] << "' has no Name !" << endl;
+      // steering parameter field
+      if (type == 1 && !strcmp((const char*)name,"SteeringParameterField")) {
+         // include initialisation
+         bool readName = false;
+         bool readType = false;
+         steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
+         steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
+         steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "";
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // steering parameter field name
+            if (type == 1 && !strcmp((const char*)name,"SPFieldName")) {
+               readName = true;
+               xml->GetValue(steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+               // output
+               if (makeOutput) for (i=0;i<recursiveSteerDepth+1;i++) cout << "   ";
+               if (makeOutput) steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].WriteLine();
+            }
+            // steering parameter field type
+            if (type == 1 && !strcmp((const char*)name,"SPFieldType")) {
+               readType = true;
+               xml->GetValue(steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+               if (steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] == "TString")
+                  steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "' '";
+               else if (steerFieldType[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] == "TRef")
+                  steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "NULL";
+               else
+                  steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] = "0";
+            }
+            // steering parameter field initialization
+            if (type == 1 && !strcmp((const char*)name,"SPFieldInitialization")) {
+               if (!readName) {
+                  cout << "Please specify a steering parameter field name befor the initial value in the " << (numOfSteering[iTask]+1) << ". steering parameter field in task '" << taskName[iTask].Data() << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               if (!readType) {
+                  cout << "Please specify a steering parameter field type befor the initial value in steering parameter field '" << steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].Data() << "' in task  '" << taskName[iTask].Data() << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               xml->GetValue(steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldInit[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+            }
+            // steering parameter field comment
+            if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
+               xml->GetValue(steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]],steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]);
+               if (steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]][0]!='/') {
+                  steerFieldComment[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]].Insert(0,"// ");
+               }
+            }
+            // steering parameter field end
+            if (type == 15 && !strcmp((const char*)name,"SteeringParameterField"))
+               break;
+         }
+         // check input
+         if (steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]]=="") {
+            cout << "A steering parameter field of task '" << taskName[iTask].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // field type
-         xml->GetAttribute("Type",steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"");
-         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]=="") {
-            cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]].Data() << " has no type !" << endl;
+         // count includes
+         numOfSteerFields[iTask][numOfSteering[iTask]]++;
+         if (numOfSteerFields[iTask][numOfSteering[iTask]]>=maxNumberOfSteering) {
+            cout << "Maximal number of steering parameter fields in task '" << taskName[iTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         // field initialisation
-         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]=="TString")
-            xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
-         else
-            xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
-         xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
-         // field comment
-         xml->GetAttribute("Comment",steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
-         if (steerFieldComment[index[depth]][numOfSteerFields[index[depth]]][0]!='/') {
-            steerFieldComment[index[depth]][numOfSteerFields[index[depth]]].Insert(0,"// ");
-         }
-         // output
-         if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
-         if (makeOutput) steerFieldName[index[depth]][numOfSteerFields[index[depth]]].WriteLine();
-         numOfSteerFields[index[depth]]++;
-         if (numOfSteerFields[index[depth]]>=maxNumberOfSteeringField) {
-            cout << "Maximal number of fields in steering parameter class '" << steerName[index[depth]].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-      }
-      if (type == 15 && !strcmp((const char*)name,"Group")) {
-         depth--;
-         if (makeOutput) cout << endl;;
-      }
-      if (type == 15 && !strcmp((const char*)name,"GeneralSteeringParameters")) {
-         break;
+         continue;
       }
    }
-   numOfSteering++;
    return true;
 }
 
-bool ROMEBuilder::WriteSteering() {
+bool ROMEBuilder::WriteSteering(int iTask) {
    int i;
 
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
 
-   hFile.SetFormatted("%s/include/framework/%sGeneralSteering.h",outDir.Data(),shortCut.Data());
+   hFile.SetFormatted("%s/include/framework/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
 
-   if (numOfSteering==0) {
+   if (numOfSteering[numOfTask]==-1) {
       remove(hFile.Data());
       return true;
    }
@@ -2169,7 +2296,7 @@ bool ROMEBuilder::WriteSteering() {
    buffer.AppendFormatted("//// Author: %s\n",mainAuthor.Data());
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
    buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// Contains the general Steering Parameters                                   //\n");
+   buffer.AppendFormatted("// Contains the global Steering Parameters                                   //\n");
    buffer.AppendFormatted("//                                                                            //\n");
    buffer.AppendFormatted("//                                                                            //\n");
    buffer.AppendFormatted("// This file has been generated by the ROMEBuilder.                           //\n");
@@ -2182,12 +2309,12 @@ bool ROMEBuilder::WriteSteering() {
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   buffer.AppendFormatted("#ifndef %sGeneralSteering_H\n",shortCut.Data());
-   buffer.AppendFormatted("#define %sGeneralSteering_H\n\n",shortCut.Data());
+   buffer.AppendFormatted("#ifndef %sGlobalSteering_H\n",shortCut.Data());
+   buffer.AppendFormatted("#define %sGlobalSteering_H\n\n",shortCut.Data());
 
-   WriteSteeringClass(buffer,0);
+   WriteSteeringClass(buffer,0,iTask,0);
 
-   buffer.AppendFormatted("#endif   // %sGeneralSteering_H\n",shortCut.Data());
+   buffer.AppendFormatted("#endif   // %sGlobalSteering_H\n",shortCut.Data());
 
    int fileHandle = open(hFile.Data(),O_RDONLY);
    int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
@@ -2213,177 +2340,6 @@ bool ROMEBuilder::WriteSteering() {
 
 
    return true;
-}
-bool ROMEBuilder::WriteSteeringClass(ROMEString& buffer,int numOfSteer) {
-   ROMEString format;
-   ROMEString sc;
-   ROMEString blank;
-   int j,i;
-   int typeLen = -1;
-   int nameLen = -1;
-   for (i=0;i<numOfSteerFields[numOfSteer];i++) {
-      if (typeLen<(int)steerFieldType[numOfSteer][i].Length()) typeLen = steerFieldType[numOfSteer][i].Length();
-      if (nameLen<(int)steerFieldName[numOfSteer][i].Length()) nameLen = steerFieldName[numOfSteer][i].Length();
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         if (typeLen<(int)steerName[i].Length()+1) typeLen = steerName[i].Length()+1;
-         if (nameLen<(int)steerName[i].Length()) nameLen = steerName[i].Length();
-      }
-   }
-   if (numOfSteer==0)
-      sc = shortCut;
-   else
-      sc = "";
-
-   blank = "";   
-   for (i=0;i<steerDepth[numOfSteer];i++) {
-      blank.Append("   ");   
-   }
-
-   buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numOfSteer].Data());
-   buffer.AppendFormatted("%s{\n",blank.Data());
-
-   buffer.AppendFormatted("%sprivate:\n",blank.Data());
-
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         WriteSteeringClass(buffer,i);
-      }
-   }
-
-   buffer.AppendFormatted("%sprotected:\n",blank.Data());
-
-   // Fields
-   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldComment[numOfSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[i].Data(),steerName[i].Data(),"",steerName[i].Data());
-      }
-   }
-   buffer.AppendFormatted("\n%spublic:\n",blank.Data());
-   // Constructor
-   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numOfSteer].Data());
-   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      buffer.AppendFormatted("f%s = %s; ",steerFieldName[numOfSteer][j].Data(),steerFieldInit[numOfSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         buffer.AppendFormatted("f%s = new %s(); ",steerName[i].Data(),steerName[i].Data());
-      }
-   }
-   buffer.AppendFormatted("};\n");
-   // Getters
-   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldName[numOfSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[i].Data(),steerName[i].Data(),"",steerName[i].Data());
-      }
-   }
-   // Setters
-   buffer.AppendFormatted("\n");
-   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      format.SetFormatted("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldName[numOfSteer][j].Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldName[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data());
-   }
-
-   // Footer
-   buffer.AppendFormatted("%s};\n\n",blank.Data());
-
-   return true;
-}
-void ROMEBuilder::WriteSteerConfigWrite(ROMEString& buffer,int numOfSteer) {
-   int i,j;
-   ROMEString tmp;
-   ROMEString getter;
-   if (numOfSteer==0)
-      buffer.AppendFormatted("   xml->StartElement(\"GeneralSteeringParameters\");\n");
-   else
-      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",steerName[numOfSteer].Data());
-   for (i=0;i<numOfSteerFields[numOfSteer];i++) {
-      getter.SetFormatted("->Get%s()",steerFieldName[numOfSteer][i].Data());
-      int ind = numOfSteer;
-      while (steerParent[ind]!="") {
-         for (j=0;j<numOfSteering;j++) {
-            if (steerParent[ind]==steerName[j]) {
-               getter.InsertFormatted(0,"->Get%s()",steerName[ind].Data());
-               ind = j;
-               break;
-            }
-         }
-      }
-      getter.Insert(0,"this->GetGSP()");
-      GetFormat(&tmp,(char*)steerFieldType[numOfSteer][i].Data());
-      buffer.AppendFormatted("   value.SetFormatted(\"%s\",%s);\n",tmp.Data(),getter.Data());
-      buffer.AppendFormatted("   xml->WriteElement(\"%s\", value.Data());\n",steerFieldName[numOfSteer][i].Data(),tmp.Data(),getter.Data());
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numOfSteer]) {
-         WriteSteerConfigWrite(buffer,i);
-      }
-   }
-   buffer.AppendFormatted("   xml->EndElement();\n");
-}
-
-void ROMEBuilder::WriteSteerConfigRead(ROMEString& buffer,int numSteer) {
-   ROMEString tmp;
-   ROMEString value;
-   ROMEString path;
-   ROMEString setter;
-   int i,j;
-   ROMEString blank;
-   blank = "";
-
-   path = "";
-   int ind = numSteer;
-   while (steerParent[ind]!="") {
-      for (j=0;j<numOfSteering;j++) {
-         if (steerParent[ind]==steerName[j]) {
-            path.InsertFormatted(0,"->Get%s()",steerName[ind].Data());
-            ind = j;
-            blank.Append("      ");
-            break;
-         }
-      }
-   }
-   if (numSteer==0)
-      buffer.AppendFormatted("%s      if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),steerName[numSteer].Data());
-   else
-      buffer.AppendFormatted("%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerName[numSteer].Data());
-
-   buffer.AppendFormatted("%s         while (xml->NextLine()) {\n",blank.Data());
-   buffer.AppendFormatted("%s            type = xml->GetType();\n",blank.Data());
-   buffer.AppendFormatted("%s            name = xml->GetName();\n",blank.Data());
-   if (numSteer==0)
-      buffer.AppendFormatted("%s                     char *cstop;\n",blank.Data());
-   for (i=0;i<numOfSteerFields[numSteer];i++) {
-      setValue(&value,"","value",(char*)steerFieldType[numSteer][i].Data(),1);
-      setter.SetFormatted("this->GetGSP()%s->Set%s((%s)%s)",path.Data(),steerFieldName[numSteer][i].Data(),steerFieldType[numSteer][i].Data(),value.Data());
-      buffer.AppendFormatted("%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerFieldName[numSteer][i].Data());
-      buffer.AppendFormatted("%s               if (xml->GetValue(value)) \n",blank.Data());
-      buffer.AppendFormatted("%s                  %s;\n",blank.Data(),setter.Data());
-      buffer.AppendFormatted("%s            }\n",blank.Data());
-   }
-   for (i=0;i<numOfSteering;i++) {
-      if (steerParent[i]==steerName[numSteer]) {
-         WriteSteerConfigRead(buffer,i);
-      }
-   }
-   if (numSteer==0)
-      buffer.AppendFormatted("%s            if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),steerName[numSteer].Data());
-   else
-      buffer.AppendFormatted("%s            if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),steerName[numSteer].Data());
-   buffer.AppendFormatted("%s               break;\n",blank.Data());
-   buffer.AppendFormatted("%s         }\n",blank.Data());
-   buffer.AppendFormatted("%s      }\n",blank.Data());
 }
 bool ROMEBuilder::WriteAnalyzerCpp() {
    int i;
@@ -2532,8 +2488,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("\n");
 
    // Steering 
-   if (numOfSteering!=0) {
-      buffer.AppendFormatted("   fGeneralSteeringParameters = new %sGeneralSteering();\n",shortCut.Data());
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("   fGlobalSteeringParameters = new %sGlobalSteering();\n",shortCut.Data());
    }
    // Folder 
    buffer.AppendFormatted("   // Folder initialisation\n");
@@ -2601,7 +2557,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("\n// Midas Bank Getters\n");
    for (i=0;i<numOfBank;i++) {
       if (bankType[i]=="structure"||bankType[i]=="struct") {
-         buffer.AppendFormatted("%s* %sAnalyzer::Get%sBankAt(int index) {\n",bankStructName[i].Data(),shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormatted("%sStruct* %sAnalyzer::Get%sBankAt(int index) {\n",bankName[i].Data(),shortCut.Data(),bankName[i].Data());
          buffer.AppendFormatted("   if (this->f%sBankExists)\n",bankName[i].Data());
          buffer.AppendFormatted("      return f%sBankPointer+index;\n",bankName[i].Data());
          buffer.AppendFormatted("   return NULL;\n");
@@ -2943,7 +2899,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          buffer.AppendFormatted("                           ((%sT%s*)f%sTask)->Set%sAccumulation(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
          buffer.AppendFormatted("                     }\n");
       }
-      WriteTaskSteerConfigRead(buffer,0,i);
+      WriteSteerConfigRead(buffer,0,i,1);
       buffer.AppendFormatted("                     if (type == 15 && !strcmp(name,\"%s\"))\n",taskName[i].Data());
       buffer.AppendFormatted("                        break;\n");
       buffer.AppendFormatted("                  }\n");
@@ -2980,8 +2936,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    // Steering
-   if (numOfSteering>0)
-      WriteSteerConfigRead(buffer,0);
+   if (numOfSteering[numOfTask]>0)
+      WriteSteerConfigRead(buffer,0,numOfTask,0);
 
    buffer.AppendFormatted("      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
    buffer.AppendFormatted("         break;\n");
@@ -3065,11 +3021,11 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          buffer.AppendFormatted("      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
          buffer.AppendFormatted("   xml->EndElement();\n");
       }
-      if (numOfTaskSteering[i]>0) {
+      if (numOfSteering[i]>0) {
          if (!romeStringDeclared)
             buffer.AppendFormatted("   ROMEString value;\n");
          romeStringDeclared = true;
-         WriteTaskSteerConfigWrite(buffer,0,i);
+         WriteSteerConfigWrite(buffer,0,i,1);
       }
       buffer.AppendFormatted("      xml->EndElement();\n");
    }
@@ -3102,7 +3058,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    if (numOfSteering>0) {
       if (!romeStringDeclared)
         buffer.AppendFormatted("   ROMEString value;\n");
-      WriteSteerConfigWrite(buffer,0);
+      WriteSteerConfigWrite(buffer,0,numOfTask,0);
    }
 
    buffer.AppendFormatted("   xml->EndDocument();\n");
@@ -3231,10 +3187,12 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("#include <ROMETask.h>\n");
    buffer.AppendFormatted("#include <ROMEAnalyzer.h>\n");
 
-   if (numOfSteering!=0) {
-      buffer.AppendFormatted("#include <include/framework/%sGeneralSteering.h>\n",shortCut.Data());
+   // include
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("#include <include/framework/%sGlobalSteering.h>\n",shortCut.Data());
    }
 
+   // includes
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[i].Data());
@@ -3254,7 +3212,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
             else
                buffer.AppendFormatted("   %s %s;\n",structFieldType[i][j].Data(),structFieldName[i][j].Data());
          }
-         buffer.AppendFormatted("} %s;\n",bankStructName[i].Data());
+         buffer.AppendFormatted("} %sStruct;\n",bankName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
@@ -3298,9 +3256,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("\n");
 
    // Steering Fields
-   if (numOfSteering!=0) {
+   if (numOfSteering[numOfTask]>0) {
       buffer.AppendFormatted("   // Steering Parameter Fields\n");
-      buffer.AppendFormatted("\n   %sGeneralSteering* fGeneralSteeringParameters; // Handle to the GeneralSteering Class\n",shortCut.Data());
+      buffer.AppendFormatted("\n   %sGlobalSteering* fGlobalSteeringParameters; // Handle to the GlobalSteering Class\n",shortCut.Data());
    }
 
    // Bank Fields
@@ -3309,7 +3267,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
       int bankTypeLen = -1;
       for (i=0;i<numOfBank;i++) {
          if (bankType[i]=="structure"||bankType[i]=="struct") {
-            if (bankTypeLen<(int)bankStructName[i].Length()) bankTypeLen = bankStructName[i].Length();
+            if (bankTypeLen<(int)bankName[i].Length()+6) bankTypeLen = bankName[i].Length()+6;
          }
          else {
             if (bankTypeLen<(int)bankType[i].Length()) bankTypeLen = bankType[i].Length();
@@ -3319,8 +3277,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
       buffer.AppendFormatted("   // Bank Fields\n");
       for (i=0;i<numOfBank;i++) {
          if (bankType[i]=="structure"||bankType[i]=="struct") {
-            format.SetFormatted("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankStructName[i].Length(),bankNameLen-bankName[i].Length());
-            buffer.AppendFormatted((char*)format.Data(),bankStructName[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
+            format.SetFormatted("   %%sStruct*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankName[i].Length()-6,bankNameLen-bankName[i].Length());
+            buffer.AppendFormatted((char*)format.Data(),bankName[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
          }
          else {
             format.SetFormatted("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
@@ -3391,7 +3349,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
       buffer.AppendFormatted("   void InitMidasBanks();\n");
       for (i=0;i<numOfBank;i++) {
          if (bankType[i]=="structure"||bankType[i]=="struct") {
-            buffer.AppendFormatted("   %s* Get%sBankAt(int index);\n",bankStructName[i].Data(),bankName[i].Data());
+            buffer.AppendFormatted("   %sStruct* Get%sBankAt(int index);\n",bankName[i].Data(),bankName[i].Data());
          }
          else {
             buffer.AppendFormatted("   %s Get%sBankAt(int index);\n",bankType[i].Data(),bankName[i].Data());
@@ -3427,10 +3385,10 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("\n");
  
    // Steering
-   if (numOfSteering>0) {
+   if (numOfSteering[numOfTask]>0) {
       buffer.AppendFormatted("   // Steering Parameter Methodes\n");
-      buffer.AppendFormatted("   %sGeneralSteering* GetGeneralSteeringParameters() { return fGeneralSteeringParameters; };\n",shortCut.Data());
-      buffer.AppendFormatted("   %sGeneralSteering* GetGSP() { return fGeneralSteeringParameters; };\n",shortCut.Data());
+      buffer.AppendFormatted("   %sGlobalSteering* GetGlobalSteeringParameters() { return fGlobalSteeringParameters; };\n",shortCut.Data());
+      buffer.AppendFormatted("   %sGlobalSteering* GetGSP() { return fGlobalSteeringParameters; };\n",shortCut.Data());
       buffer.AppendFormatted("\n");
    }
 
@@ -4171,57 +4129,157 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    char* name;
    bool finished = false;
    int type;
+   int i,j;
    
    numOfFolder = 0;
    numOfTask = 0;
    numOfTree = 0;
    numOfBank = 0;
-   numOfSteering = 0;
 
+   experimentName = "";
+   shortCut = "";
+   mainProgName = "";
+   mainDescription = "";
    mainAuthor = "";
    mainInstitute = "";
    mainCollaboration = "";
    mainEmail = "";
-   mainProgName = "";
-      
+
+   readExperiment = false;
+   readAuthor = false;
+   readFolders = false;
+   readTasks = false;
+   readTrees = false;
+   readGlobalSteeringParameters = false;
+   readMidasBanks = false;
+
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
       name = xml->GetName();
-      if (type == 1 && !strcmp((const char*)name,"Experiment")) {
-         xml->GetAttribute("Name",experimentName,"");
-         xml->GetAttribute("ShortCut",shortCut,"");
-         if (shortCut=="") {
-            cout << "Experiment must have a shortcut!" << endl;
-            cout << "Terminating program." << endl;
-            return;
-         }
+      if (type == 1 && !strcmp((const char*)name,"ROMEFrameworkDefinition")) {
          while (xml->NextLine()&&!finished) {
             type = xml->GetType();
             name = xml->GetName();
-            if (type == 15 && !strcmp((const char*)name,"Experiment")) {
+            if (type == 15 && !strcmp((const char*)name,"ROMEFrameworkDefinition")) {
+               if (!readExperiment) {
+                  cout << "Experiment tree missing!" << endl;
+                  cout << "Terminating program." << endl;
+                  return;
+               }
                finished = true;
                break;
             }
             if (type == 1) {
+               if (!strcmp((const char*)name,"Experiment")) {
+                  readExperiment = true;
+                  while (xml->NextLine()&&!finished) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     if (type == 1 && !strcmp((const char*)name,"ExperimentName"))
+                        xml->GetValue(experimentName,experimentName);
+                     if (type == 1 && !strcmp((const char*)name,"ExperimentShortCut"))
+                        xml->GetValue(shortCut,shortCut);
+                     if (type == 1 && !strcmp((const char*)name,"ProgramName"))
+                        xml->GetValue(mainProgName,mainProgName);
+                     if (type == 1 && !strcmp((const char*)name,"FrameworkDescription"))
+                        xml->GetValue(mainDescription,mainDescription);
+                     if (type == 15 && !strcmp((const char*)name,"Experiment")) {
+                        if (shortCut=="") {
+                           cout << "Experiment must have a shortcut!" << endl;
+                           cout << "Terminating program." << endl;
+                           return;
+                        }
+                        break;
+                     }
+                  }
+                  continue;
+               }
                if (!strcmp((const char*)name,"Author")) {
-                  xml->GetAttribute("Name",mainAuthor,mainAuthor);
-                  xml->GetAttribute("Institute",mainInstitute,mainInstitute);
-                  xml->GetAttribute("Collaboration",mainCollaboration,mainCollaboration);
-                  xml->GetAttribute("Email",mainEmail,mainEmail);
+                  readAuthor = true;
+                  while (xml->NextLine()&&!finished) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+                        xml->GetValue(mainAuthor,mainAuthor);
+                     if (type == 1 && !strcmp((const char*)name,"AuthorInstitute"))
+                        xml->GetValue(mainInstitute,mainInstitute);
+                     if (type == 1 && !strcmp((const char*)name,"AuthorCollaboration"))
+                        xml->GetValue(mainCollaboration,mainCollaboration);
+                     if (type == 1 && !strcmp((const char*)name,"AuthorEmail"))
+                        xml->GetValue(mainEmail,mainEmail);
+                     if (type == 15 && !strcmp((const char*)name,"Author"))
+                        break;
+                  }
+                  continue;
                }
-               if (!strcmp((const char*)name,"Program")||!strcmp((const char*)name,"Programname")) {
-                  xml->GetAttribute("Name",mainProgName,mainProgName);
-               }
-               if (!strcmp((const char*)name,"Folder")) {
+               if (!strcmp((const char*)name,"Folders")) {
+                  // initialization
                   numOfFolder = -1;
-                  if (!ReadXMLFolder()) return;
+                  parent[0] = "GetMainFolder()";
+                  // output
+                  if (makeOutput) cout << "Folders:" << endl;
+                  while (xml->NextLine()) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     // folder
+                     if (type == 1 && !strcmp((const char*)name,"Folder")) {
+                        recursiveDepth = 0;
+                        if (!ReadXMLFolder()) return;
+                     }
+                     // folders end
+                     if (type == 15 && !strcmp((const char*)name,"Folders")) {
+                        break;
+                     }
+                  }
+                  // check input
+                  for (i=0;i<numOfFolder;i++) {
+                     for (j=i+1;j<numOfFolder;j++) {
+                        if (folderName[i]==folderName[j]) {
+                           cout << "\nFolder '" << folderName[i].Data() << "' is defined twice !" << endl;
+                           cout << "Terminating program." << endl;
+                           return;
+                        }
+                     }
+                  }
+                  // count folders
+                  numOfFolder++;
+                  // write folder classes
                   if (!WriteFolderCpp()) return;
                   if (!WriteFolderH()) return;
                }
-               if (!strcmp((const char*)name,"Task")) {
+               if (!strcmp((const char*)name,"Tasks")) {
+                  // initialization
                   numOfTask = -1;
-                  if (!ReadXMLTask()) return;
+                  parent[0] = "GetMainTask()";
+                  // output
+                  if (makeOutput) cout << "\n\nTasks:" << endl;
+                  while (xml->NextLine()) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     // task
+                     if (type == 1 && !strcmp((const char*)name,"Task")) {
+                        recursiveDepth = 0;
+                        if (!ReadXMLTask()) return;
+                     }
+                     // tasks end
+                     if (type == 15 && !strcmp((const char*)name,"Tasks")) {
+                        break;
+                     }
+                  }
+                  // check input
+                  for (i=0;i<numOfTask;i++) {
+                     for (j=i+1;j<numOfTask;j++) {
+                        if (taskName[i] == taskName[j]) {
+                           cout << "\nTask '" << taskName[i].Data() << "' is defined twice !" << endl;
+                           cout << "Terminating program." << endl;
+                           return;
+                        }
+                     }
+                  }
+                  // count tasks
+                  numOfTask++;
+                  // write task classes
                   if (!WriteTaskCpp()) return;
                   if (!WriteTaskF()) return;
                   if (!WriteTaskH()) return;
@@ -4234,10 +4292,17 @@ void ROMEBuilder::startBuilder(char* xmlFile)
                   numOfBank = -1;
                   if (!ReadXMLMidasBanks()) return;
                }
-               if (!strcmp((const char*)name,"GeneralSteeringParameters")) {
-                  numOfSteering = 0;
-                  if (!ReadXMLSteering()) return;
-                  if (!WriteSteering()) return;
+               if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
+                  // output
+                  if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
+                  // initialisation
+                  steerName[numOfTask][0] = "GlobalSteering";
+                  recursiveSteerDepth = 0;
+                  parentSteer[0] = "";
+                  numOfSteering[numOfTask] = -1;
+                  if (!ReadXMLSteering(numOfTask)) return;
+                  numOfSteering[numOfTask]++;
+                  if (!WriteSteering(numOfTask)) return;
                }
             }
          }
@@ -4584,21 +4649,11 @@ void ROMEBuilder::WriteHTMLDoku() {
    // Introduction
    buffer.AppendFormatted("<H2><a name=introduction>Introduction</a> </H2>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The %s%s consists mainly of folders and tasks.\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("Folders are objects, where you can store data in. Typically you will store the data of one detector (or subdetector) component in it.\n");
-   buffer.AppendFormatted("Like disk folders (directories) they are hierarchically arranged.\n");
-   buffer.AppendFormatted("Folders may have a data structure (unlike disk folders). The data objects are called fields. Folders without fields can be used to structure the project.\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("Tasks are objects, which privides actions. They make calculations, store and read data in folders, fill trees and histograms and so on.\n");
-   buffer.AppendFormatted("Tasks are also hierarchically arranged. That means that a task may have a subtask, which is executed after the task itself has been executed.\n");
-   buffer.AppendFormatted("Task also own histograms, which means that all histograms in this frame work belong to a task. The booking and saving of histograms is made by the frame work.\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr>\n");
+   buffer.AppendFormatted("%s\n",mainDescription.Data());
    buffer.AppendFormatted("<p>\n");
    // Objects
    buffer.AppendFormatted("<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a> and <a href=\"#treeobjects\">Trees</a> are described here.\n");
+   buffer.AppendFormatted("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a>, <a href=\"#treeobjects\">Trees</a> and <a href=\"#midasbankobjects\">Midas Banks</a> are described here.\n");
    // Tasks
    buffer.AppendFormatted("<h3><a name=taskobjects>Tasks</a></h3>\n");
    buffer.AppendFormatted("\n");
@@ -4662,8 +4717,8 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<p>\n");
       cppFile.SetFormatted("%s/src/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[i].Data());
       fileHandle = open(cppFile.Data(),O_RDONLY);
-      read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-      
+      int n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+      fileBuffer[n] = 0;
       buffer.AppendFormatted("%s accesses data from the following folders :\n",taskName[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j=0;j<numOfFolder;j++) {
@@ -4749,11 +4804,17 @@ void ROMEBuilder::WriteHTMLDoku() {
    // Trees
    buffer.AppendFormatted("<h3><a name=treeobjects>Trees</a></h3>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The %s%s incorporates the following trees :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("The %s%s incorporates the following trees and branches.\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("In brackets are the folders, which are filled to the branch.\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",treeName[i].Data());
+      buffer.AppendFormatted("<ul>\n");
+      for (j=0;j<numOfBranch[i];j++) {
+         buffer.AppendFormatted("<li type=\"circle\">%s (%s)</li>\n",branchName[i][j].Data(),branchFolder[i][j].Data());
+      }
+      buffer.AppendFormatted("</ul>\n");
    }
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
