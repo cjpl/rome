@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.42  2005/01/19 13:29:50  schneebeli_m
+//  geteventid
+//
 //  Revision 1.41  2005/01/18 17:41:29  schneebeli_m
 //  Termination flag
 //
@@ -246,7 +249,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->UpdateTaskSwitches();
             ROMEAnalyzer::fTaskSwitchesChanged = false;
          }
-         char eventID = gROME->GetEventID();
+         char eventID = gROME->GetEventIDChar();
          ExecuteTasks(&eventID);
          CleanTasks();
          if (gROME->isTerminationFlag()) {

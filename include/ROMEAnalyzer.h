@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.32  2005/01/19 13:29:50  schneebeli_m
+  geteventid
+
   Revision 1.31  2005/01/18 17:41:29  schneebeli_m
   Termination flag
 
@@ -269,7 +272,8 @@ public:
    int        CheckEventNumber(int eventNumber);
 
    // Event ID
-   char       GetEventID() { return fEventID; }
+   int        GetEventID() { return fEventID-48; }
+   char       GetEventIDChar() { return fEventID; }
    void       SetEventID(char eventID) { fEventID = eventID; }
    void       SetEventID(int eventID) { fEventID = 48+eventID; }
 

@@ -4,7 +4,7 @@
 	<xs:annotation>
 		<xs:documentation>Schema for a ROME framework definition file.</xs:documentation>
 	</xs:annotation>
-	<xs:simpleType name="IncludeType">
+	<xs:simpleType name="IncludeTypeDesc">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="global"/>
 			<xs:enumeration value="local"/>
@@ -27,6 +27,35 @@
 			<xs:enumeration value="TH3F"/>
 			<xs:enumeration value="TH3I"/>
 			<xs:enumeration value="TH3S"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValueTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Short_t"/>
+			<xs:enumeration value="UShort_t"/>
+			<xs:enumeration value="Int_t"/>
+			<xs:enumeration value="UInt_t"/>
+			<xs:enumeration value="Long_t"/>
+			<xs:enumeration value="ULong_t"/>
+			<xs:enumeration value="Long64_t"/>
+			<xs:enumeration value="ULong64_t"/>
+			<xs:enumeration value="Float_t"/>
+			<xs:enumeration value="Double_t"/>
+			<xs:enumeration value="Double32_t"/>
+			<xs:enumeration value="Bool_t"/>
+			<xs:enumeration value="TString"/>
+			<xs:enumeration value="short"/>
+			<xs:enumeration value="unsigned short"/>
+			<xs:enumeration value="int"/>
+			<xs:enumeration value="unsigned int"/>
+			<xs:enumeration value="long"/>
+			<xs:enumeration value="unsigned long"/>
+			<xs:enumeration value="long long"/>
+			<xs:enumeration value="unsigned long long"/>
+			<xs:enumeration value="float"/>
+			<xs:enumeration value="double"/>
+			<xs:enumeration value="bool"/>
+			<xs:enumeration value="std::string"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="AuthorDesc">
@@ -93,7 +122,7 @@
 					<xs:documentation>The file name of the include e.g. TString.h.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="IncludeType" type="IncludeType" default="global" minOccurs="0">
+			<xs:element name="IncludeType" type="IncludeTypeDesc" default="global" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The type of the include can be global or local. Local means that the include file is expected to be on the working directory (#include"TString.h"). Global means that the include is searched in the directories specified in the path environment variable (#include&lt;TString.h&gt;).</xs:documentation>
 				</xs:annotation>
@@ -102,7 +131,7 @@
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">
 		<xs:annotation>
-			<xs:documentation>Description of steering parameter fields.</xs:documentation>
+			<xs:documentation>Description of steering parameter fields. A steering parameter field represents one steer value.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="SPFieldName" type="xs:string">
@@ -110,9 +139,9 @@
 					<xs:documentation>The name of the steering parameter field.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="SPFieldType" type="xs:string">
+			<xs:element name="SPFieldType" type="ValueTypeDesc">
 				<xs:annotation>
-					<xs:documentation>The type of the steering parameter field.</xs:documentation>
+					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="SPFieldInitialization" type="xs:string" minOccurs="0">
@@ -159,9 +188,9 @@
 					<xs:documentation>The name of the field.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="FieldType" type="xs:string">
+			<xs:element name="FieldType" type="ValueTypeDesc">
 				<xs:annotation>
-					<xs:documentation>The type of the field.</xs:documentation>
+					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FieldComment" type="xs:string" minOccurs="0">
@@ -181,7 +210,7 @@
 			</xs:element>
 			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Path to the corresponding value inside the data base.</xs:documentation>
+					<xs:documentation>Path to the corresponding value inside the data base. Please visit the Database Path Description section in the UsersGuide.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -433,7 +462,7 @@
 			</xs:element>
 			<xs:element name="RelatedFolder" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The name of the folder, whose data is stored to the branch.</xs:documentation>
+					<xs:documentation>The name of the folder, whose data is stored to the branch. This folder has to be defined in the folder definition section of the xml file.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -526,7 +555,7 @@
 			</xs:element>
 			<xs:element name="BankType" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The type of the bank.</xs:documentation>
+					<xs:documentation>The type of the bank. This is the  type of the values stored in the bank in the midas file.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
@@ -548,7 +577,7 @@
 			</xs:element>
 			<xs:element name="BankFieldType" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The type of the field of the structured bank.</xs:documentation>
+					<xs:documentation>The type of the field of the structured bank. This is the  type of the values in the structure stored in the bank in the midas file.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="BankFieldSize" type="xs:integer" minOccurs="0">
