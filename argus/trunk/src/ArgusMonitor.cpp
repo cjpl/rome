@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.9  2005/02/21 19:06:56  sawada
+  changed platform specifying macros
+
   Revision 1.8  2005/02/06 00:39:35  sawada
    Changed TRint to TApplication
    Stop method of thread function
@@ -30,8 +33,8 @@
 
 
 ********************************************************************/
-
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #ifndef __CINT__
 #include <Windows4Root.h>
 #include <conio.h>
@@ -39,9 +42,8 @@
 #include <io.h>
 #include <direct.h>
 #include <windows.h>
-#define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -50,9 +52,8 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <TThread.h>
-#define O_RDONLY_BINARY O_RDONLY
 #endif
-#if defined ( __linux__ )
+#if !defined( R__MACOSX )
 #include <sys/io.h>
 #endif
 #include <sys/stat.h>
@@ -223,10 +224,10 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 
 Bool_t ArgusMonitor::ss_kbhit()
 {
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    return kbhit() != 0;
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    int n;
    ioctl(0, FIONREAD, &n);
    return (n > 0);
@@ -277,7 +278,7 @@ int ArgusMonitor::ss_sleep(int millisec)
 
 int ArgusMonitor::ss_getchar(bool reset)
 {
-#if defined ( __linux__ )  || defined ( __APPLE__ )
+#if defined( R__UNIX )
    static unsigned long int init = 0;
    static struct termios save_termios;
    struct termios buf;
@@ -358,7 +359,7 @@ int ArgusMonitor::ss_getchar(bool reset)
 
    return c[0];
 
-#elif defined( _MSC_VER )
+#elif defined( R__VISUAL_CPLUSPLUS )
 
    static bool init = false;
    static int repeat_count = 0;
