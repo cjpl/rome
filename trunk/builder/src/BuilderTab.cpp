@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/02/02 18:19:25  sawada
+  small bug fix.
+
   Revision 1.7  2005/02/02 17:39:30  sawada
   Thread functions for Windows.
 
@@ -311,6 +314,9 @@ bool ArgusBuilder::WriteTabH() {
       if (numOfSteering[iTab]>0) {
          WriteSteeringClass(buffer,0,iTab,1);
          buffer.AppendFormatted("\n");
+      }
+      if (numOfSteering[iTab]>0) {
+         buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
       }
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
