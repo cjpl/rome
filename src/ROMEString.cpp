@@ -6,6 +6,11 @@
 //  Handles character strings. 
 //  Derived from TString.
 //                                                                      //
+//  $Log$
+//  Revision 1.5  2004/09/25 01:34:48  schneebeli_m
+//  implemented FW dependent EventLoop and DataBase classes
+//
+//                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <stdio.h>
 #include <stdarg.h>

@@ -11,18 +11,22 @@
 //    EndOfRun
 //    Terminate
 //                                                                      //
+//  $Log$
+//  Revision 1.14  2004/09/25 01:34:48  schneebeli_m
+//  implemented FW dependent EventLoop and DataBase classes
+//
+//                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETask.h>
 #include "Riostream.h"
 
 ClassImp(ROMETask)
 
-ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TTask(name,title)
+ROMETask::ROMETask(const char *name,const char *title):TTask(name,title)
 {
    // Initialisation of Class
    fTitle = title;
    fName = name;
-   fAnalyzer = analyzer;
    fEventID = 'a';
 }
 void ROMETask::Exec(Option_t *option)
@@ -33,27 +37,28 @@ void ROMETask::Exec(Option_t *option)
    // Event
    // EndOfRun
    // Terminate
-   if (!strcmp(option,"i")) {
+
+   if (!strncmp(option,"i",1)) {
       ROMEString foldername;
       foldername.SetFormatted("%sHistos",this->GetName());
       fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
       Init();
    }
-   else if (!strcmp(option,"b")) {
+   else if (!strncmp(option,"b",1)) {
       ResetHisto();
       BeginOfRun();
    }
-   else if (!strcmp(option,"e")) {
+   else if (!strncmp(option,"e",1)) {
       EndOfRun();
    }
-   else if (!strcmp(option,"t")) {
+   else if (!strncmp(option,"t",1)) {
       Terminate();
       if (gShowTime) {
          cout << "Task '" << fName.Data() << "' : run time = " << GetTime() << endl;
       }
    }
-   else if (!strcmp(&fEventID,"a") || !strcmp(option,&fEventID)) {
+   else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
       if (gShowTime) TimeStart();
       Event();
       if (gShowTime) TimeEnd();

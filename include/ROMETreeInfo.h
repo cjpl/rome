@@ -1,3 +1,11 @@
+/********************************************************************
+  ROMETreeInfo.h, M. Schneebeli PSI
+
+  $Log$
+  Revision 1.2  2004/09/25 01:34:48  schneebeli_m
+  implemented FW dependent EventLoop and DataBase classes
+
+********************************************************************/
 #ifndef ROMETreeInfo_H
 #define ROMETreeInfo_H
 

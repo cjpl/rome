@@ -8,8 +8,14 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.25  2004/09/25 01:34:48  schneebeli_m
+//  implemented FW dependent EventLoop and DataBase classes
+//
 //  Revision 1.24  2004/09/23 15:48:16  midas
-//  Added $Log$ tag in header
+//  Added $Log$
+//  Added Revision 1.25  2004/09/25 01:34:48  schneebeli_m
+//  Added implemented FW dependent EventLoop and DataBase classes
+//  Added tag in header
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -50,9 +56,13 @@
 #include <ROMETree.h>
 #include <ROMETask.h>
 #include <ROMEString.h>
+#include <ROMEXMLDataBase.h>
+#include <ROMENoDataBase.h>
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)
+
+void *gROME;  // global Analyzer Handle
 
 const char* ROMEAnalyzer::LineToProcess = NULL;
 void writeLineToProcess(const char* str) {
@@ -64,15 +74,6 @@ void writeLineToProcess(const char* str) {
 
 void StartServer(int port);
 
-#if defined HAVE_MIDAS
-#include <midas.h>
-#define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
-void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
-{
-// This method is called, when a system message from the online system occurs
-}
-#endif
-
 
 ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 {
@@ -83,34 +84,19 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fSplashScreen = true;
    fBatchMode = false;
    fTerminate = false;
-   fAnalysisMode = kAnalyzeOffline;
-   fDataFormat = kRoot;
-   fDataBase = kDataBaseNone;
-   fCurrentRunNumber = 0;
-   fEventStatus = kAnalyze;
+   fAnalysisMode = kAnalyzeOffline; 
+   fDataFormat = kRoot; 
+   fCurrentRunNumber = 0; 
    fTreeAccumulation = false;
    fTreeObjects = new TObjArray(0);
-   fSequentialNumber = 0;
-   fTreeInfo = new ROMETreeInfo();
    fEventID = 'a';
-   fTriggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
-   fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
-   fContinuous = true;
    fOnlineHost = "";
    fDontReadNextEvent = false;
-   fUserInputLast = 0;
+   fDataBaseConnection = "";
+   fDataBaseHandle = new ROMENoDataBase();
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
-// Write and close Trees
-   ROMETree *romeTree;
-   for (int j=0;j<GetTreeObjectEntries();j++) {
-      romeTree = GetTreeObjectAt(j);
-      if (romeTree->isWrite()) {
-         if (treeFiles[j]!=NULL)
-            treeFiles[j]->Close();
-      }
-   }
 }
 
 
@@ -120,16 +106,15 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    consoleStartScreen();
 
-   int port = 9091;
-   StartServer(port);
-   printf("Root server listening on port %d\n", port);
-
+   fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
 
    if (isSplashScreen()) startSplashScreen();
 
-   CreateHistoFolders();
+   int port = 9091;
+   StartServer(port);
+   printf("Root server listening on port %d\n\n\n", port);
 
    cout << "Program steering" << endl;
    cout << "----------------" << endl;
@@ -142,607 +127,13 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    cout << "i : Root interpreter" << endl;
    cout << endl;
 
-   fMainTask->ExecuteTask();
+   CreateHistoFolders();
+
+   fMainTask->ExecuteTask("start");
    if (fTerminate) return false;
 
 //   if (!isBatchMode()) TBrowser *t = new TBrowser();
 
-   return true;
-}
-
-bool ROMEAnalyzer::Init() {
-   // Initialize the analyzer. Called before the init tasks.
-   int j;
-   this->InitFolders();
-   this->InitTaskSwitches();
-
-   // Tree file Initialisation
-   treeFiles = new TFile*[GetTreeObjectEntries()];
-   ROMEString filename;
-   ROMEString runNumberString;
-   ROMETree *romeTree;
-   TTree *tree;
-   GetCurrentRunNumberString(runNumberString);
-   for (j=0;j<GetTreeObjectEntries();j++) {
-      treeFiles[j] = NULL;
-      romeTree = GetTreeObjectAt(j);
-      if (romeTree->isWrite() && this->isTreeAccumulation()) {
-         tree = romeTree->GetTree();
-         filename = GetOutputDir();
-         filename.Append(tree->GetName());
-         filename.Append(runNumberString.Data());
-         filename.Append(".root");
-         treeFiles[j] = new TFile(filename.Data(),"RECREATE");
-         tree->SetDirectory(treeFiles[j]);
-      }
-   }
-
-   if (this->isOnline()&&this->isMidas()) {
-#if defined HAVE_MIDAS
-      // Connect to the Frontend
-      int requestId,i;
-
-      cout << "Program is running online." << endl << endl;
-
-      // Connect to the experiment
-      if (cm_connect_experiment((char*)fOnlineHost.Data(), (char*)fOnlineExperiment.Data(),(char*)fProgramName.Data(), NULL) != SUCCESS) {
-         cout << "Cannot connect to experiment" << endl;
-         return false;
-      }
-
-      // open the "system" buffer, 1M size
-      bm_open_buffer("SYSTEM", EVENT_BUFFER_SIZE, &fMidasBuffer);
-
-      // set the buffer cache size
-      bm_set_cache_size(fMidasBuffer, 100000, 0);
-
-      // place a request for a specific event id
-      bm_request_event(fMidasBuffer, 1, TRIGGER_ALL,GET_SOME, &requestId,NULL);
-
-      // place a request for system messages
-      cm_msg_register(ProcessMessage);
-
-      // turn off watchdog if in debug mode
-#ifdef MIDAS_DEBUG
-      cm_set_watchdog_params(TRUE, 0);
-#endif
-
-      // Registers a callback function for run transitions.
-      if (cm_register_transition(TR_START, NULL) != CM_SUCCESS ||
-         cm_register_transition(TR_STOP, NULL) != CM_SUCCESS) {
-         cout << "Cannot connect to experiment" << endl;
-         return false;
-      }
-
-      // Connect to the online database
-      if (cm_get_experiment_database(&fMidasOnlineDataBase, NULL)!= CM_SUCCESS) {
-         cout << "Cannot connect to the online database" << endl;
-         return false;
-      }
-
-      // Get Runnumber
-      int size = sizeof(fCurrentRunNumber);
-      if (db_get_value(fMidasOnlineDataBase,0,"/Runinfo/Run number",&fCurrentRunNumber,&size,TID_INT,false)!= CM_SUCCESS) {
-         cout << "Cannot read runnumber from the online database" << endl;
-         return false;
-      }
-
-      // Initialize the online database
-      HNDLE hKey;
-      ROMEString str;
-      str = "//Trigger/Statistics";
-      str.Insert(1,fProgramName.Data());
-      // Trigger Statistics
-      db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fTriggerStatisticsString.Data(), TRUE);
-      db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
-      if (db_open_record(fMidasOnlineDataBase, hKey, &fTriggerStatistics, sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "Cannot open trigger statistics record, probably other analyzer is using it" << endl;
-         return false;
-      }
-
-      // Scaler Statistics
-      str="//Scaler/Statistics";
-      str.Insert(1,fProgramName.Data());
-      db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fScalerStatisticsString.Data(), TRUE);
-      db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
-      if (db_open_record(fMidasOnlineDataBase, hKey, &fScalerStatistics, sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         cout << "Cannot open scaler statistics record, probably other analyzer is using it" << endl;
-         return false;
-      }
-
-      // Tree Switches
-      for (i=0;i<GetTreeObjectEntries();i++) {
-         str="//Tree switches/";
-         str.Insert(1,fProgramName.Data());
-         str.Append(GetTreeObjectAt(i)->GetTree()->GetName());
-         db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
-         db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);
-         if (db_set_record(fMidasOnlineDataBase,hKey,GetTreeObjectAt(i)->GetSwitches(),GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
-            cout << "Cannot write to tree switches record." << endl;
-            return false;
-         }
-         if (db_open_record(fMidasOnlineDataBase, hKey, GetTreeObjectAt(i)->GetSwitches(), GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
-            cout << "Cannot open tree switches record, probably other analyzer is using it" << endl;
-            return false;
-         }
-      }
-
-      // Experiment dependent ODB initializations
-      InitODB();
-
-      // Set Event Status
-      fEventStatus = kAnalyze;
-#else
-      cout << "Need Midas support for Online Mode !!" << endl;
-      cout << "Please link the midas library into this project." << endl;
-      return false;
-#endif
-   }
-   else if (this->isOnline()&&this->isRoot()) {
-      cout << "Root mode is not supported for online analysis." << endl << endl;
-      return false;
-   }
-   else if (this->isOffline()&&this->isMidas()) {
-      cout << "Program is running offline." << endl << endl;
-   }
-   else if (this->isOffline()&&this->isRoot()) {
-      cout << "Program is running offline." << endl << endl;
-   }
-   else {
-      cout << "Severe program failure." << endl << endl;
-      return false;
-   }
-
-   if (this->isOffline()&&this->GetNumberOfRunNumbers()<=0) {
-      cout << "No run numbers specified." << endl << endl;
-      return false;
-   }
-
-   // Data Base Initialisation
-   if (this->isSQLDataBase()) {
-      if (!this->InitSQLDataBase())
-         return false;
-   }
-
-   return true;
-}
-bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
-   // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
-   ROMEString runNumberString;
-   // Statistics
-   fTriggerStatistics.processedEvents = 0;
-   fTriggerStatistics.eventsPerSecond = 0;
-   fTriggerStatistics.writtenEvents = 0;
-   fTimeOfLastEvent = 0;
-   fLastEvent = 0;
-   // Progress Display
-   fProgressDelta = 10000;
-   fProgressLast = time(NULL);
-   fProgressLastEvent = 0;
-   fProgressWrite = false;
-   // Status
-   fRunStatus = kRunning;
-   fEventStatus = kAnalyze;
-
-   if (this->isOffline()) {
-      if (this->GetNumberOfRunNumbers()<=runNumberIndex) {
-         this->SetTerminate();
-         return true;
-      }
-      fCurrentRunNumber = fRunNumber.At(runNumberIndex);
-   }
-   fTreeInfo->SetRunNumber(this->GetCurrentRunNumber());
-   GetCurrentRunNumberString(runNumberString);
-
-   ROMEString filename;
-   ROMETree *romeTree;
-   TTree *tree;
-   for (int j=0;j<GetTreeObjectEntries();j++) {
-      romeTree = GetTreeObjectAt(j);
-      if (romeTree->isWrite() && !this->isTreeAccumulation()) {
-         tree = romeTree->GetTree();
-         filename.SetFormatted("%s%s%s.root",GetOutputDir(),tree->GetName(),runNumberString.Data());
-         treeFiles[j] = new TFile(filename.Data(),"RECREATE");
-         tree->SetDirectory(treeFiles[j]);
-      }
-   }
-
-   // Update Data Base
-   if (this->isSQLDataBase()) {
-      if (!this->ReadSQLDataBase())
-         return false;
-   }
-   else if (this->isXMLDataBase()){
-      if (!this->ReadXMLDataBase())
-         return false;
-   }
-
-   if (this->isOnline()&&this->isMidas()) {
-   }
-   else if (this->isOffline()&&this->isMidas()) {
-      // Open Midas File
-      filename.SetFormatted("%srun%s.mid",GetInputDir(),runNumberString.Data());
-      fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
-      if (fMidasFileHandle==-1) {
-         cout << "Inputfile '" << filename.Data() << "' not found." << endl;
-         return false;
-      }
-      cout << "Reading Midas-File run" << runNumberString.Data() << ".mid" << endl;
-   }
-   else if (this->isOffline()&&this->isRoot()) {
-      // Read Trees
-      fRootFiles = new TFile*[GetTreeObjectEntries()];
-      TTree *tree;
-      ROMETree *romeTree;
-      ROMEString runNumberString;
-      GetCurrentRunNumberString(runNumberString);
-      bool treeRead = false;
-      fTreePosition = new int[GetTreeObjectEntries()];
-      fTreeNextSeqNumber = new int[GetTreeObjectEntries()];
-      for (int j=0;j<GetTreeObjectEntries();j++) {
-         romeTree = GetTreeObjectAt(j);
-         tree = romeTree->GetTree();
-         if (!this->isTreeAccumulation()) {
-            tree->Reset();
-         }
-         if (romeTree->isRead()) {
-            treeRead = true;
-            filename.SetFormatted("%s%s%s.root",GetInputDir(),tree->GetName(),runNumberString.Data());
-            fRootFiles[j] = new TFile(filename.Data(),"READ");
-            if (fRootFiles[j]->IsZombie()) {
-               cout << "Inputfile '" << filename.Data() << "' not found." << endl;
-               return false;
-            }
-            tree = (TTree*)fRootFiles[j]->FindObjectAny(tree->GetName());
-            romeTree->SetTree(tree);
-            fTreePosition[j] = 0;
-            if (tree->GetEntriesFast()>0) {
-               tree->GetBranch("Info")->GetEntry(0);
-               fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
-            }
-            else {
-               fTreeNextSeqNumber[j] = -1;
-            }
-         }
-      }
-      if (!treeRead) {
-         cout << "No input root file specified for running in root mode." << endl << endl;
-         return false;
-      }
-      ConnectTrees();
-   }
-   else {
-	   cout << "Severe program failure." << endl << endl;
-	   return false;
-   }
-   return true;
-}
-
-bool ROMEAnalyzer::ReadEvent(Int_t event) {
-   // Reads an event. Called before the Event tasks.
-   fEventStatus = kAnalyze;
-   this->CleanUpFolders();
-   int timeStamp = 0;
-
-   if (fDontReadNextEvent) {
-      fDontReadNextEvent = false;
-      return true;
-   }
-
-   if (this->isOnline()&&this->isMidas()) {
-#if defined HAVE_MIDAS
-      int runNumber,trans;
-      if (cm_query_transition(&trans, &runNumber, NULL)) {
-         if (trans == TR_START) {
-            this->SetCurrentRunNumber(runNumber);
-            fEventStatus = kAnalyze;
-            fRunStatus = kRunning;
-         }
-         if (trans == TR_STOP) {
-            fEventStatus = kEndOfRun;
-            fRunStatus = kStopped;
-            return true;
-         }
-      }
-      int status = cm_yield(100);
-      if (status == RPC_SHUTDOWN || status == SS_ABORT) {
-         fEventStatus = kTerminate;
-         return false;
-      }
-      if (fRunStatus == kStopped) {
-         fEventStatus = kContinue;
-         return true;
-      }
-      int size = sizeof(fMidasEvent);
-      status = bm_receive_event(fMidasBuffer, fMidasEvent, &size, ASYNC);
-      if (status != BM_SUCCESS) {
-         fEventStatus = kContinue;
-         return true;
-      }
-
-      fCurrentEventNumber = ((EVENT_HEADER*)fMidasEvent)->event_id;
-      timeStamp = ((EVENT_HEADER*)fMidasEvent)->time_stamp;
-      this->InitMidasBanks();
-
-      // Update Statistics
-      fTriggerStatistics.processedEvents++;
-      int time;
-      time = ss_millitime();
-      if (fTimeOfLastEvent == 0)
-         fTimeOfLastEvent = time;
-      if (time - fTimeOfLastEvent != 0)
-         fTriggerStatistics.eventsPerSecond = (fTriggerStatistics.processedEvents-fLastEvent)/(time-fTimeOfLastEvent)*1000.0;
-      fTimeOfLastEvent = time;
-
-      fTreeInfo->SetTimeStamp(timeStamp);
-      fLastEvent = fTriggerStatistics.processedEvents;
-#endif
-   }
-   else if (this->isOffline()&&this->isMidas()) {
-      // read event header
-      EVENT_HEADER *pevent = (EVENT_HEADER*)fMidasEvent;
-      bool readError = false;
-
-      int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-      if (n < (int)sizeof(EVENT_HEADER)) readError = true;
-      else {
-         n = 0;
-         if (pevent->data_size <= 0) readError = true;
-         else {
-            n = read(fMidasFileHandle, pevent+1, pevent->data_size);
-            if (n != (int) pevent->data_size) readError = true;
-         }
-      }
-      if (readError) {
-         if (n > 0) cout << "Unexpected end of file\n";
-         fEventStatus = kEndOfRun;
-         return true;
-      }
-
-      if (pevent->event_id < 0) {
-         fEventStatus = kContinue;
-         return true;
-      }
-      if (pevent->event_id == EVENTID_EOR) {
-         fEventStatus = kEndOfRun;
-         return true;
-      }
-
-      this->SetEventID(pevent->event_id);
-      fCurrentEventNumber = pevent->serial_number;
-      timeStamp = pevent->time_stamp;
-
-      if (fEventStatus==kAnalyze) this->InitMidasBanks();
-
-      fTreeInfo->SetTimeStamp(timeStamp);
-      fTriggerStatistics.processedEvents++;
-   }
-   else if (this->isOffline()&&this->isRoot()) {
-      ROMETree *romeTree;
-      TTree *tree;
-      bool found = false;
-      for (int j=0;j<GetTreeObjectEntries();j++) {
-         romeTree = GetTreeObjectAt(j);
-         tree = romeTree->GetTree();
-         if (romeTree->isRead()) {
-            if (fTreeNextSeqNumber[j]==event) {
-               found = true;
-               if (tree->GetEntriesFast()>fTreePosition[j]+1) {
-                  tree->GetBranch("Info")->GetEntry(fTreePosition[j]+1);
-                  fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
-               }
-               else {
-                  fTreeNextSeqNumber[j] = -1;
-               }
-               tree->GetEntry(fTreePosition[j]);
-               fTreePosition[j]++;
-            }
-         }
-      }
-      if (!found) {
-         fEventStatus = kEndOfRun;
-         return true;
-      }
-
-      fTreeInfo->SetTimeStamp(timeStamp);
-      fTriggerStatistics.processedEvents++;
-   }
-   else {
-      cout << "Severe program failure." << endl << endl;
-      return false;
-   }
-
-   return true;
-}
-
-bool ROMEAnalyzer::WriteEvent() {
-   // Writes the event. Called after the Event tasks.
-   fTreeInfo->SetEventNumber(fCurrentEventNumber);
-   FillTrees();
-   return true;
-}
-bool ROMEAnalyzer::Update()
-{
-   // Update the Analyzer. Called after the Event tasks.
-
-   // Progress Display
-   if (fProgressDelta>1) {
-      if ((int)fTriggerStatistics.processedEvents >= fProgressLastEvent + fProgressDelta) {
-         time(&fProgressLast);
-         fProgressLastEvent = (int)fTriggerStatistics.processedEvents;
-         fProgressWrite = true;
-      }
-      else {
-         if (time(NULL) > fProgressLast+1)
-            fProgressDelta /= 10;
-      }
-   }
-   if ((!fContinuous || fProgressDelta==1 || !((int)fTriggerStatistics.processedEvents%fProgressDelta) && fProgressWrite)) {
-      cout << (int)fTriggerStatistics.processedEvents << " events processed                                                    \r";
-      fProgressWrite = false;
-   }
-
-   // ODB update
-#if defined HAVE_MIDAS
-   db_send_changed_records();
-#endif
-
-   return true;
-}
-
-void ROMEAnalyzer::CheckLineToProcess()
-{
-   if (ROMEAnalyzer::LineToProcess){
-/*      cout << ROMEAnalyzer::LineToProcess << endl;
-*/      this->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
-      ROMEAnalyzer::LineToProcess = NULL;
-   }
-}
-bool ROMEAnalyzer::UserInput()
-{
-   // Looks for user input. Called before the Event tasks.
-   bool wait = false;
-   bool first = true;
-   bool interpreter = false;
-
-   if (fContinuous && time(NULL) < fUserInputLast+0.1)
-      return true;
-   time(&fUserInputLast);
-
-   while (wait||first) {
-
-      first = false;
-      if (!fContinuous)
-         wait = true;
-
-      CheckLineToProcess();
-
-      interpreter = false;
-      while (ROMEStatic::ss_kbhit()) {
-         char ch = ROMEStatic::ss_getchar(0);
-         if (ch == -1) {
-            ch = getchar();
-         }
-         if (ch == 'q') {
-            return false;
-         }
-         if (ch == 'e') {
-            fEventStatus = kTerminate;
-            wait = false;
-         }
-         if (ch == 's') {
-            cout << "Stopped                          \r";
-            wait = true;
-         }
-         if (ch == 'r') {
-            wait = false;
-         }
-         if (ch == 'o') {
-            cout << "Step by step mode                 " << endl;
-            fContinuous = false;
-         }
-         if (ch == 'c') {
-            cout << "Continues mode                    " << endl;
-            fContinuous = true;
-            wait = false;
-         }
-         if (ch == 'i') {
-//            interpreter = true;
-            wait = false;
-         }
-      }
-      if (interpreter) {
-         int argn = 1;
-         char *argp = (char*)this->fApplication;
-
-         cout << endl << "interpreter" << endl;
-         TRint *theApp = new TRint("App", &argn, &argp,NULL,0,true);
-
-         theApp->Run(true);
-         delete theApp;
-         gApplication = false;
-      }
-
-/*      if (interpreter) {
-
-         ROMEStatic::ss_getchar(1);
-         char input[1000];
-         while (true) {
-            cin >> input;
-            if (!strcmp(input,".q"))
-               break;
-            strcpy(input,"TBrowser t;");
-            fApplication->ProcessLine(input);
-//   fApplication->ProcessLine("TBrowser t;");
-         }
-      }*/
-   }
-
-   return true;
-}
-
-bool ROMEAnalyzer::Disconnect() {
-   // Disconnects the current run. Called before the EndOfRun tasks.
-
-   TFile *f1;
-   // Write Trees
-   ROMEString filename;
-   ROMETree *romeTree;
-   TTree *tree;
-   ROMEString runNumberString;
-   GetCurrentRunNumberString(runNumberString);
-   for (int j=0;j<GetTreeObjectEntries();j++) {
-      romeTree = GetTreeObjectAt(j);
-      if (romeTree->isWrite() && !this->isTreeAccumulation()) {
-         tree = romeTree->GetTree();
-         cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
-         treeFiles[j] = tree->GetCurrentFile();
-         treeFiles[j]->Write();
-         treeFiles[j]->Close();
-      }
-   }
-   cout << endl;
-
-   // Write Histos
-   TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   filename.SetFormatted("%s%s%s.root",GetOutputDir(),"histos",runNumberString.Data());
-   f1 = new TFile(filename.Data(),"RECREATE");
-   folder->Write();
-   f1->Close();
-
-   if (this->isOnline()&&this->isMidas()) {
-   }
-   else if (this->isOffline()&&this->isMidas()) {
-      close(fMidasFileHandle);
-   }
-   else if (this->isOffline()&&this->isRoot()) {
-      for (int j=0;j<GetTreeObjectEntries();j++) {
-         if (GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
-      }
-      delete [] fRootFiles;
-   }
-   else {
-      cout << "Severe program failure." << endl << endl;
-      return false;
-   }
-   return true;
-}
-
-bool ROMEAnalyzer::Terminate() {
-   // Clean up the analyzer. Called before the Terminate tasks.
-   if (this->isOnline()&&this->isMidas()) {
-#if defined HAVE_MIDAS
-      cm_disconnect_experiment();
-#endif
-   }
-   else if (this->isOffline()&&this->isMidas()) {
-   }
-   else if (this->isOffline()&&this->isRoot()) {
-   }
-   else {
-      cout << "Severe program failure." << endl << endl;
-      return false;
-   }
    return true;
 }
 
@@ -787,13 +178,17 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
    }
-   char answer[10];
+   char answer = 0;
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
       cout << "Configuration file '" << configFile.Data() << "' not found." << endl;
       cout << "Do you like the framework to generate a new configuration file ([y]/n) ? ";
-      cin >> answer;
-      if (strstr(answer,"n")==NULL) {
+      while (answer==0) {
+         while (ROMEStatic::ss_kbhit()) {
+            answer = ROMEStatic::ss_getchar(0);
+         }
+      }
+      if (answer!='n') {
          cout << "\nThe framework generated a new configuration file." << endl;
          cout << "Please edit this file and restart the program.\n" << endl;
          if (!WriteROMEConfigXML((char*)configFile.Data())) {

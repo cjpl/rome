@@ -1,3 +1,11 @@
+/********************************************************************
+  ROMETask.h, M. Schneebeli PSI
+
+  $Log$
+  Revision 1.10  2004/09/25 01:34:48  schneebeli_m
+  implemented FW dependent EventLoop and DataBase classes
+
+********************************************************************/
 #ifndef ROMETask_H
 #define ROMETask_H
 
@@ -14,14 +22,17 @@ private:
    ROMEString     fTimeString; // Elapsed Time in a readable format
    TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 protected:
-   ROMEAnalyzer*  fAnalyzer;       // Handle to the Analyzer Class (should be overriden by each Task)
    Int_t          fVersion;        // Version of Task
    Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
    char           fEventID;        // TriggerID for event method
 public:
    ROMETask() { ; }
-   ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer);
+   ROMETask(const char *name,const char *title);
    void Exec(Option_t *option="");
+   Bool_t   hasHistograms()  { return fHasHistograms; };
+   Int_t    GetVersion()     { return fVersion; };
+   TFolder* GetHistoFolder() { return fHistoFolder; };
+protected:
    virtual void BookHisto() = 0;
    virtual void ResetHisto() = 0;
    virtual void Init() = 0;
@@ -30,10 +41,6 @@ public:
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
 
-   Bool_t   hasHistograms()  { return fHasHistograms; };
-   Int_t    GetVersion()     { return fVersion; };
-   TFolder* GetHistoFolder() { return fHistoFolder; };
-protected:
    void  TimeStart();
    void  TimeEnd();
    char* GetTime();

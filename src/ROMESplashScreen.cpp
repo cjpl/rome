@@ -5,6 +5,11 @@
 //                                                                      //
 //  Displays a splash screen.
 //                                                                      //
+//  $Log$
+//  Revision 1.4  2004/09/25 01:34:48  schneebeli_m
+//  implemented FW dependent EventLoop and DataBase classes
+//
+//                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #if defined( _MSC_VER )
 

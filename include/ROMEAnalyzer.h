@@ -1,3 +1,11 @@
+/********************************************************************
+  ROMEAnalyzer.h, M. Schneebeli PSI
+
+  $Log$
+  Revision 1.20  2004/09/25 01:34:48  schneebeli_m
+  implemented FW dependent EventLoop and DataBase classes
+
+********************************************************************/
 #ifndef ROMEAnalyzer_H
 #define ROMEAnalyzer_H
 
@@ -14,6 +22,7 @@
 #include <ROMEStatic.h>
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
+#include <ROMEDataBase.h>
 #if defined HAVE_MIDAS
 #include <midas.h>
 #endif
@@ -21,28 +30,15 @@
 #include <ROMESQL.h>
 #endif
 
+typedef struct {
+   double processedEvents;   //! Processed Events
+   double eventsPerSecond;   //! Events per Second
+   double writtenEvents;     //! Written Events
+} Statistics;
 
 class ROMEAnalyzer : public TObject
 {
 private:
-   typedef struct {
-      double processedEvents;   //! Processed Events
-      double eventsPerSecond;   //! Events per Second
-      double writtenEvents;     //! Written Events
-   } Statistics;
-
-   // Run Status
-   enum {
-      kRunning   = 0,
-      kStopped   = 1
-   };
-   // Event Status
-   enum {
-      kAnalyze   = 0,
-      kContinue  = 1,
-      kEndOfRun  = 2,
-      kTerminate = 3
-   };
    // Data Format
    enum {
       kRoot  = 0,
@@ -53,12 +49,6 @@ private:
       kAnalyzeOffline = 0,
       kAnalyzeOnline  = 1
    };
-   // Data Base
-   enum {
-      kDataBaseNone = 0,
-      kDataBaseSQL  = 1,
-      kDataBaseXML  = 2
-   };
 
 protected:
 
@@ -68,13 +58,9 @@ protected:
    // Modes
    Int_t      fAnalysisMode;                    //! Analysis mode flag
    Int_t      fDataFormat;                      //! Root mode flag
-   Int_t      fDataBase;                        //! Data Base flag
    Bool_t     fBatchMode;                       //! Batch mode flag
    Bool_t     fSplashScreen;                    //! Splash screen flag
 
-   // Status
-   Int_t      fRunStatus;                       //! Run Status flag
-   Int_t      fEventStatus;                     //! Event Status flag
 
    Bool_t     fDontReadNextEvent;               //! Don't read the next event from file/buffer
 
@@ -95,19 +81,9 @@ protected:
    // Event ID
    char       fEventID;                         //! Event ID of current Event
 
-   Int_t      fMidasFileHandle;                 //! Handle to Midas Inputfile
-   int        fMidasBuffer;                     //! Midas Online Buffer
-   char       fMidasEvent[110000];              //! Midas Inputdata Stack for an Event
-
-   TFile**    fRootFiles;                       //! Root files
-
-   // Progress Display
-   int        fProgressDelta;                   //! Maximal time difference
-   time_t     fProgressLast;                    //! Last time for display
-   int        fProgressLastEvent;               //! Last Event
-   bool       fProgressWrite;                   //! Write flag
-
-   time_t     fUserInputLast;                   //! Last time for user input
+   // Midas
+   char       fMidasEvent[0x80000];             //! Midas Inputdata Stack for an Event
+   int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
 
    // Flags
    Bool_t     fTerminate;                       //! Termination flag
@@ -118,18 +94,9 @@ protected:
    TFolder*   fMainFolder;                      //! Handle to Main Folder
    TFile*     fHistoFiles;                      //! Handle to Histogram Files
 
-   // Trees Files
-   TFile**       treeFiles;                        //! File Handles for Tree Objects
-
    // Trees
    TObjArray*    fTreeObjects;                     //! Handle to Tree Objects
    bool          fTreeAccumulation;                //! Accumulation of runs in Trees
-
-   // Tree Info
-   int           fSequentialNumber;                //! Sequential Number
-   ROMETreeInfo* fTreeInfo;                        //! Tree Info Object
-   int*          fTreePosition;                    //! Array with tree read positions
-   int*          fTreeNextSeqNumber;               //! Array with the trees next sequential number
 
    // Program name
    ROMEString    fProgramName;                     //! Name of this Program
@@ -139,16 +106,8 @@ protected:
 
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics
-   ROMEString    fTriggerStatisticsString;         //! String describing Trigger Statistics
    Statistics    fScalerStatistics;                //! Scaler Statistics
-   ROMEString    fScalerStatisticsString;          //! String describing Scaler Statistics
-   int           fTimeOfLastEvent;                 //! Time of last Event
-   double        fLastEvent;                       //! Last Event
 
-   // ODB Handle
-#if defined HAVE_MIDAS
-   HNDLE         fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
-#endif
 
    // SQL Handle
 #if defined HAVE_SQL
@@ -157,7 +116,8 @@ protected:
 #endif
 #endif
 
-   bool          fContinuous;                      //! Continuous Mode
+   ROMEDataBase *fDataBaseHandle;                  //! DataBase Handle
+   char*         fDataBaseConnection;              //! DataBase connection string
 
 public:
    // Static Task Switches Changes Flag
@@ -166,33 +126,22 @@ public:
    static const char* LineToProcess;
 
 public:
+   ROMEAnalyzer() {};
    ROMEAnalyzer(TRint *app);
    ~ROMEAnalyzer();
 
    // Application Handle
-   TRint* GetApplication() { return fApplication; };
+   TRint*        GetApplication() { return fApplication; };
+
+   // Data Base Handle
+   char*         GetDataBaseConnection() { return fDataBaseConnection; };
+   void          SetDataBaseConnection(char* connection) { fDataBaseConnection = connection; };
+   ROMEDataBase* GetDataBase() { return fDataBaseHandle; };
+   void          SetDataBase(ROMEDataBase* dataBase) { fDataBaseHandle = dataBase; };
 
    // modes
    Bool_t     isSplashScreen() { return fSplashScreen; };
    Bool_t     isBatchMode() { return fBatchMode; };
-
-   // Run Status
-   Bool_t     isRunning()  { return fRunStatus==kRunning; };
-   Bool_t     isStopped()  { return fRunStatus==kStopped; };
-
-   void       SetRunning()  { fRunStatus = kRunning; };
-   void       SetStopped()  { fRunStatus = kStopped; };
-
-   // Event Status
-   Bool_t     isAnalyze()   { return fEventStatus==kAnalyze; };
-   Bool_t     isContinue()  { return fEventStatus==kContinue; };
-   Bool_t     isEndOfRun()  { return fEventStatus==kEndOfRun; };
-   Bool_t     isTerminate() { return fEventStatus==kTerminate; };
-
-   void       SetAnalyze()   { fEventStatus = kAnalyze; };
-   void       SetContinue()  { fEventStatus = kContinue; };
-   void       SetEndOfRun()  { fEventStatus = kEndOfRun; };
-   void       SetTerminate() { fEventStatus = kTerminate; };
 
    // Analysis Mode
    Bool_t     isOnline() { return fAnalysisMode==kAnalyzeOnline; };
@@ -207,14 +156,6 @@ public:
 
    void       SetRoot()  { fDataFormat = kRoot; };
    void       SetMidas() { fDataFormat = kMidas; };
-
-   // Data Base
-   Bool_t     isSQLDataBase() { return fDataBase==kDataBaseSQL; };
-   Bool_t     isXMLDataBase() { return fDataBase==kDataBaseXML; };
-
-   void       SetNoDataBase()  { fDataBase = kDataBaseNone; };
-   void       SetSQLDataBase() { fDataBase = kDataBaseSQL; };
-   void       SetXMLDataBase() { fDataBase = kDataBaseXML; };
 
    // Directories
    char*      GetInputDir() { return (char*)fInputDir.Data(); }
@@ -242,7 +183,7 @@ public:
    // Event Read Flag
    bool       IsDontReadNextEvent() { return fDontReadNextEvent; };
 
-   void       SetDontReadNextEvent() { fDontReadNextEvent = true; };
+   void       SetDontReadNextEvent(bool flag = true) { fDontReadNextEvent = flag; };
 
    // midass event header
    EVENT_HEADER* GetEventHeader() { return (EVENT_HEADER*)fMidasEvent; };
@@ -301,54 +242,43 @@ public:
 
    char*      GetProgramName() { return (char*)fProgramName.Data(); };
 
+   char*      GetOnlineHost() { return (char*)fOnlineHost.Data(); };
+   char*      GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };
+
+   // Midas
+   int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
+   int*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
+   char*      GetMidasEvent() { return fMidasEvent; };
+   int        GetMidasEventSize() { return sizeof(fMidasEvent); };
+
+   // Statistics
+   Statistics* GetTriggerStatistics() { return &fTriggerStatistics; };
+   Statistics* GetScalerStatistics() { return &fScalerStatistics; };
+
    // Start Method
    bool       Start(int argc=0, char **argv=NULL);
 
-   // event methods
-   bool Init();
-   bool Connect(Int_t runNumber);
-   bool ReadEvent(Int_t event);
-   bool UserInput();
-   bool WriteEvent();
-   bool Update();
-   bool Disconnect();
-   bool Terminate();
-
-   virtual void InitTaskSwitches() = 0;
-   virtual void UpdateTaskSwitches() = 0;
-
    static TArrayI decodeRunNumbers(ROMEString& str);
 
-private:
-   void CheckLineToProcess();
-   void CreateHistoFolders();
 
-   bool ReadParameters(int argc, char *argv[]);
-   void ParameterUsage();
+   virtual bool ReadDataBase() = 0;
+   virtual void InitMidasBanks() = 0;
+private:
+
+   void CreateHistoFolders();
 
    virtual bool ReadROMEConfigXML(char *configFile) = 0;
    virtual bool WriteROMEConfigXML(char *configFile) = 0;
 
+   bool ReadParameters(int argc, char *argv[]);
+   void ParameterUsage();
+
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
 
-   virtual bool InitODB() = 0;
-
-   virtual void ConnectTrees() = 0;
-   virtual void FillTrees() = 0;
-
-   virtual void InitFolders() = 0;
-   virtual void CleanUpFolders() = 0;
-   virtual void ResetFolders() = 0;
-
-   virtual bool ReadXMLDataBase() = 0;
-
-   virtual bool InitSQLDataBase() = 0;
-   virtual bool ReadSQLDataBase() = 0;
-
-   virtual void InitMidasBanks() = 0;
-
    ClassDef(ROMEAnalyzer,0)
 };
+
+extern void *gROME;  // global void Handle
 
 #endif   // ROMEAnalyzer_H
