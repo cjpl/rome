@@ -2,6 +2,9 @@
   ROMEStrArray.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/04/05 14:54:51  schneebeli_m
+  Database write & _exit on linux
+
   Revision 1.3  2004/11/11 14:07:15  schneebeli_m
   ROMEStrArray and ROMEStr2DArray change
 
@@ -54,7 +57,7 @@ public:
    TString          Last() const;
    virtual TString  operator[](Int_t i) const;
    Int_t            LowerBound() const;
-
+   virtual void     Expand(Int_t newSize);
 };
 
 #endif   // ROMEStrArray_H

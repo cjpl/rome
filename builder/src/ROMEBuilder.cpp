@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.125  2005/04/05 14:54:51  schneebeli_m
+  Database write & _exit on linux
+
   Revision 1.124  2005/04/04 10:14:54  schneebeli_m
   UserDataBase implemented
 
@@ -3045,7 +3048,7 @@ bool ROMEBuilder::WriteSteering(int iTask) {
    return true;
 }
 bool ROMEBuilder::WriteAnalyzerCpp() {
-   int i,j;
+   int i,j,k;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -3053,6 +3056,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
    ROMEString parentt;
    ROMEString buf;
+   ROMEString str;
 
    int nb,lenTot,ll;
    char *pos;
@@ -3284,135 +3288,59 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
-   // Write Data Base
+   // WriteDataBaseFolders
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
          buffer.AppendFormatted("void %sAnalyzer::Write%sDataBase() {\n",shortCut.Data(),folderName[i].Data());
-         buffer.AppendFormatted("/*   // XML\n");
-         buffer.AppendFormatted("   else if (this->isXMLDataBase()) {\n");
-         buffer.AppendFormatted("      ROMEString name;\n");
-         buffer.AppendFormatted("      ROMEString value;\n");
-         buffer.AppendFormatted("      ROMEString dbFile;\n");
-         buffer.AppendFormatted("      ROMEString filename;\n");
-         buffer.AppendFormatted("      ROMEString path;\n");
-         buffer.AppendFormatted("      ROMEString runNumberString;\n");
-         buffer.AppendFormatted("      int n=0,i;\n");
-         buffer.AppendFormatted("      ROMEXML *xml = new ROMEXML();\n");
-         buffer.AppendFormatted("      this->GetCurrentRunNumberString(runNumberString);\n");
-         buffer.AppendFormatted("      filename.SetFormatted(\"%%s/RunTable.xml\",this->GetInputDir());\n");
-         buffer.AppendFormatted("      if (!xml->OpenFileForPath(filename.Data()))\n");
-         buffer.AppendFormatted("         return;\n");
-         buffer.AppendFormatted("      path.SetFormatted(\"//RunTable/Run_%%s\",runNumberString.Data());\n");
-         buffer.AppendFormatted("      if (!xml->ExistPath(path.Data())) {\n");
-         buffer.AppendFormatted("         name.SetFormatted(\"Run_%%s\",runNumberString.Data());\n");
-         buffer.AppendFormatted("         if (!xml->HasPathChildren(\"//RunTable\")) {\n");
-         buffer.AppendFormatted("            xml->NewPathChildElement(\"//RunTable\",name.Data(),NULL);\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         else {\n");
-         buffer.AppendFormatted("            bool exist = true;\n");
-         buffer.AppendFormatted("            n = this->GetCurrentRunNumber();\n");
-         buffer.AppendFormatted("            while (!xml->ExistPath(path.Data())) {\n");
-         buffer.AppendFormatted("               if (n==0) {\n");
-         buffer.AppendFormatted("                  exist = false;\n");
-         buffer.AppendFormatted("                  break;\n");
-         buffer.AppendFormatted("               }\n");
-         buffer.AppendFormatted("               path.SetFormatted(\"//RunTable/Run_%%05d\",n--);\n");
-         buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("            if (exist) {\n");
-         buffer.AppendFormatted("               xml->NewPathNextElement(path.Data(),name.Data(),NULL);\n");
-         buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("            else {\n");
-         buffer.AppendFormatted("               xml->NewPathPrevElement(path.Data(),name.Data(),NULL);\n");
-         buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         path.SetFormatted(\"//RunTable/Run_%%s\",runNumberString.Data());\n");
-         buffer.AppendFormatted("         dbFile = \"db%s\";\n",folderName[i].Data());
-         buffer.AppendFormatted("         dbFile.Append(runNumberString.Data());\n");
-         buffer.AppendFormatted("         dbFile.Append(\"_0.xml\");\n");
-         buffer.AppendFormatted("         xml->NewPathAttribute(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      else {\n");
-         buffer.AppendFormatted("         if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {\n",folderName[i].Data());
-         buffer.AppendFormatted("            NextFile(dbFile,dbFile);\n");
-         buffer.AppendFormatted("            xml->ReplacePathAttributeValue(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         else {\n");
-         buffer.AppendFormatted("            dbFile = \"db%s\";\n",folderName[i].Data());
-         buffer.AppendFormatted("            dbFile.Append(runNumberString.Data());\n");
-         buffer.AppendFormatted("            dbFile.Append(\"_0.xml\");\n");
-         buffer.AppendFormatted("            xml->NewPathAttribute(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      xml->WritePathFile(filename.Data());\n");
-         buffer.AppendFormatted("      filename.SetFormatted(\"%%s/%%s\",this->GetDataBaseDir(),dbFile.Data());\n");
-         buffer.AppendFormatted("      if (!xml->OpenFileForWrite(filename.Data()))\n");
-         buffer.AppendFormatted("         return;\n");
-         buffer.AppendFormatted("      xml->StartElement(\"%ss\");\n",folderName[i].Data());
-         if (folderArray[i]=="1") {
-            buffer.AppendFormatted("      xml->StartElement(\"%s\");\n",folderName[i].Data());
-            buffer.AppendFormatted("      xml->WriteAttribute(\"Number\",\"0\");\n");
-            for (j=0;j<numOfValue[i];j++) {
-               GetFormat(&format,valueType[i][j].Data());
-               if (valueType[i][j]=="TString") {
-                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sFolder->Get%s().Data());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
+         buffer.AppendFormatted("   int i,j;\n");
+         buffer.AppendFormatted("   ROMEString path;\n");
+         buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
+         buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
+         for (j=0;j<numOfValue[i];j++) {
+            buffer.AppendFormatted("   values->RemoveAll();\n");
+            if (folderArray[i]=="1") {
+               if (valueArray[i][j]=="1") {
+                  buf = "buffer[0]";
+                  str.SetFormatted("f%sFolder->Get%s()",folderName[i].Data(),valueName[i][j].Data());                  
+                  buffer.AppendFormatted("   values->SetAt(%s,0,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
                else {
-                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sFolder->Get%s());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buf = "buffer[0]";
+                  str.SetFormatted("f%sFolder->Get%sAt(j)",folderName[i].Data(),valueName[i][j].Data());                  
+                  buffer.AppendFormatted("   for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
+                  buffer.AppendFormatted("      values->SetAt(%s,0,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
-               buffer.AppendFormatted("      xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
-            buffer.AppendFormatted("      xml->EndElement();\n");
-         }
-         else {
-            buffer.AppendFormatted("      for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
-            buffer.AppendFormatted("         xml->StartElement(\"%s\");\n",folderName[i].Data());
-            buffer.AppendFormatted("         value.SetFormatted(\"%%d\",i);\n");
-            buffer.AppendFormatted("         xml->WriteAttribute(\"Number\",value.Data());\n");
-            for (j=0;j<numOfValue[i];j++) {
-               GetFormat(&format,valueType[i][j].Data());
-               if (valueType[i][j]=="TString") {
-                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sFolders->At(i))->Get%s().Data());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
+            else {
+               buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++)\n",folderName[i].Data());
+               if (valueArray[i][j]=="1") {
+                  buf = "buffer[0]";
+                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%s()",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());                  
+                  buffer.AppendFormatted("      values->SetAt(%s,i,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
                else {
-                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sFolders->At(i))->Get%s());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buf = "buffer[0]";
+                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%sAt(j)",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());                  
+                  buffer.AppendFormatted("      for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
+                  buffer.AppendFormatted("         values->SetAt(%s,i,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
-               buffer.AppendFormatted("         xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
-            buffer.AppendFormatted("         xml->EndElement();\n");
-            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("   path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[i].Data(),valueName[i][j].Data());
+            for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
+               buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[i].Data(),valueName[i][j].Data(),k,k,k);
+            buffer.AppendFormatted(");\n");
+            buffer.AppendFormatted("   if (!this->GetDataBase(gAnalyzer->Get%s_%sDBIndex())->Write(values,path,gAnalyzer->GetCurrentRunNumber())) {\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      delete values;\n");
+            buffer.AppendFormatted("      return;\n");
+            buffer.AppendFormatted("   }\n");
          }
-         buffer.AppendFormatted("      xml->EndDocument();\n");
-         buffer.AppendFormatted("      delete xml;\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("*/}\n\n");
       }
    }
+   buffer.AppendFormatted("   values->RemoveAll();\n");
+   buffer.AppendFormatted("   delete values;\n");
+   buffer.AppendFormatted("}\n");
 
-   buffer.AppendFormatted("/*void %sAnalyzer::NextFile(ROMEString& nextFile,ROMEString& file) {\n",shortCut.Data());
-   buffer.AppendFormatted("   struct stat buf;\n");
-   buffer.AppendFormatted("   ROMEString body;\n");
-   buffer.AppendFormatted("   char* res;\n");
-   buffer.AppendFormatted("   int n=0,number=0;\n");
-   buffer.AppendFormatted("   if ((res=strstr(file.Data(),\"_\"))) {\n");
-   buffer.AppendFormatted("      n = res-file.Data();\n");
-   buffer.AppendFormatted("      body = file(0,n);\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   else {\n");
-   buffer.AppendFormatted("      if ((res=strstr(file.Data(),\".\"))) {\n");
-   buffer.AppendFormatted("         n = res-file.Data();\n");
-   buffer.AppendFormatted("         body = file(0,n);\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else {\n");
-   buffer.AppendFormatted("         body = file;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   nextFile.SetFormatted(\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body.Data(),number);\n");
-   buffer.AppendFormatted("   while (!stat(nextFile.Data(),&buf)) {\n");
-   buffer.AppendFormatted("      number++;\n");
-   buffer.AppendFormatted("      nextFile.SetFormatted(\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body.Data(),number);\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   nextFile.SetFormatted(\"%%s_%%d.xml\",body.Data(),number);\n");
-   buffer.AppendFormatted("}*/\n\n");
 
    // Get Object Interpreter Code
    int codeNumber = 0;
@@ -3633,6 +3561,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("#define %sAnalyzer_H\n\n",shortCut.Data());
 
    // includes
+   buffer.AppendFormatted("#if defined( R__UNIX )\n");
+   buffer.AppendFormatted("#include <unistd.h>\n");
+   buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
@@ -3888,8 +3819,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
    buffer.AppendFormatted("   void redirectOutput();\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   //void NextFile(ROMEString& nextFile,ROMEString& file);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sAnalyzer,0);\n",shortCut.Data());
 

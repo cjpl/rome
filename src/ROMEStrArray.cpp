@@ -6,6 +6,9 @@
 //  Handles character string array. 
 //                                                                      //
 //  $Log$
+//  Revision 1.4  2005/04/05 14:54:52  schneebeli_m
+//  Database write & _exit on linux
+//
 //  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
 //  ROMEStrArray and ROMEStr2DArray change
 //
@@ -163,4 +166,7 @@ TString ROMEStrArray::operator[](Int_t i) const
 Int_t ROMEStrArray::LowerBound() const
 {
    return array->LowerBound();
+}
+void ROMEStrArray::Expand(Int_t newSize) {
+   array->Expand(newSize);
 }

@@ -2,6 +2,9 @@
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/04/05 14:54:51  schneebeli_m
+  Database write & _exit on linux
+
   Revision 1.5  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -36,7 +39,15 @@ protected:
    ROMEString    fDataBaseName;
    ROMEStrArray  fOrderTableIDs;
    int           fOrderTableIndex;
+   ROMEStrArray  fIDX;
+   ROMEStr2DArray fPointerArray;
+   ROMEXML      *xml;
+   ROMEString    fXMLBase;
+   ROMEString    fFileName;
 
+
+   bool   WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value);
+   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber);
 public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();
