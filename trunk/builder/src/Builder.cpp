@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.13  2005/02/21 19:06:55  sawada
+  changed platform specifying macros
+
   Revision 1.12  2005/02/06 00:57:12  sawada
   bug fix
 
@@ -76,7 +79,7 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
    buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
-#if defined(USE_TRINT)
+#if defined( USE_TRINT )
    buffer.AppendFormatted("   TRint *app = new TRint(\"App\", &argn, &argp,NULL,0,true);\n");
 #else
    buffer.AppendFormatted("   TApplication *app = new TApplication(\"App\", &argn, &argp,NULL,0);\n");
@@ -223,7 +226,7 @@ int main(int argc, char *argv[])
       cout << "Outputpath '" << argusb->outDir.Data() << "' not found." << endl;
       return 1;
    }
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    path.SetFormatted("%s/src",argusb->outDir.Data());
    mkdir(path);
    path.SetFormatted("%s/src/tabs",argusb->outDir.Data());
@@ -237,7 +240,7 @@ int main(int argc, char *argv[])
    path.SetFormatted("%s/include/monitor",argusb->outDir.Data());
    mkdir(path);
 #endif
-#if defined ( __linux__ )  || defined ( __APPLE__ )
+#if defined( R__UNIX )
    path.SetFormatted("%s/src",argusb->outDir.Data());
    mkdir(path,0711);
    path.SetFormatted("%s/src/tabs",argusb->outDir.Data());
@@ -496,10 +499,10 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
    if (!noLink) {
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
       system("make -e");
 #endif
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
       const int workDirLen = 1000;
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
@@ -520,7 +523,7 @@ void ArgusBuilder::WriteMakefile() {
    shortcut.ToLower();
    ROMEString mainprogname(mainProgName);
    mainprogname.ToLower();
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    // libs
    buffer.Resize(0);
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
@@ -613,7 +616,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.cpp src/monitor/%sDict.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj src/monitor/%sDict.cpp \n",shortCut.Data(),shortCut.Data());
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    buffer.Resize(0);
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
@@ -633,9 +636,9 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqlcflags := \n");
    }
    if (this->midas) {
-#if defined( __linux__ )
+#if defined( R__LINUX )
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib");
-#elif defined ( __APPLE__ )
+#elif defined ( R__MACOSX )
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib");
 #else
       buffer.AppendFormatted("midaslibs :=");
@@ -648,7 +651,7 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("midascflags := \n");
    }
    buffer.AppendFormatted("clibs :=-lpthread -lHtml $(SYSLIBS)");
-#if !defined( __APPLE__ )
+#if defined( R__LINUX )
    buffer.AppendFormatted(" -lutil");
 #endif
    buffer.AppendFormatted("\n");
@@ -662,7 +665,7 @@ void ArgusBuilder::WriteMakefile() {
    if(this->romefolder)
       buffer.AppendFormatted(" -I$(ROME%s_DIR)/include/framework",shortCut.Data());
    buffer.AppendFormatted("\n");
-#if defined( __APPLE__ )
+#if defined( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("Flags += -DOS_DARWIN -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("Libraries += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
@@ -785,10 +788,10 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("	rm -f obj/*.o src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
 #endif
    ROMEString makeFile;
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    makeFile = "Makefile";
 #endif
-#if defined ( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
 #endif
    int fileHandle = open(makeFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
@@ -822,14 +825,14 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    int i;
    buffer.Resize(0);
    buffer.AppendFormatted("rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
    if(this->romefolder)
       buffer.AppendFormatted("-I%%ROME%s_DIR%%/include/framework ",shortCut.Data());
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    buffer.AppendFormatted("-I$ARGUSSYS/include ");
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
@@ -859,7 +862,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
       buffer.AppendFormatted("include/tabs/%sT%s.h ",shortCut.Data(),tabName[i].Data());
    }
    buffer.Append("\0");
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    ROMEString batFile;
    batFile.SetFormatted("%smakeDictionary.bat",outDir.Data());
    int fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );

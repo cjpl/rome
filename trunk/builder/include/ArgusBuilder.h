@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.6  2005/02/21 19:06:55  sawada
+  changed platform specifying macros
+
   Revision 1.5  2005/02/13 13:07:26  sawada
   added unistd.h
 
@@ -22,11 +25,12 @@
 #ifndef ArgusBuilder_H
 #define ArgusBuilder_H
 
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #include <io.h>
 #include <direct.h>
 #endif
-#if defined ( __linux__ ) ||  defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #endif
 #include <sys/types.h>

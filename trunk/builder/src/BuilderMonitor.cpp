@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/02/21 19:06:56  sawada
+  changed platform specifying macros
+
   Revision 1.10  2005/02/07 17:52:35  sawada
   modification of ROMEFolder
 
@@ -100,7 +103,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sMonitor *gMonitor;  // global Monitor Handle\n",shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#if defined( _MSC_VER )\n");
+   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
    buffer.AppendFormatted("#include <windows.h>\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
