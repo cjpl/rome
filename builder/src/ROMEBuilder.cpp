@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.45  2004/09/23 02:48:10  schneebeli_m
+  bug
+
   Revision 1.44  2004/09/23 02:43:04  schneebeli_m
   processline fo socket
 
@@ -3724,6 +3727,16 @@ bool ROMEBuilder::WriteMain() {
 
    return true;
 }
+
+void usage() {
+   cout << "  -i        Inputfile" << endl;
+   cout << "  -o        Outputfile path" << endl;
+   cout << "  -v        Verbose Mode (no Argument)" << endl;
+   cout << "  -nl       No Linking (no Argument)" << endl;
+   cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
+   cout << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
+}
+
 int main(int argc, char *argv[])
 {
    struct stat buf;
@@ -3747,12 +3760,7 @@ int main(int argc, char *argv[])
    romeb->outDir.Append("/");
 
    if (argc==1) {
-      cout << "  -i        Inputfile" << endl;
-      cout << "  -o        Outputfile path" << endl;
-      cout << "  -v        Verbose Mode (no Argument)" << endl;
-      cout << "  -nl       No Linking (no Argument)" << endl;
-      cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
-      cout << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
+      usage();
       return 0;
    }
    for (int i=1;i<argc;i++) {
@@ -3802,12 +3810,7 @@ int main(int argc, char *argv[])
          i++;
       }
       else if (argv[i][0]=='-') {
-         cout << "  -i         Inputfile" << endl;
-         cout << "  -o         Outputfile path" << endl;
-         cout << "  -v         Verbose Mode (no Argument)" << endl;
-         cout << "  -nl        No Linking (no Argument)" << endl;
-         cout << "  -offline  Generated program works only offline (no midas library needed) (no Argument)" << endl;
-         cout << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
+         usage();
          return 0;
       }
       else {
@@ -4077,7 +4080,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("sqllibs := -lmysql\n");
    else
       buffer.AppendFormatted("sqllibs := \n");
-   if (!this->offline) 
+   if (this->midas) 
       buffer.AppendFormatted("midaslibs := -lmidas\n");
    else
       buffer.AppendFormatted("midaslibs := \n");
@@ -4086,7 +4089,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("flags := $(%suserflags)",shortcut.Data());
-   if (!this->offline) 
+   if (this->midas) 
       buffer.AppendFormatted(" -DHAVE_MIDAS");
    if (this->sql) 
       buffer.AppendFormatted(" -DHAVE_SQL");
@@ -4094,7 +4097,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    // includes
    buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I$(ROOTSYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
-   if (!this->offline) 
+   if (this->midas) 
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
    if (this->sql) 
       buffer.AppendFormatted(" -I$(ROMESYS)/include/mysql/");
