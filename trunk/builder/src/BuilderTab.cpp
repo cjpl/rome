@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/02/06 02:15:18  sawada
+  reduced number of configuration file to 1.
+
   Revision 1.11  2005/02/06 00:39:35  sawada
    Changed TRint to TApplication
    Stop method of thread function
@@ -567,7 +570,7 @@ bool ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
       }
       pointerI = pointer;
       pointerI.AppendFormatted("->f%sTab",tabHierarchyName[i].Data());
-      buffer.AppendFormatted("%s      if (fConfigData[index]%sModified || index==0) {\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s      if (fConfigData%sModified || index==0) {\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         // %s\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         xml->StartElement(\"Tab\");\n",blank.Data());
       buffer.AppendFormatted("%s         xml->WriteElement(\"TabName\",\"%s\");\n",blank.Data(),tabHierarchyName[i].Data());
@@ -577,16 +580,16 @@ bool ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
       buffer.AppendFormatted("%s            else\n",blank.Data());
       buffer.AppendFormatted("%s               xml->WriteElement(\"Active\",\"false\");\n",blank.Data());
       buffer.AppendFormatted("%s         }\n",blank.Data());
-      buffer.AppendFormatted("%s         else if (fConfigData[index]%s->fActiveModified)\n",blank.Data(),pointerI.Data());
-      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",(char*)fConfigData[index]%s->fActive.Data());\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s         else if (fConfigData%s->fActiveModified)\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",(char*)fConfigData%s->fActive.Data());\n",blank.Data(),pointerI.Data());
       // Steering parameter
       if (numOfSteering[tabHierarchyClassIndex[i]]>0) {
          buffer.AppendFormatted("%s         // steering parameters\n",blank.Data());
-         buffer.AppendFormatted("%s         if (fConfigData[index]%s->fSteeringModified || index==0) {\n",blank.Data(),pointerI.Data());
+         buffer.AppendFormatted("%s         if (fConfigData%s->fSteeringModified || index==0) {\n",blank.Data(),pointerI.Data());
          buffer.AppendFormatted("%s            ROMEString value;\n",blank.Data());
          ROMEString pointerT;
          ROMEString steerPointerT;
-         pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointerI.Data());
+         pointerT.SetFormatted("fConfigData%s->fSteering",pointerI.Data());
          steerPointerT.SetFormatted("((%sT%s*)gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[tabHierarchyClassIndex[i]].Data(),tabHierarchyName[i].Data(),i);
          WriteSteeringConfigWrite(buffer,0,tabHierarchyClassIndex[i],pointerT,steerPointerT,3+tab);
       }
