@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.23  2005/04/01 12:31:19  sawada
+  sub menu
+
   Revision 1.22  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -89,37 +92,38 @@
 ********************************************************************/
 #include "ArgusBuilder.h"
 
-bool ArgusBuilder::ReadXMLMenu() {
+bool ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
    ROMEString tmp;
    int type,i,j;
    char* name;
    char* cstop;
-   int currentNumberOfTabs = numOfTab;
-
+   int currentNumberOfMenus = numOfMenu[currentNumberOfTabs];
+   menuDepth[currentNumberOfTabs][currentNumberOfMenus] = recursiveMenuDepth;
    // count menus
-   numOfTabMenu[currentNumberOfTabs]++;
-   numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]] = -1;
-   if (numOfTabMenu[currentNumberOfTabs]>=maxNumberOfTabMenus) {
-      cout << "Maximal number of menus reached : " << maxNumberOfTabMenus << " !" << endl;
+   numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] = -1;
+   if (currentNumberOfMenus>=maxNumberOfMenus) {
+      cout << "Maximal number of menus reached : " << maxNumberOfMenus << " !" << endl;
       cout << "Terminating program." << endl;
       return false;
    }
-   tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]] = "";
+   menuTitle[currentNumberOfTabs][currentNumberOfMenus] = "";
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
       // end
       if (type == 15 && !strcmp((const char*)name,"Menu")){
 	 if (makeOutput) for (i=0;i<recursiveTabDepth+2;i++) cout << "   ";
-	 if (makeOutput) tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]].WriteLine();
-	 numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]++;
-	 for(j=0;j<numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]];j++){
-	    if (makeOutput) for (i=0;i<recursiveTabDepth+3;i++) cout << "   ";
-	    if (makeOutput) tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][j].WriteLine();}
+	 if (makeOutput) menuTitle[currentNumberOfTabs][currentNumberOfMenus].WriteLine();
+	 numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+	 for(j=0;j<numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus];j++){
+	    if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE){
+	       if (makeOutput) for (i=0;i<recursiveTabDepth+3;i++) cout << "   ";
+	       if (makeOutput) menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j].WriteLine();}
+	 }
 	 break;
       }
       if (type == 1 && !strcmp((const char*)name,"MenuTitle"))
-	 xml->GetValue(tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]],tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]);
+	 xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus],menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
       // tab menu items
       if (type == 1 && !strcmp((const char*)name,"MenuItems")) {
 	 while (xml->NextLine()) {
@@ -127,17 +131,51 @@ bool ArgusBuilder::ReadXMLMenu() {
 	    name = xml->GetName();
 	    // end
 	    if (type == 15 && !strcmp((const char*)name,"MenuItems"))
-	       break;
-	    if (type == 1 && !strcmp((const char*)name,"MenuItem")){
-	       // end
-	       // count menu items
-	       numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]++;
-	       if (numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]>=maxNumberOfTabMenuItems) {
-		  cout << "Maximal number of menu items reached : " << maxNumberOfTabMenuItems << " !" << endl;
+	       break;	    
+	    // menu
+	    if (type == 1 && !strcmp((const char*)name,"Menu")) {
+	       recursiveMenuDepth++;
+	       numOfMenu[currentNumberOfTabs]++;
+	       numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+	       if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]>=maxNumberOfMenuItems) {
+		  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
 		  cout << "Terminating program." << endl;
 		  return false;
 	       }
-	       tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]] = "";
+	       menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = numOfMenu[currentNumberOfTabs];
+	       if (!ReadXMLMenu(currentNumberOfTabs)) return false;
+	       recursiveMenuDepth--;
+	    }	    
+	    // menu
+	    if (type == 1 && !strcmp((const char*)name,"Line")) {
+	       // count menu items
+	       numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+	       if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]>=maxNumberOfMenuItems) {
+		  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
+		  cout << "Terminating program." << endl;
+		  return false;
+	       }
+	       menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = LINE_TITLE;
+	       menuItemID[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = 0;
+	       while (xml->NextLine()) {
+		  type = xml->GetType();
+		  name = xml->GetName();
+		  // end
+		  if (type == 15 && !strcmp((const char*)name,"Line"))
+		     break;
+	       }
+	    }
+	    if (type == 1 && !strcmp((const char*)name,"MenuItem")){
+	       // count menu items
+	       numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+	       if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]>=maxNumberOfMenuItems) {
+		  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
+		  cout << "Terminating program." << endl;
+		  return false;
+	       }
+	       menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
+	       menuItemID[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = 0;
+	       menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = 0;
 	       while (xml->NextLine()) {
 		  type = xml->GetType();
 		  name = xml->GetName();
@@ -145,32 +183,34 @@ bool ArgusBuilder::ReadXMLMenu() {
 		  if (type == 15 && !strcmp((const char*)name,"MenuItem"))
 		     break;
 		  if (type == 1 && !strcmp((const char*)name,"MenuItemTitle"))
-		     xml->GetValue(tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]],tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]]);
+		     xml->GetValue(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]],menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
 		  if (type == 1 && !strcmp((const char*)name,"MenuItemID")){
 		     xml->GetValue(tmp,tmp);
-		     tabMenuItemID[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]] = strtol(tmp.Data(),&cstop,10);
+		     menuItemID[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = strtol(tmp.Data(),&cstop,10);
 		  }
 	       }
 	       // check input
-	       if (tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]]=="") {
+	       if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]=="") {
 		  cout << "A menu item of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
 		  cout << "Terminating program." << endl;
 		  return false;
 	       }
-	       for(j=0;j<numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]];j++){
-		  if (tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][j]==tabMenuItemTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]]){
+	       for(j=0;j<numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus];j++){
+		  if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE && 
+		      menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j]
+		      ==menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]){
 		     cout << "Two menu items of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
 		     cout << "Terminating program." << endl;
 		     return false;
 		  }
 	       }
-	       if (tabMenuItemID[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]]<0){
+	       if (menuItemID[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]<0){
 		  cout << "MenuItemID must not be negative vale !" << endl;
 		  cout << "Terminating program." << endl;
 		  return false;
 	       }
-	       if (tabMenuItemID[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]][numOfTabMenuItem[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]]>maxNumberOfTabMenus*maxNumberOfTabMenuItems){
-		  cout << "MenuItemID must be less than "<<maxNumberOfTabMenus*maxNumberOfTabMenuItems<<" !" << endl;
+	       if (menuItemID[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]>maxNumberOfMenus*maxNumberOfMenuItems){
+		  cout << "MenuItemID must be less than "<<maxNumberOfMenus*maxNumberOfMenuItems<<" !" << endl;
 		  cout << "Terminating program." << endl;
 		  return false;
 	       }
@@ -179,19 +219,19 @@ bool ArgusBuilder::ReadXMLMenu() {
       }
    }
    // check input
-   if (tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]=="") {
+   if (menuTitle[currentNumberOfTabs][currentNumberOfMenus]=="") {
       cout << "A menu of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
       cout << "Terminating program." << endl;
       return false;
    }
-   for(j=0;j<numOfTabMenu[currentNumberOfTabs];j++){
-      if (tabMenuTitle[currentNumberOfTabs][j]==tabMenuTitle[currentNumberOfTabs][numOfTabMenu[currentNumberOfTabs]]) {
-	 cout << "Two thread functions of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
+   for(j=0;j<currentNumberOfMenus;j++){
+      if (menuTitle[currentNumberOfTabs][j]==menuTitle[currentNumberOfTabs][currentNumberOfMenus]) {
+	 cout << "Two menus of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
 	 cout << "Terminating program." << endl;
 	 return false;
       }
    }
-
+   return true;
 }
 
 bool ArgusBuilder::ReadXMLTab() {
@@ -218,7 +258,7 @@ bool ArgusBuilder::ReadXMLTab() {
    tabDescription[currentNumberOfTabs] = "";
    numOfSteering[currentNumberOfTabs] = -1;
    numOfThreadFunctions[currentNumberOfTabs] = -1;
-   numOfTabMenu[currentNumberOfTabs] = -1;
+   numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -329,16 +369,21 @@ bool ArgusBuilder::ReadXMLTab() {
       if (type == 1 && !strcmp((const char*)name,"Menus")) {
 	 if (makeOutput) for (i=0;i<recursiveTabDepth+1;i++) cout << "   ";
 	 if (makeOutput) cout << "Menus:"<<endl;
+	 recursiveMenuDepth = 0;
 	 while (xml->NextLine()) {
 	    type = xml->GetType();
 	    name = xml->GetName();
 	    // end
 	    if (type == 15 && !strcmp((const char*)name,"Menus")){
-	       numOfTabMenu[currentNumberOfTabs]++;
+	       numOfMenu[currentNumberOfTabs]++;
 	       break;
 	    }
 	    // menu
 	    if (type == 1 && !strcmp((const char*)name,"Menu")) {
+	       recursiveMenuDepth++;
+	       numOfMenu[currentNumberOfTabs]++;
+	       if (!ReadXMLMenu(currentNumberOfTabs)) return false;
+	       recursiveMenuDepth--;
 	    }
 	 }
       }
@@ -843,8 +888,7 @@ bool ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
          WriteSteeringConfigWrite(buffer,0,i,pointerT,steerPointerT,3+tab);
       }
       if (numOfSteering[i]>0)
-         buffer.AppendFormatted("%s         }\n",blank.Data());
-      
+         buffer.AppendFormatted("%s         }\n",blank.Data());      
       WriteTabConfigWrite(buffer,i,pointerI,tab+1);
       buffer.AppendFormatted("%s         xml->EndElement();\n",blank.Data());
       buffer.AppendFormatted("%s      }\n",blank.Data());
