@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.39  2005/01/14 13:23:19  schneebeli_m
+//  Screen output
+//
 //  Revision 1.38  2005/01/05 10:36:20  schneebeli_m
 //  Tree file write error
 //
@@ -933,6 +936,8 @@ bool ROMEEventLoop::UserInput()
    }
    if (hit)
       time(&fProgressTimeOfLastEvent);
+
+   gROME->ss_getchar(1);
 
    return true;
 }
