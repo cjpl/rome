@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.34  2004/08/02 15:58:21  schneebeli_m
+  Bugs removed
+
   Revision 1.33  2004/08/02 15:31:52  schneebeli_m
   Bugs removed
 
@@ -2451,6 +2454,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Initialize ODB
    buffer.AppendFormated("// InitODB\n");
    buffer.AppendFormated("bool %sAnalyzer::InitODB() {\n",shortCut.Data());
+   buffer.AppendFormated("#if defined HAVE_MIDAS\n");
    buffer.AppendFormated("   HNDLE hKey;\n");
    buffer.AppendFormated("   ROMEString str;\n");
    buffer.AppendFormated("   str = \"/%s%s/Task switches\";\n",shortCut.Data(),mainProgName.Data());
@@ -2464,6 +2468,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormated("      cout << \"Cannot open task switches record, probably other analyzer is using it\" << endl;\n");
    buffer.AppendFormated("      return false;\n");
    buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("#endif\n");
    buffer.AppendFormated("   return true;\n");
    buffer.AppendFormated("}\n\n");
 
@@ -2568,7 +2573,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          buffer.AppendFormated("%s %sAnalyzer::Get%sBankAt(int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
          buffer.AppendFormated("   if (this->f%sBankExists)\n",bankName[i].Data());
          buffer.AppendFormated("      return *(f%sBankPointer+index);\n",bankName[i].Data());
-         buffer.AppendFormated("   return (%s)exp(999);\n",bankType[i].Data());
+         buffer.AppendFormated("   return (%s)exp(999.);\n",bankType[i].Data());
          buffer.AppendFormated("}\n");
       }
       buffer.AppendFormated("void %sAnalyzer::Init%sBank() {\n",shortCut.Data(),bankName[i].Data());

@@ -546,7 +546,9 @@ bool ROMEAnalyzer::Update() {
    }
  
    // ODB update
+#if defined HAVE_MIDAS
    db_send_changed_records();
+#endif
 
    return true;
 }
