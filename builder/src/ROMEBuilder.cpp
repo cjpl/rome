@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.88  2005/01/13 09:11:28  schneebeli_m
+  Description text overflow
+
   Revision 1.87  2005/01/11 08:04:16  schneebeli_m
   UserHTML
 
@@ -539,7 +542,7 @@ bool ROMEBuilder::WriteFolderCpp() {
       lenTot = folderDescription[iFold].Length();
       while (pos-folderDescription[iFold].Data() < lenTot) {
          if (lenTot+(folderDescription[iFold].Data()-pos)<74) 
-            i=TMath::Min(75,lenTot);
+            i=lenTot+(folderDescription[iFold].Data()-pos);
          else 
             for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0) 
@@ -1203,7 +1206,7 @@ bool ROMEBuilder::WriteTaskCpp() {
       lenTot = discript.Length();
       while (pos-discript.Data() < lenTot) {
          if (lenTot+(discript.Data()-pos)<74) 
-            i=TMath::Min(75,lenTot);
+            i=lenTot+(discript.Data()-pos);
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0)
             i=TMath::Min(75,lenTot);
@@ -2511,7 +2514,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
       if (lenTot+(classDescription.Data()-pos)<74) 
-         i=TMath::Min(75,lenTot);
+         i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
       if (i<=0) 
          i=TMath::Min(75,lenTot);
@@ -3575,7 +3578,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
       if (lenTot+(classDescription.Data()-pos)<74) 
-         i=TMath::Min(75,lenTot);
+         i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
       if (i<=0) 
          i=TMath::Min(75,lenTot);
@@ -5031,7 +5034,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
       if (lenTot+(classDescription.Data()-pos)<74) 
-         i=TMath::Min(75,lenTot);
+         i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
       if (i<=0) 
          i=TMath::Min(75,lenTot);
@@ -5584,6 +5587,13 @@ int main(int argc, char *argv[])
          romeb->noLink = true;
          romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
          xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
+      }
+      else if (!strcmp(argv[i],"-lp")) {
+         romeb->makeOutput = true;
+         romeb->midas = true;
+         romeb->noLink = true;
+         romeb->outDir = "C:/lpframework/";
+         xmlFile = "C:/lpframework/lpframework.xml";
       }
       else if (!strcmp(argv[i],"-sample")) {
          romeb->makeOutput = true;
@@ -6327,14 +6337,6 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("<ul>\n");
-   buffer.AppendFormatted("<li><a href=\"#foldermethods\">Folders</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#databasemethods\">Data Base</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#steermethods\">Steering Parameters</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#generalmethods\">General</a></li>\n");
-   buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n",outDir.Data());
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/%sUserHTML.html\">Additional Info</A></li>\n",outDir.Data(),shortCut.Data());
    buffer.AppendFormatted("</ul>\n");
@@ -6543,163 +6545,12 @@ void ROMEBuilder::WriteHTMLDoku() {
    // Access Methods
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<H2><a name=accessmethods>Access Methods to Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("In the following the access methods of all types of objects in the %s%s are discussed.\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("All task can access these methods over their <b>gAnalyzer</b> handle, which every task has by\n");
-   buffer.AppendFormatted("default.<br>\n");
+   buffer.AppendFormatted("For a description of all access methods to all types of objects in the %s%s please visit the\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("<A TARGET=_top HREF=\"http://midas.psi.ch/rome/usersGuide.html\">users guide on the ROME homepage</A>.\n");
+   buffer.AppendFormatted("The <A TARGET=_top HREF=\"http://midas.psi.ch/rome/usersGuide.html#fwaccess\">Access Methods</A> subsection of the\n");
+   buffer.AppendFormatted("<A TARGET=_top HREF=\"http://midas.psi.ch/rome/usersGuide.html#framework\">The generated Framework</A> section\n");
+   buffer.AppendFormatted("describes all access methods of frameworks generated with ROME.\n");
    buffer.AppendFormatted("<p>\n");
-
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<h3><a name=foldermethods>Folders</a></h3>\n");
-   buffer.AppendFormatted("To access a folder one has to get a handle to it with the following methods : <p>\n");
-   buffer.AppendFormatted("<table border=\"0\">\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;for object arrays.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Folder Name</i>]()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
-   buffer.AppendFormatted("</table>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
-   buffer.AppendFormatted("<b><i>Index</i></b> stands for the array index of the object.</br>\n");
-   buffer.AppendFormatted("These methods return a pointer on the class of this folder.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("The get or set the content of a folder one has to use the following methods : <p>\n");
-   buffer.AppendFormatted("<table border=\"0\">\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Field Name</i>]()</b></td><td>&nbsp;&nbsp;&nbsp;getter.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Set[<i>Field Name</i>]([<i>Value</i>])</td><td>&nbsp;&nbsp;&nbsp;setter.</td></tr>\n");
-   buffer.AppendFormatted("</table>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Field Name</i></b> stands for the name of the field to access specified in the xml file (see also list above).</br>\n");
-   buffer.AppendFormatted("<b><i>Value</i></b> stands for the value given to the Field.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Example:</b> To give the field 'YY' of the 9 folder of a folderarray 'XX' the value 99 one has to type this :<p>\n");
-   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetXXAt(9)->SetYY(99) <p>\n");
-   buffer.AppendFormatted("<p>\n");
-
-   // Data Base
-   buffer.AppendFormatted("<h3><a name=databasemethods><u>Data Base</u></a></h3>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("To add an entry to the data base the following methods are available :\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("\n");
-
-   // Steering Parameters
-   buffer.AppendFormatted("<h3><a name=steermethods><u>Steering Parameters</u></a></h3>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("Global steering parameters can be accessed over the global handle gAnalyzer->GetGSP().\n");
-   buffer.AppendFormatted("Task dependent steering parameters can only be accessed inside the task and over the GetSP() handle.\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("A steering parameter group handle can be accessed with the following methods : \n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Get[<i>Group Name</i>]()</b>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("A steering parameter value can be accessed with the following methods : \n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Get[<i>Field Name</i>]()</b><br>\n");
-   buffer.AppendFormatted("<b>Set[<i>Field Name</i>](<i>Value</i>)</b>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Group Name</i></b> stands for the name of the steering parameter group specified in the xml file.</br>\n");
-   buffer.AppendFormatted("<b><i>Field Name</i></b> stands for the name of the steering parameter field specified in the xml file.</br>\n");
-   buffer.AppendFormatted("<b><i>Value</i></b> is the new field value.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Example:</b> To get the field 'ZZ' of a global steering parameter group 'YY' of a steering parameter group 'XX' type :<p>\n");
-   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetGSP()->GetXX()->GetYY()->GetZZ()\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("\n");
-
-   // Histos
-   buffer.AppendFormatted("<h3><a name=histogrammethods><u>Histograms</u></a></h3>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("Histograms belong to a task. So a task can only access his own histograms. To do this the following methods are available :\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<table border=\"0\">\n");
-   buffer.AppendFormatted("<tr><td><b>Fill[<i>Histo Name</i>]([<i>xValue</i>],[<i>weight</i>])</b></td>  <td>&nbsp;&nbsp;&nbsp;fills a single histogram.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Draw[<i>Histo Name</i>]()</b></td>       <td>&nbsp;&nbsp;&nbsp;draws a single histogram.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Fill[<i>Histo Name</i>]At([<i>Index</i>],[<i>xValue</i>],[<i>weight</i>])</b></td><td>&nbsp;&nbsp;&nbsp;fills a histogram of a histogram array.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Draw[<i>Histo Name</i>]At([<i>Index</i>])</b></td>     <td>&nbsp;&nbsp;&nbsp;draws a histogram of a histogram array.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td><b>Get[<i>Histo Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
-   buffer.AppendFormatted("</table>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Histo Name</i></b> stands for the name of the histogram.</br>\n");
-   buffer.AppendFormatted("<b><i>Index</i></b> stands for the array index of the histogram.</br>\n");
-   buffer.AppendFormatted("<b><i>xValue</i></b> value to be filled to the histogram.</br>\n");
-   buffer.AppendFormatted("<b><i>weight</i></b> weight of the value.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("\n");
-
-   // Midas Banks
-   buffer.AppendFormatted("<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
-   buffer.AppendFormatted("To access a bank in a midas input file the following methods are available :\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("One can get the entries in a bank with the following method :\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The data can be accessed with :\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
-   buffer.AppendFormatted("<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
-   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetXXBankAt(9)->YY <p>\n");
-   buffer.AppendFormatted("\n");
-
-   // General Methods
-   buffer.AppendFormatted("<h3><a name=generalmethods><u>General</u></a></h3>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("%s%s provides some general methods for the user.\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<table border=\"0\">\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isOnline()</td><td> : returns true, if the program is running online.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isOffline()</td><td> : returns true, if the program is running offline.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isRoot()</td><td> : returns true, if the data is read from a root file.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isMidas()</td><td> : returns true, if the data has the midas format.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isBatchMode()</td><td> : returns true, if the program is running in batch mode.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetBatchMode(bool flag=true)</td><td> : sets the batch mode.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetInputDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetOutputDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetDataBaseDir(char* dir)</td><td> : sets the input directory.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isFillEvent()</td><td> : if true, the current event is filled to the trees.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetFillEvent(Bool_t fillEvent = true)</td><td> : sets the fill event flag.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>IsDontReadNextEvent()</td><td> : if true, the next event is not read from the file (for multiple events).</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetDontReadNextEvent(bool flag = true)</td><td> : sets the DontReadNextEvent flag.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetTerminationFlag()</td><td> : sets the termination flag equal true.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isTreeAccumulation()</td><td> : if true, the trees are accumulated over different runs.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetTreeAccumulation(bool flag = true)</td><td> : sets the TreeAccumulation flag.</td></tr>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<tr><td>char</td><td>GetEventID()</td><td> : returns a character value containing the event id.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>char*</td><td>GetOnlineHost()</td><td> : returns the host of the online experiment.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetOnlineHost(char* host)</td><td> : sets host of the online experiment.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>char*</td><td>GetOnlineExperiment()</td><td> : returns the name of the online experiment.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetOnlineExperiment(char* experiment)</td><td> : sets name of the online experiment.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>int</td><td>GetPortNumber()</td><td> : returns the port number of the socket interface.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetPortNumber(int portNumber)</td><td> : sets the port number of the socket interface.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>bool</td><td>isSocketOffline()</td><td> : returns true, if the socket interface should be available in offline mode.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>void</td><td>SetSocketOffline(bool flag=true)</td><td> : sets SocketOffline flag.</td></tr>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<tr><td>int</td><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>int</td><td>GetCurrentEventNumber()</td><td> : returns the current event number.</td></tr>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<tr><td>TRint*</td><td>GetApplication()</td><td> : returns the root application handle.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>char*</td><td>GetProgramName()</td><td> : returns the name of the executable of this program.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>ROMEDataBase*</td><td>GetDataBase()</td><td> : returns the database handle.</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>int</td><td>GetMidasOnlineDataBase()</td><td> : returns the handle to the midas ODB (only online).</td></tr>\n");
-   buffer.AppendFormatted("<tr><td>int*</td><td>GetMidasOnlineDataBasePointer()</td><td> : returns a pointer to the handle to the midas ODB (only online).</td></tr>\n");
-   buffer.AppendFormatted("</table>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("\n");
 
    // Footer
    buffer.AppendFormatted("<HR>\n");
