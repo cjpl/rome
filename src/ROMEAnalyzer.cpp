@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.33  2004/10/14 09:53:41  schneebeli_m
+//  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+//
 //  Revision 1.32  2004/10/05 13:30:32  schneebeli_m
 //  make -e, Port number
 //
@@ -105,18 +108,21 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 // Initialisations
 
    int i=0;
+   fLastEventNumberIndex = 0;
    fApplication = app;
-   fSplashScreen = true;
-   fBatchMode = false;
-   fTerminate = false;
    fAnalysisMode = kAnalyzeOffline; 
    fDataFormat = kRoot; 
-   fCurrentRunNumber = 0; 
-   fTreeAccumulation = false;
-   fTreeObjects = new TObjArray(0);
-   fEventID = 'a';
-   fOnlineHost = "";
+   fBatchMode = false;
+   fSplashScreen = true;
    fDontReadNextEvent = false;
+   fCurrentRunNumber = 0; 
+   fEventID = 'a';
+   fTerminate = false;
+   fTreeAccumulation = false;
+   fPortNumber = 9090;
+   fSocketOffline = false;
+   fTreeObjects = new TObjArray(0);
+   fOnlineHost = "";
    fDataBaseConnection = "";
    fDataBaseHandle = new ROMENoDataBase();
 }
@@ -216,7 +222,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (answer!='n') {
          cout << "\nThe framework generated a new configuration file." << endl;
          cout << "Please edit this file and restart the program.\n" << endl;
-         if (!WriteROMEConfigXML((char*)configFile.Data())) {
+         if (!this->fConfiguration->WriteConfigurationFile()) {
             cout << "\nTerminate program.\n" << endl;
             return false;
          }
@@ -226,11 +232,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       return false;
    }
-   if (!ReadROMEConfigXML((char*)configFile.Data())) {
+   if (!this->GetConfiguration()->ReadConfigurationFile((char*)configFile.Data())) {
       cout << "\nTerminate program.\n" << endl;
       return false;
    }
-   if (!WriteROMEConfigXML((char*)configFile.Data())) {
+   if (!this->fConfiguration->WriteConfigurationFile()) {
       cout << "\nTerminate program.\n" << endl;
       return false;
    }
@@ -597,13 +603,32 @@ int ROMEAnalyzer::bk_find(void* pbkh, const char *name, unsigned long * bklen, u
 }
 #endif
 
+int ROMEAnalyzer::CheckEventNumber(int eventNumber) 
+{
+   if (fEventNumber.GetSize()==0)
+      return 1;
+   for (int i=fLastEventNumberIndex;i<fEventNumber.GetSize();i++) {
+      if (fEventNumber.At(i)==eventNumber) {
+         fLastEventNumberIndex = i+1;
+         return 1;
+      }
+      else if (fEventNumber.At(i)>eventNumber) {
+         fLastEventNumberIndex = i;
+         return 0;
+      }
+   }
+   return -1;
+}
+
 TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
 {
    char cminus='-';
    char ccomma=',';
    char csemi =';';
    char *pstr = (char*)str.Data();
+   bool bminus = false;
    int num;
+   int i;
    int na=0;
    int nat=1;
    int arraySize = 1000;
@@ -614,10 +639,22 @@ TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
          arr.Set(arraySize*nat);
       }
       num = strtol(pstr,&pstr,10);
+      if (bminus) {
+         for (i=arr.At(na-1)+1;i<num;i++) {
+            arr.AddAt(i,na);
+            na++;
+            if (na>=arraySize*nat) {
+               nat++;
+               arr.Set(arraySize*nat);
+            }
+         }
+         bminus = false;
+      }
       if (pstr[0]==cminus) {
-         arr.AddAt(-num,na);
+         arr.AddAt(num,na);
          na++;
          pstr++;
+         bminus = true;
       }
       else if (pstr[0]==ccomma||pstr[0]==csemi) {
          arr.AddAt(num,na);

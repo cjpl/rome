@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2004/10/14 09:53:41  schneebeli_m
+  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+
   Revision 1.15  2004/10/08 12:03:17  schneebeli_m
   Changed XML format, included a rome.xsd schema file
 
@@ -61,7 +64,6 @@ private:
    bool readMidasBanks;
 
    ROMEString parent[maxNumberOfTasks];
-   ROMEString parentSteer[maxNumberOfTasks];
    int recursiveDepth;
    int recursiveSteerDepth;
 
@@ -123,8 +125,10 @@ private:
 
    int numOfSteering[maxNumberOfTasks+1];
    int numOfSteerFields[maxNumberOfTasks+1][maxNumberOfSteering];
+   int numOfSteerChildren[maxNumberOfTasks+1][maxNumberOfSteering];
    ROMEString steerName[maxNumberOfTasks+1][maxNumberOfSteering];
-   ROMEString steerParent[maxNumberOfTasks+1][maxNumberOfSteering];
+   int        steerParent[maxNumberOfTasks+1][maxNumberOfSteering];
+   int        steerChildren[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteering];
    ROMEString steerFieldName[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldType[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldInit[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
@@ -169,8 +173,10 @@ public:
    bool WriteFolderH();
    bool ReadXMLTask();
    bool WriteSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
-   void WriteSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask,int tab);
-   void WriteSteerConfigRead(ROMEString& buffer,int numSteer,int numTask,int tab);
+   bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
+   bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
+   bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer);
+   bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
@@ -180,8 +186,8 @@ public:
    bool WriteSteering(int iTask);
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
-   bool WriteIOCpp();
-   bool WriteIOH();
+   bool WriteConfigCpp();
+   bool WriteConfigH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();

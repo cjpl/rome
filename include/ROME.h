@@ -2,6 +2,9 @@
   ROME.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2004/10/14 09:53:41  schneebeli_m
+  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+
   Revision 1.3  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -37,6 +40,21 @@ typedef struct {
    unsigned long int time_stamp;
    unsigned long int data_size;
 } EVENT_HEADER;
+typedef struct {
+   unsigned long int data_size;
+   unsigned long int flags;
+} BANK_HEADER;
+typedef struct {
+   char name[4];
+   unsigned short int type;
+   unsigned short int data_size;
+} BANK;
+
+typedef struct {
+   char name[4];
+   unsigned long int type;
+   unsigned long int data_size;
+} BANK32;
 #endif
 
 // General

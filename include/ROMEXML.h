@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/10/14 09:53:41  schneebeli_m
+  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+
   Revision 1.8  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -62,6 +65,7 @@ public:
    // path
    bool  OpenFileForPath(const char* file);
    bool  ExistPath(const char* path);
+   int   NumberOfOccurrenceOfPath(const char* path);
    bool  GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);
    bool  GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue="");
    bool  GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue);

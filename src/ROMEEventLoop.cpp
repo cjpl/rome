@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.21  2004/10/14 09:53:41  schneebeli_m
+//  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+//
 //  Revision 1.20  2004/10/05 07:52:44  schneebeli_m
 //  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
 //
@@ -379,10 +382,6 @@ bool ROMEEventLoop::Initialize() {
       return false;
    }
 
-   // Data Base Initialisation
-   char* xx = gROME->GetDataBaseConnection();
-   if (!gROME->GetDataBase()->Init(gROME->GetDataBaseDir(),gROME->GetDataBaseConnection()))
-      return false;
 
    return true;
 }
@@ -411,6 +410,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
          return true;
       }
       gROME->SetCurrentRunNumber(gROME->GetRunNumberAt(runNumberIndex));
+      gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentRunNumber());
    }
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
    gROME->GetCurrentRunNumberString(runNumberString);
@@ -421,12 +421,16 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    TTree *tree;
    for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
       romeTree = gROME->GetTreeObjectAt(j);
-      if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
-         tree = romeTree->GetTree();
-         tree->Reset();
-         filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),tree->GetName(),runNumberString.Data());
-         fTreeFiles[j] = new TFile(filename.Data(),"RECREATE");
-         tree->SetDirectory(fTreeFiles[j]);
+      if (!gROME->isTreeAccumulation()) {
+         if (romeTree->isFill()) {
+            tree = romeTree->GetTree();
+            tree->Reset();
+            if (romeTree->isWrite()) {
+               filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),tree->GetName(),runNumberString.Data());
+               fTreeFiles[j] = new TFile(filename.Data(),"RECREATE");
+               tree->SetDirectory(fTreeFiles[j]);
+            }
+         }
       }
    }
 
@@ -544,7 +548,8 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          return true;
       }
 
-      gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->event_id);
+      gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
+      gROME->SetEventID(((EVENT_HEADER*)mEvent)->event_id);
       timeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
       gROME->InitMidasBanks();
 
@@ -567,6 +572,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       EVENT_HEADER *pevent = (EVENT_HEADER*)gROME->GetMidasEvent();
       bool readError = false;
 
+      // read event
       int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
@@ -578,12 +584,12 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
             if ((int) (pevent+1)->data_size <= 0) readError = true;
          }
       }
+      // check input
       if (readError) {
          if (n > 0) cout << "Unexpected end of file\n";
          fEventStatus = kEndOfRun;
          return true;
       }
-
       if (pevent->event_id < 0) {
          fEventStatus = kContinue;
          return true;
@@ -592,13 +598,28 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          fEventStatus = kEndOfRun;
          return true;
       }
+      if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) { 
+         fEventStatus = kContinue;
+         return true;
+      }
 
+      // check event numbers
+      int status = gROME->CheckEventNumber(event);
+      if (status==0) {
+         fEventStatus = kContinue;
+         return true;
+      }
+      if (status==-1) {
+         fEventStatus = kEndOfRun;
+         return true;
+      }
+
+      // initalize event
       gROME->SetEventID(pevent->event_id);
       gROME->SetCurrentEventNumber(pevent->serial_number);
       timeStamp = pevent->time_stamp;
 
-      if (fEventStatus==kAnalyze) gROME->InitMidasBanks();
-
+      gROME->InitMidasBanks();
       fTreeInfo->SetTimeStamp(timeStamp);
       stat->processedEvents++;
    }
@@ -606,6 +627,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
+      // read event
       for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
@@ -625,6 +647,16 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
          }  
       }
       if (!found) {
+         fEventStatus = kEndOfRun;
+         return true;
+      }
+      // check event numbers
+      int status = gROME->CheckEventNumber(event);
+      if (status==0) {
+         fEventStatus = kContinue;
+         return true;
+      }
+      if (status==-1) {
          fEventStatus = kEndOfRun;
          return true;
       }
@@ -760,7 +792,6 @@ bool ROMEEventLoop::Disconnect() {
       if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
          tree = romeTree->GetTree();
          cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
-         fTreeFiles[j]->cd();
          tree->Write("",TObject::kOverwrite);
       }
    }
@@ -770,7 +801,6 @@ bool ROMEEventLoop::Disconnect() {
    filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
    fHistoFile = new TFile(filename.Data(),"RECREATE");
    TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
-   fHistoFile->cd();
    folder->Write();
    fHistoFile->Close();
 

@@ -122,7 +122,7 @@ void MEGTCharge::Event()
       MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(j);
       MEGCMPMTInfo *pmtInfo = gAnalyzer->GetCMPMTInfoAt(j);
       pmt_signal = TMath::Max(pmtData->GetADC0Data(),0.f);
-      eventNumber = gAnalyzer->GetTriggerObject()->GetEventnumber();
+      eventNumber = gAnalyzer->GetTrigger()->GetEventnumber();
       x_coor= pmtInfo->GetX();
       y_coor= pmtInfo->GetY();
       face = pmtInfo->GetFace();
@@ -186,7 +186,7 @@ void MEGTCharge::Event()
       }
    }
 */
-   gAnalyzer->GetCMHitObject()->SetAll(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
+   gAnalyzer->GetCMHit()->SetAll(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
       qtot_bottom,qtot_right,qtot_left,qraw,qsum,nhit);
 
 /*   gHistoHists1[1]->Fill((float)hist->qsum);

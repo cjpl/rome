@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.26  2004/10/14 09:53:41  schneebeli_m
+  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+
   Revision 1.25  2004/10/05 13:30:32  schneebeli_m
   make -e, Port number
 
@@ -35,27 +38,13 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include "ROME.h"
+#include <ROMEConfig.h>
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
 #if defined HAVE_MIDAS
 #include <midas.h>
 #else
-typedef struct {
-   unsigned long int data_size;
-   unsigned long int flags;
-} BANK_HEADER;
-typedef struct {
-   char name[4];
-   unsigned short int type;
-   unsigned short int data_size;
-} BANK;
-
-typedef struct {
-   char name[4];
-   unsigned long int type;
-   unsigned long int data_size;
-} BANK32;
 #endif
 #if defined HAVE_SQL
 #include <ROMESQL.h>
@@ -108,6 +97,7 @@ protected:
    Int_t      fCurrentEventNumber;              //! Currently Analyzed Event Number
    TArrayI    fEventNumber;                     //! Event Numbers to Analyze
    ROMEString fEventNumberString;               //! Event Numbers in Input String Format
+   Int_t      fLastEventNumberIndex;            //! Index of the last Analyzed Event Number
 
    // Event ID
    char       fEventID;                         //! Event ID of current Event
@@ -144,8 +134,12 @@ protected:
    Statistics    fTriggerStatistics;               //! Trigger Statistics
    Statistics    fScalerStatistics;                //! Scaler Statistics
 
+   // Data base
    ROMEDataBase *fDataBaseHandle;                  //! DataBase Handle
    char*         fDataBaseConnection;              //! DataBase connection string
+
+   // Configuration
+   ROMEConfig   *fConfiguration;                   //! Configuration Handle
 
 public:
    // Static Task Switches Changes Flag
@@ -170,6 +164,9 @@ public:
    // modes
    Bool_t     isSplashScreen() { return fSplashScreen; };
    Bool_t     isBatchMode() { return fBatchMode; };
+
+   void       SetSplashScreen(bool flag=true)  { fSplashScreen = flag; };
+   void       SetBatchMode(bool flag=true) { fBatchMode = flag; };
 
    // Analysis Mode
    Bool_t     isOnline() { return fAnalysisMode==kAnalyzeOnline; };
@@ -219,7 +216,7 @@ public:
    // Tree IO
    Bool_t     isTreeAccumulation()  { return fTreeAccumulation;  };
 
-   void       SetTreeAccumulation() { fTreeAccumulation = true;  };
+   void       SetTreeAccumulation(bool flag = true) { fTreeAccumulation = flag;  };
 
    // Trees
    void       AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree,0,0)); };
@@ -253,6 +250,8 @@ public:
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(fEventNumberString); }
 
+   int        CheckEventNumber(int eventNumber);
+
    // Event ID
    char       GetEventID() { return fEventID; }
    void       SetEventID(char eventID) { fEventID = eventID; }
@@ -274,15 +273,25 @@ public:
    char*      GetOnlineHost() { return (char*)fOnlineHost.Data(); };
    char*      GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };
 
+   void       SetOnlineHost(char* host) { fOnlineHost = host; };
+   void       SetOnlineExperiment(char* experiment) { fOnlineExperiment = experiment; };
+
    // Socket
    int        GetPortNumber() { return fPortNumber; };
    bool       isSocketOffline() { return fSocketOffline; };
+
+   void       SetPortNumber(int portNumber) { fPortNumber = portNumber; };
+   void       SetPortNumber(char* portNumber) { char* cstop; fPortNumber = strtol(portNumber,&cstop,10); };
+   void       SetSocketOffline(bool flag=true) { fSocketOffline = flag; };
 
    // Midas
    int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
    int*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
    char*      GetMidasEvent() { return fMidasEvent; };
    int        GetMidasEventSize() { return sizeof(fMidasEvent); };
+
+   // Configuration
+   ROMEConfig *GetConfiguration() { return fConfiguration; };
 
    // Statistics
    Statistics* GetTriggerStatistics() { return &fTriggerStatistics; };
@@ -305,9 +314,6 @@ public:
 protected:
 
    void CreateHistoFolders();
-
-   virtual bool ReadROMEConfigXML(char *configFile) = 0;
-   virtual bool WriteROMEConfigXML(char *configFile) = 0;
 
    bool ReadParameters(int argc, char *argv[]);
    void ParameterUsage();

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.13  2004/10/14 09:53:41  schneebeli_m
+//  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+//
 //  Revision 1.12  2004/09/17 16:21:45  schneebeli_m
 //  example updated
 //
@@ -334,9 +337,23 @@ bool ROMEXML::ExistPath(const char* path) {
       xmlFreeDoc(doc); 
       return false;
    }
+   if (xpathObj->nodesetval==NULL)
+      return false;
    if (xpathObj->nodesetval->nodeNr==0)
       return false;
    return true;
+}
+int ROMEXML::NumberOfOccurrenceOfPath(const char* path) {
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
+   if(xpathObj == NULL) {
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
+      xmlXPathFreeContext(xpathCtx); 
+      xmlFreeDoc(doc); 
+      return 0;
+   }
+   if (xpathObj->nodesetval==NULL)
+      return 0;
+   return xpathObj->nodesetval->nodeNr;
 }
 
 bool ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
@@ -400,6 +417,18 @@ bool ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaul
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
       xmlXPathFreeContext(xpathCtx); 
       xmlFreeDoc(doc); 
+      value = defaultValue;
+      return false;
+   }
+   if (xpathObj->nodesetval==NULL) {
+      value = defaultValue;
+      return false;
+   }
+   if (xpathObj->nodesetval->nodeNr==0) {
+      value = defaultValue;
+      return false;
+   }
+   if (xpathObj->nodesetval->nodeTab[0]->children==NULL) {
       value = defaultValue;
       return false;
    }

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.57  2004/10/14 09:53:41  schneebeli_m
+  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
+
   Revision 1.56  2004/10/08 12:21:11  schneebeli_m
   Changed compile order
 
@@ -358,7 +361,7 @@ bool ROMEBuilder::ReadXMLFolder() {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xml->GetValue(valueName[numOfFolder][numOfValue[numOfFolder]],valueName[numOfFolder][numOfValue[numOfFolder]]);
+               xml->GetValue(valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
             }
             // field comment
             if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
@@ -557,6 +560,7 @@ bool ROMEBuilder::WriteFolderH() {
 
       buffer.AppendFormatted("#include <TObject.h>\n");
 
+      // Includes
       for (i=0;i<numOfFolderInclude[iFold];i++) {
          if (folderLocalFlag[iFold][i]) {
             buffer.AppendFormatted("#include \"%s\"\n",folderInclude[iFold][i].Data());
@@ -1069,194 +1073,14 @@ bool ROMEBuilder::ReadXMLTask() {
       if (type == 1 && !strcmp((const char*)name,"SteeringParameters")) {
          // read steering parameter
          steerName[numOfTask][0] = "Steering";
+         steerParent[numOfTask][0] = -1;
          recursiveSteerDepth = 0;
-         parentSteer[0] = "";
          if (!ReadXMLSteering(numOfTask)) 
             return false;
          numOfSteering[numOfTask]++;
       }
    }
    return true;
-}
-bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask,int tab) {
-   ROMEString format;
-   ROMEString sc;
-   ROMEString blank="";
-   int j,i;
-   int typeLen = -1;
-   int nameLen = -1;
-   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
-      if (typeLen<(int)steerFieldType[numTask][numSteer][i].Length()) typeLen = steerFieldType[numTask][numSteer][i].Length();
-      if (nameLen<(int)steerFieldName[numTask][numSteer][i].Length()) nameLen = steerFieldName[numTask][numSteer][i].Length();
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         if (typeLen<(int)steerName[numTask][i].Length()+1) typeLen = steerName[numTask][i].Length()+1;
-         if (nameLen<(int)steerName[numTask][i].Length()) nameLen = steerName[numTask][i].Length();
-      }
-   }
-   if (tab==0)
-      sc = "MEG";
-   else 
-      sc = "";
-   for (i=0;i<tab;i++)
-      blank.Append("   ");   
-
-   buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
-   buffer.AppendFormatted("%s{\n",blank.Data());
-
-   buffer.AppendFormatted("%sprivate:\n",blank.Data());
-
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         WriteSteeringClass(buffer,i,numTask,tab+1);
-      }
-   }
-
-   buffer.AppendFormatted("%sprotected:\n",blank.Data());
-
-   // Fields
-   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[numTask][i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][i].Data(),steerName[numTask][i].Data(),"",steerName[numTask][i].Data());
-      }
-   }
-   buffer.AppendFormatted("\n%spublic:\n",blank.Data());
-   // Constructor
-   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
-   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
-      buffer.AppendFormatted("f%s = %s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][i].Data(),steerName[numTask][i].Data());
-      }
-   }
-   buffer.AppendFormatted("};\n");
-   // Getters
-   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data());
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[numTask][i].Length());
-         buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][i].Data(),steerName[numTask][i].Data(),"",steerName[numTask][i].Data());
-      }
-   }
-   // Setters
-   buffer.AppendFormatted("\n");
-   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
-      format.SetFormatted("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
-      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data());
-   }
-
-   // Footer
-   buffer.AppendFormatted("%s};\n\n",blank.Data());
-
-   return true;
-}
-void ROMEBuilder::WriteSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask,int tab) {
-   int i,j;
-   ROMEString tmp;
-   ROMEString getter;
-   if (numSteer==0) {
-      if (tab==0) 
-         buffer.AppendFormatted("   xml->StartElement(\"GlobalSteeringParameters\");\n");
-      else
-         buffer.AppendFormatted("   xml->StartElement(\"SteeringParameters\");\n");
-   }
-   else
-      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",steerName[numTask][numSteer].Data());
-   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
-      getter.SetFormatted("->Get%s()",steerFieldName[numTask][numSteer][i].Data());
-      int ind = numSteer;
-      while (steerParent[numTask][ind]!="") {
-         for (j=0;j<numOfSteering[numTask];j++) {
-            if (steerParent[numTask][ind]==steerName[numTask][j]) {
-               getter.InsertFormatted(0,"->Get%s()",steerName[numTask][ind].Data());
-               ind = j;
-               break;
-            }
-         }
-      }
-      if (tab==0) 
-         getter.InsertFormatted(0,"GetGSP()");
-      else
-         getter.InsertFormatted(0,"((%sT%s*)f%sTask)->GetSP()",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data());
-      GetFormat(&tmp,(char*)steerFieldType[numTask][numSteer][i].Data());
-      buffer.AppendFormatted("   value.SetFormatted(\"%s\",%s);\n",tmp.Data(),getter.Data());
-      buffer.AppendFormatted("   xml->WriteElement(\"%s\",value.Data());\n",steerFieldName[numTask][numSteer][i].Data());
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         WriteSteerConfigWrite(buffer,i,numTask,tab);
-      }
-   }
-   buffer.AppendFormatted("   xml->EndElement();\n");
-}
-void ROMEBuilder::WriteSteerConfigRead(ROMEString& buffer,int numSteer,int numTask,int tab) {
-   ROMEString tmp;
-   ROMEString value;
-   ROMEString path;
-   ROMEString setter;
-   int i,j;
-   ROMEString blank;
-   if (tab==0)
-      blank = "      ";
-   else
-      blank = "                     ";
-
-   path = "";
-   int ind = numSteer;
-   while (steerParent[numTask][ind]!="") {
-      for (j=0;j<numOfSteering[numTask];j++) {
-         if (steerParent[numTask][ind]==steerName[numTask][j]) {
-            path.InsertFormatted(0,"->Get%s()",steerName[numTask][ind].Data());
-            ind = j;
-            blank.Append("      ");
-            break;
-         }
-      }
-   }
-   if (numSteer==0)
-      buffer.AppendFormatted("%sif (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),steerName[numTask][numSteer].Data());
-   else
-      buffer.AppendFormatted("%sif (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerName[numTask][numSteer].Data());
-
-   buffer.AppendFormatted("%s   while (xml->NextLine()) {\n",blank.Data());
-   buffer.AppendFormatted("%s      type = xml->GetType();\n",blank.Data());
-   buffer.AppendFormatted("%s      name = xml->GetName();\n",blank.Data());
-   if (numSteer==0)
-      buffer.AppendFormatted("%s      char *cstop;\n",blank.Data());
-   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
-      setValue(&value,"","value",(char*)steerFieldType[numTask][numSteer][i].Data(),1);
-      if (tab==0)
-         setter.SetFormatted("GetGSP()%s->Set%s((%s)%s)",path.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),value.Data());
-      else
-         setter.SetFormatted("((%sT%s*)f%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data(),path.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),value.Data());
-      buffer.AppendFormatted("%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerFieldName[numTask][numSteer][i].Data());
-      buffer.AppendFormatted("%s         if (xml->GetValue(value)) \n",blank.Data());
-      buffer.AppendFormatted("%s            %s;\n",blank.Data(),setter.Data());
-      buffer.AppendFormatted("%s      }\n",blank.Data());
-   }
-   for (i=0;i<numOfSteering[numTask];i++) {
-      if (steerParent[numTask][i]==steerName[numTask][numSteer]) {
-         WriteSteerConfigRead(buffer,i,numTask,tab);
-      }
-   }
-   if (numSteer==0)
-      buffer.AppendFormatted("%s   if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),steerName[numTask][numSteer].Data());
-   else
-      buffer.AppendFormatted("%s   if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),steerName[numTask][numSteer].Data());
-   buffer.AppendFormatted("%s      break;\n",blank.Data());
-   buffer.AppendFormatted("%s   }\n",blank.Data());
-   buffer.AppendFormatted("%s}\n",blank.Data());
 }
 bool ROMEBuilder::WriteTaskCpp() {
    ROMEString cppFile;
@@ -2149,7 +1973,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
    // read the steering parameter definitions out of the xml file
    ROMEString tmp;
    char* name;
-   int type,i,j;
+   int type,i;
    ROMEString currentSteeringName = "";
    int currentNumberOfSteerings;
 
@@ -2164,8 +1988,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
    // initialisation
    if (numOfSteering[iTask]>0)
       steerName[iTask][numOfSteering[iTask]] = "";
-   steerParent[iTask][numOfSteering[iTask]] = parentSteer[recursiveSteerDepth];
    numOfSteerFields[iTask][numOfSteering[iTask]] = 0;
+   numOfSteerChildren[iTask][numOfSteering[iTask]] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2178,8 +2002,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
       // subgroup
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterGroup")) {
          // set steering parameter group as parent for subsequent groups
+         steerParent[iTask][numOfSteering[iTask]+1] = numOfSteering[iTask];
          recursiveSteerDepth++;
-         parentSteer[recursiveSteerDepth] = steerName[iTask][numOfSteering[iTask]];
          // read subgroup
          if (!ReadXMLSteering(iTask)) 
             return false;
@@ -2200,6 +2024,10 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
       if (type == 1 && !strcmp((const char*)name,"SPGroupName")) {
          xml->GetValue(steerName[iTask][numOfSteering[iTask]],steerName[iTask][numOfSteering[iTask]]);
          currentSteeringName = steerName[iTask][numOfSteering[iTask]];
+         if (steerParent[iTask][numOfSteering[iTask]]!= -1) {
+            steerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]][numOfSteerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]]] = numOfSteering[iTask];
+            numOfSteerChildren[iTask][steerParent[iTask][numOfSteering[iTask]]]++;
+         }
          // output
          if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
          if (makeOutput) steerName[iTask][numOfSteering[iTask]].WriteLine();
@@ -2489,6 +2317,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
 
    // Steering 
    if (numOfSteering[numOfTask]>0) {
@@ -2508,12 +2338,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("\n   f%sObject = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted("   %sFolder->Add(f%sObject);\n",folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("\n   f%sFolder = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   %sFolder->Add(f%sFolder);\n",folderName[i].Data(),folderName[i].Data());
          }
          else {
-            buffer.AppendFormatted("\n   f%sObjects = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted("   %sFolder->Add(f%sObjects);\n",folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("\n   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
          }
       }
    }
@@ -2609,7 +2439,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                if (folderArray[i]=="1") {
                   buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),1);\n",folderName[i].Data(),valueName[i][j].Data());
                   setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(0))->GetString().Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("   f%sFolder->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                }
             }
          }
@@ -2630,13 +2460,13 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             for (j=0;j<numOfValue[i];j++) {
                buffer.AppendFormatted("   values->RemoveAll();\n");
                if (folderArray[i]!="1") {
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),f%sObjects->GetEntries());\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data());
-                  buffer.AppendFormatted("   for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i].Data());
+                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),f%sFolders->GetEntries());\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data());
+                  buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
                   buffer.AppendFormatted("      if (i<values->GetEntriesFast()) {\n");
                   setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(i))->GetString().Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("         ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                   buffer.AppendFormatted("      } else {\n");
-                  buffer.AppendFormatted("         ((%s%s*)f%sObjects->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
+                  buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                   buffer.AppendFormatted("      }\n");
                   buffer.AppendFormatted("   }\n");
                }
@@ -2718,27 +2548,27 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             for (j=0;j<numOfValue[i];j++) {
                GetFormat(&format,(char*)valueType[i][j].Data());
                if (valueType[i][j]=="TString") {
-                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sObject->Get%s().Data());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sFolder->Get%s().Data());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                else {
-                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sObject->Get%s());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("      value.SetFormatted(\"%s\",f%sFolder->Get%s());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                buffer.AppendFormatted("      xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
             buffer.AppendFormatted("      xml->EndElement();\n");
          }
          else {
-            buffer.AppendFormatted("      for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i].Data());
+            buffer.AppendFormatted("      for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[i].Data());
             buffer.AppendFormatted("         xml->StartElement(\"%s\");\n",folderName[i].Data());
             buffer.AppendFormatted("         value.SetFormatted(\"%%d\",i);\n");
             buffer.AppendFormatted("         xml->WriteAttribute(\"Number\",value.Data());\n");
             for (j=0;j<numOfValue[i];j++) {
                GetFormat(&format,(char*)valueType[i][j].Data());
                if (valueType[i][j]=="TString") {
-                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sObjects->At(i))->Get%s().Data());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sFolders->At(i))->Get%s().Data());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                else {
-                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sObjects->At(i))->Get%s());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
+                  buffer.AppendFormatted("         value.SetFormatted(\"%s\",((%s%s*)f%sFolders->At(i))->Get%s());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                buffer.AppendFormatted("         xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
@@ -2778,295 +2608,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   nextFile.SetFormatted(\"%%s_%%d.xml\",body.Data(),number);\n");
    buffer.AppendFormatted("}\n\n");
 
-
-   // Configuration File
-   buffer.AppendFormatted("\n// Configuration File\n");
-   buffer.AppendFormatted("//--------------------\n");
-   buffer.AppendFormatted("bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut.Data());
-   buffer.AppendFormatted("   char *name;\n");
-   buffer.AppendFormatted("   char *cstop;\n");
-   buffer.AppendFormatted("   ROMEString value;\n");
-   buffer.AppendFormatted("   int type;\n");
-   buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
-   buffer.AppendFormatted("   if (!xml->OpenFileForRead(configFile)) {\n");
-   buffer.AppendFormatted("      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
-   buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   while (xml->NextLine()) {\n");
-   buffer.AppendFormatted("      type = xml->GetType();\n");
-   buffer.AppendFormatted("      name = xml->GetName();\n");
-   // Modes
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"Modes\")) {\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"AnalyzingMode\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"online\")\n");
-   buffer.AppendFormatted("            this->SetOnline();\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            this->SetOffline();\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"InputDataFormat\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"root\")\n");
-   buffer.AppendFormatted("            this->SetRoot();\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            this->SetMidas();\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"DataBaseMode\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"sql\"||value==\"SQL\") {\n");
-   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   buffer.AppendFormatted("            this->SetDataBase(new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("            this->SetDataBaseConnection(\"\");\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         else if (value==\"xml\"||value==\"XML\") {\n");
-   buffer.AppendFormatted("            delete this->GetDataBase();\n");
-   buffer.AppendFormatted("            this->SetDataBase(new ROMEXMLDataBase());\n");
-   buffer.AppendFormatted("            this->SetDataBaseConnection(\"RunTable.xml\");\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"BatchMode\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"yes\")\n");
-   buffer.AppendFormatted("            fBatchMode = true;\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            fBatchMode = false;\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"ShowSplashScreen\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"no\")\n");
-   buffer.AppendFormatted("            fSplashScreen = false;\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            fSplashScreen = true;\n");
-   buffer.AppendFormatted("      }\n");
-   // Online
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"Online\")) {\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"Host\",value,\"\");\n");
-   buffer.AppendFormatted("         fOnlineHost = value;\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"Experiment\",value,\"\");\n");
-   buffer.AppendFormatted("         fOnlineExperiment = value;\n");
-   buffer.AppendFormatted("      }\n");
-   // Online
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"SocketInterface\")) {\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"PortNumber\",value,\"\");\n");
-   buffer.AppendFormatted("         fPortNumber = strtol(value.Data(),&cstop,10);\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"AvailableOffline\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"yes\")\n");
-   buffer.AppendFormatted("            fSocketOffline = true;\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            fSocketOffline = false;\n");
-   buffer.AppendFormatted("      }\n");
-   // Run Numbers
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
-   buffer.AppendFormatted("         if (xml->GetAttribute(\"Numbers\",value,\"\"))\n");
-   buffer.AppendFormatted("            this->SetRunNumbers(value);\n");
-   buffer.AppendFormatted("      }\n");
-   // Event Numbers
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"EventNumbers\")) {\n");
-   buffer.AppendFormatted("         if (xml->GetAttribute(\"Numbers\",value,\"\"))\n");
-   buffer.AppendFormatted("            this->SetEventNumbers(value);\n");
-   buffer.AppendFormatted("      }\n");
-   // Paths
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
-   buffer.AppendFormatted("         if (xml->GetValue(value)) {\n");
-   buffer.AppendFormatted("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("               value.Append(\"/\");\n");
-   buffer.AppendFormatted("            this->SetInputDir(value);\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
-   buffer.AppendFormatted("         if (xml->GetValue(value)) {\n");
-   buffer.AppendFormatted("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("               value.Append(\"/\");\n");
-   buffer.AppendFormatted("            this->SetOutputDir(value);\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
-   buffer.AppendFormatted("         if (xml->GetValue(value)) {\n");
-   buffer.AppendFormatted("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("               value.Append(\"/\");\n");
-   buffer.AppendFormatted("            this->SetDataBaseDir(value);\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("      }\n");
-   // Tasks
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"Tasks\")) {\n");
-   buffer.AppendFormatted("         while (xml->NextLine()) {\n");
-   buffer.AppendFormatted("            type = xml->GetType();\n");
-   buffer.AppendFormatted("            name = xml->GetName();\n");
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("            if (type == 1 && !strcmp(name,\"%s\")) {\n",taskName[i].Data());
-      buffer.AppendFormatted("               int empty = xml->isEmpty();\n");
-      buffer.AppendFormatted("               xml->GetAttribute(\"Active\",value,\"\");\n");
-      buffer.AppendFormatted("               if (value==\"yes\") {\n");
-      buffer.AppendFormatted("                  f%sTask->SetActive();\n",taskName[i].Data());
-      buffer.AppendFormatted("               }\n");
-      buffer.AppendFormatted("               if (!empty) {\n");
-      buffer.AppendFormatted("                  while (xml->NextLine()) {\n");
-      buffer.AppendFormatted("                     type = xml->GetType();\n");
-      buffer.AppendFormatted("                     name = xml->GetName();\n");
-      for (j=0;j<numOfHistos[i];j++) {
-         buffer.AppendFormatted("                     if (type == 1 && !strcmp(name,\"%s\")) {\n",histoName[i][j].Data());
-         buffer.AppendFormatted("                        xml->GetAttribute(\"Accumulate\",value,\"\");\n");
-         buffer.AppendFormatted("                        if (value==\"no\")\n");
-         buffer.AppendFormatted("                           ((%sT%s*)f%sTask)->Set%sAccumulation(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
-         buffer.AppendFormatted("                     }\n");
-      }
-      WriteSteerConfigRead(buffer,0,i,1);
-      buffer.AppendFormatted("                     if (type == 15 && !strcmp(name,\"%s\"))\n",taskName[i].Data());
-      buffer.AppendFormatted("                        break;\n");
-      buffer.AppendFormatted("                  }\n");
-      buffer.AppendFormatted("               }\n");
-      buffer.AppendFormatted("            }\n");
-   }
-   buffer.AppendFormatted("            if (type == 15 && !strcmp(name,\"Tasks\"))\n");
-   buffer.AppendFormatted("               break;\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("      }\n");
-   // Trees
-   buffer.AppendFormatted("      if (type == 1 && !strcmp(name,\"Trees\")) {\n");
-   buffer.AppendFormatted("         xml->GetAttribute(\"Accumulation\",value,\"\");\n");
-   buffer.AppendFormatted("         if (value==\"yes\")\n");
-   buffer.AppendFormatted("            this->SetTreeAccumulation();\n");
-   buffer.AppendFormatted("         while (xml->NextLine()) {\n");
-   buffer.AppendFormatted("            type = xml->GetType();\n");
-   buffer.AppendFormatted("            name = xml->GetName();\n");
-   for (i=0;i<numOfTree;i++) {
-      buffer.AppendFormatted("            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i].Data());
-      buffer.AppendFormatted("               xml->GetAttribute(\"Read\",value,\"\");\n");
-      buffer.AppendFormatted("               if (value==\"yes\")\n");
-      buffer.AppendFormatted("                  this->GetTreeObjectAt(%d)->SetRead(true);\n",i);
-      buffer.AppendFormatted("               xml->GetAttribute(\"Write\",value,\"\");\n");
-      buffer.AppendFormatted("               if (value==\"yes\")\n");
-      buffer.AppendFormatted("                  this->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
-      buffer.AppendFormatted("               xml->GetAttribute(\"MaxNumberOfEntries\",value,\"\");\n");
-      buffer.AppendFormatted("               int maxNumOfEntries = strtol(value.Data(),&cstop,10);\n");
-      buffer.AppendFormatted("               this->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);\n",i);
-      buffer.AppendFormatted("            }\n");
-   }
-   buffer.AppendFormatted("            if (type == 15 && !strcmp((const char*)name,\"Trees\"))\n");
-   buffer.AppendFormatted("               break;\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("      }\n");
-   // Steering
-   if (numOfSteering[numOfTask]>0)
-      WriteSteerConfigRead(buffer,0,numOfTask,0);
-
-   buffer.AppendFormatted("      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   delete xml;\n");
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n");
-
-   // WriteROMEConfigXML
-   buffer.AppendFormatted("bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut.Data());
-   buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
-   buffer.AppendFormatted("   ROMEString str;\n");
-   buffer.AppendFormatted("   if (!xml->OpenFileForWrite(configFile))\n");
-   buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
-   //modes
-   buffer.AppendFormatted("   xml->StartElement(\"Modes\");\n");
-   buffer.AppendFormatted("   if (this->isOnline())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
-   buffer.AppendFormatted("   if (this->isMidas())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"InputDataFormat\",\"root\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"DataBaseMode\",this->GetDataBase()->GetType());\n");
-   buffer.AppendFormatted("   if (isBatchMode())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"BatchMode\",\"yes\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"BatchMode\",\"no\");\n");
-   buffer.AppendFormatted("   if (isSplashScreen())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"ShowSplashScreen\",\"yes\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"ShowSplashScreen\",\"no\");\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   //online
-   buffer.AppendFormatted("   xml->StartElement(\"Online\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"Host\",(char*)fOnlineHost.Data());\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"Experiment\",(char*)fOnlineExperiment.Data());\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   //socket
-   buffer.AppendFormatted("   xml->StartElement(\"SocketInterface\");\n");
-   buffer.AppendFormatted("   str.SetFormatted(\"%%d\",this->GetPortNumber());\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"PortNumber\",(char*)str.Data());\n");
-   buffer.AppendFormatted("   if (isSocketOffline())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"AvailableOffline\",\"yes\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"AvailableOffline\",\"no\");\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   //run numbers
-   buffer.AppendFormatted("   xml->StartElement(\"RunNumbers\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"Numbers\",(char*)this->GetRunNumberStringOriginal());\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   //event numbers
-   buffer.AppendFormatted("   xml->StartElement(\"EventNumbers\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"Numbers\",(char*)this->GetEventNumberStringOriginal());\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   //paths
-   buffer.AppendFormatted("   xml->StartElement(\"Paths\");\n");
-   buffer.AppendFormatted("   xml->WriteElement(\"InputFilePath\",(char*)this->GetInputDir());\n");
-   buffer.AppendFormatted("   xml->WriteElement(\"OutputFilePath\",(char*)this->GetOutputDir());\n");
-   buffer.AppendFormatted("   xml->WriteElement(\"DataBaseFilePath\",(char*)this->GetDataBaseDir());\n");
-   buffer.AppendFormatted("   xml->EndElement();\n");
-   buffer.AppendFormatted("\n");
-
-   //tasks
-   buffer.AppendFormatted("   xml->StartElement( \"Tasks\");\n");
-   bool romeStringDeclared = false;
-   for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",taskName[i].Data());
-      buffer.AppendFormatted("   if (f%sTask->IsActive())\n",taskName[i].Data());
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Active\",\"yes\");\n");
-      buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Active\",\"no\");\n");
-      for (j=0;j<numOfHistos[i];j++) {
-         buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",histoName[i][j].Data());
-         buffer.AppendFormatted("   if (((%sT%s*)f%sTask)->is%sAccumulation())\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
-         buffer.AppendFormatted("      xml->WriteAttribute(\"Accumulate\",\"yes\");\n");
-         buffer.AppendFormatted("   else\n");
-         buffer.AppendFormatted("      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
-         buffer.AppendFormatted("   xml->EndElement();\n");
-      }
-      if (numOfSteering[i]>0) {
-         if (!romeStringDeclared)
-            buffer.AppendFormatted("   ROMEString value;\n");
-         romeStringDeclared = true;
-         WriteSteerConfigWrite(buffer,0,i,1);
-      }
-      buffer.AppendFormatted("      xml->EndElement();\n");
-   }
-   buffer.AppendFormatted("      xml->EndElement();\n");
-
-   //trees
-   buffer.AppendFormatted("   xml->StartElement(\"Trees\");\n");
-   buffer.AppendFormatted("   if (this->isTreeAccumulation())\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"Accumulation\",\"yes\");\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      xml->WriteAttribute(\"Accumulation\",\"no\");\n");
-
-   for (i=0;i<numOfTree;i++) {
-      buffer.AppendFormatted("   xml->StartElement(\"%s\");\n",treeName[i].Data());
-      buffer.AppendFormatted("   if (this->GetTreeObjectAt(%d)->isRead())\n",i);
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Read\",\"yes\");\n");
-      buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Read\",\"no\");\n");
-      buffer.AppendFormatted("   if (this->GetTreeObjectAt(%d)->isWrite())\n",i);
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Write\",\"yes\");\n");
-      buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      xml->WriteAttribute(\"Write\",\"no\");\n");
-      buffer.AppendFormatted("   str.SetFormatted(\"%%d\",this->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
-      buffer.AppendFormatted("   xml->WriteAttribute(\"MaxNumberOfEntries\",str.Data());\n");
-      buffer.AppendFormatted("   xml->EndElement();\n");
-   }
-   buffer.AppendFormatted("      xml->EndElement();\n");
-
-   //steering
-   if (numOfSteering>0) {
-      if (!romeStringDeclared)
-        buffer.AppendFormatted("   ROMEString value;\n");
-      WriteSteerConfigWrite(buffer,0,numOfTask,0);
-   }
-
-   buffer.AppendFormatted("   xml->EndDocument();\n");
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n");
 
    // Splash Screen
    buffer.AppendFormatted("#if defined( _MSC_VER )\n");
@@ -3189,6 +2730,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("#include <ROMEString.h>\n");
    buffer.AppendFormatted("#include <ROMETask.h>\n");
    buffer.AppendFormatted("#include <ROMEAnalyzer.h>\n");
+   buffer.AppendFormatted("#include <include/framework/%sConfig.h>\n",shortCut.Data());
 
    // include
    if (numOfSteering[numOfTask]>0) {
@@ -3239,11 +2781,11 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            format.SetFormatted("   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-folderName[i].Length()-scl,nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s*%%%ds f%%sFolder; %%%ds // Handle to %%s%%s Folder\n",typeLen-folderName[i].Length()-scl,nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data());
          }
          else {
-            format.SetFormatted("   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray*%%%ds f%%sFolders;%%%ds // Handle to %%s%%s Folders\n",typeLen-12,nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data());
          }
       }
@@ -3310,29 +2852,29 @@ bool ROMEBuilder::WriteAnalyzerH() {
       if (numOfValue[i] > 0) {
          int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
          if (folderArray[i]=="1") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sObject()%%%ds { return f%%sObject;%%%ds };\n",typeLen-folderName[i].Length()-scl,8+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,8+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-folderName[i].Length()-scl,1+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,1+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else if (folderArray[i]=="variable") {
             format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
-            buffer.AppendFormatted("   { if (f%sObjects->GetEntries()<=index)\n",folderName[i].Data());
-            buffer.AppendFormatted("        for (int i=f%sObjects->GetEntries();i<=index;i++)\n",folderName[i].Data());
-            buffer.AppendFormatted("           new((*f%sObjects)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted("     return (%s%s*)f%sObjects->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
+            buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
+            buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
             buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
             buffer.AppendFormatted((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
       }
@@ -3381,16 +2923,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
    }
    buffer.AppendFormatted("\n");
 
-   // Configuration file
-   buffer.AppendFormatted("   // Configuration File\n");
-   buffer.AppendFormatted("   bool ReadROMEConfigXML(char *configFile);\n");
-   buffer.AppendFormatted("   bool WriteROMEConfigXML(char *configFile);\n");
-   buffer.AppendFormatted("\n");
- 
    // Steering
    if (numOfSteering[numOfTask]>0) {
       buffer.AppendFormatted("   // Steering Parameter Methodes\n");
-      buffer.AppendFormatted("   %sGlobalSteering* GetGlobalSteeringParameters() { return fGlobalSteeringParameters; };\n",shortCut.Data());
       buffer.AppendFormatted("   %sGlobalSteering* GetGSP() { return fGlobalSteeringParameters; };\n",shortCut.Data());
       buffer.AppendFormatted("\n");
    }
@@ -3434,6 +2969,1331 @@ bool ROMEBuilder::WriteAnalyzerH() {
       close(fileHandle);
    }
 
+   return true;
+}
+
+bool ROMEBuilder::WriteConfigCpp() {
+   int i;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+   char fileBuffer[bufferLength];
+
+   int lenTot,j,ll;
+   char *pos;
+   int fileHandle;
+   ROMEString format;
+
+   ROMEString classDescription;
+   classDescription.SetFormatted("This class handles the framework configuration file (romeConfig.xml).");
+
+   // File name
+   cppFile.SetFormatted("%s/src/framework/%sConfig.cpp",outDir.Data(),shortCut.Data());
+   // Description
+   buffer.Resize(0);
+   buffer.AppendFormatted("//// Author: %s\n",mainAuthor.Data());
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   ll = 74-shortCut.Length();
+   format.SetFormatted("// %%s%%-%d.%ds //\n",ll,ll);
+   buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),"Analyzer");
+   buffer.AppendFormatted("//                                                                            //\n");
+   pos = (char*)classDescription.Data();
+   lenTot = classDescription.Length();
+   while (pos-classDescription.Data() < lenTot) {
+      if (lenTot+(classDescription.Data()-pos)<74) 
+         i=TMath::Min(75,lenTot);
+      else for (i=74;pos[i]!=32&&i>0;i--) {}
+      if (i<=0) 
+         i=TMath::Min(75,lenTot);
+      pos[i] = 0;
+      buffer.AppendFormatted("// %-74.74s   \n",pos);
+      pos = pos+i+1;
+   }
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// This file has been generated by the ROMEBuilder.                           //\n");
+   buffer.AppendFormatted("// If you intend to change this file please contact:                          //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
+
+   // Header
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#include <ROMEString.h>\n");
+   buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
+   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
+   buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sConfig.h>\n",shortCut.Data());
+   for (i=0;i<numOfTask;i++)
+      buffer.AppendFormatted("#include <include/tasks/%sT%s.h>\n",shortCut.Data(),taskName[i].Data());
+
+   // Read Configuration File
+   buffer.AppendFormatted("\n// Read Configuration File\n");
+   buffer.AppendFormatted("bool %sConfig::ReadConfigurationFile(char *file) {\n",shortCut.Data());
+   buffer.AppendFormatted("   fXMLFile = file;\n");
+   buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
+   buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
+   buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"//Configuration/RunConfiguration\");\n");
+   buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
+   buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
+   buffer.AppendFormatted("   ROMEString path = \"//Configuration/MainConfiguration\";\n");
+   buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
+   buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
+   buffer.AppendFormatted("      return false;\n");
+   buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
+   buffer.AppendFormatted("      fConfigData[i+1] = new ConfigData();\n");
+   buffer.AppendFormatted("      path.SetFormatted(\"//Configuration/child::RunConfiguration[position()=%%d]\",i+1);\n");
+   buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   delete xml;\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Read Configuration
+   buffer.AppendFormatted("\n// Read Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,int index) {\n",shortCut.Data());
+   // RunNumbers
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/RunNumbers\",fConfigData[index]->fRunNumbers,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fRunNumbers==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fRunNumbersModified = false;\n");
+   buffer.AppendFormatted("   else {\n");
+   buffer.AppendFormatted("      fConfigData[index]->fRunNumbersModified = true;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fLastRunNumberIndex = 0;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fRunNumberArray = gAnalyzer->decodeRunNumbers(fConfigData[index]->fRunNumbers);\n");
+   buffer.AppendFormatted("   }\n");
+   // EventNumbers
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/EventNumbers\",fConfigData[index]->fEventNumbers,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fEventNumbers==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fEventNumbersModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fEventNumbersModified = true;\n");
+   // modes
+   buffer.AppendFormatted("   // modes\n");
+   buffer.AppendFormatted("   fConfigData[index]->fModes = new ConfigData::Modes();\n");
+   // AnalyzingMode
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/AnalyzingMode\",fConfigData[index]->fModes->fAnalyzingMode,\"\");\n");
+   buffer.AppendFormatted("   fConfigData[index]->fModes->fAnalyzingMode.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fAnalyzingMode==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fAnalyzingModeModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fAnalyzingModeModified = true;\n");
+   // InputDataFormat
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/InputDataFormat\",fConfigData[index]->fModes->fInputDataFormat,\"\");\n");
+   buffer.AppendFormatted("   fConfigData[index]->fModes->fInputDataFormat.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fInputDataFormat==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fInputDataFormatModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fInputDataFormatModified = true;\n");
+   // DataBaseMode
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/DataBaseMode\",fConfigData[index]->fModes->fDataBaseMode,\"\");\n");
+   buffer.AppendFormatted("   fConfigData[index]->fModes->fDataBaseMode.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fDataBaseMode==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fDataBaseModeModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fDataBaseModeModified = true;\n");
+   // BatchMode
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/BatchMode\",fConfigData[index]->fModes->fBatchMode,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fBatchMode==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fBatchModeModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fBatchModeModified = true;\n");
+   // ShowSplashScreen
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/ShowSplashScreen\",fConfigData[index]->fModes->fShowSplashScreen,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fShowSplashScreen==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fShowSplashScreenModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fShowSplashScreenModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fAnalyzingModeModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fModes->fInputDataFormatModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fModes->fDataBaseModeModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fModes->fBatchModeModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fModes->fShowSplashScreenModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModesModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModesModified = false;\n");
+   // online
+   buffer.AppendFormatted("   // online\n");
+   buffer.AppendFormatted("   fConfigData[index]->fOnline = new ConfigData::Online();\n");
+   // Host
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Host\",fConfigData[index]->fOnline->fHost,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fHost==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnline->fHostModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnline->fHostModified = true;\n");
+   // Experiment
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Online/Experiment\",fConfigData[index]->fOnline->fExperiment,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fExperiment==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnline->fExperimentModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnline->fExperimentModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fHostModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = false;\n");
+   // socket interface
+   buffer.AppendFormatted("   // socket interface\n");
+   buffer.AppendFormatted("   fConfigData[index]->fSocketInterface = new ConfigData::SocketInterface();\n");
+   // PortNumber
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/PortNumber\",fConfigData[index]->fSocketInterface->fPortNumber,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fPortNumber==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fPortNumberModified = true;\n");
+   // AvailableOffline
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/SocketInterface/AvailableOffline\",fConfigData[index]->fSocketInterface->fAvailableOffline,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fAvailableOffline==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fAvailableOfflineModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterface->fAvailableOfflineModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterface->fPortNumberModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fSocketInterface->fAvailableOfflineModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = false;\n");
+   // paths
+   buffer.AppendFormatted("   // paths\n");
+   buffer.AppendFormatted("   fConfigData[index]->fPaths = new ConfigData::Paths();\n");
+   // InputFilePath
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Paths/InputFilePath\",fConfigData[index]->fPaths->fInputFilePath,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fInputFilePath==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fInputFilePathModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fInputFilePathModified = true;\n");
+   // OutputFilePath
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Paths/OutputFilePath\",fConfigData[index]->fPaths->fOutputFilePath,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fOutputFilePath==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fOutputFilePathModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fOutputFilePathModified = true;\n");
+   // DataBaseFilePath
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Paths/DataBaseFilePath\",fConfigData[index]->fPaths->fDataBaseFilePath,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fDataBaseFilePath==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fDataBaseFilePathModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPaths->fDataBaseFilePathModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fPaths->fInputFilePathModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fPaths->fOutputFilePathModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fPaths->fDataBaseFilePathModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPathsModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fPathsModified = false;\n");
+   // tasks
+   buffer.AppendFormatted("   // tasks\n");
+   buffer.AppendFormatted("   fConfigData[index]->fTasksModified = false;\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted("   // %s Task\n",taskName[i].Data());
+      buffer.AppendFormatted("   fConfigData[index]->f%sTask = new ConfigData::%sTask();\n",taskName[i].Data(),taskName[i].Data());
+      // Active
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks/child::Task[child::TaskName='%s']/Active\",fConfigData[index]->f%sTask->fActive,\"\");\n",taskName[i].Data(),taskName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTask->fActive==\"\")\n",taskName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTask->fActiveModified = false;\n",taskName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTask->fActiveModified = true;\n",taskName[i].Data());
+      // Histogram
+      if (numOfHistos[i]>0) {
+         buffer.AppendFormatted("   // histograms\n");
+         buffer.AppendFormatted("   fConfigData[index]->f%sTask->fHistogramsModified = false;\n",taskName[i].Data());
+      }
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("   fConfigData[index]->f%sTask->f%sHisto = new ConfigData::%sTask::%sHisto();\n",taskName[i].Data(),histoName[i][j].Data(),taskName[i].Data(),histoName[i][j].Data());
+         // Accumulate
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tasks/child::Task[child::TaskName='%s']/child::Histogram[child::HistName='%s']/Accumulate\",fConfigData[index]->f%sTask->f%sHisto->fAccumulate,\"\");\n",taskName[i].Data(),histoName[i][j].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   if (fConfigData[index]->f%sTask->f%sHisto->fAccumulate==\"\")\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("      fConfigData[index]->f%sTask->f%sHisto->fAccumulateModified = false;\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->f%sTask->f%sHisto->fAccumulateModified = true;\n",taskName[i].Data(),histoName[i][j].Data());
+         // all
+         buffer.AppendFormatted("   if (fConfigData[index]->f%sTask->f%sHisto->fAccumulateModified) {\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("      fConfigData[index]->f%sTask->fHistogramsModified = true;\n",taskName[i].Data());
+         buffer.AppendFormatted("      fConfigData[index]->f%sTask->f%sHistoModified = true;\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->f%sTask->f%sHistoModified = false;\n",taskName[i].Data(),histoName[i][j].Data());
+      }
+      // Steering parameter
+      if (numOfSteering[i]>0) {
+         buffer.AppendFormatted("   // steering parameters\n");
+         buffer.AppendFormatted("   fConfigData[index]->f%sTask->fSteering = new ConfigData::%sTask::Steering();\n",taskName[i].Data(),taskName[i].Data());
+      }
+      for (j=0;j<numOfSteering[i];j++) {
+         if (steerParent[i][j]!=-1)
+            continue;
+         ROMEString pathT;
+         ROMEString pointerT;
+         ROMEString classT;
+         pathT.SetFormatted("path+\"/Tasks/child::Task[child::TaskName='%s']",taskName[i].Data());
+         pointerT.SetFormatted("fConfigData[index]->f%sTask->fSteering",taskName[i].Data());
+         classT.SetFormatted("ConfigData::%sTask::Steering",taskName[i].Data());
+         WriteSteeringConfigRead(buffer,j,i,xml,pathT,pointerT,classT);
+      }
+      // all
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTask->fActiveModified",taskName[i].Data());
+      if (numOfHistos[i]>0)
+         buffer.AppendFormatted("\n    || fConfigData[index]->f%sTask->fHistogramsModified",taskName[i].Data());
+      if (numOfSteering[i]>0)
+         buffer.AppendFormatted("\n    || fConfigData[index]->f%sTask->fSteeringModified",taskName[i].Data());
+      buffer.AppendFormatted(") {\n");
+      buffer.AppendFormatted("      fConfigData[index]->fTasksModified = true;\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTaskModified = true;\n",taskName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTaskModified = false;\n",taskName[i].Data());
+   }
+   // trees
+   buffer.AppendFormatted("   // trees\n");
+   // Accumulate
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Accumulate\",fConfigData[index]->fTreeAccumulate,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fTreeAccumulate==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fTreeAccumulateModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fTreeAccumulateModified = true;\n");
+   // all
+   buffer.AppendFormatted("   if (fConfigData[index]->fTreeAccumulateModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fTreesModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fTreesModified = false;\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   // %s Tree\n",treeName[i].Data());
+      buffer.AppendFormatted("   fConfigData[index]->f%sTree = new ConfigData::%sTree();\n",treeName[i].Data(),treeName[i].Data());
+      // Read
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Read\",fConfigData[index]->f%sTree->fRead,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fRead==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fReadModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fReadModified = true;\n",treeName[i].Data());
+      // Write
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Write\",fConfigData[index]->f%sTree->fWrite,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fWrite==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fWriteModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fWriteModified = true;\n",treeName[i].Data());
+      // Fill
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fWrite==\"true\") {\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fFill = \"true\";\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fFillModified = true;\n",treeName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else {\n");
+      buffer.AppendFormatted("      xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/Fill\",fConfigData[index]->f%sTree->fFill,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fFill==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("         fConfigData[index]->f%sTree->fFillModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         fConfigData[index]->f%sTree->fFillModified = true;\n",treeName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      // CompressionLevel
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/CompressionLevel\",fConfigData[index]->f%sTree->fCompressionLevel,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fCompressionLevel==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fCompressionLevelModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fCompressionLevelModified = true;\n",treeName[i].Data());
+      // MaxNumberOfEntries
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/child::Tree[child::TreeName='%s']/MaxNumberOfEntries\",fConfigData[index]->f%sTree->fMaxNumberOfEntries,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fMaxNumberOfEntries==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified = true;\n",treeName[i].Data());
+      // all
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fReadModified ||\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fWriteModified ||\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fFillModified ||\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fCompressionLevelModified ||\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->fTreesModified = true;\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTreeModified = true;\n",treeName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTreeModified = false;\n",treeName[i].Data());
+   }
+   // Global Steering Parameters
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("   // global steering parameters\n");
+      buffer.AppendFormatted("   fConfigData[index]->fGlobalSteering = new ConfigData::GlobalSteering();\n");
+   }
+   for (j=0;j<numOfSteering[numOfTask];j++) {
+      if (steerParent[numOfTask][j]!=-1)
+         continue;
+      ROMEString pathT;
+      ROMEString pointerT;
+      ROMEString classT;
+      pathT.SetFormatted("path+\"/GlobalSteeringParameters");
+      pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
+      classT.SetFormatted("ConfigData::GlobalSteering");
+      WriteSteeringConfigRead(buffer,j,numOfTask,xml,pathT,pointerT,classT);
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+
+
+   // Check Configuration
+   buffer.AppendFormatted("\n// Check Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(int runNumber) {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i,j;\n");
+   buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
+   buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
+   buffer.AppendFormatted("         return false;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   for (i=1;i<=fNumberOfRunConfigs;i++) {\n");
+   buffer.AppendFormatted("      if (fConfigData[i]->fRunNumbersModified) {\n");
+   buffer.AppendFormatted("         if (fConfigData[i]->fLastRunNumberIndex!=-1) {\n");
+   buffer.AppendFormatted("            for (j=fConfigData[i]->fLastRunNumberIndex;j<fConfigData[i]->fRunNumberArray.GetSize();j++) {\n");
+   buffer.AppendFormatted("               if (fConfigData[i]->fRunNumberArray.At(j)==runNumber) {\n");
+   buffer.AppendFormatted("                  if (!SetConfiguration(i,i))\n");
+   buffer.AppendFormatted("                     return false;\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("               else if (fConfigData[i]->fRunNumberArray.At(i)<runNumber) {\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = -1;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("               else {\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+
+   // Set Configuration
+   buffer.AppendFormatted("\n// Set Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::SetConfiguration(int modIndex,int index) {\n",shortCut.Data());
+   buffer.AppendFormatted("   char* cstop;\n");
+   buffer.AppendFormatted("   fActiveConfiguration = index;\n");
+   // Run Numbers
+   buffer.AppendFormatted("   // run numbers\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fRunNumbersModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(fConfigData[index]->fRunNumbers);\n");
+   // Event Numbers
+   buffer.AppendFormatted("   // event numbers\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fEventNumbersModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetEventNumbers(fConfigData[index]->fEventNumbers);\n");
+   // Paths
+   buffer.AppendFormatted("   // paths\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fPaths->fInputFilePathModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fPaths->fInputFilePath[fConfigData[index]->fPaths->fInputFilePath.Length()-1]!='/' && fConfigData[index]->fPaths->fInputFilePath[fConfigData[index]->fPaths->fInputFilePath.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("         fConfigData[index]->fPaths->fInputFilePath.Append(\"/\");\n");
+   buffer.AppendFormatted("      gAnalyzer->SetInputDir(fConfigData[index]->fPaths->fInputFilePath);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fPaths->fOutputFilePathModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fPaths->fOutputFilePath[fConfigData[index]->fPaths->fOutputFilePath.Length()-1]!='/' && fConfigData[index]->fPaths->fOutputFilePath[fConfigData[index]->fPaths->fOutputFilePath.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("         fConfigData[index]->fPaths->fOutputFilePath.Append(\"/\");\n");
+   buffer.AppendFormatted("      gAnalyzer->SetOutputDir(fConfigData[index]->fPaths->fOutputFilePath);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fPaths->fDataBaseFilePathModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fPaths->fDataBaseFilePath[fConfigData[index]->fPaths->fDataBaseFilePath.Length()-1]!='/' && fConfigData[index]->fPaths->fDataBaseFilePath[fConfigData[index]->fPaths->fDataBaseFilePath.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("         fConfigData[index]->fPaths->fDataBaseFilePath.Append(\"/\");\n");
+   buffer.AppendFormatted("      gAnalyzer->SetDataBaseDir(fConfigData[index]->fPaths->fDataBaseFilePath);\n");
+   buffer.AppendFormatted("   }\n");
+   // Modes
+   buffer.AppendFormatted("   // modes\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fAnalyzingModeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fAnalyzingMode==\"online\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetOnline();\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetOffline();\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fInputDataFormatModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fInputDataFormat==\"root\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetRoot();\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetMidas();\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fDataBaseModeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fDataBaseMode==\"sql\") {\n");
+   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMESQLDataBase());\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBaseConnection(\"\");\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDataBaseMode==\"xml\") {\n");
+   buffer.AppendFormatted("         delete gAnalyzer->GetDataBase();\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMEXMLDataBase());\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBaseConnection(\"RunTable.xml\");\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fBatchModeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fBatchMode==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetBatchMode(true);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetBatchMode(false);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fShowSplashScreenModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fShowSplashScreen==\"false\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(false);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(true);\n");
+   buffer.AppendFormatted("   }\n");
+   // Online
+   buffer.AppendFormatted("   // online\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fOnline->fHostModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetOnlineHost((char*)fConfigData[index]->fOnline->fHost.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetOnlineExperiment((char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   // Socket Interface
+   buffer.AppendFormatted("   // socket interface\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetPortNumber((char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fSocketInterface->fAvailableOfflineModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fSocketInterface->fAvailableOffline==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSocketOffline(true);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSocketOffline(false);\n");
+   buffer.AppendFormatted("   }\n");
+   // Tasks
+   buffer.AppendFormatted("   // tasks\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted("   // %s task\n",taskName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTask->fActiveModified) {\n",taskName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTask->fActive==\"true\")\n",taskName[i].Data());
+      buffer.AppendFormatted("         gAnalyzer->Get%sTask()->SetActive(true);\n",taskName[i].Data());
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->Get%sTask()->SetActive(false);\n",taskName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      // Histogram
+      buffer.AppendFormatted("   // histograms\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTask->f%sHisto->fAccumulateModified) {\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("      if (fConfigData[index]->f%sTask->f%sHisto->fAccumulate==\"false\")\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("         ((%sT%s*)gAnalyzer->Get%sTask())->Set%sAccumulation(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("      else\n");
+         buffer.AppendFormatted("         ((%sT%s*)gAnalyzer->Get%sTask())->Set%sAccumulation(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   }\n");
+      }
+      // Steering parameter
+      buffer.AppendFormatted("   // steering parameters\n");
+      for (j=0;j<numOfSteering[i];j++) {
+         if (steerParent[i][j]!=-1)
+            continue;
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("->f%sTask->fSteering",taskName[i].Data());
+         steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%sTask())->GetSP()",shortCut.Data(),taskName[i].Data(),taskName[i].Data());
+         WriteSteeringConfigSet(buffer,j,i,pointerT,steerPointerT);
+      }
+   }
+   // Trees
+   buffer.AppendFormatted("   // trees\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fTreeAccumulateModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fTreeAccumulate==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetTreeAccumulation(true);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetTreeAccumulation(false);\n");
+   buffer.AppendFormatted("   }\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   // %s tree\n",treeName[i].Data());
+      // Read
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fReadModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fRead==\"true\")\n",treeName[i].Data());
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetRead(true);\n",i);
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetRead(false);\n",i);
+      buffer.AppendFormatted("   }\n");
+      // Write
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fWriteModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fWrite==\"true\")\n",treeName[i].Data());
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetWrite(false);\n",i);
+      buffer.AppendFormatted("   }\n");
+      // Fill
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fFillModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fFill==\"true\")\n",treeName[i].Data());
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetFill(true);\n",i);
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetFill(false);\n",i);
+      buffer.AppendFormatted("   }\n");
+      // CompressionLevel
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fCompressionLevelModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fCompressionLevel==\"1\")\n",treeName[i].Data());
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(1);\n",i);
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(0);\n",i);
+      buffer.AppendFormatted("   }\n");
+      // MaxNumberOfEntries
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fMaxNumberOfEntriesModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      int maxNumOfEntries = strtol(fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data(),&cstop,10);\n",treeName[i].Data());
+      buffer.AppendFormatted("      gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);\n",i);
+      buffer.AppendFormatted("   }\n");
+   }
+   // Global Steering Parameter
+   buffer.AppendFormatted("   // global steering parameters\n");
+   for (j=0;j<numOfSteering[numOfTask];j++) {
+      if (steerParent[numOfTask][j]!=-1)
+         continue;
+      ROMEString pointerT;
+      ROMEString steerPointerT;
+      pointerT.SetFormatted("->fGlobalSteering");
+      steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
+      WriteSteeringConfigSet(buffer,j,numOfTask,pointerT,steerPointerT);
+   }
+
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+
+   // Write Configuration File
+   buffer.AppendFormatted("\n// Write Configuration File\n");
+   buffer.AppendFormatted("bool %sConfig::WriteConfigurationFile() {\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
+   buffer.AppendFormatted("   ROMEString str;\n");
+   buffer.AppendFormatted("   if (!xml->OpenFileForWrite(fXMLFile))\n");
+   buffer.AppendFormatted("      return false;\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/rome/romeConfig.xsd\");\n");
+   buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
+   buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"RunConfiguration\");\n");
+   buffer.AppendFormatted("      WriteConfiguration(xml,i+1);\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   xml->EndDocument();\n");
+   buffer.AppendFormatted("   delete xml;\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+
+   // Write Configuration
+   buffer.AppendFormatted("\n// Write Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::WriteConfiguration(ROMEXML *xml,int index) {\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEString str = \"\";\n");
+   // run numbers
+   buffer.AppendFormatted("   if (index==0)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"RunNumbers\",gAnalyzer->GetRunNumberStringOriginal());\n");
+   buffer.AppendFormatted("   else if (fConfigData[index]->fRunNumbersModified)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"RunNumbers\",(char*)fConfigData[index]->fRunNumbers.Data());\n");
+   // event numbers
+   buffer.AppendFormatted("   if (index==0)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"EventNumbers\",gAnalyzer->GetEventNumberStringOriginal());\n");
+   buffer.AppendFormatted("   else if (fConfigData[index]->fRunNumbersModified)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"EventNumbers\",(char*)fConfigData[index]->fEventNumbers.Data());\n");
+   // modes
+   buffer.AppendFormatted("   // modes\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModesModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Modes\");\n");
+   // AnalyzingMode
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isOnline())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"AnalyzingMode\",\"online\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"AnalyzingMode\",\"offline\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fAnalyzingModeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"AnalyzingMode\",(char*)fConfigData[index]->fModes->fAnalyzingMode.Data());\n");
+   // InputDataFormat
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isMidas())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"InputDataFormat\",\"midas\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"InputDataFormat\",\"root\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fInputDataFormatModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"InputDataFormat\",(char*)fConfigData[index]->fModes->fInputDataFormat.Data());\n");
+   // DataBaseMode
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseMode\",gAnalyzer->GetDataBase()->GetType());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDataBaseModeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseMode\",(char*)fConfigData[index]->fModes->fDataBaseMode.Data());\n");
+   // BatchMode
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isBatchMode())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"BatchMode\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"BatchMode\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fBatchModeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"BatchMode\",(char*)fConfigData[index]->fModes->fBatchMode.Data());\n");
+   // ShowSplashScreen
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isSplashScreen())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"ShowSplashScreen\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"ShowSplashScreen\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fShowSplashScreenModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"ShowSplashScreen\",(char*)fConfigData[index]->fModes->fShowSplashScreen.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // online
+   buffer.AppendFormatted("   // online\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fOnlineModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Online\");\n");
+   // Host
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",gAnalyzer->GetOnlineHost());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fHostModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(char*)fConfigData[index]->fOnline->fHost.Data());\n");
+   // Experiment
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",gAnalyzer->GetOnlineExperiment());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fExperimentModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",(char*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // SocketInterface
+   buffer.AppendFormatted("   // socket interface\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fSocketInterfaceModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"SocketInterface\");\n");
+   // PortNumber
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         str.SetFormatted(\"%%d\",gAnalyzer->GetPortNumber());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)str.Data());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fPortNumberModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"PortNumber\",(char*)fConfigData[index]->fSocketInterface->fPortNumber.Data());\n");
+   // AvailableOffline
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isSocketOffline())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"AvailableOffline\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"AvailableOffline\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fSocketInterface->fAvailableOfflineModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"AvailableOffline\",(char*)fConfigData[index]->fSocketInterface->fAvailableOffline.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // Paths
+   buffer.AppendFormatted("   // paths\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fPathsModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Paths\");\n");
+   // InputFilePath
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"InputFilePath\",(char*)gAnalyzer->GetInputDir());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fPaths->fInputFilePathModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"InputFilePath\",(char*)fConfigData[index]->fPaths->fInputFilePath.Data());\n");
+   // OutputFilePath
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"OutputFilePath\",(char*)gAnalyzer->GetOutputDir());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fPaths->fOutputFilePathModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"OutputFilePath\",(char*)fConfigData[index]->fPaths->fOutputFilePath.Data());\n");
+   // DataBaseFilePath
+   buffer.AppendFormatted("      if (index==0)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseFilePath\",(char*)gAnalyzer->GetDataBaseDir());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fPaths->fDataBaseFilePathModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"DataBaseFilePath\",(char*)fConfigData[index]->fPaths->fDataBaseFilePath.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // Tasks
+   buffer.AppendFormatted("   // tasks\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fTasksModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Tasks\");\n");
+   bool romeStringDeclared = false;
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTaskModified || index==0) {\n",taskName[i].Data());
+      buffer.AppendFormatted("         // %s task\n",taskName[i].Data());
+      buffer.AppendFormatted("         xml->StartElement(\"Task\");\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"TaskName\",\"%s\");\n",taskName[i].Data());
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->Get%sTask()->IsActive())\n",taskName[i].Data());
+      buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"true\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"false\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTask->fActiveModified)\n",taskName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"Active\",(char*)fConfigData[index]->f%sTask->fActive.Data());\n",taskName[i].Data());
+      if (numOfHistos[i]>0)
+         buffer.AppendFormatted("         // histograms\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("         if (fConfigData[index]->f%sTask->f%sHistoModified || index==0) {\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("            xml->StartElement(\"Histogram\");\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"HistName\",\"%s\");\n",histoName[i][j].Data());
+         buffer.AppendFormatted("            if (index==0) {\n");
+         buffer.AppendFormatted("               if (((%sT%s*)gAnalyzer->Get%sTask())->is%sAccumulation())\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("                  xml->WriteElement(\"Accumulate\",\"true\");\n");
+         buffer.AppendFormatted("               else\n");
+         buffer.AppendFormatted("                  xml->WriteElement(\"Accumulate\",\"false\");\n");
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("            else if (fConfigData[index]->f%sTask->f%sHisto->fAccumulateModified)\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("               xml->WriteElement(\"Accumulate\",(char*)fConfigData[index]->f%sTask->f%sHisto->fAccumulate.Data());\n",taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("            xml->EndElement();\n");
+         buffer.AppendFormatted("         }\n");
+      }
+      // Steering parameter
+      if (numOfSteering[i]>0) {
+         buffer.AppendFormatted("         // steering parameters\n");
+         buffer.AppendFormatted("         if (fConfigData[index]->f%sTask->fSteeringModified || index==0) {\n",taskName[i].Data());
+         buffer.AppendFormatted("            ROMEString value;\n");
+      }
+      for (j=0;j<numOfSteering[i];j++) {
+         if (steerParent[i][j]!=-1)
+            continue;
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("fConfigData[index]->f%sTask->fSteering",taskName[i].Data());
+         steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%sTask())->GetSP()",shortCut.Data(),taskName[i].Data(),taskName[i].Data());
+         WriteSteeringConfigWrite(buffer,j,i,pointerT,steerPointerT,3);
+      }
+      if (numOfSteering[i]>0)
+         buffer.AppendFormatted("         }\n");
+
+      buffer.AppendFormatted("         xml->EndElement();\n");
+      buffer.AppendFormatted("      }\n");
+   }
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // Trees
+   buffer.AppendFormatted("   // trees\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fTreesModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Trees\");\n");
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isTreeAccumulation())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Accumulate\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fTreeAccumulateModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Accumulate\",(char*)fConfigData[index]->fTreeAccumulate.Data());\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("      if (fConfigData[index]->f%sTreeModified || index==0) {\n",treeName[i].Data());
+      buffer.AppendFormatted("         // %s tree\n",treeName[i].Data());
+      buffer.AppendFormatted("         xml->StartElement(\"Tree\");\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"TreeName\",\"%s\");\n",treeName[i].Data());
+      // read
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isRead())\n",i);
+      buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"true\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"Read\",\"false\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fReadModified)\n",treeName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"Read\",(char*)fConfigData[index]->f%sTree->fRead.Data());\n",treeName[i].Data());
+      // write
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isWrite())\n",i);
+      buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"true\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"Write\",\"false\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fWriteModified)\n",treeName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"Write\",(char*)fConfigData[index]->f%sTree->fWrite.Data());\n",treeName[i].Data());
+      // fill
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->isFill())\n",i);
+      buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"true\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"Fill\",\"false\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fFillModified)\n",treeName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"Fill\",(char*)fConfigData[index]->f%sTree->fFill.Data());\n",treeName[i].Data());
+      // compression level
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel()==1)\n",i);
+      buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"1\");\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"0\");\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fCompressionLevelModified)\n",treeName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",(char*)fConfigData[index]->f%sTree->fCompressionLevel.Data());\n",treeName[i].Data());
+      // MaxNumberOfEntries
+      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+      buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",str.Data());\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified)\n",treeName[i].Data());
+      buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",(char*)fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data());\n",treeName[i].Data());
+      buffer.AppendFormatted("         xml->EndElement();\n");
+      buffer.AppendFormatted("      }\n");
+   }
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+   // Global Steering Parameter
+   buffer.AppendFormatted("   // global steering parameters\n");
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("   if (fConfigData[index]->fGlobalSteeringModified || index==0) {\n");
+      buffer.AppendFormatted("      ROMEString value;\n");
+      buffer.AppendFormatted("      xml->StartElement(\"GlobalSteeringParameters\");\n");
+   }
+   for (j=0;j<numOfSteering[numOfTask];j++) {
+      if (steerParent[numOfTask][j]!=-1)
+         continue;
+      ROMEString pointerT;
+      ROMEString steerPointerT;
+      pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
+      steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
+      WriteSteeringConfigWrite(buffer,j,numOfTask,pointerT,steerPointerT,1);
+   }
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("      xml->EndElement();\n");
+      buffer.AppendFormatted("   }\n");
+   }
+
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+
+   // Close cpp-File
+   fileHandle = open(cppFile.Data(),O_RDONLY);
+   int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+   bool identical = true;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
+      }
+   }
+   else
+      identical = false;
+   if (!identical) {
+      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << cppFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
+      close(fileHandle);
+   }
+
+   return true;
+}
+bool ROMEBuilder::WriteConfigH() {
+   int i,j;
+
+   ROMEString hFile;
+   ROMEString buffer;
+   char fileBuffer[bufferLength];
+
+   int nb;
+   int fileHandle;
+
+   ROMEString tmp;
+   ROMEString format;
+   int nameLen = -1;
+   int typeLen = 12;
+   int scl = shortCut.Length();
+   for (i=0;i<numOfFolder;i++) {
+      if (typeLen<(int)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
+      if (nameLen<(int)folderName[i].Length()) nameLen = folderName[i].Length();
+   }
+   int taskLen=0;
+   for (i=0;i<numOfTask;i++) {
+      if (taskLen<(int)taskName[i].Length()) taskLen = taskName[i].Length();
+   }
+
+
+
+
+   // File name
+   hFile.SetFormatted("%s/include/framework/%sConfig.h",outDir.Data(),shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// This file has been generated by the ROMEBuilder.                           //\n");
+   buffer.AppendFormatted("// If you intend to change this file please contact:                          //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
+   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
+
+   // Header
+   buffer.AppendFormatted("#ifndef %sConfig_H\n",shortCut.Data());
+   buffer.AppendFormatted("#define %sConfig_H\n\n",shortCut.Data());
+
+   buffer.AppendFormatted("#ifndef __CINT__\n");
+   buffer.AppendFormatted("#include <ROMEXML.h>\n");
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("#include <ROMEConfig.h>\n");
+
+   // Class
+   buffer.AppendFormatted("\nclass %sConfig : public ROMEConfig\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("#ifndef __CINT__\n");
+   // sub classes
+   buffer.AppendFormatted("protected:\n");
+   buffer.AppendFormatted("   class ConfigData\n");
+   buffer.AppendFormatted("   {\n");
+   buffer.AppendFormatted("   public:\n");
+   buffer.AppendFormatted("      ROMEString  fRunNumbers;\n");
+   buffer.AppendFormatted("      bool        fRunNumbersModified;\n");
+   buffer.AppendFormatted("      int         fLastRunNumberIndex;\n");
+   buffer.AppendFormatted("      TArrayI     fRunNumberArray;\n");
+   buffer.AppendFormatted("      ROMEString  fEventNumbers;\n");
+   buffer.AppendFormatted("      bool        fEventNumbersModified;\n");
+   // modes
+   buffer.AppendFormatted("      // modes;\n");
+   buffer.AppendFormatted("      class Modes {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fAnalyzingMode;\n");
+   buffer.AppendFormatted("         bool        fAnalyzingModeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fInputDataFormat;\n");
+   buffer.AppendFormatted("         bool        fInputDataFormatModified;\n");
+   buffer.AppendFormatted("         ROMEString  fDataBaseMode;\n");
+   buffer.AppendFormatted("         bool        fDataBaseModeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fBatchMode;\n");
+   buffer.AppendFormatted("         bool        fBatchModeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fShowSplashScreen;\n");
+   buffer.AppendFormatted("         bool        fShowSplashScreenModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Modes *fModes;\n");
+   buffer.AppendFormatted("      bool   fModesModified;\n");
+   // online
+   buffer.AppendFormatted("      // online;\n");
+   buffer.AppendFormatted("      class Online {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fHost;\n");
+   buffer.AppendFormatted("         bool        fHostModified;\n");
+   buffer.AppendFormatted("         ROMEString  fExperiment;\n");
+   buffer.AppendFormatted("         bool        fExperimentModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Online *fOnline;\n");
+   buffer.AppendFormatted("      bool   fOnlineModified;\n");
+   // socket interface
+   buffer.AppendFormatted("      // socket interface;\n");
+   buffer.AppendFormatted("      class SocketInterface {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fPortNumber;\n");
+   buffer.AppendFormatted("         bool        fPortNumberModified;\n");
+   buffer.AppendFormatted("         ROMEString  fAvailableOffline;\n");
+   buffer.AppendFormatted("         bool        fAvailableOfflineModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      SocketInterface *fSocketInterface;\n");
+   buffer.AppendFormatted("      bool   fSocketInterfaceModified;\n");
+   // paths
+   buffer.AppendFormatted("      // paths;\n");
+   buffer.AppendFormatted("      class Paths {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fInputFilePath;\n");
+   buffer.AppendFormatted("         bool        fInputFilePathModified;\n");
+   buffer.AppendFormatted("         ROMEString  fOutputFilePath;\n");
+   buffer.AppendFormatted("         bool        fOutputFilePathModified;\n");
+   buffer.AppendFormatted("         ROMEString  fDataBaseFilePath;\n");
+   buffer.AppendFormatted("         bool        fDataBaseFilePathModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Paths *fPaths;\n");
+   buffer.AppendFormatted("      bool   fPathsModified;\n");
+   // tasks
+   buffer.AppendFormatted("      // tasks\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormatted("      class %sTask {\n",taskName[i].Data());
+      buffer.AppendFormatted("      public:\n");
+      buffer.AppendFormatted("         ROMEString  fActive;\n");
+      buffer.AppendFormatted("         bool        fActiveModified;\n");
+      if (numOfHistos[i]>0)
+         buffer.AppendFormatted("         // histograms\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("         class %sHisto {\n",histoName[i][j].Data());
+         buffer.AppendFormatted("         public:\n");
+         buffer.AppendFormatted("            ROMEString  fAccumulate;\n");
+         buffer.AppendFormatted("            bool        fAccumulateModified;\n");
+         buffer.AppendFormatted("         };\n");
+         buffer.AppendFormatted("         %sHisto *f%sHisto;\n",histoName[i][j].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("         bool     f%sHistoModified;\n",histoName[i][j].Data());
+      }
+      if (numOfHistos[i]>0)
+         buffer.AppendFormatted("         bool     fHistogramsModified;\n");
+      if (numOfSteering[i]>0) {
+         buffer.AppendFormatted("         // steering parameters\n");
+         buffer.AppendFormatted("         class Steering {\n");
+         buffer.AppendFormatted("         public:\n");
+      }
+      for (j=0;j<numOfSteering[i];j++) {
+         if (steerParent[i][j]!=-1)
+            continue;
+         WriteSteeringConfigClass(buffer,j,i,3);
+      }
+      if (numOfSteering[i]>0) {
+         buffer.AppendFormatted("         };\n");
+         buffer.AppendFormatted("         Steering *fSteering;\n");
+         buffer.AppendFormatted("         bool   fSteeringModified;\n");
+      }
+      buffer.AppendFormatted("      };\n");
+      buffer.AppendFormatted("      %sTask *f%sTask;\n",taskName[i].Data(),taskName[i].Data());
+      buffer.AppendFormatted("      bool   f%sTaskModified;\n",taskName[i].Data());
+   }
+   buffer.AppendFormatted("      bool   fTasksModified;\n");
+   // trees
+   buffer.AppendFormatted("      // trees\n");
+   buffer.AppendFormatted("      ROMEString  fTreeAccumulate;\n");
+   buffer.AppendFormatted("      bool        fTreeAccumulateModified;\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("      class %sTree {\n",treeName[i].Data());
+      buffer.AppendFormatted("      public:\n");
+      buffer.AppendFormatted("         ROMEString  fRead;\n");
+      buffer.AppendFormatted("         bool        fReadModified;\n");
+      buffer.AppendFormatted("         ROMEString  fWrite;\n");
+      buffer.AppendFormatted("         bool        fWriteModified;\n");
+      buffer.AppendFormatted("         ROMEString  fFill;\n");
+      buffer.AppendFormatted("         bool        fFillModified;\n");
+      buffer.AppendFormatted("         ROMEString  fCompressionLevel;\n");
+      buffer.AppendFormatted("         bool        fCompressionLevelModified;\n");
+      buffer.AppendFormatted("         ROMEString  fMaxNumberOfEntries;\n");
+      buffer.AppendFormatted("         bool        fMaxNumberOfEntriesModified;\n");
+      buffer.AppendFormatted("      };\n");
+      buffer.AppendFormatted("      %sTree *f%sTree;\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("      bool   f%sTreeModified;\n",treeName[i].Data());
+   }
+   buffer.AppendFormatted("      bool   fTreesModified;\n");
+   // steering parameters
+   buffer.AppendFormatted("      class GlobalSteering {\n");
+   buffer.AppendFormatted("      public:\n");
+   for (j=0;j<numOfSteering[numOfTask];j++) {
+      if (steerParent[numOfTask][j]!=-1)
+         continue;
+      WriteSteeringConfigClass(buffer,j,numOfTask,2);
+   }
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      GlobalSteering *fGlobalSteering;\n");
+   buffer.AppendFormatted("      bool            fGlobalSteeringModified;\n");
+   buffer.AppendFormatted("   };\n");
+   buffer.AppendFormatted("\n");
+
+   // Fields
+   buffer.AppendFormatted("   ConfigData **fConfigData;\n");
+   buffer.AppendFormatted("   ROMEString fXMLFile;\n");
+   buffer.AppendFormatted("   int   fNumberOfRunConfigs;\n");
+   buffer.AppendFormatted("   int   fActiveConfiguration;\n");
+   buffer.AppendFormatted("\n");
+
+   // Methods
+   buffer.AppendFormatted("public:\n");
+   // Constructor
+   buffer.AppendFormatted("   %sConfig() {};\n",shortCut.Data());
+
+   // methods
+   buffer.AppendFormatted("   bool WriteConfigurationFile();\n");
+   buffer.AppendFormatted("   bool ReadConfigurationFile(char *file);\n");
+   buffer.AppendFormatted("   bool CheckConfiguration(int runNumber);\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("protected:\n");
+   buffer.AppendFormatted("   bool ReadConfiguration(ROMEXML *xml,ROMEString& path,int index);\n");
+   buffer.AppendFormatted("   bool WriteConfiguration(ROMEXML *xml,int index);\n");
+   buffer.AppendFormatted("   bool SetConfiguration(int modIndex,int index);\n");
+
+   buffer.AppendFormatted("\n");
+   // Footer
+
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("};\n\n");
+
+   buffer.AppendFormatted("#endif   // %sConfig_H\n",shortCut.Data());
+
+   // Write File
+   fileHandle = open(hFile.Data(),O_RDONLY);
+   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+   bool identical = true;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
+      }
+   }
+   else
+      identical = false;
+   if (!identical) {
+      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << hFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
+      close(fileHandle);
+   }
+
+   return true;
+}
+
+bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask,int tab) {
+   ROMEString format;
+   ROMEString sc;
+   ROMEString blank="";
+   int j,i;
+   int typeLen = -1;
+   int nameLen = -1;
+   for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
+      if (typeLen<(int)steerFieldType[numTask][numSteer][i].Length()) typeLen = steerFieldType[numTask][numSteer][i].Length();
+      if (nameLen<(int)steerFieldName[numTask][numSteer][i].Length()) nameLen = steerFieldName[numTask][numSteer][i].Length();
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      if (typeLen<(int)steerName[numTask][steerChildren[numTask][numSteer][i]].Length()+1) typeLen = steerName[numTask][steerChildren[numTask][numSteer][i]].Length()+1;
+      if (nameLen<(int)steerName[numTask][steerChildren[numTask][numSteer][i]].Length()) nameLen = steerName[numTask][steerChildren[numTask][numSteer][i]].Length();
+   }
+   if (tab==0)
+      sc = shortCut;
+   else 
+      sc = "";
+   for (i=0;i<tab;i++)
+      blank.Append("   ");   
+
+   buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("%s{\n",blank.Data());
+
+   buffer.AppendFormatted("%sprotected:\n",blank.Data());
+
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      WriteSteeringClass(buffer,steerChildren[numTask][numSteer][i],numTask,tab+1);
+   }
+
+   // Fields
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+   }
+   buffer.AppendFormatted("\n%spublic:\n",blank.Data());
+   // Constructor
+   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      buffer.AppendFormatted("f%s = %s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+   }
+   buffer.AppendFormatted("};\n");
+   // Getters
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data());
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+   }
+   // Setters
+   buffer.AppendFormatted("\n");
+   for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
+      format.SetFormatted("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-steerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormatted((char*)format.Data(),blank.Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data());
+   }
+
+   // Footer
+   buffer.AppendFormatted("%s};\n\n",blank.Data());
+
+   return true;
+}
+bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int numTask,int tab) {
+   ROMEString format;
+   ROMEString sc;
+   ROMEString blank="";
+   int i,k;
+   for (i=0;i<tab;i++)
+      blank.Append("   ");   
+
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      buffer.AppendFormatted("%s   ROMEString  f%s;\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s   bool        f%sModified;\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
+   }
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("%s   class %s {\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s   public:\n",blank.Data());
+      WriteSteeringConfigClass(buffer,steerChildren[numTask][numSteer][k],numTask,tab+1);
+      buffer.AppendFormatted("%s   };\n",blank.Data());
+      buffer.AppendFormatted("%s   %s *f%s;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s   bool f%sModified;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+   }
+   return true;
+}
+bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath) {
+   int k;
+   ROMEString pointerT;
+   buffer.AppendFormatted("   %sModified = false;\n",pointer.Data());
+   // Fields
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(%s/child::SteeringParameterField[child::SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTask][numSteer][k].Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("   if (%s->f%s==\"\")\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("      %s->f%sModified = false;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("   else {\n");
+      buffer.AppendFormatted("      %s->f%sModified = true;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("      %sModified = true;\n",pointer.Data());
+      buffer.AppendFormatted("   }\n");
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("   %s->f%s = new %s::%s();\n",pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),classPath.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      path.AppendFormatted("/child::SteeringParameterGroup[child::SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pointerT = pointer;
+      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath);
+      buffer.AppendFormatted("   if (%s->f%sModified)\n",pointerT.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("      %sModified = true;\n",pointerT.Data());
+   }
+   return true;
+}
+
+bool ROMEBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) {
+   ROMEString decodedValue;
+   ROMEString value;
+   int k;
+   // Fields
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("   if (fConfigData[modIndex]%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      value.SetFormatted("fConfigData[index]%s->f%s",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      setValue(&value,"",(char*)value.Data(),(char*)steerFieldType[numTask][numSteer][k].Data(),1);
+      buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),value.Data());
+      buffer.AppendFormatted("   }\n");
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      WriteSteeringConfigSet(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer);
+   }
+   return true;
+}
+bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab) {
+   ROMEString decodedValue;
+   ROMEString value;
+   ROMEString blank = "";
+   for (int i=0;i<tab;i++)
+      blank.Append("   ");
+   int k;
+   // Fields
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      buffer.AppendFormatted("%s   // %s Field\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s   if (%s->f%sModified || index==0) {\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s      xml->StartElement(\"SteeringParameterField\");\n",blank.Data());
+      buffer.AppendFormatted("%s      xml->WriteElement(\"SPName\",\"%s\");\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s      if (index==0) {\n",blank.Data());
+      GetFormat(&value,(char*)steerFieldType[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s         xml->WriteElement(\"SPValue\",(char*)value.Data());\n",blank.Data());
+      buffer.AppendFormatted("%s      }\n",blank.Data());
+      buffer.AppendFormatted("%s      else if (%s->f%sModified)\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s         xml->WriteElement(\"SPValue\",(char*)%s->f%s.Data());\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s      xml->EndElement();\n",blank.Data());
+      buffer.AppendFormatted("%s   }\n",blank.Data());
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("%s   // %s Group\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s   if (%s->f%sModified || index==0) {\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s      xml->StartElement(\"SteeringParameterGroup\");\n",blank.Data());
+      buffer.AppendFormatted("%s      xml->WriteElement(\"SPGroupName\",\"%s\");\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      WriteSteeringConfigWrite(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,tab+1);
+      buffer.AppendFormatted("%s      xml->EndElement();\n",blank.Data());
+      buffer.AppendFormatted("%s   }\n",blank.Data());
+   }
    return true;
 }
 
@@ -3545,10 +4405,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
                iFold = k;
          }
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sObjectAddress(),32000,99);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data());
+            buffer.AppendFormatted("   tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),32000,99);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data());
          }
          else {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sObjectsAddress(),32000,99);\n",branchName[i][j].Data(),branchFolder[i][j].Data());
+            buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),32000,99);\n",branchName[i][j].Data(),branchFolder[i][j].Data());
          }
       }
       buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
@@ -3596,10 +4456,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="variable") {
-            buffer.AppendFormatted("   for (i=gAnalyzer->Get%sObjects()->GetEntriesFast()-1;i>=0;i--) {\n",folderName[i].Data());
+            buffer.AppendFormatted("   for (i=gAnalyzer->Get%ss()->GetEntriesFast()-1;i>=0;i--) {\n",folderName[i].Data());
             buffer.AppendFormatted("      if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified())\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("         break;\n");
-            buffer.AppendFormatted("      gAnalyzer->Get%sObjects()->RemoveAt(i);\n",folderName[i].Data());
+            buffer.AppendFormatted("      gAnalyzer->Get%ss()->RemoveAt(i);\n",folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
       }
@@ -3613,15 +4473,15 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   gAnalyzer->Get%sObject()->Reset();\n",folderName[i].Data());
+            buffer.AppendFormatted("   gAnalyzer->Get%s()->Reset();\n",folderName[i].Data());
          }
          else if (folderArray[i]=="variable") {
-            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%sObjects()->GetEntriesFast();i++) {\n",folderName[i].Data());
+            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
             buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
          else {
-            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%sObjects()->GetEntriesFast();i++) {\n",folderName[i].Data());
+            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
             buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->SetModified(false);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
@@ -3629,13 +4489,13 @@ bool ROMEBuilder::WriteEventLoopCpp() {
       if (bankHasHeader) {
          if (folderName[i]==bankHeaderFolder) {
             if (bankHeaderEventID!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%sObject()->Set%s(gAnalyzer->GetEventHeader()->event_id);\n",folderName[i].Data(),bankHeaderEventID.Data());
+               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(gAnalyzer->GetEventHeader()->event_id);\n",folderName[i].Data(),bankHeaderEventID.Data());
             if (bankHeaderTriggerMask!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%sObject()->Set%s(gAnalyzer->GetEventHeader()->trigger_mask);\n",folderName[i].Data(),bankHeaderTriggerMask.Data());
+               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(gAnalyzer->GetEventHeader()->trigger_mask);\n",folderName[i].Data(),bankHeaderTriggerMask.Data());
             if (bankHeaderSerialNumber!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%sObject()->Set%s(gAnalyzer->GetEventHeader()->serial_number);\n",folderName[i].Data(),bankHeaderSerialNumber.Data());
+               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(gAnalyzer->GetEventHeader()->serial_number);\n",folderName[i].Data(),bankHeaderSerialNumber.Data());
             if (bankHeaderTimeStamp!="")
-               buffer.AppendFormatted("   gAnalyzer->Get%sObject()->Set%s(gAnalyzer->GetEventHeader()->time_stamp);\n",folderName[i].Data(),bankHeaderTimeStamp.Data());
+               buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(gAnalyzer->GetEventHeader()->time_stamp);\n",folderName[i].Data(),bankHeaderTimeStamp.Data());
          }
       }
    }
@@ -3646,7 +4506,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   new(gAnalyzer->Get%sObject()) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   new(gAnalyzer->Get%s()) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
                if (valueArray[i][j]=="0")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
@@ -3665,7 +4525,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
       if (numOfValue[i] > 0) {
          if (folderArray[i]!="1" && folderArray[i]!="variable") {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
-            buffer.AppendFormatted("     new((*gAnalyzer->Get%sObjects())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("     new((*gAnalyzer->Get%ss())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
                if (valueArray[i][j]=="0")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
@@ -3690,7 +4550,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   write = false;\n");
       buffer.AppendFormatted("   romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
-      buffer.AppendFormatted("   if (romeTree->isWrite()) {\n");
+      buffer.AppendFormatted("   if (romeTree->isFill()) {\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (folderName[k]==branchFolder[i][j]) {
@@ -3699,12 +4559,12 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             }
          }
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("      if (!write && gAnalyzer->Get%sObject()->isModified()) {\n",branchFolder[i][j].Data());
+            buffer.AppendFormatted("      if (!write && gAnalyzer->Get%s()->isModified()) {\n",branchFolder[i][j].Data());
             buffer.AppendFormatted("         write = true;\n");
             buffer.AppendFormatted("      }\n");
          }
          else {
-            buffer.AppendFormatted("      for (i=0;i<gAnalyzer->Get%sObjects()->GetEntries()&&!write;i++) {\n",branchFolder[i][j].Data());
+            buffer.AppendFormatted("      for (i=0;i<gAnalyzer->Get%ss()->GetEntries()&&!write;i++) {\n",branchFolder[i][j].Data());
             buffer.AppendFormatted("         if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified()) {\n",shortCut.Data(),branchFolder[i][j].Data(),branchFolder[i][j].Data());
             buffer.AppendFormatted("            write = true;\n");
             buffer.AppendFormatted("            break;\n");
@@ -3738,10 +4598,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
          }
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sObjectAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          else {
-            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sObjectsAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
          buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
@@ -4301,7 +5161,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
                   // initialisation
                   steerName[numOfTask][0] = "GlobalSteering";
                   recursiveSteerDepth = 0;
-                  parentSteer[0] = "";
+                  steerParent[numOfTask][0] = -1;
                   numOfSteering[numOfTask] = -1;
                   if (!ReadXMLSteering(numOfTask)) return;
                   numOfSteering[numOfTask]++;
@@ -4314,6 +5174,8 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (makeOutput) cout << "\n\nFramework :" << endl;
    if (!WriteAnalyzerCpp()) return;
    if (!WriteAnalyzerH()) return;
+   if (!WriteConfigCpp()) return;
+   if (!WriteConfigH()) return;
    if (!WriteEventLoopCpp()) return;
    if (!WriteEventLoopH()) return;
    if (!WriteMain()) return;
@@ -4396,7 +5258,7 @@ void ROMEBuilder::WriteMakefile() {
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql) 
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDatabase.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDatabase.obj\n\n");
@@ -4422,6 +5284,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj src/framework/%sAnalyzer.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sEventLoop.obj src/framework/%sEventLoop.cpp \n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sConfig.obj: src/framework/%sConfig.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sConfig.obj src/framework/%sConfig.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp\n");
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
 
@@ -4493,7 +5357,7 @@ void ROMEBuilder::WriteMakefile() {
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEXMLDataBase.obj\n\n");
@@ -4521,6 +5385,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sEventLoop.obj: src/framework/%sEventLoop.cpp\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sEventLoop.cpp -o obj/%sEventLoop.obj\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sConfig.obj: src/framework/%sConfig.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/%sConfig.cpp -o obj/%sConfig.obj\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp\n");
    buffer.AppendFormatted("	g++ -g -c $(flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
 

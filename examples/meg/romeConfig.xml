@@ -1,58 +1,166 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by ROME on Fri Oct 08 12:01:43 2004
+<!-- created by ROME on Thu Oct 14 11:43:02 2004
  -->
-<Configuration>
-     <Modes AnalyzingMode="offline" InputDataFormat="midas" DataBaseMode="xml" BatchMode="no" ShowSplashScreen="yes"/>
-     <Online Host="" Experiment=""/>
-     <SocketInterface PortNumber="0" AvailableOffline="no"/>
-     <RunNumbers Numbers="6625,96625"/>
-     <EventNumbers Numbers=""/>
-     <Paths>
-          <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
-          <OutputFilePath>C:\Data\analysis\MEG\Calib/</OutputFilePath>
-          <DataBaseFilePath>C:\Data\analysis\MEG\DataBase/</DataBaseFilePath>
-     </Paths>
-     <Tasks>
-          <ReadMidas Active="yes"/>
-          <ADCPedestal Active="yes">
-               <ADC0Histo Accumulate="yes"/>
-               <ADC1Histo Accumulate="yes"/>
-               <SteeringParameters>
-                    <PedestalThreshold>500.000000</PedestalThreshold>
-                    <PedestalSpreadThreshold>1.000000</PedestalSpreadThreshold>
-               </SteeringParameters>
-          </ADCPedestal>
-          <TDCAverage Active="no">
-               <TDCAverageHisto Accumulate="yes"/>
-          </TDCAverage>
-          <Charge Active="no">
-               <FrontMapHisto Accumulate="yes"/>
-               <BackMapHisto Accumulate="yes"/>
-               <TopMapHisto Accumulate="yes"/>
-               <BottomMapHisto Accumulate="yes"/>
-               <RightMapHisto Accumulate="yes"/>
-               <LeftMapHisto Accumulate="yes"/>
-               <SteeringParameters>
-                    <NumberOfMapHistos>10</NumberOfMapHistos>
-               </SteeringParameters>
-          </Charge>
-     </Tasks>
-     <Trees Accumulation="no">
-          <CMPMTData Read="no" Write="yes" MaxNumberOfEntries="0"/>
-          <CMHit Read="no" Write="no" MaxNumberOfEntries="0"/>
-          <Trigger Read="no" Write="no" MaxNumberOfEntries="0"/>
-          <Test Read="no" Write="no" MaxNumberOfEntries="0"/>
-     </Trees>
-     <GlobalSteeringParameters>
-          <InvalidValue>-1000.000000</InvalidValue>
-          <PMT>
-               <Numbers>
-                    <NumberOfPMT>257</NumberOfPMT>
-                    <NumberOfFTDC>64</NumberOfFTDC>
-                    <NumberOfCTDC>80</NumberOfCTDC>
-                    <NumberOfVTDC>128</NumberOfVTDC>
-                    <NumberOfLXePMT>228</NumberOfLXePMT>
-               </Numbers>
-          </PMT>
-     </GlobalSteeringParameters>
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+     <MainConfiguration>
+          <RunNumbers>6625</RunNumbers>
+          <EventNumbers>10011-10020</EventNumbers>
+          <Modes>
+               <AnalyzingMode>offline</AnalyzingMode>
+               <InputDataFormat>midas</InputDataFormat>
+               <DataBaseMode>xml</DataBaseMode>
+               <BatchMode>false</BatchMode>
+               <ShowSplashScreen>true</ShowSplashScreen>
+          </Modes>
+          <Online>
+               <Host></Host>
+               <Experiment></Experiment>
+          </Online>
+          <SocketInterface>
+               <PortNumber>9091</PortNumber>
+               <AvailableOffline>false</AvailableOffline>
+          </SocketInterface>
+          <Paths>
+               <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
+               <OutputFilePath>C:\Data\analysis\MEG\Calib/</OutputFilePath>
+               <DataBaseFilePath>C:\Data\analysis\MEG\DataBase/</DataBaseFilePath>
+          </Paths>
+          <Tasks>
+               <Task>
+                    <TaskName>ReadMidas</TaskName>
+                    <Active>true</Active>
+               </Task>
+               <Task>
+                    <TaskName>ADCPedestal</TaskName>
+                    <Active>true</Active>
+                    <Histogram>
+                         <HistName>ADC0Histo</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>ADC1Histo</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <SteeringParameterField>
+                         <SPName>PedestalThreshold</SPName>
+                         <SPValue>500.000000</SPValue>
+                    </SteeringParameterField>
+                    <SteeringParameterField>
+                         <SPName>PedestalSpreadThreshold</SPName>
+                         <SPValue>1.000000</SPValue>
+                    </SteeringParameterField>
+               </Task>
+               <Task>
+                    <TaskName>TDCAverage</TaskName>
+                    <Active>false</Active>
+                    <Histogram>
+                         <HistName>TDCAverageHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+               </Task>
+               <Task>
+                    <TaskName>Charge</TaskName>
+                    <Active>false</Active>
+                    <Histogram>
+                         <HistName>FrontMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>BackMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>TopMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>BottomMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>RightMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <Histogram>
+                         <HistName>LeftMapHisto</HistName>
+                         <Accumulate>false</Accumulate>
+                    </Histogram>
+                    <SteeringParameterField>
+                         <SPName>NumberOfMapHistos</SPName>
+                         <SPValue>10</SPValue>
+                    </SteeringParameterField>
+               </Task>
+          </Tasks>
+          <Trees>
+               <Accumulate>false</Accumulate>
+               <Tree>
+                    <TreeName>CMPMTData</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
+               <Tree>
+                    <TreeName>CMHit</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
+               <Tree>
+                    <TreeName>Trigger</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
+               <Tree>
+                    <TreeName>Test</TreeName>
+                    <Read>false</Read>
+                    <Write>false</Write>
+                    <Fill>false</Fill>
+                    <CompressionLevel>0</CompressionLevel>
+                    <MaxNumberOfEntries>0</MaxNumberOfEntries>
+               </Tree>
+          </Trees>
+          <GlobalSteeringParameters>
+               <SteeringParameterField>
+                    <SPName>InvalidValue</SPName>
+                    <SPValue>-1000.000000</SPValue>
+               </SteeringParameterField>
+               <SteeringParameterGroup>
+                    <SPGroupName>PMT</SPGroupName>
+                    <SteeringParameterGroup>
+                         <SPGroupName>Numbers</SPGroupName>
+                         <SteeringParameterField>
+                              <SPName>NumberOfPMT</SPName>
+                              <SPValue>257</SPValue>
+                         </SteeringParameterField>
+                         <SteeringParameterField>
+                              <SPName>NumberOfFTDC</SPName>
+                              <SPValue>64</SPValue>
+                         </SteeringParameterField>
+                         <SteeringParameterField>
+                              <SPName>NumberOfCTDC</SPName>
+                              <SPValue>80</SPValue>
+                         </SteeringParameterField>
+                         <SteeringParameterField>
+                              <SPName>NumberOfVTDC</SPName>
+                              <SPValue>128</SPValue>
+                         </SteeringParameterField>
+                         <SteeringParameterField>
+                              <SPName>NumberOfLXePMT</SPName>
+                              <SPValue>228</SPValue>
+                         </SteeringParameterField>
+                    </SteeringParameterGroup>
+               </SteeringParameterGroup>
+          </GlobalSteeringParameters>
+     </MainConfiguration>
+     <RunConfiguration>
+          <RunNumbers>6625</RunNumbers>
+          <EventNumbers>1-100</EventNumbers>
+     </RunConfiguration>
 </Configuration>
