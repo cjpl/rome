@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/02/06 00:57:12  sawada
+  bug fix
+
   Revision 1.11  2005/02/06 00:39:35  sawada
    Changed TRint to TApplication
    Stop method of thread function
@@ -76,7 +79,7 @@ bool ArgusBuilder::WriteMain() {
 #if defined(USE_TRINT)
    buffer.AppendFormatted("   TRint *app = new TRint(\"App\", &argn, &argp,NULL,0,true);\n");
 #else
-   buffer.AppendFormatted("   TRint *app = new TApplication(\"App\", &argn, &argp,NULL,0);\n");
+   buffer.AppendFormatted("   TApplication *app = new TApplication(\"App\", &argn, &argp,NULL,0);\n");
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Monitor\n");
