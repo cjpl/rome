@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2004/10/01 13:11:33  schneebeli_m
+  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
+
   Revision 1.6  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -106,7 +109,8 @@ protected:
    bool Termination();
 
    // virtual methods
-   virtual void InitFolders() = 0;
+   virtual void InitSingleFolders() = 0;
+   virtual void InitArrayFolders() = 0;
    virtual void CleanUpFolders() = 0;
    virtual void ResetFolders() = 0;
 

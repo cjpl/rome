@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.18  2004/10/01 13:11:33  schneebeli_m
+//  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
+//
 //  Revision 1.17  2004/09/30 10:18:05  schneebeli_m
 //  gAnalyzer and gROME
 //
@@ -52,6 +55,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fUserInputLastTime = 0;
 }
 
+#include <TBrowser.h>
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
    if (!strcmp(option,"init")) {
@@ -206,6 +210,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    ExecuteTasks("t");
    CleanTasks();
 
+   // Root Interpreter
+   gROME->GetApplication()->Run(true);
+   cout << endl;
+
    // Terminate
    if (!this->Termination()) {
       gROME->SetTerminationFlag();
@@ -218,8 +226,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 bool ROMEEventLoop::Initialize() {
    // Initialize the analyzer. Called before the init tasks.
    int j;
-   this->InitFolders();
    this->InitTaskSwitches();
+   this->InitSingleFolders();
 
    // Tree file Initialisation
    fTreeFiles = new TFile*[gROME->GetTreeObjectEntries()];
@@ -416,8 +424,12 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       }
    }
 
+
    // Update Data Base
-   if (!gROME->ReadDataBase())
+   if (!gROME->ReadSingleDataBaseFolders())
+      return false;
+   this->InitArrayFolders();
+   if (!gROME->ReadArrayDataBaseFolders())
       return false;
 
    if (gROME->isOnline()&&gROME->isMidas()) {
@@ -726,7 +738,7 @@ bool ROMEEventLoop::UserInput()
 }
 
 bool ROMEEventLoop::Disconnect() {
-   // Disconnects the current run. Called before the EndOfRun tasks.
+   // Disconnects the current run. Called after the EndOfRun tasks.
 
    TFile *f1;
    // Write Trees
@@ -742,7 +754,6 @@ bool ROMEEventLoop::Disconnect() {
          cout << "Writing Root-File " << tree->GetName() << runNumberString.Data() << ".root" << endl;
          fTreeFiles[j] = tree->GetCurrentFile();
          fTreeFiles[j]->Write();
-         fTreeFiles[j]->Close();
       }
    }
    cout << endl;
@@ -773,7 +784,7 @@ bool ROMEEventLoop::Disconnect() {
 }
 
 bool ROMEEventLoop::Termination() {
-   // Clean up the analyzer. Called before the Terminate tasks.
+   // Clean up the analyzer. Called after the Terminate tasks.
    // Write and close Trees
    ROMETree *romeTree;
    for (int j=0;j<gROME->GetTreeObjectEntries();j++) {

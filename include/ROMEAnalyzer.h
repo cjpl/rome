@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.23  2004/10/01 13:11:33  schneebeli_m
+  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
+
   Revision 1.22  2004/09/30 13:08:21  schneebeli_m
   ...
 
@@ -259,7 +262,8 @@ public:
    static TArrayI decodeRunNumbers(ROMEString& str);
 
 
-   virtual bool ReadDataBase() = 0;
+   virtual bool ReadSingleDataBaseFolders() = 0;
+   virtual bool ReadArrayDataBaseFolders() = 0;
    virtual void InitMidasBanks() = 0;
 private:
 

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.51  2004/10/01 13:11:33  schneebeli_m
+  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
+
   Revision 1.50  2004/09/30 13:08:21  schneebeli_m
   ...
 
@@ -2552,8 +2555,30 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
 
-   // ReadDataBase
-   buffer.AppendFormatted("bool %sAnalyzer::ReadDataBase() {\n",shortCut.Data());
+   // ReadSingleDataBaseFolders
+   buffer.AppendFormatted("bool %sAnalyzer::ReadSingleDataBaseFolders() {\n",shortCut.Data());
+   if (ndb>0) {
+      buffer.AppendFormatted("   TObjArray *values = new TObjArray(0);\n");
+      buffer.AppendFormatted("   char *cstop;\n");
+      for (i=0;i<numOfFolder;i++) {
+         if (folderDataBase[i]) {
+            for (j=0;j<numOfValue[i];j++) {
+               buffer.AppendFormatted("   values->RemoveAll();\n");
+               if (folderArray[i]=="1") {
+                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),1);\n",folderName[i].Data(),valueName[i][j].Data());
+                  setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(0))->GetString().Data()",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormatted("   f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+               }
+            }
+         }
+      }
+      buffer.AppendFormatted("   delete values;\n");
+      buffer.AppendFormatted("   return true;\n");
+   }
+   buffer.AppendFormatted("}\n\n");
+
+   // ReadArrayDataBaseFolders
+   buffer.AppendFormatted("bool %sAnalyzer::ReadArrayDataBaseFolders() {\n",shortCut.Data());
    if (ndb>0) {
       buffer.AppendFormatted("   TObjArray *values = new TObjArray(0);\n");
       buffer.AppendFormatted("   char *cstop;\n");
@@ -2562,12 +2587,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          if (folderDataBase[i]) {
             for (j=0;j<numOfValue[i];j++) {
                buffer.AppendFormatted("   values->RemoveAll();\n");
-               if (folderArray[i]=="1") {
-                  buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),f%sObject->GetEntries());\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data());
-                  setValue(&buf,(char*)valueName[i][j].Data(),"((TObjString*)values->At(0))->GetString().Data()",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-               }
-               else {
+               if (folderArray[i]!="1") {
                   buffer.AppendFormatted("   this->GetDataBase()->Read(values,\"RunTable/%s.%s\",this->GetCurrentRunNumber(),f%sObjects->GetEntries());\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data());
                   buffer.AppendFormatted("   for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i].Data());
                   buffer.AppendFormatted("      if (i<values->GetEntriesFast()) {\n");
@@ -3263,7 +3283,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // Data Base
    buffer.AppendFormatted("   // DataBase Methodes\n");
-   buffer.AppendFormatted("   bool ReadDataBase();\n");
+   buffer.AppendFormatted("   bool ReadSingleDataBaseFolders();\n");
+   buffer.AppendFormatted("   bool ReadArrayDataBaseFolders();\n");
    buffer.AppendFormatted("\n");
 
    for (i=0;i<numOfFolder;i++) {
@@ -3400,6 +3421,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TObjArray.h>\n");
    buffer.AppendFormatted("#include <TObjString.h>\n");
+   buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
    buffer.AppendFormatted("#include <ROMEStatic.h>\n");
@@ -3426,6 +3448,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // Tree Initialization
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
    buffer.AppendFormatted("   TTree *tree;\n\n");
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
@@ -3442,7 +3465,8 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sObjectsAddress(),32000,99);\n",branchName[i][j].Data(),branchFolder[i][j].Data());
          }
       }
-      buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n\n");
+      buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
+      buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
    }
    buffer.AppendFormatted("}\n\n");
 
@@ -3531,9 +3555,8 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    }
    buffer.AppendFormatted("}\n\n");
 
-   // Initialize Folders
-   buffer.AppendFormatted("void %sEventLoop::InitFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
+   // Initialize Single Folders
+   buffer.AppendFormatted("void %sEventLoop::InitSingleFolders() {\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
@@ -3545,7 +3568,16 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.Resize(buffer.Length()-1);
             buffer.AppendFormatted(" );\n");
          }
-         else {
+      }
+   }
+   buffer.AppendFormatted("};\n\n");
+
+   // Initialize Array Folders
+   buffer.AppendFormatted("void %sEventLoop::InitArrayFolders() {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderArray[i]!="1") {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
             buffer.AppendFormatted("     new((*gAnalyzer->Get%sObjects())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
@@ -3749,7 +3781,8 @@ bool ROMEBuilder::WriteEventLoopH() {
 
    // Folders
    buffer.AppendFormatted("   // Folder Methodes\n");
-   buffer.AppendFormatted("   void InitFolders();\n");
+   buffer.AppendFormatted("   void InitSingleFolders();\n");
+   buffer.AppendFormatted("   void InitArrayFolders();\n");
    buffer.AppendFormatted("   void ResetFolders();\n");
    buffer.AppendFormatted("   void CleanUpFolders();\n");
    buffer.AppendFormatted("\n");
@@ -3837,9 +3870,6 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("      delete gAnalyzer;\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   app->Run(true);\n");
-   buffer.AppendFormatted("   cout << endl;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   delete gAnalyzer;\n");
    buffer.AppendFormatted("\n");
@@ -4049,7 +4079,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
                   xml->GetAttribute("Collaboration",mainCollaboration,mainCollaboration);
                   xml->GetAttribute("Email",mainEmail,mainEmail);
                }
-               if (!strcmp((const char*)name,"Programname")) {
+               if (!strcmp((const char*)name,"Program")||!strcmp((const char*)name,"Programname")) {
                   xml->GetAttribute("Name",mainProgName,mainProgName);
                }
                if (!strcmp((const char*)name,"Folder")) {
