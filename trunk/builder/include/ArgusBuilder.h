@@ -2,6 +2,11 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.8  2005/02/24 23:25:01  sawada
+  Removed thread flag in builder.
+  Added ProcessMessageThread.
+  Changed arguments of constructor of tabs.
+
   Revision 1.7  2005/02/22 10:43:31  sawada
   User defined menus.
 
@@ -50,7 +55,7 @@ const int maxNumberOfSteering = 20;
 const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
 const int maxNumberOfInclude = 10;
-const int maxNumberOfThreadFunctions = 4;
+const int maxNumberOfThreadFunctions = 10;
 const int bufferLength = 100000;
 
 class ArgusBuilder
@@ -62,7 +67,6 @@ public:
    bool       noLink;
    bool       midas;
    bool       sql;
-   bool       thread;
    bool       romefolder;
    
 private:

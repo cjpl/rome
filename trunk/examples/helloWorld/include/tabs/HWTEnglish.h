@@ -21,8 +21,7 @@ protected:
    TLatex              *fText;
 
 public:
-   HWTEnglish(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0, Pixel_t back = GetDefaultFrameBackground())
-      :HWTEnglish_Base(p, w, h, options, back)
+   HWTEnglish():HWTEnglish_Base()
    {
       fVert   = 0;
       fCanvas = 0;

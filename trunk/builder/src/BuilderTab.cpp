@@ -3,6 +3,11 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.16  2005/02/24 23:25:01  sawada
+  Removed thread flag in builder.
+  Added ProcessMessageThread.
+  Changed arguments of constructor of tabs.
+
   Revision 1.15  2005/02/24 17:02:11  sawada
   start of thread function.
 
@@ -147,7 +152,6 @@ bool ArgusBuilder::ReadXMLTab() {
                break;
             // thread function
             if (type == 1 && !strcmp((const char*)name,"ThreadFunction")) {
-               if(!thread) thread = true;
                // count thread functions
                numOfThreadFunctions[numOfTab]++;
                if (numOfThreadFunctions[numOfTab]>=maxNumberOfThreadFunctions) {
@@ -442,9 +446,15 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("#include <TGFrame.h>\n");
       buffer.AppendFormatted("#include \"include/monitor/%sMonitor.h\"\n",shortCut.Data());
 #if defined ( R__UNIX ) 
-      if(numOfThreadFunctions[iTab]>0)
-         buffer.AppendFormatted("#include <TThread.h>\n");
+      buffer.AppendFormatted("#include <TThread.h>\n");
 #endif
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("typedef struct %sArgs{\n",tabName[iTab].Data());
+      buffer.AppendFormatted("   void* inst;\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   Long_t msg;\n");
+      buffer.AppendFormatted("   Long_t param1;\n");
+      buffer.AppendFormatted("   Long_t param2;\n");
+      buffer.AppendFormatted("};\n");
       // Class
       buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
@@ -466,7 +476,7 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   LPDWORD f%sExCode;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
 #endif
-         buffer.AppendFormatted("   bool f%sActive;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool  f%sActive;\n", threadFunctionName[iTab][i].Data());
 	 buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   Int_t f%sInterval;\n",threadFunctionName[iTab][i].Data());
       }
@@ -477,7 +487,7 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("public:\n");
       // Constructor
       buffer.AppendFormatted("   // Constructor\n");
-      buffer.AppendFormatted("   %sT%s_Base(const TGWindow *p, UInt_t w, UInt_t h, UInt_t options, Pixel_t back):TGCompositeFrame(p, w, h, options, back){\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(){\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n",tabVersion[iTab].Data());
       buffer.AppendFormatted("      fActive = false;\n");
       if (numOfSteering[iTab]>0) {
@@ -500,7 +510,42 @@ bool ArgusBuilder::WriteTabH() {
       }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
-      // Thread
+      // Thread      
+      buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2){\n");
+      buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){return kTRUE;}\n");
+#if defined ( R__UNIX )
+      buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg){\n");
+      buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   }\n");
+#elif defined ( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("   static DWORD WINAPI ThreadProcessMessageThread(void* arg){\n");
+      buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      ((%sArgs*)arg)->inst->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs)arg*)->param1, ((%sArgs*)arg)->param2);\n",tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      return 0;\n");
+      buffer.AppendFormatted("   }\n");
+#endif
+      
+      buffer.AppendFormatted("   bool RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
+      buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n",tabName[iTab].Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      arg->inst   = this;\n");
+      buffer.AppendFormatted("      arg->msg    = msg;\n");
+      buffer.AppendFormatted("      arg->param1 = param1;\n");
+      buffer.AppendFormatted("      arg->param2 = param2;\n");
+#if defined ( R__UNIX )
+      buffer.AppendFormatted("      TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
+      buffer.AppendFormatted("      mProcessMessageThread->Run();\n");
+#elif defined ( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("      LPDWORD fProcessMessageThreadId;\n");
+      buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,&processMessageThreadId));\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("      }\n");
+#endif
+      buffer.AppendFormatted("      return true;\n");
+      buffer.AppendFormatted("   }\n");
+      
+      
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   virtual void %s()\n", threadFunctionName[iTab][i].Data());
@@ -657,8 +702,7 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("public:\n");
       // Constructor
-      buffer.AppendFormatted("   %sT%s(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0, Pixel_t back = GetDefaultFrameBackground())\n",shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("      :%sT%s_Base(p, w, h, options, back)\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   %sT%s():%sT%s_Base()\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   {\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");

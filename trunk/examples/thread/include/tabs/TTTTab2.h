@@ -27,8 +27,7 @@ protected:
    };
 
 public:
-   TTTTab2(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0, Pixel_t back = GetDefaultFrameBackground())
-      :TTTTab2_Base(p, w, h, options, back)
+   TTTTab2():TTTTab2_Base()
    {
       fHorz       = 0;
       fBStart_2_1 = 0;

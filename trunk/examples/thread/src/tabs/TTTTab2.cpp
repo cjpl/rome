@@ -42,7 +42,6 @@ void TTTTab2::Init()
 
 bool TTTTab2::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 {
-   // Process messages coming from widgets associated with the dialog.  
    switch (GET_MSG(msg)) {
    case kC_COMMAND:    
       switch (GET_SUBMSG(msg)) {

@@ -21,8 +21,7 @@ protected:
    TLatex              *fText;
 
 public:
-   TMTT1(const TGWindow *p = 0, UInt_t w = 1, UInt_t h = 1, UInt_t options = 0, Pixel_t back = GetDefaultFrameBackground())
-      :TMTT1_Base(p, w, h, options, back)
+   TMTT1():TMTT1_Base()
    {
       fVert   = 0;
       fCanvas = 0;

@@ -3,6 +3,11 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.16  2005/02/24 23:25:01  sawada
+  Removed thread flag in builder.
+  Added ProcessMessageThread.
+  Changed arguments of constructor of tabs.
+
   Revision 1.15  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -290,7 +295,6 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    readGlobalSteeringParameters = false;   
    numOfFolder = -1;
    numOfTab = -1;
-   thread = false;
    romefolder = false;
 
    if (!xml->OpenFileForRead(xmlFile)) return;
@@ -631,10 +635,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
-   if(this->thread)
-      buffer.AppendFormatted("rootthreadlibs := -lThread\n");
-   else
-      buffer.AppendFormatted("rootthreadlibs := \n");
+   buffer.AppendFormatted("rootthreadlibs := -lThread\n");
    buffer.AppendFormatted("xmllibs :=  $(shell xml2-config --libs)\n");
    buffer.AppendFormatted("xmlcflags :=  $(shell xml2-config --cflags)\n");
    if (this->sql){
