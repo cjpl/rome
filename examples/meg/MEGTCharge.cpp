@@ -89,7 +89,7 @@ void MEGTCharge::BeginOfRun()
 void MEGTCharge::Event()
 {
    int nMapHistos = GetSP()->GetNumberOfMapHistos();
-   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
 
    int eventNumber,face;
    int   j;
@@ -110,10 +110,10 @@ void MEGTCharge::Event()
    qtot_top   = 0.;
    qtot_bottom= 0.;
    for (j=0; j<nPMT; j++) {
-      MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(j);
-      MEGCMPMTInfo *pmtInfo = fAnalyzer->GetCMPMTInfoAt(j);
+      MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(j);
+      MEGCMPMTInfo *pmtInfo = gAnalyzer->GetCMPMTInfoAt(j);
       pmt_signal = TMath::Max(pmtData->GetADC0Data(),0.f);
-      eventNumber = fAnalyzer->GetTriggerObject()->GetEventnumber();
+      eventNumber = gAnalyzer->GetTriggerObject()->GetEventnumber();
       x_coor= pmtInfo->GetX();
       y_coor= pmtInfo->GetY();
       face = pmtInfo->GetFace();
@@ -177,7 +177,7 @@ void MEGTCharge::Event()
       }
    }
 */
-   fAnalyzer->GetCMHitObject()->SetAll(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
+   gAnalyzer->GetCMHitObject()->SetAll(0,0,0,0,0,xmean,ymean,qtot_front,qtot_back,qtot_top,
       qtot_bottom,qtot_right,qtot_left,qraw,qsum,nhit);
 
 /*   gHistoHists1[1]->Fill((float)hist->qsum);
@@ -193,7 +193,7 @@ void MEGTCharge::Event()
 void MEGTCharge::EndOfRun()
 {
    int nMapHistos = GetSP()->GetNumberOfMapHistos();
-   if (fAnalyzer->isBatchMode()) return;
+   if (gAnalyzer->isBatchMode()) return;
    TCanvas *c1 = new TCanvas("c1","Map Histos",600,400);
 
    for (int i=0;i<nMapHistos;i++) {

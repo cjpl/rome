@@ -6,7 +6,7 @@
 	<Folder>
 		<SubFolder FolderName="megData" FolderTitle="MEG Data Root Folder">
 			<SubFolder FolderName="cm" FolderTitle="Calorimeter">
-				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" ArraySize="fAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()">
+				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" ArraySize="gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<Description Text="Folder Class for Calorimeter Photo Multiplier data." />
@@ -16,7 +16,7 @@
 						<TDCData Type="Float_t" Comment="TDC Data of Photo Multipliers" />
 					</Fields>
 				</SubFolder>
-				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" ArraySize="fAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" DataBase="yes">
+				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" ArraySize="gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<Description Text="Container Class for Calorimeter calibration data." />
@@ -27,7 +27,7 @@
 						<TDCXScale Type="Float_t" Comment="TDC X-Axis Scale" DataBasePath="runTable/CMCalib.TDCXScale" />
 					</Fields>
 				</SubFolder>
-				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="fAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" DataBase="yes" UserCode="yes">
+				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes" UserCode="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<Description Text="Container Class for Calorimeter Photo Multiplier Information." />
@@ -128,8 +128,8 @@
 				<MEG.h Type="local" />
 			</Include>
 			<Histos>
-				<ADC0Histo Type="TH1F" ArraySize="fAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" FolderName="adc0" FolderTitle="ADC0 Histograms" Title="ADC0 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096" />
-				<ADC1Histo Type="TH1F" ArraySize="fAnalyzer-&gt;GetGSP()-&gt;GetPMT()-&gt;GetNumbers()-&gt;GetNumberOfPMT()" FolderName="adc1" FolderTitle="ADC1 Histograms" Title="ADC1 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096" />
+				<ADC0Histo Type="TH1F" ArraySize="gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" FolderName="adc0" FolderTitle="ADC0 Histograms" Title="ADC0 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096" />
+				<ADC1Histo Type="TH1F" ArraySize="gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" FolderName="adc1" FolderTitle="ADC1 Histograms" Title="ADC1 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096" />
 			</Histos>
 			<SteeringParameters>
 				<PedestalThreshold Type="Float_t" Initialisation="500" Comment="Pedestal Threshold" />
@@ -152,12 +152,12 @@
 				<MEG.h Type="local" />
 			</Include>
 			<Histos>
-				<FrontMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<BackMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<TopMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<BottomMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<RightMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
-				<LeftMapHisto Type="TH2F" ArraySize="GetSP()-&gt;GetNumberOfMapHistos()" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<FrontMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Front side Map Histograms" Title="Front Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<BackMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="frontmap" FolderTitle="Back side Map Histograms" Title="Back Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<TopMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="topmap" FolderTitle="Top side Map Histograms" Title="Top Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<BottomMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="bottommap" FolderTitle="Bottom side Map Histograms" Title="Bottom Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<RightMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="rightmap" FolderTitle="Right side Map Histograms" Title="Right Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
+				<LeftMapHisto Type="TH2F" ArraySize="GetSP()->GetNumberOfMapHistos()" FolderName="leftmap" FolderTitle="Left side Map Histograms" Title="Left Map Histograms" NumberOfBinsX="6" XMin="-20" XMax="20" NumberOfBinsY="6" YMin="-20" YMax="20" />
 			</Histos>
 			<SteeringParameters>
 				<NumberOfMapHistos Type="Int_t" Initialisation="10" Comment="Number of Map Histograms" />

@@ -31,7 +31,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "XYZTReadMidas.h"
+#include <include/tasks/XYZTReadMidas.h>
 #include <Riostream.h>
 
 ClassImp(XYZTReadMidas)
@@ -43,13 +43,13 @@ void XYZTReadMidas::Init()
 void XYZTReadMidas::BeginOfRun()
 {
 }
-#define gNumberOfPMT 257
+
 void XYZTReadMidas::Event()
 {
-   for (int i=0;i<gNumberOfPMT;i++) {
-//      int iadc = fAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
-	   Float_t adcValue = fAnalyzer->GetADC0BankAt(i);
-      fAnalyzer->GetCMPMTDataAt(i)->SetADC(adcValue);
+   for (int i=0;i<257;i++) {
+      int iadc = gAnalyzer->GetPMTInfoAt(i)->GetADCID();
+      Float_t adcValue = gAnalyzer->GetADC0BankAt(iadc);
+      gAnalyzer->GetPMTDataAt(i)->SetADC(adcValue);
    }
 }
 

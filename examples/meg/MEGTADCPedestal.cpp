@@ -76,16 +76,16 @@ void MEGTADCPedestal::Init()
 
 void MEGTADCPedestal::BeginOfRun()
 {
-   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
    char name[80],title[80];
    for (int j=0;j<nPMT;j++) {
       sprintf(name,"adc0_%i%i%i",j/100,(j%100)/10,j%10);
-      sprintf(title,"ADC0 of PMT %s",fAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
+      sprintf(title,"ADC0 of PMT %s",gAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
       GetADC0HistoHandleAt(j)->SetName(name);
       GetADC0HistoHandleAt(j)->SetTitle(title);
 
       sprintf(name,"adc1_%i%i%i",j/100,(j%100)/10,j%10);
-      sprintf(title,"ADC1 of PMT %s",fAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
+      sprintf(title,"ADC1 of PMT %s",gAnalyzer->GetCMPMTInfoAt(j)->GetAddress().Data());
       GetADC1HistoHandleAt(j)->SetName(name);
       GetADC1HistoHandleAt(j)->SetTitle(title);
    }
@@ -93,11 +93,11 @@ void MEGTADCPedestal::BeginOfRun()
 
 void MEGTADCPedestal::Event()
 {
-   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
 
    for (int i=0;i<nPMT;i++) {
-      MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(i);
-      int ipmt = fAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
+      MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(i);
+      int ipmt = gAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
       FillADC0HistoAt(ipmt,pmtData->GetADC0Data());
       FillADC1HistoAt(ipmt,pmtData->GetADC1Data());
    }
@@ -105,8 +105,8 @@ void MEGTADCPedestal::Event()
 
 void MEGTADCPedestal::EndOfRun()
 {
-   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
-   int nLXePMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
+   int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   int nLXePMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    int ipmt,i,j;
    double *pedestal = new double[nPMT*2];    //pedestal
    double *spedestal = new double[nPMT*2];   //sigma of pedestal
@@ -116,17 +116,17 @@ void MEGTADCPedestal::EndOfRun()
 
    char runNumber[6];
    char logfilename[gFileNameLength];
-   sprintf(logfilename,"%spiedi_%s.log",fAnalyzer->GetOutputDir(),runNumber);
+   sprintf(logfilename,"%spiedi_%s.log",gAnalyzer->GetOutputDir(),runNumber);
    dfclear(logfilename);
    char outfilename[gFileNameLength];
-   sprintf(outfilename,"%sped%s.dat",fAnalyzer->GetOutputDir(),runNumber);
+   sprintf(outfilename,"%sped%s.dat",gAnalyzer->GetOutputDir(),runNumber);
 
    TCanvas *c1 = new TCanvas(false);
 
    TStyle *mystyle = new TStyle("mystyle","");
    mystyle->cd();
    mystyle->SetOptFit(1);
-   if (!fAnalyzer->isBatchMode()) {
+   if (!gAnalyzer->isBatchMode()) {
       c1 = new TCanvas("c1");
       c1->cd();
    }
@@ -157,7 +157,7 @@ void MEGTADCPedestal::EndOfRun()
 	      hist->Fit("g1","Q,0","R",xmin,xmax);
 	      hist->GetXaxis()->SetRange(hist->GetXaxis()->FindBin(xmin),
 		         hist->GetXaxis()->FindBin(xmax));
-         if (!fAnalyzer->isBatchMode()) {
+         if (!gAnalyzer->isBatchMode()) {
 	         hist->Draw();
 //	         g1->Draw("same");
 //            c1->Update();
@@ -182,7 +182,7 @@ void MEGTADCPedestal::EndOfRun()
    for(j=0;j<nLXePMT;j++){
       pspread->Fill(spedestal[j]);
    }
-   if (!fAnalyzer->isBatchMode()) {
+   if (!gAnalyzer->isBatchMode()) {
       pspread->Draw();
       c1->SetLogy(1);
       c1->Update();

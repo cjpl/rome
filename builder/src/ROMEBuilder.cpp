@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.47  2004/09/30 08:45:28  schneebeli_m
+  Samples updated
+
   Revision 1.46  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -2377,7 +2380,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ClassImp(%sAnalyzer);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("MEGAnalyzer *gAnalyzer;  // global Analyzer Handle\n");
+   buffer.AppendFormatted("%sAnalyzer *gAnalyzer;  // global Analyzer Handle\n",shortCut.Data());
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#if defined( _MSC_VER )\n");
@@ -3343,7 +3346,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Footer
    buffer.AppendFormatted("};\n\n");
 
-   buffer.AppendFormatted("extern MEGAnalyzer *gAnalyzer;  // global Analyzer Handle\n\n");
+   buffer.AppendFormatted("extern %sAnalyzer *gAnalyzer;  // global Analyzer Handle\n\n",shortCut.Data());
 
    buffer.AppendFormatted("#endif   // %sAnalyzer_H\n",shortCut.Data());
 

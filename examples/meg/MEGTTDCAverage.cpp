@@ -50,15 +50,15 @@ void MEGTTDCAverage::BeginOfRun()
 
 void MEGTTDCAverage::Event()
 {
-   int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
-   float invalid = fAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
+   int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   float invalid = gAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
 
    float sum = 0;
    int nsum = 0;
    Bool_t corrupt = false;
    for (int j=0;j<nPMT&&!corrupt;j++) {
-      MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(j);
-      MEGCMPMTInfo *pmtInfo = fAnalyzer->GetCMPMTInfoAt(j);
+      MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(j);
+      MEGCMPMTInfo *pmtInfo = gAnalyzer->GetCMPMTInfoAt(j);
       if (pmtInfo->GetFace()==FRONT) {
          if (pmtData->GetTDCData()!=invalid) {
             sum = sum + pmtData->GetTDCData();
@@ -73,7 +73,7 @@ void MEGTTDCAverage::Event()
 
 void MEGTTDCAverage::EndOfRun()
 {
-   if (fAnalyzer->isBatchMode()) return;
+   if (gAnalyzer->isBatchMode()) return;
    TCanvas *c1 = new TCanvas("c1","Average of Frontface TDCs",600,400);
 
    this->DrawTDCAverageHisto();

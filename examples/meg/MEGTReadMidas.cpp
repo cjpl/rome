@@ -61,22 +61,16 @@ void MEGTReadMidas::Init()
 void MEGTReadMidas::BeginOfRun()
 {
 }
-int ii = 0;
+
 void MEGTReadMidas::Event()
 {
-   ii++;
-   if (ii%2) {
-      fAnalyzer->SetDontReadNextEvent();
-   }
-   fAnalyzer->SetCurrentEventNumber(ii);
-
    // Read Midas Banks and fill theme to folder
-   float invalid = fAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
+   float invalid = gAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
 
-   const int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
-   const int nFTDC = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfFTDC();
-   const int nCTDC = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfCTDC();
-   const int nVTDC = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfVTDC();
+   const int nPMT = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
+   const int nFTDC = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfFTDC();
+   const int nCTDC = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfCTDC();
+   const int nVTDC = gAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfVTDC();
 
    Int_t i;
    Float_t  *vfTDC = new Float_t[nPMT];
@@ -86,24 +80,24 @@ void MEGTReadMidas::Event()
    // Read Banks
 
    // TDC Banks
-   n_f = fAnalyzer->GetFTDCBankEntries();
-   n_c = fAnalyzer->GetCTDCBankEntries();
+   n_f = gAnalyzer->GetFTDCBankEntries();
+   n_c = gAnalyzer->GetCTDCBankEntries();
    if (n_f == nFTDC && n_c == nCTDC) {
       for (i=nFTDC;i<nPMT;i++) vfTDC[i] = invalid;
  
       // FTDC Bank
       for (i=0;i<nFTDC;i++) {
-         vfTDC[i] = (Float_t)(0.025f*fAnalyzer->GetFTDCBankAt(i)->data);
+         vfTDC[i] = (Float_t)(0.025f*gAnalyzer->GetFTDCBankAt(i)->data);
       }
 
       // CTDC Bank
       for (i=0;i<nCTDC;i++) {
-         for (k=0,channel=0 ; k<5 && (int)(fAnalyzer->GetCTDCBankAt(i)>>16) != 19+k ; k++){
+         for (k=0,channel=0 ; k<5 && (int)(gAnalyzer->GetCTDCBankAt(i)>>16) != 19+k ; k++){
             channel += 16;
          }
-         channel += (fAnalyzer->GetCTDCBankAt(i) >> 12) & 0xF;
+         channel += (gAnalyzer->GetCTDCBankAt(i) >> 12) & 0xF;
          channel += nFTDC;
-         time = (float) (fAnalyzer->GetCTDCBankAt(i) & 0xFFF);
+         time = (float) (gAnalyzer->GetCTDCBankAt(i) & 0xFFF);
          if (time >= 1.f && time < 4096.0f) {
             time *= 0.025f;
             if(channel < nFTDC + nCTDC) {
@@ -114,13 +108,13 @@ void MEGTReadMidas::Event()
       }
 
       // VTDC Bank
-      n_v = fAnalyzer->GetVTDCBankEntries();
+      n_v = gAnalyzer->GetVTDCBankEntries();
       for (i=0;i<n_v;i++) {
-         if(fAnalyzer->GetVTDCBankAt(i)->tag == 0) {//( tag = 0:data, 2:header, 4:EOB 
+         if(gAnalyzer->GetVTDCBankAt(i)->tag == 0) {//( tag = 0:data, 2:header, 4:EOB 
 	         channel = nFTDC + nCTDC; // put VME TDCs after FB&Camac TDCs 
-	         channel += fAnalyzer->GetVTDCBankAt(i)->geo_addr*32;
-	         channel += fAnalyzer->GetVTDCBankAt(i)->channel;
-	         time = fAnalyzer->GetVTDCBankAt(i)->data;
+	         channel += gAnalyzer->GetVTDCBankAt(i)->geo_addr*32;
+	         channel += gAnalyzer->GetVTDCBankAt(i)->channel;
+	         time = gAnalyzer->GetVTDCBankAt(i)->data;
 	         // convert to ns 
 	         time *= 0.035f;
 	         if (channel < nPMT) {
@@ -131,18 +125,18 @@ void MEGTReadMidas::Event()
       }
    }
    else {
-      fAnalyzer->SetFillEvent(false);
+      gAnalyzer->SetFillEvent(false);
       delete vfTDC;
       return;
    }
    // write data to folder
    int iadc,itdc;
    for (i=0;i<nPMT;i++) {
-      iadc = fAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
-      itdc = fAnalyzer->GetCMPMTInfoAt(i)->GetTDCID();
-      fAnalyzer->GetCMPMTDataAt(i)->SetADC0Data((Float_t)fAnalyzer->GetADC0BankAt(iadc));
-      fAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)fAnalyzer->GetADC1BankAt(iadc));
-      fAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
+      iadc = gAnalyzer->GetCMPMTInfoAt(i)->GetADCID();
+      itdc = gAnalyzer->GetCMPMTInfoAt(i)->GetTDCID();
+      gAnalyzer->GetCMPMTDataAt(i)->SetADC0Data((Float_t)gAnalyzer->GetADC0BankAt(iadc));
+      gAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)gAnalyzer->GetADC1BankAt(iadc));
+      gAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
 	  
    delete vfTDC;

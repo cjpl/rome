@@ -32,7 +32,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "XYZTADCCalib.h"
+#include <include/tasks/XYZTADCCalib.h>
 #include <Riostream.h>
 
 ClassImp(XYZTADCCalib)
@@ -45,21 +45,19 @@ void XYZTADCCalib::BeginOfRun()
 {
 }
 
-#define gNumberOfPMT 257
 void XYZTADCCalib::Event()
 {
-   for (int i=0;i<gNumberOfPMT;i++) {
-      float pmtData = fAnalyzer->GetCMPMTDataAt(i)->GetADC();
-//      float pedestal = fAnalyzer->GetCMCalibAt(i)->GetADCPedestal();
-      FillADCHistoAt(i,pmtData);
-   }
-}
-
+    for (int i=0;i<257;i++) {
+       float pmtData = gAnalyzer->GetPMTDataAt(i)->GetADC();
+       float pedestal = gAnalyzer->GetCalibAt(i)->GetADCPedestal();
+       FillADCHistoAt(i,pmtData - pedestal);
+    }
+} 
 void XYZTADCCalib::EndOfRun()
 {
-   for (int i=0;i<gNumberOfPMT;i++) {
-      DrawADCHistoAt(i);
-	}
+    for (int i=0;i<257;i++) {
+       DrawADCHistoAt(i);
+    }
 }
 
 void XYZTADCCalib::Terminate()

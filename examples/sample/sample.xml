@@ -2,17 +2,17 @@
 <!-- edited by Matthias Schneebeli (PSI) -->
 <XYZ>
 	<Folder>
-		<SubFolder FolderName="CMPMTData" Array="257">
+		<SubFolder FolderName="PMTData" Array="257">
 			<Fields>
 				<ADC Type="Float_t" Initialisation="0" Comment="// ADC Data"/>
 			</Fields>
 		</SubFolder>
-		<SubFolder FolderName="CMCalib" Array="257" DataBase="yes">
+		<SubFolder FolderName="Calib" Array="257" DataBase="yes">
 			<Fields>
 				<ADCPedestal Type="Float_t" Initialisation="0" Comment="// ADC Pedestal"/>
 			</Fields>
 		</SubFolder>
-		<SubFolder FolderName="CMPMTInfo" Array="257" DataBase="yes">
+		<SubFolder FolderName="PMTInfo" Array="257" DataBase="yes">
 			<Fields>
 				<PMID Type="Int_t" Initialisation="0" Comment="// Photo Multiplier ID"/>
 				<ADCID Type="Int_t" Initialisation="0" Comment="// ADC Number"/>
@@ -34,8 +34,8 @@
 		</SubTask>
 	</Task>
 	<Trees>
-		<Tree Name="Data" Title="Calorimeter PMT Data">
-			<Branch Name="PMTData" Folder="CMPMTData"/>
+		<Tree Name="Data" Title="PMT Data">
+			<Branch Name="PMTData" Folder="PMTData"/>
 		</Tree>
 	</Trees>
 	<MidasBanks>
