@@ -1,7 +1,6 @@
 #ifndef ROMEStatic_H
 #define ROMEStatic_H
 #include <TArrayI.h>
-#include <strstream>
 #include <stdio.h>
 
 #if defined( _MSC_VER )
@@ -11,6 +10,7 @@
 #endif
 #endif
 #if defined ( __linux__ )
+#include <sstream>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/io.h>
