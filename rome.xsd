@@ -487,6 +487,28 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="EnumerateDesc">
+		<xs:annotation>
+			<xs:documentation>Description of bank enumeration. Bank enumeration is used for bank names containing numbers. For example, if there are banks EV01 to EV04 which all contain the same kind of data, one can specifie the bank name as 'EV' and define an enumeration from 1 to 4 with 2 digits.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LowerBoundary" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The lowest bank number.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UpperBoundary" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The highest bank number.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NumberOfDigits" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>Number of digits to write.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="BankDesc">
 		<xs:annotation>
 			<xs:documentation>Description of banks.</xs:documentation>
@@ -500,6 +522,11 @@
 			<xs:element name="BankType" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The type of the bank.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Enumerate" type="EnumerateDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the bank enumeration.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -539,6 +566,11 @@
 			<xs:element name="BankField" type="BankFieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes the fields of the structured bank.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Enumerate" type="EnumerateDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the bank enumeration.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

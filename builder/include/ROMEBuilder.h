@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.21  2005/01/05 10:37:05  schneebeli_m
+  Bank enumeration
+
   Revision 1.20  2004/12/06 09:04:34  schneebeli_m
   minor changes
 
@@ -167,6 +170,9 @@ private:
    int numOfStructFields[maxNumberOfBanks];
    ROMEString bankName[maxNumberOfBanks];
    ROMEString bankType[maxNumberOfBanks];
+   int bankEnumLow[maxNumberOfBanks];
+   int bankEnumHigh[maxNumberOfBanks];
+   int bankEnumDigit[maxNumberOfBanks];
    ROMEString structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
    ROMEString structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
