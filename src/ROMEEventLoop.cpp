@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.40  2005/01/17 11:13:27  schneebeli_m
+//  consol output
+//
 //  Revision 1.39  2005/01/14 13:23:19  schneebeli_m
 //  Screen output
 //
@@ -936,8 +939,6 @@ bool ROMEEventLoop::UserInput()
    }
    if (hit)
       time(&fProgressTimeOfLastEvent);
-
-   gROME->ss_getchar(1);
 
    return true;
 }
