@@ -276,19 +276,14 @@
 					<xs:documentation>The name of the folder.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element default="true" minOccurs="0" name="DataBaseAccess" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation>If this value is &apos;true&apos;, the fields of this folder are read from the data base at the beginning of each run.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element minOccurs="0" name="ROMEProjectPath" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Path to the ROME project which have this folder.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element default="false" minOccurs="0" name="Arrayed" type="xs:boolean">
+			<xs:element default="1" minOccurs="0" name="ArraySize" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>If this value is &apos;true&apos;, the folders are arrayed in ROME.</xs:documentation>
+					<xs:documentation>The array size of the folder. If this value is 1 or not present, then the framework creates a single object. If the value is greater than 1 the framework creates a fixed array of objects. If the value equals &apos;variable&apos; the folder array is dynamical, whitch means that only used folders are written to the root files. Folders with data base access can not be &apos;variable&apos;. Folders containing only values, which are not altered every event (like scaler) should also not be &apos;variable&apos;.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
