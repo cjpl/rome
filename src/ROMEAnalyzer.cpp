@@ -242,7 +242,7 @@ bool ROMEAnalyzer::Init() {
       // Set Event Status
       fEventStatus = kAnalyze;
 #else
-      cout << "Need Midas support for Online Modus !!" << endl;
+      cout << "Need Midas support for Online Mode !!" << endl;
       cout << "Please link the midas library into this project." << endl;
       return false;
 #endif
@@ -276,6 +276,7 @@ bool ROMEAnalyzer::Init() {
    return true;
 }
 bool ROMEAnalyzer::Connect(Int_t runNumberIndex) {
+   cout << "Connect" << endl;
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEString runNumberString;
    // Statistics
@@ -406,6 +407,7 @@ bool ROMEAnalyzer::ReadEvent(Int_t event) {
             printf("\n\nRun %d stopped\n", runNumber);
             fEventStatus = kEndOfRun;
             fRunStatus = kStopped;
+            return true;
          }
       }
       int status = cm_yield(100);
@@ -587,6 +589,7 @@ bool ROMEAnalyzer::UserInput() {
 }
 
 bool ROMEAnalyzer::Disconnect() {
+   cout << "Disconnect" << endl;
    // Disconnects the current run. Called before the EndOfRun tasks.
 
    TFile *f1;
@@ -634,6 +637,7 @@ bool ROMEAnalyzer::Disconnect() {
 }
 
 bool ROMEAnalyzer::Terminate() {
+   cout << "Terminate" << endl;
    // Clean up the analyzer. Called before the Terminate tasks.
    if (this->isOnline()&&this->isMidas()) {
 #if defined HAVE_MIDAS

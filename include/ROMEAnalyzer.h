@@ -89,7 +89,7 @@ protected:
 
    Int_t      fMidasFileHandle;                 //! Handle to Midas Inputfile
    int        fMidasBuffer;                     //! Midas Online Buffer
-   char       fMidasEvent[100000];             //! Midas Inputdata Stack for an Event
+   char       fMidasEvent[100000];              //! Midas Inputdata Stack for an Event
 
    TFile**    fRootFiles;                       //! Root files
 
