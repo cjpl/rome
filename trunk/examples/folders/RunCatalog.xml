@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<FODataBase>
+  <RunCatalog>
+    <id>0</id>
+    <comment>folders test database - 0</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>100</id>
+    <comment>folders test database - 100</comment>
+  </RunCatalog>
+</FODataBase>

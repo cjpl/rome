@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.4  2005/02/04 15:10:05  sawada
+  ODB and ROMEDataBase folders.
+
   Revision 1.3  2005/02/03 11:44:54  sawada
   IO to MIDAS ODB
 
@@ -164,7 +167,7 @@ bool ArgusBuilder::ReadXMLFolder() {
          xml->GetValue(folderConnectionType[numOfFolder],folderConnectionType[numOfFolder]);
          if(!midas && !strcmp(folderConnectionType[numOfFolder],"ODB")){
             cout << "Need Midas support for ODB connection !!" << endl;
-            cout << "Please link the midas library into this project." << endl;
+            cout << "Please link the midas library with \"-midas\"." << endl;
             return false;
          }
       }
@@ -460,10 +463,6 @@ bool ArgusBuilder::WriteFolderH() {
          buffer.AppendFormatted("\n");
          format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
          buffer.AppendFormatted((char*)format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
-         if(folderConnectionType[iFold] == "ODB"){
-            format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-19);
-            buffer.AppendFormatted((char*)format.Data(),"int","MidasOnlineDataBase","","//! ODB");
-         }
          buffer.AppendFormatted("\n");
       }
       // Methods
@@ -583,13 +582,6 @@ bool ArgusBuilder::WriteFolderH() {
          format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s; };\n",lb,typeLen,lb,lb,lb);
          buffer.AppendFormatted((char*)format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
          buffer.AppendFormatted("\n");
-         // Set ODB
-         if(folderConnectionType[iFold] == "ODB"){
-            lb = nameLen-19;
-            format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s; };\n",lb,typeLen,lb,lb,lb);
-            buffer.AppendFormatted((char*)format.Data(),"MidasOnlineDataBase","","int","odb","","MidasOnlineDataBase","","odb","");
-            buffer.AppendFormatted("\n");
-         }
          // Set All
          buffer.AppendFormatted("   void SetAll( ");
          for (i=0;i<numOfValue[iFold];i++) {
@@ -625,32 +617,6 @@ bool ArgusBuilder::WriteFolderH() {
          }
          buffer.AppendFormatted("fModified = false; ");
          buffer.AppendFormatted("};\n");
-         // Update
-         ROMEString tid;
-         buffer.AppendFormatted("   void Update() {\n");
-         if(folderConnectionType[iFold] == "ODB"){
-            buffer.AppendFormatted("      HNDLE hkey;\n");
-            buffer.AppendFormatted("      INT   size;\n");
-         }
-         for (i=0;i<numOfValue[iFold];i++) {
-            if (valueArray[iFold][i]=="1") {
-               if(folderConnectionType[iFold] == "ODB"){
-                  GetMidasTID(&tid, (char*)valueType[iFold][i].Data());
-                  buffer.AppendFormatted("      size = sizeof(%s);\n",valueName[iFold][i].Data());
-                  buffer.AppendFormatted("      db_get_value(fMidasOnlineDataBase, 0, %s, &%s, &size, %s, FALSE);\n",valueDataBasePath[iFold][i].Data(),valueName[iFold][i].Data(),tid.Data());
-               }
-            }
-            else {
-               if(folderConnectionType[iFold] == "ODB"){
-                  GetMidasTID(&tid, (char*)valueType[iFold][i].Data());
-                  buffer.AppendFormatted("      size = sizeof(%s);\n",valueName[iFold][i].Data());
-                  buffer.AppendFormatted("      db_find_key(fMidasOnlineDataBase, 0, %s, &hkey);\n",valueDataBasePath[iFold][i].Data());
-                  buffer.AppendFormatted("      db_get_data(fMidasOnlineDataBase, hkey, %s, &size, %s);\n",valueName[iFold][i].Data(),tid.Data());
-               }
-            }
-         }
-         buffer.AppendFormatted("      fModified = true;\n");
-         buffer.AppendFormatted("   };\n");
       }
       else{
          format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return %%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
