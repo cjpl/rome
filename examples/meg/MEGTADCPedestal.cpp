@@ -36,8 +36,10 @@
 
 #if defined( _MSC_VER )
 #include <conio.h>
+#include <strstream>
 #endif
 #if defined ( __linux__ )
+#include <sstream>
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/io.h>
@@ -48,8 +50,7 @@
 #include <TStyle.h>
 #include <TF1.h>
 #include <TH1.h>
-#include <strstream>
-#include "MEGTADCPedestal.h"
+#include <include/tasks/MEGTADCPedestal.h>
 #include <Riostream.h>
 
 ClassImp(MEGTADCPedestal)
@@ -93,7 +94,6 @@ void MEGTADCPedestal::BeginOfRun()
 void MEGTADCPedestal::Event()
 {
    int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
-   if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
    for (int i=0;i<nPMT;i++) {
       MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(i);

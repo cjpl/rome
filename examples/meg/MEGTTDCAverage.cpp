@@ -35,7 +35,7 @@
 
 #include <TCanvas.h>
 #include "MEG.h"
-#include "MEGTTDCAverage.h"
+#include <include/tasks/MEGTTDCAverage.h>
 #include "Riostream.h"
 
 ClassImp(MEGTTDCAverage)
@@ -52,8 +52,6 @@ void MEGTTDCAverage::Event()
 {
    int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
    float invalid = fAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
-//   cout <<fAnalyzer->GetTriggerObject()->GetID()<<endl;
-   if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
    float sum = 0;
    int nsum = 0;
@@ -69,6 +67,7 @@ void MEGTTDCAverage::Event()
          else corrupt = true;
       }
    }
+
    if (!corrupt) FillTDCAverageHisto(sum/nsum);
 }
 

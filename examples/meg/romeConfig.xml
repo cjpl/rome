@@ -1,2 +1,55 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- edited with ROME--><Configuration><Modes AnalyzingMode="offline" InputDataFormat="midas" BatchMode="no" ShowSplashScreen="no" DataBaseMode="xml"/><RunNumbers Numbers="6625"/><EventNumbers Numbers=""/><Paths><InputFilePath>/afs/psi.ch/user/s/schneebeli_m/data/data/</InputFilePath><OutputFilePath>/afs/psi.ch/user/s/schneebeli_m/data/Calib/</OutputFilePath><DataBaseFilePath>/afs/psi.ch/user/s/schneebeli_m/data/DataBase/</DataBaseFilePath></Paths><Tasks><ReadMidas Active="yes"/><ADCPedestal Active="yes"><ADC0Histo Accumulate="yes"/><ADC1Histo Accumulate="yes"/><SteeringParameters><PedestalThreshold>500.000000</PedestalThreshold><PedestalSpreadThreshold>1.000000</PedestalSpreadThreshold></SteeringParameters></ADCPedestal><TDCAverage Active="no"><TDCAverageHisto Accumulate="yes"/></TDCAverage><Charge Active="no"><FrontMapHisto Accumulate="yes"/><BackMapHisto Accumulate="yes"/><TopMapHisto Accumulate="yes"/><BottomMapHisto Accumulate="yes"/><RightMapHisto Accumulate="yes"/><LeftMapHisto Accumulate="yes"/><SteeringParameters><NumberOfMapHistos>10</NumberOfMapHistos></SteeringParameters></Charge></Tasks><Trees Accumulation="no"><CMPMTData Read="no" Write="no"/><CMHit Read="no" Write="no"/><Trigger Read="no" Write="no"/></Trees><GeneralSteeringParameters><InvalidValue>-1000.000000</InvalidValue><PMT><Numbers><NumberOfPMT>257</NumberOfPMT><NumberOfFTDC>64</NumberOfFTDC><NumberOfCTDC>80</NumberOfCTDC><NumberOfVTDC>128</NumberOfVTDC><NumberOfLXePMT>228</NumberOfLXePMT></Numbers></PMT></GeneralSteeringParameters></Configuration>
+<!-- created by ROME on Fri Sep 17 08:53:42 2004
+ -->
+<Configuration>
+     <Modes AnalyzingMode="offline" OnlineHost="" OnlineExperiment="" InputDataFormat="midas" BatchMode="no" ShowSplashScreen="no" DataBaseMode="xml"/>
+     <RunNumbers Numbers="6625"/>
+     <EventNumbers Numbers=""/>
+     <Paths>
+          <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
+          <OutputFilePath>C:\Data\analysis\MEG\Calib/</OutputFilePath>
+          <DataBaseFilePath>C:\Data\analysis\MEG\DataBase/</DataBaseFilePath>
+     </Paths>
+     <Tasks>
+          <ReadMidas Active="yes"/>
+          <ADCPedestal Active="yes">
+               <ADC0Histo Accumulate="yes"/>
+               <ADC1Histo Accumulate="yes"/>
+               <SteeringParameters>
+                    <PedestalThreshold>500.000000</PedestalThreshold>
+                    <PedestalSpreadThreshold>1.000000</PedestalSpreadThreshold>
+               </SteeringParameters>
+          </ADCPedestal>
+          <TDCAverage Active="no">
+               <TDCAverageHisto Accumulate="yes"/>
+          </TDCAverage>
+          <Charge Active="no">
+               <FrontMapHisto Accumulate="yes"/>
+               <BackMapHisto Accumulate="yes"/>
+               <TopMapHisto Accumulate="yes"/>
+               <BottomMapHisto Accumulate="yes"/>
+               <RightMapHisto Accumulate="yes"/>
+               <LeftMapHisto Accumulate="yes"/>
+               <SteeringParameters>
+                    <NumberOfMapHistos>10</NumberOfMapHistos>
+               </SteeringParameters>
+          </Charge>
+     </Tasks>
+     <Trees Accumulation="no">
+          <CMPMTData Read="no" Write="no"/>
+          <CMHit Read="no" Write="no"/>
+          <Trigger Read="no" Write="no"/>
+     </Trees>
+     <GeneralSteeringParameters>
+          <InvalidValue>-1000.000000</InvalidValue>
+          <PMT>
+               <Numbers>
+                    <NumberOfPMT>257</NumberOfPMT>
+                    <NumberOfFTDC>64</NumberOfFTDC>
+                    <NumberOfCTDC>80</NumberOfCTDC>
+                    <NumberOfVTDC>128</NumberOfVTDC>
+                    <NumberOfLXePMT>228</NumberOfLXePMT>
+               </Numbers>
+          </PMT>
+     </GeneralSteeringParameters>
+</Configuration>

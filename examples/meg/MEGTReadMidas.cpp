@@ -48,7 +48,7 @@
 #include <TFile.h>
 #include <ROME.h>
 #include <ROMEStatic.h>
-#include "MEGTReadMidas.h"
+#include <include/tasks/MEGTReadMidas.h>
 #include <Riostream.h>
 
 ClassImp(MEGTReadMidas)
@@ -61,9 +61,15 @@ void MEGTReadMidas::Init()
 void MEGTReadMidas::BeginOfRun()
 {
 }
-
+int ii = 0;
 void MEGTReadMidas::Event()
 {
+   ii++;
+   if (ii%2) {
+      fAnalyzer->SetDontReadNextEvent();
+   }
+   fAnalyzer->SetCurrentEventNumber(ii);
+
    // Read Midas Banks and fill theme to folder
    float invalid = fAnalyzer->GetGeneralSteeringParameters()->GetInvalidValue();
 
@@ -76,10 +82,6 @@ void MEGTReadMidas::Event()
    Float_t  *vfTDC = new Float_t[nPMT];
    int channel=0;float time=0,k;
    int n_f,n_c,n_v;
-
-   // set trigger values
-//   fAnalyzer->SetTriggerObject(fAnalyzer->GetEventHeader()->event_id,fAnalyzer->GetEventHeader()->trigger_mask,
-//                               fAnalyzer->GetEventHeader()->time_stamp,fAnalyzer->GetEventHeader()->serial_number);
 
    // Read Banks
 
@@ -142,10 +144,6 @@ void MEGTReadMidas::Event()
       fAnalyzer->GetCMPMTDataAt(i)->SetADC1Data((Float_t)fAnalyzer->GetADC1BankAt(iadc));
       fAnalyzer->GetCMPMTDataAt(i)->SetTDCData(vfTDC[itdc]);
    }
-   fAnalyzer->GetCMRefObject()->SetTrigger(fAnalyzer->GetTriggerObject());
-   fAnalyzer->GetCMRefObject()->SetScaler(fAnalyzer->GetCMScalerObject());
-   fAnalyzer->GetCMRefObject()->SetHV(fAnalyzer->GetCMHVObject());
-   fAnalyzer->GetCMRefObject()->SetEnv(fAnalyzer->GetEnvironmentObject());
 	  
    delete vfTDC;
    return;

@@ -41,7 +41,7 @@
 #include <TCanvas.h>
 #include <ROME.h>
 #include "MEG.h"
-#include "MEGTCharge.h"
+#include <include/tasks/MEGTCharge.h>
 
 ClassImp(MEGTCharge)
 
@@ -90,7 +90,6 @@ void MEGTCharge::Event()
 {
    int nMapHistos = GetSP()->GetNumberOfMapHistos();
    int nPMT = fAnalyzer->GetGeneralSteeringParameters()->GetPMT()->GetNumbers()->GetNumberOfPMT();
-   if (fAnalyzer->GetTriggerObject()->GetID()!=1) return;
 
    int eventNumber,face;
    int   j;
@@ -114,7 +113,7 @@ void MEGTCharge::Event()
       MEGCMPMTData *pmtData = fAnalyzer->GetCMPMTDataAt(j);
       MEGCMPMTInfo *pmtInfo = fAnalyzer->GetCMPMTInfoAt(j);
       pmt_signal = TMath::Max(pmtData->GetADC0Data(),0.f);
-      eventNumber = fAnalyzer->GetTriggerObject()->GetEventNumber();
+      eventNumber = fAnalyzer->GetTriggerObject()->GetEventnumber();
       x_coor= pmtInfo->GetX();
       y_coor= pmtInfo->GetY();
       face = pmtInfo->GetFace();
