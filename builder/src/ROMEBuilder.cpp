@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.85  2005/01/10 16:50:47  schneebeli_m
+  TaskDiscription in HTML
+
   Revision 1.84  2005/01/07 11:37:32  schneebeli_m
   Bank Arrays, Folder Array Getter
 
@@ -299,7 +302,8 @@ bool ROMEBuilder::ReadXMLFolder() {
       if (type == 1 && !strcmp((const char*)name,"Folder")) {
          // set folder as parent for subsequent folders
          recursiveDepth++;
-         parent[recursiveDepth] = folderName[numOfFolder].Data();
+         if (parent[recursiveDepth].Length()==0)
+            parent[recursiveDepth] = folderName[numOfFolder].Data();
          // read subfolder
          if (!ReadXMLFolder()) 
             return false;
@@ -313,6 +317,7 @@ bool ROMEBuilder::ReadXMLFolder() {
             cout << "Terminating program." << endl;
             return false;
          }
+         parent[recursiveDepth+1] = "";
          recursiveDepth--;
          return true;
       }
@@ -1170,6 +1175,7 @@ bool ROMEBuilder::WriteTaskCpp() {
    char *pos;
    int fileHandle;
    ROMEString format;
+   ROMEString discript;
    ROMEString str;
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
@@ -1186,10 +1192,11 @@ bool ROMEBuilder::WriteTaskCpp() {
       format.SetFormatted("// %%sT%%-%d.%ds //\n",ll,ll);
       buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("//                                                                            //\n");
-      pos = (char*)taskDescription[iTask].Data();
-      lenTot = taskDescription[iTask].Length();
-      while (pos-taskDescription[iTask].Data() < lenTot) {
-         if (lenTot+(taskDescription[iTask].Data()-pos)<74) 
+      discript = taskDescription[iTask].Data();
+      pos = (char*)discript.Data();
+      lenTot = discript.Length();
+      while (pos-discript.Data() < lenTot) {
+         if (lenTot+(discript.Data()-pos)<74) 
             i=TMath::Min(75,lenTot);
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0)
@@ -6430,13 +6437,17 @@ void ROMEBuilder::WriteHTMLDoku() {
          parentt = folderParentName[i];
          for (j=0;j<100;j++) {
             for (k=0;k<numOfFolder;k++) {
-               if (parentt==folderName[k]) break;
+               if (parentt==folderName[k]) {
+                  parentt = folderParentName[k];
+                  break;
+               }
             }
             if (k>=numOfFolder) {
                cout << "Invalid folder structure." << endl;
                return;
             }
-            if (folderParentName[k]=="GetMainFolder()") break;
+            if (folderParentName[k]=="GetMainFolder()")
+               break;
             depth++;
          }
       }
