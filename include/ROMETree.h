@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2004/10/25 08:03:41  schneebeli_m
+  html docu and tree switches
+
   Revision 1.9  2004/10/21 08:05:08  schneebeli_m
   switches size
 
@@ -29,9 +32,9 @@ class ROMETree : public TObject
 {
 private:
    struct Switches {
-      bool fRead;             //!   Read Flag
-      bool fWrite;            //!   Write Flag
-      bool fFill;             //!   Fill Flag
+      int fRead;              //!   Read Flag
+      int fWrite;             //!   Write Flag
+      int fFill;              //!   Fill Flag
       int fCompressionLevel;  //!   Compression Level
       int fMaxEntries;        //!   Max number of entries, 0 in case of a non circular tree
    } fSwitches;               //!   Switches Structure
@@ -48,9 +51,9 @@ public:
      for (int i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
      fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n"; };
    TTree *GetTree() { return fTree; };
-   Bool_t isRead() { return fSwitches.fRead; };
-   Bool_t isWrite() { return fSwitches.fWrite; };
-   Bool_t isFill() { return fSwitches.fFill; };
+   Bool_t isRead() { return fSwitches.fRead!=0; };
+   Bool_t isWrite() { return fSwitches.fWrite!=0; };
+   Bool_t isFill() { return fSwitches.fFill!=0; };
    Int_t  GetCompressionLevel() { return fSwitches.fCompressionLevel; };
    Bool_t isCircular() { return fSwitches.fMaxEntries!=0; };
    Int_t  GetMaxEntries() { return fSwitches.fMaxEntries; };

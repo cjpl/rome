@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.64  2004/10/25 08:03:41  schneebeli_m
+  html docu and tree switches
+
   Revision 1.63  2004/10/21 13:03:51  schneebeli_m
   *** empty log message ***
 
@@ -5787,8 +5790,9 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#foldermethods\">Folders</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#databasemethods\">Data Base</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
+   buffer.AppendFormatted("<li><a href=\"#steermethods\">Steering Parameters</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
+   buffer.AppendFormatted("<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#generalmethods\">General</a></li>\n");
    buffer.AppendFormatted("<br>\n");
    buffer.AppendFormatted("</ul>\n");
@@ -6035,31 +6039,35 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<h3><a name=databasemethods><u>Data Base</u></a></h3>\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("To add an entry to the data base the following methods are available :\n");
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("\n");
 
-   // Midas Banks
-   buffer.AppendFormatted("<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
-   buffer.AppendFormatted("To access a bank in a midas input file the following methods are available :\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("One can get the entries in a bank with the following method :\n");
-   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
-   buffer.AppendFormatted("<p>\n");
+   // Steering Parameters
+   buffer.AppendFormatted("<h3><a name=steermethods><u>Steering Parameters</u></a></h3>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The data can be accessed with :\n");
-   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
+   buffer.AppendFormatted("Global steering parameters can be accessed over the global handle gAnalyzer->GetGSP().\n");
+   buffer.AppendFormatted("Task dependent steering parameters can only be accessed inside the task and over the GetSP() handle.\n");
    buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
-   buffer.AppendFormatted("<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
+   buffer.AppendFormatted("A steering parameter group handle can be accessed with the following methods : \n");
    buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
+   buffer.AppendFormatted("<b>Get[<i>Group Name</i>]()</b>\n");
    buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
-   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetXXBankAt(9)->YY <p>\n");
+   buffer.AppendFormatted("A steering parameter value can be accessed with the following methods : \n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b>Get[<i>Field Name</i>]()</b><br>\n");
+   buffer.AppendFormatted("<b>Set[<i>Field Name</i>](<i>Value</i>)</b>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b><i>Group Name</i></b> stands for the name of the steering parameter group specified in the xml file.</br>\n");
+   buffer.AppendFormatted("<b><i>Field Name</i></b> stands for the name of the steering parameter field specified in the xml file.</br>\n");
+   buffer.AppendFormatted("<b><i>Value</i></b> is the new field value.</br>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b>Example:</b> To get the field 'ZZ' of a global steering parameter group 'YY' of a steering parameter group 'XX' type :<p>\n");
+   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetGSP()->GetXX()->GetYY()->GetZZ()\n");
+   buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("\n");
 
    // Histos
@@ -6081,6 +6089,28 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<b><i>xValue</i></b> value to be filled to the histogram.</br>\n");
    buffer.AppendFormatted("<b><i>weight</i></b> weight of the value.</br>\n");
    buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n");
+
+   // Midas Banks
+   buffer.AppendFormatted("<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
+   buffer.AppendFormatted("To access a bank in a midas input file the following methods are available :\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("One can get the entries in a bank with the following method :\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("The data can be accessed with :\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
+   buffer.AppendFormatted("<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
+   buffer.AppendFormatted("<p>\n");
+   buffer.AppendFormatted("<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
+   buffer.AppendFormatted("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;gAnalyzer->GetXXBankAt(9)->YY <p>\n");
    buffer.AppendFormatted("\n");
 
    // General Methods
