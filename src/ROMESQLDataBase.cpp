@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.16  2004/11/19 22:37:14  sawada
+//  bug fix
+//
 //  Revision 1.15  2004/11/19 16:26:24  sawada
 //  speed up with reading order array at once.
 //
@@ -204,19 +207,6 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
       fFieldList.Remove(fFieldList.Length()-1,1);
    }
    
-   if(path->IsOrderArray()){
-      //limit phrase
-      if(!fLimitPhrase.Length())
-	 fLimitPhrase.AppendFormatted("%d",TMath::Abs(path->GetOrderIndexAt(1)-path->GetOrderIndexAt(0))+1);
-      
-      //order phrase
-      if(!fOrderPhrase.Length() && strlen(path->GetOrderTableName())>0 && strlen(path->GetOrderFieldName())>0)
-	 fOrderPhrase.AppendFormatted("%s.%s",path->GetOrderTableName(),path->GetOrderFieldName());
-   }
-   else if(!fLimitPhrase.Length()){
-      fLimitPhrase = "1";
-   }
-
 #ifdef SQLDEBUG
    cout<<endl<<"******************************************************************************"<<endl;
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
@@ -409,6 +399,18 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       delete path;
       return false;
    }
+   if(path->IsOrderArray()){
+      fLimitPhrase.AppendFormatted("%d",TMath::Abs((path->GetOrderIndexAt(1) - path->GetOrderIndexAt(0))
+						   /path->GetOrderIndexAt(2))+1);
+      
+      if(strlen(path->GetOrderTableName())>0)
+	 fOrderPhrase.AppendFormatted("%s.%s",path->GetOrderTableName(),
+				      strlen(path->GetOrderFieldName())
+				      ? path->GetOrderFieldName() : "idx");
+   }
+   else if(!fLimitPhrase.Length()){
+      fLimitPhrase = "1";
+   }
    
    sqlQuery = "SELECT ";
    sqlQuery += fFieldList;
@@ -418,6 +420,19 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
    if(fWherePhrase.Length())
       sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+   if(fOrderPhrase.Length()){
+      if(sqlQuery.Contains("WHERE"))
+	 sqlQuery += " AND ";
+      else
+	 sqlQuery += " WHERE ";
+      sqlQuery.AppendFormatted("(%s BETWEEN %d AND %d)"
+			       ,fOrderPhrase.Data()
+			       ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
+			       ,TMath::Max(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1)));
+      if(path->GetOrderIndexAt(2)!=1)
+	 sqlQuery.AppendFormatted(" AND MOD(%s-%d,%d)=0"
+				  ,fOrderPhrase.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));      
+   }
    if(fOrderPhrase.Length())
       sqlQuery.AppendFormatted(" ORDER BY %s",fOrderPhrase.Data());
    if(fLimitPhrase.Length())
