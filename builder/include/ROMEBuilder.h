@@ -1,6 +1,7 @@
 #ifndef ROMEBuilder_H
 #define ROMEBuilder_H
 
+#include <ROMEXML.h>
 
 const int numberOfTasks = 200;
 const int numberOfFolders = 100;
@@ -35,6 +36,8 @@ public:
    bool sql;
 
 private:
+   ROMEXML* xml;
+
    char shortCut[nameLength];
 
 // folders
@@ -147,19 +150,19 @@ private:
 public:
    ROMEBuilder() {};
 
-   bool ReadXMLFolder(xmlTextReaderPtr reader);
+   bool ReadXMLFolder();
    bool WriteFolderCpp();
    bool WriteFolderH();
-   bool ReadXMLTask(xmlTextReaderPtr reader);
+   bool ReadXMLTask();
    bool WriteTaskSteeringClass(char *buffer,int numOfTaskSteer,int numTask);
    void WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask);
    void WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
-   bool ReadXMLTree(xmlTextReaderPtr reader);
-   bool ReadXMLMidasBanks(xmlTextReaderPtr reader);
-   bool ReadXMLSteering(xmlTextReaderPtr reader);
+   bool ReadXMLTree();
+   bool ReadXMLMidasBanks();
+   bool ReadXMLSteering();
    bool WriteSteering();
    bool WriteSteeringClass(char *buffer,int numOfSteer);
    bool WriteAnalyzerCpp();

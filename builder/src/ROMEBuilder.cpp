@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.19  2004/07/13 16:07:00  schneebeli
+  memory overflow (roottree), romexml
+
   Revision 1.18  2004/07/09 17:47:51  schneebeli
   directory structure added
 
@@ -57,7 +60,6 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
-#include <libxml/xmlreader.h>
 #include <float.h>
 #include <math.h>
 
@@ -67,24 +69,27 @@
 
 #include "ROMEBuilder.h"
 
-bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLFolder() {
    char parent[10][100];
    char tmp[100];
-   const xmlChar *name, *value;
+   char* name;
    int type,i,j,isub=0;
    strcpy(parent[0],"GetMainFolder()");
 
    if (makeOutput) cout << "Folders:" << endl;
-   while (xmlTextReaderRead(reader)) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
       // read subfolder
       if (type == 1 && !strcmp((const char*)name,"SubFolder")) {
          numOfFolder++;
          // default initialisation
          strcpy(version[numOfFolder],"1");
-         strcpy(author[numOfFolder],"");
+         strcpy(author[numOfFolder],mainAuthor);
          strcpy(folderDescription[numOfFolder],"");
+         strcpy(folderTitle[numOfFolder],"");
+         strcpy(folderArray[numOfFolder],"1");
+         dataBase[numOfFolder] = false;
          numOfValue[numOfFolder] = 0;
          numOfGetters[numOfFolder] = 0;
          numOfSetters[numOfFolder] = 0;
@@ -92,37 +97,23 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
          // set parent
          strcpy(parentFolderName[numOfFolder],parent[isub]);
          // read folder name
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"FolderName");
-         if (value!=NULL) strcpy(folderName[numOfFolder],(const char*)value);
-         else {
-            cout << "Folder " << numOfFolder << " has no name defined !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
+         if (!xml->GetAttribute("Name",folderName[numOfFolder])) {
+            if (!xml->GetAttribute("FolderName",folderName[numOfFolder])) {
+               cout << "Folder " << numOfFolder << " has no name defined !" << endl;
+               cout << "Terminating program." << endl;
+               return false;
+            }
          }
-         xmlFree((void*)value);
          // read folder title
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"FolderTitle");
-         if (value!=NULL) strcpy(folderTitle[numOfFolder],(const char*)value);
-         else strcpy(folderTitle[numOfFolder],"");
-         xmlFree((void*)value);
+         xml->GetAttribute("Title",folderTitle[numOfFolder]);
+         xml->GetAttribute("FolderTitle",folderTitle[numOfFolder]);
          // read array flag
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"ArraySize");
-         if (value!=NULL) strcpy(folderArray[numOfFolder],(const char*)value);
-         else strcpy(folderArray[numOfFolder],"1");
-         xmlFree((void*)value);
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Array");
-         if (value!=NULL) strcpy(folderArray[numOfFolder],(const char*)value);
-         xmlFree((void*)value);
-         if (strstr(folderArray[numOfFolder],"fAnalyzer")==folderArray[numOfFolder]) {
-            strcpy(tmp,folderArray[numOfFolder]);
-            sprintf(folderArray[numOfFolder],"this%s",tmp+9);
-         }
+         xml->GetAttribute("ArraySize",folderArray[numOfFolder]);
+         xml->GetAttribute("Array",folderArray[numOfFolder]);
          // read data base flag
-         dataBase[numOfFolder] = false;
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"DataBase");
-         if (value!=NULL && !strcmp((char*)value,"yes")) dataBase[numOfFolder] = true;
-         else dataBase[numOfFolder] = false;
-         xmlFree((void*)value);
+         xml->GetAttribute("DataBase",tmp);
+         if (!strcmp(tmp,"yes")) 
+            dataBase[numOfFolder] = true;
 
          // set folder as parent for subsequent folders
          isub++;
@@ -140,41 +131,29 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
       if (type == 1) {
          // read author
          if (!strcmp((const char*)name,"Author")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-            if (value != NULL) strcpy(author[numOfFolder],(const char*)value);
-            else strcpy(author[numOfFolder],mainAuthor);
-            xmlFree((void*)value);
+            xml->GetAttribute("Name",author[numOfFolder]);
          }
          // read version
          else if (!strcmp((const char*)name,"Version")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Number");
-            if (value != NULL) strcpy(version[numOfFolder],(const char*)value);
-            else strcpy(version[numOfFolder],"1");
-            xmlFree((void*)value);
+            xml->GetAttribute("Number",version[numOfFolder]);
          }
          // read description
          else if (!strcmp((const char*)name,"Description")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            if (value != NULL) strcpy(folderDescription[numOfFolder],(const char*)value);
-            else strcpy(folderDescription[numOfFolder],"");
-            xmlFree((void*)value);
+            xml->GetAttribute("Text",folderDescription[numOfFolder]);
          }
          // read additional getters
          else if (!strcmp((const char*)name,"AdditionalGetters")) {
             numOfGetters[numOfFolder] = 0;
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   strcpy(getter[numOfFolder][numOfGetters[numOfFolder]],(const char*)name);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value != NULL) strcpy(getterType[numOfFolder][numOfGetters[numOfFolder]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("Type",getterType[numOfFolder][numOfGetters[numOfFolder]])) {
                      cout << "Getter '" << getter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   numOfGetters[numOfFolder]++;
                }
                if (type == 15 && !strcmp((const char*)name,"AdditionalGetters")) {
@@ -185,19 +164,16 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
          // read additional setters
          else if (!strcmp((const char*)name,"AdditionalSetters")) {
             numOfSetters[numOfFolder] = 0;
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   strcpy(setter[numOfFolder][numOfSetters[numOfFolder]],(const char*)name);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value != NULL) strcpy(setterType[numOfFolder][numOfSetters[numOfFolder]],(const char*)value);
-                  else {
-                     cout << "Setter '" << getter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                  if (!xml->GetAttribute("Type",setterType[numOfFolder][numOfGetters[numOfFolder]])) {
+                     cout << "Setter '" << setter[numOfFolder][numOfGetters[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   numOfSetters[numOfFolder]++;
                }
                if (type == 15 && !strcmp((const char*)name,"AdditionalSetters")) {
@@ -207,15 +183,15 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
          }
          // read includes
          else if (!strcmp((const char*)name,"Include")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   strcpy(include[numOfFolder][numOfInclude[numOfFolder]],(const char*)name);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
                   localFlag[numOfFolder][numOfInclude[numOfFolder]] = false;
-                  if (value!=NULL && !strcmp((char*)value,"local")) localFlag[numOfFolder][numOfInclude[numOfFolder]] = true;
-                  xmlFree((void*)value);
+                  xml->GetAttribute("Type",tmp);
+                  if (strcmp(tmp,"local")) 
+                     localFlag[numOfFolder][numOfInclude[numOfFolder]] = true;
                   numOfInclude[numOfFolder]++;
                }
                if (type == 15 && !strcmp((const char*)name,"Include")) {
@@ -225,55 +201,38 @@ bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
          }
          // read fields
          else if (!strcmp((const char*)name,"Fields")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   // field name
-                  strcpy(valueName[numOfFolder][numOfValue[numOfFolder]],(const char*)name);
+                  strcpy(valueName[numOfFolder][numOfValue[numOfFolder]],name);
                   // field type
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value!=NULL) strcpy(valueType[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else {
-                     cout << "Field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                  if (!xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]])) {
+                     cout << "Field '" << valueType[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // field reference flag
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Reference");
-                  if (value!=NULL) strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
-                  xmlFree((void*)value);
+                  strcpy(valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
+                  xml->GetAttribute("Reference",valueRef[numOfFolder][numOfValue[numOfFolder]]);
                   // field initialisation
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
-                  if (value!=NULL) strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else {
-                     if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
-                        strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
-                     else
-                        strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
-                  }
-                  xmlFree((void*)value);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
-                  if (value!=NULL) strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  xmlFree((void*)value);
+                  if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
+                     strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
+                  else
+                     strcpy(valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
+                  xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]]);
+                  xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]]);
                   // field comment
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
-                  if (value!=NULL) strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],"");
+                  strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],"");
+                  xml->GetAttribute("Comment",valueComment[numOfFolder][numOfValue[numOfFolder]]);
                   if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
                      strcpy(tmp,valueComment[numOfFolder][numOfValue[numOfFolder]]);
                      sprintf(valueComment[numOfFolder][numOfValue[numOfFolder]],"// %s",tmp);
                   }
-                  xmlFree((void*)value);
                   // data base path
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"DataBasePath");
-                  if (value!=NULL) strcpy(dataBasePath[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
-                  else {
-                     sprintf(dataBasePath[numOfFolder][numOfValue[numOfFolder]],"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
-                  }
-                  xmlFree((void*)value);
+                  sprintf(dataBasePath[numOfFolder][numOfValue[numOfFolder]],"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
+                  xml->GetAttribute("DataBasePath",dataBasePath[numOfFolder][numOfValue[numOfFolder]]);
                   // field count
                   numOfValue[numOfFolder]++;
                }
@@ -321,8 +280,6 @@ bool ROMEBuilder::WriteFolderCpp() {
    bool writeFile = false;
    char *pBuffer;
    int bufferLen=0;
-
-
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
@@ -621,9 +578,9 @@ bool ROMEBuilder::WriteFolderH() {
    return true;
 }
 
-bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLTask() {
    char parent[10][100];
-   const xmlChar *name, *value;
+   char *name;
    int type,i,j,isub=0;
    int empty,depth=0,index[20];
    char tmp[100];
@@ -633,10 +590,10 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
 //===============
 
    if (makeOutput) cout << "\n\nTasks:" << endl;
-   while (xmlTextReaderRead(reader)) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
-      empty = xmlTextReaderIsEmptyElement(reader);
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      empty = xml->isEmpty();
       if (type == 1 && !strcmp((const char*)name,"SubTask")) {
          numOfTask++;
          // initialisation
@@ -648,24 +605,20 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
          taskSteerDepth[numOfTask][0] = 0;
          strcpy(parentTaskName[numOfTask],parent[isub]);
          strcpy(version[numOfTask],"1");
-         strcpy(author[numOfTask],"");
+         strcpy(author[numOfTask],mainAuthor);
          strcpy(taskDescription[numOfTask],"");
          numOfHistos[numOfTask] = 0;
          numOfInclude[numOfTask] = 0;
          // task name
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-         if (value!=NULL) strcpy(taskName[numOfTask],(const char*)value);
-         else {
+         if (!xml->GetAttribute("Name",taskName[numOfTask])) {
             cout << "SubTask without a name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         xmlFree((void*)value);
          // language
          fortranFlag[numOfTask] = false;
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Language");
-         if (value!=NULL && !strcmp((char*)value,"Fortran")) fortranFlag[numOfTask] = true;
-         xmlFree((void*)value);
+         xml->GetAttribute("Language",tmp);
+         if (!strcmp(tmp,"Fortran")) fortranFlag[numOfTask] = true;
 
          // handle subtask
          if (!empty) {
@@ -683,38 +636,27 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
       if (type == 1) {
          // author
          if (!strcmp((const char*)name,"Author")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-            if (value!=NULL) strcpy(author[numOfTask],(const char*)value);
-            else strcpy(author[numOfTask],mainAuthor);
-            xmlFree((void*)value);
+            xml->GetAttribute("Name",author[numOfTask]);
          }
          // version
          else if (!strcmp((const char*)name,"Version")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Number");
-            if (value!=NULL) strcpy(version[numOfTask],(const char*)value);
-            else strcpy(version[numOfTask],"1");
-            xmlFree((void*)value);
+            xml->GetAttribute("Number",version[numOfTask]);
          }
          // description
          else if (!strcmp((const char*)name,"Description")) {
-            value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Text");
-            if (value!=NULL) strcpy(taskDescription[numOfTask],(const char*)value);
-            else strcpy(taskDescription[numOfTask],"");
-            xmlFree((void*)value);
+            xml->GetAttribute("Text",taskDescription[numOfTask]);
          }
          // includes
          else if (!strcmp((const char*)name,"Include")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
-                  // name
                   strcpy(include[numOfTask][numOfInclude[numOfTask]],(const char*)name);
-                  // type
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
                   localFlag[numOfTask][numOfInclude[numOfTask]] = false;
-                  if (value!=NULL && !strcmp((char*)value,"local")) localFlag[numOfTask][numOfInclude[numOfTask]] = true;
-                  xmlFree((void*)value);
+                  xml->GetAttribute("Type",tmp);
+                  if (strcmp(tmp,"local")) 
+                     localFlag[numOfTask][numOfInclude[numOfTask]] = true;
                   numOfInclude[numOfTask]++;
                }
                if (type == 15 && !strcmp((const char*)name,"Include")) {
@@ -724,10 +666,10 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
          }
          // steering parameters
          else if (!strcmp((const char*)name,"SteeringParameters")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
-               empty = xmlTextReaderIsEmptyElement(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
+               empty = xml->isEmpty();
                if (type == 1 && !empty) {
                   numOfTaskSteering[numOfTask]++;
                   depth++;
@@ -747,36 +689,25 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
                   // field name
                   strcpy(taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)name);
                   // field type
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value!=NULL) strcpy(taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("Type",taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]])) {
                      cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << " has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // field initialisation
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
-                  if (value!=NULL) strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
-                  else {
-                     if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
-                        strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
-                     else
-                        strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
-                  }
-                  xmlFree((void*)value);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
-                  if (value!=NULL) strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
-                  xmlFree((void*)value);
+                  if (!strcmp(taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"TString"))
+                     strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
+                  else
+                     strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
+                  xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                  xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
                   // field comment
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
-                  if (value!=NULL) strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
-                  else strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
+                  strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
+                  xml->GetAttribute("Comment",taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
                   if (taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]][0]!='/') {
                      strcpy(tmp,taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
                      sprintf(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"// %s",tmp);
                   }
-                  xmlFree((void*)value);
                   // output
                   if (makeOutput) for (i=0;i<depth+2;i++) cout << "   ";
                   if (makeOutput) cout << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << endl;
@@ -792,126 +723,99 @@ bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
          }
          // histos
          else if (!strcmp((const char*)name,"Histos")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   // histo name
                   strcpy(histoName[numOfTask][numOfHistos[numOfTask]],(const char*)name);
                   // histo type
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value!=NULL) strcpy(histoType[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("Type",histoType[numOfTask][numOfHistos[numOfTask]])) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no type defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // histo array size
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"ArraySize");
-                  if (value!=NULL) strcpy(histoArray[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else strcpy(histoArray[numOfTask][numOfHistos[numOfTask]],"1");
-                  xmlFree((void*)value);
+                  strcpy(histoArray[numOfTask][numOfHistos[numOfTask]],"1");
+                  xml->GetAttribute("ArraySize",histoArray[numOfTask][numOfHistos[numOfTask]]);
                   // histo title
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Title");
-                  if (value!=NULL) strcpy(histoTitle[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else strcpy(histoTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  xmlFree((void*)value);
+                  strcpy(histoTitle[numOfTask][numOfHistos[numOfTask]],"");
+                  xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]]);
                   // histo folder name
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"FolderName");
-                  if (value!=NULL) strcpy(histoFolderName[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("FolderName",histoFolderName[numOfTask][numOfHistos[numOfTask]])) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Folder Name defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // histo folder title
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"FolderTitle");
-                  if (value!=NULL) strcpy(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else strcpy(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
-                  xmlFree((void*)value);
+                  strcpy(histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
+                  xml->GetAttribute("FolderTitle",histoFolderTitle[numOfTask][numOfHistos[numOfTask]]);
                   // histo xbins
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"NumberOfBinsX");
-                  if (value!=NULL) strcpy(histoXBin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("NumberOfBinsX",histoXBin[numOfTask][numOfHistos[numOfTask]])) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of X bins defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // histo xmin
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"XMin");
-                  if (value!=NULL) strcpy(histoXMin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("XMin",histoXMin[numOfTask][numOfHistos[numOfTask]])) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X minimum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // histo xmax
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"XMax");
-                  if (value!=NULL) strcpy(histoXMax[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("XMax",histoXMax[numOfTask][numOfHistos[numOfTask]])) {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X maximum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // histo ybins
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"NumberOfBinsY");
-                  if (value!=NULL) strcpy(histoYBin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Y bins defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("NumberOfBinsY",histoYBin[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Y bins defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   // histo ymin
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"YMin");
-                  if (value!=NULL) strcpy(histoYMin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y minimum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("YMin",histoYMin[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y minimum defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   // histo ymax
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"YMax");
-                  if (value!=NULL) strcpy(histoYMax[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y maximum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("YMax",histoYMax[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y maximum defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   // histo zbins
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"NumberOfBinsZ");
-                  if (value!=NULL) strcpy(histoZBin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Z bins defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("NumberOfBinsZ",histoZBin[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Z bins defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   // histo zmin
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"ZMin");
-                  if (value!=NULL) strcpy(histoZMin[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z minimum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("ZMin",histoZMin[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z minimum defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   // histo zmax
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"ZMax");
-                  if (value!=NULL) strcpy(histoZMax[numOfTask][numOfHistos[numOfTask]],(const char*)value);
-                  else if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z maximum defined !" << endl;
-                     cout << "Terminating program." << endl;
-                     return false;
+                  if (!xml->GetAttribute("ZMax",histoZMax[numOfTask][numOfHistos[numOfTask]])) {
+                     if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z maximum defined !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
                   }
-                  xmlFree((void*)value);
                   numOfHistos[numOfTask]++;
                }
                if (type == 15 && !strcmp((const char*)name,"Histos")) {
@@ -1033,9 +937,9 @@ void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTas
    char tmp[300];
    char getter[300];
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"SteeringParameters\");\n");
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"SteeringParameters\");\n");
    else
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",taskSteerName[numTask][numSteer]);
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskSteerName[numTask][numSteer]);
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
       sprintf(getter,"->Get%s()",taskSteerFieldName[numTask][numSteer][i]);
       int ind = numSteer;
@@ -1052,14 +956,15 @@ void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTas
       strcpy(tmp,getter);
       sprintf(getter,"((%sT%s*)%sTask)->GetSP()%s",shortCut,taskName[numTask],taskName[numTask],tmp);
       GetFormat(tmp,taskSteerFieldType[numTask][numSteer][i]);
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\",%s);\n",taskSteerFieldName[numTask][numSteer][i],tmp,getter);
+      sprintf(buffer+strlen(buffer),"   sprintf(value,\"%s\",%s);\n",tmp,getter);
+      sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"%s\",value);\n",taskSteerFieldName[numTask][numSteer][i]);
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
       if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
          WriteTaskSteerConfigWrite(buffer,i,numTask);
       }
    }
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
 }
 void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask) {
    char tmp[300];
@@ -1068,7 +973,7 @@ void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask
    char setter[300];
    int i,j;
    char blank[100];
-   strcpy(blank,"");
+   strcpy(blank,"      ");
 
    strcpy(path,"");
    int ind = numSteer;
@@ -1088,17 +993,15 @@ void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask
    else
       sprintf(buffer+strlen(buffer),"%s               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerName[numTask][numSteer]);
 
-   sprintf(buffer+strlen(buffer),"%s                  while (xmlTextReaderRead(reader)) {\n",blank);
-   sprintf(buffer+strlen(buffer),"%s                     type = xmlTextReaderNodeType(reader);\n",blank);
-   sprintf(buffer+strlen(buffer),"%s                     name = xmlTextReaderConstName(reader);\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                  while (xml->NextLine()) {\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                     type = xml->GetType();\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                     name = xml->GetName();\n",blank);
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      setValue(value,"","(char*)value",taskSteerFieldType[numTask][numSteer][i],1);
+      setValue(value,"","tmp",taskSteerFieldType[numTask][numSteer][i],1);
       sprintf(setter,"((%sT%s*)%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut,taskName[numTask],taskName[numTask],path,taskSteerFieldName[numTask][numSteer][i],taskSteerFieldType[numTask][numSteer][i],value);
       sprintf(buffer+strlen(buffer),"%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerFieldName[numTask][numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s                        xmlTextReaderRead(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s                        type = xmlTextReaderNodeType(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s                        value = xmlTextReaderConstValue(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s                        if (value!=NULL && type==3) %s;\n",blank,setter);
+      sprintf(buffer+strlen(buffer),"%s                        if (xml->GetValue(tmp)) \n",blank);
+      sprintf(buffer+strlen(buffer),"%s                           %s;\n",blank,setter);
       sprintf(buffer+strlen(buffer),"%s                     }\n",blank);
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
@@ -1576,55 +1479,42 @@ bool ROMEBuilder::WriteTaskH() {
    return true;
 }
 
-bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
-   const xmlChar *name, *value;
+bool ROMEBuilder::ReadXMLTree() {
+   char *name;
    int type,i,j;
-
-// read XML file
-//===============
 
    if (makeOutput) cout << "\n\nTrees:" << endl;
 
-   while (xmlTextReaderRead(reader)) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
       if (type == 1 && !strcmp((const char*)name,"Tree")) {
          numOfTree++;
          numOfBranch[numOfTree] = 0;
          // tree name
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-         if (value!=NULL) strcpy(treeName[numOfTree],(const char*)value);
-         else {
+         if (!xml->GetAttribute("Name",treeName[numOfTree])) {
             cout << "Tree without a name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         xmlFree((void*)value);
          // tree title
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Title");
-         if (value!=NULL) strcpy(treeTitle[numOfTree],(const char*)value);
-         else strcpy(treeTitle[numOfTree],"");
-         xmlFree((void*)value);
+         strcpy(treeTitle[numOfTree],"");
+         xml->GetAttribute("Title",treeTitle[numOfTree]);
          // output
          if (makeOutput) cout << "   " << treeName[numOfTree] << endl;
 
-         while (xmlTextReaderRead(reader)) {
-            type = xmlTextReaderNodeType(reader);
-            name = xmlTextReaderConstName(reader);
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
                // branch name
-               value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-               if (value!=NULL) strcpy(branchName[numOfTree][numOfBranch[numOfTree]],(const char*)value);
-               else {
+               if (!xml->GetAttribute("Name",branchName[numOfTree][numOfBranch[numOfTree]])) {
                   cout << "Branch without a name in Tree '" << treeName[numOfTree] << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xmlFree((void*)value);
                // branch folder
-               value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Folder");
-               if (value!=NULL) strcpy(branchFolder[numOfTree][numOfBranch[numOfTree]],(const char*)value);
-               else {
+               if (!xml->GetAttribute("Folder",branchFolder[numOfTree][numOfBranch[numOfTree]])) {
                   cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' has no Folder specified!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
@@ -1639,7 +1529,6 @@ bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               xmlFree((void*)value);
                numOfBranch[numOfTree]++;
             }
             if (type == 15 && !strcmp((const char*)name,"Tree")) {
@@ -1678,48 +1567,34 @@ bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
    numOfTree++;
    return true;
 }
-bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
-   const xmlChar *name, *value;
+bool ROMEBuilder::ReadXMLMidasBanks() {
+   char *name;
    int type,i,j;
-
-// read XML file
-//===============
 
    if (makeOutput) cout << "\n\nBanks:" << endl;
 
-   while (xmlTextReaderRead(reader)) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
       if (type == 1 && !strcmp("EventHeader",(const char*)name)) {
          // folder
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Folder");
-         if (value!=NULL) strcpy(bankHeaderFolder,(const char*)value);
-         else {
+         if (!xml->GetAttribute("Folder",bankHeaderFolder)) {
             cout << "Midas event header has no folder !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         xmlFree((void*)value);
          // EventID
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"EventID");
-         if (value!=NULL) strcpy(bankHeaderEventID,(const char*)value);
-         else strcpy(bankHeaderEventID,"");
-         xmlFree((void*)value);
+         strcpy(bankHeaderEventID,"");
+         xml->GetAttribute("EventID",bankHeaderEventID);
          // TriggerMask
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"TriggerMask");
-         if (value!=NULL) strcpy(bankHeaderTriggerMask,(const char*)value);
-         else strcpy(bankHeaderTriggerMask,"");
-         xmlFree((void*)value);
+         strcpy(bankHeaderTriggerMask,"");
+         xml->GetAttribute("TriggerMask",bankHeaderTriggerMask);
          // SerialNumber
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"SerialNumber");
-         if (value!=NULL) strcpy(bankHeaderSerialNumber,(const char*)value);
-         else strcpy(bankHeaderSerialNumber,"");
-         xmlFree((void*)value);
+         strcpy(bankHeaderSerialNumber,"");
+         xml->GetAttribute("SerialNumber",bankHeaderSerialNumber);
          // TimeStamp
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"TimeStamp");
-         if (value!=NULL) strcpy(bankHeaderTimeStamp,(const char*)value);
-         else strcpy(bankHeaderTimeStamp,"");
-         xmlFree((void*)value);
+         strcpy(bankHeaderTimeStamp,"");
+         xml->GetAttribute("TimeStamp",bankHeaderTimeStamp);
          // Tests
          int iFold = -1;
          for (i=0;i<numOfFolder;i++) {
@@ -1791,43 +1666,33 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
          // bank name
          strcpy(bankName[numOfBank],(const char*)name);
          // bank type
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-         if (value!=NULL) strcpy(bankType[numOfBank],(const char*)value);
-         else {
+         if (!xml->GetAttribute("Type",bankType[numOfBank])) {
             cout << "Bank '" << bankName[numOfBank] << "' has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         xmlFree((void*)value);
          // bank structure name
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"StructName");
-         if (value!=NULL) strcpy(bankStructName[numOfBank],(const char*)value);
-         else sprintf(bankStructName[numOfBank],"%sStruct",bankName[numOfBank]);
-         xmlFree((void*)value);
+         sprintf(bankStructName[numOfBank],"%sStruct",bankName[numOfBank]);
+         xml->GetAttribute("StructName",bankStructName[numOfBank]);
          // output
          if (makeOutput) cout << "   " << bankName[numOfBank] << endl;
 
          if (!strcmp(bankType[numOfBank],"structure")||!strcmp(bankType[numOfBank],"struct")) {
-            while (xmlTextReaderRead(reader)) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
                if (type == 1) {
                   // field name
                   strcpy(structFieldName[numOfBank][numOfStructFields[numOfBank]],(const char*)name);
                   // field type
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-                  if (value!=NULL) strcpy(structFieldType[numOfBank][numOfStructFields[numOfBank]],(const char*)value);
-                  else {
+                  if (!xml->GetAttribute("Type",structFieldType[numOfBank][numOfStructFields[numOfBank]])) {
                      cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]] << "' of Bank '" << bankName[numOfBank] << "' has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
-                  xmlFree((void*)value);
                   // field size
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"PackedSize");
-                  if (value!=NULL) strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],(const char*)value);
-                  else strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
-                  xmlFree((void*)value);
+                  strcpy(structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
+                  xml->GetAttribute("PackedSize",structFieldSize[numOfBank][numOfStructFields[numOfBank]]);
                   // output
                   if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]] << endl;
                   numOfStructFields[numOfBank]++;
@@ -1864,8 +1729,8 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
    return true;
 }
 
-bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
-   const xmlChar *name,*value;
+bool ROMEBuilder::ReadXMLSteering() {
+   char *name;
    char tmp[100];
    int i,type,empty,depth=0,index[20];
    index[0] = 0;
@@ -1876,10 +1741,10 @@ bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
 
    if (makeOutput) cout << "\n\nSteering:" << endl;
 
-   while (xmlTextReaderRead(reader)) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
-      empty = xmlTextReaderIsEmptyElement(reader);
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      empty = xml->isEmpty();
       if (type == 1 && !empty) {
          numOfSteering++;
          depth++;
@@ -1899,36 +1764,25 @@ bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
          // field name
          strcpy(steerFieldName[index[depth]][numOfSteerFields[index[depth]]],(const char*)name);
          // field type
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
-         if (value!=NULL) strcpy(steerFieldType[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
-         else {
+         if (!xml->GetAttribute("Type",steerFieldType[index[depth]][numOfSteerFields[index[depth]]])) {
             cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << " has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         xmlFree((void*)value);
          // field initialisation
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
-         if (value!=NULL) strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
-         else {
-            if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
-               strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
-            else
-               strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
-         }
-         xmlFree((void*)value);
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Init");
-         if (value!=NULL) strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
-         xmlFree((void*)value);
+         if (!strcmp(steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"TString"))
+            strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
+         else
+            strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
+         xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
+         xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
          // field comment
-         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
-         if (value!=NULL) strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
-         else strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
+         strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
+         xml->GetAttribute("Comment",steerFieldComment[index[depth]][numOfSteerFields[index[depth]]]);
          if (steerFieldComment[index[depth]][numOfSteerFields[index[depth]]][0]!='/') {
             strcpy(tmp,steerFieldComment[index[depth]][numOfSteerFields[index[depth]]]);
             sprintf(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"// %s",tmp);
          }
-         xmlFree((void*)value);
          // output
          if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
          if (makeOutput) cout << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << endl;
@@ -2099,9 +1953,9 @@ void ROMEBuilder::WriteSteerConfigWrite(char *buffer,int numOfSteer) {
    char tmp[300];
    char getter[300];
    if (numOfSteer==0)
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"GeneralSteeringParameters\");\n");
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"GeneralSteeringParameters\");\n");
    else
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",steerName[numOfSteer]);
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",steerName[numOfSteer]);
    for (i=0;i<numOfSteerFields[numOfSteer];i++) {
       sprintf(getter,"->Get%s()",steerFieldName[numOfSteer][i]);
       int ind = numOfSteer;
@@ -2118,14 +1972,15 @@ void ROMEBuilder::WriteSteerConfigWrite(char *buffer,int numOfSteer) {
       strcpy(tmp,getter);
       sprintf(getter,"this->GetGSP()%s",tmp);
       GetFormat(tmp,steerFieldType[numOfSteer][i]);
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\",%s);\n",steerFieldName[numOfSteer][i],tmp,getter);
+      sprintf(buffer+strlen(buffer),"   sprintf(value,\"%s\",%s);\n",tmp,getter);
+      sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"%s\", value);\n",steerFieldName[numOfSteer][i],tmp,getter);
    }
    for (i=0;i<numOfSteering;i++) {
       if (!strcmp(steerParent[i],steerName[numOfSteer])) {
          WriteSteerConfigWrite(buffer,i);
       }
    }
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
 }
 
 void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
@@ -2155,17 +2010,15 @@ void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
    else
       sprintf(buffer+strlen(buffer),"%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerName[numSteer]);
 
-   sprintf(buffer+strlen(buffer),"%s         while (xmlTextReaderRead(reader)) {\n",blank);
-   sprintf(buffer+strlen(buffer),"%s            type = xmlTextReaderNodeType(reader);\n",blank);
-   sprintf(buffer+strlen(buffer),"%s            name = xmlTextReaderConstName(reader);\n",blank);
+   sprintf(buffer+strlen(buffer),"%s         while (xml->NextLine()) {\n",blank);
+   sprintf(buffer+strlen(buffer),"%s            type = xml->GetType();\n",blank);
+   sprintf(buffer+strlen(buffer),"%s            name = xml->GetName();\n",blank);
    for (i=0;i<numOfSteerFields[numSteer];i++) {
-      setValue(value,"","(char*)value",steerFieldType[numSteer][i],1);
+      setValue(value,"","tmp",steerFieldType[numSteer][i],1);
       sprintf(setter,"this->GetGSP()%s->Set%s((%s)%s)",path,steerFieldName[numSteer][i],steerFieldType[numSteer][i],value);
       sprintf(buffer+strlen(buffer),"%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerFieldName[numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s               xmlTextReaderRead(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s               type = xmlTextReaderNodeType(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s               value = xmlTextReaderConstValue(reader);\n",blank);
-      sprintf(buffer+strlen(buffer),"%s               if (value!=NULL && type==3) %s;\n",blank,setter);
+      sprintf(buffer+strlen(buffer),"%s               if (xml->GetValue(tmp)) \n",blank);
+      sprintf(buffer+strlen(buffer),"%s                  %s;\n",blank,setter);
       sprintf(buffer+strlen(buffer),"%s            }\n",blank);
    }
    for (i=0;i<numOfSteering;i++) {
@@ -2195,6 +2048,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    char classDescription[500];
    sprintf(classDescription,"Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",shortCut,mainProgName);
 
+   char tmp[1000];
    char format[100];
    int nameLen = -1;
    int typeLen = 12;
@@ -2242,14 +2096,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"#endif\n");
 
    sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TH1.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TROOT.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TObjArray.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMESQL.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMEEventLoop.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROME.h>\n");
    sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
@@ -2257,7 +2109,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       sprintf(buffer+strlen(buffer),"#include <include/tasks/%sT%s.h>\n",shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
-   sprintf(buffer+strlen(buffer),"#define MY_ENCODING \"ISO-8859-1\"\n");
 
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
@@ -2367,6 +2218,10 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   // RunTable\n");
    sprintf(buffer+strlen(buffer),"   fRunTable = new TList();\n");
 
+   sprintf(buffer+strlen(buffer),"};\n");
+
+   sprintf(buffer+strlen(buffer),"%sAnalyzer::~%sAnalyzer() {\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"   delete fIO;\n");
    sprintf(buffer+strlen(buffer),"};\n\n");
 
 
@@ -2375,21 +2230,24 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",folderArray[i]);
+         if (!strcmp(folderArray[i],"1")) {
+            sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
+            for (j=0;j<numOfValue[i];j++) {
+               sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
+            }
+            sprintf(buffer+strlen(buffer)-1,");\n");
+         }
+         else {
+            strcpy(tmp,folderArray[i]);
+            if (strstr(folderArray[i],"fAnalyzer")==folderArray[i])
+               sprintf(tmp,"this%s",folderArray[i]+9);
+            sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",tmp);
             sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s(",folderName[i],shortCut,folderName[i]);
             for (j=0;j<numOfValue[i];j++) {
                sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
             }
             sprintf(buffer+strlen(buffer)-1,");\n");
             sprintf(buffer+strlen(buffer),"   }\n");
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
-            for (j=0;j<numOfValue[i];j++) {
-               sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
-            }
-            sprintf(buffer+strlen(buffer)-1,");\n");
          }
       }
    }
@@ -2400,157 +2258,129 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"//--------------------\n");
    sprintf(buffer+strlen(buffer),"bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut);
    sprintf(buffer+strlen(buffer),"   char *cstop;\n");
-   sprintf(buffer+strlen(buffer),"   const xmlChar *name,*value;\n");
+   sprintf(buffer+strlen(buffer),"   char *name;\n");
+   sprintf(buffer+strlen(buffer),"   char value[100];\n");
+   sprintf(buffer+strlen(buffer),"   char tmp[100];\n");
    sprintf(buffer+strlen(buffer),"   int type;\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
-   sprintf(buffer+strlen(buffer),"   reader = xmlReaderForFile(configFile, NULL, 0);\n");
-   sprintf(buffer+strlen(buffer),"   if (reader == NULL) {\n");
+   sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
+   sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForRead(configFile)) {\n");
    sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
    sprintf(buffer+strlen(buffer),"      return false;\n");
    sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   while (xmlTextReaderRead(reader)) {\n");
-   sprintf(buffer+strlen(buffer),"      type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"      name = xmlTextReaderConstName(reader);\n");
+   sprintf(buffer+strlen(buffer),"   while (xml->NextLine()) {\n");
+   sprintf(buffer+strlen(buffer),"      type = xml->GetType();\n");
+   sprintf(buffer+strlen(buffer),"      name = xml->GetName();\n");
    // Modes
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"Modes\")) {\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"AnalyzingMode\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"online\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetOnline();\n");
-   sprintf(buffer+strlen(buffer),"            else\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetOffline();\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Modes\")) {\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"AnalyzingMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"online\"))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOnline();\n");
+   sprintf(buffer+strlen(buffer),"         else\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOffline();\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"InputDataFormat\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"root\"))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRoot();\n");
+   sprintf(buffer+strlen(buffer),"         else\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetMidas();\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"BatchMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"yes\"))\n");
+   sprintf(buffer+strlen(buffer),"            fBatchMode = true;\n");
+   sprintf(buffer+strlen(buffer),"         else\n");
+   sprintf(buffer+strlen(buffer),"            fBatchMode = false;\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"ShowSplashScreen\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"no\"))\n");
+   sprintf(buffer+strlen(buffer),"            fSplashScreen = false;\n");
+   sprintf(buffer+strlen(buffer),"         else\n");
+   sprintf(buffer+strlen(buffer),"            fSplashScreen = true;\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"DataBaseMode\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"sql\")||!strcmp(value,\"SQL\"))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetSQLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"         else if (!strcmp(value,\"xml\")||!strcmp(value,\"XML\")) {\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetXMLDataBase();\n");
    sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"InputDataFormat\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"root\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetRoot();\n");
-   sprintf(buffer+strlen(buffer),"            else\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetMidas();\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"BatchMode\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\"))\n");
-   sprintf(buffer+strlen(buffer),"               fBatchMode = true;\n");
-   sprintf(buffer+strlen(buffer),"            else\n");
-   sprintf(buffer+strlen(buffer),"               fBatchMode = false;\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"ShowSplashScreen\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"no\"))\n");
-   sprintf(buffer+strlen(buffer),"               fSplashScreen = false;\n");
-   sprintf(buffer+strlen(buffer),"            else\n");
-   sprintf(buffer+strlen(buffer),"               fSplashScreen = true;\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"DataBaseMode\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"sql\")||!strcmp((const char*)value,\"SQL\")) {\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"            }\n");
-   sprintf(buffer+strlen(buffer),"            else if (!strcmp((const char*)value,\"xml\")||!strcmp((const char*)value,\"XML\")) {\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetXMLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"            }\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Run Numbers
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"RunNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Numbers\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRunNumbers((char*)value);\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRunNumbers(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Event Numbers
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"EventNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Numbers\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetEventNumbers((char*)value);\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"EventNumbers\")) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetEventNumbers(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Paths
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"InputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
-   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) this->GetIO()->SetInputDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetInputDir(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"OutputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
-   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) this->GetIO()->SetOutputDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOutputDir(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"DataBaseFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         xmlTextReaderRead(reader);\n");
-   sprintf(buffer+strlen(buffer),"         type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderConstValue(reader);\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL && type==3) this->GetIO()->SetDataBaseDir((char*)value);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
+   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetDataBaseDir(value);\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Tasks
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"Tasks\")) {\n");
-   sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
-   sprintf(buffer+strlen(buffer),"            type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"            name = xmlTextReaderConstName(reader);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Tasks\")) {\n");
+   sprintf(buffer+strlen(buffer),"         while (xml->NextLine()) {\n");
+   sprintf(buffer+strlen(buffer),"            type = xml->GetType();\n");
+   sprintf(buffer+strlen(buffer),"            name = xml->GetName();\n");
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"               int empty = xmlTextReaderIsEmptyElement(reader);\n");
-      sprintf(buffer+strlen(buffer),"               value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Active\");\n");
-      sprintf(buffer+strlen(buffer),"               if (value!=NULL) {\n");
-      sprintf(buffer+strlen(buffer),"                  if (!strcmp((const char*)value,\"yes\")) %sTask->SetActive();\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"               }\n");
-      sprintf(buffer+strlen(buffer),"               xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp(name,\"%s\")) {\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"               int empty = xml->isEmpty();\n");
+      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Active\",value);\n");
+      sprintf(buffer+strlen(buffer),"               if (!strcmp(value,\"yes\"))\n");
+      sprintf(buffer+strlen(buffer),"                  %sTask->SetActive();\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"               if (!empty) {\n");
-      sprintf(buffer+strlen(buffer),"                  while (xmlTextReaderRead(reader)) {\n");
-      sprintf(buffer+strlen(buffer),"                     type = xmlTextReaderNodeType(reader);\n");
-      sprintf(buffer+strlen(buffer),"                     name = xmlTextReaderConstName(reader);\n");
+      sprintf(buffer+strlen(buffer),"                  while (xml->NextLine()) {\n");
+      sprintf(buffer+strlen(buffer),"                     type = xml->GetType();\n");
+      sprintf(buffer+strlen(buffer),"                     name = xml->GetName();\n");
       for (j=0;j<numOfHistos[i];j++) {
-         sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Accumulate\");\n");
-         sprintf(buffer+strlen(buffer),"                        if (value!=NULL) {\n");
-         sprintf(buffer+strlen(buffer),"                           if (!strcmp((const char*)value,\"no\")) ((%sT%s*)%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"                        }\n");
-         sprintf(buffer+strlen(buffer),"                        xmlFree((void*)value);\n");
+         sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp(name,\"%s\")) {\n",histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"                        strcpy(value,\"\");\n");
+         sprintf(buffer+strlen(buffer),"                        xml->GetAttribute(\"Accumulate\",value);\n");
+         sprintf(buffer+strlen(buffer),"                        if (!strcmp(value,\"no\"))\n");
+         sprintf(buffer+strlen(buffer),"                           ((%sT%s*)%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
          sprintf(buffer+strlen(buffer),"                     }\n");
       }
       WriteTaskSteerConfigRead(buffer,0,i);
-      sprintf(buffer+strlen(buffer),"                     if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"                     if (type == 15 && !strcmp(name,\"%s\"))\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"                        break;\n");
       sprintf(buffer+strlen(buffer),"                  }\n");
       sprintf(buffer+strlen(buffer),"               }\n");
       sprintf(buffer+strlen(buffer),"            }\n");
    }
-   sprintf(buffer+strlen(buffer),"            if (type == 15 && !strcmp((const char*)name,\"Tasks\"))\n");
+   sprintf(buffer+strlen(buffer),"            if (type == 15 && !strcmp(name,\"Tasks\"))\n");
    sprintf(buffer+strlen(buffer),"               break;\n");
    sprintf(buffer+strlen(buffer),"         }\n");
    sprintf(buffer+strlen(buffer),"      }\n");
    // Trees
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"Trees\")) {\n");
-   sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Accumulation\");\n");
-   sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
-   sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\"))\n");
-   sprintf(buffer+strlen(buffer),"               this->GetIO()->SetTreeAccumulation();\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
-   sprintf(buffer+strlen(buffer),"         while (xmlTextReaderRead(reader)) {\n");
-   sprintf(buffer+strlen(buffer),"            type = xmlTextReaderNodeType(reader);\n");
-   sprintf(buffer+strlen(buffer),"            name = xmlTextReaderConstName(reader);\n");
+   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Trees\")) {\n");
+   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
+   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"Accumulation\",value);\n");
+   sprintf(buffer+strlen(buffer),"         if (!strcmp((const char*)value,\"yes\"))\n");
+   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetTreeAccumulation();\n");
+   sprintf(buffer+strlen(buffer),"         while (xml->NextLine()) {\n");
+   sprintf(buffer+strlen(buffer),"            type = xml->GetType();\n");
+   sprintf(buffer+strlen(buffer),"            name = xml->GetName();\n");
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i]);
-      sprintf(buffer+strlen(buffer),"               value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Read\");\n");
-      sprintf(buffer+strlen(buffer),"               if (value!=NULL) {\n");
-      sprintf(buffer+strlen(buffer),"                  if (!strcmp((const char*)value,\"yes\")) this->GetIO()->GetTreeObjectAt(%d)->SetRead(true);\n",i);
-      sprintf(buffer+strlen(buffer),"               }\n");
-      sprintf(buffer+strlen(buffer),"               xmlFree((void*)value);\n");
-      sprintf(buffer+strlen(buffer),"               value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Write\");\n");
-      sprintf(buffer+strlen(buffer),"               if (value!=NULL) {\n");
-      sprintf(buffer+strlen(buffer),"                  if (!strcmp((const char*)value,\"yes\")) this->GetIO()->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
-      sprintf(buffer+strlen(buffer),"               }\n");
-      sprintf(buffer+strlen(buffer),"               xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Read\",value);\n");
+      sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
+      sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetRead(true);\n",i);
+      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
+      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Write\",value);\n");
+      sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
+      sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
       sprintf(buffer+strlen(buffer),"            }\n");
    }
    sprintf(buffer+strlen(buffer),"            if (type == 15 && !strcmp((const char*)name,\"Trees\"))\n");
@@ -2563,115 +2393,108 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    sprintf(buffer+strlen(buffer),"      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
    sprintf(buffer+strlen(buffer),"         break;\n");
    sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   xmlFreeTextReader(reader);\n");
+   sprintf(buffer+strlen(buffer),"   delete xml;\n");
    sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n");
 
    // WriteROMEConfigXML
    //--------------------
    sprintf(buffer+strlen(buffer),"bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
-   sprintf(buffer+strlen(buffer),"   writer = xmlNewTextWriterFilename(configFile, 0);\n");
-   sprintf(buffer+strlen(buffer),"   if (writer == NULL) {\n");
-   sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
+   sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
+   sprintf(buffer+strlen(buffer),"   char value[1000];\n");
+   sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForWrite(configFile))\n");
    sprintf(buffer+strlen(buffer),"      return false;\n");
-   sprintf(buffer+strlen(buffer),"   }\n\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Configuration\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Configuration\");\n");
    //modes
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Modes\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Modes\");\n");
    sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isOnline())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"AnalyzingMode\",BAD_CAST \"online\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"AnalyzingMode\",BAD_CAST \"offline\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
    sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isMidas())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"midas\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"InputDataFormat\",BAD_CAST \"root\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"InputDataFormat\",\"root\");\n");
    sprintf(buffer+strlen(buffer),"   if (isBatchMode())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"BatchMode\",BAD_CAST \"yes\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"BatchMode\",\"yes\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"BatchMode\",BAD_CAST \"no\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"BatchMode\",\"no\");\n");
    sprintf(buffer+strlen(buffer),"   if (isSplashScreen())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"ShowSplashScreen\",BAD_CAST \"yes\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"ShowSplashScreen\",\"yes\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"ShowSplashScreen\",BAD_CAST \"no\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"ShowSplashScreen\",\"no\");\n");
    sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isXMLDataBase())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"DataBaseMode\",BAD_CAST \"xml\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"xml\");\n");
    sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isSQLDataBase())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"DataBaseMode\",BAD_CAST \"sql\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"sql\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"DataBaseMode\",BAD_CAST \"none\");\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"none\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
    //run numbers
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"RunNumbers\");\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteAttribute(writer, BAD_CAST \"Numbers\",BAD_CAST this->GetIO()->GetRunNumberStringOriginal());\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"RunNumbers\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->WriteAttribute(\"Numbers\",this->GetIO()->GetRunNumberStringOriginal());\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
    //event numbers
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"EventNumbers\");\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteAttribute(writer, BAD_CAST \"Numbers\",BAD_CAST this->GetIO()->GetEventNumberStringOriginal());\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"EventNumbers\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->WriteAttribute(\"Numbers\",this->GetIO()->GetEventNumberStringOriginal());\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
    //paths
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Paths\");\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"InputFilePath\", BAD_CAST this->GetIO()->GetInputDir());\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"OutputFilePath\", BAD_CAST this->GetIO()->GetOutputDir());\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteElement(writer, BAD_CAST \"DataBaseFilePath\", BAD_CAST this->GetIO()->GetDataBaseDir());\n");
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Paths\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"InputFilePath\",this->GetIO()->GetInputDir());\n");
+   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"OutputFilePath\",this->GetIO()->GetOutputDir());\n");
+   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"DataBaseFilePath\",this->GetIO()->GetDataBaseDir());\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
    sprintf(buffer+strlen(buffer),"\n");
 
    //tasks
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Tasks\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement( \"Tasks\");\n");
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"   if (%sTask->IsActive())\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Active\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"yes\");\n");
       sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Active\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"no\");\n");
       for (j=0;j<numOfHistos[i];j++) {
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",histoName[i][j]);
          sprintf(buffer+strlen(buffer),"   if (((%sT%s*)%sTask)->is%sAccumulation())\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"yes\");\n");
+         sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"yes\");\n");
          sprintf(buffer+strlen(buffer),"   else\n");
-         sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"no\");\n");
-         sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+         sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
+         sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
       }
       if (numOfTaskSteering[i]>0)
          WriteTaskSteerConfigWrite(buffer,0,i);
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+      sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
    }
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
 
    //trees
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Trees\");\n");
+   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Trees\");\n");
    sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isTreeAccumulation())\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulation\",BAD_CAST \"yes\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulation\",\"yes\");\n");
    sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulation\",BAD_CAST \"no\");\n");
+   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulation\",\"no\");\n");
 
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",treeName[i]);
+      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",treeName[i]);
       sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isRead())\n",i);
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Read\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Read\",\"yes\");\n");
       sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Read\",BAD_CAST \"no\");\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Read\",\"no\");\n");
       sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isWrite())\n",i);
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Write\",BAD_CAST \"yes\");\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Write\",\"yes\");\n");
       sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Write\",BAD_CAST \"no\");\n");
-      sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Write\",\"no\");\n");
+      sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
    }
-   sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+   sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
 
    //steering
    if (numOfSteering>0)
       WriteSteerConfigWrite(buffer,0);
 
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
-   sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
-   sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
-   sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
+   sprintf(buffer+strlen(buffer),"   xml->EndDocument();\n");
    sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n");
 
@@ -2841,7 +2664,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    sprintf(buffer+strlen(buffer),"public:\n");
    // Constructor
-   sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   ~%sAnalyzer();\n\n",shortCut);
 
    sprintf(buffer+strlen(buffer),"   %sIO* GetIO() { return (%sIO*)fIO; };\n\n",shortCut,shortCut);
 
@@ -2954,9 +2778,6 @@ bool ROMEBuilder::WriteIOCpp() {
 
    char format[100];
    int nb,j,k,iFold=0,ll;
-   const int bufferSize = 600;
-   char str[bufferSize];
-   char tmp[bufferSize];
    int fileHandle;
 
 // Description
@@ -2983,10 +2804,8 @@ bool ROMEBuilder::WriteIOCpp() {
 // Header Files
 //--------------
 
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlreader.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <libxml/xmlwriter.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMERunTable.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETree.h>\n");
    sprintf(buffer+strlen(buffer),"#include <ROMETreeInfo.h>\n");
    sprintf(buffer+strlen(buffer),"#ifdef HAVE_MIDAS\n");
@@ -2995,8 +2814,6 @@ bool ROMEBuilder::WriteIOCpp() {
    sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n",shortCut);
 
    sprintf(buffer+strlen(buffer),"#include \"Riostream.h\"\n");
-
-   sprintf(buffer+strlen(buffer),"#define MY_ENCODING \"ISO-8859-1\"\n\n");
 
    // User Functions
    //----------------
@@ -3046,6 +2863,9 @@ bool ROMEBuilder::WriteIOCpp() {
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
 
+   sprintf(buffer+strlen(buffer),"%sIO::~%sIO() {\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"}\n\n");
+
    // clear folders
    sprintf(buffer+strlen(buffer),"// Clear Folders\n");
    sprintf(buffer+strlen(buffer),"void %sIO::ClearFolders() {\n",shortCut);
@@ -3077,15 +2897,15 @@ bool ROMEBuilder::WriteIOCpp() {
    // fill trees
    sprintf(buffer+strlen(buffer),"// Tree Filling\n");
    sprintf(buffer+strlen(buffer),"void %sIO::FillTrees() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   ROMETree *datTree;\n");
+   sprintf(buffer+strlen(buffer),"   ROMETree *romeTree;\n");
    sprintf(buffer+strlen(buffer),"   int i;\n");
    sprintf(buffer+strlen(buffer),"   // Fill Trees;\n");
    sprintf(buffer+strlen(buffer),"   bool write = false;\n");
    sprintf(buffer+strlen(buffer),"   bool written = false;\n");
    for (i=0;i<numOfTree;i++) {
       sprintf(buffer+strlen(buffer),"   write = false;\n");
-      sprintf(buffer+strlen(buffer),"   datTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
-      sprintf(buffer+strlen(buffer),"   if (datTree->isWrite()) {\n");
+      sprintf(buffer+strlen(buffer),"   romeTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
+      sprintf(buffer+strlen(buffer),"   if (romeTree->isWrite()) {\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (!strcmp(folderName[k],branchFolder[i][j])) {
@@ -3110,7 +2930,7 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"      if (write) {\n");
       sprintf(buffer+strlen(buffer),"         written = true;\n");
       sprintf(buffer+strlen(buffer),"         fTreeInfo->SetSequentialNumber(fSequentialNumber);\n");
-      sprintf(buffer+strlen(buffer),"         datTree->GetTree()->Fill();\n");
+      sprintf(buffer+strlen(buffer),"         romeTree->GetTree()->Fill();\n");
       sprintf(buffer+strlen(buffer),"      }\n");
       sprintf(buffer+strlen(buffer),"   }\n");
    }
@@ -3187,20 +3007,28 @@ bool ROMEBuilder::WriteIOCpp() {
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
 
+   int ndb = 0;
+   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
    // SQL Init
    sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
-   sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
+   if (ndb>0) {
+      sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
+      sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
+   }
+   else {
+      sprintf(buffer+strlen(buffer),"   return true;\n");
+   }
    sprintf(buffer+strlen(buffer),"}\n\n");
 
    // SQL Read
    char buf[200];
    sprintf(buffer+strlen(buffer),"bool %sIO::ReadSQLDataBase()\n",shortCut);
    sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
-   sprintf(buffer+strlen(buffer),"   int i;\n");
-   for (i=0;i<numOfFolder;i++) {
+   if (ndb>0) {
+      sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
+      sprintf(buffer+strlen(buffer),"   int i;\n");
+      for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
          if (strcmp(folderArray[i],"1")) {
             for (j=0;j<numOfValue[i];j++) {
@@ -3224,21 +3052,103 @@ bool ROMEBuilder::WriteIOCpp() {
          }
       }
    }
+   }
    sprintf(buffer+strlen(buffer),"   return true;\n");
    sprintf(buffer+strlen(buffer),"}\n\n");
 
-   int ndb = 0;
-   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
-   // Data Base Methods
-   if (false && ndb>0) {
-      // ReadXMLRunTable
-      sprintf(buffer+strlen(buffer),"void %sIO::ReadXMLRunTable() {\n",shortCut);
-
-      sprintf(buffer+strlen(buffer),"/*\n");
-      sprintf(buffer+strlen(buffer),"   TString runDescription;\n");
-      sprintf(buffer+strlen(buffer),"   const xmlChar *name,*value;\n");
+   // ReadXMLDataBase
+   sprintf(buffer+strlen(buffer),"bool %sIO::ReadXMLDataBase() {\n",shortCut);
+   if (ndb>0) {
+      sprintf(buffer+strlen(buffer),"   int i;\n");
       sprintf(buffer+strlen(buffer),"   char *cstop;\n");
-      sprintf(buffer+strlen(buffer),"   int type,timeStamp,runNumber;\n");
+      sprintf(buffer+strlen(buffer),"   char *name;\n");
+      sprintf(buffer+strlen(buffer),"   int type;\n");
+      sprintf(buffer+strlen(buffer),"   char dbFile[200];\n");
+      sprintf(buffer+strlen(buffer),"   char filename[200];\n");
+      sprintf(buffer+strlen(buffer),"   char path[200];\n");
+      sprintf(buffer+strlen(buffer),"   char value[200];\n");
+      sprintf(buffer+strlen(buffer),"   char buf[400];\n");
+      sprintf(buffer+strlen(buffer),"   char runNumberString[6];\n");
+      sprintf(buffer+strlen(buffer),"   this->GetCurrentRunNumberString(runNumberString);\n");
+      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%s/RunTable.xml\",this->GetInputDir());\n");
+      sprintf(buffer+strlen(buffer),"   sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
+      sprintf(buffer+strlen(buffer),"\n");
+      sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
+      sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForPath(filename)) { \n");
+      sprintf(buffer+strlen(buffer),"      cout << \"\\nFailed to load xml database : '\" << filename<< \"'\" << endl;\n");
+      sprintf(buffer+strlen(buffer),"      cout << \"Do you like the framework to generate a new xml database ([y]/n) ? \";\n");
+      sprintf(buffer+strlen(buffer),"      char answer[10];\n");
+      sprintf(buffer+strlen(buffer),"      cin >> answer;\n");
+      sprintf(buffer+strlen(buffer),"      if (strstr(answer,\"n\")==NULL) {\n");
+      sprintf(buffer+strlen(buffer),"         ROMEXML *xmlNew = new ROMEXML();\n");
+      sprintf(buffer+strlen(buffer),"         if (!xmlNew->OpenFileForWrite(filename))\n");
+      sprintf(buffer+strlen(buffer),"            return false;\n");
+      sprintf(buffer+strlen(buffer),"         xmlNew->StartElement(\"RunTable\");\n");
+      sprintf(buffer+strlen(buffer),"         xmlNew->EndDocument();\n");
+      sprintf(buffer+strlen(buffer),"         delete xmlNew;\n");
+      sprintf(buffer+strlen(buffer),"         if (!xml->OpenFileForPath(filename))\n");
+      sprintf(buffer+strlen(buffer),"            return false;\n");
+      sprintf(buffer+strlen(buffer),"         cout << \"\\nThe framework generated a new xml database.\" << endl;\n");
+      sprintf(buffer+strlen(buffer),"      }\n");
+      sprintf(buffer+strlen(buffer),"      else\n");
+      sprintf(buffer+strlen(buffer),"         return false; \n");
+      sprintf(buffer+strlen(buffer),"   }; \n");
+      for (i=0;i<numOfFolder;i++) {
+         if (dataBase[i]) {
+            sprintf(buffer+strlen(buffer),"   if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {;\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s%%s\",this->GetDataBaseDir(),dbFile);\n");
+            sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForRead(filename)) { \n");
+            sprintf(buffer+strlen(buffer),"         cout << \"Failed to load database : '\" << filename<< \"'\" << endl;\n");
+            sprintf(buffer+strlen(buffer),"         return false; \n");
+            sprintf(buffer+strlen(buffer),"      };\n");
+            sprintf(buffer+strlen(buffer),"      while (xml->NextLine()) {\n");
+            sprintf(buffer+strlen(buffer),"         type = xml->GetType();\n");
+            sprintf(buffer+strlen(buffer),"         name = xml->GetName();\n");
+            sprintf(buffer+strlen(buffer),"         if (type == 1 && !strcmp(name,\"%s\")) {\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"            strcpy(value,\"0\");\n");
+            sprintf(buffer+strlen(buffer),"            xml->GetAttribute(\"Number\",value);\n");
+            sprintf(buffer+strlen(buffer),"            int num = strtol(value,&cstop,10);\n");
+            sprintf(buffer+strlen(buffer),"            while (xml->NextLine()) {\n");
+            sprintf(buffer+strlen(buffer),"               type = xml->GetType();\n");
+            sprintf(buffer+strlen(buffer),"               name = xml->GetName();\n");
+            if (!strcmp(folderArray[i],"1")) {
+               for (j=0;j<numOfValue[i];j++) {
+                  sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value)) {\n");
+                  setValue(buf,valueName[i][j],"value",valueType[i][j],1);
+                  sprintf(buffer+strlen(buffer),"                     f%sObject->Set%s((%s)%s);\n",folderName[i],valueName[i][j],valueType[i][j],buf);
+                  sprintf(buffer+strlen(buffer),"                  };\n");
+                  sprintf(buffer+strlen(buffer),"               };\n");
+               }
+            }
+            else {
+               for (j=0;j<numOfValue[i];j++) {
+                  sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
+                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value)) {\n");
+                  setValue(buf,valueName[i][j],"value",valueType[i][j],1);
+                  sprintf(buffer+strlen(buffer),"                     ((%s%s*)f%sObjects->At(num))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+                  sprintf(buffer+strlen(buffer),"                  };\n");
+                  sprintf(buffer+strlen(buffer),"               };\n");
+               }
+            }
+            sprintf(buffer+strlen(buffer),"               if (type == 15 && !strcmp(name,\"%s\"))\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"                  break;\n");
+            sprintf(buffer+strlen(buffer),"            }\n");
+            sprintf(buffer+strlen(buffer),"         }\n");
+            sprintf(buffer+strlen(buffer),"         if (type == 15 && !strcmp(name,\"%ss\"))\n",folderName[i]);
+            sprintf(buffer+strlen(buffer),"            break;\n");
+            sprintf(buffer+strlen(buffer),"      }\n");
+            sprintf(buffer+strlen(buffer),"   }\n");
+         }
+      }
+      sprintf(buffer+strlen(buffer),"   \n");
+      sprintf(buffer+strlen(buffer),"   delete xml;\n");
+      sprintf(buffer+strlen(buffer),"   return true;\n");
+   } 
+   sprintf(buffer+strlen(buffer),"   return true;\n");
+   sprintf(buffer+strlen(buffer),"}\n");
+
+/*
       sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
       sprintf(buffer+strlen(buffer),"   char filename[gFileNameLength];\n");
       sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%sRunTable.xml\",this->GetInputDir());\n");
@@ -3279,11 +3189,9 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", filename);\n");
       sprintf(buffer+strlen(buffer),"   }\n");
 
-      sprintf(buffer+strlen(buffer),"*/\n");
       sprintf(buffer+strlen(buffer),"}\n\n");
       // SaveRunTable
       sprintf(buffer+strlen(buffer),"void %sIO::SaveXMLRunTable() {\n",shortCut);
-      sprintf(buffer+strlen(buffer),"/*\n");
       sprintf(buffer+strlen(buffer),"   int i=0;\n");
       sprintf(buffer+strlen(buffer),"   char chr[100];\n");
       sprintf(buffer+strlen(buffer),"   xmlTextWriterPtr writer;\n");
@@ -3324,7 +3232,6 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
       sprintf(buffer+strlen(buffer),"   xmlCleanupParser();\n");
       sprintf(buffer+strlen(buffer),"   xmlMemoryDump();\n");
-      sprintf(buffer+strlen(buffer),"*/\n");
       sprintf(buffer+strlen(buffer),"}\n\n");
 
       // InitDataBase
@@ -3335,7 +3242,6 @@ bool ROMEBuilder::WriteIOCpp() {
       // UpdateDataBase
       sprintf(buffer+strlen(buffer),"void %sIO::UpdateXMLDataBase()\n{\n",shortCut);
 
-      sprintf(buffer+strlen(buffer),"/*\n");
       sprintf(buffer+strlen(buffer),"   int pos = this->GetCurrentRunTablePos();\n");
       sprintf(buffer+strlen(buffer),"   if (pos>=this->GetRunTable()->GetSize()) return;\n");
       sprintf(buffer+strlen(buffer),"   int runNum = ((ROMERunTable*)this->GetRunTable()->At(pos))->GetRunNumber();\n");
@@ -3346,12 +3252,10 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"   if (pos>=this->GetRunTable()->GetSize()) return;\n");
       sprintf(buffer+strlen(buffer),"   this->SetCurrentRunTablePos(pos);\n");
       sprintf(buffer+strlen(buffer),"   XMLUpdate();\n");
-      sprintf(buffer+strlen(buffer),"*/\n");
       sprintf(buffer+strlen(buffer),"}\n\n");
    
       // Update
       sprintf(buffer+strlen(buffer),"void %sIO::XMLUpdate()\n{\n",shortCut);
-      sprintf(buffer+strlen(buffer),"/*\n");
       sprintf(buffer+strlen(buffer),"   int i;\n");
       sprintf(buffer+strlen(buffer),"   int pos = fAnalyzer->GetCurrentRunTablePos();\n");
       sprintf(buffer+strlen(buffer),"   ROMERunTable* runTab = (ROMERunTable*)fAnalyzer->GetRunTable()->At(pos);\n");
@@ -3433,10 +3337,8 @@ bool ROMEBuilder::WriteIOCpp() {
       sprintf(buffer+strlen(buffer),"      }\n");
       sprintf(buffer+strlen(buffer),"   }\n");
    
-      sprintf(buffer+strlen(buffer),"*/\n");
       sprintf(buffer+strlen(buffer),"}\n");
-   }
-
+*/
    // Data Base Write
    ndb = 0;
    for (i=0;i<numOfFolder;i++) {
@@ -3710,6 +3612,7 @@ bool ROMEBuilder::WriteIOH() {
       }
    }
    sprintf(buffer+strlen(buffer)-1,");\n");
+   sprintf(buffer+strlen(buffer),"   ~%sIO();\n",shortCut);
 
    // Banks
    if (numOfBank>0) {
@@ -3730,13 +3633,8 @@ bool ROMEBuilder::WriteIOH() {
    // Data Base
    sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
    sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n\n");
-
-   sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable() {};\n");
-   sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable() {};\n");
-   sprintf(buffer+strlen(buffer),"   void InitXMLDataBase() {};\n");
-   sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase() {};\n");
-//   sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");
+   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
+   sprintf(buffer+strlen(buffer),"   bool ReadXMLDataBase();\n\n");
 
    for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
@@ -3910,9 +3808,14 @@ bool ROMEBuilder::WriteMain() {
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"   %sAnalyzer *analyzer = new %sAnalyzer();\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   if (!analyzer->Start(argc, argv)) return 1;\n");
+   sprintf(buffer+strlen(buffer),"   if (!analyzer->Start(argc, argv)) {\n");
+   sprintf(buffer+strlen(buffer),"      delete analyzer;\n");
+   sprintf(buffer+strlen(buffer),"      return 1;\n");
+   sprintf(buffer+strlen(buffer),"   }\n");
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"   theApp.Run();\n");
+   sprintf(buffer+strlen(buffer),"\n");
+   sprintf(buffer+strlen(buffer),"   delete analyzer;\n");
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"   return 0;\n");
    sprintf(buffer+strlen(buffer),"}\n");
@@ -4043,10 +3946,11 @@ int main(int argc, char *argv[])
 }
 void ROMEBuilder::startBuilder(char* xmlFile) 
 {
-   const xmlChar *name,*value;
+   xml = new ROMEXML();
+
+   char* name;
    bool finished = false;
    int type;
-
 
    strcpy(mainAuthor,"");
    strcpy(mainInstitute,"");
@@ -4054,68 +3958,53 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    strcpy(mainEmail,"");
    strcpy(mainProgName,"");
       
-   xmlTextReaderPtr reader;
-   reader = xmlReaderForFile(xmlFile, NULL, 0);
-   if (reader == NULL) {
-      fprintf(stderr, "Unable to open %s\n", xmlFile);
-      return;
-   }
-   while (xmlTextReaderRead(reader)&&!finished) {
-      type = xmlTextReaderNodeType(reader);
-      name = xmlTextReaderConstName(reader);
+   if (!xml->OpenFileForRead(xmlFile)) return;
+   while (xml->NextLine()&&!finished) {
+      type = xml->GetType();
+      name = xml->GetName();
       if (type == 1) {
          strcpy(shortCut,(const char*)name);
-         while (xmlTextReaderRead(reader)&&!finished) {
-            type = xmlTextReaderNodeType(reader);
-            name = xmlTextReaderConstName(reader);
+         while (xml->NextLine()&&!finished) {
+            type = xml->GetType();
+            name = xml->GetName();
             if (type == 15 && !strcmp((const char*)name,shortCut)) {
                finished = true;
                break;
             }
             if (type == 1) {
                if (!strcmp((const char*)name,"Author")) {
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-                  if (value!=NULL) strcpy(mainAuthor,(const char*)value);
-                  xmlFree((void*)value);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Institute");
-                  if (value!=NULL) strcpy(mainInstitute,(const char*)value);
-                  xmlFree((void*)value);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Collaboration");
-                  if (value!=NULL) strcpy(mainCollaboration,(const char*)value);
-                  xmlFree((void*)value);
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Email");
-                  if (value!=NULL) strcpy(mainEmail,(const char*)value);
-                  xmlFree((void*)value);
+                  xml->GetAttribute("Name",mainAuthor);
+                  xml->GetAttribute("Institute",mainInstitute);
+                  xml->GetAttribute("Collaboration",mainCollaboration);
+                  xml->GetAttribute("Email",mainEmail);
                }
                if (!strcmp((const char*)name,"Programname")) {
-                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-                  if (value!=NULL) strcpy(mainProgName,(const char*)value);
-                  xmlFree((void*)value);
+                  xml->GetAttribute("Name",mainProgName);
                }
                if (!strcmp((const char*)name,"Folder")) {
                   numOfFolder = -1;
-                  if (!ReadXMLFolder(reader)) return;
+                  if (!ReadXMLFolder()) return;
                   if (!WriteFolderCpp()) return;
                   if (!WriteFolderH()) return;
                }
                if (!strcmp((const char*)name,"Task")) {
                   numOfTask = -1;
-                  if (!ReadXMLTask(reader)) return;
+                  if (!ReadXMLTask()) return;
                   if (!WriteTaskCpp()) return;
                   if (!WriteTaskF()) return;
                   if (!WriteTaskH()) return;
                }
                if (!strcmp((const char*)name,"Trees")) {
                   numOfTree = -1;
-                  if (!ReadXMLTree(reader)) return;
+                  if (!ReadXMLTree()) return;
                }
                if (!strcmp((const char*)name,"MidasBanks")) {
                   numOfBank = -1;
-                  if (!ReadXMLMidasBanks(reader)) return;
+                  if (!ReadXMLMidasBanks()) return;
                }
                if (!strcmp((const char*)name,"GeneralSteeringParameters")) {
                   numOfSteering = 0;
-                  if (!ReadXMLSteering(reader)) return;
+                  if (!ReadXMLSteering()) return;
                   if (!WriteSteering()) return;
                }
             }
@@ -4129,7 +4018,7 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (!WriteIOH()) return;
    if (!WriteRunTableH()) return;
    if (!WriteMain()) return;
-   xmlFreeTextReader(reader);
+   delete xml;
 
    char buffer1[100];
    char buffer2[10000];
@@ -4198,7 +4087,7 @@ void ROMEBuilder::WriteMakefile() {
       sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
-   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESQL.obj obj/ROMESplashScreen.obj obj/ROMERunTable.obj\n\n");
+   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESQL.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
    // all
    sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
    // make obj
@@ -4238,8 +4127,8 @@ void ROMEBuilder::WriteMakefile() {
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
    sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
    sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESplashScreen.obj $(ROMESYS)/src/ROMESplashScreen.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMERunTable.obj: $(ROMESYS)/src/ROMERunTable.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMERunTable.obj $(ROMESYS)/src/ROMERunTable.cpp \n");
+   sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
+   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
 
 #endif
 

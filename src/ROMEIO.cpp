@@ -43,20 +43,32 @@ bool ROMEIO::Init() {
       cout << "No run numbers specified." << endl << endl;
       return false;
    }
-   // Data Base Initialisation
-   if (this->isSQLDataBase()) {
-      if (!this->InitSQLDataBase()) {
-         cout << "Termninating Program !" << endl;
-         return false;
-      }
-      if (!this->ReadSQLDataBase()) {
-         cout << "Termninating Program !" << endl;
-         return false;
+   // Tree file Initialisation
+   treeFiles = new TFile*[GetTreeObjectEntries()];
+   char filename[gFileNameLength];
+   char runNumberString[6];
+   ROMETree *romeTree;
+   TTree *tree;
+   GetCurrentRunNumberString(runNumberString);
+   for (int j=0;j<GetTreeObjectEntries();j++) {
+      romeTree = GetTreeObjectAt(j);
+      if (romeTree->isWrite() && this->isTreeAccumulation()) {
+         tree = romeTree->GetTree();
+         sprintf(filename,"%s%s%s.root",GetOutputDir(),tree->GetName(),runNumberString);
+         treeFiles[j] = new TFile(filename,"RECREATE");
+         tree->SetDirectory(treeFiles[j]);
       }
    }
+   // Data Base Initialisation
+   if (this->isSQLDataBase()) {
+      if (!this->InitSQLDataBase())
+         return false;
+      if (!this->ReadSQLDataBase())
+         return false;
+   }
    else if (this->isXMLDataBase()){
-      this->ReadXMLRunTable();
-      this->InitXMLDataBase();
+      if (!this->ReadXMLDataBase())
+         return false;
    }
 
    if (this->isOnline()&&this->isMidas()) {
@@ -122,12 +134,28 @@ bool ROMEIO::Connect(Int_t runNumber) {
    GetRunNumberStringAt(runNumberString,runNumber);
    fTreeInfo->SetRunNumber(this->GetCurrentRunNumber());
 
+   char filename[gFileNameLength];
+   ROMETree *romeTree;
+   TTree *tree;
+   GetCurrentRunNumberString(runNumberString);
+   for (int j=0;j<GetTreeObjectEntries();j++) {
+      romeTree = GetTreeObjectAt(j);
+      if (romeTree->isWrite() && !this->isTreeAccumulation()) {
+         tree = romeTree->GetTree();
+         sprintf(filename,"%s%s%s.root",GetOutputDir(),tree->GetName(),runNumberString);
+         treeFiles[j] = new TFile(filename,"RECREATE");
+         tree->SetDirectory(treeFiles[j]);
+      }
+   }
+
    // Update Data Base
    if (this->isSQLDataBase()) {
-      this->ReadSQLDataBase();
+      if (!this->ReadSQLDataBase())
+         return false;
    }
    else if (this->isXMLDataBase()){
-      this->UpdateXMLDataBase();
+      if (!this->ReadXMLDataBase())
+         return false;
    }
 
    if (this->isOnline()&&this->isMidas()) {
@@ -142,6 +170,10 @@ bool ROMEIO::Connect(Int_t runNumber) {
       char filename[gFileNameLength];
       sprintf(filename,"%srun%s.mid",GetInputDir(),runNumberString);
       fMidasFileHandle = open(filename,O_RDONLY_BINARY);
+      if (fMidasFileHandle==-1) {
+         cout << "Inputfile '" << filename << "' not found." << endl;
+         return false;
+      }
       cout << "Reading Midas-File run" << runNumberString << ".mid" << endl;
       return true;
    }
@@ -149,7 +181,7 @@ bool ROMEIO::Connect(Int_t runNumber) {
       // Read Trees
       fRootFiles = new TFile*[GetTreeObjectEntries()];
       TTree *tree;
-      ROMETree *datTree;
+      ROMETree *romeTree;
       char filename[gFileNameLength];
       char runNumberString[6];
       GetCurrentRunNumberString(runNumberString);
@@ -157,17 +189,21 @@ bool ROMEIO::Connect(Int_t runNumber) {
       fTreePosition = new int[GetTreeObjectEntries()];
       fTreeNextSeqNumber = new int[GetTreeObjectEntries()];
       for (int j=0;j<GetTreeObjectEntries();j++) {
-         datTree = GetTreeObjectAt(j);
-         tree = datTree->GetTree();
+         romeTree = GetTreeObjectAt(j);
+         tree = romeTree->GetTree();
          if (!this->isTreeAccumulation()) {
             tree->Reset();
          }
-         if (datTree->isRead()) {
+         if (romeTree->isRead()) {
             treeRead = true;
             sprintf(filename,"%s%s%s.root",GetInputDir(),tree->GetName(),runNumberString);
             fRootFiles[j] = new TFile(filename,"READ");
+            if (fRootFiles[j]->IsZombie()) {
+               cout << "Inputfile '" << filename << "' not found." << endl;
+               return false;
+            }
             tree = (TTree*)fRootFiles[j]->FindObjectAny(tree->GetName());
-            datTree->SetTree(tree);
+            romeTree->SetTree(tree);
             fTreePosition[j] = 0;
             if (tree->GetEntriesFast()>0) {
                tree->GetBranch("Info")->GetEntry(0);
@@ -271,13 +307,13 @@ bool ROMEIO::ReadEvent(Int_t event) {
       return true;
    }
    else if (this->isOffline()&&this->isRoot()) {
-      ROMETree *datTree;
+      ROMETree *romeTree;
       TTree *tree;
       bool found = false;
       for (int j=0;j<GetTreeObjectEntries();j++) {
-         datTree = GetTreeObjectAt(j);
-         tree = datTree->GetTree();
-         if (datTree->isRead()) {
+         romeTree = GetTreeObjectAt(j);
+         tree = romeTree->GetTree();
+         if (romeTree->isRead()) {
             if (fTreeNextSeqNumber[j]==event) {
                found = true;
                if (tree->GetEntriesFast()>fTreePosition[j]+1) {
@@ -317,8 +353,10 @@ bool ROMEIO::UserInput() {
       char ch = ROMEStatic::ss_getchar(0);
       if (ch == -1)
          ch = getchar();
-      if (ch == 's') fRunStatus = kEndOfRun;
-      if (ch == 'q') fRunStatus = kTerminate;
+      if (ch == 's') 
+         fRunStatus = kEndOfRun;
+      if (ch == 'q')
+         return false;
    }
    return true;
 }
@@ -327,17 +365,18 @@ bool ROMEIO::Disconnect() {
    // Write Trees
    TFile *f1;
    char filename[gFileNameLength];
-   ROMETree *datTree;
+   ROMETree *romeTree;
+   TTree *tree;
    char runNumberString[6];
    GetCurrentRunNumberString(runNumberString);
    for (int j=0;j<GetTreeObjectEntries();j++) {
-      datTree = GetTreeObjectAt(j);
-      if (datTree->isWrite() && !this->isTreeAccumulation()) {
-         sprintf(filename,"%s%s%s.root",GetOutputDir(),datTree->GetTree()->GetName(),runNumberString);
-         f1 = new TFile(filename,"RECREATE");
-         datTree->GetTree()->Write();
-         f1->Close();
-         cout << "Writing Root-File " << datTree->GetTree()->GetName() << runNumberString << ".root" << endl;
+      romeTree = GetTreeObjectAt(j);
+      if (romeTree->isWrite() && !this->isTreeAccumulation()) {
+         tree = romeTree->GetTree();
+         cout << "Writing Root-File " << tree->GetName() << runNumberString << ".root" << endl;
+         treeFiles[j] = tree->GetCurrentFile();
+         treeFiles[j]->Write();
+         treeFiles[j]->Close();
       }
    }
    cout << endl;
@@ -348,11 +387,6 @@ bool ROMEIO::Disconnect() {
    f1 = new TFile(filename,"RECREATE");
    folder->Write();
    f1->Close();
-
-   // Save Data Base
-   if (this->isXMLDataBase()){
-      this->SaveXMLRunTable();
-   }
 
    if (this->isOnline()&&this->isMidas()) {
       return true;

@@ -20,7 +20,6 @@
 #endif
 
 #include <sys/stat.h>
-#include <libxml/xmlreader.h>
 #include <fcntl.h>
 #include <TMessage.h>
 #include <TSocket.h>
@@ -50,6 +49,8 @@ ROMEAnalyzer::ROMEAnalyzer()
    int i=0;
    fSplashScreen = true;
    fBatchMode = false;
+   fTerminate = false;
+
 }
 //#include<ROMESQL.h>
 //#include"C:\Data\analysis\MEG\ROME .NET\MEGFrameWork\MEGEventLoop.h"
@@ -102,6 +103,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 #endif
 
    fMainTask->ExecuteTask();
+   if (fTerminate) return false;
 
    if (!isBatchMode()) TBrowser *t = new TBrowser();
 

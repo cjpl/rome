@@ -30,10 +30,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 // Event loop
    if (fgBeginTask) {
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
+      fAnalyzer->SetTerminate();
       cout << "Terminating Program !" << endl;
       return;
    }
-   if (!IsActive()) return;
+   if (!IsActive()) {
+      fAnalyzer->SetTerminate();
+      cout << "Terminating Program !" << endl;
+      return;
+   }
 
    // Declarations
    //--------------
@@ -48,6 +53,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    fAnalyzer->InitFolders();
    if (!fAnalyzer->GetIO()->Init()) {
+      fAnalyzer->SetTerminate();
       cout << "Terminating Program !" << endl;
       return;
    }
@@ -55,6 +61,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    ExecuteTasks(gTaskInit);
    CleanTasks();
 
+   cout << "Stop run with 's'" << endl;
+   cout << "Terminate program with 'q'" << endl << endl;
 
 
    // Loop over Runs
@@ -62,6 +70,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    for (ii=0;!fAnalyzer->GetIO()->isTerminate();ii++) {
 
       if (!fAnalyzer->GetIO()->Connect(ii)) {
+         fAnalyzer->SetTerminate();
          cout << "Terminating Program !" << endl;
          return;
       }
@@ -82,6 +91,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          fAnalyzer->SetFillEvent();
 
          if (!fAnalyzer->GetIO()->ReadEvent(i)) {
+            fAnalyzer->SetTerminate();
             cout << "Terminating Program !" << endl;
             return;
          }
@@ -97,11 +107,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          CleanTasks();
 
          if (!fAnalyzer->GetIO()->WriteEvent() && fAnalyzer->isFillEvent()) {
+            fAnalyzer->SetTerminate();
             cout << "Terminating Program !" << endl;
             return;
          }
 
          if (!fAnalyzer->GetIO()->UserInput()) {
+            fAnalyzer->SetTerminate();
             cout << "Terminating Program !" << endl;
             return;
          }
@@ -116,6 +128,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       CleanTasks();
 
       if (!fAnalyzer->GetIO()->Disconnect()) {
+         fAnalyzer->SetTerminate();
          cout << "Terminating Program !" << endl;
          return;
       }
@@ -126,6 +139,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    CleanTasks();
 
    if (!fAnalyzer->GetIO()->Terminate()) {
+      fAnalyzer->SetTerminate();
       cout << "Terminating Program !" << endl;
       return;
    }

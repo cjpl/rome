@@ -16,6 +16,7 @@ class ROMEAnalyzer : public TObject
 protected:
    Bool_t     fSplashScreen;              //! Splash screen flag
    Bool_t     fBatchMode;                 //! Batch mode flag
+   Bool_t     fTerminate;                 //! Termination flag
    TString    fConfigDir;                 //! Configuration File Directory
    TTask*     fMainTask;                  //! Handle to Main Task
    TFolder*   fMainFolder;                //! Handle to Main Folder
@@ -61,6 +62,8 @@ public:
 
 
    // methods
+
+   void       SetTerminate() { fTerminate = true; };
 
    bool       Start(int argc=0, char **argv=NULL);
 

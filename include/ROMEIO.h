@@ -67,6 +67,7 @@ private:
    char       fMidasEvent[1000000];             //! Midas Inputdata Stack for an Event
 
 protected:
+   TFile**       treeFiles;                        //! File Handles for Tree Objects
 
    TObjArray*    fTreeObjects;                     //! Handle to Tree Objects
    bool          fTreeAccumulation;                //! Accumulation of runs in Trees
@@ -183,10 +184,7 @@ private:
    virtual void FillTrees() = 0;
    virtual void ClearFolders() = 0;
 
-   virtual void InitXMLDataBase() = 0;
-   virtual void ReadXMLRunTable() = 0;
-   virtual void SaveXMLRunTable() = 0;
-   virtual void UpdateXMLDataBase() = 0;
+   virtual bool ReadXMLDataBase() = 0;
 
    virtual bool InitSQLDataBase() = 0;
    virtual bool ReadSQLDataBase() = 0;
