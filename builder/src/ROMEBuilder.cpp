@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.49  2004/09/30 10:25:03  schneebeli_m
+  gAnalyzer and gROME
+
   Revision 1.48  2004/09/30 09:50:29  schneebeli_m
   Samples updated
 
@@ -2435,7 +2438,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TRint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder, Task, Tree and Data Base initialisation\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   gROME = (void*)this; // Pass the handle to the framework\n");
+   buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
 
    // Steering 
