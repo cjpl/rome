@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.22  2005/03/11 19:52:03  sawada
+  Improved makefile.
+  added new make target "build".
+
   Revision 1.21  2005/03/11 19:49:34  sawada
   *** empty log message ***
 
@@ -696,6 +700,26 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    }
    buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.cpp src/monitor/%sDict.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj src/monitor/%sDict.cpp \n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("clean::\n");
+   buffer.AppendFormatted("	rm -f obj/*.obj src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\n");
+   int pdnameend = 0;
+   int pbnamestart = 0;
+   ROMEString xmlfile = xmlFile;
+   while((pdnameend = xmlfile.Index("/",1,pbnamestart,TString::kExact))!=-1)
+      pbnamestart = pdnameend+1;
+   ROMEString xmlbasename = xmlfile(pbnamestart,xmlfile.Length());
+   buffer.AppendFormatted("build::\n");
+   buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder.exe -i %s -o .",xmlbasename.Data());
+   if (makeOutput)
+      buffer.AppendFormatted(" -v");
+   if(noLink)
+      buffer.AppendFormatted(" -nl");
+   if(midas)
+      buffer.AppendFormatted(" -midas");
+   if(!sql)
+      buffer.AppendFormatted(" -nosql");
+   buffer.AppendFormatted("\n");
 #endif
 #if defined( R__UNIX )
    buffer.Resize(0);
