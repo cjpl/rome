@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.6  2004/11/16 14:27:21  sawada
+//  small modification
+//
 //  Revision 1.5  2004/11/16 12:11:06  sawada
 //  SQL Init,Read
 //
@@ -61,7 +64,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path){
    
    if(path->IsOrderArray()){
       //limit phrase
-      fLimitPhrase.AppendFormatted("%d",(path->GetOrderIndexAt(1)-path->GetOrderIndexAt(0))/path->GetOrderIndexAt(2)+1);
+      fLimitPhrase.AppendFormatted("%d",path->GetOrderIndexAt(1)-path->GetOrderIndexAt(0)+1);
       
       //order phrase
       if(strlen(path->GetOrderTableName())>0 && strlen(path->GetOrderFieldName())>0)
@@ -220,7 +223,7 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
    ROMEString port;
    ROMEString prompt;
    int is,ie;
-   int istart,iend;
+   int istart;
 
    //decode dataBasePath
    if ((istart=path.Index("mysql://",8,0,TString::kIgnoreCase))==-1) {
@@ -287,11 +290,12 @@ bool ROMESQLDataBase::Init(const char* dataBasePath,const char* runTableName) {
 
 bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    int iField;
+   int iArray;
    int iRow;
    ROMEPath *path = new ROMEPath();
    ROMEString fieldName;
    ROMEString sqlQuery;
-   int nArray;
+   int i,j;
 
    if (!path->Decode(dataBasePath)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
@@ -300,17 +304,11 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
    }
 //   path->Print();
    
-   if(path->IsOrderArray()){
-      nArray = (path->GetOrderIndexAt(1)-path->GetOrderIndexAt(0))/path->GetOrderIndexAt(2)+1;
-   }
-   else{
-      nArray = 1;
-   }
-
    this->ResetPhrase();
    this->MakePhrase(path);
    
    iField=path->GetFieldIndexAt(0);
+   j=0;
    do{
       fieldName = path->GetFieldName();
       if(path->IsFieldArray()){
@@ -340,13 +338,30 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath){
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
 	 return false;
       }
-      
-      for(iRow=0;iRow<TMath::Min(fSQL->GetNumberOfRows(),nArray);iRow++){
+
+      fSQL->NextRow();
+      for(iRow=0;iRow<path->GetOrderIndexAt(0);iRow++){
 	 fSQL->NextRow();
-	 values->SetAt(fSQL->GetField(0),iRow,iField);
-	 cout<<"result"<<fSQL->GetField(0)<<endl;
       }
-      iField=iField+path->GetFieldIndexAt(2);
+      iArray=path->GetOrderIndexAt(0);
+      i=0;
+      do{
+	 if(iArray>=fSQL->GetNumberOfRows()){
+	    cout << "\nWarning: There is missing data in SQL Database for "
+	    << path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName() << endl;
+	    break;
+	 }
+	 if(i!=0){
+	    for(iRow=0;iRow<path->GetOrderIndexAt(2);iRow++)
+	       fSQL->NextRow();
+	 }
+	 values->SetAt(fSQL->GetField(0),i,j);
+	 i++;
+	 iArray+=path->GetOrderIndexAt(2);
+      }while(iArray<=path->GetOrderIndexAt(1));
+      
+      iField+=path->GetFieldIndexAt(2);
+      j++;
    }while(iField<=path->GetFieldIndexAt(1));
    
    return true;
