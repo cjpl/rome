@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2004/10/21 08:05:08  schneebeli_m
+  switches size
+
   Revision 1.8  2004/10/20 09:22:16  schneebeli_m
   bugs removed
 
@@ -26,9 +29,9 @@ class ROMETree : public TObject
 {
 private:
    struct Switches {
-      int fRead;              //!   Read Flag
-      int fWrite;             //!   Write Flag
-      int fFill;              //!   Fill Flag
+      bool fRead;             //!   Read Flag
+      bool fWrite;            //!   Write Flag
+      bool fFill;             //!   Fill Flag
       int fCompressionLevel;  //!   Compression Level
       int fMaxEntries;        //!   Max number of entries, 0 in case of a non circular tree
    } fSwitches;               //!   Switches Structure
@@ -38,21 +41,21 @@ private:
 protected:
    TTree *fTree;              //   Tree
 public:
-   ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t compressionLevel=0,Int_t maxEntries=0)
+   ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Int_t maxEntries=0)
    { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries; 
      if (maxEntries>0) fTree->SetCircular(maxEntries);
      TObjArray *branches = fTree->GetListOfBranches();
      for (int i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
-     fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nMax Entries = INT : 0\n"; };
+     fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n"; };
    TTree *GetTree() { return fTree; };
-   Bool_t isRead() { return fSwitches.fRead!=0; };
-   Bool_t isWrite() { return fSwitches.fWrite!=0; };
-   Bool_t isFill() { return fSwitches.fFill!=0; };
+   Bool_t isRead() { return fSwitches.fRead; };
+   Bool_t isWrite() { return fSwitches.fWrite; };
+   Bool_t isFill() { return fSwitches.fFill; };
    Int_t  GetCompressionLevel() { return fSwitches.fCompressionLevel; };
    Bool_t isCircular() { return fSwitches.fMaxEntries!=0; };
    Int_t  GetMaxEntries() { return fSwitches.fMaxEntries; };
    Switches* GetSwitches() { return &fSwitches; };
-   int       GetSwitchesSize() { return sizeof(fSwitches); };
+   int       GetSwitchesSize() { return sizeof(Switches); };
    char*     GetSwitchesString() { return (char*)fSwitchesString.Data(); };
    void SetTree(TTree *tree) { fTree = tree; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };
