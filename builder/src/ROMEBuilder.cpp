@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.86  2005/01/11 08:00:43  schneebeli_m
+  UserHTML
+
   Revision 1.85  2005/01/10 16:50:47  schneebeli_m
   TaskDiscription in HTML
 
@@ -6313,14 +6316,12 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<H2>Table of Contents</H2>\n");
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#introduction\">Introduction</a></li>\n");
-   buffer.AppendFormatted("<br>\n");
    buffer.AppendFormatted("<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#taskobjects\">Tasks</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#folderobjects\">Folders</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#treeobjects\">Trees</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
-   buffer.AppendFormatted("<br>\n");
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<ul>\n");
@@ -6330,10 +6331,9 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#generalmethods\">General</a></li>\n");
-   buffer.AppendFormatted("<br>\n");
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n",outDir.Data());
-   buffer.AppendFormatted("<br>\n");
+   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/%sUserHTML.html\">Additional Info</A></li>\n",outDir.Data(),shortCut.Data());
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<hr>\n");
@@ -6715,6 +6715,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("</BODY>\n");
    buffer.AppendFormatted("</HTML>\n");
 
+   // Write documentation
    ROMEString htmlFile;
    htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
    fileHandle = open(htmlFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
@@ -6723,6 +6724,11 @@ void ROMEBuilder::WriteHTMLDoku() {
    write(fileHandle,buffer.Data(), buffer.Length());
    close(fileHandle);
    if (makeOutput) htmlFile.WriteLine();
+
+   // Write UserHTML
+   htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+   close(fileHandle);
 }
 
 void ROMEBuilder::GetFormat(ROMEString* buf,char *type) 
