@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.6  2004/09/30 13:08:21  schneebeli_m
+//  ...
+//
 //  Revision 1.5  2004/09/25 01:34:48  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
@@ -158,11 +161,13 @@ bool ROMEString::FormatString(ROMEString* string,char* format,va_list parameters
             break;
             break;
          default : 
+            delete form;
             return false;
             break;
       }
       pactual = pstart+ind+1;
       pstart = strstr(pactual,"%");
+      delete form;
    }
    string->Append(pactual);
    return true;

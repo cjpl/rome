@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
+  ...
+
   Revision 1.1  2004/09/27 18:25:25  schneebeli_m
   new database classes
 
@@ -19,11 +22,7 @@
 class ROMESQLDataBase : public ROMEDataBase
 {
 protected:
-   ROMEString openFile;
-   ROMEString filePath;
-   ROMEString RunTableName;
-   ROMESQL *SQLRunTable;
-   ROMESQL *SQLDB;
+   ROMESQL *fSQL;
 public:
    ROMESQLDataBase();
    ~ROMESQLDataBase();
@@ -33,6 +32,8 @@ public:
    void   Write(const char *path,TObjArray* values);
    char*  GetType() { return "sql"; }
    char*  GetDescription() { return "SQL data base using the file system to store tables"; }
+protected:
+   int    DecodePath(char *path,char *start_id_extension,char **table_name,char **id_extension,int  &transition_depth,char *group_name,char *field_name);
 };
 
 #endif   // ROMESQLDataBase_H

@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
+//  ...
+//
 //  Revision 1.1  2004/09/27 18:26:05  schneebeli_m
 //  new database classes
 //

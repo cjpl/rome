@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.50  2004/09/30 13:08:21  schneebeli_m
+  ...
+
   Revision 1.49  2004/09/30 10:25:03  schneebeli_m
   gAnalyzer and gROME
 
@@ -2303,8 +2306,9 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    char fileBuffer[bufferLength];
 
    ROMEString parentt;
+   ROMEString buf;
 
-   int nb,lenTot,j,ll,k,iFold=0;
+   int nb,lenTot,j,ll;
    char *pos;
    int fileHandle;
 
@@ -2370,7 +2374,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#include <TTask.h>\n");
    buffer.AppendFormatted("#include <ROMEStatic.h>\n");
    buffer.AppendFormatted("#if defined HAVE_SQL\n");
-   buffer.AppendFormatted("#include <ROMESQL.h>\n");
+   buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("#include <ROMEXML.h>\n");
    buffer.AppendFormatted("#include <ROMETree.h>\n");
@@ -2547,63 +2551,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
-   // SQL Init
-   buffer.AppendFormatted("bool %sAnalyzer::InitSQLDataBase()\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   if (ndb>0) {
-      buffer.AppendFormatted("   fSQL = new ROMESQL();\n");
-      buffer.AppendFormatted("   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%s\");\n",shortCut.Data());
-   }
-   else {
-      buffer.AppendFormatted("   return true;\n");
-   }
-   buffer.AppendFormatted("#else\n");
-   buffer.AppendFormatted("   cout << \"No sql database access -> regenerate program !\" << endl;\n");
-   buffer.AppendFormatted("   return false;\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("}\n\n");
-
-   // SQL Read
-   ROMEString buf;
-   buffer.AppendFormatted("bool %sAnalyzer::ReadSQLDataBase()\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   if (ndb>0) {
-      buffer.AppendFormatted("   char *cstop,*res;\n");
-      buffer.AppendFormatted("   int i;\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (folderDataBase[i]) {
-            if (folderArray[i]=="1") {
-               for (j=0;j<numOfValue[i];j++) {
-                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\",1);\n",valueDataBasePath[i][j].Data());
-                  buffer.AppendFormatted("   fSQL->NextRow();\n");
-                  buffer.AppendFormatted("   res = fSQL->GetField(0);\n");
-                  setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("   f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-               }
-            }
-            else {
-               for (j=0;j<numOfValue[i];j++) {
-                  buffer.AppendFormatted("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\",f%sObjects->GetEntries());\n",valueDataBasePath[i][j].Data(),folderName[i].Data());
-                  buffer.AppendFormatted("   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
-                  buffer.AppendFormatted("      fSQL->NextRow();\n");
-                  buffer.AppendFormatted("      res = fSQL->GetField(0);\n");
-                  setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
-                  buffer.AppendFormatted("      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
-                  buffer.AppendFormatted("   }\n");
-               }
-            }
-         }
-      }
-   }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("#else\n");
-   buffer.AppendFormatted("   cout << \"No sql database access -> regenerate program !\" << endl;\n");
-   buffer.AppendFormatted("   return false;\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("}\n\n");
-
 
    // ReadDataBase
    buffer.AppendFormatted("bool %sAnalyzer::ReadDataBase() {\n",shortCut.Data());
@@ -2814,7 +2761,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("         xml->GetAttribute(\"DataBaseMode\",value,\"\");\n");
    buffer.AppendFormatted("         if (value==\"sql\"||value==\"SQL\") {\n");
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   buffer.AppendFormatted("            this->SetDataBaseHandle(new ROMESQLDataBase());\n");
+   buffer.AppendFormatted("            this->SetDataBase(new ROMESQLDataBase());\n");
    buffer.AppendFormatted("            this->SetDataBaseConnection(\"\");\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("         }\n");
@@ -3316,8 +3263,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // Data Base
    buffer.AppendFormatted("   // DataBase Methodes\n");
-   buffer.AppendFormatted("   bool InitSQLDataBase();\n");
-   buffer.AppendFormatted("   bool ReadSQLDataBase();\n");
    buffer.AppendFormatted("   bool ReadDataBase();\n");
    buffer.AppendFormatted("\n");
 

@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.22  2004/09/30 13:08:21  schneebeli_m
+  ...
+
   Revision 1.21  2004/09/30 10:18:05  schneebeli_m
   gAnalyzer and gROME
 
@@ -110,14 +113,6 @@ protected:
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics
    Statistics    fScalerStatistics;                //! Scaler Statistics
-
-
-   // SQL Handle
-#if defined HAVE_SQL
-#ifndef __CINT__
-   ROMESQL*      fSQL;                             //! Handle to SQL Class
-#endif
-#endif
 
    ROMEDataBase *fDataBaseHandle;                  //! DataBase Handle
    char*         fDataBaseConnection;              //! DataBase connection string

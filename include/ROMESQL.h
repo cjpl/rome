@@ -2,6 +2,9 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2004/09/30 13:08:21  schneebeli_m
+  ...
+
   Revision 1.4  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -31,8 +34,6 @@ public:
    bool CreateTable(char* table,char* fields);
    bool DeleteTable(char* table);
    bool ReadField(char *table,char* field,char* constraint);
-   void ReadPathFields(char *path, int start_id, char *start_id_extension,int max=1000);
-   int  WritePathFields(char *path,int id,char **value,char *constraint,int number);
    bool InsertRow(char *table,char* fields,char* values);
    bool DeleteRow(char *table,char* constraint);
    bool ReplaceField(char *table,char* field,char* value,char* constraint);
@@ -42,8 +43,6 @@ public:
    bool NextRow();
    int GetNumberOfFields();
    char* GetField(int fieldNumber);
-private:
-   int DecodePath(char *path,char *start_id_extension,char **table_name,char **id_extension,int  &transition_depth,char *group_name,char *field_name);
 };
 
 #endif   // ROMESQL_H
