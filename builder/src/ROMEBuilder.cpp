@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.113  2005/03/20 18:31:11  sawada
+  small change in Makefile.
+
   Revision 1.112  2005/03/18 16:12:57  schneebeli_m
   Event request & Histo in romeConfig
 
@@ -7214,7 +7217,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h\n");
       buffer.AppendFormatted((char*)compileFormatROME.Data(),"SQL","SQL");
    }
-   buffer.AppendFormatted("obj/%sDict.obj: %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sDict.obj: %sDict.h %sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer.SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted((char*)compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
    buffer.AppendFormatted("\n");
@@ -7222,7 +7225,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteDictionaryBat(dictionarybat);
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
-   buffer.AppendFormatted("%sDict.cpp: ",shortCut.Data());
+   buffer.AppendFormatted("%sDict.h: ",shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
