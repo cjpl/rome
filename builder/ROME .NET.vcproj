@@ -129,9 +129,6 @@
 		<Filter
 			Name="Ressourcendateien"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;r">
-			<File
-				RelativePath="ROME .NET.rc">
-			</File>
 		</Filter>
 	</Files>
 	<Globals>
