@@ -2,6 +2,11 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.5  2005/02/06 00:39:35  sawada
+   Changed TRint to TApplication
+   Stop method of thread function
+   Name of method for start/stop
+
   Revision 1.4  2005/02/02 23:54:30  sawada
   link with midas library.
 
@@ -16,6 +21,8 @@
 
 
 ********************************************************************/
+//#define USE_TRINT
+
 #ifndef ArgusMonitor_H
 #define ArgusMonitor_H
 #include <TRint.h>
@@ -30,7 +37,11 @@ class ArgusMonitor : public TObject
 {
 protected:
    // Application
+#if defined(USE_TRINT)
    TRint*        fApplication;                 //! Application Handle
+#else
+   TApplication* fApplication;                 //! Application Handle
+#endif
    
    // Directories
    ROMEString    fDataBaseDir;                 //! Data Base File Directory
@@ -74,12 +85,19 @@ protected:
    
 public:
    ArgusMonitor() {};
+#if defined (USE_TRINT)
    ArgusMonitor(TRint *app);
+#else
+   ArgusMonitor(TApplication *app);
+#endif
    ~ArgusMonitor();
    
    // Application Handle
-   TRint*        GetApplication() { return fApplication; };
-   
+#if defined (USE_TRINT)
+   TRint* GetApplication() { return fApplication; };
+#else
+   TApplication* GetApplication() { return fApplication; };
+#endif
    // Data Base Handle
    char*         GetDataBaseConnection() { return (char*)fDataBaseConnection.Data(); };
    void          SetDataBaseConnection(char* connection) { fDataBaseConnection = connection; };

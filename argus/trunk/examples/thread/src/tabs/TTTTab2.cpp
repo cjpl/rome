@@ -49,16 +49,16 @@ bool TTTTab2::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
       case kCM_BUTTON:
          switch (param1){
          case B_START_2_1:
-            func_2_1Start();
+            Startfunc_2_1();
             break;
          case B_STOP_2_1:
-            func_2_1Stop();
+            Stopfunc_2_1();
             break;
          case B_START_2_2:
-            func_2_2Start();
+            Startfunc_2_2();
             break;
          case B_STOP_2_2:
-            func_2_2Stop();
+            Stopfunc_2_2();
             break;
          }
          break;

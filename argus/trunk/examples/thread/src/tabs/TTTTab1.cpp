@@ -65,16 +65,16 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
       case kCM_BUTTON:
          switch (param1){
          case B_STARTV:
-            func_1_1Start();
+            Startfunc_1_1();
             break;
          case B_STOPV:
-            func_1_1Stop();
+            Stopfunc_1_1();
             break;
          case B_STARTH:
-            func_1_2Start();
+            Startfunc_1_2();
             break;
          case B_STOPH:
-            func_1_2Stop();
+            Stopfunc_1_2();
             break;
          }
          break;
@@ -87,7 +87,13 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 void TTTTab1::func_1_1()
 {
    Float_t x = TMath::Abs(TMath::Sin(fText->GetX()*10));
+#if defined (ROOT_TThread)
+   TThread::Lock();
+#endif
    fText->SetX(x);
+#if defined (ROOT_TThread)
+   TThread::UnLock();
+#endif
    fCanvas->GetCanvas()->cd();
    fText->Draw();
    fCanvas->GetCanvas()->Modified();
@@ -98,7 +104,13 @@ void TTTTab1::func_1_1()
 void TTTTab1::func_1_2()
 {
    Float_t y = TMath::Abs(TMath::Sin(fText->GetY()*10));
+#if defined (ROOT_TThread)
+   TThread::Lock();
+#endif
    fText->SetY(y);
+#if defined (ROOT_TThread)
+   TThread::UnLock();
+#endif
    fCanvas->GetCanvas()->cd();
    fText->Draw();
    fCanvas->GetCanvas()->Modified();

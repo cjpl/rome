@@ -2,6 +2,11 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.8  2005/02/06 00:39:35  sawada
+   Changed TRint to TApplication
+   Stop method of thread function
+   Name of method for start/stop
+
   Revision 1.7  2005/02/04 22:58:46  sawada
   ROMEFolder
 
@@ -71,7 +76,11 @@ void writeLineToProcess(const char* str) {
    ArgusMonitor::LineToProcess = str;
 }
 
+#if defined(USE_TRINT)
 ArgusMonitor::ArgusMonitor(TRint *app)
+#else
+ArgusMonitor::ArgusMonitor(TApplication *app)
+#endif
 {
 // Initialisations
    fApplication = app;
