@@ -17,18 +17,18 @@
 class HGTMakeHistogram : public ROMETask
 {
 protected:
-   TH1F*      fhAdc0;  // ADC0
-   bool       fhAdc0Accumulation; // Accumulation Flag for the hAdc0
+   TH1F*      fhAdc;  // ADC
+   bool       fhAdcAccumulation; // Accumulation Flag for the hAdc
 public:
    // Constructor
    HGTMakeHistogram(const char *name,const char *title):ROMETask(name,title)
-   { fEventID = '1'; fVersion = 1; fHasHistograms = true; fhAdc0Accumulation = true; };
+   { fEventID = '1'; fVersion = 1; fHasHistograms = true; fhAdcAccumulation = true; };
    // User Methods
-   void FillhAdc0(double x,double weight=1) { fhAdc0->Fill(x,weight); };
-   void DrawhAdc0() { fhAdc0->Draw(); };
-   TH1F* GethAdc0() { return fhAdc0; };
-   Bool_t ishAdc0Accumulation() { return fhAdc0Accumulation; };
-   void SethAdc0Accumulation(Bool_t flag) { fhAdc0Accumulation = flag; };
+   void FillhAdc(double x,double weight=1) { fhAdc->Fill(x,weight); };
+   void DrawhAdc() { fhAdc->Draw(); };
+   TH1F* GethAdc() { return fhAdc; };
+   Bool_t ishAdcAccumulation() { return fhAdcAccumulation; };
+   void SethAdcAccumulation(Bool_t flag) { fhAdcAccumulation = flag; };
 protected:
    // Event Methods
    virtual void Init();
@@ -47,15 +47,15 @@ protected:
 
 inline void HGTMakeHistogram::BookHisto() {
    TFolder *ADCFolder = GetHistoFolder()->AddFolder("ADC","ADC");
-   fhAdc0 = new TH1F("hAdc0","ADC0",3996,10,3996);
-   ADCFolder->Add(fhAdc0);
-   fhAdc0->GetXaxis()->SetTitle("");
-   fhAdc0->GetYaxis()->SetTitle("");
-   fhAdc0->GetZaxis()->SetTitle("");
+   fhAdc = new TH1F("hAdc","ADC",3996,10,3996);
+   ADCFolder->Add(fhAdc);
+   fhAdc->GetXaxis()->SetTitle("");
+   fhAdc->GetYaxis()->SetTitle("");
+   fhAdc->GetZaxis()->SetTitle("");
 }
 
 inline void HGTMakeHistogram::ResetHisto() {
-   if (!ishAdc0Accumulation()) fhAdc0->Reset();
+   if (!ishAdcAccumulation()) fhAdc->Reset();
 }
 
 #endif   // HGTMakeHistogram_H

@@ -46,7 +46,8 @@ public:
    void Init();
    bool ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
    void Update();
-   
+
+
    ClassDef(HGTTab,1)
 };
 
