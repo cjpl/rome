@@ -8,7 +8,7 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
-//  Revision 1.44  2004/12/06 11:16:43  schneebeli_m
+//  Revision 1.45  2004/12/06 11:25:23  schneebeli_m
 //  user input on linux
 //
 //  Revision 1.42  2004/12/06 09:20:50  schneebeli_m
@@ -259,7 +259,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
       cout << "Configuration file '" << configFile.Data() << "' not found." << endl;
-      cout << "Do you like the framework to generate a new configuration file ([y]/n) ? ";
+      cout << "Do you like the framework to generate a new configuration file ([y]/n) ? " << flush;
       while (answer==0) {
          while (this->ss_kbhit()) {
             answer = this->ss_getchar(0);
