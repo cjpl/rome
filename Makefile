@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.14  2005/02/21 22:47:31  sawada
+#  Support for DEC,Ultrix,FreeBSD,Solaris
+#
 #  Revision 1.13  2004/12/09 08:18:00  schneebeli_m
 #  -lg2c removed
 #
@@ -25,13 +28,31 @@
 #####################################################################
 #
 INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags) $(shell xml2-config --cflags)
-LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs) -lpthread
+LIBRARY := $(shell root-config --libs) $(shell xml2-config --libs)
 
-## for Macintosh
-ifeq ($(shell uname),Darwin)
+
+OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
+
+ifeq ($(OSTYPE),osf1)
+LIBRARY += -lc -lbsd
+endif
+
+ifeq ($(OSTYPE),freebsd)
+LIBRARY += -lbsd -lcompat
+endif
+
+ifeq ($(OSTYPE),darwin)
 FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
 Include += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
-LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)
+LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -lpthread
+endif
+
+ifeq ($(OSTYPE),linux)
+LIBRARY += -lpthread
+endif
+
+ifeq ($(OSTYPE),soralis)
+LIBRARY += -lsocket -lnsl
 endif
 
 romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
