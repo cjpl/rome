@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.61  2004/10/19 21:10:08  pierre
+  add lutil for forkpty
+
   Revision 1.60  2004/10/15 11:51:28  schneebeli_m
   bugs removed
 
@@ -5367,7 +5370,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("midaslibs := -lmidas\n");
    else
       buffer.AppendFormatted("midaslibs := \n");
-   buffer.AppendFormatted("clibs := -lpthread -lHtml $(SYSLIBS)\n");
+   buffer.AppendFormatted("clibs := -lpthread -lHtml -lutil $(SYSLIBS)\n");
    buffer.AppendFormatted("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    buffer.AppendFormatted("\n");
    // flags
