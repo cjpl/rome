@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2004/07/09 14:43:44  schneebeli
+  removed minor errors
+
   Revision 1.15  2004/07/09 14:29:34  schneebeli
   removed minor errors
 
@@ -3636,13 +3639,13 @@ bool ROMEBuilder::WriteIOH() {
    // Data Base
    sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
    sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool SaveSQLRunTable();\n");
-/*   sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable();\n");
-   sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable();\n");
-   sprintf(buffer+strlen(buffer),"   void InitXMLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");*/
+   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n\n");
+
+   sprintf(buffer+strlen(buffer),"   void ReadXMLRunTable() {};\n");
+   sprintf(buffer+strlen(buffer),"   void SaveXMLRunTable() {};\n");
+   sprintf(buffer+strlen(buffer),"   void InitXMLDataBase() {};\n");
+   sprintf(buffer+strlen(buffer),"   void UpdateXMLDataBase() {};\n");
+//   sprintf(buffer+strlen(buffer),"   void XMLUpdate();\n");
 
    for (i=0;i<numOfFolder;i++) {
       if (dataBase[i]) {
