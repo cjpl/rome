@@ -11,9 +11,9 @@
 					<Version Number="1" />
 					<ClassDescription Text="Folder Class for Calorimeter Photo Multiplier data." />
 					<Fields>
-						<ADC0Data Type="Float_t" Initialisation="0" Comment="ADC Data of Photo Multipliers (low resolution)" />
-						<ADC1Data Type="Float_t" Initialisation="0" Comment="ADC Data of Photo Multipliers (high resolution)" />
-						<TDCData Type="Float_t" Initialisation="0" Comment="TDC Data of Photo Multipliers" />
+						<ADC0Data Type="Float_t" Comment="ADC Data of Photo Multipliers (low resolution)" />
+						<ADC1Data Type="Float_t" Comment="ADC Data of Photo Multipliers (high resolution)" />
+						<TDCData Type="Float_t" Comment="TDC Data of Photo Multipliers" />
 					</Fields>
 				</SubFolder>
 				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
@@ -21,10 +21,10 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter calibration data." />
 					<Fields>
-						<ADCPedestal Type="Float_t" Initialisation="0" Comment="ADC Pedestal" />
-						<ADCGain Type="Float_t" Initialisation="0" Comment="ADC Gain" />
-						<TDCOffset Type="Float_t" Initialisation="0" Comment="TDC Offset" />
-						<TDCXScale Type="Float_t" Initialisation="0" Comment="TDC X-Axis Scale" />
+						<ADCPedestal Type="Float_t" Comment="ADC Pedestal" />
+						<ADCGain Type="Float_t" Comment="ADC Gain" />
+						<TDCOffset Type="Float_t" Comment="TDC Offset" />
+						<TDCXScale Type="Float_t" Comment="TDC X-Axis Scale" />
 					</Fields>
 				</SubFolder>
 				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
@@ -32,40 +32,25 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter Photo Multiplier Information." />
 					<Fields>
-						<PMID Type="Int_t" Initialisation="0" Comment="Photo Multiplier ID" />
-						<ADCID Type="Int_t" Initialisation="0" Comment="ADC Number" />
-						<TDCID Type="Int_t" Initialisation="0" Comment="TDC Number" />
-						<Address Type="TString" Initialisation="0" Comment="Address" />
-						<X Type="Float_t" Initialisation="0" Comment="X-Coordinate" />
-						<Y Type="Float_t" Initialisation="0" Comment="Y-Coordinate" />
-						<Z Type="Float_t" Initialisation="0" Comment="Z-Coordinate" />
+						<PMID Type="Int_t" Comment="Photo Multiplier ID" />
+						<ADCID Type="Int_t" Comment="ADC Number" />
+						<TDCID Type="Int_t" Comment="TDC Number" />
+						<Address Type="TString" Comment="Address" />
+						<X Type="Float_t" Comment="X-Coordinate" />
+						<Y Type="Float_t" Comment="Y-Coordinate" />
+						<Z Type="Float_t" Comment="Z-Coordinate" />
 						<DeadFlag Type="Bool_t" Initialisation="false" Comment="Dead Photo Multiplier Flag" />
 					</Fields>
 					<AdditionalGetters>
 						<GetFace Type="Int_t" />
 					</AdditionalGetters>
 				</SubFolder>
-				<SubFolder FolderName="CMRef" FolderTitle="References for ADC and TDC Counts">
-					<Author Name="Matthias Schneebeli" />
-					<Version Number="1" />
-					<ClassDescription Text="Container Class for Calorimeter References." />
-					<Fields>
-						<Trigger Type="Trigger*" Initialisation="NULL" Comment="//-> Pointer to Trigger Object" />
-						<Scaler Type="CMScaler*" Initialisation="NULL" Comment="//-> Pointer to Scaler Object" />
-						<HV Type="CMHV*" Initialisation="NULL" Comment="//-> Pointer to High Voltage Object" />
-						<Env Type="Environment*" Initialisation="NULL" Comment="//-> Pointer to Environment Object" />
-						<!--Trigger Type="Trigger*" Reference="yes" Initialisation="NULL" Comment="Pointer to Trigger Object"/>
-						<Scaler Type="CMScaler*" Reference="yes" Initialisation="NULL" Comment="Pointer to Scaler Object"/>
-						<HV Type="HV*" Reference="yes" Initialisation="NULL" Comment="Pointer to High Voltage Object"/>
-						<Env Type="Environment*" Reference="yes" Initialisation="NULL" Comment="Pointer to Environment Object"/-->
-					</Fields>
-				</SubFolder>
 				<SubFolder FolderName="CMScaler" FolderTitle="Scaler">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter Scaler data." />
 					<Fields>
-						<fScaler Type="Float_t" Initialisation="0" Comment="  Scaler Data" />
+						<fScaler Type="Float_t" Comment="  Scaler Data" />
 					</Fields>
 				</SubFolder>
 				<SubFolder FolderName="CMHit" FolderTitle="Hit">
@@ -73,22 +58,22 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter hit data." />
 					<Fields>
-						<Energy Type="Float_t" Initialisation="0" Comment="Energy" />
-						<PosX Type="Float_t" Initialisation="0" Comment="X Position" />
-						<PosY Type="Float_t" Initialisation="0" Comment="Y Position" />
-						<PosZ Type="Float_t" Initialisation="0" Comment="Z Position" />
-						<Time Type="Float_t" Initialisation="0" Comment="Time" />
-						<XAverage Type="Float_t" Initialisation="0" Comment="X Average" />
-						<YAverage Type="Float_t" Initialisation="0" Comment="Y Average" />
-						<QFront Type="Float_t" Initialisation="0" Comment="Charge on Front Face" />
-						<QBack Type="Float_t" Initialisation="0" Comment="Charge on Back Face" />
-						<QTop Type="Float_t" Initialisation="0" Comment="Charge on Top Face" />
-						<QBottom Type="Float_t" Initialisation="0" Comment="Charge on Bottom Face" />
-						<QRight Type="Float_t" Initialisation="0" Comment="Charge on Right Face" />
-						<QLeft Type="Float_t" Initialisation="0" Comment="Charge on Left Face" />
-						<QRaw Type="Float_t" Initialisation="0" Comment="Raw total charge" />
-						<QSum Type="Float_t" Initialisation="0" Comment="Total charge" />
-						<NHit Type="Float_t" Initialisation="0" Comment="Number of hits" />
+						<Energy Type="Float_t" Comment="Energy" />
+						<PosX Type="Float_t" Comment="X Position" />
+						<PosY Type="Float_t" Comment="Y Position" />
+						<PosZ Type="Float_t" Comment="Z Position" />
+						<Time Type="Float_t" Comment="Time" />
+						<XAverage Type="Float_t" Comment="X Average" />
+						<YAverage Type="Float_t" Comment="Y Average" />
+						<QFront Type="Float_t" Comment="Charge on Front Face" />
+						<QBack Type="Float_t" Comment="Charge on Back Face" />
+						<QTop Type="Float_t" Comment="Charge on Top Face" />
+						<QBottom Type="Float_t" Comment="Charge on Bottom Face" />
+						<QRight Type="Float_t" Comment="Charge on Right Face" />
+						<QLeft Type="Float_t" Comment="Charge on Left Face" />
+						<QRaw Type="Float_t" Comment="Raw total charge" />
+						<QSum Type="Float_t" Comment="Total charge" />
+						<NHit Type="Float_t" Comment="Number of hits" />
 					</Fields>
 				</SubFolder>
 				<SubFolder FolderName="CMHV" FolderTitle="High Voltage">
@@ -96,8 +81,8 @@
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for High Voltage data." />
 					<Fields>
-						<Voltage Type="Float_t" Initialisation="0" Comment="Voltage" />
-						<Current Type="Float_t" Initialisation="0" Comment="Current" />
+						<Voltage Type="Float_t" Comment="Voltage" />
+						<Current Type="Float_t" Comment="Current" />
 					</Fields>
 				</SubFolder>
 			</SubFolder>
@@ -107,7 +92,7 @@
 				<Version Number="1" />
 				<ClassDescription Text="Container Class for Environment data." />
 				<Fields>
-					<Temp Type="Int_t" Initialisation="0" Comment="temp" />
+					<Temp Type="Int_t" Comment="temp" />
 				</Fields>
 			</SubFolder>
 			<SubFolder FolderName="Trigger" FolderTitle="Trigger">
@@ -115,10 +100,10 @@
 				<Version Number="1" />
 				<ClassDescription Text="Container Class for Trigger data." />
 				<Fields>
-					<ID Type="Int_t" Initialisation="0" Comment="event ID" />
-					<Mask Type="Int_t" Initialisation="0" Comment="Trigger Mask" />
-					<Time Type="Int_t" Initialisation="0" Comment="Time stamp" />
-					<EventNum Type="Int_t" Initialisation="0" Comment="Event Number" />
+					<ID Type="Int_t" Comment="event ID" />
+					<Mask Type="Int_t" Comment="Trigger Mask" />
+					<Time Type="Int_t" Comment="Time stamp" />
+					<EventNum Type="Int_t" Comment="Event Number" />
 				</Fields>
 			</SubFolder>
 		</SubFolder>
@@ -177,7 +162,6 @@
 	<Trees>
 		<Tree Name="CMPMTData" Title="Calorimeter PMT Data">
 			<Branch Name="PMTData" Folder="CMPMTData" />
-			<Branch Name="Ref" Folder="CMRef" />
 		</Tree>
 		<Tree Name="CMHit" Title="Calorimeter Hit">
 			<Branch Name="CMHit" Folder="CMHit" />
@@ -199,7 +183,7 @@
 		<InvalidValue Type="Float_t" Initialisation="-1000" Comment="Invalid Value" />
 	</GeneralSteeringParameters>
 	<MidasBanks>
-		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="EventNumber" TimeStamp="Time" />
+		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="EventNum" TimeStamp="Time" />
 		<SCLR Type="unsigned long" />
 		<ADC0 Type="unsigned short" />
 		<ADC1 Type="unsigned short" />

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.31  2004/08/02 12:14:35  schneebeli_m
+  ...
+
   Revision 1.30  2004/08/02 07:28:55  schneebeli_m
   linking on linux
 
@@ -870,7 +873,7 @@ bool ROMEBuilder::ReadXMLTask() {
                   // histo title
                   xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]],"");
                   // histo folder name
-                  xml->GetAttribute("Type",histoFolderName[numOfTask][numOfHistos[numOfTask]],"");
+                  xml->GetAttribute("FolderName",histoFolderName[numOfTask][numOfHistos[numOfTask]],"");
                   if (histoFolderName[numOfTask][numOfHistos[numOfTask]]=="") {
                      cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Folder Name defined !" << endl;
                      cout << "Terminating program." << endl;
