@@ -22,19 +22,12 @@
 
 #include "ROMEBuilder.h"
 
-//============================================================
-//                     Folders
-//============================================================
-
-bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLFolder(xmlTextReaderPtr reader) {
    char parent[10][100];
+   char tmp[60];
    const xmlChar *name, *value;
-   bool finished = false;
    int type,i,isub=0;
    strcpy(parent[0],"GetMainFolder()");
-
-// read XML file
-//===============
 
    if (makeOutput) cout << "Folders:" << endl;
    while (xmlTextReaderRead(reader)) {
@@ -204,6 +197,10 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
                   value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
                   if (value!=NULL) strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],(const char*)value);
                   else strcpy(valueComment[numOfFolder][numOfValue[numOfFolder]],"");
+                  if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
+                     strcpy(tmp,valueComment[numOfFolder][numOfValue[numOfFolder]]);
+                     sprintf(valueComment[numOfFolder][numOfValue[numOfFolder]],"// %s",tmp);
+                  }
                   xmlFree((void*)value);
                   numOfValue[numOfFolder]++;
                }
@@ -216,19 +213,15 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
       if (type == 15 && !strcmp((const char*)name,"Folder")) break;
    }
    numOfFolder++;
+   return true;
+}
 
-// write source files
-//====================
-
+bool ROMEBuilder::WriteFolderCpp() {
    char cppFile[500];
-   char hFile[500];
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
-   int nb,lenTot,j,ll;
-   const int bufferSize = 600;
-   char str[bufferSize];
-   char tmp[bufferSize];
+   int nb,ll,i,lenTot;
    char *pos;
    int fileHandle;
    char format[100];
@@ -238,7 +231,7 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
 
 
 
-   if (makeOutput) cout << "\n   Output Files:" << endl;
+   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (numOfValue[iFold] == 0) continue;
 // cpp-File
@@ -291,30 +284,35 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
          writeFile = true;
       }
       else {
-         // compare old and new file
-         fileHandle = open(cppFile,O_RDONLY);
-         nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-         pBuffer = fileBuffer;
-         char *pend = "/////////////////////////////////////----///////////////////////////////////////";
-         pBuffer = strstr(pBuffer,pend);
-         if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
-            if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
-            continue;
+         if (numOfGetters[iFold]==0) {
+            remove(cppFile);
          }
-         bufferLen = nb-(pBuffer-fileBuffer);
-         close(fileHandle);
-         writeFile = false;
-         for (i=0;i<pBuffer-fileBuffer;i++) {
-            if (buffer[i] != fileBuffer[i]) {
-               writeFile = true;
-               break;
+         else {
+            // compare old and new file
+            fileHandle = open(cppFile,O_RDONLY);
+            nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+            pBuffer = fileBuffer;
+            char *pend = "/////////////////////////////////////----///////////////////////////////////////";
+            pBuffer = strstr(pBuffer,pend);
+            if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
+               if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
+               continue;
             }
+            bufferLen = nb-(pBuffer-fileBuffer);
+            close(fileHandle);
+            writeFile = false;
+            for (i=0;i<pBuffer-fileBuffer;i++) {
+               if (buffer[i] != fileBuffer[i]) {
+                  writeFile = true;
+                  break;
+               }
+            }
+            fileBuffer[nb] = 0;
+            sprintf(format,"%%-%d.%ds",bufferLen-80);
+            sprintf(buffer+strlen(buffer),format,pBuffer+80);
          }
-         fileBuffer[nb] = 0;
-         sprintf(format,"%%-%d.%ds",bufferLen-80);
-         sprintf(buffer+strlen(buffer),format,pBuffer+80);
       }
-      if (writeFile) {
+      if (writeFile && numOfGetters[iFold]>0) {
          // write file
          fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
@@ -325,10 +323,25 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
 
          close(fileHandle);
       }
+   }
+   return true;
+}
 
-// h-File
-//--------
+bool ROMEBuilder::WriteFolderH() {
+   char hFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
 
+   int nb,j,i;
+   const int bufferSize = 600;
+   char str[bufferSize];
+   char tmp[bufferSize];
+   int fileHandle;
+   char format[100];
+
+   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   for (int iFold=0;iFold<numOfFolder;iFold++) {
+      if (numOfValue[iFold] == 0) continue;
 // Description
 //-------------
       sprintf(buffer,               "////////////////////////////////////////////////////////////////////////////////\n");
@@ -474,7 +487,7 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
       fileHandle = open(hFile,O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
-      for (i=0;i<nb||i<strlen(buffer);i++) {
+      for (i=0;i<nb||i<(int)strlen(buffer);i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
          }
@@ -491,15 +504,12 @@ bool ROMEBuilder::XMLToFolder(xmlTextReaderPtr reader) {
    return true;
 }
 
-//============================================================
-//                     Tasks
-//============================================================
-
-bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLTask(xmlTextReaderPtr reader) {
    char parent[10][100];
    const xmlChar *name, *value;
-   bool finished = false;
    int type,i,isub=0;
+   int empty,depth=0,index[20];
+   char tmp[100];
    strcpy(parent[0],"GetMainTask()");
 
 // read XML file
@@ -512,6 +522,12 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       if (type == 1 && !strcmp((const char*)name,"SubTask")) {
          numOfTask++;
          // initialisation
+         index[0] = 0;
+         numOfTaskSteering[numOfTask] = 0;
+         numOfTaskSteerFields[numOfTask][0] = 0;
+         strcpy(taskSteerName[numOfTask][0],"Steering");
+         strcpy(taskSteerParent[numOfTask][0],"");
+         taskSteerDepth[numOfTask][0] = 0;
          strcpy(parentTaskName[numOfTask],parent[isub]);
          strcpy(version[numOfTask],"1");
          strcpy(author[numOfTask],"");
@@ -585,6 +601,66 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
                   break;
                }
             }
+         }
+         // steering parameters
+         else if (!strcmp((const char*)name,"SteeringParameters")) {
+            while (xmlTextReaderRead(reader)) {
+               type = xmlTextReaderNodeType(reader);
+               name = xmlTextReaderConstName(reader);
+               empty = xmlTextReaderIsEmptyElement(reader);
+               if (type == 1 && !empty) {
+                  numOfTaskSteering[numOfTask]++;
+                  depth++;
+                  index[depth] = numOfTaskSteering[numOfTask];
+                  numOfTaskSteerFields[numOfTask][index[depth]] = 0;
+                  // steering name
+                  strcpy(taskSteerName[numOfTask][index[depth]],(const char*)name);
+                  // parent name
+                  strcpy(taskSteerParent[numOfTask][index[depth]],taskSteerName[numOfTask][index[depth-1]]);
+                  // depth
+                  taskSteerDepth[numOfTask][index[depth]] = depth;
+                  // output
+                  if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
+                  if (makeOutput) cout << taskSteerName[numOfTask][index[depth]] << endl;
+               }
+               if (type == 1 && empty) {
+                  // field name
+                  strcpy(taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)name);
+                  // field type
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
+                  if (value!=NULL) strcpy(taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
+                  else {
+                     cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << " has no type !" << endl;
+                     cout << "Terminating program." << endl;
+                     return false;
+                  }
+                  xmlFree((void*)value);
+                  // field initialisation
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
+                  if (value!=NULL) strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
+                  else strcpy(taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
+                  xmlFree((void*)value);
+                  // field comment
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
+                  if (value!=NULL) strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],(const char*)value);
+                  else strcpy(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
+                  if (taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]][0]!='/') {
+                     strcpy(tmp,taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                     sprintf(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"// %s",tmp);
+                  }
+                  xmlFree((void*)value);
+                  // output
+                  if (makeOutput) for (i=0;i<depth+2;i++) cout << "   ";
+                  if (makeOutput) cout << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << endl;
+                  numOfTaskSteerFields[numOfTask][index[depth]]++;
+               }
+               if (type == 15 && strcmp((const char*)name,"SteeringParameters")) {
+                  depth--;
+                  if (makeOutput) cout << endl;;
+               }
+               if (type == 15 && !strcmp((const char*)name,"SteeringParameters")) break;
+            }
+            numOfTaskSteering[numOfTask]++;
          }
          // histos
          else if (!strcmp((const char*)name,"Histos")) {
@@ -719,23 +795,190 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       if (type == 15 && !strcmp((const char*)name,"Task")) break;
    }
    numOfTask++;
+   return true;
+}
+bool ROMEBuilder::WriteTaskSteeringClass(char *buffer,int numSteer,int numTask) {
+   char format[100];
+   char sc[20];
+   char blank[20];
+   int j,i;
+   int typeLen = -1;
+   int nameLen = -1;
+   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
+      if (typeLen<(int)strlen(taskSteerFieldType[numTask][numSteer][i])) typeLen = strlen(taskSteerFieldType[numTask][numSteer][i]);
+      if (nameLen<(int)strlen(taskSteerFieldName[numTask][numSteer][i])) nameLen = strlen(taskSteerFieldName[numTask][numSteer][i]);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         if (typeLen<(int)strlen(taskSteerName[numTask][i])+1) typeLen = strlen(taskSteerName[numTask][i])+1;
+         if (nameLen<(int)strlen(taskSteerName[numTask][i])) nameLen = strlen(taskSteerName[numTask][i]);
+      }
+   }
+   strcpy(sc,"");
 
-// write source files
-//====================
+   sprintf(blank,"");   
+   for (i=0;i<taskSteerDepth[numTask][numSteer]+1;i++) {
+      sprintf(blank+strlen(blank),"   ");   
+   }
+
+   sprintf(buffer+strlen(buffer),"\n%sclass %s%s\n",blank,sc,taskSteerName[numTask][numSteer]);
+   sprintf(buffer+strlen(buffer),"%s{\n",blank);
+
+   sprintf(buffer+strlen(buffer),"%sprivate:\n",blank);
+
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         WriteTaskSteeringClass(buffer,i,numTask);
+      }
+   }
+
+   sprintf(buffer+strlen(buffer),"%sprotected:\n",blank);
+
+   // Fields
+   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
+      sprintf(format,"%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldComment[numTask][numSteer][j]);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         sprintf(format,"%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-strlen(taskSteerName[numTask][i]));
+         sprintf(buffer+strlen(buffer),format,blank,taskSteerName[numTask][i],taskSteerName[numTask][i],"",taskSteerName[numTask][i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"\n%spublic:\n",blank);
+   // Constructor
+   sprintf(buffer+strlen(buffer),"%s   %s%s() { ",blank,sc,taskSteerName[numTask][numSteer]);
+   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
+      sprintf(buffer+strlen(buffer),"f%s = %s; ",taskSteerFieldName[numTask][numSteer][j],taskSteerFieldInit[numTask][numSteer][j]);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         sprintf(buffer+strlen(buffer),"f%s = new %s(); ",taskSteerName[numTask][i],taskSteerName[numTask][i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"};\n");
+   // Getters
+   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
+      sprintf(format,"%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldName[numTask][numSteer][j]);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         sprintf(format,"%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-strlen(taskSteerName[numTask][i]));
+         sprintf(buffer+strlen(buffer),format,blank,taskSteerName[numTask][i],taskSteerName[numTask][i],"",taskSteerName[numTask][i]);
+      }
+   }
+   // Setters
+   sprintf(buffer+strlen(buffer),"\n");
+   for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
+      sprintf(format,"%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldName[numTask][numSteer][j],taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldName[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j]);
+   }
+
+   // Footer
+   sprintf(buffer+strlen(buffer),"%s};\n\n",blank);
+
+   return true;
+}
+void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask) {
+   int i,j;
+   char tmp[300];
+   char getter[300];
+   if (numSteer==0)
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"SteeringParameters\");\n");
+   else
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",taskSteerName[numTask][numSteer]);
+   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
+      sprintf(getter,"->Get%s()",taskSteerFieldName[numTask][numSteer][i]);
+      int ind = numSteer;
+      while (strcmp(taskSteerParent[numTask][ind],"")) {
+         for (j=0;j<numOfTaskSteering[numTask];j++) {
+            if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
+               strcpy(tmp,getter);
+               sprintf(getter,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
+               ind = j;
+               break;
+            }
+         }
+      }
+      strcpy(tmp,getter);
+      sprintf(getter,"((%sT%s*)%sTask)->GetSP()%s",shortCut,taskName[numTask],taskName[numTask],tmp);
+      GetFormat(tmp,taskSteerFieldType[numTask][numSteer][i]);
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\",%s);\n",taskSteerFieldName[numTask][numSteer][i],tmp,getter);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         WriteTaskSteerConfigWrite(buffer,i,numTask);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+}
+void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask) {
+   char tmp[300];
+   char value[300];
+   char path[300];
+   char setter[300];
+   int i,j;
+   char blank[100];
+   strcpy(blank,"");
+
+   strcpy(path,"");
+   int ind = numSteer;
+   while (strcmp(taskSteerParent[numTask][ind],"")) {
+      for (j=0;j<numOfTaskSteering[numTask];j++) {
+         if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
+            strcpy(tmp,path);
+            sprintf(path,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
+            ind = j;
+            strcat(blank,"      ");
+            break;
+         }
+      }
+   }
+   if (numSteer==0)
+      sprintf(buffer+strlen(buffer),"%s               if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank,taskSteerName[numTask][numSteer]);
+   else
+      sprintf(buffer+strlen(buffer),"%s               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerName[numTask][numSteer]);
+
+   sprintf(buffer+strlen(buffer),"%s                  while (xmlTextReaderRead(reader)) {\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                     type = xmlTextReaderNodeType(reader);\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                     name = xmlTextReaderConstName(reader);\n",blank);
+   for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
+      setValue(value,"","(char*)value",taskSteerFieldType[numTask][numSteer][i],1);
+      sprintf(setter,"((%sT%s*)%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut,taskName[numTask],taskName[numTask],path,taskSteerFieldName[numTask][numSteer][i],taskSteerFieldType[numTask][numSteer][i],value);
+      sprintf(buffer+strlen(buffer),"%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerFieldName[numTask][numSteer][i]);
+      sprintf(buffer+strlen(buffer),"%s                        xmlTextReaderRead(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s                        type = xmlTextReaderNodeType(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s                        value = xmlTextReaderConstValue(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s                        if (value!=NULL && type==3) %s;\n",blank,setter);
+      sprintf(buffer+strlen(buffer),"%s                     }\n",blank);
+   }
+   for (i=0;i<numOfTaskSteering[numTask];i++) {
+      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+         WriteTaskSteerConfigRead(buffer,i,numTask);
+      }
+   }
+   if (numSteer==0)
+      sprintf(buffer+strlen(buffer),"%s                     if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank,taskSteerName[numTask][numSteer]);
+   else
+      sprintf(buffer+strlen(buffer),"%s                     if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank,taskSteerName[numTask][numSteer]);
+   sprintf(buffer+strlen(buffer),"%s                        break;\n",blank);
+   sprintf(buffer+strlen(buffer),"%s                  }\n",blank);
+   sprintf(buffer+strlen(buffer),"%s               }\n",blank);
+}
+bool ROMEBuilder::WriteTaskCpp() {
    char cppFile[500];
-   char hFile[500];
-   char fFile[500];
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
-   int lenTot,ll;
-   char *pBuffer;
+   int lenTot,ll,i;
+   char *pBuffer=NULL;
    int bufferLen=0;
    char *pos;
    int fileHandle;
    char format[100];
 
-   if (makeOutput) cout << "\n   Output Files:" << endl;
+   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
 
 // cpp-File
@@ -794,10 +1037,10 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
 // Tests
 //-------
       char shortcut[10];
-      for (i=0;i<strlen(shortCut);i++) shortcut[i] = tolower(shortCut[i]);
+      for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
       shortcut[i] = 0;
       char taskname[20];
-      for (i=0;i<strlen(taskName[iTask]);i++) taskname[i] = tolower(taskName[iTask][i]);
+      for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
       taskname[i] = 0;
 
       bool replaceHeader = true;
@@ -890,9 +1133,28 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
          }
          close(fileHandle);
       }
-// f-File
-//--------
+   }
+   return true;
+}
+
+bool ROMEBuilder::WriteTaskF() {
+   char cppFile[500];
+   char fFile[500];
+   char buffer[bufferLength];
+
+   int nb,i;
+   int fileHandle;
+   struct stat buf;
+
+   if (makeOutput) cout << "\n   Output F-Files:" << endl;
+   for (int iTask=0;iTask<numOfTask;iTask++) {
       if (fortranFlag[iTask]) {
+         char shortcut[10];
+         for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
+         shortcut[i] = 0;
+         char taskname[20];
+         for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
+         taskname[i] = 0;
          sprintf(fFile,"%s%sT%s.f",outDir,shortCut,taskName[iTask]);
          if( !stat( cppFile, &buf )) {
             fileHandle = open(fFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
@@ -918,10 +1180,19 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
             close(fileHandle);
          }
       }
+   }
+   return true;
+}
+bool ROMEBuilder::WriteTaskH() {
+   char hFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
 
-// h-File
-//--------
+   int i;
+   int fileHandle;
 
+   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   for (int iTask=0;iTask<numOfTask;iTask++) {
 
 // Header Files
 //--------------
@@ -964,11 +1235,19 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
 
 // Fields
 //--------
+      if (numOfTaskSteering[iTask]>0) {
+         sprintf(buffer+strlen(buffer),"private:\n");
+         WriteTaskSteeringClass(buffer,0,iTask);
+         sprintf(buffer+strlen(buffer),"\n");
+      }
 
       char format[100];
       sprintf(buffer+strlen(buffer),"protected:\n");
 
       sprintf(buffer+strlen(buffer),"   %sAnalyzer* fAnalyzer; // Handle to %sAnalyzer class\n\n",shortCut,shortCut);
+      if (numOfTaskSteering[iTask]>0) {
+         sprintf(buffer+strlen(buffer),"   Steering* fSteering; // Handle to Steering class\n\n");
+      }
 
       int nameLen = -1;
       for (i=0;i<numOfHistos[iTask];i++) {
@@ -998,6 +1277,9 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       for (i=0;i<numOfHistos[iTask];i++) {
          sprintf(buffer+strlen(buffer)," f%sAccumulation = true;",histoName[iTask][i]);
       }
+      if (numOfTaskSteering[iTask]>0) {
+         sprintf(buffer+strlen(buffer)," fSteering = new Steering();");
+      }
       sprintf(buffer+strlen(buffer)," };\n");
       sprintf(buffer+strlen(buffer),"   // Event Methods\n");
       sprintf(buffer+strlen(buffer),"   virtual void Init();\n");
@@ -1011,6 +1293,10 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
       sprintf(buffer+strlen(buffer),"   virtual void ResetHisto();\n\n");
       // User Methods
       sprintf(buffer+strlen(buffer),"   // User Methods\n");
+      if (numOfTaskSteering[iTask]>0) {
+         sprintf(buffer+strlen(buffer),"   Steering* GetSteeringParameters() { return fSteering; };\n");
+         sprintf(buffer+strlen(buffer),"   Steering* GetSP() { return fSteering; };\n");
+      }
       for (i=0;i<numOfHistos[iTask];i++) {
          if (!strcmp(histoArray[iTask][i],"1")) {
             if (histoType[iTask][i][2]==49) {
@@ -1116,9 +1402,9 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
 //--------------
       sprintf(hFile,"%s%sT%s.h",outDir,shortCut,taskName[iTask]);
       fileHandle = open(hFile,O_RDONLY);
-      nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+      int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
-      for (i=0;i<nb||i<strlen(buffer);i++) {
+      for (i=0;i<nb||i<(int)strlen(buffer);i++) {
          if (buffer[i] != fileBuffer[i]) {
             identical = false;
          }
@@ -1135,11 +1421,7 @@ bool ROMEBuilder::XMLToTask(xmlTextReaderPtr reader) {
    return true;
 }
 
-//============================================================
-//                     Trees
-//============================================================
-
-bool ROMEBuilder::XMLToTree(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
    int type,i;
 
@@ -1216,11 +1498,7 @@ bool ROMEBuilder::XMLToTree(xmlTextReaderPtr reader) {
    numOfTree++;
    return true;
 }
-//============================================================
-//                     Midas Banks
-//============================================================
-
-bool ROMEBuilder::XMLToMidasBanks(xmlTextReaderPtr reader) {
+bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
    int type;
 
@@ -1291,34 +1569,326 @@ bool ROMEBuilder::XMLToMidasBanks(xmlTextReaderPtr reader) {
    return true;
 }
 
-//============================================================
-//                     Analyzer & EventLoop
-//============================================================
+bool ROMEBuilder::ReadXMLSteering(xmlTextReaderPtr reader) {
+   const xmlChar *name,*value;
+   char tmp[100];
+   int i,type,empty,depth=0,index[20];
+   index[0] = 0;
+   numOfSteerFields[0] = 0;
+   strcpy(steerName[0],"GeneralSteering");
+   strcpy(steerParent[0],"");
+   steerDepth[0] = 0;
 
-bool ROMEBuilder::WriteAnalyzer() {
+   if (makeOutput) cout << "\n\nSteering:" << endl;
+
+   while (xmlTextReaderRead(reader)) {
+      type = xmlTextReaderNodeType(reader);
+      name = xmlTextReaderConstName(reader);
+      empty = xmlTextReaderIsEmptyElement(reader);
+      if (type == 1 && !empty) {
+         numOfSteering++;
+         depth++;
+         index[depth] = numOfSteering;
+         numOfSteerFields[index[depth]] = 0;
+         // bank name
+         strcpy(steerName[index[depth]],(const char*)name);
+         // parent name
+         strcpy(steerParent[index[depth]],steerName[index[depth-1]]);
+         // depth
+         steerDepth[index[depth]] = depth;
+         // output
+         if (makeOutput) for (i=0;i<depth;i++) cout << "   ";
+         if (makeOutput) cout << steerName[index[depth]] << endl;
+      }
+      if (type == 1 && empty) {
+         // field name
+         strcpy(steerFieldName[index[depth]][numOfSteerFields[index[depth]]],(const char*)name);
+         // field type
+         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Type");
+         if (value!=NULL) strcpy(steerFieldType[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
+         else {
+            cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << " has no type !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         xmlFree((void*)value);
+         // field initialisation
+         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Initialisation");
+         if (value!=NULL) strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
+         else strcpy(steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
+         xmlFree((void*)value);
+         // field comment
+         value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Comment");
+         if (value!=NULL) strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],(const char*)value);
+         else strcpy(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
+         if (steerFieldComment[index[depth]][numOfSteerFields[index[depth]]][0]!='/') {
+            strcpy(tmp,steerFieldComment[index[depth]][numOfSteerFields[index[depth]]]);
+            sprintf(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"// %s",tmp);
+         }
+         xmlFree((void*)value);
+         // output
+         if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
+         if (makeOutput) cout << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << endl;
+         numOfSteerFields[index[depth]]++;
+      }
+      if (type == 15 && strcmp((const char*)name,"GeneralSteeringParameters")) {
+         depth--;
+         if (makeOutput) cout << endl;;
+      }
+      if (type == 15 && !strcmp((const char*)name,"GeneralSteeringParameters")) break;
+   }
+   numOfSteering++;
+   return true;
+}
+
+bool ROMEBuilder::WriteSteering() {
    int i;
-// write source files
-//====================
 
-   char cppFile[500];
    char hFile[500];
    char buffer[bufferLength];
    char fileBuffer[bufferLength];
 
-   int nb,lenTot,j,k,iFold,ll;
-   const int bufferSize = 600;
-   char str[bufferSize];
-   char tmp[bufferSize];
+   sprintf(hFile,"%s%sGeneralSteering.h",outDir,shortCut);
+
+   if (numOfSteering==0) {
+      remove(hFile);
+      return true;
+   }
+
+   if (makeOutput) cout << "\n   Output Files:" << endl;
+
+// Description
+//-------------
+   sprintf(buffer,"//// Author: %s\n",mainAuthor);
+   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// Contains the general Steering Parameters                                   //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
+   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+
+// Header Files
+//--------------
+
+   sprintf(buffer+strlen(buffer),"#ifndef %sGeneralSteering_H\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#define %sGeneralSteering_H\n\n",shortCut);
+
+   WriteSteeringClass(buffer,0);
+
+   sprintf(buffer+strlen(buffer),"#endif   // %sGeneralSteering_H\n",shortCut);
+
+   int fileHandle = open(hFile,O_RDONLY);
+   int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+   bool identical = true;
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
+      if (buffer[i] != fileBuffer[i]) {
+         identical = false;
+      }
+   }
+   if (!identical) {
+      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << hFile << endl;
+      nb = write(fileHandle,&buffer, strlen(buffer));
+      close(fileHandle);
+   }
+
+   return true;
+}
+bool ROMEBuilder::WriteSteeringClass(char *buffer,int numOfSteer) {
+   char format[100];
+   char sc[20];
+   char blank[20];
+   int j,i;
+   int typeLen = -1;
+   int nameLen = -1;
+   for (i=0;i<numOfSteerFields[numOfSteer];i++) {
+      if (typeLen<(int)strlen(steerFieldType[numOfSteer][i])) typeLen = strlen(steerFieldType[numOfSteer][i]);
+      if (nameLen<(int)strlen(steerFieldName[numOfSteer][i])) nameLen = strlen(steerFieldName[numOfSteer][i]);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         if (typeLen<(int)strlen(steerName[i])+1) typeLen = strlen(steerName[i])+1;
+         if (nameLen<(int)strlen(steerName[i])) nameLen = strlen(steerName[i]);
+      }
+   }
+   if (numOfSteer==0)
+      strcpy(sc,shortCut);
+   else
+      strcpy(sc,"");
+
+   sprintf(blank,"");   
+   for (i=0;i<steerDepth[numOfSteer];i++) {
+      sprintf(blank+strlen(blank),"   ");   
+   }
+
+   sprintf(buffer+strlen(buffer),"\n%sclass %s%s\n",blank,sc,steerName[numOfSteer]);
+   sprintf(buffer+strlen(buffer),"%s{\n",blank);
+
+   sprintf(buffer+strlen(buffer),"%sprivate:\n",blank);
+
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         WriteSteeringClass(buffer,i);
+      }
+   }
+
+   sprintf(buffer+strlen(buffer),"%sprotected:\n",blank);
+
+   // Fields
+   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
+      sprintf(format,"%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldComment[numOfSteer][j]);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         sprintf(format,"%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-strlen(steerName[i]));
+         sprintf(buffer+strlen(buffer),format,blank,steerName[i],steerName[i],"",steerName[i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"\n%spublic:\n",blank);
+   // Constructor
+   sprintf(buffer+strlen(buffer),"%s   %s%s() { ",blank,sc,steerName[numOfSteer]);
+   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
+      sprintf(buffer+strlen(buffer),"f%s = %s; ",steerFieldName[numOfSteer][j],steerFieldInit[numOfSteer][j]);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         sprintf(buffer+strlen(buffer),"f%s = new %s(); ",steerName[i],steerName[i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"};\n");
+   // Getters
+   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
+      sprintf(format,"%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldName[numOfSteer][j]);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         sprintf(format,"%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-strlen(steerName[i]));
+         sprintf(buffer+strlen(buffer),format,blank,steerName[i],steerName[i],"",steerName[i]);
+      }
+   }
+   // Setters
+   sprintf(buffer+strlen(buffer),"\n");
+   for (j=0;j<numOfSteerFields[numOfSteer];j++) {
+      sprintf(format,"%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
+      sprintf(buffer+strlen(buffer),format,blank,steerFieldName[numOfSteer][j],steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldName[numOfSteer][j],steerFieldName[numOfSteer][j]);
+   }
+
+   // Footer
+   sprintf(buffer+strlen(buffer),"%s};\n\n",blank);
+
+   return true;
+}
+void ROMEBuilder::WriteSteerConfigWrite(char *buffer,int numOfSteer) {
+   int i,j;
+   char tmp[300];
+   char getter[300];
+   if (numOfSteer==0)
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"GeneralSteeringParameters\");\n");
+   else
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"%s\");\n",steerName[numOfSteer]);
+   for (i=0;i<numOfSteerFields[numOfSteer];i++) {
+      sprintf(getter,"->Get%s()",steerFieldName[numOfSteer][i]);
+      int ind = numOfSteer;
+      while (strcmp(steerParent[ind],"")) {
+         for (j=0;j<numOfSteering;j++) {
+            if (!strcmp(steerParent[ind],steerName[j])) {
+               strcpy(tmp,getter);
+               sprintf(getter,"->Get%s()%s",steerName[ind],tmp);
+               ind = j;
+               break;
+            }
+         }
+      }
+      strcpy(tmp,getter);
+      sprintf(getter,"this->GetGSP()%s",tmp);
+      GetFormat(tmp,steerFieldType[numOfSteer][i]);
+      sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatElement(writer, BAD_CAST \"%s\", \"%s\",%s);\n",steerFieldName[numOfSteer][i],tmp,getter);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+         WriteSteerConfigWrite(buffer,i);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
+}
+
+void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
+   char tmp[300];
+   char value[300];
+   char path[300];
+   char setter[300];
+   int i,j;
+   char blank[100];
+   strcpy(blank,"");
+
+   strcpy(path,"");
+   int ind = numSteer;
+   while (strcmp(steerParent[ind],"")) {
+      for (j=0;j<numOfSteering;j++) {
+         if (!strcmp(steerParent[ind],steerName[j])) {
+            strcpy(tmp,path);
+            sprintf(path,"->Get%s()%s",steerName[ind],tmp);
+            ind = j;
+            strcat(blank,"      ");
+            break;
+         }
+      }
+   }
+   if (numSteer==0)
+      sprintf(buffer+strlen(buffer),"%s      if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank,steerName[numSteer]);
+   else
+      sprintf(buffer+strlen(buffer),"%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerName[numSteer]);
+
+   sprintf(buffer+strlen(buffer),"%s         while (xmlTextReaderRead(reader)) {\n",blank);
+   sprintf(buffer+strlen(buffer),"%s            type = xmlTextReaderNodeType(reader);\n",blank);
+   sprintf(buffer+strlen(buffer),"%s            name = xmlTextReaderConstName(reader);\n",blank);
+   for (i=0;i<numOfSteerFields[numSteer];i++) {
+      setValue(value,"","(char*)value",steerFieldType[numSteer][i],1);
+      sprintf(setter,"this->GetGSP()%s->Set%s((%s)%s)",path,steerFieldName[numSteer][i],steerFieldType[numSteer][i],value);
+      sprintf(buffer+strlen(buffer),"%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerFieldName[numSteer][i]);
+      sprintf(buffer+strlen(buffer),"%s               xmlTextReaderRead(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s               type = xmlTextReaderNodeType(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s               value = xmlTextReaderConstValue(reader);\n",blank);
+      sprintf(buffer+strlen(buffer),"%s               if (value!=NULL && type==3) %s;\n",blank,setter);
+      sprintf(buffer+strlen(buffer),"%s            }\n",blank);
+   }
+   for (i=0;i<numOfSteering;i++) {
+      if (!strcmp(steerParent[i],steerName[numSteer])) {
+         WriteSteerConfigRead(buffer,i);
+      }
+   }
+   if (numSteer==0)
+      sprintf(buffer+strlen(buffer),"%s            if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank,steerName[numSteer]);
+   else
+      sprintf(buffer+strlen(buffer),"%s            if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank,steerName[numSteer]);
+   sprintf(buffer+strlen(buffer),"%s               break;\n",blank);
+   sprintf(buffer+strlen(buffer),"%s         }\n",blank);
+   sprintf(buffer+strlen(buffer),"%s      }\n",blank);
+}
+bool ROMEBuilder::WriteAnalyzerCpp() {
+   int i;
+
+   char cppFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
+
+   int nb,lenTot,j,k,iFold=0,ll;
    char *pos;
    int fileHandle;
 
-   if (makeOutput) cout << "\n\nFramework :" << endl;
-   if (makeOutput) cout << "\n   Output Files:" << endl;
    char classDescription[500];
    sprintf(classDescription,"Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",shortCut,mainProgName);
-
-// Analyzer
-//==========
 
    char format[100];
    int nameLen = -1;
@@ -1328,8 +1898,6 @@ bool ROMEBuilder::WriteAnalyzer() {
       if (typeLen<(int)strlen(folderName[i])+scl) typeLen = strlen(folderName[i])+scl;
       if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
    }
-// cpp-File
-//----------
 
 // Description
 //-------------
@@ -1426,6 +1994,9 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"%sAnalyzer::%sAnalyzer() {\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"// Folder, Task, Tree and Data Base initialisation\n");
    sprintf(buffer+strlen(buffer),"\n");
+   if (numOfSteering!=0) {
+      sprintf(buffer+strlen(buffer),"   fGeneralSteeringParameters = new %sGeneralSteering();\n",shortCut);
+   }
    // Folder 
    sprintf(buffer+strlen(buffer),"// Folder initialisation\n");
    sprintf(buffer+strlen(buffer),"   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut,shortCut,mainProgName);
@@ -1507,6 +2078,7 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"\n// Configuration File\n");
    sprintf(buffer+strlen(buffer),"//--------------------\n");
    sprintf(buffer+strlen(buffer),"bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   char *cstop;\n");
    sprintf(buffer+strlen(buffer),"   const xmlChar *name,*value;\n");
    sprintf(buffer+strlen(buffer),"   int type;\n");
    sprintf(buffer+strlen(buffer),"   xmlTextReaderPtr reader;\n");
@@ -1585,11 +2157,30 @@ bool ROMEBuilder::WriteAnalyzer() {
    // Tasks
    for (i=0;i<numOfTask;i++) {
       sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"         int empty = xmlTextReaderIsEmptyElement(reader);\n");
       sprintf(buffer+strlen(buffer),"         value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Active\");\n");
       sprintf(buffer+strlen(buffer),"         if (value!=NULL) {\n");
       sprintf(buffer+strlen(buffer),"            if (!strcmp((const char*)value,\"yes\")) %sTask->SetActive();\n",taskName[i]);
       sprintf(buffer+strlen(buffer),"         }\n");
       sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
+      sprintf(buffer+strlen(buffer),"         if (!empty) {\n");
+      sprintf(buffer+strlen(buffer),"            while (xmlTextReaderRead(reader)) {\n");
+      sprintf(buffer+strlen(buffer),"               type = xmlTextReaderNodeType(reader);\n");
+      sprintf(buffer+strlen(buffer),"               name = xmlTextReaderConstName(reader);\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"Accumulate\");\n");
+         sprintf(buffer+strlen(buffer),"                  if (value!=NULL) {\n");
+         sprintf(buffer+strlen(buffer),"                     if (!strcmp((const char*)value,\"no\")) ((%sT%s*)%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
+         sprintf(buffer+strlen(buffer),"                  }\n");
+         sprintf(buffer+strlen(buffer),"                  xmlFree((void*)value);\n");
+         sprintf(buffer+strlen(buffer),"               }\n");
+      }
+      WriteTaskSteerConfigRead(buffer,0,i);
+      sprintf(buffer+strlen(buffer),"               if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",taskName[i]);
+      sprintf(buffer+strlen(buffer),"                  break;\n");
+      sprintf(buffer+strlen(buffer),"            }\n");
+      sprintf(buffer+strlen(buffer),"         }\n");
       sprintf(buffer+strlen(buffer),"      }\n");
    }
    // Trees
@@ -1617,6 +2208,9 @@ bool ROMEBuilder::WriteAnalyzer() {
       sprintf(buffer+strlen(buffer),"         xmlFree((void*)value);\n");
       sprintf(buffer+strlen(buffer),"      }\n");
    }
+   // Steering
+   WriteSteerConfigRead(buffer,0);
+
    sprintf(buffer+strlen(buffer),"      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
    sprintf(buffer+strlen(buffer),"         break;\n");
    sprintf(buffer+strlen(buffer),"   }\n");
@@ -1635,7 +2229,6 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"   }\n\n");
    sprintf(buffer+strlen(buffer),"   xmlTextWriterStartDocument(writer, NULL, MY_ENCODING, NULL);\n");
    sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" edited with the %s%s \");\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"   xmlTextWriterWriteFormatComment(writer,\"%%s\",\" \");\n");
    sprintf(buffer+strlen(buffer),"\n");
    sprintf(buffer+strlen(buffer),"   xmlTextWriterStartElement(writer, BAD_CAST \"Configuration\");\n");
    //modes
@@ -1685,6 +2278,8 @@ bool ROMEBuilder::WriteAnalyzer() {
          sprintf(buffer+strlen(buffer),"      xmlTextWriterWriteAttribute(writer, BAD_CAST \"Accumulate\",BAD_CAST \"no\");\n");
          sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
       }
+      if (numOfTaskSteering[i]>0)
+         WriteTaskSteerConfigWrite(buffer,0,i);
       sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
    }
    sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
@@ -1712,6 +2307,10 @@ bool ROMEBuilder::WriteAnalyzer() {
       sprintf(buffer+strlen(buffer),"   xmlTextWriterEndElement(writer);\n");
    }
    sprintf(buffer+strlen(buffer),"      xmlTextWriterEndElement(writer);\n");
+
+   //steering
+   if (numOfSteering>0)
+      WriteSteerConfigWrite(buffer,0);
 
    sprintf(buffer+strlen(buffer),"   xmlTextWriterEndDocument(writer);\n");
    sprintf(buffer+strlen(buffer),"   xmlFreeTextWriter(writer);\n");
@@ -1896,8 +2495,8 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
    sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
    sprintf(buffer+strlen(buffer),"   cout << \"*\";\n");
-   int len1 = ((39-(double)strlen(prog))/2+0.5);
-   int len2 = ((39-(double)strlen(prog))/2);
+   int len1 = (int)((39-(double)strlen(prog))/2+0.5);
+   int len2 = (int)((39-(double)strlen(prog))/2);
    sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len1);
    sprintf(buffer+strlen(buffer),"   cout << \"%s\";\n",prog);
    sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len2);
@@ -1919,7 +2518,7 @@ bool ROMEBuilder::WriteAnalyzer() {
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
-   for (i=0;i<nb||i<strlen(buffer);i++) {
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
       if (buffer[i] != fileBuffer[i]) {
          identical = false;
       }
@@ -1932,268 +2531,318 @@ bool ROMEBuilder::WriteAnalyzer() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+   return true;
+}
 
-// h-File
-//--------
+bool ROMEBuilder::WriteAnalyzerH() {
+   int i;
 
-   if (true) {
+   char hFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
+
+   int nb,j;
+   const int bufferSize = 600;
+   char str[bufferSize];
+   char tmp[bufferSize];
+   int fileHandle;
+
+   char format[100];
+   int nameLen = -1;
+   int typeLen = 12;
+   int scl = strlen(shortCut);
+   for (i=0;i<numOfFolder;i++) {
+      if (typeLen<(int)strlen(folderName[i])+scl) typeLen = strlen(folderName[i])+scl;
+      if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
+   }
+   int taskLen=0;
+   for (i=0;i<numOfTask;i++) {
+      if (taskLen<(int)strlen(taskName[i])) taskLen = strlen(taskName[i]);
+   }
+
 
 // Header Files
 //--------------
 
-      sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-      sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+   sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
+   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
+   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
+   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
 
-      sprintf(buffer+strlen(buffer),"#ifndef %sAnalyzer_H\n",shortCut);
-      sprintf(buffer+strlen(buffer),"#define %sAnalyzer_H\n\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#ifndef %sAnalyzer_H\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#define %sAnalyzer_H\n\n",shortCut);
 
-      sprintf(buffer+strlen(buffer),"#include <TTask.h>\n");
-      sprintf(buffer+strlen(buffer),"#include <TTree.h>\n");
-      sprintf(buffer+strlen(buffer),"#include <TFolder.h>\n");
-      sprintf(buffer+strlen(buffer),"#include <TClonesArray.h>\n");
-      sprintf(buffer+strlen(buffer),"#include <ROMETask.h>\n");
-      sprintf(buffer+strlen(buffer),"#include <ROMEAnalyzer.h>\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (numOfValue[i] > 0) {
-            sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[i]);
-         }
+   sprintf(buffer+strlen(buffer),"#include <TTask.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <TTree.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <TFolder.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <TClonesArray.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMETask.h>\n");
+   sprintf(buffer+strlen(buffer),"#include <ROMEAnalyzer.h>\n");
+   if (numOfSteering!=0) {
+      sprintf(buffer+strlen(buffer),"#include \"%sGeneralSteering.h\"\n",shortCut);
+   }
+
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         sprintf(buffer+strlen(buffer),"#include \"%s%s.h\"\n",shortCut,folderName[i]);
       }
-      // bank structures
-      for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(buffer+strlen(buffer),"typedef struct {\n");
-            for (j=0;j<numOfStructFields[i];j++) {
-               if (strlen(structFieldSize[i][j])>0)
-                  sprintf(buffer+strlen(buffer),"   %s %s : %s;\n",structFieldType[i][j],structFieldName[i][j],structFieldSize[i][j]);
-               else
-                  sprintf(buffer+strlen(buffer),"   %s %s;\n",structFieldType[i][j],structFieldName[i][j]);
-            }
-            sprintf(buffer+strlen(buffer),"} %s;\n",bankStructName[i]);
+   }
+   // bank structures
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         sprintf(buffer+strlen(buffer),"typedef struct {\n");
+         for (j=0;j<numOfStructFields[i];j++) {
+            if (strlen(structFieldSize[i][j])>0)
+               sprintf(buffer+strlen(buffer),"   %s %s : %s;\n",structFieldType[i][j],structFieldName[i][j],structFieldSize[i][j]);
+            else
+               sprintf(buffer+strlen(buffer),"   %s %s;\n",structFieldType[i][j],structFieldName[i][j]);
          }
+         sprintf(buffer+strlen(buffer),"} %s;\n",bankStructName[i]);
       }
+   }
+
 
 // Class
 //-------
 
-      sprintf(buffer+strlen(buffer),"\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut);
-      sprintf(buffer+strlen(buffer),"{\n");
+   sprintf(buffer+strlen(buffer),"\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut);
+   sprintf(buffer+strlen(buffer),"{\n");
 
 // Fields
 //--------
 
-      sprintf(buffer+strlen(buffer),"protected:\n");
+   sprintf(buffer+strlen(buffer),"protected:\n");
 
-      // Folder Fields
-      sprintf(buffer+strlen(buffer),"   // Folder Fields\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (numOfValue[i] > 0) {
-            if (!strcmp(folderArray[i],"yes")) {
-               sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,"",folderName[i],"",shortCut,folderName[i]);
-            }
-            else {
-               sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i]);
-            }
-         }
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Task Fields
-      sprintf(buffer+strlen(buffer),"   // Task Fields\n");
-      for (i=0;i<numOfTask;i++) {
-         sprintf(format,"   ROMETask* %%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
-         sprintf(buffer+strlen(buffer),format,taskName[i],"",taskName[i]);
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Bank Fields
-      int bankNameLen = -1;
-      int bankTypeLen = -1;
-      for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            if (bankTypeLen<(int)strlen(bankStructName[i])) bankTypeLen = strlen(bankStructName[i]);
+   // Folder Fields
+   sprintf(buffer+strlen(buffer),"   // Folder Fields\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (!strcmp(folderArray[i],"yes")) {
+            sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",shortCut,folderName[i]);
          }
          else {
-            if (bankTypeLen<(int)strlen(bankType[i])) bankTypeLen = strlen(bankType[i]);
+            sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i]);
          }
-         if (bankNameLen<(int)strlen(bankName[i])) bankNameLen = strlen(bankName[i]);
       }
-      sprintf(buffer+strlen(buffer),"   // Bank Fields\n");
-      for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankStructName[i]),bankNameLen-strlen(bankName[i]));
-            sprintf(buffer+strlen(buffer),format,bankStructName[i],"",bankName[i],"",bankName[i]);
-         }
-         else {
-            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankType[i]),bankNameLen-strlen(bankName[i]));
-            sprintf(buffer+strlen(buffer),format,bankType[i],"",bankName[i],"",bankName[i]);
-         }
-         sprintf(format,"   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-strlen(bankName[i]));
-         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
-         sprintf(format,"   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-strlen(bankName[i]));
-         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Task Fields
+   sprintf(buffer+strlen(buffer),"   // Task Fields\n");
+   for (i=0;i<numOfTask;i++) {
+      sprintf(format,"   ROMETask* %%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
+      sprintf(buffer+strlen(buffer),format,taskName[i],"",taskName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Bank Fields
+   int bankNameLen = -1;
+   int bankTypeLen = -1;
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         if (bankTypeLen<(int)strlen(bankStructName[i])) bankTypeLen = strlen(bankStructName[i]);
       }
-      sprintf(buffer+strlen(buffer),"\n");
+      else {
+         if (bankTypeLen<(int)strlen(bankType[i])) bankTypeLen = strlen(bankType[i]);
+      }
+      if (bankNameLen<(int)strlen(bankName[i])) bankNameLen = strlen(bankName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"   // Bank Fields\n");
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankStructName[i]),bankNameLen-strlen(bankName[i]));
+         sprintf(buffer+strlen(buffer),format,bankStructName[i],"",bankName[i],"",bankName[i]);
+      }
+      else {
+         sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankType[i]),bankNameLen-strlen(bankName[i]));
+         sprintf(buffer+strlen(buffer),format,bankType[i],"",bankName[i],"",bankName[i]);
+      }
+      sprintf(format,"   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-strlen(bankName[i]));
+      sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+      sprintf(format,"   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-strlen(bankName[i]));
+      sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Steering Fields
+   if (numOfSteering!=0) {
+      sprintf(buffer+strlen(buffer),"   // Steering Parameter Fields\n");
+      sprintf(buffer+strlen(buffer),"\n   %sGeneralSteering* fGeneralSteeringParameters; // Handle to the GeneralSteering Class\n",shortCut);
+   }
 
 // Methods
 //---------
 
-      sprintf(buffer+strlen(buffer),"public:\n");
-      // Constructor
-      sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n\n",shortCut);
-      // Getters
-      sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (numOfValue[i] > 0) {
-            int lt = typeLen-strlen(folderName[i])-scl+nameLen-strlen(folderName[i]);
-            if (!strcmp(folderArray[i],"yes")) {
-               sprintf(format,"   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-strlen(folderName[i])-scl,3+nameLen-strlen(folderName[i]),lt);
-               sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i],folderName[i],"");
-               sprintf(format,"   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
-               sprintf(format,"   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-strlen(folderName[i]),13+typeLen+nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
-            }
-            else {
-               sprintf(format,"   %%s%%s*%%%ds  Get%%sObject()%%%ds { return f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,8+nameLen-strlen(folderName[i]),15+typeLen+nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
-               sprintf(format,"   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,1+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
-               sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
-            }
-         }
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Setters
-      sprintf(buffer+strlen(buffer),"   // Folder Setters\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (numOfValue[i] > 0) {
-            if (!strcmp(folderArray[i],"yes")) {
-               sprintf(str,"   void Set%sObject(int index",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  sprintf(tmp,",%s %s=%s",valueType[i][j],valueName[i][j],valueInit[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,")\n");
-               strcat(buffer,str);
-               sprintf(str,"      { new((*f%sObjects)[index]) %s%s(",folderName[i],shortCut,folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  if (j>0) strcat(str,",");
-                  sprintf(tmp,"%s",valueName[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,"); };\n");
-               strcat(buffer,str);
-            }
-            else {
-               sprintf(str,"   void Set%sObject(",folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  if (j>0) strcat(str,",");
-                  sprintf(tmp,"%s %s=%s",valueType[i][j],valueName[i][j],valueInit[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,")\n");
-               strcat(buffer,str);
-               sprintf(str,"      { new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
-               for (j=0;j<numOfValue[i];j++) {
-                  if (j>0) strcat(str,",");
-                  sprintf(tmp,"%s",valueName[i][j]);
-                  strcat(str,tmp);
-               }
-               strcat(str,"); };\n");
-               strcat(buffer,str);
-            }
-         }
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Configuration file
-      sprintf(buffer+strlen(buffer),"   // Configuration File\n");
-      sprintf(buffer+strlen(buffer),"   bool ReadROMEConfigXML(char *configFile);\n");
-      sprintf(buffer+strlen(buffer),"   bool WriteROMEConfigXML(char *configFile);\n");
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Trees
-      sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
-      for (i=0;i<numOfTree;i++) {
-         sprintf(buffer+strlen(buffer),"   ROMETree* Get%sTree() { return (ROMETree*)fTreeObjects->At(%d); };\n",treeName[i],i);
-         sprintf(buffer+strlen(buffer),"   Bool_t    is%sFillEvent() { return ((ROMETree*)fTreeObjects->At(%d))->isFillEvent(); };\n",treeName[i],i);
-         sprintf(buffer+strlen(buffer),"   void      Set%sFillEvent(Bool_t flag) { ((ROMETree*)fTreeObjects->At(%d))->SetFillEvent(flag); };\n",treeName[i],i);
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Banks
-      sprintf(buffer+strlen(buffer),"   // Bank Methodes\n");
-      for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(buffer+strlen(buffer),"   %s* Get%sBankAt(int index);\n",bankStructName[i],bankName[i]);
+   sprintf(buffer+strlen(buffer),"public:\n");
+   // Constructor
+   sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n\n",shortCut);
+   // Getters
+   sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         int lt = typeLen-strlen(folderName[i])-scl+nameLen-strlen(folderName[i]);
+         if (!strcmp(folderArray[i],"yes")) {
+            sprintf(format,"   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-strlen(folderName[i])-scl,3+nameLen-strlen(folderName[i]),lt);
+            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i],folderName[i],"");
+            sprintf(format,"   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
+            sprintf(format,"   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-strlen(folderName[i]),13+typeLen+nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
          }
          else {
-            sprintf(buffer+strlen(buffer),"   %s Get%sBankAt(int index);\n",bankType[i],bankName[i]);
-         }
-         sprintf(buffer+strlen(buffer),"   int Get%sBankEntries();\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"   void Init%sBank();\n",bankName[i]);
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-
-      // Data Base
-      sprintf(buffer+strlen(buffer),"   // Data Base Methodes\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (dataBase[i]) {
-            sprintf(buffer+strlen(buffer),"   void Write%sDataBase(ROMETask* task);\n",folderName[i]);
+            sprintf(format,"   %%s%%s*%%%ds  Get%%sObject()%%%ds { return f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,8+nameLen-strlen(folderName[i]),15+typeLen+nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
+            sprintf(format,"   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,1+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
+            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
          }
       }
-      sprintf(buffer+strlen(buffer),"\n");
+   }
+   sprintf(buffer+strlen(buffer),"\n");
 
-      // Private
-      sprintf(buffer+strlen(buffer),"private:\n");
-      sprintf(buffer+strlen(buffer),"   void startSplashScreen();\n");
-      sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
+   // Setters
+   sprintf(buffer+strlen(buffer),"   // Folder Setters\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (!strcmp(folderArray[i],"yes")) {
+            sprintf(str,"   void Set%sObject(int index",folderName[i]);
+            for (j=0;j<numOfValue[i];j++) {
+               sprintf(tmp,",%s %s=%s",valueType[i][j],valueName[i][j],valueInit[i][j]);
+               strcat(str,tmp);
+            }
+            strcat(str,")\n");
+            strcat(buffer,str);
+            sprintf(str,"      { new((*f%sObjects)[index]) %s%s(",folderName[i],shortCut,folderName[i]);
+            for (j=0;j<numOfValue[i];j++) {
+               if (j>0) strcat(str,",");
+               sprintf(tmp,"%s",valueName[i][j]);
+               strcat(str,tmp);
+            }
+            strcat(str,"); };\n");
+            strcat(buffer,str);
+         }
+         else {
+            sprintf(str,"   void Set%sObject(",folderName[i]);
+            for (j=0;j<numOfValue[i];j++) {
+               if (j>0) strcat(str,",");
+               sprintf(tmp,"%s %s=%s",valueType[i][j],valueName[i][j],valueInit[i][j]);
+               strcat(str,tmp);
+            }
+            strcat(str,")\n");
+            strcat(buffer,str);
+            sprintf(str,"      { new(f%sObject) %s%s(",folderName[i],shortCut,folderName[i]);
+            for (j=0;j<numOfValue[i];j++) {
+               if (j>0) strcat(str,",");
+               sprintf(tmp,"%s",valueName[i][j]);
+               strcat(str,tmp);
+            }
+            strcat(str,"); };\n");
+            strcat(buffer,str);
+         }
+      }
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Configuration file
+   sprintf(buffer+strlen(buffer),"   // Configuration File\n");
+   sprintf(buffer+strlen(buffer),"   bool ReadROMEConfigXML(char *configFile);\n");
+   sprintf(buffer+strlen(buffer),"   bool WriteROMEConfigXML(char *configFile);\n");
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Trees
+   sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
+   for (i=0;i<numOfTree;i++) {
+      sprintf(buffer+strlen(buffer),"   ROMETree* Get%sTree() { return (ROMETree*)fTreeObjects->At(%d); };\n",treeName[i],i);
+      sprintf(buffer+strlen(buffer),"   Bool_t    is%sFillEvent() { return ((ROMETree*)fTreeObjects->At(%d))->isFillEvent(); };\n",treeName[i],i);
+      sprintf(buffer+strlen(buffer),"   void      Set%sFillEvent(Bool_t flag) { ((ROMETree*)fTreeObjects->At(%d))->SetFillEvent(flag); };\n",treeName[i],i);
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Banks
+   sprintf(buffer+strlen(buffer),"   // Bank Methodes\n");
+   for (i=0;i<numOfBank;i++) {
+      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
+         sprintf(buffer+strlen(buffer),"   %s* Get%sBankAt(int index);\n",bankStructName[i],bankName[i]);
+      }
+      else {
+         sprintf(buffer+strlen(buffer),"   %s Get%sBankAt(int index);\n",bankType[i],bankName[i]);
+      }
+      sprintf(buffer+strlen(buffer),"   int Get%sBankEntries();\n",bankName[i]);
+      sprintf(buffer+strlen(buffer),"   void Init%sBank();\n",bankName[i]);
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Data Base
+   sprintf(buffer+strlen(buffer),"   // Data Base Methodes\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (dataBase[i]) {
+         sprintf(buffer+strlen(buffer),"   void Write%sDataBase(ROMETask* task);\n",folderName[i]);
+      }
+   }
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Steering
+   sprintf(buffer+strlen(buffer),"   // Steering Parameter Methodes\n");
+   sprintf(buffer+strlen(buffer),"   %sGeneralSteering* GetGeneralSteeringParameters() { return fGeneralSteeringParameters; };\n",shortCut);
+   sprintf(buffer+strlen(buffer),"   %sGeneralSteering* GetGSP() { return fGeneralSteeringParameters; };\n",shortCut);
+   sprintf(buffer+strlen(buffer),"\n");
+
+   // Private
+   sprintf(buffer+strlen(buffer),"private:\n");
+   sprintf(buffer+strlen(buffer),"   void startSplashScreen();\n");
+   sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
 
 // Footer
 //--------
 
-      sprintf(buffer+strlen(buffer),"\n   ClassDef(%sAnalyzer,1)\n",shortCut);
-      sprintf(buffer+strlen(buffer),"};\n\n");
+   sprintf(buffer+strlen(buffer),"\n   ClassDef(%sAnalyzer,1)\n",shortCut);
+   sprintf(buffer+strlen(buffer),"};\n\n");
 
-      sprintf(buffer+strlen(buffer),"#endif   // %sAnalyzer_H\n",shortCut);
+   sprintf(buffer+strlen(buffer),"#endif   // %sAnalyzer_H\n",shortCut);
 
 // Close h-File
 //--------------
 
-      sprintf(hFile,"%s%sAnalyzer.h",outDir,shortCut);
-      fileHandle = open(hFile,O_RDONLY);
-      nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-      bool identical = true;
-      for (i=0;i<nb||i<strlen(buffer);i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = false;
-         }
-      }
-      if (!identical) {
-         fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-         close(fileHandle);
-         fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-         if (makeOutput) cout << "      " << hFile << endl;
-         nb = write(fileHandle,&buffer, strlen(buffer));
-         close(fileHandle);
+   sprintf(hFile,"%s%sAnalyzer.h",outDir,shortCut);
+   fileHandle = open(hFile,O_RDONLY);
+   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+   bool identical = true;
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
+      if (buffer[i] != fileBuffer[i]) {
+         identical = false;
       }
    }
+   if (!identical) {
+      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      close(fileHandle);
+      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << hFile << endl;
+      nb = write(fileHandle,&buffer, strlen(buffer));
+      close(fileHandle);
+   }
+   return true;
+}
 
-// EventLoop
-//==========
+bool ROMEBuilder::WriteEventLoopCpp() {
+   int i;
 
-// cpp-File
-//----------
+   char cppFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
+
+   char format[100];
+   int nb,j,k,iFold=0,ll;
+   const int bufferSize = 600;
+   char str[bufferSize];
+   char tmp[bufferSize];
+   int fileHandle;
 
 // Description
 //-------------
@@ -2247,7 +2896,7 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"\n");
 
 
-   ndb = 0;
+   int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
    if (ndb>0) {
 // ReadRunTable
@@ -2399,7 +3048,7 @@ bool ROMEBuilder::WriteAnalyzer() {
                for (j=0;j<numOfValue[i];j++) {
                   sprintf(buffer+strlen(buffer),"                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)\"%s\");\n",valueName[i][j]);
                   char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j]);
+                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
                   sprintf(buffer+strlen(buffer),"                  if (value!=NULL) %s;\n",bufft);
                   sprintf(buffer+strlen(buffer),"                  xmlFree((void*)value);\n");
                }
@@ -2418,7 +3067,7 @@ bool ROMEBuilder::WriteAnalyzer() {
                   sprintf(buffer+strlen(buffer),"                        type = xmlTextReaderNodeType(reader);\n");
                   sprintf(buffer+strlen(buffer),"                        value = xmlTextReaderConstValue(reader);\n");
                   char bufft[1000];
-                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j]);
+                  setValue(bufft,valueName[i][j],"(const char*)value",valueType[i][j],0);
                   sprintf(buffer+strlen(buffer),"                        if (value!=NULL && type==3) %s;\n",bufft);
                   sprintf(buffer+strlen(buffer),"                     }\n");
                }
@@ -2479,8 +3128,8 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(cppFile,"%s%sEventLoop.cpp",outDir,shortCut);
    fileHandle = open(cppFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   identical = true;
-   for (i=0;i<nb||i<strlen(buffer);i++) {
+   bool identical = true;
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
       if (buffer[i] != fileBuffer[i]) {
          identical = false;
       }
@@ -2493,9 +3142,18 @@ bool ROMEBuilder::WriteAnalyzer() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+   return true;
+}
 
-// h-File
-//--------
+bool ROMEBuilder::WriteEventLoopH() {
+   int i;
+
+   char hFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
+
+   int nb;
+   int fileHandle;
 
 // Header Files
 //--------------
@@ -2538,6 +3196,8 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(buffer+strlen(buffer),"   %sEventLoop(const char *name,const char *title,%sAnalyzer *analyzer):ROMEEventLoop(name,title,analyzer)\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fAnalyzer->SetCurrentRunTablePos(0); };\n");
    sprintf(buffer+strlen(buffer),"   void InitMidasBanks();\n");
+   int ndb = 0;
+   for (i=0;i<numOfFolder;i++) if (dataBase[i]) ndb++;
    if (ndb>0) {
       sprintf(buffer+strlen(buffer),"   void ReadRunTable();\n");
       sprintf(buffer+strlen(buffer),"   void SaveRunTable();\n");
@@ -2567,8 +3227,8 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(hFile,"%s%sEventLoop.h",outDir,shortCut);
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   identical = true;
-   for (i=0;i<nb||i<strlen(buffer);i++) {
+   bool identical = true;
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
       if (buffer[i] != fileBuffer[i]) {
          identical = false;
       }
@@ -2581,10 +3241,18 @@ bool ROMEBuilder::WriteAnalyzer() {
       nb = write(fileHandle,&buffer, strlen(buffer));
       close(fileHandle);
    }
+   return true;
+}
 
+bool ROMEBuilder::WriteMain() {
+   int i;
 
-//  Main
-// ======
+   char hFile[500];
+   char buffer[bufferLength];
+   char fileBuffer[bufferLength];
+
+   int nb;
+   int fileHandle;
 
    sprintf(buffer,"#include <TApplication.h>\n");
    sprintf(buffer+strlen(buffer),"#include <TBrowser.h>\n");
@@ -2614,8 +3282,8 @@ bool ROMEBuilder::WriteAnalyzer() {
    sprintf(hFile,"%smain.cpp",outDir);
    fileHandle = open(hFile,O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   identical = true;
-   for (i=0;i<nb||i<strlen(buffer);i++) {
+   bool identical = true;
+   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
       if (buffer[i] != fileBuffer[i]) {
          identical = false;
       }
@@ -2692,13 +3360,11 @@ int main(int argc, char *argv[])
 
    return 0;
 }
-
 void ROMEBuilder::startBuilder(char* xmlFile) 
 {
-   const int bufferSize = 600;
    const xmlChar *name,*value;
    bool finished = false;
-   int type,numOfValue=0;
+   int type;
 
 
    strcpy(mainAuthor,"");
@@ -2706,68 +3372,83 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    strcpy(mainCollaboration,"");
    strcpy(mainEmail,"");
    strcpy(mainProgName,"");
-
+      
    xmlTextReaderPtr reader;
    reader = xmlReaderForFile(xmlFile, NULL, 0);
-   if (reader != NULL) {
-      while (xmlTextReaderRead(reader)&&!finished) {
-         type = xmlTextReaderNodeType(reader);
-         name = xmlTextReaderConstName(reader);
-         if (type == 1) {
-            strcpy(shortCut,(const char*)name);
-            while (xmlTextReaderRead(reader)&&!finished) {
-               type = xmlTextReaderNodeType(reader);
-               name = xmlTextReaderConstName(reader);
-               if (type == 15 && !strcmp((const char*)name,shortCut)) {
-                  finished = true;
-                  break;
+   if (reader == NULL) {
+      fprintf(stderr, "Unable to open %s\n", xmlFile);
+      return;
+   }
+   while (xmlTextReaderRead(reader)&&!finished) {
+      type = xmlTextReaderNodeType(reader);
+      name = xmlTextReaderConstName(reader);
+      if (type == 1) {
+         strcpy(shortCut,(const char*)name);
+         while (xmlTextReaderRead(reader)&&!finished) {
+            type = xmlTextReaderNodeType(reader);
+            name = xmlTextReaderConstName(reader);
+            if (type == 15 && !strcmp((const char*)name,shortCut)) {
+               finished = true;
+               break;
+            }
+            if (type == 1) {
+               if (!strcmp((const char*)name,"Author")) {
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
+                  if (value!=NULL) strcpy(mainAuthor,(const char*)value);
+                  xmlFree((void*)value);
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Institute");
+                  if (value!=NULL) strcpy(mainInstitute,(const char*)value);
+                  xmlFree((void*)value);
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Collaboration");
+                  if (value!=NULL) strcpy(mainCollaboration,(const char*)value);
+                  xmlFree((void*)value);
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Email");
+                  if (value!=NULL) strcpy(mainEmail,(const char*)value);
+                  xmlFree((void*)value);
                }
-               if (type == 1) {
-                  if (!strcmp((const char*)name,"Author")) {
-                     value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-                     if (value!=NULL) strcpy(mainAuthor,(const char*)value);
-                     xmlFree((void*)value);
-                     value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Institute");
-                     if (value!=NULL) strcpy(mainInstitute,(const char*)value);
-                     xmlFree((void*)value);
-                     value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Collaboration");
-                     if (value!=NULL) strcpy(mainCollaboration,(const char*)value);
-                     xmlFree((void*)value);
-                     value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Email");
-                     if (value!=NULL) strcpy(mainEmail,(const char*)value);
-                     xmlFree((void*)value);
-                  }
-                  if (!strcmp((const char*)name,"Programname")) {
-                     value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
-                     if (value!=NULL) strcpy(mainProgName,(const char*)value);
-                     xmlFree((void*)value);
-                  }
-                  if (!strcmp((const char*)name,"Folder")) {
-                     numOfFolder = -1;
-                     if (!XMLToFolder(reader)) return;
-                  }
-                  if (!strcmp((const char*)name,"Task")) {
-                     numOfTask = -1;
-                     if (!XMLToTask(reader)) return;
-                  }
-                  if (!strcmp((const char*)name,"Trees")) {
-                     numOfTree = -1;
-                     if (!XMLToTree(reader)) return;
-                  }
-                  if (!strcmp((const char*)name,"MidasBanks")) {
-                     numOfBank = -1;
-                     if (!XMLToMidasBanks(reader)) return;
-                  }
+               if (!strcmp((const char*)name,"Programname")) {
+                  value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Name");
+                  if (value!=NULL) strcpy(mainProgName,(const char*)value);
+                  xmlFree((void*)value);
+               }
+               if (!strcmp((const char*)name,"Folder")) {
+                  numOfFolder = -1;
+                  if (!ReadXMLFolder(reader)) return;
+                  if (!WriteFolderCpp()) return;
+                  if (!WriteFolderH()) return;
+               }
+               if (!strcmp((const char*)name,"Task")) {
+                  numOfTask = -1;
+                  if (!ReadXMLTask(reader)) return;
+                  if (!WriteTaskCpp()) return;
+                  if (!WriteTaskF()) return;
+                  if (!WriteTaskH()) return;
+               }
+               if (!strcmp((const char*)name,"Trees")) {
+                  numOfTree = -1;
+                  if (!ReadXMLTree(reader)) return;
+               }
+               if (!strcmp((const char*)name,"MidasBanks")) {
+                  numOfBank = -1;
+                  if (!ReadXMLMidasBanks(reader)) return;
+               }
+               if (!strcmp((const char*)name,"GeneralSteeringParameters")) {
+                  numOfSteering = 0;
+                  if (!ReadXMLSteering(reader)) return;
+                  if (!WriteSteering()) return;
                }
             }
          }
       }
-      if (!WriteAnalyzer()) return;
-      xmlFreeTextReader(reader);
-   } 
-   else {
-      fprintf(stderr, "Unable to open %s\n", xmlFile);
    }
+   if (makeOutput) cout << "\n\nFramework :" << endl;
+   if (!WriteAnalyzerCpp()) return;
+   if (!WriteAnalyzerH()) return;
+   if (!WriteEventLoopCpp()) return;
+   if (!WriteEventLoopH()) return;
+   if (!WriteMain()) return;
+   xmlFreeTextReader(reader);
+
    char buffer1[100];
    char buffer2[10000];
 // Dictionary
@@ -2942,7 +3623,6 @@ void ROMEBuilder::WriteHTMLDoku() {
    int depth=0;
    for (i=0;i<numOfFolder;i++) {
       depth=0;
-      bool found = false;
       if (strcmp(parentFolderName[i],"GetMainFolder()")) {
          depth++;
          strcpy(parentt,parentFolderName[i]);
@@ -3109,7 +3789,6 @@ void ROMEBuilder::WriteHTMLDoku() {
    depth=0;
    for (i=0;i<numOfTask;i++) {
       depth=0;
-      bool found = false;
       if (strcmp(parentTaskName[i],"GetMainTask()")) {
          depth++;
          strcpy(parentt,parentTaskName[i]);
@@ -3239,7 +3918,7 @@ void ROMEBuilder::GetFormat(char *buf,char *type)
    }
 }
 
-void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type)
+void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type,int version)
 {
    // returns code which transformes a source variable of any type into a destination variable of type character
    if (
@@ -3266,12 +3945,18 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type)
        !strcmp(type,"Color_t") ||
        !strcmp(type,"Font_t") ||
        !strcmp(type,"Version_t")) {
-      sprintf(buf,"%s = strtol(%s,&cstop,10)",destination,source);
+      if (version==0)
+         sprintf(buf,"%s = strtol(%s,&cstop,10)",destination,source);
+      else
+         sprintf(buf,"strtol(%s,&cstop,10)",source);
    }
    else if (
        !strcmp(type,"bool") ||
        !strcmp(type,"Bool_t")) {
-      sprintf(buf,"%s = toBool(strtol(%s,&cstop,10))",destination,source);
+      if (version==0)
+         sprintf(buf,"%s = toBool(strtol(%s,&cstop,10))",destination,source);
+      else
+         sprintf(buf,"toBool(strtol(%s,&cstop,10))",source);
    }
    else if (
        !strcmp(type,"char") ||
@@ -3281,7 +3966,10 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type)
 
        !strcmp(type,"Option_t") ||
        !strcmp(type,"Text_t")) {
-      sprintf(buf,"strcpy(%s,%s)",destination,source);
+      if (version==0)
+         sprintf(buf,"strcpy(%s,%s)",destination,source);
+      else
+         sprintf(buf,"%s",source);
    }
    else if (
        !strcmp(type,"float") ||
@@ -3292,10 +3980,16 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type)
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      sprintf(buf,"%s = strtod(%s,&cstop)",destination,source);
+      if (version==0)
+         sprintf(buf,"%s = strtod(%s,&cstop)",destination,source);
+      else
+         sprintf(buf,"strtod(%s,&cstop)",source);
    }
    else {
-      sprintf(buf,"%s = %s",destination,source);
+      if (version==0)
+         sprintf(buf,"%s = %s",destination,source);
+      else
+         sprintf(buf,"%s",source);
    }
 }
 bool ROMEBuilder::isFloatingType(char *type)

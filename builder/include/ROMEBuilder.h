@@ -7,11 +7,13 @@ const int numberOfFolders = 100;
 const int numberOfTrees = 20;
 const int numberOfBranches = 10;
 const int numberOfBanks = 20;
+const int numberOfSteering = 20;
+const int numberOfSteeringField = 100;
 const int authorNameLength = 50;
 const int versionLength = 5;
 const int nameLength = 20;
 const int descriptionLength = 500;
-const int commentLength = 50;
+const int commentLength = 60;
 const int maxNumberOfValues = 50;
 const int maxNumberOfGetters = 10;
 const int maxNumberOfSetters = 10;
@@ -19,6 +21,7 @@ const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 10;
 const int maxNumberOfStructFields = 50;
 const int bufferLength = 100000;
+const int textLength = 100;
 
 class ROMEBuilder
 {
@@ -63,7 +66,7 @@ private:
    char parentTaskName[numberOfTasks][nameLength];
    char histoName[numberOfTasks][maxNumberOfHistos][nameLength];
    char histoType[numberOfTasks][maxNumberOfHistos][nameLength];
-   char histoArray[numberOfTasks][maxNumberOfHistos][nameLength];
+   char histoArray[numberOfTasks][maxNumberOfHistos][textLength];
    char histoTitle[numberOfTasks][maxNumberOfHistos][commentLength];
    char histoFolderName[numberOfTasks][maxNumberOfHistos][nameLength];
    char histoFolderTitle[numberOfTasks][maxNumberOfHistos][commentLength];
@@ -76,6 +79,15 @@ private:
    char histoZBin[numberOfTasks][maxNumberOfHistos][nameLength];
    char histoZMin[numberOfTasks][maxNumberOfHistos][nameLength];
    char histoZMax[numberOfTasks][maxNumberOfHistos][nameLength];
+   int numOfTaskSteering[numberOfTasks];
+   int numOfTaskSteerFields[numberOfTasks][numberOfSteering];
+   char taskSteerName[numberOfTasks][numberOfSteering][nameLength];
+   char taskSteerParent[numberOfTasks][numberOfSteering][nameLength];
+   int  taskSteerDepth[numberOfTasks][numberOfSteering];
+   char taskSteerFieldName[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
+   char taskSteerFieldType[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
+   char taskSteerFieldInit[numberOfTasks][numberOfSteering][numberOfSteeringField][nameLength];
+   char taskSteerFieldComment[numberOfTasks][numberOfSteering][numberOfSteeringField][commentLength];
 
 // tree
    int numOfTree;
@@ -94,6 +106,17 @@ private:
    char structFieldName[numberOfBanks][maxNumberOfStructFields][nameLength];
    char structFieldType[numberOfBanks][maxNumberOfStructFields][nameLength];
    char structFieldSize[numberOfBanks][maxNumberOfStructFields][nameLength];
+
+// steering
+   int numOfSteering;
+   int numOfSteerFields[numberOfSteering];
+   char steerName[numberOfSteering][nameLength];
+   char steerParent[numberOfSteering][nameLength];
+   int  steerDepth[numberOfSteering];
+   char steerFieldName[numberOfSteering][numberOfSteeringField][nameLength];
+   char steerFieldType[numberOfSteering][numberOfSteeringField][nameLength];
+   char steerFieldInit[numberOfSteering][numberOfSteeringField][nameLength];
+   char steerFieldComment[numberOfSteering][numberOfSteeringField][commentLength];
 
 // general
    int numOfInclude[numberOfTasks];
@@ -115,17 +138,34 @@ private:
 public:
    ROMEBuilder() {};
 
-   bool XMLToFolder(xmlTextReaderPtr reader);
-   bool XMLToTask(xmlTextReaderPtr reader);
-   bool XMLToTree(xmlTextReaderPtr reader);
-   bool XMLToMidasBanks(xmlTextReaderPtr reader);
-   bool WriteAnalyzer();
+   bool ReadXMLFolder(xmlTextReaderPtr reader);
+   bool WriteFolderCpp();
+   bool WriteFolderH();
+   bool ReadXMLTask(xmlTextReaderPtr reader);
+   bool WriteTaskSteeringClass(char *buffer,int numOfTaskSteer,int numTask);
+   void WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask);
+   void WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask);
+   bool WriteTaskCpp();
+   bool WriteTaskF();
+   bool WriteTaskH();
+   bool ReadXMLTree(xmlTextReaderPtr reader);
+   bool ReadXMLMidasBanks(xmlTextReaderPtr reader);
+   bool ReadXMLSteering(xmlTextReaderPtr reader);
+   bool WriteSteering();
+   bool WriteSteeringClass(char *buffer,int numOfSteer);
+   bool WriteAnalyzerCpp();
+   bool WriteAnalyzerH();
+   void WriteSteerConfigWrite(char *buffer,int numOfSteer);
+   void WriteSteerConfigRead(char *buffer,int numSteer);
+   bool WriteEventLoopCpp();
+   bool WriteEventLoopH();
+   bool WriteMain();
    void WriteMakefile();
    void WriteHTMLDoku();
    void WriteDictionaryBat(char* buffer1,char* buffer2);
    void startBuilder(char* xmlFile);
    void GetFormat(char *buf,char *type);
-   void setValue(char *buf,char *destination,char *source,char *type);
+   void setValue(char *buf,char *destination,char *source,char *type,int version);
    bool isFloatingType(char *type);
 };
 
