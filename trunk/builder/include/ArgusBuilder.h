@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.14  2005/03/20 18:19:55  sawada
+  unified makefile for windows and unix.
+
   Revision 1.13  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -210,6 +213,7 @@ public:
    bool WriteConfigCpp();
    bool WriteConfigH();
    bool WriteMain();
+   char* EqualSign();
    void WriteMakefile(char* xmlFile);
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
