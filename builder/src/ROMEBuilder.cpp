@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.100  2005/01/25 14:30:20  schneebeli_m
+  small changes
+
   Revision 1.99  2005/01/24 16:29:40  schneebeli_m
   last bank access
 
@@ -2321,8 +2324,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
    // count steering parameters
    numOfSteering[iTask]++;
    currentNumberOfSteerings = numOfSteering[iTask];
-   if (numOfSteering[iTask]>=maxNumberOfTasks+1) {
-      cout << "Maximal number of steering parameters reached : " << (maxNumberOfTasks+1) << " !" << endl;
+   if (numOfSteering[iTask]>=maxNumberOfSteering) {
+      cout << "Maximal number of steering parameters reached : " << maxNumberOfSteering << " !" << endl;
       cout << "Terminating program." << endl;
       return false;
    }
@@ -2440,8 +2443,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
          }
          // count includes
          numOfSteerFields[iTask][actualSteerIndex]++;
-         if (numOfSteerFields[iTask][actualSteerIndex]>=maxNumberOfSteering) {
-            cout << "Maximal number of steering parameter fields in task '" << taskName[iTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
+         if (numOfSteerFields[iTask][actualSteerIndex]>=maxNumberOfSteeringField) {
+            cout << "Maximal number of steering parameter fields in task '" << taskName[iTask].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -6701,11 +6704,11 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("rootcint -f %sDict.cpp -c ",shortCut.Data());
 #if defined( _MSC_VER )
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
-   buffer.AppendFormatted("-I%%ROOTSYS%% ");
+   buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
 #endif
 #if defined ( __linux__ ) || defined ( __APPLE__ )
    buffer.AppendFormatted("-I$ROMESYS/include ");
-   buffer.AppendFormatted("-I$ROOTSYS ");
+   buffer.AppendFormatted("-I$ROOTSYS/include ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
@@ -7151,13 +7154,14 @@ void ROMEBuilder::setValue(ROMEString* buf,char *destination,char *source,char *
 bool ROMEBuilder::isNumber(ROMEString& string)
 {
    if (string!="float"&&string!="Float_t"&&
-       string!="double"&&string!="Double_t"&&
+       string!="double"&&string!="Double_t"&&string!="Double32_t"&&
        string!="int"&&string!="Int_t"&&
        string!="unsigned int"&&string!="UInt_t"&&
        string!="long"&&string!="Long_t"&&
        string!="unsigned long"&&string!="ULong_t"&&
        string!="short"&&string!="Short_t"&&
        string!="unsigned short"&&string!="UShort_t"&&
+       string!="Long64_t"&&string!="ULong64_t"&&
        string!="long long"&&string!="unsigned long long")
       return false;
    return true;
@@ -7171,6 +7175,7 @@ bool ROMEBuilder::isFloatingType(char *type)
 
        !strcmp(type,"double") ||
        !strcmp(type,"Double_t") ||
+       !strcmp(type,"Double32_t") ||
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
