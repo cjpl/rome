@@ -139,9 +139,9 @@
 					<xs:documentation>The name of the steering parameter field.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="SPFieldType" type="ValueTypeDesc">
+			<xs:element name="SPFieldType" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list.</xs:documentation>
+					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list or a pointer to any root class.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="SPFieldInitialization" type="xs:string" minOccurs="0">
@@ -188,9 +188,9 @@
 					<xs:documentation>The name of the field.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="FieldType" type="ValueTypeDesc">
+			<xs:element name="FieldType" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list.</xs:documentation>
+					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list or a pointer to any root class.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="FieldComment" type="xs:string" minOccurs="0">
