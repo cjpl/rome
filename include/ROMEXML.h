@@ -4,6 +4,7 @@
 #include <libxml/xmlreader.h>
 #include <libxml/xmlwriter.h>
 #include <libxml/xpath.h>
+#include <ROMEString.h>
 
 class ROMEXML
 {
@@ -19,38 +20,50 @@ public:
    ~ROMEXML();
 
    // read
-   bool  OpenFileForRead(char* file);
+   bool  OpenFileForRead(const char* file);
    bool  NextLine() { return xmlTextReaderRead(reader)!=0; };
    char* GetName() { return (char*)xmlTextReaderConstName(reader); };
    int   GetType() { return xmlTextReaderNodeType(reader); };
    int   GetDepth() { return xmlTextReaderDepth(reader); };
    bool  isEmpty() { return xmlTextReaderIsEmptyElement(reader)!=0; };
-   int   GetAttribute(char* name,char* value,unsigned int valueSize);
-   char* GetAttribute(char* name,char* defaultValue);
-   int   GetValue(char* value,unsigned int valueSize);
-   char* GetValue(char* defaultValue);
+   bool  GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue="");
+   bool  GetAttribute(const char* name,ROMEString& value,const char* defaultValue="");
+   bool  GetValue(ROMEString& value,ROMEString& defaultValue);
+   bool  GetValue(ROMEString& value,const char* defaultValue="");
    // write
-   bool  OpenFileForWrite(char* file);
-   bool  StartElement(char* name);
+   bool  OpenFileForWrite(const char* file);
+   bool  StartElement(const char* name);
    bool  EndElement();
    bool  EndDocument();
-   bool  WriteAttribute(char* name,char* value);
-   bool  WriteElement(char* name,char* value);
+   bool  WriteAttribute(const char* name,const char* value);
+   bool  WriteElement(const char* name,const char* value);
    // path
-   bool  OpenFileForPath(char* file);
-   bool  ExistPath(char* path);
-   bool  GetPathAttribute(char* path,char* name,char* value);
-   bool  GetPathValue(char* path,char* value);
-   bool  ReplacePathAttributeValue(char* path,char* name,char* value);
-   bool  ReplacePathAttributeName(char* path,char* name,char* newName);
-   bool  ReplacePathName(char* path,char* name);
-   bool  ReplacePathValue(char* path,char* value);
-   bool  NewPathAttribute(char* path,char* name,char* value);
-   bool  NewPathNextElement(char* path,char* name,char* value);
-   bool  NewPathPrevElement(char* path,char* name,char* value);
-   bool  NewPathChildElement(char* path,char* name,char* value);
-   bool  HasPathChildren(char* path);
-   bool  WritePathFile(char* file);
+   bool  OpenFileForPath(const char* file);
+   bool  ExistPath(const char* path);
+   bool  GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue="");
+   bool  GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,const char* defaultValue="");
+   bool  GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,const char* defaultValue="");
+   bool  GetPathAttribute(const char* path,const char* name,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue="");
+   bool  GetPathValue(ROMEString& path,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue="");
+   bool  GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue);
+   bool  GetPathValue(const char* path,ROMEString& value,const char* defaultValue="");
+   bool  ReplacePathAttributeValue(const char* path,const char* name,const char* value);
+   bool  ReplacePathAttributeName(const char* path,const char* name,const char* newName);
+   bool  ReplacePathName(const char* path,const char* name);
+   bool  ReplacePathValue(const char* path,const char* value);
+   bool  NewPathAttribute(const char* path,const char* name,const char* value);
+   bool  NewPathNextElement(const char* path,const char* name,const char* value);
+   bool  NewPathPrevElement(const char* path,const char* name,const char* value);
+   bool  NewPathChildElement(const char* path,const char* name,const char* value);
+   bool  HasPathChildren(const char* path);
+   bool  WritePathFile(const char* file);
 };
 
 #endif   // ROMEXML_H

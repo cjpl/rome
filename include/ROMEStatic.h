@@ -27,43 +27,6 @@ public:
 //********************************************************************
 //    Routine: decodeRunNumbers
 //********************************************************************
-   static TArrayI decodeRunNumbers(char *str)
-   {
-      char cminus='-';
-      char ccomma=',';
-      char csemi =';';
-      char *pstr = str;
-      int num;
-      int na=0;
-      int nat=1;
-      int arraySize = 1000;
-      TArrayI arr(arraySize);
-      while (pstr<str+strlen(str)) {
-         if (na>=arraySize*nat) {
-            nat++;
-            arr.Set(arraySize*nat);
-         }
-         num = strtol(pstr,&pstr,10);
-         if (pstr[0]==cminus) {
-            arr.AddAt(-num,na);
-            na++;
-            pstr++;
-         }
-         else if (pstr[0]==ccomma||pstr[0]==csemi) {
-            arr.AddAt(num,na);
-            na++;
-            pstr++;
-         }
-         else {
-            arr.AddAt(num,na);
-            arr.Set(na+1);
-            return arr;
-         }
-      }
-      arr.Set(na);
-      return arr;
-   }
-
    static char* strtok_x(char *str,char* sub,char** tail) {
       int l = strlen(str);
       char* start = strtok(str,"/");

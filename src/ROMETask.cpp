@@ -20,8 +20,8 @@ ClassImp(ROMETask)
 ROMETask::ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer):TTask(name,title)
 {
    // Initialisation of Class
-   strcpy(fTitle,title);
-   strcpy(fName,name);
+   fTitle = title;
+   fName = name;
    fAnalyzer = analyzer;
    fEventID = "all";
 }
@@ -34,9 +34,9 @@ void ROMETask::Exec(Option_t *option)
    // EndOfRun
    // Terminate
    if (!strcmp(option,gTaskInit)) {
-      char foldername[1000];
-      sprintf(foldername,"%sHistos",this->GetName());
-      fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername));
+      ROMEString foldername;
+      foldername.SetFormated("%sHistos",this->GetName());
+      fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
       Init();
    }
@@ -50,7 +50,7 @@ void ROMETask::Exec(Option_t *option)
    else if (!strcmp(option,gTaskTerminate)) {
       Terminate();
       if (gShowTime) {
-         cout << "Task '" << fName << "' : run time = " << GetTime() << endl;
+         cout << "Task '" << fName.Data() << "' : run time = " << GetTime() << endl;
       }
    }
    else if (!strcmp(fEventID.Data(),"all") || !strcmp(option,fEventID.Data())) {
@@ -77,10 +77,10 @@ char* ROMETask::GetTime()
    // Returns the elapsed time in a readable format
    int runTime = (int)fWatch.RealTime();
    int milli = (int)((fWatch.RealTime()-runTime)*1000);
-   sprintf(fTimeString, "%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
+   fTimeString.SetFormated("%i%i:%i%i:%i%i:%d", runTime / 36000, (runTime % 36000) / 3600,
            (runTime % 3600) / 600, (runTime % 600) / 60, (runTime % 60) / 10,
            runTime % 10,milli);
-   return fTimeString;
+   return (char*)fTimeString.Data();
 }
 
 

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.29  2004/07/30 15:33:17  schneebeli_m
+  implemented ROMEString
+
   Revision 1.28  2004/07/28 07:32:11  schneebeli_m
   online stuff
 
@@ -94,13 +97,14 @@
 //MEGDriftChamber.xml -o C:/Data/analysis/MEG/ROME/MEGDriftChamber/ -v -nl
 //MEGTest.xml -o C:/Data/analysis/MEG/ROME/MEGTest/ -v -nl
 
+#include "ROMEString.h"
 #include "ROMEBuilder.h"
 
 
 bool ROMEBuilder::ReadXMLFolder() {
    // read the folder definitions out of the xml file
-   char* parent[maxNumberOfFolders];
-   char* tmp;
+   ROMEString parent[maxNumberOfFolders];
+   ROMEString tmp;
    char* name;
    int type,i,j,isub=0,res,res1,res2;
    parent[0] = "GetMainFolder()";
@@ -118,49 +122,44 @@ bool ROMEBuilder::ReadXMLFolder() {
             return false;
          }
          // default initialisation
-         folderAuthor[numOfFolder] = new char[strlen(mainAuthor)+1];
-         strcpy(folderAuthor[numOfFolder],mainAuthor);
-         folderVersion[numOfFolder] = new char[2];
-         strcpy(folderVersion[numOfFolder],"1");
-         folderDescription[numOfFolder] = new char[1];
-         strcpy(folderDescription[numOfFolder],"");
+         folderAuthor[numOfFolder] = mainAuthor;
+         folderVersion[numOfFolder] = "1";
+         folderDescription[numOfFolder] = "";
          folderDataBase[numOfFolder] = false;
          folderUserCode[numOfFolder] = false;
          numOfValue[numOfFolder] = 0;
          // set parent
          folderParentName[numOfFolder] = parent[isub];
          // read folder name
-         folderName[numOfFolder] = xml->GetAttribute("Name",NULL);
-         folderName[numOfFolder] = xml->GetAttribute("FolderName",folderName[numOfFolder]);
-         if (folderName[numOfFolder]==NULL) {
+         xml->GetAttribute("Name",folderName[numOfFolder],"");
+         xml->GetAttribute("FolderName",folderName[numOfFolder],folderName[numOfFolder]);
+         if (folderName[numOfFolder]=="") {
             cout << "Folder " << (numOfFolder+1) << " has no name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // read folder title
-         folderTitle[numOfFolder] = xml->GetAttribute("Title","");
-         folderTitle[numOfFolder] = xml->GetAttribute("FolderTitle",folderTitle[numOfFolder]);
+         xml->GetAttribute("Title",folderTitle[numOfFolder],"");
+         xml->GetAttribute("FolderTitle",folderTitle[numOfFolder],folderTitle[numOfFolder]);
          // read array flag
-         folderArray[numOfFolder] = xml->GetAttribute("ArraySize","1");
-         folderArray[numOfFolder] = xml->GetAttribute("Array",folderArray[numOfFolder]);
+         xml->GetAttribute("ArraySize",folderArray[numOfFolder],"1");
+         xml->GetAttribute("Array",folderArray[numOfFolder],folderArray[numOfFolder]);
          // read data base flag
-         tmp = xml->GetAttribute("DataBase","no");
-         if (!strcmp(tmp,"yes")) 
+         xml->GetAttribute("DataBase",tmp,"no");
+         if (tmp == "yes") 
             folderDataBase[numOfFolder] = true;
-         delete [] tmp;
          // read user code flag
-         tmp = xml->GetAttribute("UserCode","no");
-         if (!strcmp(tmp,"yes")) 
+         xml->GetAttribute("UserCode",tmp,"no");
+         if (tmp == "yes") 
             folderUserCode[numOfFolder] = true;
-         delete [] tmp;
 
          // set folder as parent for subsequent folders
          isub++;
-         parent[isub] = folderName[numOfFolder];
+         parent[isub] = folderName[numOfFolder].Data();
 
          // output
          if (makeOutput) for (i=0;i<isub;i++) cout << "   ";
-         if (makeOutput) cout << folderName[numOfFolder] << endl;
+         if (makeOutput) folderName[numOfFolder].WriteLine();
       }
       // end subfolder
       if (type == 15 && !strcmp((const char*)name,"SubFolder")) {
@@ -170,18 +169,15 @@ bool ROMEBuilder::ReadXMLFolder() {
       if (type == 1) {
          // read author
          if (!strcmp((const char*)name,"Author")) {
-            delete [] folderAuthor[numOfFolder];
-            folderAuthor[numOfFolder] = xml->GetAttribute("Name",mainAuthor);
+            xml->GetAttribute("Name",folderAuthor[numOfFolder],mainAuthor);
          }
          // read version
          else if (!strcmp((const char*)name,"Version")) {
-            delete [] folderVersion[numOfFolder];
-            folderVersion[numOfFolder] = xml->GetAttribute("Number","1");
+            xml->GetAttribute("Number",folderVersion[numOfFolder],"1");
          }
          // read description
          else if (!strcmp((const char*)name,"Description")) {
-            delete [] folderDescription[numOfFolder];
-            folderDescription[numOfFolder] = xml->GetAttribute("Text","");
+            xml->GetAttribute("Text",folderDescription[numOfFolder],"");
          }
          // includes
          else if (!strcmp((const char*)name,"Include")) {
@@ -191,13 +187,12 @@ bool ROMEBuilder::ReadXMLFolder() {
                if (type == 1) {
                   folderInclude[numOfFolder][numOfFolderInclude[numOfFolder]] = (char*)name;
                   folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = false;
-                  tmp = xml->GetAttribute("Type","global");
-                  if (strcmp(tmp,"local")) 
+                  xml->GetAttribute("Type",tmp,"global");
+                  if (tmp=="local") 
                      folderLocalFlag[numOfFolder][numOfFolderInclude[numOfFolder]] = true;
-                  delete [] tmp;
                   numOfFolderInclude[numOfFolder]++;
                   if (numOfFolderInclude[numOfFolder]>=maxNumberOfInclude) {
-                     cout << "Maximal number of inludes in folder '" << folderName[numOfFolder] << "' reached : " << maxNumberOfInclude << " !" << endl;
+                     cout << "Maximal number of inludes in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -216,45 +211,40 @@ bool ROMEBuilder::ReadXMLFolder() {
                   // field name
                   valueName[numOfFolder][numOfValue[numOfFolder]] = name;
                   // field type
-                  valueType[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Type",NULL);
-                  if (valueType[numOfFolder][numOfValue[numOfFolder]]==NULL) {
-                     cout << "Field '" << valueType[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "' has no Type !" << endl;
+                  xml->GetAttribute("Type",valueType[numOfFolder][numOfValue[numOfFolder]],"");
+                  if (valueType[numOfFolder][numOfValue[numOfFolder]]=="") {
+                     cout << "Field '" << valueType[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "' has no Type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field reference flag
-                  valueRef[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Reference","no");
+                  xml->GetAttribute("Reference",valueRef[numOfFolder][numOfValue[numOfFolder]],"no");
                   // field initialisation
-                  if (!strcmp(valueType[numOfFolder][numOfValue[numOfFolder]],"TString"))
-                     valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Initialisation","' '");
+                  if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
+                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"' '");
                   else
-                     valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Initialisation","0");
-                  valueInit[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]]);
+                     xml->GetAttribute("Initialisation",valueInit[numOfFolder][numOfValue[numOfFolder]],"0");
+                  xml->GetAttribute("Init",valueInit[numOfFolder][numOfValue[numOfFolder]],valueInit[numOfFolder][numOfValue[numOfFolder]]);
                   // field comment
-                  valueComment[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Comment"," ");
+                  xml->GetAttribute("Comment",valueComment[numOfFolder][numOfValue[numOfFolder]]," ");
                   if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
-                     tmp = valueComment[numOfFolder][numOfValue[numOfFolder]];
-                     valueComment[numOfFolder][numOfValue[numOfFolder]] = new char[strlen(tmp)+4];
-                     sprintf(valueComment[numOfFolder][numOfValue[numOfFolder]],"// %s",tmp);
-                     delete [] tmp;
+                     valueComment[numOfFolder][numOfValue[numOfFolder]].Insert(0,"// ");
                   }
                   // data base path
-                  tmp = new char[2+strlen(folderName[numOfFolder])+strlen(valueName[numOfFolder][numOfValue[numOfFolder]])];
-                  sprintf(tmp,"%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
-                  valueDataBasePath[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("DataBasePath",tmp);
-                  delete [] tmp;
+                  valueDataBasePath[numOfFolder][numOfValue[numOfFolder]].AppendFormated("%s.%s",folderName[numOfFolder],valueName[numOfFolder][numOfValue[numOfFolder]]);
+                  xml->GetAttribute("DataBasePath",valueDataBasePath[numOfFolder][numOfValue[numOfFolder]],valueDataBasePath[numOfFolder][numOfValue[numOfFolder]]);
                   // array
-                  valueArray[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("Array","0");
-                  valueArray[numOfFolder][numOfValue[numOfFolder]] = xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]]);
-                  if (strcmp(valueArray[numOfFolder][numOfValue[numOfFolder]],"0") && folderDataBase[numOfFolder]) {
-                     cout << "Value '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' of Folder '" << folderName[numOfFolder] << "', which has data base access, can not be an array !" << endl;
+                  xml->GetAttribute("Array",valueArray[numOfFolder][numOfValue[numOfFolder]],"0");
+                  xml->GetAttribute("ArraySize",valueArray[numOfFolder][numOfValue[numOfFolder]],valueArray[numOfFolder][numOfValue[numOfFolder]]);
+                  if (valueArray[numOfFolder][numOfValue[numOfFolder]]!="0" && folderDataBase[numOfFolder]) {
+                     cout << "Value '" << valueName[numOfFolder][numOfValue[numOfFolder]].Data() << "' of Folder '" << folderName[numOfFolder].Data() << "', which has data base access, can not be an array !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field count
                   numOfValue[numOfFolder]++;
                   if (numOfValue[numOfFolder]>=maxNumberOfValues) {
-                     cout << "Maximal number of fields in folder '" << folderName[numOfFolder] << "' reached : " << maxNumberOfValues << " !" << endl;
+                     cout << "Maximal number of fields in folder '" << folderName[numOfFolder].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -262,8 +252,8 @@ bool ROMEBuilder::ReadXMLFolder() {
                if (type == 15 && !strcmp((const char*)name,"Fields")) {
                   for (i=0;i<numOfValue[numOfFolder];i++) {
                      for (j=i+1;j<numOfValue[numOfFolder];j++) {
-                        if (!strcmp(valueName[numOfFolder][i],valueName[numOfFolder][j])) {
-                           cout << "\nFolder '" << folderName[numOfFolder] << "' has two fields with the name '" << valueName[numOfFolder][i] << "' !" << endl;
+                        if (valueName[numOfFolder][i]==valueName[numOfFolder][j]) {
+                           cout << "\nFolder '" << folderName[numOfFolder].Data() << "' has two fields with the name '" << valueName[numOfFolder][i].Data() << "' !" << endl;
                            cout << "Terminating program." << endl;
                            return false;
                         }
@@ -277,8 +267,8 @@ bool ROMEBuilder::ReadXMLFolder() {
       if (type == 15 && !strcmp((const char*)name,"Folder")) {
          for (i=0;i<numOfFolder;i++) {
             for (j=i+1;j<numOfFolder;j++) {
-               if (!strcmp(folderName[i],folderName[j])) {
-                  cout << "\nFolder '" << folderName[i] << "' is defined twice !" << endl;
+               if (folderName[i]==folderName[j]) {
+                  cout << "\nFolder '" << folderName[i].Data() << "' is defined twice !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
@@ -292,14 +282,14 @@ bool ROMEBuilder::ReadXMLFolder() {
 }
 
 bool ROMEBuilder::WriteFolderCpp() {
-   char* cppFile = NULL;
-   char buffer[bufferLength];
+   ROMEString cppFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
    int nb,ll,i,lenTot;
    char *pos;
    int fileHandle;
-   char format[100];
+   ROMEString format;
    bool writeFile = false;
    char *pBuffer;
    int bufferLen=0;
@@ -309,61 +299,60 @@ bool ROMEBuilder::WriteFolderCpp() {
       if (numOfValue[iFold] == 0) continue;
 
       // File name
-      delete [] cppFile;
-      cppFile = new char[strlen(outDir)+strlen(shortCut)+strlen(folderName[iFold])+20];
-      sprintf(cppFile,"%s/src/framework/%s%s.cpp",outDir,shortCut,folderName[iFold]);
+      cppFile.SetFormated("%s/src/framework/%s%s.cpp",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
 
       if (!folderUserCode[iFold]) {
-         remove(cppFile);
+         remove(cppFile.Data());
          continue;
       }
 
       // Description
-      sprintf(buffer,"//// Author: %s\n",folderAuthor[iFold]);
-      sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      ll = 74-strlen(shortCut);
-      sprintf(format,"// %%s%%-%d.%ds //\n",ll,ll);
-      sprintf(buffer+strlen(buffer),format,shortCut,folderName[iFold]);
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      pos = folderDescription[iFold];
-      lenTot = strlen(folderDescription[iFold]);
-      while (pos-folderDescription[iFold] < lenTot) {
-         if (lenTot+(folderDescription[iFold]-pos)<74) 
+      buffer.Resize(0);
+      buffer.AppendFormated("//// Author: %s\n",folderAuthor[iFold].Data());
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      ll = 74-shortCut.Length();
+      format.SetFormated("// %%s%%-%d.%ds //\n",ll,ll);
+      buffer.AppendFormated((char*)format.Data(),shortCut.Data(),folderName[iFold].Data());
+      buffer.AppendFormated("//                                                                            //\n");
+      pos = (char*)folderDescription[iFold].Data();
+      lenTot = folderDescription[iFold].Length();
+      while (pos-folderDescription[iFold].Data() < lenTot) {
+         if (lenTot+(folderDescription[iFold].Data()-pos)<74) 
             i=min(75,lenTot);
          else 
             for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0) 
             i=min(75,lenTot);
          pos[i] = 0;
-         sprintf(buffer+strlen(buffer),"// %-74.74s   \n",pos);
+         buffer.AppendFormated("// %-74.74s   \n",pos);
          pos = pos+i+1;
       }
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"/////////////////////////////////////----///////////////////////////////////////");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("/////////////////////////////////////----///////////////////////////////////////");
 
       // Write File
       struct stat buf;
-      if( stat( cppFile, &buf )) {
+      if( stat( cppFile.Data(), &buf )) {
          // Header Files
-         sprintf(buffer+strlen(buffer),"\n\n#include <include/framework/%s%s.h>\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("\n\n#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[iFold].Data());
 
-         sprintf(buffer+strlen(buffer),"\nClassImp(%s%s)\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("\nClassImp(%s%s)\n",shortCut.Data(),folderName[iFold].Data());
 
          writeFile = true;
       }
       else {
          // compare old and new file
-         fileHandle = open(cppFile,O_RDONLY);
+         fileHandle = open(cppFile.Data(),O_RDONLY);
          nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
          pBuffer = fileBuffer;
          char *pend = "/////////////////////////////////////----///////////////////////////////////////";
          pBuffer = strstr(pBuffer,pend);
          if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
-            if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
+            if (makeOutput) cout << "\n\nError : File '" << cppFile.Data() << "' has an invalid header !!!" << endl;
             continue;
          }
          bufferLen = nb-(pBuffer-fileBuffer);
@@ -376,106 +365,97 @@ bool ROMEBuilder::WriteFolderCpp() {
             }
          }
          fileBuffer[nb] = 0;
-         sprintf(format,"%%-%d.%ds",bufferLen-80,bufferLen-80);
-         sprintf(buffer+strlen(buffer),format,pBuffer+80);
+         format.SetFormated("%%-%d.%ds",bufferLen-80,bufferLen-80);
+         buffer.AppendFormated((char*)format.Data(),pBuffer+80);
       }
       if (writeFile) {
          // write file
-         fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+         fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
-         fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-         if (makeOutput) cout << "      " << cppFile << endl;
+         fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << cppFile.Data() << endl;
 
-         nb = write(fileHandle,&buffer, strlen(buffer));
+         nb = write(fileHandle,buffer.Data(), buffer.Length());
 
          close(fileHandle);
       }
    }
-   delete [] cppFile;
    return true;
 }
 
 bool ROMEBuilder::WriteFolderH() {
-   char* hFile = NULL;
-   char buffer[bufferLength];
+   ROMEString hFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
-   char *tmp;
 
    int nb,j,i;
-   char* str = NULL;
+   ROMEString str;
    int fileHandle;
-   char format[100];
+   ROMEString format;
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
       if (numOfValue[iFold] == 0) continue;
 
       // File name
-      delete [] hFile;
-      hFile = new char[strlen(outDir)+strlen(shortCut)+strlen(folderName[iFold])+30];
       if (folderUserCode[iFold])
-         sprintf(hFile,"%s/include/framework/%s%s_Base.h",outDir,shortCut,folderName[iFold]);
+         hFile.SetFormated("%s/include/framework/%s%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
       else
-         sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
+         hFile.SetFormated("%s/include/framework/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
 
       // Description
-      sprintf(buffer,               "////////////////////////////////////////////////////////////////////////////////\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-      sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+      buffer.Resize(0);
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+      buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
       // Header
       if (folderUserCode[iFold]) {
-         sprintf(buffer+strlen(buffer),"#ifndef %s%s_Base_H\n",shortCut,folderName[iFold]);
-         sprintf(buffer+strlen(buffer),"#define %s%s_Base_H\n\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#ifndef %s%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormated("#define %s%s_Base_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
       else {
-         sprintf(buffer+strlen(buffer),"#ifndef %s%s_H\n",shortCut,folderName[iFold]);
-         sprintf(buffer+strlen(buffer),"#define %s%s_H\n\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#ifndef %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormated("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
 
-      sprintf(buffer+strlen(buffer),"#include <TObject.h>\n");
+      buffer.AppendFormated("#include <TObject.h>\n");
 
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueRef[iFold][i],"yes")) {
-            sprintf(buffer+strlen(buffer),"#include <TRef.h>\n");
+         if (valueRef[iFold][i]=="yes") {
+            buffer.AppendFormated("#include <TRef.h>\n");
             break;
          }
       }
 
       for (i=0;i<numOfFolderInclude[iFold];i++) {
          if (folderLocalFlag[iFold][i]) {
-            sprintf(buffer+strlen(buffer),"#include \"%s\"\n",folderInclude[iFold][i]);
+            buffer.AppendFormated("#include \"%s\"\n",folderInclude[iFold][i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"#include <%s>\n",folderInclude[iFold][i]);
+            buffer.AppendFormated("#include <%s>\n",folderInclude[iFold][i].Data());
          }
       }
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueType[iFold][i],"TString")) {
-            sprintf(buffer+strlen(buffer),"#include <%s.h>\n",valueType[iFold][i]);
+         if (valueType[iFold][i]=="TString") {
+            buffer.AppendFormated("#include <%s.h>\n",valueType[iFold][i].Data());
             break;
          }
       }
 
       for (i=0;i<numOfValue[iFold];i++) {
          for (j=0;j<numOfFolder;j++) {
-            delete [] str;
-            str = new char[strlen(folderName[j])+2];
-            sprintf(str,"%s*",folderName[j]);
-            if (!strcmp(valueType[iFold][i],folderName[j]) || !strcmp(valueType[iFold][i],str)) {
-               sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[j]);
-
-               tmp = valueType[iFold][i];
-               valueType[iFold][i] = new char[strlen(tmp)+strlen(shortCut)+1];
-               sprintf(valueType[iFold][i],"%s%s",shortCut,tmp);
-               delete [] tmp;
+            str.SetFormated("%s*",folderName[j].Data());
+            if (valueType[iFold][i]==folderName[j] || valueType[iFold][i]==str) {
+               buffer.AppendFormated("#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[j].Data());
+               valueType[iFold][i].Insert(0,shortCut);
                break;
             }
          }
@@ -483,217 +463,229 @@ bool ROMEBuilder::WriteFolderH() {
 
       // Class
       if (folderUserCode[iFold])
-         sprintf(buffer+strlen(buffer),"\nclass %s%s_Base : public TObject\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       else
-         sprintf(buffer+strlen(buffer),"\nclass %s%s : public TObject\n",shortCut,folderName[iFold]);
-      sprintf(buffer+strlen(buffer),"{\n");
+         buffer.AppendFormated("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
+      buffer.AppendFormated("{\n");
 
       // Fields
-      sprintf(buffer+strlen(buffer),"protected:\n");
+      buffer.AppendFormated("protected:\n");
       int typeLen = 5;
       int nameLen = 8;
       int nameLenT = 0;
       for (i=0;i<numOfValue[iFold];i++) {
-         if (typeLen<(int)strlen(valueType[iFold][i])) typeLen = strlen(valueType[iFold][i]);
-         if (!strcmp(valueArray[iFold][i],"0"))
-            nameLenT = (int)strlen(valueName[iFold][i]);
+         if (typeLen<valueType[iFold][i].Length()) typeLen = valueType[iFold][i].Length();
+         if (valueArray[iFold][i]=="0")
+            nameLenT = (int)valueName[iFold][i].Length();
          else
-            nameLenT = (int)(strlen(valueName[iFold][i])+2+strlen(valueArray[iFold][i]));
+            nameLenT = (int)(valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
          if (nameLen<nameLenT) nameLen = nameLenT;
       }
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueRef[iFold][i],"yes")) {
-            sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(valueName[iFold][i]));
-            sprintf(buffer+strlen(buffer),format,"TRef",valueName[iFold][i],"",valueComment[iFold][i]);
+         if (valueRef[iFold][i]=="yes") {
+            format.SetFormated("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
+            buffer.AppendFormated((char*)format.Data(),"TRef",valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
-         else if (strcmp(valueArray[iFold][i],"0")) {
-            sprintf(format,"   %%-%ds f%%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i],nameLen-strlen(valueName[iFold][i])+2+strlen(valueArray[iFold][i]));
-            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueComment[iFold][i]);
+         else if (valueArray[iFold][i]!="0") {
+            format.SetFormated("   %%-%ds f%%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i].Data(),nameLen-valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
+            buffer.AppendFormated((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
          else {
-            sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(valueName[iFold][i]));
-            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueComment[iFold][i]);
+            format.SetFormated("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
+            buffer.AppendFormated((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"\n");
-      sprintf(format,"   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
-      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","//! Modified Folder Flag");
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("\n");
+      format.SetFormated("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
+      buffer.AppendFormated((char*)format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+      buffer.AppendFormated("\n");
 
       // Methods
 
-      sprintf(buffer+strlen(buffer),"public:\n");
+      buffer.AppendFormated("public:\n");
       // Constructor
       if (folderUserCode[iFold])
-         sprintf(buffer+strlen(buffer),"   %s%s_Base( ",shortCut,folderName[iFold]);
+         buffer.AppendFormated("   %s%s_Base( ",shortCut.Data(),folderName[iFold].Data());
       else
-         sprintf(buffer+strlen(buffer),"   %s%s( ",shortCut,folderName[iFold]);
+         buffer.AppendFormated("   %s%s( ",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueArray[iFold][i],"0"))
-            sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         if (valueArray[iFold][i]=="0")
+            buffer.AppendFormated("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
       }
-      sprintf(buffer+strlen(buffer)-1," )\n");
-      sprintf(buffer+strlen(buffer),"   { ");
+      buffer.Resize(buffer.Length()-1);
+      buffer.AppendFormated(" )\n");
+      buffer.AppendFormated("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueArray[iFold][i],"0"))
-            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         if (valueArray[iFold][i]=="0")
+            buffer.AppendFormated("f%s = %s; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          else {
-            sprintf(buffer+strlen(buffer),"for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i],i,valueName[iFold][i],i,valueInit[iFold][i]);
+            buffer.AppendFormated("for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"fModified = false; ");
-      sprintf(buffer+strlen(buffer),"};\n");
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("fModified = false; ");
+      buffer.AppendFormated("};\n");
+      buffer.AppendFormated("\n");
 
       // Getters
       for (i=0;i<numOfValue[iFold];i++) {
-         int lb = nameLen-strlen(valueName[iFold][i]);
-         if (!strcmp(valueRef[iFold][i],"yes")) {
-            sprintf(format,"   %%-%ds Get%%s()%%%ds { return (%%s)f%%s.GetObject();%%%ds };\n",typeLen,lb,lb+(typeLen-strlen(valueType[iFold][i])));
-            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"");
+         int lb = nameLen-valueName[iFold][i].Length();
+         if (valueRef[iFold][i]=="yes") {
+            format.SetFormated("   %%-%ds Get%%s()%%%ds { return (%%s)f%%s.GetObject();%%%ds };\n",typeLen,lb,lb+(typeLen-valueType[iFold][i].Length()));
+            buffer.AppendFormated((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
          }
-         else if (strcmp(valueArray[iFold][i],"0")) {
-            sprintf(format,"   %%-%ds Get%%sAt(int index)%%%ds { return f%%s[index];%%%ds };\n",typeLen,lb,lb);
-            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"");
+         else if (valueArray[iFold][i]!="0") {
+            format.SetFormated("   %%-%ds Get%%sAt(int index)%%%ds { return f%%s[index];%%%ds };\n",typeLen,lb,lb);
+            buffer.AppendFormated((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
          }
          else {
-            sprintf(format,"   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,lb,lb);
-            sprintf(buffer+strlen(buffer),format,valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"");
+            format.SetFormated("   %%-%ds Get%%s()%%%ds { return f%%s;%%%ds };\n",typeLen,lb,lb);
+            buffer.AppendFormated((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
          }
       }
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("\n");
 
       // Modifier
-      sprintf(format,"   %%-%ds is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
-      sprintf(buffer+strlen(buffer),format,"Bool_t","Modified","","Modified","");
-      sprintf(buffer+strlen(buffer),"\n");
+      format.SetFormated("   %%-%ds is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
+      buffer.AppendFormated((char*)format.Data(),"Bool_t","Modified","","Modified","");
+      buffer.AppendFormated("\n");
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
-         int lb = nameLen-strlen(valueName[iFold][i]);
-         if (!strcmp(valueArray[iFold][i],"0")) {
-            sprintf(format,"   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-            sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
+         int lb = nameLen-valueName[iFold][i].Length();
+         if (valueArray[iFold][i]=="0") {
+            format.SetFormated("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+            buffer.AppendFormated((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
          }
          else {
-            sprintf(format,"   void Set%%sAt%%%ds(int index,%%-%ds %%s%%%ds) { f%%s[index]%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-            sprintf(buffer+strlen(buffer),format,valueName[iFold][i],"",valueType[iFold][i],valueName[iFold][i],"",valueName[iFold][i],"",valueName[iFold][i],"");
+            format.SetFormated("   void Set%%sAt%%%ds(int index,%%-%ds %%s%%%ds) { f%%s[index]%%%ds = %%s;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
+            buffer.AppendFormated((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
          }
       }
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("\n");
       // Set All
-      sprintf(buffer+strlen(buffer),"   void SetAll( ");
+      buffer.AppendFormated("   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueArray[iFold][i],"0")) {
-            sprintf(buffer+strlen(buffer),"%s %s=%s,",valueType[iFold][i],valueName[iFold][i],valueInit[iFold][i]);
+         if (valueArray[iFold][i]=="0") {
+            buffer.AppendFormated("%s %s=%s,",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer)-1," )\n");
-      sprintf(buffer+strlen(buffer),"   { ");
+      buffer.Resize(buffer.Length()-1);
+      buffer.AppendFormated(" )\n");
+      buffer.AppendFormated("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueArray[iFold][i],"0")) {
-            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueName[iFold][i]);
+         if (valueArray[iFold][i]=="0") {
+            buffer.AppendFormated("f%s = %s; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"fModified = true; ");
-      sprintf(buffer+strlen(buffer),"};\n");
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("fModified = true; ");
+      buffer.AppendFormated("};\n");
+      buffer.AppendFormated("\n");
       // Reset
-      sprintf(buffer+strlen(buffer),"   void Reset() {");
+      buffer.AppendFormated("   void Reset() {");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (!strcmp(valueArray[iFold][i],"0")) {
-            sprintf(buffer+strlen(buffer),"f%s = %s; ",valueName[iFold][i],valueInit[iFold][i]);
+         if (valueArray[iFold][i]=="0") {
+            buffer.AppendFormated("f%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i],i,valueName[iFold][i],i,valueInit[iFold][i]);
+            buffer.AppendFormated("for (int i%d=0;i%d<%s;i%d++) f%s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"fModified = false; ");
-      sprintf(buffer+strlen(buffer),"};\n");
+      buffer.AppendFormated("fModified = false; ");
+      buffer.AppendFormated("};\n");
 
       // Footer
       if (folderUserCode[iFold])
-         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s_Base,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
+         buffer.AppendFormated("\n   ClassDef(%s%s_Base,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
       else
-         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
-      sprintf(buffer+strlen(buffer),"};\n\n");
+         buffer.AppendFormated("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+      buffer.AppendFormated("};\n\n");
 
       if (folderUserCode[iFold])
-         sprintf(buffer+strlen(buffer),"#endif   // %s%s_Base_H\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#endif   // %s%s_Base_H\n",shortCut.Data(),folderName[iFold].Data());
       else
-         sprintf(buffer+strlen(buffer),"#endif   // %s%s_H\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#endif   // %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
 
       // Write File
-      fileHandle = open(hFile,O_RDONLY);
+      fileHandle = open(hFile.Data(),O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
-      for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = false;
+      if (nb==(int)buffer.Length()) {
+         for (i=0;i<nb;i++) {
+            if (buffer[i] != fileBuffer[i]) {
+               identical = false;
+               break;
+            }
          }
       }
+      else
+         identical = false;
       if (!identical) {
-         fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+         fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
-         fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-         if (makeOutput) cout << "      " << hFile << endl;
-         nb = write(fileHandle,&buffer, strlen(buffer));
+         fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << hFile.Data() << endl;
+         nb = write(fileHandle,buffer.Data(), buffer.Length());
          close(fileHandle);
       }
 
       // User H-File
       struct stat buf;
-      sprintf(hFile,"%s/include/framework/%s%s.h",outDir,shortCut,folderName[iFold]);
-      if (folderUserCode[iFold] && stat( hFile, &buf )) {
+      hFile.SetFormated("%s/include/framework/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+      if (folderUserCode[iFold] && stat( hFile.Data(), &buf )) {
          // Description
-         sprintf(buffer,               "////////////////////////////////////////////////////////////////////////////////\n");
-         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-         sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-         sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-         sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-         sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-         sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-         sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+         buffer.Resize(0);
+         buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+         buffer.AppendFormated("//                                                                            //\n");
+         buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+         buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+         buffer.AppendFormated("//                                                                            //\n");
+         buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+         buffer.AppendFormated("//                                                                            //\n");
+         buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+         buffer.AppendFormated("//                                                                            //\n");
+         buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
          // Header
-         sprintf(buffer+strlen(buffer),"#ifndef %s%s_H\n",shortCut,folderName[iFold]);
-         sprintf(buffer+strlen(buffer),"#define %s%s_H\n\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#ifndef %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormated("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
 
-         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s_Base.h>\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("#include <include/framework/%s%s_Base.h>\n",shortCut.Data(),folderName[iFold].Data());
 
          // Class
-         sprintf(buffer+strlen(buffer),"\nclass %s%s : public %s%s_Base\n",shortCut,folderName[iFold],shortCut,folderName[iFold]);
-         sprintf(buffer+strlen(buffer),"{\n");
-         sprintf(buffer+strlen(buffer),"\n   ClassDef(%s%s,%s)\n",shortCut,folderName[iFold],folderVersion[iFold]);
-         sprintf(buffer+strlen(buffer),"};\n\n");
-         sprintf(buffer+strlen(buffer),"#endif   // %s%s_H\n",shortCut,folderName[iFold]);
+         buffer.AppendFormated("\nclass %s%s : public %s%s_Base\n",shortCut.Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormated("{\n");
+         buffer.AppendFormated("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         buffer.AppendFormated("};\n\n");
+         buffer.AppendFormated("#endif   // %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
          // Write File
-         fileHandle = open(hFile,O_RDONLY);
+         fileHandle = open(hFile.Data(),O_RDONLY);
          nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
          bool identical = true;
-         for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-            if (buffer[i] != fileBuffer[i]) {
-               identical = false;
+         if (nb==(int)buffer.Length()) {
+            for (i=0;i<nb;i++) {
+               if (buffer[i] != fileBuffer[i]) {
+                  identical = false;
+                  break;
+               }
             }
          }
+         else
+            identical = false;
          if (!identical) {
-            fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+            fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
             close(fileHandle);
-            fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-            if (makeOutput) cout << "      " << hFile << endl;
-            nb = write(fileHandle,&buffer, strlen(buffer));
+            fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+            if (makeOutput) cout << "      " << hFile.Data() << endl;
+            nb = write(fileHandle,buffer.Data(), buffer.Length());
             close(fileHandle);
          }
       }
    }
-   delete [] hFile;
    return true;
 }
 
 bool ROMEBuilder::ReadXMLTask() {
-   char* parent[maxNumberOfTasks];
-   char* tmp;
+   ROMEString parent[maxNumberOfTasks];
+   ROMEString tmp;
    char* name;
    int type,i,j,isub=0;
    int empty,depth=0,index[20];
@@ -718,36 +710,32 @@ bool ROMEBuilder::ReadXMLTask() {
          numOfHistos[numOfTask] = 0;
          numOfTaskInclude[numOfTask] = 0;
          taskSteerDepth[numOfTask][0] = 0;
-         taskAuthor[numOfTask] = new char[strlen(mainAuthor)+1];
-         strcpy(taskAuthor[numOfTask],mainAuthor);
-         taskVersion[numOfTask] = new char[2];
-         strcpy(taskVersion[numOfTask],"1");
-         taskDescription[numOfTask] = new char[1];
-         strcpy(taskDescription[numOfTask],"");
+         taskAuthor[numOfTask] = mainAuthor;
+         taskVersion[numOfTask] = "1";
+         taskDescription[numOfTask] = "";
 
          taskSteerName[numOfTask][0] = "Steering";
          taskSteerParent[numOfTask][0] = "";
          taskParentName[numOfTask] = parent[isub];
 
          // task name
-         taskName[numOfTask] = xml->GetAttribute("Name",NULL);
-         if (taskName[numOfTask]==NULL) {
+         xml->GetAttribute("Name",taskName[numOfTask],"");
+         if (taskName[numOfTask]=="") {
             cout << "Task " << (numOfTask+1) << " has no name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // trigger id
-         taskEventID[numOfTask] = xml->GetAttribute("EventID","all");
+         xml->GetAttribute("EventID",taskEventID[numOfTask],"all");
          // language
          taskFortran[numOfTask] = false;
-         tmp = xml->GetAttribute("Language","c++");
-         if (!strcmp(tmp,"Fortran")) 
+         xml->GetAttribute("Language",tmp,"c++");
+         if (tmp == "Fortran") 
             taskFortran[numOfTask] = true;
-         delete [] tmp;
 
          // output
          if (makeOutput) for (i=0;i<isub+1;i++) cout << "   ";
-         if (makeOutput) cout << taskName[numOfTask] << endl;
+         if (makeOutput) taskName[numOfTask].WriteLine();
 
          // handle subtask
          if (!empty) {
@@ -761,18 +749,15 @@ bool ROMEBuilder::ReadXMLTask() {
       if (type == 1) {
          // author
          if (!strcmp((const char*)name,"Author")) {
-            delete [] taskAuthor[numOfTask];
-            taskAuthor[numOfTask] = xml->GetAttribute("Name",mainAuthor);
+            xml->GetAttribute("Name",taskAuthor[numOfTask],mainAuthor);
          }
          // version
          else if (!strcmp((const char*)name,"Version")) {
-            delete [] taskVersion[numOfTask];
-            taskVersion[numOfTask] = xml->GetAttribute("Number","1");
+            xml->GetAttribute("Number",taskVersion[numOfTask],"1");
          }
          // description
          else if (!strcmp((const char*)name,"Description")) {
-            delete [] taskDescription[numOfTask];
-            taskDescription[numOfTask] = xml->GetAttribute("Text","");
+            xml->GetAttribute("Text",taskDescription[numOfTask],"");
          }
          // includes
          else if (!strcmp((const char*)name,"Include")) {
@@ -782,13 +767,12 @@ bool ROMEBuilder::ReadXMLTask() {
                if (type == 1) {
                   taskInclude[numOfTask][numOfTaskInclude[numOfTask]] = (char*)name;
                   taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = false;
-                  tmp = xml->GetAttribute("Type","global");
-                  if (strcmp(tmp,"local")) 
+                  xml->GetAttribute("Type",tmp,"global");
+                  if (tmp=="local") 
                      taskLocalFlag[numOfTask][numOfTaskInclude[numOfTask]] = true;
-                  delete [] tmp;
                   numOfTaskInclude[numOfTask]++;
                   if (numOfTaskInclude[numOfTask]>=maxNumberOfInclude) {
-                     cout << "Maximal number of inludes in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfInclude << " !" << endl;
+                     cout << "Maximal number of inludes in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -807,7 +791,7 @@ bool ROMEBuilder::ReadXMLTask() {
                if (type == 1 && !empty) {
                   numOfTaskSteering[numOfTask]++;
                   if (numOfTaskSteering[numOfTask]>=maxNumberOfSteering) {
-                     cout << "Maximal number of steering parameter classes in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfSteering << " !" << endl;
+                     cout << "Maximal number of steering parameter classes in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfSteering << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -822,38 +806,35 @@ bool ROMEBuilder::ReadXMLTask() {
                   taskSteerDepth[numOfTask][index[depth]] = depth;
                   // output
                   if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
-                  if (makeOutput) cout << taskSteerName[numOfTask][index[depth]] << endl;
+                  if (makeOutput) taskSteerName[numOfTask][index[depth]].WriteLine();
                }
                if (type == 1 && empty) {
                   // field name
                   taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = (char*)name;
                   // field type
-                  taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Type",NULL);
-                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]==NULL) {
-                     cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << " has no type !" << endl;
+                  xml->GetAttribute("Type",taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
+                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="") {
+                     cout << "Steering Parameter " << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].Data() << " has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field initialisation
-                  if (!strcmp(taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"TString"))
-                     taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Initialisation","' '");
+                  if (taskSteerFieldType[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]=="TString")
+                     xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"' '");
                   else
-                     taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Initialisation","0");
-                  taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
+                     xml->GetAttribute("Initialisation",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"0");
+                  xml->GetAttribute("Init",taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],taskSteerFieldInit[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]]);
                   // field comment
-                  taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = xml->GetAttribute("Comment","");
+                  xml->GetAttribute("Comment",taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"");
                   if (taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]][0]!='/') {
-                     tmp = taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]];
-                     taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] = new char[strlen(tmp)+4];
-                     sprintf(taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]],"// %s",tmp);
-                     delete [] tmp;
+                     taskSteerFieldComment[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].Insert(0,"// ");
                   }
                   // output
                   if (makeOutput) for (i=0;i<depth+2;i++) cout << "   ";
-                  if (makeOutput) cout << taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]] << endl;
+                  if (makeOutput) taskSteerFieldName[numOfTask][index[depth]][numOfTaskSteerFields[numOfTask][index[depth]]].WriteLine();
                   numOfTaskSteerFields[numOfTask][index[depth]]++;
                   if (numOfTaskSteerFields[numOfTask][index[depth]]>=maxNumberOfSteeringField) {
-                     cout << "Maximal number of fields in steering parameter class '" << taskSteerName[numOfTask][index[depth]] << "' in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfSteeringField << " !" << endl;
+                     cout << "Maximal number of fields in steering parameter class '" << taskSteerName[numOfTask][index[depth]].Data() << "' in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -875,103 +856,103 @@ bool ROMEBuilder::ReadXMLTask() {
                   // histo name
                   histoName[numOfTask][numOfHistos[numOfTask]] = (char*)name;
                   // histo type
-                  histoType[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Type",NULL);
-                  if (histoType[numOfTask][numOfHistos[numOfTask]]==NULL) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no type defined !" << endl;
+                  xml->GetAttribute("Type",histoType[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoType[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo array size
-                  histoArray[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ArraySize","1");
+                  xml->GetAttribute("ArraySize",histoArray[numOfTask][numOfHistos[numOfTask]],"1");
                   // histo title
-                  histoTitle[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Title","");
+                  xml->GetAttribute("Title",histoTitle[numOfTask][numOfHistos[numOfTask]],"");
                   // histo folder name
-                  histoFolderName[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("Type",NULL);
-                  if (histoFolderName[numOfTask][numOfHistos[numOfTask]]==NULL) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Folder Name defined !" << endl;
+                  xml->GetAttribute("Type",histoFolderName[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoFolderName[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Folder Name defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo folder title
-                  histoFolderTitle[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("FolderTitle","");
+                  xml->GetAttribute("FolderTitle",histoFolderTitle[numOfTask][numOfHistos[numOfTask]],"");
                   // histo xbins
-                  histoXBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsX",NULL);
-                  if (histoXBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of X bins defined !" << endl;
+                  xml->GetAttribute("NumberOfBinsX",histoXBin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoXBin[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of X bins defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo xmin
-                  histoXMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("XMin",NULL);
-                  if (histoXMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X minimum defined !" << endl;
+                  xml->GetAttribute("XMin",histoXMin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoXMin[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no X minimum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo xmax
-                  histoXMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("XMax",NULL);
-                  if (histoXMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
-                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no X maximum defined !" << endl;
+                  xml->GetAttribute("XMax",histoXMax[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoXMax[numOfTask][numOfHistos[numOfTask]]=="") {
+                     cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no X maximum defined !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // histo ybins
-                  histoYBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsY",NULL);
-                  if (histoYBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("NumberOfBinsY",histoYBin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoYBin[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Y bins defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of Y bins defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   // histo ymin
-                  histoYMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("YMin",NULL);
-                  if (histoYMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("YMin",histoYMin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoYMin[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y minimum defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Y minimum defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   // histo ymax
-                  histoYMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("YMax",NULL);
-                  if (histoYMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("YMax",histoYMax[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoYMax[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=50) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Y maximum defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Y maximum defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   // histo zbins
-                  histoZBin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("NumberOfBinsZ",NULL);
-                  if (histoZBin[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("NumberOfBinsZ",histoZBin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoZBin[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no number of Z bins defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no number of Z bins defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   // histo zmin
-                  histoZMin[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ZMin",NULL);
-                  if (histoZMin[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("ZMin",histoZMin[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoZMin[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z minimum defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Z minimum defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   // histo zmax
-                  histoZMax[numOfTask][numOfHistos[numOfTask]] = xml->GetAttribute("ZMax",NULL);
-                  if (histoZMax[numOfTask][numOfHistos[numOfTask]]==NULL) {
+                  xml->GetAttribute("ZMax",histoZMax[numOfTask][numOfHistos[numOfTask]],"");
+                  if (histoZMax[numOfTask][numOfHistos[numOfTask]]=="") {
                      if (histoType[numOfTask][numOfHistos[numOfTask]][2]>=51) {
-                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]] << "' of Task '" << taskName[numOfTask] << "' has no Z maximum defined !" << endl;
+                        cout << "Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no Z maximum defined !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
                   }
                   numOfHistos[numOfTask]++;
                   if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
-                     cout << "Maximal number of histos in task '" << taskName[numOfTask] << "' reached : " << maxNumberOfHistos << " !" << endl;
+                     cout << "Maximal number of histos in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfHistos << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -979,8 +960,8 @@ bool ROMEBuilder::ReadXMLTask() {
                if (type == 15 && !strcmp((const char*)name,"Histos")) {
                   for (i=0;i<numOfHistos[numOfTask];i++) {
                      for (j=i+1;j<numOfHistos[numOfTask];j++) {
-                        if (!strcmp(histoName[numOfTask][i],histoName[numOfTask][j])) {
-                           cout << "\nTask '" << taskName[numOfTask] << "' has two histos with the name '" << histoName[numOfTask][i] << "' !" << endl;
+                        if (histoName[numOfTask][i]==histoName[numOfTask][j]) {
+                           cout << "\nTask '" << taskName[numOfTask].Data() << "' has two histos with the name '" << histoName[numOfTask][i].Data() << "' !" << endl;
                            cout << "Terminating program." << endl;
                            return false;
                         }
@@ -994,8 +975,8 @@ bool ROMEBuilder::ReadXMLTask() {
       if (type == 15 && !strcmp((const char*)name,"Task")) {
          for (i=0;i<numOfTask;i++) {
             for (j=i+1;j<numOfTask;j++) {
-               if (!strcmp(taskName[i],taskName[j])) {
-                  cout << "\nTask '" << taskName[i] << "' is defined twice !" << endl;
+               if (taskName[i] == taskName[j]) {
+                  cout << "\nTask '" << taskName[i].Data() << "' is defined twice !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
@@ -1007,191 +988,174 @@ bool ROMEBuilder::ReadXMLTask() {
    numOfTask++;
    return true;
 }
-bool ROMEBuilder::WriteTaskSteeringClass(char *buffer,int numSteer,int numTask) {
-   char format[100];
-   char sc[20];
-   char blank[200];
+bool ROMEBuilder::WriteTaskSteeringClass(ROMEString &buffer,int numSteer,int numTask) {
+   ROMEString format;
+   ROMEString sc;
+   ROMEString blank;
    int j,i;
    int typeLen = -1;
    int nameLen = -1;
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      if (typeLen<(int)strlen(taskSteerFieldType[numTask][numSteer][i])) typeLen = strlen(taskSteerFieldType[numTask][numSteer][i]);
-      if (nameLen<(int)strlen(taskSteerFieldName[numTask][numSteer][i])) nameLen = strlen(taskSteerFieldName[numTask][numSteer][i]);
+      if (typeLen<(int)taskSteerFieldType[numTask][numSteer][i].Length()) typeLen = taskSteerFieldType[numTask][numSteer][i].Length();
+      if (nameLen<(int)taskSteerFieldName[numTask][numSteer][i].Length()) nameLen = taskSteerFieldName[numTask][numSteer][i].Length();
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
-         if (typeLen<(int)strlen(taskSteerName[numTask][i])+1) typeLen = strlen(taskSteerName[numTask][i])+1;
-         if (nameLen<(int)strlen(taskSteerName[numTask][i])) nameLen = strlen(taskSteerName[numTask][i]);
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
+         if (typeLen<(int)taskSteerName[numTask][i].Length()+1) typeLen = taskSteerName[numTask][i].Length()+1;
+         if (nameLen<(int)taskSteerName[numTask][i].Length()) nameLen = taskSteerName[numTask][i].Length();
       }
    }
-   strcpy(sc,"");
+   sc = "";
 
-   sprintf(blank,"");   
+   blank = "";
    for (i=0;i<taskSteerDepth[numTask][numSteer]+1;i++) {
-      sprintf(blank+strlen(blank),"   ");   
+      blank.Append("   ");   
    }
 
-   sprintf(buffer+strlen(buffer),"\n%sclass %s%s\n",blank,sc,taskSteerName[numTask][numSteer]);
-   sprintf(buffer+strlen(buffer),"%s{\n",blank);
+   buffer.AppendFormated("\n%sclass %s%s\n",blank.Data(),sc.Data(),taskSteerName[numTask][numSteer].Data());
+   buffer.AppendFormated("%s{\n",blank.Data());
 
-   sprintf(buffer+strlen(buffer),"%sprivate:\n",blank);
+   buffer.AppendFormated("%sprivate:\n",blank.Data());
 
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
          WriteTaskSteeringClass(buffer,i,numTask);
       }
    }
 
-   sprintf(buffer+strlen(buffer),"%sprotected:\n",blank);
+   buffer.AppendFormated("%sprotected:\n",blank.Data());
 
    // Fields
    for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      sprintf(format,"%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldComment[numTask][numSteer][j]);
+      format.SetFormated("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldComment[numTask][numSteer][j].Data());
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
-         sprintf(format,"%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-strlen(taskSteerName[numTask][i]));
-         sprintf(buffer+strlen(buffer),format,blank,taskSteerName[numTask][i],taskSteerName[numTask][i],"",taskSteerName[numTask][i]);
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
+         format.SetFormated("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-taskSteerName[numTask][i].Length());
+         buffer.AppendFormated((char*)format.Data(),blank.Data(),taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data(),"",taskSteerName[numTask][i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"\n%spublic:\n",blank);
+   buffer.AppendFormated("\n%spublic:\n",blank.Data());
    // Constructor
-   sprintf(buffer+strlen(buffer),"%s   %s%s() { ",blank,sc,taskSteerName[numTask][numSteer]);
+   buffer.AppendFormated("%s   %s%s() { ",blank.Data(),sc.Data(),taskSteerName[numTask][numSteer].Data());
    for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      sprintf(buffer+strlen(buffer),"f%s = %s; ",taskSteerFieldName[numTask][numSteer][j],taskSteerFieldInit[numTask][numSteer][j]);
+      buffer.AppendFormated("f%s = %s; ",taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldInit[numTask][numSteer][j].Data());
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
-         sprintf(buffer+strlen(buffer),"f%s = new %s(); ",taskSteerName[numTask][i],taskSteerName[numTask][i]);
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
+         buffer.AppendFormated("f%s = new %s(); ",taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"};\n");
+   buffer.AppendFormated("};\n");
    // Getters
    for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      sprintf(format,"%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldName[numTask][numSteer][j]);
+      format.SetFormated("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldName[numTask][numSteer][j].Data());
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
-         sprintf(format,"%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-strlen(taskSteerName[numTask][i]));
-         sprintf(buffer+strlen(buffer),format,blank,taskSteerName[numTask][i],taskSteerName[numTask][i],"",taskSteerName[numTask][i]);
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
+         format.SetFormated("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-taskSteerName[numTask][i].Length());
+         buffer.AppendFormated((char*)format.Data(),blank.Data(),taskSteerName[numTask][i].Data(),taskSteerName[numTask][i].Data(),"",taskSteerName[numTask][i].Data());
       }
    }
    // Setters
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
    for (j=0;j<numOfTaskSteerFields[numTask][numSteer];j++) {
-      sprintf(format,"%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-strlen(taskSteerFieldName[numTask][numSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,taskSteerFieldName[numTask][numSteer][j],taskSteerFieldType[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j],"",taskSteerFieldName[numTask][numSteer][j],taskSteerFieldName[numTask][numSteer][j]);
+      format.SetFormated("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-taskSteerFieldName[numTask][numSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldType[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data(),"",taskSteerFieldName[numTask][numSteer][j].Data(),taskSteerFieldName[numTask][numSteer][j].Data());
    }
 
    // Footer
-   sprintf(buffer+strlen(buffer),"%s};\n\n",blank);
+   buffer.AppendFormated("%s};\n\n",blank.Data());
 
    return true;
 }
-void ROMEBuilder::WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask) {
+void ROMEBuilder::WriteTaskSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask) {
    int i,j;
-   char* tmp;
-   char* getter;
+   ROMEString tmp;
+   ROMEString getter;
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"SteeringParameters\");\n");
+      buffer.AppendFormated("   xml->StartElement(\"SteeringParameters\");\n");
    else
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskSteerName[numTask][numSteer]);
+      buffer.AppendFormated("   xml->StartElement(\"%s\");\n",taskSteerName[numTask][numSteer].Data());
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      getter = new char[strlen(taskSteerFieldName[numTask][numSteer][i])+8];
-      sprintf(getter,"->Get%s()",taskSteerFieldName[numTask][numSteer][i]);
+      getter.SetFormated("->Get%s()",taskSteerFieldName[numTask][numSteer][i].Data());
       int ind = numSteer;
-      while (strcmp(taskSteerParent[numTask][ind],"")) {
+      while (taskSteerParent[numTask][ind]!="") {
          for (j=0;j<numOfTaskSteering[numTask];j++) {
-            if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
-               tmp = getter;
-               getter = new char[strlen(tmp)+strlen(taskSteerName[numTask][ind])+8];
-               sprintf(getter,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
-               delete [] tmp;
+            if (taskSteerParent[numTask][ind]==taskSteerName[numTask][j]) {
+               getter.InsertFormated(0,"->Get%s()",taskSteerName[numTask][ind]);
                ind = j;
                break;
             }
          }
       }
-      tmp = getter;
-      getter = new char[strlen(shortCut)+strlen(tmp)+2*strlen(taskName[numTask])+20];
-      sprintf(getter,"((%sT%s*)%sTask)->GetSP()%s",shortCut,taskName[numTask],taskName[numTask],tmp);
-      delete [] tmp;
-      tmp = new char[5];
-      GetFormat(tmp,taskSteerFieldType[numTask][numSteer][i]);
-      sprintf(buffer+strlen(buffer),"   sprintf(value,\"%s\",%s);\n",tmp,getter);
-      sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"%s\",value);\n",taskSteerFieldName[numTask][numSteer][i]);
-      delete [] getter;
-      delete [] tmp;
+      getter.InsertFormated(0,"((%sT%s*)%sTask)->GetSP()",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data());
+      GetFormat(&tmp,(char*)taskSteerFieldType[numTask][numSteer][i].Data());
+      buffer.AppendFormated("   value.SetFormated(\"%s\",%s);\n",tmp.Data(),getter.Data());
+      buffer.AppendFormated("   xml->WriteElement(\"%s\",value.Data());\n",taskSteerFieldName[numTask][numSteer][i].Data());
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
          WriteTaskSteerConfigWrite(buffer,i,numTask);
       }
    }
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
 }
-void ROMEBuilder::WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask) {
-   char* tmp=NULL;
-   char value[100];
-   char* path=NULL;
-   char* setter=NULL;
+void ROMEBuilder::WriteTaskSteerConfigRead(ROMEString& buffer,int numSteer,int numTask) {
+   ROMEString tmp;
+   ROMEString value;
+   ROMEString path;
+   ROMEString setter;
    int i,j;
-   char blank[200];
-   strcpy(blank,"      ");
+   ROMEString blank;
+   blank = "      ";
 
-   path = new char[1];
-   strcpy(path,"");
+   path = "";
    int ind = numSteer;
-   while (strcmp(taskSteerParent[numTask][ind],"")) {
+   while (taskSteerParent[numTask][ind]!="") {
       for (j=0;j<numOfTaskSteering[numTask];j++) {
-         if (!strcmp(taskSteerParent[numTask][ind],taskSteerName[numTask][j])) {
-            tmp = path;
-            path = new char[strlen(taskSteerName[numTask][ind])+strlen(tmp)+8];
-            sprintf(path,"->Get%s()%s",taskSteerName[numTask][ind],tmp);
-            delete [] tmp;
+         if (taskSteerParent[numTask][ind]==taskSteerName[numTask][j]) {
+            path.InsertFormated(0,"->Get%s()",taskSteerName[numTask][ind]);
             ind = j;
-            strcat(blank,"      ");
+            blank.Append("      ");
             break;
          }
       }
    }
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"%s               if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank,taskSteerName[numTask][numSteer]);
+      buffer.AppendFormated("%s               if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
    else
-      sprintf(buffer+strlen(buffer),"%s               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerName[numTask][numSteer]);
+      buffer.AppendFormated("%s               if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
 
-   sprintf(buffer+strlen(buffer),"%s                  while (xml->NextLine()) {\n",blank);
-   sprintf(buffer+strlen(buffer),"%s                     type = xml->GetType();\n",blank);
-   sprintf(buffer+strlen(buffer),"%s                     name = xml->GetName();\n",blank);
+   buffer.AppendFormated("%s                  while (xml->NextLine()) {\n",blank.Data());
+   buffer.AppendFormated("%s                     type = xml->GetType();\n",blank.Data());
+   buffer.AppendFormated("%s                     name = xml->GetName();\n",blank.Data());
    for (i=0;i<numOfTaskSteerFields[numTask][numSteer];i++) {
-      setValue(value,"","tmp",taskSteerFieldType[numTask][numSteer][i],1);
-      setter = new char[30+strlen(shortCut)+2*strlen(taskName[numTask])+strlen(path)+strlen(taskSteerFieldName[numTask][numSteer][i])+strlen(taskSteerFieldType[numTask][numSteer][i])+strlen(value)];
-      sprintf(setter,"((%sT%s*)%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut,taskName[numTask],taskName[numTask],path,taskSteerFieldName[numTask][numSteer][i],taskSteerFieldType[numTask][numSteer][i],value);
-      sprintf(buffer+strlen(buffer),"%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,taskSteerFieldName[numTask][numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s                        if (xml->GetValue(tmp,sizeof(value))) \n",blank);
-      sprintf(buffer+strlen(buffer),"%s                           %s;\n",blank,setter);
-      sprintf(buffer+strlen(buffer),"%s                     }\n",blank);
-      delete [] setter;
+      setValue(&value,"","tmp",(char*)taskSteerFieldType[numTask][numSteer][i].Data(),1);
+      setter.SetFormated("((%sT%s*)%sTask)->GetSP()%s->Set%s((%s)%s)",shortCut.Data(),taskName[numTask].Data(),taskName[numTask].Data(),path.Data(),taskSteerFieldName[numTask][numSteer][i].Data(),taskSteerFieldType[numTask][numSteer][i].Data(),value.Data());
+      buffer.AppendFormated("%s                     if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),taskSteerFieldName[numTask][numSteer][i].Data());
+      buffer.AppendFormated("%s                        if (xml->GetValue(tmp,sizeof(value))) \n",blank.Data());
+      buffer.AppendFormated("%s                           %s;\n",blank.Data(),setter.Data());
+      buffer.AppendFormated("%s                     }\n",blank.Data());
    }
    for (i=0;i<numOfTaskSteering[numTask];i++) {
-      if (!strcmp(taskSteerParent[numTask][i],taskSteerName[numTask][numSteer])) {
+      if (taskSteerParent[numTask][i]==taskSteerName[numTask][numSteer]) {
          WriteTaskSteerConfigRead(buffer,i,numTask);
       }
    }
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"%s                     if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank,taskSteerName[numTask][numSteer]);
+      buffer.AppendFormated("%s                     if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
    else
-      sprintf(buffer+strlen(buffer),"%s                     if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank,taskSteerName[numTask][numSteer]);
-   sprintf(buffer+strlen(buffer),"%s                        break;\n",blank);
-   sprintf(buffer+strlen(buffer),"%s                  }\n",blank);
-   sprintf(buffer+strlen(buffer),"%s               }\n",blank);
-   delete [] path;
+      buffer.AppendFormated("%s                     if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),taskSteerName[numTask][numSteer].Data());
+   buffer.AppendFormated("%s                        break;\n",blank.Data());
+   buffer.AppendFormated("%s                  }\n",blank.Data());
+   buffer.AppendFormated("%s               }\n",blank.Data());
 }
 bool ROMEBuilder::WriteTaskCpp() {
-   char* cppFile=NULL;
-   char buffer[bufferLength];
+   ROMEString cppFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
    int lenTot,ll,i;
@@ -1199,85 +1163,77 @@ bool ROMEBuilder::WriteTaskCpp() {
    int bufferLen=0;
    char *pos;
    int fileHandle;
-   char format[100];
+   ROMEString format;
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       // File name
-      delete [] cppFile;
-      cppFile = new char[18+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
-      sprintf(cppFile,"%s/src/tasks/%sT%s.cpp",outDir,shortCut,taskName[iTask]);
+      cppFile.SetFormated("%s/src/tasks/%sT%s.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
       // Description
-      sprintf(buffer,"//// Author: %s\n",taskAuthor[iTask]);
-      sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      ll = 73-strlen(shortCut);
-      sprintf(format,"// %%sT%%-%d.%ds //\n",ll,ll);
-      sprintf(buffer+strlen(buffer),format,shortCut,taskName[iTask]);
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      pos = taskDescription[iTask];
-      lenTot = strlen(taskDescription[iTask]);
-      while (pos-taskDescription[iTask] < lenTot) {
-         if (lenTot+(taskDescription[iTask]-pos)<74) i=75;
+      buffer.Resize(0);
+      buffer.AppendFormated("//// Author: %s\n",taskAuthor[iTask].Data());
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      ll = 73-shortCut.Length();
+      format.SetFormated("// %%sT%%-%d.%ds //\n",ll,ll);
+      buffer.AppendFormated((char*)format.Data(),shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormated("//                                                                            //\n");
+      pos = (char*)taskDescription[iTask].Data();
+      lenTot = taskDescription[iTask].Length();
+      while (pos-taskDescription[iTask].Data() < lenTot) {
+         if (lenTot+(taskDescription[iTask].Data()-pos)<74) i=75;
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0) i=75;
          pos[i] = 0;
-         sprintf(buffer+strlen(buffer),"// %-74.74s   \n",pos);
+         buffer.AppendFormated("// %-74.74s   \n",pos);
          pos = pos+i+1;
       }
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This task contains the following histgrams :\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// This task contains the following histgrams :\n");
       for (i=0;i<numOfHistos[iTask];i++) {
-         sprintf(buffer+strlen(buffer),"// %s\n",histoName[iTask][i]);
+         buffer.AppendFormated("// %s\n",histoName[iTask][i].Data());
       }
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// The histograms are created and saved automaticaly by the task.\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// The following methods can be used to fill the histogram and to set the\n");
-      sprintf(buffer+strlen(buffer),"// right name,title and binwidth of the histogram :\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// Fill<Histogram Name>(double value,double weight)\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// For histogram arrays use :\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// Fill<Histogram Name>At(int index,double value,double weight)\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// If more histogram functions are needed use the following function the get\n");
-      sprintf(buffer+strlen(buffer),"// a handle to the histogram and use the root functions.\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// Get<Histogram Name>Handle()\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// For histogram arrays use :\n");
-      sprintf(buffer+strlen(buffer),"//\n");
-      sprintf(buffer+strlen(buffer),"// Get<Histogram Name>HandleAt(int index)\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"/////////////////////////////////////----///////////////////////////////////////");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// The histograms are created and saved automaticaly by the task.\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// The following methods can be used to fill the histogram and to set the\n");
+      buffer.AppendFormated("// right name,title and binwidth of the histogram :\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// Fill<Histogram Name>(double value,double weight)\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// For histogram arrays use :\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// Fill<Histogram Name>At(int index,double value,double weight)\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// If more histogram functions are needed use the following function the get\n");
+      buffer.AppendFormated("// a handle to the histogram and use the root functions.\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// Get<Histogram Name>Handle()\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// For histogram arrays use :\n");
+      buffer.AppendFormated("//\n");
+      buffer.AppendFormated("// Get<Histogram Name>HandleAt(int index)\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("/////////////////////////////////////----///////////////////////////////////////");
 
       // Write file
-      char shortcut[10];
-      for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
-      shortcut[i] = 0;
-      char taskname[20];
-      for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
-      taskname[i] = 0;
-
       bool replaceHeader = true;
       bool replaceBody = true;
       struct stat buf;
       int nb=0;
-      if( !stat( cppFile, &buf )) {
+      if( !stat( cppFile.Data(), &buf )) {
          replaceBody = false;
-         fileHandle = open(cppFile,O_RDONLY);
+         fileHandle = open(cppFile.Data(),O_RDONLY);
          nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
          pBuffer = fileBuffer;
          char *pend = "/////////////////////////////////////----///////////////////////////////////////";
          pBuffer = strstr(pBuffer,pend);
          if (pBuffer==NULL) {
-            if (makeOutput) cout << "\n\nError : File '" << cppFile << "' has an invalid header !!!" << endl;
+            if (makeOutput) cout << "\n\nError : File '" << cppFile.Data() << "' has an invalid header !!!" << endl;
             replaceHeader = false;
          }
          bufferLen = nb-(pBuffer-fileBuffer);
@@ -1293,59 +1249,65 @@ bool ROMEBuilder::WriteTaskCpp() {
          }
       }
       if (replaceHeader || replaceBody) {
-         fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+         fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
-         fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-         if (makeOutput) cout << "      " << cppFile << endl;
+         fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << cppFile.Data() << endl;
 
 // Description
 //-------------
          if (replaceHeader) {
-            nb = write(fileHandle,&buffer, strlen(buffer));
+            nb = write(fileHandle,buffer.Data(), buffer.Length());
          }
 // Header Files
 //--------------
 
          if (replaceBody) {
-            sprintf(buffer,"\n\n#include <include/tasks/%sT%s.h>\n",shortCut,taskName[iTask]);
-            sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
+            buffer.Resize(0);
+            buffer.AppendFormated("\n\n#include <include/tasks/%sT%s.h>\n",shortCut.Data(),taskName[iTask].Data());
+            buffer.AppendFormated("#include <Riostream.h>\n");
 
-            sprintf(buffer+strlen(buffer),"\nClassImp(%sT%s)\n\n",shortCut,taskName[iTask]);
+            buffer.AppendFormated("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
 
 // User Functions
 //----------------
+            ROMEString shortcut(shortCut);
+            shortcut.ToLower();
+            ROMEString taskname(taskName[iTask]);
+            taskname.ToLower();
+
 
             if (taskFortran[iTask]) {
-               sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sinit_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"void %sT%s::Init()\n{\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"   %sT%s_Init_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"}\n\n");
-               sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sbeginofrun_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"void %sT%s::BeginOfRun()\n{\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"   %sT%s_BeginOfRun_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"}\n\n");
-               sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sevent_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"void %sT%s::Event()\n{\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"   %sT%s_Event_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"}\n\n");
-               sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sendofrun_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"void %sT%s::EndOfRun()\n{\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"   %sT%s_EndOfRun_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"}\n\n");
-               sprintf(buffer+strlen(buffer),"extern \"C\" void %st%sterminate_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"void %sT%s::Terminate()\n{\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"   %sT%s_Terminate_();\n",shortcut,taskname);
-               sprintf(buffer+strlen(buffer),"}\n\n");
+               buffer.AppendFormated("extern \"C\" void %st%sinit_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("void %sT%s::Init()\n{\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("   %sT%s_Init_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("}\n\n");
+               buffer.AppendFormated("extern \"C\" void %st%sbeginofrun_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("void %sT%s::BeginOfRun()\n{\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("   %sT%s_BeginOfRun_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("}\n\n");
+               buffer.AppendFormated("extern \"C\" void %st%sevent_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("void %sT%s::Event()\n{\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("   %sT%s_Event_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("}\n\n");
+               buffer.AppendFormated("extern \"C\" void %st%sendofrun_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("void %sT%s::EndOfRun()\n{\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("   %sT%s_EndOfRun_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("}\n\n");
+               buffer.AppendFormated("extern \"C\" void %st%sterminate_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("void %sT%s::Terminate()\n{\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("   %sT%s_Terminate_();\n",shortcut.Data(),taskname.Data());
+               buffer.AppendFormated("}\n\n");
             }
             else {
-               sprintf(buffer+strlen(buffer),"void %sT%s::Init()\n{\n}\n\n",shortCut,taskName[iTask]);
-               sprintf(buffer+strlen(buffer),"void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut,taskName[iTask]);
-               sprintf(buffer+strlen(buffer),"void %sT%s::Event()\n{\n}\n\n",shortCut,taskName[iTask]);
-               sprintf(buffer+strlen(buffer),"void %sT%s::EndOfRun()\n{\n}\n\n",shortCut,taskName[iTask]);
-               sprintf(buffer+strlen(buffer),"void %sT%s::Terminate()\n{\n}\n\n",shortCut,taskName[iTask]);
+               buffer.AppendFormated("void %sT%s::Init()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+               buffer.AppendFormated("void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+               buffer.AppendFormated("void %sT%s::Event()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+               buffer.AppendFormated("void %sT%s::EndOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+               buffer.AppendFormated("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
             }
 
-            nb = write(fileHandle,&buffer, strlen(buffer));
+            nb = write(fileHandle,buffer.Data(), buffer.Length());
 
 // Close cpp-File
 //----------------
@@ -1356,13 +1318,12 @@ bool ROMEBuilder::WriteTaskCpp() {
          close(fileHandle);
       }
    }
-   delete [] cppFile;
    return true;
 }
 
 bool ROMEBuilder::WriteTaskF() {
-   char* fFile=NULL;
-   char buffer[bufferLength];
+   ROMEString fFile;
+   ROMEString buffer;
 
    int nb,i;
    int fileHandle;
@@ -1372,49 +1333,47 @@ bool ROMEBuilder::WriteTaskF() {
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (taskFortran[iTask]) {
          // File name
-         delete [] fFile;
-         fFile = new char[16+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
-         sprintf(fFile,"%s/src/tasks/%sT%s.f",outDir,shortCut,taskName[iTask]);
+         fFile.SetFormated("%s/src/tasks/%sT%s.f",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
-         char shortcut[10];
-         for (i=0;i<(int)strlen(shortCut);i++) shortcut[i] = (char)tolower(shortCut[i]);
-         shortcut[i] = 0;
-         char taskname[20];
-         for (i=0;i<(int)strlen(taskName[iTask]);i++) taskname[i] = (char)tolower(taskName[iTask][i]);
-         taskname[i] = 0;
-         if( !stat( fFile, &buf )) {
-            fileHandle = open(fFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-            if (makeOutput) cout << "      " << fFile << endl;
+         ROMEString shortcut(shortCut);
+         shortcut.ToLower();
+         ROMEString taskname(taskName[iTask]);
+         taskname.ToLower();
+
+         if( !stat( fFile.Data(), &buf )) {
+            fileHandle = open(fFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+            if (makeOutput) cout << "      " << fFile.Data() << endl;
 
             // Methods
-            sprintf(buffer,               "      subroutine %st%sinit()\n\n",shortcut,taskname);
-            sprintf(buffer+strlen(buffer),"      return\n");
-            sprintf(buffer+strlen(buffer),"      end\n\n");
-            sprintf(buffer+strlen(buffer),"      subroutine %st%sbeginofrun()\n\n",shortcut,taskname);
-            sprintf(buffer+strlen(buffer),"      return\n");
-            sprintf(buffer+strlen(buffer),"      end\n\n");
-            sprintf(buffer+strlen(buffer),"      subroutine %st%sevent()\n\n",shortcut,taskname);
-            sprintf(buffer+strlen(buffer),"      return\n");
-            sprintf(buffer+strlen(buffer),"      end\n\n");
-            sprintf(buffer+strlen(buffer),"      subroutine %st%sendofrun()\n\n",shortcut,taskname);
-            sprintf(buffer+strlen(buffer),"      return\n");
-            sprintf(buffer+strlen(buffer),"      end\n\n");
-            sprintf(buffer+strlen(buffer),"      subroutine %st%sterminate()\n\n",shortcut,taskname);
-            sprintf(buffer+strlen(buffer),"      return\n");
-            sprintf(buffer+strlen(buffer),"      end\n\n");
+            buffer.Resize(0);
+            buffer.AppendFormated("      subroutine %st%sinit()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormated("      return\n");
+            buffer.AppendFormated("      end\n\n");
+            buffer.AppendFormated("      subroutine %st%sbeginofrun()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormated("      return\n");
+            buffer.AppendFormated("      end\n\n");
+            buffer.AppendFormated("      subroutine %st%sevent()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormated("      return\n");
+            buffer.AppendFormated("      end\n\n");
+            buffer.AppendFormated("      subroutine %st%sendofrun()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormated("      return\n");
+            buffer.AppendFormated("      end\n\n");
+            buffer.AppendFormated("      subroutine %st%sterminate()\n\n",shortcut.Data(),taskname.Data());
+            buffer.AppendFormated("      return\n");
+            buffer.AppendFormated("      end\n\n");
 
-            nb = write(fileHandle,&buffer, strlen(buffer));
+            nb = write(fileHandle,buffer.Data(), buffer.Length());
             close(fileHandle);
          }
       }
    }
-   delete [] fFile;
    return true;
 }
 bool ROMEBuilder::WriteTaskH() {
-   char* hFile=NULL;
-   char buffer[bufferLength];
+   ROMEString hFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
+   ROMEString format;
 
    int i;
    int fileHandle;
@@ -1422,234 +1381,240 @@ bool ROMEBuilder::WriteTaskH() {
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       // File name
-      delete [] hFile;
-      hFile = new char[20+strlen(outDir)+strlen(shortCut)+strlen(taskName[iTask])];
-      sprintf(hFile,"%s/include/tasks/%sT%s.h",outDir,shortCut,taskName[iTask]);
+      hFile.SetFormated("%s/include/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
       // Description
-      sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.               //\n");
-      sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-      sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-      sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+      buffer.Resize(0);
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+      buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+      buffer.AppendFormated("//                                                                            //\n");
+      buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
       // Header
-      sprintf(buffer+strlen(buffer),"#ifndef %sT%s_H\n",shortCut,taskName[iTask]);
-      sprintf(buffer+strlen(buffer),"#define %sT%s_H\n\n",shortCut,taskName[iTask]);
+      buffer.AppendFormated("#ifndef %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormated("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
 
-      sprintf(buffer+strlen(buffer),"#include<TH1.h>\n");
-      sprintf(buffer+strlen(buffer),"#include<TH2.h>\n");
-      sprintf(buffer+strlen(buffer),"#include<TH3.h>\n");
-      sprintf(buffer+strlen(buffer),"#include<ROMETask.h>\n");
+      buffer.AppendFormated("#include<TH1.h>\n");
+      buffer.AppendFormated("#include<TH2.h>\n");
+      buffer.AppendFormated("#include<TH3.h>\n");
+      buffer.AppendFormated("#include<ROMETask.h>\n");
          
       for (i=0;i<numOfTaskInclude[iTask];i++) {
          if (taskLocalFlag[iTask][i]) {
-            sprintf(buffer+strlen(buffer),"#include\"%s\"\n",taskInclude[iTask][i]);
+            buffer.AppendFormated("#include\"%s\"\n",taskInclude[iTask][i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"#include<%s>\n",taskInclude[iTask][i]);
+            buffer.AppendFormated("#include<%s>\n",taskInclude[iTask][i].Data());
          }
       }
 
-      sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
+      buffer.AppendFormated("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
 
       // Class
-      sprintf(buffer+strlen(buffer),"\nclass %sT%s : public ROMETask\n",shortCut,taskName[iTask]);
-      sprintf(buffer+strlen(buffer),"{\n");
+      buffer.AppendFormated("\nclass %sT%s : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormated("{\n");
 
       // Fields
       if (numOfTaskSteering[iTask]>0) {
-         sprintf(buffer+strlen(buffer),"private:\n");
+         buffer.AppendFormated("private:\n");
          WriteTaskSteeringClass(buffer,0,iTask);
-         sprintf(buffer+strlen(buffer),"\n");
+         buffer.AppendFormated("\n");
       }
 
-      char format[100];
-      sprintf(buffer+strlen(buffer),"protected:\n");
+      buffer.AppendFormated("protected:\n");
 
-      sprintf(buffer+strlen(buffer),"   %sAnalyzer* fAnalyzer; // Handle to %sAnalyzer class\n\n",shortCut,shortCut);
+      buffer.AppendFormated("   %sAnalyzer* fAnalyzer; // Handle to %sAnalyzer class\n\n",shortCut.Data(),shortCut.Data());
       if (numOfTaskSteering[iTask]>0) {
-         sprintf(buffer+strlen(buffer),"   Steering* fSteering; // Handle to Steering class\n\n");
+         buffer.AppendFormated("   Steering* fSteering; // Handle to Steering class\n\n");
       }
 
       int nameLen = -1;
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (nameLen<(int)strlen(histoName[iTask][i])) nameLen = strlen(histoName[iTask][i]);
+         if (nameLen<(int)histoName[iTask][i].Length()) nameLen = histoName[iTask][i].Length();
       }
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (!strcmp(histoArray[iTask][i],"1")) {
-            sprintf(format,"   %%s*      f%%s;%%%ds // %%s\n",nameLen-strlen(histoName[iTask][i])+1);
-            sprintf(buffer+strlen(buffer),format,histoType[iTask][i],histoName[iTask][i],"",histoTitle[iTask][i]);
+         if (histoArray[iTask][i]=="1") {
+            format.SetFormated("   %%s*      f%%s;%%%ds // %%s\n",nameLen-histoName[iTask][i].Length()+1);
+            buffer.AppendFormated((char*)format.Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),"",histoTitle[iTask][i].Data());
          }
          else {
-            sprintf(format,"   TObjArray* f%%ss;%%%ds // %%s\n",nameLen-strlen(histoName[iTask][i]));
-            sprintf(buffer+strlen(buffer),format,histoName[iTask][i],"",histoTitle[iTask][i]);
+            format.SetFormated("   TObjArray* f%%ss;%%%ds // %%s\n",nameLen-histoName[iTask][i].Length());
+            buffer.AppendFormated((char*)format.Data(),histoName[iTask][i].Data(),"",histoTitle[iTask][i].Data());
          }
-         sprintf(format,"   bool       f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",nameLen-strlen(histoName[iTask][i]));
-         sprintf(buffer+strlen(buffer),format,histoName[iTask][i],"",histoName[iTask][i]);
+         format.SetFormated("   bool       f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",nameLen-histoName[iTask][i].Length());
+         buffer.AppendFormated((char*)format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
       }
 
 
       // Methods
-      sprintf(buffer+strlen(buffer),"public:\n");
+      buffer.AppendFormated("public:\n");
       // Constructor and Event Methods
-      sprintf(buffer+strlen(buffer),"   // Constructor\n");
-      sprintf(buffer+strlen(buffer),"   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut,taskName[iTask],shortCut);
-      sprintf(buffer+strlen(buffer),"   { fAnalyzer = analyzer; fEventID = \"%s\"; fVersion = %s;",taskEventID[iTask],taskVersion[iTask]);
+      buffer.AppendFormated("   // Constructor\n");
+      buffer.AppendFormated("   %sT%s(const char *name,const char *title,%sAnalyzer *analyzer):ROMETask(name,title,analyzer)\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data());
+      buffer.AppendFormated("   { fAnalyzer = analyzer; fEventID = \"%s\"; fVersion = %s;",taskEventID[iTask].Data(),taskVersion[iTask].Data());
       if (numOfHistos[iTask]>0) 
-         sprintf(buffer+strlen(buffer)," fHasHistograms = true;");
+         buffer.AppendFormated(" fHasHistograms = true;");
       else
-         sprintf(buffer+strlen(buffer)," fHasHistograms = false;");
+         buffer.AppendFormated(" fHasHistograms = false;");
       for (i=0;i<numOfHistos[iTask];i++) {
-         sprintf(buffer+strlen(buffer)," f%sAccumulation = true;",histoName[iTask][i]);
+         buffer.AppendFormated(" f%sAccumulation = true;",histoName[iTask][i].Data());
       }
       if (numOfTaskSteering[iTask]>0) {
-         sprintf(buffer+strlen(buffer)," fSteering = new Steering();");
+         buffer.AppendFormated(" fSteering = new Steering();");
       }
-      sprintf(buffer+strlen(buffer)," };\n");
-      sprintf(buffer+strlen(buffer),"   // Event Methods\n");
-      sprintf(buffer+strlen(buffer),"   virtual void Init();\n");
-      sprintf(buffer+strlen(buffer),"   virtual void BeginOfRun();\n");
-      sprintf(buffer+strlen(buffer),"   virtual void Event();\n");
-      sprintf(buffer+strlen(buffer),"   virtual void EndOfRun();\n");
-      sprintf(buffer+strlen(buffer),"   virtual void Terminate();\n\n");
+      buffer.AppendFormated(" };\n");
+      buffer.AppendFormated("   // Event Methods\n");
+      buffer.AppendFormated("   virtual void Init();\n");
+      buffer.AppendFormated("   virtual void BeginOfRun();\n");
+      buffer.AppendFormated("   virtual void Event();\n");
+      buffer.AppendFormated("   virtual void EndOfRun();\n");
+      buffer.AppendFormated("   virtual void Terminate();\n\n");
       // Histo Methods
-      sprintf(buffer+strlen(buffer),"   // Histo Methods\n");
-      sprintf(buffer+strlen(buffer),"   virtual void BookHisto();\n");
-      sprintf(buffer+strlen(buffer),"   virtual void ResetHisto();\n\n");
+      buffer.AppendFormated("   // Histo Methods\n");
+      buffer.AppendFormated("   virtual void BookHisto();\n");
+      buffer.AppendFormated("   virtual void ResetHisto();\n\n");
       // User Methods
-      sprintf(buffer+strlen(buffer),"   // User Methods\n");
+      buffer.AppendFormated("   // User Methods\n");
       if (numOfTaskSteering[iTask]>0) {
-         sprintf(buffer+strlen(buffer),"   Steering* GetSteeringParameters() { return fSteering; };\n");
-         sprintf(buffer+strlen(buffer),"   Steering* GetSP() { return fSteering; };\n");
+         buffer.AppendFormated("   Steering* GetSteeringParameters() { return fSteering; };\n");
+         buffer.AppendFormated("   Steering* GetSP() { return fSteering; };\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (!strcmp(histoArray[iTask][i],"1")) {
+         if (histoArray[iTask][i]=="1") {
             if (histoType[iTask][i][2]==49) {
-					sprintf(buffer+strlen(buffer),"   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i],histoName[iTask][i]);
+					buffer.AppendFormated("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else if (histoType[iTask][i][2]==50) {
-               sprintf(buffer+strlen(buffer),"   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); };\n",histoName[iTask][i],histoName[iTask][i]);
+               buffer.AppendFormated("   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else if (histoType[iTask][i][2]==51) {
-               sprintf(buffer+strlen(buffer),"   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i],histoName[iTask][i]);
+               buffer.AppendFormated("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             }
-				sprintf(buffer+strlen(buffer),"   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i],histoName[iTask][i]);
-            sprintf(buffer+strlen(buffer),"   %s* Get%sHandle() { return f%s; };\n",histoType[iTask][i],histoName[iTask][i],histoName[iTask][i]);
+				buffer.AppendFormated("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormated("   %s* Get%sHandle() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
             if (histoType[iTask][i][2]==49) {
-               sprintf(buffer+strlen(buffer),"   void Fill%sAt(int index,double x,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,weight); };\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
+               buffer.AppendFormated("   void Fill%sAt(int index,double x,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else if (histoType[iTask][i][2]==50) {
-               sprintf(buffer+strlen(buffer),"   void Fill%sAt(int index,double x,double y,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,weight); };\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
+               buffer.AppendFormated("   void Fill%sAt(int index,double x,double y,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
             else if (histoType[iTask][i][2]==51) {
-               sprintf(buffer+strlen(buffer),"   void Fill%sAt(int index,double x,double y,double z,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
+               buffer.AppendFormated("   void Fill%sAt(int index,double x,double y,double z,double weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
-				sprintf(buffer+strlen(buffer),"   void Draw%sAt(int index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
-            sprintf(buffer+strlen(buffer),"   %s* Get%sHandleAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i],histoName[iTask][i],histoType[iTask][i],histoName[iTask][i]);
+				buffer.AppendFormated("   void Draw%sAt(int index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormated("   %s* Get%sHandleAt(int index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
          }
-         sprintf(buffer+strlen(buffer),"   Bool_t is%sAccumulation() { return f%sAccumulation; };\n",histoName[iTask][i],histoName[iTask][i]);
-         sprintf(buffer+strlen(buffer),"   void Set%sAccumulation(Bool_t flag) { f%sAccumulation = flag; };\n",histoName[iTask][i],histoName[iTask][i]);
+         buffer.AppendFormated("   Bool_t is%sAccumulation() { return f%sAccumulation; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormated("   void Set%sAccumulation(Bool_t flag) { f%sAccumulation = flag; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
       }
 
 
       // Footer
-      sprintf(buffer+strlen(buffer),"\n   ClassDef(%sT%s,%s)\n",shortCut,taskName[iTask],taskVersion[iTask]);
-      sprintf(buffer+strlen(buffer),"};\n\n");
+      buffer.AppendFormated("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+      buffer.AppendFormated("};\n\n");
 
       // Histo Inline Methods
-      sprintf(buffer+strlen(buffer),"inline void %sT%s::BookHisto() {\n",shortCut,taskName[iTask]);
+      buffer.AppendFormated("inline void %sT%s::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       bool array = false;
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (strcmp(histoArray[iTask][i],"1")) array = true;
+         if (histoArray[iTask][i]!="1") array = true;
       }
       if (array) {
-         sprintf(buffer+strlen(buffer),"   int j;\n");
-         sprintf(buffer+strlen(buffer),"   char name[80],title[80];\n");
+         buffer.AppendFormated("   int j;\n");
+         buffer.AppendFormated("   ROMEString name;\n");
+         buffer.AppendFormated("   ROMEString title;\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (!strcmp(histoArray[iTask][i],"1")) {
+         if (histoArray[iTask][i]=="1") {
             if (histoType[iTask][i][2]==49) {
-               sprintf(buffer+strlen(buffer),"   f%s = new %s(\"%s\",\"%s\",%s,%s,%s);\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i],histoTitle[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i]);
+               buffer.AppendFormated("   f%s = new %s(\"%s\",\"%s\",%s,%s,%s);\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i],histoTitle[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i]);
             }
             if (histoType[iTask][i][2]==50) {
-               sprintf(buffer+strlen(buffer),"   f%s = new %s(\"%s\",\"%s\",%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i],histoTitle[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i],histoYBin[iTask][i],histoYMin[iTask][i],histoYMax[iTask][i]);
+               buffer.AppendFormated("   f%s = new %s(\"%s\",\"%s\",%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoTitle[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data());
             }
             if (histoType[iTask][i][2]==51) {
-               sprintf(buffer+strlen(buffer),"   f%s = new %s(\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i],histoType[iTask][i],histoName[iTask][i],histoTitle[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i],histoYBin[iTask][i],histoYMin[iTask][i],histoYMax[iTask][i],histoZBin[iTask][i],histoZMin[iTask][i],histoZMax[iTask][i]);
+               buffer.AppendFormated("   f%s = new %s(\"%s\",\"%s\",%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoTitle[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data(),histoZBin[iTask][i].Data(),histoZMin[iTask][i].Data(),histoZMax[iTask][i].Data());
             }
-            sprintf(buffer+strlen(buffer),"   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i]);
+            buffer.AppendFormated("   GetHistoFolder()->Add(f%s);\n",histoName[iTask][i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   %s *hist%d;\n",histoType[iTask][i],i);
-            sprintf(buffer+strlen(buffer),"   f%ss = new TObjArray(%s);\n",histoName[iTask][i],histoArray[iTask][i]);
-            sprintf(buffer+strlen(buffer),"   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i],histoFolderName[iTask][i],histoFolderTitle[iTask][i]);
-            sprintf(buffer+strlen(buffer),"   for (j=0;j<%s;j++) {\n",histoArray[iTask][i]);
-            sprintf(buffer+strlen(buffer),"      sprintf(name,\"%s_%%03d\",j);\n",histoName[iTask][i]);
-            sprintf(buffer+strlen(buffer),"      sprintf(title,\"%s %%03d\",j);\n",histoTitle[iTask][i]);
+            buffer.AppendFormated("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
+            buffer.AppendFormated("   f%ss = new TObjArray(%s);\n",histoName[iTask][i].Data(),histoArray[iTask][i].Data());
+            buffer.AppendFormated("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",\"%s\");\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data(),histoFolderTitle[iTask][i].Data());
+            buffer.AppendFormated("   for (j=0;j<%s;j++) {\n",histoArray[iTask][i].Data());
+            buffer.AppendFormated("      name.SetFormated(\"%%0*d\",3,j);\n");
+            buffer.AppendFormated("      name.Insert(0,\"%s_\");\n",histoName[iTask][i].Data());
+            buffer.AppendFormated("      title.SetFormated(\"%%0*d\",3,j);\n");
+            buffer.AppendFormated("      title.Insert(0,\"%s \");\n",histoTitle[iTask][i].Data());
             if (histoType[iTask][i][2]==49) {
-               sprintf(buffer+strlen(buffer),"      hist%d = new %s(name,title,%s,%s,%s);\n",i,histoType[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i]);
+               buffer.AppendFormated("      hist%d = new %s(name.Data(),title.Data(),%s,%s,%s);\n",i,histoType[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data());
             }
             if (histoType[iTask][i][2]==50) {
-               sprintf(buffer+strlen(buffer),"      hist%d = new %s(name,title,%s,%s,%s,%s,%s,%s);\n",i,histoType[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i],histoYBin[iTask][i],histoYMin[iTask][i],histoYMax[iTask][i]);
+               buffer.AppendFormated("      hist%d = new %s(name,title,%s,%s,%s,%s,%s,%s);\n",i,histoType[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data());
             }
             if (histoType[iTask][i][2]==51) {
-               sprintf(buffer+strlen(buffer),"      hist%d = new %s(name,title,%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",i,histoType[iTask][i],histoXBin[iTask][i],histoXMin[iTask][i],histoXMax[iTask][i],histoYBin[iTask][i],histoYMin[iTask][i],histoYMax[iTask][i],histoZBin[iTask][i],histoZMin[iTask][i],histoZMax[iTask][i]);
+               buffer.AppendFormated("      hist%d = new %s(name,title,%s,%s,%s,%s,%s,%s,%s,%s,%s);\n",i,histoType[iTask][i].Data(),histoXBin[iTask][i].Data(),histoXMin[iTask][i].Data(),histoXMax[iTask][i].Data(),histoYBin[iTask][i].Data(),histoYMin[iTask][i].Data(),histoYMax[iTask][i].Data(),histoZBin[iTask][i].Data(),histoZMin[iTask][i].Data(),histoZMax[iTask][i].Data());
             }
-            sprintf(buffer+strlen(buffer),"      f%ss->Add(hist%d);\n",histoName[iTask][i],i);
-            sprintf(buffer+strlen(buffer),"      %sFolder->Add(f%ss->At(j));\n   }\n",histoFolderName[iTask][i],histoName[iTask][i]);
+            buffer.AppendFormated("      f%ss->Add(hist%d);\n",histoName[iTask][i].Data(),i);
+            buffer.AppendFormated("      %sFolder->Add(f%ss->At(j));\n   }\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"}\n\n");
+      buffer.AppendFormated("}\n\n");
 
-      sprintf(buffer+strlen(buffer),"inline void %sT%s::ResetHisto() {\n",shortCut,taskName[iTask]);
+      buffer.AppendFormated("inline void %sT%s::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       array = false;
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (strcmp(histoArray[iTask][i],"1")) array = true;
+         if (histoArray[iTask][i]!="1") 
+            array = true;
       }
       if (array) {
-         sprintf(buffer+strlen(buffer),"   int j;\n");
+         buffer.AppendFormated("   int j;\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
-         if (!strcmp(histoArray[iTask][i],"1")) {
-            sprintf(buffer+strlen(buffer),"   if (!is%sAccumulation()) f%s->Reset();\n",histoName[iTask][i],histoName[iTask][i]);
+         if (histoArray[iTask][i]=="1") {
+            buffer.AppendFormated("   if (!is%sAccumulation()) f%s->Reset();\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   if (!is%sAccumulation()) {\n",histoName[iTask][i]);
-            sprintf(buffer+strlen(buffer),"       for (j=0;j<%s;j++) ((%s*)f%ss->At(j))->Reset();\n",histoArray[iTask][i],histoType[iTask][i],histoName[iTask][i]);
-            sprintf(buffer+strlen(buffer),"   }\n");
+            buffer.AppendFormated("   if (!is%sAccumulation()) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormated("       for (j=0;j<%s;j++) ((%s*)f%ss->At(j))->Reset();\n",histoArray[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormated("   }\n");
          }
       }
-      sprintf(buffer+strlen(buffer),"}\n\n");
+      buffer.AppendFormated("}\n\n");
 
-      sprintf(buffer+strlen(buffer),"#endif   // %sT%s_H\n",shortCut,taskName[iTask]);
+      buffer.AppendFormated("#endif   // %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
 
       // Write File
-      fileHandle = open(hFile,O_RDONLY);
+      fileHandle = open(hFile.Data(),O_RDONLY);
       int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       bool identical = true;
-      for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = false;
+      if (nb==(int)buffer.Length()) {
+         for (i=0;i<nb;i++) {
+            if (buffer[i] != fileBuffer[i]) {
+               identical = false;
+               break;
+            }
          }
       }
+      else
+         identical = false;
       if (!identical) {
-         fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+         fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
-         fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-         if (makeOutput) cout << "      " << hFile << endl;
-         nb = write(fileHandle,&buffer, strlen(buffer));
+         fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+         if (makeOutput) cout << "      " << hFile.Data() << endl;
+         nb = write(fileHandle,buffer.Data(), buffer.Length());
          close(fileHandle);
       }
    }
-   delete [] hFile;
    return true;
 }
 
@@ -1671,62 +1636,62 @@ bool ROMEBuilder::ReadXMLTree() {
          }
          numOfBranch[numOfTree] = 0;
          // tree name
-         treeName[numOfTree] = xml->GetAttribute("Name",NULL);
-         if (treeName[numOfTree]==NULL) {
+         xml->GetAttribute("Name",treeName[numOfTree],"");
+         if (treeName[numOfTree]=="") {
             cout << "Tree without a name !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // tree title
-         treeTitle[numOfTree] = xml->GetAttribute("Title","");
+         xml->GetAttribute("Title",treeTitle[numOfTree],"");
          // output
-         if (makeOutput) cout << "   " << treeName[numOfTree] << endl;
+         if (makeOutput) cout << "   " << treeName[numOfTree].Data() << endl;
 
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
                // branch name
-               branchName[numOfTree][numOfBranch[numOfTree]] = xml->GetAttribute("Name",NULL);
-               if (branchName[numOfTree][numOfBranch[numOfTree]]==NULL) {
-                  cout << "Branch without a name in Tree '" << treeName[numOfTree] << "' !" << endl;
+               xml->GetAttribute("Name",branchName[numOfTree][numOfBranch[numOfTree]],"");
+               if (branchName[numOfTree][numOfBranch[numOfTree]]=="") {
+                  cout << "Branch without a name in Tree '" << treeName[numOfTree].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                // branch folder
-               branchFolder[numOfTree][numOfBranch[numOfTree]] = xml->GetAttribute("Folder",NULL);
-               if (branchFolder[numOfTree][numOfBranch[numOfTree]]==NULL) {
-                  cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' has no Folder specified!" << endl;
+               xml->GetAttribute("Folder",branchFolder[numOfTree][numOfBranch[numOfTree]],"");
+               if (branchFolder[numOfTree][numOfBranch[numOfTree]]=="") {
+                  cout << "Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' has no Folder specified!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                bool found = false;
                for (i=0;i<numOfFolder;i++) {
-                  if (!strcmp(folderName[i],branchFolder[numOfTree][numOfBranch[numOfTree]]))
+                  if (folderName[i]==branchFolder[numOfTree][numOfBranch[numOfTree]])
                      found = true;
                }
                if (!found) {
-                  cout << "Folder of Branch '" << branchName[numOfTree][numOfBranch[numOfTree]] << "' of Tree '" << treeName[numOfTree] << "' not existing !" << endl;
+                  cout << "Folder of Branch '" << branchName[numOfTree][numOfBranch[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' not existing !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                numOfBranch[numOfTree]++;
                if (numOfBranch[numOfTree]>=maxNumberOfBranches) {
-                  cout << "Maximal number of branches in tree '" << treeName[numOfTree] << "' reached : " << maxNumberOfBranches << " !" << endl;
+                  cout << "Maximal number of branches in tree '" << treeName[numOfTree].Data() << "' reached : " << maxNumberOfBranches << " !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
             }
             if (type == 15 && !strcmp((const char*)name,"Tree")) {
                if (numOfBranch[numOfTree] == 0) {
-                  cout << "Tree '" << treeName[numOfTree] << "' has no Branch !" << endl;
+                  cout << "Tree '" << treeName[numOfTree].Data() << "' has no Branch !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
                for (i=0;i<numOfBranch[numOfTree];i++) {
                   for (j=i+1;j<numOfBranch[numOfTree];j++) {
-                     if (!strcmp(branchName[numOfTree][i],branchName[numOfTree][j])) {
-                        cout << "\nTree '" << treeName[numOfTree] << "' has two branches with the name '" << branchName[numOfTree] << "' !" << endl;
+                     if (branchName[numOfTree][i]==branchName[numOfTree][j]) {
+                        cout << "\nTree '" << treeName[numOfTree].Data() << "' has two branches with the name '" << branchName[numOfTree][i].Data() << "' !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
@@ -1740,8 +1705,8 @@ bool ROMEBuilder::ReadXMLTree() {
       if (type == 15 && !strcmp((const char*)name,"Trees")) {
          for (i=0;i<numOfTree;i++) {
             for (j=i+1;j<numOfTree;j++) {
-               if (!strcmp(treeName[i],treeName[j])) {
-                  cout << "\nTree '" << treeName[i] << "' is defined twice !" << endl;
+               if (treeName[i]==treeName[j]) {
+                  cout << "\nTree '" << treeName[i].Data() << "' is defined twice !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
@@ -1755,7 +1720,6 @@ bool ROMEBuilder::ReadXMLTree() {
 }
 bool ROMEBuilder::ReadXMLMidasBanks() {
    char *name;
-   char *tmp;
    int type,i,j;
    bankHasHeader = false;
 
@@ -1767,35 +1731,35 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
       if (type == 1 && !strcmp("EventHeader",(const char*)name)) {
          bankHasHeader = true;
          // folder
-         bankHeaderFolder = xml->GetAttribute("Folder",NULL);
-         if (bankHeaderFolder==NULL) {
+         xml->GetAttribute("Folder",bankHeaderFolder,"");
+         if (bankHeaderFolder=="") {
             cout << "Midas event header has no folder !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // EventID
-         bankHeaderEventID = xml->GetAttribute("EventID","");
+         xml->GetAttribute("EventID",bankHeaderEventID,"");
          // TriggerMask
-         bankHeaderTriggerMask = xml->GetAttribute("TriggerMask","");
+         xml->GetAttribute("TriggerMask",bankHeaderTriggerMask,"");
          // SerialNumber
-         bankHeaderSerialNumber = xml->GetAttribute("SerialNumber","");
+         xml->GetAttribute("SerialNumber",bankHeaderSerialNumber,"");
          // TimeStamp
-         bankHeaderTimeStamp = xml->GetAttribute("TimeStamp","");
+         xml->GetAttribute("TimeStamp",bankHeaderTimeStamp,"");
          // Tests
          int iFold = -1;
          for (i=0;i<numOfFolder;i++) {
-            if (!strcmp(folderName[i],bankHeaderFolder)) {
+            if (folderName[i]==bankHeaderFolder) {
                iFold = i;
                break;
             }
          }
          if (iFold==-1) {
-            cout << "Midas event header : folder '" << bankHeaderFolder << "' does not exist !" << endl;
+            cout << "Midas event header : folder '" << bankHeaderFolder.Data() << "' does not exist !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
-         if (strcmp(folderArray[iFold],"1")) {
-            cout << "Midas event header : folder '" << bankHeaderFolder << "' is an array !" << endl;
+         if (folderArray[iFold]!="1") {
+            cout << "Midas event header : folder '" << bankHeaderFolder.Data() << "' is an array !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -1803,45 +1767,45 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
          bool foundMask = false;
          bool foundNum = false;
          bool foundTime = false;
-         if (!strcmp(bankHeaderEventID,"")) 
+         if (bankHeaderEventID == "")
             foundID = true;
-         if (!strcmp(bankHeaderTriggerMask,"")) 
+         if (bankHeaderTriggerMask == "") 
             foundMask = true;
-         if (!strcmp(bankHeaderSerialNumber,"")) 
+         if (bankHeaderSerialNumber=="")
             foundNum = true;
-         if (!strcmp(bankHeaderTimeStamp,"")) 
+         if (bankHeaderTimeStamp=="") 
             foundTime = true;
          for (i=0;i<numOfValue[iFold];i++) {
-            if (!strcmp(valueName[iFold][i],bankHeaderEventID)) {
+            if (valueName[iFold][i]==bankHeaderEventID) {
                foundID = true;
             }
-            if (!strcmp(valueName[iFold][i],bankHeaderTriggerMask)) {
+            if (valueName[iFold][i]==bankHeaderTriggerMask) {
                foundMask = true;
             }
-            if (!strcmp(valueName[iFold][i],bankHeaderSerialNumber)) {
+            if (valueName[iFold][i]==bankHeaderSerialNumber) {
                foundNum = true;
             }
-            if (!strcmp(valueName[iFold][i],bankHeaderTimeStamp)) {
+            if (valueName[iFold][i]==bankHeaderTimeStamp) {
                foundTime = true;
             }
          }
          if (!foundID) {
-            cout << "Midas event header : event id field '" << bankHeaderEventID << "' does not exist !" << endl;
+            cout << "Midas event header : event id field '" << bankHeaderEventID.Data() << "' does not exist !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundMask) {
-            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask << "' does not exist !" << endl;
+            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask.Data() << "' does not exist !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundNum) {
-            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber << "' does not exist !" << endl;
+            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber.Data() << "' does not exist !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          if (!foundTime) {
-            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp << "' does not exist !" << endl;
+            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp.Data() << "' does not exist !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -1857,21 +1821,19 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
          // bank name
          bankName[numOfBank] = (char*)name;
          // bank type
-         bankType[numOfBank] = xml->GetAttribute("Type",NULL);
-         if (bankType[numOfBank]==NULL) {
-            cout << "Bank '" << bankName[numOfBank] << "' has no type !" << endl;
+         xml->GetAttribute("Type",bankType[numOfBank],"");
+         if (bankType[numOfBank]=="") {
+            cout << "Bank '" << bankName[numOfBank].Data() << "' has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // bank structure name
-         tmp = new char[strlen(bankName[numOfBank])+7];
-         sprintf(tmp,"%sStruct",bankName[numOfBank]);
-         bankStructName[numOfBank] = xml->GetAttribute("StructName",tmp);
-         delete [] tmp;
+         bankStructName[numOfBank].SetFormated("%sStruct",bankName[numOfBank].Data());
+         xml->GetAttribute("StructName",bankStructName[numOfBank],bankStructName[numOfBank]);
          // output
-         if (makeOutput) cout << "   " << bankName[numOfBank] << endl;
+         if (makeOutput) cout << "   " << bankName[numOfBank].Data() << endl;
 
-         if (!strcmp(bankType[numOfBank],"structure")||!strcmp(bankType[numOfBank],"struct")) {
+         if (bankType[numOfBank]=="structure"||bankType[numOfBank]=="struct") {
             while (xml->NextLine()) {
                type = xml->GetType();
                name = xml->GetName();
@@ -1879,19 +1841,19 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                   // field name
                   structFieldName[numOfBank][numOfStructFields[numOfBank]] = (char*)name;
                   // field type
-                  structFieldType[numOfBank][numOfStructFields[numOfBank]] = xml->GetAttribute("Type",NULL);
-                  if (structFieldType[numOfBank][numOfStructFields[numOfBank]]==NULL) {
-                     cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]] << "' of Bank '" << bankName[numOfBank] << "' has no type !" << endl;
+                  xml->GetAttribute("Type",structFieldType[numOfBank][numOfStructFields[numOfBank]],"");
+                  if (structFieldType[numOfBank][numOfStructFields[numOfBank]]=="") {
+                     cout << "Structure field '" << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << "' of Bank '" << bankName[numOfBank].Data() << "' has no type !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
                   // field size
-                  structFieldSize[numOfBank][numOfStructFields[numOfBank]] = xml->GetAttribute("PackedSize","");
+                  xml->GetAttribute("PackedSize",structFieldSize[numOfBank][numOfStructFields[numOfBank]],"");
                   // output
-                  if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]] << endl;
+                  if (makeOutput) cout << "      " << structFieldName[numOfBank][numOfStructFields[numOfBank]].Data() << endl;
                   numOfStructFields[numOfBank]++;
                   if (numOfStructFields[numOfBank]>=maxNumberOfStructFields) {
-                     cout << "Maximal number of fields in bank '" << bankName[numOfBank] << "' reached : " << maxNumberOfStructFields << " !" << endl;
+                     cout << "Maximal number of fields in bank '" << bankName[numOfBank].Data() << "' reached : " << maxNumberOfStructFields << " !" << endl;
                      cout << "Terminating program." << endl;
                      return false;
                   }
@@ -1899,8 +1861,8 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                if (type == 15 && !strcmp((const char*)name,bankName[numOfBank])) {
                   for (i=0;i<numOfStructFields[numOfBank];i++) {
                      for (j=i+1;j<numOfStructFields[numOfBank];j++) {
-                        if (!strcmp(structFieldName[numOfBank][i],structFieldName[numOfBank][j])) {
-                           cout << "\nStructure of bank '" << bankName[numOfBank] << "' has two fields with the name '" << structFieldName[numOfBank] << "' !" << endl;
+                        if (structFieldName[numOfBank][i]==structFieldName[numOfBank][j]) {
+                           cout << "\nStructure of bank '" << bankName[numOfBank].Data() << "' has two fields with the name '" << structFieldName[numOfBank][i].Data() << "' !" << endl;
                            cout << "Terminating program." << endl;
                            return false;
                         }
@@ -1914,8 +1876,8 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
       if (type == 15 && !strcmp((const char*)name,"MidasBanks")) {
          for (i=0;i<numOfBank;i++) {
             for (j=i+1;j<numOfTree;j++) {
-               if (!strcmp(bankName[i],bankName[j])) {
-                  cout << "\nMidas bank '" << bankName[i] << "' is defined twice !" << endl;
+               if (bankName[i]==bankName[j]) {
+                  cout << "\nMidas bank '" << bankName[i].Data() << "' is defined twice !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
@@ -1930,7 +1892,6 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
 
 bool ROMEBuilder::ReadXMLSteering() {
    char *name;
-   char *tmp;
    int i,type,empty,depth=0,index[20];
    index[0] = 0;
    numOfSteerFields[0] = 0;
@@ -1962,38 +1923,35 @@ bool ROMEBuilder::ReadXMLSteering() {
          steerDepth[index[depth]] = depth;
          // output
          if (makeOutput) for (i=0;i<depth;i++) cout << "   ";
-         if (makeOutput) cout << steerName[index[depth]] << endl;
+         if (makeOutput) steerName[index[depth]].WriteLine();
       }
       if (type == 1 && empty) {
          // field name
          steerFieldName[index[depth]][numOfSteerFields[index[depth]]] = (char*)name;
          // field type
-         steerFieldType[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Type",NULL);
-         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]==NULL) {
-            cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << " has no type !" << endl;
+         xml->GetAttribute("Type",steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"");
+         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]=="") {
+            cout << "Steering Parameter " << steerFieldName[index[depth]][numOfSteerFields[index[depth]]].Data() << " has no type !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
          // field initialisation
-         if (!strcmp(steerFieldType[index[depth]][numOfSteerFields[index[depth]]],"TString"))
-            steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Initialisation","' '");
+         if (steerFieldType[index[depth]][numOfSteerFields[index[depth]]]=="TString")
+            xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"' '");
          else
-            steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Initialisation","0");
-         steerFieldInit[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
+            xml->GetAttribute("Initialisation",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],"0");
+         xml->GetAttribute("Init",steerFieldInit[index[depth]][numOfSteerFields[index[depth]]],steerFieldInit[index[depth]][numOfSteerFields[index[depth]]]);
          // field comment
-         steerFieldComment[index[depth]][numOfSteerFields[index[depth]]] = xml->GetAttribute("Comment","");
+         xml->GetAttribute("Comment",steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"");
          if (steerFieldComment[index[depth]][numOfSteerFields[index[depth]]][0]!='/') {
-            tmp = steerFieldComment[index[depth]][numOfSteerFields[index[depth]]];
-            steerFieldComment[index[depth]][numOfSteerFields[index[depth]]] = new char[strlen(tmp)+4];
-            sprintf(steerFieldComment[index[depth]][numOfSteerFields[index[depth]]],"// %s",tmp);
-            delete [] tmp;
+            steerFieldComment[index[depth]][numOfSteerFields[index[depth]]].Insert(0,"// ");
          }
          // output
          if (makeOutput) for (i=0;i<depth+1;i++) cout << "   ";
-         if (makeOutput) cout << steerFieldName[index[depth]][numOfSteerFields[index[depth]]] << endl;
+         if (makeOutput) steerFieldName[index[depth]][numOfSteerFields[index[depth]]].WriteLine();
          numOfSteerFields[index[depth]]++;
          if (numOfSteerFields[index[depth]]>=maxNumberOfSteeringField) {
-            cout << "Maximal number of fields in steering parameter class '" << steerName[index[depth]] << "' reached : " << maxNumberOfSteeringField << " !" << endl;
+            cout << "Maximal number of fields in steering parameter class '" << steerName[index[depth]].Data() << "' reached : " << maxNumberOfSteeringField << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -2013,1889 +1971,1639 @@ bool ROMEBuilder::ReadXMLSteering() {
 bool ROMEBuilder::WriteSteering() {
    int i;
 
-   char* hFile=NULL;
-   char buffer[bufferLength];
+   ROMEString hFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
-   hFile = new char[40+strlen(outDir)+strlen(shortCut)];
-   sprintf(hFile,"%s/include/framework/%sGeneralSteering.h",outDir,shortCut);
+   hFile.SetFormated("%s/include/framework/%sGeneralSteering.h",outDir.Data(),shortCut.Data());
 
    if (numOfSteering==0) {
-      remove(hFile);
+      remove(hFile.Data());
       return true;
    }
 
    if (makeOutput) cout << "\n   Output Files:" << endl;
 
    // Description
-   sprintf(buffer,"//// Author: %s\n",mainAuthor);
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Contains the general Steering Parameters                                   //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("//// Author: %s\n",mainAuthor.Data());
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Contains the general Steering Parameters                                   //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+   buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   sprintf(buffer+strlen(buffer),"#ifndef %sGeneralSteering_H\n",shortCut);
-   sprintf(buffer+strlen(buffer),"#define %sGeneralSteering_H\n\n",shortCut);
+   buffer.AppendFormated("#ifndef %sGeneralSteering_H\n",shortCut.Data());
+   buffer.AppendFormated("#define %sGeneralSteering_H\n\n",shortCut.Data());
 
    WriteSteeringClass(buffer,0);
 
-   sprintf(buffer+strlen(buffer),"#endif   // %sGeneralSteering_H\n",shortCut);
+   buffer.AppendFormated("#endif   // %sGeneralSteering_H\n",shortCut.Data());
 
-   int fileHandle = open(hFile,O_RDONLY);
+   int fileHandle = open(hFile.Data(),O_RDONLY);
    int nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
       }
    }
+   else
+      identical = false;
    if (!identical) {
-      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
-      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
+      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << hFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
 
 
-   delete [] hFile;
    return true;
 }
-bool ROMEBuilder::WriteSteeringClass(char *buffer,int numOfSteer) {
-   char format[100];
-   char sc[20];
-   char blank[200];
+bool ROMEBuilder::WriteSteeringClass(ROMEString& buffer,int numOfSteer) {
+   ROMEString format;
+   ROMEString sc;
+   ROMEString blank;
    int j,i;
    int typeLen = -1;
    int nameLen = -1;
    for (i=0;i<numOfSteerFields[numOfSteer];i++) {
-      if (typeLen<(int)strlen(steerFieldType[numOfSteer][i])) typeLen = strlen(steerFieldType[numOfSteer][i]);
-      if (nameLen<(int)strlen(steerFieldName[numOfSteer][i])) nameLen = strlen(steerFieldName[numOfSteer][i]);
+      if (typeLen<(int)steerFieldType[numOfSteer][i].Length()) typeLen = steerFieldType[numOfSteer][i].Length();
+      if (nameLen<(int)steerFieldName[numOfSteer][i].Length()) nameLen = steerFieldName[numOfSteer][i].Length();
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
-         if (typeLen<(int)strlen(steerName[i])+1) typeLen = strlen(steerName[i])+1;
-         if (nameLen<(int)strlen(steerName[i])) nameLen = strlen(steerName[i]);
+      if (steerParent[i]==steerName[numOfSteer]) {
+         if (typeLen<(int)steerName[i].Length()+1) typeLen = steerName[i].Length()+1;
+         if (nameLen<(int)steerName[i].Length()) nameLen = steerName[i].Length();
       }
    }
    if (numOfSteer==0)
-      strcpy(sc,shortCut);
+      sc = shortCut;
    else
-      strcpy(sc,"");
+      sc = "";
 
-   sprintf(blank,"");   
+   blank = "";   
    for (i=0;i<steerDepth[numOfSteer];i++) {
-      sprintf(blank+strlen(blank),"   ");   
+      blank.Append("   ");   
    }
 
-   sprintf(buffer+strlen(buffer),"\n%sclass %s%s\n",blank,sc,steerName[numOfSteer]);
-   sprintf(buffer+strlen(buffer),"%s{\n",blank);
+   buffer.AppendFormated("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numOfSteer].Data());
+   buffer.AppendFormated("%s{\n",blank.Data());
 
-   sprintf(buffer+strlen(buffer),"%sprivate:\n",blank);
+   buffer.AppendFormated("%sprivate:\n",blank.Data());
 
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+      if (steerParent[i]==steerName[numOfSteer]) {
          WriteSteeringClass(buffer,i);
       }
    }
 
-   sprintf(buffer+strlen(buffer),"%sprotected:\n",blank);
+   buffer.AppendFormated("%sprotected:\n",blank.Data());
 
    // Fields
    for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      sprintf(format,"%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldComment[numOfSteer][j]);
+      format.SetFormated("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldComment[numOfSteer][j].Data());
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
-         sprintf(format,"%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-strlen(steerName[i]));
-         sprintf(buffer+strlen(buffer),format,blank,steerName[i],steerName[i],"",steerName[i]);
+      if (steerParent[i]==steerName[numOfSteer]) {
+         format.SetFormated("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[i].Length());
+         buffer.AppendFormated((char*)format.Data(),blank.Data(),steerName[i].Data(),steerName[i].Data(),"",steerName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"\n%spublic:\n",blank);
+   buffer.AppendFormated("\n%spublic:\n",blank.Data());
    // Constructor
-   sprintf(buffer+strlen(buffer),"%s   %s%s() { ",blank,sc,steerName[numOfSteer]);
+   buffer.AppendFormated("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numOfSteer].Data());
    for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      sprintf(buffer+strlen(buffer),"f%s = %s; ",steerFieldName[numOfSteer][j],steerFieldInit[numOfSteer][j]);
+      buffer.AppendFormated("f%s = %s; ",steerFieldName[numOfSteer][j].Data(),steerFieldInit[numOfSteer][j].Data());
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
-         sprintf(buffer+strlen(buffer),"f%s = new %s(); ",steerName[i],steerName[i]);
+      if (steerParent[i]==steerName[numOfSteer]) {
+         buffer.AppendFormated("f%s = new %s(); ",steerName[i].Data(),steerName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"};\n");
+   buffer.AppendFormated("};\n");
    // Getters
    for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      sprintf(format,"%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldName[numOfSteer][j]);
+      format.SetFormated("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldName[numOfSteer][j].Data());
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
-         sprintf(format,"%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-strlen(steerName[i]));
-         sprintf(buffer+strlen(buffer),format,blank,steerName[i],steerName[i],"",steerName[i]);
+      if (steerParent[i]==steerName[numOfSteer]) {
+         format.SetFormated("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[i].Length());
+         buffer.AppendFormated((char*)format.Data(),blank.Data(),steerName[i].Data(),steerName[i].Data(),"",steerName[i].Data());
       }
    }
    // Setters
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
    for (j=0;j<numOfSteerFields[numOfSteer];j++) {
-      sprintf(format,"%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-strlen(steerFieldName[numOfSteer][j]));
-      sprintf(buffer+strlen(buffer),format,blank,steerFieldName[numOfSteer][j],steerFieldType[numOfSteer][j],steerFieldName[numOfSteer][j],"",steerFieldName[numOfSteer][j],steerFieldName[numOfSteer][j]);
+      format.SetFormated("%%s   void Set%%-%ds(%%-%ds %%s)%%%ds { f%%s = %%s; };\n",nameLen,typeLen,nameLen-steerFieldName[numOfSteer][j].Length());
+      buffer.AppendFormated((char*)format.Data(),blank.Data(),steerFieldName[numOfSteer][j].Data(),steerFieldType[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data(),"",steerFieldName[numOfSteer][j].Data(),steerFieldName[numOfSteer][j].Data());
    }
 
    // Footer
-   sprintf(buffer+strlen(buffer),"%s};\n\n",blank);
+   buffer.AppendFormated("%s};\n\n",blank.Data());
 
    return true;
 }
-void ROMEBuilder::WriteSteerConfigWrite(char *buffer,int numOfSteer) {
+void ROMEBuilder::WriteSteerConfigWrite(ROMEString& buffer,int numOfSteer) {
    int i,j;
-   char tmp[300];
-   char getter[300];
+   ROMEString tmp;
+   ROMEString getter;
    if (numOfSteer==0)
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"GeneralSteeringParameters\");\n");
+      buffer.AppendFormated("   xml->StartElement(\"GeneralSteeringParameters\");\n");
    else
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",steerName[numOfSteer]);
+      buffer.AppendFormated("   xml->StartElement(\"%s\");\n",steerName[numOfSteer].Data());
    for (i=0;i<numOfSteerFields[numOfSteer];i++) {
-      sprintf(getter,"->Get%s()",steerFieldName[numOfSteer][i]);
+      getter.SetFormated("->Get%s()",steerFieldName[numOfSteer][i].Data());
       int ind = numOfSteer;
-      while (strcmp(steerParent[ind],"")) {
+      while (steerParent[ind]!="") {
          for (j=0;j<numOfSteering;j++) {
-            if (!strcmp(steerParent[ind],steerName[j])) {
-               strcpy(tmp,getter);
-               sprintf(getter,"->Get%s()%s",steerName[ind],tmp);
+            if (steerParent[ind]==steerName[j]) {
+               getter.InsertFormated(0,"->Get%s()",steerName[ind]);
                ind = j;
                break;
             }
          }
       }
-      strcpy(tmp,getter);
-      sprintf(getter,"this->GetGSP()%s",tmp);
-      GetFormat(tmp,steerFieldType[numOfSteer][i]);
-      sprintf(buffer+strlen(buffer),"   sprintf(value,\"%s\",%s);\n",tmp,getter);
-      sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"%s\", value);\n",steerFieldName[numOfSteer][i],tmp,getter);
+      getter.Insert(0,"this->GetGSP()");
+      GetFormat(&tmp,(char*)steerFieldType[numOfSteer][i].Data());
+      buffer.AppendFormated("   value.SetFormated(\"%s\",%s);\n",tmp.Data(),getter.Data());
+      buffer.AppendFormated("   xml->WriteElement(\"%s\", value.Data());\n",steerFieldName[numOfSteer][i].Data(),tmp.Data(),getter.Data());
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numOfSteer])) {
+      if (steerParent[i]==steerName[numOfSteer]) {
          WriteSteerConfigWrite(buffer,i);
       }
    }
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
 }
 
-void ROMEBuilder::WriteSteerConfigRead(char *buffer,int numSteer) {
-   char tmp[300];
-   char value[300];
-   char path[300];
-   char setter[300];
+void ROMEBuilder::WriteSteerConfigRead(ROMEString& buffer,int numSteer) {
+   ROMEString tmp;
+   ROMEString value;
+   ROMEString path;
+   ROMEString setter;
    int i,j;
-   char blank[100];
-   strcpy(blank,"");
+   ROMEString blank;
+   blank = "";
 
-   strcpy(path,"");
+   path = "";
    int ind = numSteer;
-   while (strcmp(steerParent[ind],"")) {
+   while (steerParent[ind]!="") {
       for (j=0;j<numOfSteering;j++) {
-         if (!strcmp(steerParent[ind],steerName[j])) {
-            strcpy(tmp,path);
-            sprintf(path,"->Get%s()%s",steerName[ind],tmp);
+         if (steerParent[ind]==steerName[j]) {
+            path.InsertFormated(0,"->Get%s()",steerName[ind]);
             ind = j;
-            strcat(blank,"      ");
+            blank.Append("      ");
             break;
          }
       }
    }
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"%s      if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank,steerName[numSteer]);
+      buffer.AppendFormated("%s      if (type == 1 && !strcmp((const char*)name,\"%sParameters\")) {\n",blank.Data(),steerName[numSteer].Data());
    else
-      sprintf(buffer+strlen(buffer),"%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerName[numSteer]);
+      buffer.AppendFormated("%s      if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerName[numSteer].Data());
 
-   sprintf(buffer+strlen(buffer),"%s         while (xml->NextLine()) {\n",blank);
-   sprintf(buffer+strlen(buffer),"%s            type = xml->GetType();\n",blank);
-   sprintf(buffer+strlen(buffer),"%s            name = xml->GetName();\n",blank);
+   buffer.AppendFormated("%s         while (xml->NextLine()) {\n",blank.Data());
+   buffer.AppendFormated("%s            type = xml->GetType();\n",blank.Data());
+   buffer.AppendFormated("%s            name = xml->GetName();\n",blank.Data());
    for (i=0;i<numOfSteerFields[numSteer];i++) {
-      setValue(value,"","tmp",steerFieldType[numSteer][i],1);
-      sprintf(setter,"this->GetGSP()%s->Set%s((%s)%s)",path,steerFieldName[numSteer][i],steerFieldType[numSteer][i],value);
-      sprintf(buffer+strlen(buffer),"%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank,steerFieldName[numSteer][i]);
-      sprintf(buffer+strlen(buffer),"%s               if (xml->GetValue(tmp,sizeof(tmp))) \n",blank);
-      sprintf(buffer+strlen(buffer),"%s                  %s;\n",blank,setter);
-      sprintf(buffer+strlen(buffer),"%s            }\n",blank);
+      setValue(&value,"","tmp",(char*)steerFieldType[numSteer][i].Data(),1);
+      setter.SetFormated("this->GetGSP()%s->Set%s((%s)%s)",path.Data(),steerFieldName[numSteer][i].Data(),steerFieldType[numSteer][i].Data(),value.Data());
+      buffer.AppendFormated("%s            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",blank.Data(),steerFieldName[numSteer][i].Data());
+      buffer.AppendFormated("%s               if (xml->GetValue(tmp,sizeof(tmp))) \n",blank.Data());
+      buffer.AppendFormated("%s                  %s;\n",blank.Data(),setter.Data());
+      buffer.AppendFormated("%s            }\n",blank.Data());
    }
    for (i=0;i<numOfSteering;i++) {
-      if (!strcmp(steerParent[i],steerName[numSteer])) {
+      if (steerParent[i]==steerName[numSteer]) {
          WriteSteerConfigRead(buffer,i);
       }
    }
    if (numSteer==0)
-      sprintf(buffer+strlen(buffer),"%s            if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank,steerName[numSteer]);
+      buffer.AppendFormated("%s            if (type == 15 && !strcmp((const char*)name,\"%sParameters\"))\n",blank.Data(),steerName[numSteer].Data());
    else
-      sprintf(buffer+strlen(buffer),"%s            if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank,steerName[numSteer]);
-   sprintf(buffer+strlen(buffer),"%s               break;\n",blank);
-   sprintf(buffer+strlen(buffer),"%s         }\n",blank);
-   sprintf(buffer+strlen(buffer),"%s      }\n",blank);
+      buffer.AppendFormated("%s            if (type == 15 && !strcmp((const char*)name,\"%s\"))\n",blank.Data(),steerName[numSteer].Data());
+   buffer.AppendFormated("%s               break;\n",blank.Data());
+   buffer.AppendFormated("%s         }\n",blank.Data());
+   buffer.AppendFormated("%s      }\n",blank.Data());
 }
 bool ROMEBuilder::WriteAnalyzerCpp() {
    int i;
 
-   char* cppFile=NULL;
-   char buffer[bufferLength];
+   ROMEString cppFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
-   int nb,lenTot,j,ll;
+   ROMEString parentt;
+
+   int nb,lenTot,j,ll,k,iFold=0;
    char *pos;
    int fileHandle;
 
-   char classDescription[500];
-   sprintf(classDescription,"Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",shortCut,mainProgName);
+   ROMEString classDescription;
+   classDescription.SetFormated("Basic class for the %s%s. This class creates and manages all Folders, Tasks and Trees.",shortCut.Data(),mainProgName.Data());
 
-   char tmp[1000];
-   char format[100];
+   ROMEString tmp;
+   ROMEString format;
    int nameLen = -1;
    int typeLen = 12;
-   int scl = strlen(shortCut);
+   int scl = shortCut.Length();
    for (i=0;i<numOfFolder;i++) {
-      if (typeLen<(int)strlen(folderName[i])+scl) typeLen = strlen(folderName[i])+scl;
-      if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
+      if (typeLen<(int)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
+      if (nameLen<(int)folderName[i].Length()) nameLen = folderName[i].Length();
    }
 
 
    // File name
-   cppFile = new char[30+strlen(outDir)+strlen(shortCut)];
-   sprintf(cppFile,"%s/src/framework/%sAnalyzer.cpp",outDir,shortCut);
+   cppFile.SetFormated("%s/src/framework/%sAnalyzer.cpp",outDir.Data(),shortCut.Data());
    // Description
-   sprintf(buffer,"//// Author: %s\n",mainAuthor);
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   ll = 74-strlen(shortCut);
-   sprintf(format,"// %%s%%-%d.%ds //\n",ll,ll);
-   sprintf(buffer+strlen(buffer),format,shortCut,"Analyzer");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   pos = classDescription;
-   lenTot = strlen(classDescription);
-   while (pos-classDescription < lenTot) {
-      if (lenTot+(classDescription-pos)<74) i=75;
+   buffer.Resize(0);
+   buffer.AppendFormated("//// Author: %s\n",mainAuthor.Data());
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   ll = 74-shortCut.Length();
+   format.SetFormated("// %%s%%-%d.%ds //\n",ll,ll);
+   buffer.AppendFormated((char*)format.Data(),shortCut.Data(),"Analyzer");
+   buffer.AppendFormated("//                                                                            //\n");
+   pos = (char*)classDescription.Data();
+   lenTot = classDescription.Length();
+   while (pos-classDescription.Data() < lenTot) {
+      if (lenTot+(classDescription.Data()-pos)<74) i=75;
       else for (i=74;pos[i]!=32&&i>0;i--) {}
       if (i<=0) i=75;
       pos[i] = 0;
-      sprintf(buffer+strlen(buffer),"// %-74.74s   \n",pos);
+      buffer.AppendFormated("// %-74.74s   \n",pos);
       pos = pos+i+1;
    }
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+   buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
-   sprintf(buffer+strlen(buffer),"#include <direct.h>\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
+   buffer.AppendFormated("#if defined( _MSC_VER )\n");
+   buffer.AppendFormated("#include <direct.h>\n");
+   buffer.AppendFormated("#endif\n");
 
-   sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TH1.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TROOT.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TObjArray.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEStatic.h>\n");
-   sprintf(buffer+strlen(buffer),"#if defined HAVE_SQL\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMESQL.h>\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEEventLoop.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROME.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
+   buffer.AppendFormated("#include <sys/stat.h>\n");
+   buffer.AppendFormated("#include <TH1.h>\n");
+   buffer.AppendFormated("#include <TROOT.h>\n");
+   buffer.AppendFormated("#include <TObjArray.h>\n");
+   buffer.AppendFormated("#include <TBranchElement.h>\n");
+   buffer.AppendFormated("#include <TTask.h>\n");
+   buffer.AppendFormated("#include <ROMEStatic.h>\n");
+   buffer.AppendFormated("#if defined HAVE_SQL\n");
+   buffer.AppendFormated("#include <ROMESQL.h>\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("#include <ROMEXML.h>\n");
+   buffer.AppendFormated("#include <ROMEEventLoop.h>\n");
+   buffer.AppendFormated("#include <ROMETree.h>\n");
+   buffer.AppendFormated("#include <ROMETreeInfo.h>\n");
+   buffer.AppendFormated("#include <ROME.h>\n");
+   buffer.AppendFormated("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"#include <include/tasks/%sT%s.h>\n",shortCut,taskName[i]);
+      buffer.AppendFormated("#include <include/tasks/%sT%s.h>\n",shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
+   buffer.AppendFormated("#include <Riostream.h>\n");
 
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
-   sprintf(buffer+strlen(buffer),"#include <windows.h>\n");
-   sprintf(buffer+strlen(buffer),"void CreateSplash(unsigned long time,char*,char*,TString*,int);\n");
-   sprintf(buffer+strlen(buffer),"DWORD WINAPI SplashThread ( LPVOID lpvoid) {\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("#if defined( _MSC_VER )\n");
+   buffer.AppendFormated("#include <windows.h>\n");
+   buffer.AppendFormated("void CreateSplash(unsigned long time,char*,char*,ROMEString*,int);\n");
+   buffer.AppendFormated("DWORD WINAPI SplashThread ( LPVOID lpvoid) {\n");
    bool same = false;
    int numAuthors = 1;
-   char (*authors)[50] = new char[numOfTask+1][50];
-   strcpy(authors[0],mainAuthor);
+   ROMEString authors[50];
+   authors[0] = mainAuthor;
    for (i=0;i<numOfFolder;i++) {
       same = false;
       for (j=0;j<i+1;j++) {
-         if (!strcmp(authors[j],folderAuthor[i])) {
+         if (authors[j]==folderAuthor[i]) {
             same = true;
             break;
          }
       }
       if (!same) {
-         strcpy(authors[numAuthors],folderAuthor[i]);
+         authors[numAuthors] = folderAuthor[i];
          numAuthors++;
       }
    }
    for (i=0;i<numOfTask;i++) {
       same = false;
       for (j=0;j<i+1;j++) {
-         if (!strcmp(authors[j],taskAuthor[i])) {
+         if (authors[j]==taskAuthor[i]) {
             same = true;
             break;
          }
       }
       if (!same) {
-         strcpy(authors[numAuthors],taskAuthor[i]);
+         authors[numAuthors] = taskAuthor[i];
          numAuthors++;
       }
    }
-   sprintf(buffer+strlen(buffer),"   TString *authors = new TString[%d];\n",numAuthors);
+   buffer.AppendFormated("   ROMEString *authors = new ROMEString[%d];\n",numAuthors);
    for (i=0;i<numAuthors;i++) {
-      sprintf(buffer+strlen(buffer),"   authors[%d] = \"%s\";\n",i,authors[i]);
+      buffer.AppendFormated("   authors[%d] = \"%s\";\n",i,authors[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"   CreateSplash(3,\"%s%s\",\"%s\",authors,%d);\n",shortCut,mainProgName,romeVersion,numAuthors);
-   sprintf(buffer+strlen(buffer),"   return 0;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("   CreateSplash(3,\"%s%s\",\"%s\",authors,%d);\n",shortCut.Data(),mainProgName.Data(),romeVersion.Data(),numAuthors);
+   buffer.AppendFormated("   return 0;\n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("\n");
 
 
    // Constructor
-   char parentt[100];
-   sprintf(buffer+strlen(buffer),"%sAnalyzer::%sAnalyzer() {\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"// Folder, Task, Tree and Data Base initialisation\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("%sAnalyzer::%sAnalyzer() {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("// Folder, Task, Tree and Data Base initialisation\n");
+   buffer.AppendFormated("\n");
    // Steering 
    if (numOfSteering!=0) {
-      sprintf(buffer+strlen(buffer),"   fGeneralSteeringParameters = new %sGeneralSteering();\n",shortCut);
+      buffer.AppendFormated("   fGeneralSteeringParameters = new %sGeneralSteering();\n",shortCut.Data());
    }
    // Folder 
-   sprintf(buffer+strlen(buffer),"   // Folder initialisation\n");
-   sprintf(buffer+strlen(buffer),"   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut,shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut);
+   buffer.AppendFormated("   // Folder initialisation\n");
+   buffer.AppendFormated("   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut.Data(),shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut.Data());
 
    for (i=0;i<numOfFolder;i++) {
-      if (!strcmp(folderParentName[i],"GetMainFolder()")) strcpy(parentt,folderParentName[i]);
-      else sprintf(parentt,"%sFolder",folderParentName[i]);
-      sprintf(format,"   TFolder* %%sFolder%%%ds = %%s->AddFolder(\"%%s\",\"%%s\");\n",nameLen-strlen(folderName[i]));
-      sprintf(buffer+strlen(buffer),format,folderName[i],"",parentt,folderName[i],folderTitle[i]);
+      if (folderParentName[i]=="GetMainFolder()") parentt = folderParentName[i];
+      else parentt.SetFormated("%sFolder",folderParentName[i].Data());
+      format.SetFormated("   TFolder* %%sFolder%%%ds = %%s->AddFolder(\"%%s\",\"%%s\");\n",nameLen-folderName[i].Length());
+      buffer.AppendFormated((char*)format.Data(),folderName[i].Data(),"",parentt.Data(),folderName[i].Data(),folderTitle[i].Data());
    }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"\n   f%sObjects = new TClonesArray(\"%s%s\");\n",folderName[i],shortCut,folderName[i]);
-            sprintf(buffer+strlen(buffer),"   %sFolder->Add(f%sObjects);\n",folderName[i],folderName[i]);
+         if (folderArray[i]=="1") {
+            buffer.AppendFormated("\n   f%sObject = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormated("   %sFolder->Add(f%sObject);\n",folderName[i].Data(),folderName[i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"\n   f%sObject = new %s%s();\n",folderName[i],shortCut,folderName[i]);
-            sprintf(buffer+strlen(buffer),"   %sFolder->Add(f%sObject);\n",folderName[i],folderName[i]);
+            buffer.AppendFormated("\n   f%sObjects = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormated("   %sFolder->Add(f%sObjects);\n",folderName[i].Data(),folderName[i].Data());
          }
       }
    }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // IO
-   sprintf(buffer+strlen(buffer),"   // IO Class initialisation\n");
-   sprintf(buffer+strlen(buffer),"   fIO = new %sIO(",shortCut);
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1"))
-            sprintf(buffer+strlen(buffer),"f%sObjects,",folderName[i]);
-         else
-            sprintf(buffer+strlen(buffer),"f%sObject,",folderName[i]);
-      }
-   }
-   sprintf(buffer+strlen(buffer)-1,");\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
+   buffer.AppendFormated("\n");
 
    // Task
-   sprintf(buffer+strlen(buffer),"   // Task initialisation\n");
-   sprintf(buffer+strlen(buffer),"   fMainTask = new ROMEEventLoop(\"mainTask\",\"Main Task of %s%s\",this);\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"   fMainFolder->Add(fMainTask);\n");
-   sprintf(buffer+strlen(buffer),"   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
+   buffer.AppendFormated("   // Task initialisation\n");
+   buffer.AppendFormated("   fMainTask = new ROMEEventLoop(\"mainTask\",\"Main Task of %s%s\",this);\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("   fMainFolder->Add(fMainTask);\n");
+   buffer.AppendFormated("   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
 
    int taskLen=0;
    for (i=0;i<numOfTask;i++) {
-      if (taskLen<(int)strlen(taskName[i])) taskLen = strlen(taskName[i]);
+      if (taskLen<(int)taskName[i].Length()) taskLen = taskName[i].Length();
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(format,"   f%%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-strlen(taskName[i]));
-      sprintf(buffer+strlen(buffer),format,taskName[i],"",shortCut,taskName[i],taskName[i],"");
-      sprintf(buffer+strlen(buffer),"   ((%sT%s*)f%sTask)->SetActive(false);\n",shortCut,taskName[i],taskName[i]);
+      format.SetFormated("   f%%sTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\",this);\n",taskLen-taskName[i].Length());
+      buffer.AppendFormated((char*)format.Data(),taskName[i].Data(),"",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),"");
+      buffer.AppendFormated("   ((%sT%s*)f%sTask)->SetActive(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      if (!strcmp(taskParentName[i],"GetMainTask()")) strcpy(parentt,taskParentName[i]);
-      else sprintf(parentt,"f%sTask",taskParentName[i]);
-      sprintf(buffer+strlen(buffer),"   %s->Add(f%sTask);\n",parentt,taskName[i]);
+      if (taskParentName[i]=="GetMainTask()") parentt = taskParentName[i];
+      else parentt.SetFormated("f%sTask",taskParentName[i].Data());
+      buffer.AppendFormated("   %s->Add(f%sTask);\n",parentt.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
 
-   sprintf(buffer+strlen(buffer),"%sAnalyzer::~%sAnalyzer() {\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"   delete fIO;\n");
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-
-   // Initialize Folders
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::InitFolders() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   int i;\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (!strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   new(f%sObject) %s%s( ",folderName[i],shortCut,folderName[i]);
-            for (j=0;j<numOfValue[i];j++) {
-               if (!strcmp(valueArray[i][j],"0"))
-                  sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
-            }
-            sprintf(buffer+strlen(buffer)-1," );\n");
-         }
-         else {
-            strcpy(tmp,folderArray[i]);
-            if (strstr(folderArray[i],"fAnalyzer")==folderArray[i])
-               sprintf(tmp,"this%s",folderArray[i]+9);
-            sprintf(buffer+strlen(buffer),"   for (i=0;i<%s;i++) {\n",tmp);
-            sprintf(buffer+strlen(buffer),"     new((*f%sObjects)[i]) %s%s( ",folderName[i],shortCut,folderName[i]);
-            for (j=0;j<numOfValue[i];j++) {
-               if (!strcmp(valueArray[i][j],"0"))
-                  sprintf(buffer+strlen(buffer),"%s,",valueInit[i][j]);
-            }
-            sprintf(buffer+strlen(buffer)-1," );\n");
-            sprintf(buffer+strlen(buffer),"   }\n");
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-   // Initialize Task Switches
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::InitTaskSwitches() {\n",shortCut);
-   for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"   ((DCIO*)fIO)->GetTaskSwitches()->%s = f%sTask->IsActive();\n",taskName[i],taskName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-   // Update Task Switches
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::UpdateTaskSwitches() {\n",shortCut);
-   for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"   if (((DCIO*)fIO)->GetTaskSwitches()->%s)\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"      f%sTask->SetActive(true);\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      f%sTask->SetActive(false);\n",taskName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-   // Configuration File
-   sprintf(buffer+strlen(buffer),"\n// Configuration File\n");
-   sprintf(buffer+strlen(buffer),"//--------------------\n");
-   sprintf(buffer+strlen(buffer),"bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   char *name;\n");
-   sprintf(buffer+strlen(buffer),"   char value[1000];\n");
-   sprintf(buffer+strlen(buffer),"   int type;\n");
-   sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
-   sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForRead(configFile)) {\n");
-   sprintf(buffer+strlen(buffer),"      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
-   sprintf(buffer+strlen(buffer),"      return false;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   while (xml->NextLine()) {\n");
-   sprintf(buffer+strlen(buffer),"      type = xml->GetType();\n");
-   sprintf(buffer+strlen(buffer),"      name = xml->GetName();\n");
-   // Modes
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Modes\")) {\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"AnalyzingMode\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"online\"))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOnline();\n");
-   sprintf(buffer+strlen(buffer),"         else\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOffline();\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"InputDataFormat\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"root\"))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRoot();\n");
-   sprintf(buffer+strlen(buffer),"         else\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetMidas();\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"BatchMode\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"yes\"))\n");
-   sprintf(buffer+strlen(buffer),"            fBatchMode = true;\n");
-   sprintf(buffer+strlen(buffer),"         else\n");
-   sprintf(buffer+strlen(buffer),"            fBatchMode = false;\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"ShowSplashScreen\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"no\"))\n");
-   sprintf(buffer+strlen(buffer),"            fSplashScreen = false;\n");
-   sprintf(buffer+strlen(buffer),"         else\n");
-   sprintf(buffer+strlen(buffer),"            fSplashScreen = true;\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"DataBaseMode\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp(value,\"sql\")||!strcmp(value,\"SQL\"))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"         else if (!strcmp(value,\"xml\")||!strcmp(value,\"XML\")) {\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetXMLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Run Numbers
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value,sizeof(value)))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetRunNumbers(value);\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Event Numbers
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"EventNumbers\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetAttribute(\"Numbers\",value,sizeof(value)))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetEventNumbers(value);\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Paths
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
-   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
-   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetInputDir(value);\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
-   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
-   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetOutputDir(value);\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
-   sprintf(buffer+strlen(buffer),"         if (xml->GetValue(value,sizeof(value))) {\n");
-   sprintf(buffer+strlen(buffer),"            if (value[strlen(value)-1]!='/' && value[strlen(value)-1]!='\\\\')\n");
-   sprintf(buffer+strlen(buffer),"               strcat(value,\"/\");\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetDataBaseDir(value);\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Tasks
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Tasks\")) {\n");
-   sprintf(buffer+strlen(buffer),"         while (xml->NextLine()) {\n");
-   sprintf(buffer+strlen(buffer),"            type = xml->GetType();\n");
-   sprintf(buffer+strlen(buffer),"            name = xml->GetName();\n");
-   for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp(name,\"%s\")) {\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"               int empty = xml->isEmpty();\n");
-      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Active\",value,sizeof(value));\n");
-      sprintf(buffer+strlen(buffer),"               if (!strcmp(value,\"yes\")) {\n");
-      sprintf(buffer+strlen(buffer),"                  f%sTask->SetActive();\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"               }\n");
-      sprintf(buffer+strlen(buffer),"               if (!empty) {\n");
-      sprintf(buffer+strlen(buffer),"                  while (xml->NextLine()) {\n");
-      sprintf(buffer+strlen(buffer),"                     type = xml->GetType();\n");
-      sprintf(buffer+strlen(buffer),"                     name = xml->GetName();\n");
-      for (j=0;j<numOfHistos[i];j++) {
-         sprintf(buffer+strlen(buffer),"                     if (type == 1 && !strcmp(name,\"%s\")) {\n",histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"                        strcpy(value,\"\");\n");
-         sprintf(buffer+strlen(buffer),"                        xml->GetAttribute(\"Accumulate\",value,sizeof(value));\n");
-         sprintf(buffer+strlen(buffer),"                        if (!strcmp(value,\"no\"))\n");
-         sprintf(buffer+strlen(buffer),"                           ((%sT%s*)f%sTask)->Set%sAccumulation(false);\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"                     }\n");
-      }
-      WriteTaskSteerConfigRead(buffer,0,i);
-      sprintf(buffer+strlen(buffer),"                     if (type == 15 && !strcmp(name,\"%s\"))\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"                        break;\n");
-      sprintf(buffer+strlen(buffer),"                  }\n");
-      sprintf(buffer+strlen(buffer),"               }\n");
-      sprintf(buffer+strlen(buffer),"            }\n");
-   }
-   sprintf(buffer+strlen(buffer),"            if (type == 15 && !strcmp(name,\"Tasks\"))\n");
-   sprintf(buffer+strlen(buffer),"               break;\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Trees
-   sprintf(buffer+strlen(buffer),"      if (type == 1 && !strcmp(name,\"Trees\")) {\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(value,\"\");\n");
-   sprintf(buffer+strlen(buffer),"         xml->GetAttribute(\"Accumulation\",value,sizeof(value));\n");
-   sprintf(buffer+strlen(buffer),"         if (!strcmp((const char*)value,\"yes\"))\n");
-   sprintf(buffer+strlen(buffer),"            this->GetIO()->SetTreeAccumulation();\n");
-   sprintf(buffer+strlen(buffer),"         while (xml->NextLine()) {\n");
-   sprintf(buffer+strlen(buffer),"            type = xml->GetType();\n");
-   sprintf(buffer+strlen(buffer),"            name = xml->GetName();\n");
+   // Tree
+   buffer.AppendFormated("   TTree *tree;\n\n");
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i]);
-      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Read\",value,sizeof(value));\n");
-      sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
-      sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetRead(true);\n",i);
-      sprintf(buffer+strlen(buffer),"               strcpy(value,\"\");\n");
-      sprintf(buffer+strlen(buffer),"               xml->GetAttribute(\"Write\",value,sizeof(value));\n");
-      sprintf(buffer+strlen(buffer),"               if (!strcmp((const char*)value,\"yes\"))\n");
-      sprintf(buffer+strlen(buffer),"                  this->GetIO()->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
-      sprintf(buffer+strlen(buffer),"            }\n");
-   }
-   sprintf(buffer+strlen(buffer),"            if (type == 15 && !strcmp((const char*)name,\"Trees\"))\n");
-   sprintf(buffer+strlen(buffer),"               break;\n");
-   sprintf(buffer+strlen(buffer),"         }\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   // Steering
-   if (numOfSteering>0)
-      WriteSteerConfigRead(buffer,0);
-
-   sprintf(buffer+strlen(buffer),"      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
-   sprintf(buffer+strlen(buffer),"         break;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   delete xml;\n");
-   sprintf(buffer+strlen(buffer),"   return true;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-
-   // WriteROMEConfigXML
-   sprintf(buffer+strlen(buffer),"bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
-   sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForWrite(configFile))\n");
-   sprintf(buffer+strlen(buffer),"      return false;\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Configuration\");\n");
-   //modes
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Modes\");\n");
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isOnline())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isMidas())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"InputDataFormat\",\"root\");\n");
-   sprintf(buffer+strlen(buffer),"   if (isBatchMode())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"BatchMode\",\"yes\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"BatchMode\",\"no\");\n");
-   sprintf(buffer+strlen(buffer),"   if (isSplashScreen())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"ShowSplashScreen\",\"yes\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"ShowSplashScreen\",\"no\");\n");
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isXMLDataBase())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"xml\");\n");
-   sprintf(buffer+strlen(buffer),"   else if (this->GetIO()->isSQLDataBase())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"sql\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"DataBaseMode\",\"none\");\n");
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-   //run numbers
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"RunNumbers\");\n");
-   sprintf(buffer+strlen(buffer),"   xml->WriteAttribute(\"Numbers\",this->GetIO()->GetRunNumberStringOriginal());\n");
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-   //event numbers
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"EventNumbers\");\n");
-   sprintf(buffer+strlen(buffer),"   xml->WriteAttribute(\"Numbers\",this->GetIO()->GetEventNumberStringOriginal());\n");
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-   //paths
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Paths\");\n");
-   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"InputFilePath\",this->GetIO()->GetInputDir());\n");
-   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"OutputFilePath\",this->GetIO()->GetOutputDir());\n");
-   sprintf(buffer+strlen(buffer),"   xml->WriteElement(\"DataBaseFilePath\",this->GetIO()->GetDataBaseDir());\n");
-   sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-   //tasks
-   sprintf(buffer+strlen(buffer),"   xml->StartElement( \"Tasks\");\n");
-   for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"   if (f%sTask->IsActive())\n",taskName[i]);
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"yes\");\n");
-      sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Active\",\"no\");\n");
-      for (j=0;j<numOfHistos[i];j++) {
-         sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"   if (((%sT%s*)f%sTask)->is%sAccumulation())\n",shortCut,taskName[i],taskName[i],histoName[i][j]);
-         sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"yes\");\n");
-         sprintf(buffer+strlen(buffer),"   else\n");
-         sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
-         sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-      }
-      if (numOfTaskSteering[i]>0)
-         WriteTaskSteerConfigWrite(buffer,0,i);
-      sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
-   }
-   sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
-
-   //trees
-   sprintf(buffer+strlen(buffer),"   xml->StartElement(\"Trees\");\n");
-   sprintf(buffer+strlen(buffer),"   if (this->GetIO()->isTreeAccumulation())\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulation\",\"yes\");\n");
-   sprintf(buffer+strlen(buffer),"   else\n");
-   sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Accumulation\",\"no\");\n");
-
-   for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   xml->StartElement(\"%s\");\n",treeName[i]);
-      sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isRead())\n",i);
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Read\",\"yes\");\n");
-      sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Read\",\"no\");\n");
-      sprintf(buffer+strlen(buffer),"   if (this->GetIO()->GetTreeObjectAt(%d)->isWrite())\n",i);
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Write\",\"yes\");\n");
-      sprintf(buffer+strlen(buffer),"   else\n");
-      sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Write\",\"no\");\n");
-      sprintf(buffer+strlen(buffer),"   xml->EndElement();\n");
-   }
-   sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
-
-   //steering
-   if (numOfSteering>0)
-      WriteSteerConfigWrite(buffer,0);
-
-   sprintf(buffer+strlen(buffer),"   xml->EndDocument();\n");
-   sprintf(buffer+strlen(buffer),"   return true;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-
-   // Splash Screen
-   sprintf(buffer+strlen(buffer),"#if defined( _MSC_VER )\n");
-   sprintf(buffer+strlen(buffer),"LPDWORD lpThreadId;\n");
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   CloseHandle(CreateThread(NULL,1024,&SplashThread,0,0,lpThreadId));\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"#if defined ( __linux__ )\n");
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::startSplashScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   \n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Console Screen
-   char prog[100];
-   sprintf(prog,"%s%s",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"void %sAnalyzer::consoleStartScreen() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   int i;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl;\n");   
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*\";\n");
-   int len1 = (int)((39-(double)strlen(prog))/2+0.5);
-   int len2 = (int)((39-(double)strlen(prog))/2);
-   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len1);
-   sprintf(buffer+strlen(buffer),"   cout << \"%s\";\n",prog);
-   sprintf(buffer+strlen(buffer),"   for (i=0;i<%d;i++) cout << \" \";\n",len2);
-   sprintf(buffer+strlen(buffer),"   cout << \"*\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*   generated by the ROME Environment   *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*             %s              *\" << endl;\n",romeVersion);
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*                                       *\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"*****************************************\" << endl << endl;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"   \n");
-
-   // Close cpp-File
-   fileHandle = open(cppFile,O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
-      }
-   }
-   if (!identical) {
-      fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
-      close(fileHandle);
-   }
-
-   delete [] cppFile;
-   return true;
-}
-
-bool ROMEBuilder::WriteAnalyzerH() {
-   int i;
-
-   char* hFile=NULL;
-   char buffer[bufferLength];
-   char fileBuffer[bufferLength];
-
-   int nb;
-   int fileHandle;
-
-   char format[100];
-   int nameLen = -1;
-   int typeLen = 12;
-   int scl = strlen(shortCut);
-   for (i=0;i<numOfFolder;i++) {
-      if (typeLen<(int)strlen(folderName[i])+scl) typeLen = strlen(folderName[i])+scl;
-      if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
-   }
-   int taskLen=0;
-   for (i=0;i<numOfTask;i++) {
-      if (taskLen<(int)strlen(taskName[i])) taskLen = strlen(taskName[i]);
-   }
-
-
-
-
-   // File name
-   hFile = new char[35+strlen(outDir)+strlen(shortCut)];
-   sprintf(hFile,"%s/include/framework/%sAnalyzer.h",outDir,shortCut);
-
-   // Description
-   sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
-
-   // Header
-   sprintf(buffer+strlen(buffer),"#ifndef %sAnalyzer_H\n",shortCut);
-   sprintf(buffer+strlen(buffer),"#define %sAnalyzer_H\n\n",shortCut);
-
-   sprintf(buffer+strlen(buffer),"#include <TTask.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TTree.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TFolder.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TClonesArray.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMETask.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEAnalyzer.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n\n",shortCut);
-
-   if (numOfSteering!=0) {
-      sprintf(buffer+strlen(buffer),"#include <include/framework/%sGeneralSteering.h>\n",shortCut);
-   }
-
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[i]);
-      }
-   }
-
-   // Class
-   sprintf(buffer+strlen(buffer),"\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-
-   // Fields
-   sprintf(buffer+strlen(buffer),"protected:\n");
-
-   // Folder Fields
-   sprintf(buffer+strlen(buffer),"   // Folder Fields\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",shortCut,folderName[i]);
-         }
-         else {
-            sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i]);
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Task Fields
-   sprintf(buffer+strlen(buffer),"   // Task Fields\n");
-   for (i=0;i<numOfTask;i++) {
-      sprintf(format,"   ROMETask* f%%sTask%%%ds;  // Handle to %%s Task\n",taskLen-strlen(taskName[i]));
-      sprintf(buffer+strlen(buffer),format,taskName[i],"",taskName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Steering Fields
-   if (numOfSteering!=0) {
-      sprintf(buffer+strlen(buffer),"   // Steering Parameter Fields\n");
-      sprintf(buffer+strlen(buffer),"\n   %sGeneralSteering* fGeneralSteeringParameters; // Handle to the GeneralSteering Class\n",shortCut);
-   }
-
-
-   // Methods
-   sprintf(buffer+strlen(buffer),"public:\n");
-   // Constructor
-   sprintf(buffer+strlen(buffer),"   %sAnalyzer();\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   ~%sAnalyzer();\n\n",shortCut);
-
-   sprintf(buffer+strlen(buffer),"   %sIO* GetIO() { return (%sIO*)fIO; };\n\n",shortCut,shortCut);
-
-   sprintf(buffer+strlen(buffer),"   void InitFolders();\n\n");
-   sprintf(buffer+strlen(buffer),"   void InitTaskSwitches();\n\n");
-   sprintf(buffer+strlen(buffer),"   void UpdateTaskSwitches();\n\n");
-
-   // Getters
-   sprintf(buffer+strlen(buffer),"   // Folder Getters\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         int lt = typeLen-strlen(folderName[i])-scl+nameLen-strlen(folderName[i]);
-         if (!strcmp(folderArray[i],"1")) {
-            sprintf(format,"   %%s%%s*%%%ds  Get%%sObject()%%%ds { return f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,8+nameLen-strlen(folderName[i]),15+typeLen+nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
-            sprintf(format,"   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-strlen(folderName[i])-scl,1+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",folderName[i],"");
-         }
-         else {
-            sprintf(format,"   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-strlen(folderName[i])-scl,3+nameLen-strlen(folderName[i]),lt);
-            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i],folderName[i],"");
-            sprintf(format,"   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-strlen(folderName[i]),14+typeLen+nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
-            sprintf(format,"   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-strlen(folderName[i]),13+typeLen+nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",folderName[i],"");
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Configuration file
-   sprintf(buffer+strlen(buffer),"   // Configuration File\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadROMEConfigXML(char *configFile);\n");
-   sprintf(buffer+strlen(buffer),"   bool WriteROMEConfigXML(char *configFile);\n");
-   sprintf(buffer+strlen(buffer),"\n");
- 
-   // Banks
-   if (numOfBank>0) {
-      sprintf(buffer+strlen(buffer),"   // Bank Methodes\n");
-      for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(buffer+strlen(buffer),"   %s* Get%sBankAt(int index) { return this->GetIO()->Get%sBankAt(index); };\n",bankStructName[i],bankName[i],bankName[i]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   %s Get%sBankAt(int index) { return this->GetIO()->Get%sBankAt(index); };\n",bankType[i],bankName[i],bankName[i]);
-         }
-         sprintf(buffer+strlen(buffer),"   int Get%sBankEntries() { return this->GetIO()->Get%sBankEntries(); };\n",bankName[i],bankName[i]);
-         sprintf(buffer+strlen(buffer),"   void Init%sBank() { this->GetIO()->Init%sBank(); };\n",bankName[i],bankName[i]);
-      }
-      sprintf(buffer+strlen(buffer),"\n");
-   }
-
-
-   // Data Base
-   sprintf(buffer+strlen(buffer),"   // Data Base Methodes\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
-         sprintf(buffer+strlen(buffer),"   void Write%sDataBase() { this->GetIO()->Write%sDataBase(); };\n",folderName[i],folderName[i]);
-      }
-   }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Steering
-   if (numOfSteering>0) {
-      sprintf(buffer+strlen(buffer),"   // Steering Parameter Methodes\n");
-      sprintf(buffer+strlen(buffer),"   %sGeneralSteering* GetGeneralSteeringParameters() { return fGeneralSteeringParameters; };\n",shortCut);
-      sprintf(buffer+strlen(buffer),"   %sGeneralSteering* GetGSP() { return fGeneralSteeringParameters; };\n",shortCut);
-      sprintf(buffer+strlen(buffer),"\n");
-   }
-
-   // Private
-   sprintf(buffer+strlen(buffer),"private:\n");
-   sprintf(buffer+strlen(buffer),"   void startSplashScreen();\n");
-   sprintf(buffer+strlen(buffer),"   void consoleStartScreen();\n");
-
-   // Footer
-   sprintf(buffer+strlen(buffer),"};\n\n");
-
-   sprintf(buffer+strlen(buffer),"#endif   // %sAnalyzer_H\n",shortCut);
-
-   // Write File
-   fileHandle = open(hFile,O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
-      }
-   }
-   if (!identical) {
-      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
-      close(fileHandle);
-   }
-
-   delete [] hFile;
-   return true;
-}
-
-bool ROMEBuilder::WriteIOCpp() {
-   int i;
-
-   char* cppFile=NULL;
-   char buffer[bufferLength];
-   char fileBuffer[bufferLength];
-
-   char format[100];
-   int nb,j,k,iFold=0,ll;
-   int fileHandle;
-
-   // File name
-   cppFile = new char[25+strlen(outDir)+strlen(shortCut)];
-   sprintf(cppFile,"%s/src/framework/%sIO.cpp",outDir,shortCut);
-
-   // Description
-   sprintf(buffer,"//// Author: %s\n",mainAuthor);
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   ll = 74-strlen(shortCut);
-   sprintf(format,"// %%s%%-%d.%ds //\n",ll,ll);
-   sprintf(buffer+strlen(buffer),format,shortCut,"IO");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Derivated form ROMEIO. Implements Experiment specific IO methods.          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
-
-   // Header
-   sprintf(buffer+strlen(buffer),"#include <sys/stat.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TBranchElement.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <TTask.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMEXML.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMETree.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <ROMETreeInfo.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <include/framework/%sIO.h>\n",shortCut);
-
-   sprintf(buffer+strlen(buffer),"#include \"Riostream.h\"\n");
-
-   // constructor
-   sprintf(buffer+strlen(buffer),"// Constructor\n");
-   sprintf(buffer+strlen(buffer),"%sIO::%sIO(",shortCut,shortCut);
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"TClonesArray* %sObjects,",folderName[i]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"%s%s* %sObject,",shortCut,folderName[i],folderName[i]);
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer)-1,")\n");
-   sprintf(buffer+strlen(buffer),"{\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   f%sObjects = %sObjects;\n",folderName[i],folderName[i]);
-         }
-         else {
-            sprintf(buffer+strlen(buffer),"   f%sObject = %sObject;\n",folderName[i],folderName[i]);
-         }
-      }
-   }
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   TTree *tree;\n\n");
-   for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   tree = new TTree(\"%s\",\"%s\");\n",treeName[i],treeTitle[i]);
-      sprintf(buffer+strlen(buffer),"   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
+      buffer.AppendFormated("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
+      buffer.AppendFormated("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
-            if (!strcmp(branchFolder[i][j],folderName[k])) iFold = k;
+            if (branchFolder[i][j]==folderName[k]) 
+               iFold = k;
          }
-         if (strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"TClonesArray\",&f%sObjects,32000,99);\n",branchName[i][j],branchFolder[i][j]);
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormated("   tree->Branch(\"%s\",\"%s%s\",&f%sObject,32000,99);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   tree->Branch(\"%s\",\"%s%s\",&f%sObject,32000,99);\n",branchName[i][j],shortCut,folderName[iFold],branchFolder[i][j]);
+            buffer.AppendFormated("   tree->Branch(\"%s\",\"TClonesArray\",&f%sObjects,32000,99);\n",branchName[i][j].Data(),branchFolder[i][j].Data());
          }
       }
-      sprintf(buffer+strlen(buffer),"   this->AddTree(tree);\n\n");
+      buffer.AppendFormated("   this->AddTree(tree);\n\n");
    }
-   sprintf(buffer+strlen(buffer),"   fProgramName = \"%s%s\";\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   fTaskSwitchesString =  \"");
-   for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"%s = BOOL : 0\\n",taskName[i]);
-   }
-   sprintf(buffer+strlen(buffer),"\";\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
 
-   sprintf(buffer+strlen(buffer),"%sIO::~%sIO() {\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   fTaskSwitchesString =  \"");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormated("%s = BOOL : 0\\n",taskName[i].Data());
+   }
+   buffer.AppendFormated("\";\n");
+
+   buffer.AppendFormated("}\n\n");
 
    // Task switches call back
-   sprintf(buffer+strlen(buffer),"// Task switches call back\n");
-   sprintf(buffer+strlen(buffer),"bool ROMEIO::fTaskSwitchesChanged = false;\n");
-   sprintf(buffer+strlen(buffer),"void TaskSwitchesChanged(int hDB,int hKey,void *info) {\n");
-   sprintf(buffer+strlen(buffer),"   ROMEIO::fTaskSwitchesChanged = true;\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("// Task switches call back\n");
+   buffer.AppendFormated("bool ROMEAnalyzer::fTaskSwitchesChanged = false;\n");
+   buffer.AppendFormated("void TaskSwitchesChanged(int hDB,int hKey,void *info) {\n");
+   buffer.AppendFormated("   ROMEAnalyzer::fTaskSwitchesChanged = true;\n");
+   buffer.AppendFormated("}\n\n");
 
    // Initialize ODB
-   sprintf(buffer+strlen(buffer),"// InitODB\n");
-   sprintf(buffer+strlen(buffer),"bool %sIO::InitODB() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   HNDLE hKey;\n");
-   sprintf(buffer+strlen(buffer),"   TString str;\n");
-   sprintf(buffer+strlen(buffer),"   str = \"/%s%s/Task switches\";\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"   db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fTaskSwitchesString.Data(), TRUE);\n");
-   sprintf(buffer+strlen(buffer),"   db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);\n");
-   sprintf(buffer+strlen(buffer),"   if (db_set_record(fMidasOnlineDataBase,hKey,&fTaskSwitches,sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
-   sprintf(buffer+strlen(buffer),"      cout << \"Cannot write to task switches record.\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"      return false;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   if (db_open_record(fMidasOnlineDataBase, hKey, &fTaskSwitches, sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
-   sprintf(buffer+strlen(buffer),"      cout << \"Cannot open task switches record, probably other analyzer is using it\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"      return false;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   return true;\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("// InitODB\n");
+   buffer.AppendFormated("bool %sAnalyzer::InitODB() {\n",shortCut.Data());
+   buffer.AppendFormated("   HNDLE hKey;\n");
+   buffer.AppendFormated("   ROMEString str;\n");
+   buffer.AppendFormated("   str = \"/%s%s/Task switches\";\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("   db_check_record(fMidasOnlineDataBase, 0, (char*)str.Data(), (char*)fTaskSwitchesString.Data(), TRUE);\n");
+   buffer.AppendFormated("   db_find_key(fMidasOnlineDataBase, 0, (char*)str.Data(), &hKey);\n");
+   buffer.AppendFormated("   if (db_set_record(fMidasOnlineDataBase,hKey,&fTaskSwitches,sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
+   buffer.AppendFormated("      cout << \"Cannot write to task switches record.\" << endl;\n");
+   buffer.AppendFormated("      return false;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   if (db_open_record(fMidasOnlineDataBase, hKey, &fTaskSwitches, sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
+   buffer.AppendFormated("      cout << \"Cannot open task switches record, probably other analyzer is using it\" << endl;\n");
+   buffer.AppendFormated("      return false;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   return true;\n");
+   buffer.AppendFormated("}\n\n");
 
    // clear folders
-   sprintf(buffer+strlen(buffer),"// Clear Folders\n");
-   sprintf(buffer+strlen(buffer),"void %sIO::ClearFolders() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   int i;\n");
+   buffer.AppendFormated("// Clear Folders\n");
+   buffer.AppendFormated("void %sAnalyzer::ClearFolders() {\n",shortCut.Data());
+   buffer.AppendFormated("   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
-         if (!strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"   f%sObject->Reset();\n",folderName[i]);
+         if (folderArray[i]=="1") {
+            buffer.AppendFormated("   f%sObject->Reset();\n",folderName[i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Reset();\n",shortCut,folderName[i],folderName[i]);
-            sprintf(buffer+strlen(buffer),"   }\n");
+            buffer.AppendFormated("   for (i=0;i<f%sObjects->GetEntriesFast();i++) {\n",folderName[i].Data());
+            buffer.AppendFormated("      ((%s%s*)f%sObjects->At(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormated("   }\n");
          }
       }
       if (bankHasHeader) {
-         if (!strcmp(folderName[i],bankHeaderFolder)) {
-            if (strcmp(bankHeaderEventID,""))
-               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->event_id);\n",folderName[i],bankHeaderEventID);
-            if (strcmp(bankHeaderTriggerMask,""))
-               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->trigger_mask);\n",folderName[i],bankHeaderTriggerMask);
-            if (strcmp(bankHeaderSerialNumber,""))
-               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->serial_number);\n",folderName[i],bankHeaderSerialNumber);
-            if (strcmp(bankHeaderTimeStamp,""))
-               sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->time_stamp);\n",folderName[i],bankHeaderTimeStamp);
+         if (folderName[i]==bankHeaderFolder) {
+            if (bankHeaderEventID!="")
+               buffer.AppendFormated("   f%sObject->Set%s(this->GetEventHeader()->event_id);\n",folderName[i].Data(),bankHeaderEventID.Data());
+            if (bankHeaderTriggerMask!="")
+               buffer.AppendFormated("   f%sObject->Set%s(this->GetEventHeader()->trigger_mask);\n",folderName[i].Data(),bankHeaderTriggerMask.Data());
+            if (bankHeaderSerialNumber!="")
+               buffer.AppendFormated("   f%sObject->Set%s(this->GetEventHeader()->serial_number);\n",folderName[i].Data(),bankHeaderSerialNumber.Data());
+            if (bankHeaderTimeStamp!="")
+               buffer.AppendFormated("   f%sObject->Set%s(this->GetEventHeader()->time_stamp);\n",folderName[i].Data(),bankHeaderTimeStamp.Data());
          }
       }
    }
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("}\n\n");
 
    // fill trees
-   sprintf(buffer+strlen(buffer),"// Tree Filling\n");
-   sprintf(buffer+strlen(buffer),"void %sIO::FillTrees() {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   ROMETree *romeTree;\n");
-   sprintf(buffer+strlen(buffer),"   int i;\n");
-   sprintf(buffer+strlen(buffer),"   // Fill Trees;\n");
-   sprintf(buffer+strlen(buffer),"   bool write = false;\n");
-   sprintf(buffer+strlen(buffer),"   bool written = false;\n");
+   buffer.AppendFormated("// Tree Filling\n");
+   buffer.AppendFormated("void %sAnalyzer::FillTrees() {\n",shortCut.Data());
+   buffer.AppendFormated("   ROMETree *romeTree;\n");
+   buffer.AppendFormated("   int i;\n");
+   buffer.AppendFormated("   // Fill Trees;\n");
+   buffer.AppendFormated("   bool write = false;\n");
+   buffer.AppendFormated("   bool written = false;\n");
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"   write = false;\n");
-      sprintf(buffer+strlen(buffer),"   romeTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
-      sprintf(buffer+strlen(buffer),"   if (romeTree->isWrite()) {\n");
+      buffer.AppendFormated("   write = false;\n");
+      buffer.AppendFormated("   romeTree = (ROMETree*)fTreeObjects->At(%d);\n",i);
+      buffer.AppendFormated("   if (romeTree->isWrite()) {\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
-            if (!strcmp(folderName[k],branchFolder[i][j])) {
+            if (folderName[k]==branchFolder[i][j]) {
                iFold = k;
                break;
             }
          }
-         if (!strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"      if (!write && f%sObject->isModified()) {\n",branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"         write = true;\n");
-            sprintf(buffer+strlen(buffer),"      }\n");
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormated("      if (!write && f%sObject->isModified()) {\n",branchFolder[i][j].Data());
+            buffer.AppendFormated("         write = true;\n");
+            buffer.AppendFormated("      }\n");
          }
          else {
-            sprintf(buffer+strlen(buffer),"      for (i=0;i<f%sObjects->GetEntries()&&!write;i++) {\n",branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"         if (((%s%s*)f%sObjects->At(i))->isModified()) {\n",shortCut,branchFolder[i][j],branchFolder[i][j]);
-            sprintf(buffer+strlen(buffer),"            write = true;\n");
-            sprintf(buffer+strlen(buffer),"            break;\n");
-            sprintf(buffer+strlen(buffer),"         }\n");
-            sprintf(buffer+strlen(buffer),"      }\n");
+            buffer.AppendFormated("      for (i=0;i<f%sObjects->GetEntries()&&!write;i++) {\n",branchFolder[i][j].Data());
+            buffer.AppendFormated("         if (((%s%s*)f%sObjects->At(i))->isModified()) {\n",shortCut.Data(),branchFolder[i][j].Data(),branchFolder[i][j].Data());
+            buffer.AppendFormated("            write = true;\n");
+            buffer.AppendFormated("            break;\n");
+            buffer.AppendFormated("         }\n");
+            buffer.AppendFormated("      }\n");
          }
       }
-      sprintf(buffer+strlen(buffer),"      if (write) {\n");
-      sprintf(buffer+strlen(buffer),"         written = true;\n");
-      sprintf(buffer+strlen(buffer),"         fTreeInfo->SetSequentialNumber(fSequentialNumber);\n");
-      sprintf(buffer+strlen(buffer),"         romeTree->GetTree()->Fill();\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
+      buffer.AppendFormated("      if (write) {\n");
+      buffer.AppendFormated("         written = true;\n");
+      buffer.AppendFormated("         fTreeInfo->SetSequentialNumber(fSequentialNumber);\n");
+      buffer.AppendFormated("         romeTree->GetTree()->Fill();\n");
+      buffer.AppendFormated("      }\n");
+      buffer.AppendFormated("   }\n");
    }
-   sprintf(buffer+strlen(buffer),"   if (written) {\n");
-   sprintf(buffer+strlen(buffer),"      fSequentialNumber++;\n");
-   sprintf(buffer+strlen(buffer),"      fTriggerStatistics.writtenEvents++;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("   if (written) {\n");
+   buffer.AppendFormated("      fSequentialNumber++;\n");
+   buffer.AppendFormated("      fTriggerStatistics.writtenEvents++;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("\n");
 
 
    // Midas Bank Initialisation
-   sprintf(buffer+strlen(buffer),"// Midas Bank Initialisation\n");
-   sprintf(buffer+strlen(buffer),"void %sIO::InitMidasBanks() {\n",shortCut);
+   buffer.AppendFormated("// Midas Bank Initialisation\n");
+   buffer.AppendFormated("void %sAnalyzer::InitMidasBanks() {\n",shortCut.Data());
    for (i=0;i<numOfBank;i++) {
-      sprintf(buffer+strlen(buffer),"   this->Init%sBank();\n",bankName[i]);
+      buffer.AppendFormated("   this->Init%sBank();\n",bankName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"}\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("\n");
 
    // Midas Bank Methodes
-   sprintf(buffer+strlen(buffer),"\n// Midas Bank Getters\n");
+   buffer.AppendFormated("\n// Midas Bank Getters\n");
    for (i=0;i<numOfBank;i++) {
-      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-         sprintf(buffer+strlen(buffer),"%s* %sIO::Get%sBankAt(int index) {\n",bankStructName[i],shortCut,bankName[i]);
-         sprintf(buffer+strlen(buffer),"   if (this->f%sBankExists)\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"      return f%sBankPointer+index;\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"   return NULL;\n");
-         sprintf(buffer+strlen(buffer),"}\n");
+      if (bankType[i]=="structure"||bankType[i]=="struct") {
+         buffer.AppendFormated("%s* %sAnalyzer::Get%sBankAt(int index) {\n",bankStructName[i].Data(),shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormated("   if (this->f%sBankExists)\n",bankName[i].Data());
+         buffer.AppendFormated("      return f%sBankPointer+index;\n",bankName[i].Data());
+         buffer.AppendFormated("   return NULL;\n");
+         buffer.AppendFormated("}\n");
       }
       else {
-         sprintf(buffer+strlen(buffer),"%s %sIO::Get%sBankAt(int index) {\n",bankType[i],shortCut,bankName[i]);
-         sprintf(buffer+strlen(buffer),"   if (this->f%sBankExists)\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"      return *(f%sBankPointer+index);\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"   return (%s)exp(999);\n",bankType[i]);
-         sprintf(buffer+strlen(buffer),"}\n");
+         buffer.AppendFormated("%s %sAnalyzer::Get%sBankAt(int index) {\n",bankType[i].Data(),shortCut.Data(),bankName[i].Data());
+         buffer.AppendFormated("   if (this->f%sBankExists)\n",bankName[i].Data());
+         buffer.AppendFormated("      return *(f%sBankPointer+index);\n",bankName[i].Data());
+         buffer.AppendFormated("   return (%s)exp(999);\n",bankType[i].Data());
+         buffer.AppendFormated("}\n");
       }
-      sprintf(buffer+strlen(buffer),"void %sIO::Init%sBank() {\n",shortCut,bankName[i]);
-      sprintf(buffer+strlen(buffer),"   unsigned long bktype;\n");
-      sprintf(buffer+strlen(buffer),"   EVENT_HEADER *pevent = this->GetEventHeader();\n");
-      sprintf(buffer+strlen(buffer),"   pevent++;\n");
-      sprintf(buffer+strlen(buffer),"   if (ROMEStatic::bk_find(pevent, \"%s\", (unsigned long*)&f%sBankLength, &bktype, &f%sBankPointer)) {\n",bankName[i],bankName[i],bankName[i]);
-      sprintf(buffer+strlen(buffer),"      f%sBankExists = true;\n",bankName[i]);
-      sprintf(buffer+strlen(buffer),"      return;\n");
-      sprintf(buffer+strlen(buffer),"   }\n");
-      sprintf(buffer+strlen(buffer),"   f%sBankExists = false;\n",bankName[i]);
-      sprintf(buffer+strlen(buffer),"   f%sBankPointer = NULL;\n",bankName[i]);
-      sprintf(buffer+strlen(buffer),"   f%sBankLength = 0;\n",bankName[i]);
-      sprintf(buffer+strlen(buffer),"   return;\n");
-      sprintf(buffer+strlen(buffer),"}\n");
+      buffer.AppendFormated("void %sAnalyzer::Init%sBank() {\n",shortCut.Data(),bankName[i].Data());
+      buffer.AppendFormated("   unsigned long bktype;\n");
+      buffer.AppendFormated("   EVENT_HEADER *pevent = this->GetEventHeader();\n");
+      buffer.AppendFormated("   pevent++;\n");
+      buffer.AppendFormated("   if (ROMEStatic::bk_find(pevent, \"%s\", (unsigned long*)&f%sBankLength, &bktype, &f%sBankPointer)) {\n",bankName[i].Data(),bankName[i].Data(),bankName[i].Data());
+      buffer.AppendFormated("      f%sBankExists = true;\n",bankName[i].Data());
+      buffer.AppendFormated("      return;\n");
+      buffer.AppendFormated("   }\n");
+      buffer.AppendFormated("   f%sBankExists = false;\n",bankName[i].Data());
+      buffer.AppendFormated("   f%sBankPointer = NULL;\n",bankName[i].Data());
+      buffer.AppendFormated("   f%sBankLength = 0;\n",bankName[i].Data());
+      buffer.AppendFormated("   return;\n");
+      buffer.AppendFormated("}\n");
 
-      sprintf(buffer+strlen(buffer),"int %sIO::Get%sBankEntries() {\n",shortCut,bankName[i]);
-      sprintf(buffer+strlen(buffer),"   return f%sBankLength;\n",bankName[i]);
-      sprintf(buffer+strlen(buffer),"}\n\n");
+      buffer.AppendFormated("int %sAnalyzer::Get%sBankEntries() {\n",shortCut.Data(),bankName[i].Data());
+      buffer.AppendFormated("   return f%sBankLength;\n",bankName[i].Data());
+      buffer.AppendFormated("}\n\n");
    }
 
 
    // Connect Trees
-   sprintf(buffer+strlen(buffer),"// Connect Trees\n");
-   sprintf(buffer+strlen(buffer),"void %sIO::ConnectTrees()\n{\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   TBranchElement *bb;\n");
+   buffer.AppendFormated("// Connect Trees\n");
+   buffer.AppendFormated("void %sAnalyzer::ConnectTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormated("   TBranchElement *bb;\n");
    for (i=0;i<numOfTree;i++) {
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
-            if (!strcmp(branchFolder[i][j],folderName[k])) iFold = k;
+            if (branchFolder[i][j]==folderName[k]) 
+               iFold = k;
          }
-         sprintf(buffer+strlen(buffer),"   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j]);
-         if (strcmp(folderArray[iFold],"1")) {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->f%sObjects);\n",folderName[iFold]);
+         buffer.AppendFormated("   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormated("   bb->SetAddress(&this->f%sObject);\n",folderName[iFold].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->f%sObject);\n",folderName[iFold]);
+            buffer.AppendFormated("   bb->SetAddress(&this->f%sObjects);\n",folderName[iFold].Data());
          }
-         sprintf(buffer+strlen(buffer),"   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
-         sprintf(buffer+strlen(buffer),"   bb->SetAddress(&this->fTreeInfo);\n");
+         buffer.AppendFormated("   bb = (TBranchElement*)this->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
+         buffer.AppendFormated("   bb->SetAddress(&this->fTreeInfo);\n");
       }
    }
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("}\n\n");
 
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
    // SQL Init
-   sprintf(buffer+strlen(buffer),"bool %sIO::InitSQLDataBase()\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"#ifdef HAVE_SQL\n");
+   buffer.AppendFormated("bool %sAnalyzer::InitSQLDataBase()\n",shortCut.Data());
+   buffer.AppendFormated("{\n");
+   buffer.AppendFormated("#ifdef HAVE_SQL\n");
    if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   fSQL = new ROMESQL();\n");
-      sprintf(buffer+strlen(buffer),"   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut);
+      buffer.AppendFormated("   fSQL = new ROMESQL();\n");
+      buffer.AppendFormated("   return fSQL->Connect(\"pc4466.psi.ch\",\"rome\",\"rome\",\"%sDataBase\");\n",shortCut.Data());
    }
    else {
-      sprintf(buffer+strlen(buffer),"   return true;\n");
+      buffer.AppendFormated("   return true;\n");
    }
-   sprintf(buffer+strlen(buffer),"#else\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"No sql database access -> regenerate program !\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   return false;\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("#else\n");
+   buffer.AppendFormated("   cout << \"No sql database access -> regenerate program !\" << endl;\n");
+   buffer.AppendFormated("   return false;\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("}\n\n");
 
    // SQL Read
-   char buf[200];
-   sprintf(buffer+strlen(buffer),"bool %sIO::ReadSQLDataBase()\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"#ifdef HAVE_SQL\n");
+   ROMEString buf;
+   buffer.AppendFormated("bool %sAnalyzer::ReadSQLDataBase()\n",shortCut.Data());
+   buffer.AppendFormated("{\n");
+   buffer.AppendFormated("#ifdef HAVE_SQL\n");
    if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   char *cstop,*res;\n");
-      sprintf(buffer+strlen(buffer),"   int i;\n");
+      buffer.AppendFormated("   char *cstop,*res;\n");
+      buffer.AppendFormated("   int i;\n");
       for (i=0;i<numOfFolder;i++) {
          if (folderDataBase[i]) {
-            if (strcmp(folderArray[i],"1")) {
+            if (folderArray[i]=="1") {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j]);
-                  sprintf(buffer+strlen(buffer),"   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
-                  sprintf(buffer+strlen(buffer),"      fSQL->NextRow();\n");
-                  sprintf(buffer+strlen(buffer),"      res = fSQL->GetField(0);\n");
-                  setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-                  sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
-                  sprintf(buffer+strlen(buffer),"   }\n");
+                  buffer.AppendFormated("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormated("   fSQL->NextRow();\n");
+                  buffer.AppendFormated("   res = fSQL->GetField(0);\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormated("   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
                }
             }
             else {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j]);
-                  sprintf(buffer+strlen(buffer),"   fSQL->NextRow();\n");
-                  sprintf(buffer+strlen(buffer),"   res = fSQL->GetField(0);\n");
-                  setValue(buf,valueName[i][j],"res",valueType[i][j],1);
-                  sprintf(buffer+strlen(buffer),"   ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
+                  buffer.AppendFormated("   fSQL->ReadPathFields(\"%s\",this->GetCurrentRunNumber(),\"id\");\n",valueDataBasePath[i][j].Data());
+                  buffer.AppendFormated("   for(i=0;i<fSQL->GetNumberOfRows();i++){\n");
+                  buffer.AppendFormated("      fSQL->NextRow();\n");
+                  buffer.AppendFormated("      res = fSQL->GetField(0);\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"res",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormated("      ((%s%s*)f%sObjects->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormated("   }\n");
                }
             }
          }
       }
    }
-   sprintf(buffer+strlen(buffer),"   return true;\n");
-   sprintf(buffer+strlen(buffer),"#else\n");
-   sprintf(buffer+strlen(buffer),"   cout << \"No sql database access -> regenerate program !\" << endl;\n");
-   sprintf(buffer+strlen(buffer),"   return false;\n");
-   sprintf(buffer+strlen(buffer),"#endif\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("   return true;\n");
+   buffer.AppendFormated("#else\n");
+   buffer.AppendFormated("   cout << \"No sql database access -> regenerate program !\" << endl;\n");
+   buffer.AppendFormated("   return false;\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("}\n\n");
 
    // ReadXMLDataBase
-   sprintf(buffer+strlen(buffer),"bool %sIO::ReadXMLDataBase() {\n",shortCut);
+   buffer.AppendFormated("bool %sAnalyzer::ReadXMLDataBase() {\n",shortCut.Data());
    if (ndb>0) {
-      sprintf(buffer+strlen(buffer),"   char *cstop;\n");
-      sprintf(buffer+strlen(buffer),"   char *name;\n");
-      sprintf(buffer+strlen(buffer),"   int type;\n");
-      sprintf(buffer+strlen(buffer),"   char dbFile[200];\n");
-      sprintf(buffer+strlen(buffer),"   char filename[200];\n");
-      sprintf(buffer+strlen(buffer),"   char path[200];\n");
-      sprintf(buffer+strlen(buffer),"   char value[200];\n");
-      sprintf(buffer+strlen(buffer),"   char runNumberString[6];\n");
-      sprintf(buffer+strlen(buffer),"   this->GetCurrentRunNumberString(runNumberString);\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(filename,\"%%s/RunTable.xml\",this->GetInputDir());\n");
-      sprintf(buffer+strlen(buffer),"   sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
-      sprintf(buffer+strlen(buffer),"\n");
-      sprintf(buffer+strlen(buffer),"   ROMEXML *xml = new ROMEXML();\n");
-      sprintf(buffer+strlen(buffer),"   if (!xml->OpenFileForPath(filename)) { \n");
-      sprintf(buffer+strlen(buffer),"      cout << \"\\nFailed to load xml database : '\" << filename<< \"'\" << endl;\n");
-      sprintf(buffer+strlen(buffer),"      cout << \"Do you like the framework to generate a new xml database ([y]/n) ? \";\n");
-      sprintf(buffer+strlen(buffer),"      char answer[10];\n");
-      sprintf(buffer+strlen(buffer),"      cin >> answer;\n");
-      sprintf(buffer+strlen(buffer),"      if (strstr(answer,\"n\")==NULL) {\n");
-      sprintf(buffer+strlen(buffer),"         ROMEXML *xmlNew = new ROMEXML();\n");
-      sprintf(buffer+strlen(buffer),"         if (!xmlNew->OpenFileForWrite(filename))\n");
-      sprintf(buffer+strlen(buffer),"            return false;\n");
-      sprintf(buffer+strlen(buffer),"         xmlNew->StartElement(\"RunTable\");\n");
-      sprintf(buffer+strlen(buffer),"         xmlNew->EndDocument();\n");
-      sprintf(buffer+strlen(buffer),"         delete xmlNew;\n");
-      sprintf(buffer+strlen(buffer),"         if (!xml->OpenFileForPath(filename))\n");
-      sprintf(buffer+strlen(buffer),"            return false;\n");
-      sprintf(buffer+strlen(buffer),"         cout << \"\\nThe framework generated a new xml database.\" << endl;\n");
-      sprintf(buffer+strlen(buffer),"      }\n");
-      sprintf(buffer+strlen(buffer),"      else\n");
-      sprintf(buffer+strlen(buffer),"         return false; \n");
-      sprintf(buffer+strlen(buffer),"   }; \n");
+      buffer.AppendFormated("   char *cstop;\n");
+      buffer.AppendFormated("   char *name;\n");
+      buffer.AppendFormated("   int type;\n");
+      buffer.AppendFormated("   ROMEString dbFile;\n");
+      buffer.AppendFormated("   ROMEString filename;\n");
+      buffer.AppendFormated("   ROMEString path;\n");
+      buffer.AppendFormated("   ROMEString value;\n");
+      buffer.AppendFormated("   ROMEString runNumberString;\n");
+      buffer.AppendFormated("   this->GetCurrentRunNumberString(runNumberString);\n");
+      buffer.AppendFormated("   filename.SetFormated(\"%%s/RunTable.xml\",this->GetInputDir());\n");
+      buffer.AppendFormated("   path.SetFormated(\"//RunTable/Run_%%s\",runNumberString.Data());\n");
+      buffer.AppendFormated("\n");
+      buffer.AppendFormated("   ROMEXML *xml = new ROMEXML();\n");
+      buffer.AppendFormated("   if (!xml->OpenFileForPath(filename.Data())) { \n");
+      buffer.AppendFormated("      cout << \"\\nFailed to load xml database : '\" << filename.Data() << \"'\" << endl;\n");
+      buffer.AppendFormated("      cout << \"Do you like the framework to generate a new xml database ([y]/n) ? \";\n");
+      buffer.AppendFormated("      char answer[10];\n");
+      buffer.AppendFormated("      cin >> answer;\n");
+      buffer.AppendFormated("      if (strstr(answer,\"n\")==NULL) {\n");
+      buffer.AppendFormated("         ROMEXML *xmlNew = new ROMEXML();\n");
+      buffer.AppendFormated("         if (!xmlNew->OpenFileForWrite(filename.Data()))\n");
+      buffer.AppendFormated("            return false;\n");
+      buffer.AppendFormated("         xmlNew->StartElement(\"RunTable\");\n");
+      buffer.AppendFormated("         xmlNew->EndDocument();\n");
+      buffer.AppendFormated("         delete xmlNew;\n");
+      buffer.AppendFormated("         if (!xml->OpenFileForPath(filename.Data()))\n");
+      buffer.AppendFormated("            return false;\n");
+      buffer.AppendFormated("         cout << \"\\nThe framework generated a new xml database.\" << endl;\n");
+      buffer.AppendFormated("      }\n");
+      buffer.AppendFormated("      else\n");
+      buffer.AppendFormated("         return false; \n");
+      buffer.AppendFormated("   }; \n");
       for (i=0;i<numOfFolder;i++) {
          if (folderDataBase[i]) {
-            sprintf(buffer+strlen(buffer),"   if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {;\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s%%s\",this->GetDataBaseDir(),dbFile);\n");
-            sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForRead(filename)) { \n");
-            sprintf(buffer+strlen(buffer),"         cout << \"Failed to load database : '\" << filename<< \"'\" << endl;\n");
-            sprintf(buffer+strlen(buffer),"         return false; \n");
-            sprintf(buffer+strlen(buffer),"      };\n");
-            sprintf(buffer+strlen(buffer),"      while (xml->NextLine()) {\n");
-            sprintf(buffer+strlen(buffer),"         type = xml->GetType();\n");
-            sprintf(buffer+strlen(buffer),"         name = xml->GetName();\n");
-            sprintf(buffer+strlen(buffer),"         if (type == 1 && !strcmp(name,\"%s\")) {\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"            strcpy(value,\"0\");\n");
-            sprintf(buffer+strlen(buffer),"            xml->GetAttribute(\"Number\",value,sizeof(value));\n");
-            sprintf(buffer+strlen(buffer),"            int num = strtol(value,&cstop,10);\n");
-            sprintf(buffer+strlen(buffer),"            while (xml->NextLine()) {\n");
-            sprintf(buffer+strlen(buffer),"               type = xml->GetType();\n");
-            sprintf(buffer+strlen(buffer),"               name = xml->GetName();\n");
-            if (!strcmp(folderArray[i],"1")) {
+            buffer.AppendFormated("   if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {;\n",folderName[i].Data());
+            buffer.AppendFormated("      filename.SetFormated(\"%%s%%s\",this->GetDataBaseDir(),dbFile.Data());\n");
+            buffer.AppendFormated("      if (!xml->OpenFileForRead(filename.Data())) { \n");
+            buffer.AppendFormated("         cout << \"Failed to load database : '\" << filename.Data() << \"'\" << endl;\n");
+            buffer.AppendFormated("         return false; \n");
+            buffer.AppendFormated("      };\n");
+            buffer.AppendFormated("      while (xml->NextLine()) {\n");
+            buffer.AppendFormated("         type = xml->GetType();\n");
+            buffer.AppendFormated("         name = xml->GetName();\n");
+            buffer.AppendFormated("         if (type == 1 && !strcmp(name,\"%s\")) {\n",folderName[i].Data());
+            buffer.AppendFormated("            xml->GetAttribute(\"Number\",value,\"0\");\n");
+            buffer.AppendFormated("            int num = strtol(value.Data(),&cstop,10);\n");
+            buffer.AppendFormated("            while (xml->NextLine()) {\n");
+            buffer.AppendFormated("               type = xml->GetType();\n");
+            buffer.AppendFormated("               name = xml->GetName();\n");
+            if (folderArray[i]=="1") {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value,sizeof(value))) {\n");
-                  setValue(buf,valueName[i][j],"value",valueType[i][j],1);
-                  sprintf(buffer+strlen(buffer),"                     f%sObject->Set%s((%s)%s);\n",folderName[i],valueName[i][j],valueType[i][j],buf);
-                  sprintf(buffer+strlen(buffer),"                  };\n");
-                  sprintf(buffer+strlen(buffer),"               };\n");
+                  buffer.AppendFormated("               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j].Data());
+                  buffer.AppendFormated("                  if (xml->GetValue(value)) {\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"value.Data()",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormated("                     f%sObject->Set%s((%s)%s);\n",folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormated("                  };\n");
+                  buffer.AppendFormated("               };\n");
                }
             }
             else {
                for (j=0;j<numOfValue[i];j++) {
-                  sprintf(buffer+strlen(buffer),"               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j]);
-                  sprintf(buffer+strlen(buffer),"                  if (xml->GetValue(value,sizeof(value))) {\n");
-                  setValue(buf,valueName[i][j],"value",valueType[i][j],1);
-                  sprintf(buffer+strlen(buffer),"                     ((%s%s*)f%sObjects->At(num))->Set%s((%s)%s);\n",shortCut,folderName[i],folderName[i],valueName[i][j],valueType[i][j],buf);
-                  sprintf(buffer+strlen(buffer),"                  };\n");
-                  sprintf(buffer+strlen(buffer),"               };\n");
+                  buffer.AppendFormated("               if (type == 1 && !strcmp(name,\"%s\")) {\n",valueName[i][j].Data());
+                  buffer.AppendFormated("                  if (xml->GetValue(value)) {\n");
+                  setValue(&buf,(char*)valueName[i][j].Data(),"value.Data()",(char*)valueType[i][j].Data(),1);
+                  buffer.AppendFormated("                     ((%s%s*)f%sObjects->At(num))->Set%s((%s)%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueType[i][j].Data(),buf.Data());
+                  buffer.AppendFormated("                  };\n");
+                  buffer.AppendFormated("               };\n");
                }
             }
-            sprintf(buffer+strlen(buffer),"               if (type == 15 && !strcmp(name,\"%s\"))\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"                  break;\n");
-            sprintf(buffer+strlen(buffer),"            }\n");
-            sprintf(buffer+strlen(buffer),"         }\n");
-            sprintf(buffer+strlen(buffer),"         if (type == 15 && !strcmp(name,\"%ss\"))\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"            break;\n");
-            sprintf(buffer+strlen(buffer),"      }\n");
-            sprintf(buffer+strlen(buffer),"   }\n");
+            buffer.AppendFormated("               if (type == 15 && !strcmp(name,\"%s\"))\n",folderName[i].Data());
+            buffer.AppendFormated("                  break;\n");
+            buffer.AppendFormated("            }\n");
+            buffer.AppendFormated("         }\n");
+            buffer.AppendFormated("         if (type == 15 && !strcmp(name,\"%ss\"))\n",folderName[i].Data());
+            buffer.AppendFormated("            break;\n");
+            buffer.AppendFormated("      }\n");
+            buffer.AppendFormated("   }\n");
          }
       }
-      sprintf(buffer+strlen(buffer),"   \n");
-      sprintf(buffer+strlen(buffer),"   delete xml;\n");
-      sprintf(buffer+strlen(buffer),"   return true;\n");
+      buffer.AppendFormated("   \n");
+      buffer.AppendFormated("   delete xml;\n");
+      buffer.AppendFormated("   return true;\n");
    } 
-   sprintf(buffer+strlen(buffer),"   return true;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
+   buffer.AppendFormated("   return true;\n");
+   buffer.AppendFormated("}\n");
 
+   // Write Data Base
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
-         sprintf(buffer+strlen(buffer),"void %sIO::Write%sDataBase() {\n",shortCut,folderName[i]);
-         sprintf(buffer+strlen(buffer),"   // SQL\n");
-         sprintf(buffer+strlen(buffer),"   if (this->isSQLDataBase()) {\n");
-         sprintf(buffer+strlen(buffer),"   }\n\n");
-         sprintf(buffer+strlen(buffer),"   // XML\n");
-         sprintf(buffer+strlen(buffer),"   else if (this->isXMLDataBase()) {\n");
-         sprintf(buffer+strlen(buffer),"      char name[200];\n");
-         sprintf(buffer+strlen(buffer),"      char value[200];\n");
-         sprintf(buffer+strlen(buffer),"      char dbFile[200];\n");
-         sprintf(buffer+strlen(buffer),"      char filename[200];\n");
-         sprintf(buffer+strlen(buffer),"      char path[200];\n");
-         sprintf(buffer+strlen(buffer),"      char runNumberString[6];\n");
-         sprintf(buffer+strlen(buffer),"      int n=0,i;\n");
-         sprintf(buffer+strlen(buffer),"      ROMEXML *xml = new ROMEXML();\n");
-         sprintf(buffer+strlen(buffer),"      this->GetCurrentRunNumberString(runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s/RunTable.xml\",this->GetInputDir());\n");
-         sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForPath(filename))\n");
-         sprintf(buffer+strlen(buffer),"         return;\n");
-         sprintf(buffer+strlen(buffer),"      sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"      if (!xml->ExistPath(path)) {\n");
-         sprintf(buffer+strlen(buffer),"         sprintf(name,\"Run_%%s\",runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"         if (!xml->HasPathChildren(\"//RunTable\")) {\n");
-         sprintf(buffer+strlen(buffer),"            xml->NewPathChildElement(\"//RunTable\",name,NULL);\n");
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         else {\n");
-         sprintf(buffer+strlen(buffer),"            bool exist = true;\n");
-         sprintf(buffer+strlen(buffer),"            n = this->GetCurrentRunNumber();\n");
-         sprintf(buffer+strlen(buffer),"            while (!xml->ExistPath(path)) {\n");
-         sprintf(buffer+strlen(buffer),"               if (n==0) {\n");
-         sprintf(buffer+strlen(buffer),"                  exist = false;\n");
-         sprintf(buffer+strlen(buffer),"                  break;\n");
-         sprintf(buffer+strlen(buffer),"               }\n");
-         sprintf(buffer+strlen(buffer),"               sprintf(path,\"//RunTable/Run_%%05d\",n--);\n");
-         sprintf(buffer+strlen(buffer),"            }\n");
-         sprintf(buffer+strlen(buffer),"            if (exist) {\n");
-         sprintf(buffer+strlen(buffer),"               xml->NewPathNextElement(path,name,NULL);\n");
-         sprintf(buffer+strlen(buffer),"            }\n");
-         sprintf(buffer+strlen(buffer),"            else {\n");
-         sprintf(buffer+strlen(buffer),"               xml->NewPathPrevElement(path,name,NULL);\n");
-         sprintf(buffer+strlen(buffer),"            }\n");
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         sprintf(path,\"//RunTable/Run_%%s\",runNumberString);\n");
-         sprintf(buffer+strlen(buffer),"         sprintf(dbFile,\"db%s%%s_0.xml\",runNumberString);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"         xml->NewPathAttribute(path,\"%sFile\",dbFile);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"      }\n");
-         sprintf(buffer+strlen(buffer),"      else {\n");
-         sprintf(buffer+strlen(buffer),"         if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"            NextFile(dbFile,dbFile);\n");
-         sprintf(buffer+strlen(buffer),"            xml->ReplacePathAttributeValue(path,\"%sFile\",dbFile);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"         else {\n");
-         sprintf(buffer+strlen(buffer),"            sprintf(dbFile,\"db%s%%s_0.xml\",runNumberString);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"            xml->NewPathAttribute(path,\"%sFile\",dbFile);\n",folderName[i]);
-         sprintf(buffer+strlen(buffer),"         }\n");
-         sprintf(buffer+strlen(buffer),"      }\n");
-         sprintf(buffer+strlen(buffer),"      xml->WritePathFile(filename);\n");
-         sprintf(buffer+strlen(buffer),"      sprintf(filename,\"%%s/%%s\",this->GetDataBaseDir(),dbFile);\n");
-         sprintf(buffer+strlen(buffer),"      if (!xml->OpenFileForWrite(filename))\n");
-         sprintf(buffer+strlen(buffer),"         return;\n");
-         sprintf(buffer+strlen(buffer),"      xml->StartElement(\"%ss\");\n",folderName[i]);
-         if (!strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"      xml->StartElement(\"%s\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"      xml->WriteAttribute(\"Number\",\"0\");\n");
+         buffer.AppendFormated("void %sAnalyzer::Write%sDataBase() {\n",shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormated("   // SQL\n");
+         buffer.AppendFormated("   if (this->isSQLDataBase()) {\n");
+         buffer.AppendFormated("   }\n\n");
+         buffer.AppendFormated("   // XML\n");
+         buffer.AppendFormated("   else if (this->isXMLDataBase()) {\n");
+         buffer.AppendFormated("      ROMEString name;\n");
+         buffer.AppendFormated("      ROMEString value;\n");
+         buffer.AppendFormated("      ROMEString dbFile;\n");
+         buffer.AppendFormated("      ROMEString filename;\n");
+         buffer.AppendFormated("      ROMEString path;\n");
+         buffer.AppendFormated("      ROMEString runNumberString;\n");
+         buffer.AppendFormated("      int n=0,i;\n");
+         buffer.AppendFormated("      ROMEXML *xml = new ROMEXML();\n");
+         buffer.AppendFormated("      this->GetCurrentRunNumberString(runNumberString);\n");
+         buffer.AppendFormated("      filename.SetFormated(\"%%s/RunTable.xml\",this->GetInputDir());\n");
+         buffer.AppendFormated("      if (!xml->OpenFileForPath(filename.Data()))\n");
+         buffer.AppendFormated("         return;\n");
+         buffer.AppendFormated("      path.SetFormated(\"//RunTable/Run_%%s\",runNumberString.Data());\n");
+         buffer.AppendFormated("      if (!xml->ExistPath(path.Data())) {\n");
+         buffer.AppendFormated("         name.SetFormated(\"Run_%%s\",runNumberString.Data());\n");
+         buffer.AppendFormated("         if (!xml->HasPathChildren(\"//RunTable\")) {\n");
+         buffer.AppendFormated("            xml->NewPathChildElement(\"//RunTable\",name.Data(),NULL);\n");
+         buffer.AppendFormated("         }\n");
+         buffer.AppendFormated("         else {\n");
+         buffer.AppendFormated("            bool exist = true;\n");
+         buffer.AppendFormated("            n = this->GetCurrentRunNumber();\n");
+         buffer.AppendFormated("            while (!xml->ExistPath(path.Data())) {\n");
+         buffer.AppendFormated("               if (n==0) {\n");
+         buffer.AppendFormated("                  exist = false;\n");
+         buffer.AppendFormated("                  break;\n");
+         buffer.AppendFormated("               }\n");
+         buffer.AppendFormated("               path.SetFormated(\"//RunTable/Run_%%05d\",n--);\n");
+         buffer.AppendFormated("            }\n");
+         buffer.AppendFormated("            if (exist) {\n");
+         buffer.AppendFormated("               xml->NewPathNextElement(path.Data(),name.Data(),NULL);\n");
+         buffer.AppendFormated("            }\n");
+         buffer.AppendFormated("            else {\n");
+         buffer.AppendFormated("               xml->NewPathPrevElement(path.Data(),name.Data(),NULL);\n");
+         buffer.AppendFormated("            }\n");
+         buffer.AppendFormated("         }\n");
+         buffer.AppendFormated("         path.SetFormated(\"//RunTable/Run_%%s\",runNumberString.Data());\n");
+         buffer.AppendFormated("         dbFile = \"db%s\";\n",folderName[i]);
+         buffer.AppendFormated("         dbFile.Append(runNumberString.Data());\n");
+         buffer.AppendFormated("         dbFile.Append(\"_0.xml\");\n");
+         buffer.AppendFormated("         xml->NewPathAttribute(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
+         buffer.AppendFormated("      }\n");
+         buffer.AppendFormated("      else {\n");
+         buffer.AppendFormated("         if (xml->GetPathAttribute(path,\"%sFile\",dbFile)) {\n",folderName[i].Data());
+         buffer.AppendFormated("            NextFile(dbFile,dbFile);\n");
+         buffer.AppendFormated("            xml->ReplacePathAttributeValue(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
+         buffer.AppendFormated("         }\n");
+         buffer.AppendFormated("         else {\n");
+         buffer.AppendFormated("            dbFile = \"db%s\";\n",folderName[i].Data());
+         buffer.AppendFormated("            dbFile.Append(runNumberString.Data());\n");
+         buffer.AppendFormated("            dbFile.Append(\"_0.xml\");\n");
+         buffer.AppendFormated("            xml->NewPathAttribute(path.Data(),\"%sFile\",dbFile.Data());\n",folderName[i].Data());
+         buffer.AppendFormated("         }\n");
+         buffer.AppendFormated("      }\n");
+         buffer.AppendFormated("      xml->WritePathFile(filename.Data());\n");
+         buffer.AppendFormated("      filename.SetFormated(\"%%s/%%s\",this->GetDataBaseDir(),dbFile.Data());\n");
+         buffer.AppendFormated("      if (!xml->OpenFileForWrite(filename.Data()))\n");
+         buffer.AppendFormated("         return;\n");
+         buffer.AppendFormated("      xml->StartElement(\"%ss\");\n",folderName[i].Data());
+         if (folderArray[i]=="1") {
+            buffer.AppendFormated("      xml->StartElement(\"%s\");\n",folderName[i].Data());
+            buffer.AppendFormated("      xml->WriteAttribute(\"Number\",\"0\");\n");
             for (j=0;j<numOfValue[i];j++) {
-               char format[10];
-               GetFormat(format,valueType[i][j]);
-               if (!strcmp(valueType[i][j],"TString")) {
-                  sprintf(buffer+strlen(buffer),"      sprintf(value,\"%s\",f%sObject->Get%s().Data());\n",format,folderName[i],valueName[i][j]);
+               GetFormat(&format,(char*)valueType[i][j].Data());
+               if (valueType[i][j]=="TString") {
+                  buffer.AppendFormated("      value.SetFormated(\"%s\",f%sObject->Get%s().Data());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                else {
-                  sprintf(buffer+strlen(buffer),"      sprintf(value,\"%s\",f%sObject->Get%s());\n",format,folderName[i],valueName[i][j]);
+                  buffer.AppendFormated("      value.SetFormated(\"%s\",f%sObject->Get%s());\n",format.Data(),folderName[i].Data(),valueName[i][j].Data());
                }
-               sprintf(buffer+strlen(buffer),"      xml->WriteElement(\"%s\",value);\n",valueName[i][j]);
+               buffer.AppendFormated("      xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
-            sprintf(buffer+strlen(buffer),"      xml->EndElement();\n");
+            buffer.AppendFormated("      xml->EndElement();\n");
          }
          else {
-            sprintf(buffer+strlen(buffer),"      for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"         xml->StartElement(\"%s\");\n",folderName[i]);
-            sprintf(buffer+strlen(buffer),"         sprintf(value,\"%%d\",i);\n");
-            sprintf(buffer+strlen(buffer),"         xml->WriteAttribute(\"Number\",value);\n");
+            buffer.AppendFormated("      for (i=0;i<f%sObjects->GetEntries();i++) {\n",folderName[i].Data());
+            buffer.AppendFormated("         xml->StartElement(\"%s\");\n",folderName[i].Data());
+            buffer.AppendFormated("         value.SetFormated(\"%%d\",i);\n");
+            buffer.AppendFormated("         xml->WriteAttribute(\"Number\",value.Data());\n");
             for (j=0;j<numOfValue[i];j++) {
-               char format[10];
-               GetFormat(format,valueType[i][j]);
-               if (!strcmp(valueType[i][j],"TString")) {
-                  sprintf(buffer+strlen(buffer),"         sprintf(value,\"%s\",((%s%s*)f%sObjects->At(i))->Get%s().Data());\n",format,shortCut,folderName[i],folderName[i],valueName[i][j]);
+               GetFormat(&format,(char*)valueType[i][j].Data());
+               if (valueType[i][j]=="TString") {
+                  buffer.AppendFormated("         value.SetFormated(\"%s\",((%s%s*)f%sObjects->At(i))->Get%s().Data());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                }
                else {
-                  sprintf(buffer+strlen(buffer),"         sprintf(value,\"%s\",((%s%s*)f%sObjects->At(i))->Get%s());\n",format,shortCut,folderName[i],folderName[i],valueName[i][j]);
+                  buffer.AppendFormated("         value.SetFormated(\"%s\",((%s%s*)f%sObjects->At(i))->Get%s());\n",format.Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                }
-               sprintf(buffer+strlen(buffer),"         xml->WriteElement(\"%s\",value);\n",valueName[i][j]);
+               buffer.AppendFormated("         xml->WriteElement(\"%s\",value.Data());\n",valueName[i][j].Data());
             }
-            sprintf(buffer+strlen(buffer),"         xml->EndElement();\n");
-            sprintf(buffer+strlen(buffer),"      }\n");
+            buffer.AppendFormated("         xml->EndElement();\n");
+            buffer.AppendFormated("      }\n");
          }
-         sprintf(buffer+strlen(buffer),"      xml->EndDocument();\n");
-         sprintf(buffer+strlen(buffer),"      delete xml;\n");
-         sprintf(buffer+strlen(buffer),"   }\n");
-         sprintf(buffer+strlen(buffer),"}\n\n");
+         buffer.AppendFormated("      xml->EndDocument();\n");
+         buffer.AppendFormated("      delete xml;\n");
+         buffer.AppendFormated("   }\n");
+         buffer.AppendFormated("}\n\n");
       }
    }
 
-   sprintf(buffer+strlen(buffer),"void %sIO::NextFile(char* nextFile,char* file) {\n",shortCut);
-   sprintf(buffer+strlen(buffer),"   struct stat buf;\n");
-   sprintf(buffer+strlen(buffer),"   char* body = new char[strlen(file)];\n");
-   sprintf(buffer+strlen(buffer),"   char* res;\n");
-   sprintf(buffer+strlen(buffer),"   int n=0,number=0;\n");
-   sprintf(buffer+strlen(buffer),"   if ((res=strstr(file,\"_\"))) {\n");
-   sprintf(buffer+strlen(buffer),"      n = res-file;\n");
-   sprintf(buffer+strlen(buffer),"      strncpy(body,file,n);\n");
-   sprintf(buffer+strlen(buffer),"      body[n] = 0;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   else {\n");
-   sprintf(buffer+strlen(buffer),"      if ((res=strstr(file,\".\"))) {\n");
-   sprintf(buffer+strlen(buffer),"         n = res-file;\n");
-   sprintf(buffer+strlen(buffer),"         strncpy(body,file,n);\n");
-   sprintf(buffer+strlen(buffer),"         body[n] = 0;\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"      else {\n");
-   sprintf(buffer+strlen(buffer),"         strcpy(body,file);\n");
-   sprintf(buffer+strlen(buffer),"      }\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   sprintf(nextFile,\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body,number);\n");
-   sprintf(buffer+strlen(buffer),"   while (!stat(nextFile,&buf)) {\n");
-   sprintf(buffer+strlen(buffer),"      number++;\n");
-   sprintf(buffer+strlen(buffer),"      sprintf(nextFile,\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body,number);\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"   sprintf(nextFile,\"%%s_%%d.xml\",body,number);\n");
-   sprintf(buffer+strlen(buffer),"   delete body;\n");
-   sprintf(buffer+strlen(buffer),"}\n\n");
+   buffer.AppendFormated("void %sAnalyzer::NextFile(ROMEString& nextFile,ROMEString& file) {\n",shortCut.Data());
+   buffer.AppendFormated("   struct stat buf;\n");
+   buffer.AppendFormated("   ROMEString body;\n");
+   buffer.AppendFormated("   char* res;\n");
+   buffer.AppendFormated("   int n=0,number=0;\n");
+   buffer.AppendFormated("   if ((res=strstr(file.Data(),\"_\"))) {\n");
+   buffer.AppendFormated("      n = res-file.Data();\n");
+   buffer.AppendFormated("      body = file(0,n);\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   else {\n");
+   buffer.AppendFormated("      if ((res=strstr(file.Data(),\".\"))) {\n");
+   buffer.AppendFormated("         n = res-file.Data();\n");
+   buffer.AppendFormated("         body = file(0,n);\n");
+   buffer.AppendFormated("      }\n");
+   buffer.AppendFormated("      else {\n");
+   buffer.AppendFormated("         body = file;\n");
+   buffer.AppendFormated("      }\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   nextFile.SetFormated(\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body.Data(),number);\n");
+   buffer.AppendFormated("   while (!stat(nextFile.Data(),&buf)) {\n");
+   buffer.AppendFormated("      number++;\n");
+   buffer.AppendFormated("      nextFile.SetFormated(\"%%s/%%s_%%d.xml\",this->GetDataBaseDir(),body.Data(),number);\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   nextFile.SetFormated(\"%%s_%%d.xml\",body.Data(),number);\n");
+   buffer.AppendFormated("}\n\n");
 
-   // Write File
-   fileHandle = open(cppFile,O_RDONLY);
+
+
+   // Initialize Folders
+   buffer.AppendFormated("void %sAnalyzer::InitFolders() {\n",shortCut.Data());
+   buffer.AppendFormated("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderArray[i]=="1") {
+            buffer.AppendFormated("   new(f%sObject) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            for (j=0;j<numOfValue[i];j++) {
+               if (valueArray[i][j]=="0")
+                  buffer.AppendFormated("%s,",valueInit[i][j].Data());
+            }
+            buffer.Resize(buffer.Length()-1);
+            buffer.AppendFormated(" );\n");
+         }
+         else {
+            tmp = folderArray[i];
+            if (folderArray[i].Contains("fAnalyzer"))
+               tmp.Replace(0,9,"this",4);
+            buffer.AppendFormated("   for (i=0;i<%s;i++) {\n",tmp.Data());
+            buffer.AppendFormated("     new((*f%sObjects)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            for (j=0;j<numOfValue[i];j++) {
+               if (valueArray[i][j]=="0")
+                  buffer.AppendFormated("%s,",valueInit[i][j].Data());
+            }
+            buffer.Resize(buffer.Length()-1);
+            buffer.AppendFormated(" );\n");
+            buffer.AppendFormated("   }\n");
+         }
+      }
+   }
+   buffer.AppendFormated("};\n\n");
+
+   // Initialize Task Switches
+   buffer.AppendFormated("void %sAnalyzer::InitTaskSwitches() {\n",shortCut.Data());
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormated("   GetTaskSwitches()->%s = f%sTask->IsActive();\n",taskName[i].Data(),taskName[i].Data());
+   }
+   buffer.AppendFormated("};\n\n");
+
+   // Update Task Switches
+   buffer.AppendFormated("void %sAnalyzer::UpdateTaskSwitches() {\n",shortCut.Data());
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormated("   if (GetTaskSwitches()->%s)\n",taskName[i].Data());
+      buffer.AppendFormated("      f%sTask->SetActive(true);\n",taskName[i].Data());
+      buffer.AppendFormated("   else\n");
+      buffer.AppendFormated("      f%sTask->SetActive(false);\n",taskName[i].Data());
+   }
+   buffer.AppendFormated("};\n\n");
+
+   // Configuration File
+   buffer.AppendFormated("\n// Configuration File\n");
+   buffer.AppendFormated("//--------------------\n");
+   buffer.AppendFormated("bool %sAnalyzer::ReadROMEConfigXML(char *configFile) {\n",shortCut.Data());
+   buffer.AppendFormated("   char *name;\n");
+   buffer.AppendFormated("   ROMEString value;\n");
+   buffer.AppendFormated("   int type;\n");
+   buffer.AppendFormated("   ROMEXML *xml = new ROMEXML();\n");
+   buffer.AppendFormated("   if (!xml->OpenFileForRead(configFile)) {\n");
+   buffer.AppendFormated("      fprintf(stderr, \"Unable to open %%s\\n\", configFile);\n");
+   buffer.AppendFormated("      return false;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   while (xml->NextLine()) {\n");
+   buffer.AppendFormated("      type = xml->GetType();\n");
+   buffer.AppendFormated("      name = xml->GetName();\n");
+   // Modes
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"Modes\")) {\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"AnalyzingMode\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"online\")\n");
+   buffer.AppendFormated("            this->SetOnline();\n");
+   buffer.AppendFormated("         else\n");
+   buffer.AppendFormated("            this->SetOffline();\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"InputDataFormat\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"root\")\n");
+   buffer.AppendFormated("            this->SetRoot();\n");
+   buffer.AppendFormated("         else\n");
+   buffer.AppendFormated("            this->SetMidas();\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"BatchMode\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"yes\")\n");
+   buffer.AppendFormated("            fBatchMode = true;\n");
+   buffer.AppendFormated("         else\n");
+   buffer.AppendFormated("            fBatchMode = false;\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"ShowSplashScreen\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"no\")\n");
+   buffer.AppendFormated("            fSplashScreen = false;\n");
+   buffer.AppendFormated("         else\n");
+   buffer.AppendFormated("            fSplashScreen = true;\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"DataBaseMode\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"sql\"||value==\"SQL\")\n");
+   buffer.AppendFormated("            this->SetSQLDataBase();\n");
+   buffer.AppendFormated("         else if (value==\"xml\"||value==\"XML\") {\n");
+   buffer.AppendFormated("            this->SetXMLDataBase();\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   // Run Numbers
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"RunNumbers\")) {\n");
+   buffer.AppendFormated("         if (xml->GetAttribute(\"Numbers\",value,\"\"))\n");
+   buffer.AppendFormated("            this->SetRunNumbers(value);\n");
+   buffer.AppendFormated("      }\n");
+   // Event Numbers
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"EventNumbers\")) {\n");
+   buffer.AppendFormated("         if (xml->GetAttribute(\"Numbers\",value,\"\"))\n");
+   buffer.AppendFormated("            this->SetEventNumbers(value);\n");
+   buffer.AppendFormated("      }\n");
+   // Paths
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"InputFilePath\")) {\n");
+   buffer.AppendFormated("         if (xml->GetValue(value,\"\")) {\n");
+   buffer.AppendFormated("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
+   buffer.AppendFormated("               value.Append(\"/\");\n");
+   buffer.AppendFormated("            this->SetInputDir(value);\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"OutputFilePath\")) {\n");
+   buffer.AppendFormated("         if (xml->GetValue(value,\"\")) {\n");
+   buffer.AppendFormated("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
+   buffer.AppendFormated("               value.Append(\"/\");\n");
+   buffer.AppendFormated("            this->SetOutputDir(value);\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"DataBaseFilePath\")) {\n");
+   buffer.AppendFormated("         if (xml->GetValue(value,\"\")) {\n");
+   buffer.AppendFormated("            if (value[value.Length()-1]!='/' && value[value.Length()-1]!='\\\\')\n");
+   buffer.AppendFormated("               value.Append(\"/\");\n");
+   buffer.AppendFormated("            this->SetDataBaseDir(value);\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   // Tasks
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"Tasks\")) {\n");
+   buffer.AppendFormated("         while (xml->NextLine()) {\n");
+   buffer.AppendFormated("            type = xml->GetType();\n");
+   buffer.AppendFormated("            name = xml->GetName();\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormated("            if (type == 1 && !strcmp(name,\"%s\")) {\n",taskName[i].Data());
+      buffer.AppendFormated("               int empty = xml->isEmpty();\n");
+      buffer.AppendFormated("               xml->GetAttribute(\"Active\",value,\"\");\n");
+      buffer.AppendFormated("               if (value==\"yes\") {\n");
+      buffer.AppendFormated("                  f%sTask->SetActive();\n",taskName[i].Data());
+      buffer.AppendFormated("               }\n");
+      buffer.AppendFormated("               if (!empty) {\n");
+      buffer.AppendFormated("                  while (xml->NextLine()) {\n");
+      buffer.AppendFormated("                     type = xml->GetType();\n");
+      buffer.AppendFormated("                     name = xml->GetName();\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormated("                     if (type == 1 && !strcmp(name,\"%s\")) {\n",histoName[i][j].Data());
+         buffer.AppendFormated("                        xml->GetAttribute(\"Accumulate\",value,\"\");\n");
+         buffer.AppendFormated("                        if (value==\"no\")\n");
+         buffer.AppendFormated("                           ((%sT%s*)f%sTask)->Set%sAccumulation(false);\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormated("                     }\n");
+      }
+      WriteTaskSteerConfigRead(buffer,0,i);
+      buffer.AppendFormated("                     if (type == 15 && !strcmp(name,\"%s\"))\n",taskName[i].Data());
+      buffer.AppendFormated("                        break;\n");
+      buffer.AppendFormated("                  }\n");
+      buffer.AppendFormated("               }\n");
+      buffer.AppendFormated("            }\n");
+   }
+   buffer.AppendFormated("            if (type == 15 && !strcmp(name,\"Tasks\"))\n");
+   buffer.AppendFormated("               break;\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   // Trees
+   buffer.AppendFormated("      if (type == 1 && !strcmp(name,\"Trees\")) {\n");
+   buffer.AppendFormated("         xml->GetAttribute(\"Accumulation\",value,\"\");\n");
+   buffer.AppendFormated("         if (value==\"yes\")\n");
+   buffer.AppendFormated("            this->SetTreeAccumulation();\n");
+   buffer.AppendFormated("         while (xml->NextLine()) {\n");
+   buffer.AppendFormated("            type = xml->GetType();\n");
+   buffer.AppendFormated("            name = xml->GetName();\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormated("            if (type == 1 && !strcmp((const char*)name,\"%s\")) {\n",treeName[i].Data());
+      buffer.AppendFormated("               xml->GetAttribute(\"Read\",value,\"\");\n");
+      buffer.AppendFormated("               if (value==\"yes\")\n");
+      buffer.AppendFormated("                  this->GetTreeObjectAt(%d)->SetRead(true);\n",i);
+      buffer.AppendFormated("               xml->GetAttribute(\"Write\",value,\"\");\n");
+      buffer.AppendFormated("               if (value==\"yes\")\n");
+      buffer.AppendFormated("                  this->GetTreeObjectAt(%d)->SetWrite(true);\n",i);
+      buffer.AppendFormated("            }\n");
+   }
+   buffer.AppendFormated("            if (type == 15 && !strcmp((const char*)name,\"Trees\"))\n");
+   buffer.AppendFormated("               break;\n");
+   buffer.AppendFormated("         }\n");
+   buffer.AppendFormated("      }\n");
+   // Steering
+   if (numOfSteering>0)
+      WriteSteerConfigRead(buffer,0);
+
+   buffer.AppendFormated("      if (type == 15 && !strcmp((const char*)name,\"Configuration\"))\n");
+   buffer.AppendFormated("         break;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("   delete xml;\n");
+   buffer.AppendFormated("   return true;\n");
+   buffer.AppendFormated("}\n");
+
+   // WriteROMEConfigXML
+   buffer.AppendFormated("bool %sAnalyzer::WriteROMEConfigXML(char *configFile) {\n",shortCut.Data());
+   buffer.AppendFormated("   ROMEXML *xml = new ROMEXML();\n");
+   buffer.AppendFormated("   if (!xml->OpenFileForWrite(configFile))\n");
+   buffer.AppendFormated("      return false;\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   xml->StartElement(\"Configuration\");\n");
+   //modes
+   buffer.AppendFormated("   xml->StartElement(\"Modes\");\n");
+   buffer.AppendFormated("   if (this->isOnline())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"AnalyzingMode\",\"online\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"AnalyzingMode\",\"offline\");\n");
+   buffer.AppendFormated("   if (this->isMidas())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"InputDataFormat\",\"midas\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"InputDataFormat\",\"root\");\n");
+   buffer.AppendFormated("   if (isBatchMode())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"BatchMode\",\"yes\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"BatchMode\",\"no\");\n");
+   buffer.AppendFormated("   if (isSplashScreen())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"ShowSplashScreen\",\"yes\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"ShowSplashScreen\",\"no\");\n");
+   buffer.AppendFormated("   if (this->isXMLDataBase())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"DataBaseMode\",\"xml\");\n");
+   buffer.AppendFormated("   else if (this->isSQLDataBase())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"DataBaseMode\",\"sql\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"DataBaseMode\",\"none\");\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
+   //run numbers
+   buffer.AppendFormated("   xml->StartElement(\"RunNumbers\");\n");
+   buffer.AppendFormated("   xml->WriteAttribute(\"Numbers\",(char*)this->GetRunNumberStringOriginal());\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
+   //event numbers
+   buffer.AppendFormated("   xml->StartElement(\"EventNumbers\");\n");
+   buffer.AppendFormated("   xml->WriteAttribute(\"Numbers\",(char*)this->GetEventNumberStringOriginal());\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
+   //paths
+   buffer.AppendFormated("   xml->StartElement(\"Paths\");\n");
+   buffer.AppendFormated("   xml->WriteElement(\"InputFilePath\",(char*)this->GetInputDir());\n");
+   buffer.AppendFormated("   xml->WriteElement(\"OutputFilePath\",(char*)this->GetOutputDir());\n");
+   buffer.AppendFormated("   xml->WriteElement(\"DataBaseFilePath\",(char*)this->GetDataBaseDir());\n");
+   buffer.AppendFormated("   xml->EndElement();\n");
+   buffer.AppendFormated("\n");
+
+   //tasks
+   buffer.AppendFormated("   xml->StartElement( \"Tasks\");\n");
+   for (i=0;i<numOfTask;i++) {
+      buffer.AppendFormated("   xml->StartElement(\"%s\");\n",taskName[i].Data());
+      buffer.AppendFormated("   if (f%sTask->IsActive())\n",taskName[i].Data());
+      buffer.AppendFormated("      xml->WriteAttribute(\"Active\",\"yes\");\n");
+      buffer.AppendFormated("   else\n");
+      buffer.AppendFormated("      xml->WriteAttribute(\"Active\",\"no\");\n");
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormated("   xml->StartElement(\"%s\");\n",histoName[i][j].Data());
+         buffer.AppendFormated("   if (((%sT%s*)f%sTask)->is%sAccumulation())\n",shortCut.Data(),taskName[i].Data(),taskName[i].Data(),histoName[i][j].Data());
+         buffer.AppendFormated("      xml->WriteAttribute(\"Accumulate\",\"yes\");\n");
+         buffer.AppendFormated("   else\n");
+         buffer.AppendFormated("      xml->WriteAttribute(\"Accumulate\",\"no\");\n");
+         buffer.AppendFormated("   xml->EndElement();\n");
+      }
+      if (numOfTaskSteering[i]>0) {
+         buffer.AppendFormated("      ROMEString value;\n");
+         WriteTaskSteerConfigWrite(buffer,0,i);
+      }
+      buffer.AppendFormated("      xml->EndElement();\n");
+   }
+   buffer.AppendFormated("      xml->EndElement();\n");
+
+   //trees
+   buffer.AppendFormated("   xml->StartElement(\"Trees\");\n");
+   buffer.AppendFormated("   if (this->isTreeAccumulation())\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"Accumulation\",\"yes\");\n");
+   buffer.AppendFormated("   else\n");
+   buffer.AppendFormated("      xml->WriteAttribute(\"Accumulation\",\"no\");\n");
+
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormated("   xml->StartElement(\"%s\");\n",treeName[i].Data());
+      buffer.AppendFormated("   if (this->GetTreeObjectAt(%d)->isRead())\n",i);
+      buffer.AppendFormated("      xml->WriteAttribute(\"Read\",\"yes\");\n");
+      buffer.AppendFormated("   else\n");
+      buffer.AppendFormated("      xml->WriteAttribute(\"Read\",\"no\");\n");
+      buffer.AppendFormated("   if (this->GetTreeObjectAt(%d)->isWrite())\n",i);
+      buffer.AppendFormated("      xml->WriteAttribute(\"Write\",\"yes\");\n");
+      buffer.AppendFormated("   else\n");
+      buffer.AppendFormated("      xml->WriteAttribute(\"Write\",\"no\");\n");
+      buffer.AppendFormated("   xml->EndElement();\n");
+   }
+   buffer.AppendFormated("      xml->EndElement();\n");
+
+   //steering
+   if (numOfSteering>0) {
+      buffer.AppendFormated("      ROMEString value;\n");
+      WriteSteerConfigWrite(buffer,0);
+   }
+
+   buffer.AppendFormated("   xml->EndDocument();\n");
+   buffer.AppendFormated("   return true;\n");
+   buffer.AppendFormated("}\n");
+
+   // Splash Screen
+   buffer.AppendFormated("#if defined( _MSC_VER )\n");
+   buffer.AppendFormated("LPDWORD lpThreadId;\n");
+   buffer.AppendFormated("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
+   buffer.AppendFormated("   CloseHandle(CreateThread(NULL,1024,&SplashThread,0,0,lpThreadId));\n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("#if defined ( __linux__ )\n");
+   buffer.AppendFormated("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
+   buffer.AppendFormated("   \n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("#endif\n");
+   buffer.AppendFormated("\n");
+
+   // Console Screen
+   ROMEString prog;
+   prog.SetFormated("%s%s",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());
+   buffer.AppendFormated("   int i;\n");
+   buffer.AppendFormated("   cout << \"*****************************************\" << endl;\n");   
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*\";\n");
+   int len1 = (int)((39-(double)prog.Length())/2+0.5);
+   int len2 = (int)((39-(double)prog.Length())/2);
+   buffer.AppendFormated("   for (i=0;i<%d;i++) cout << \" \";\n",len1);
+   buffer.AppendFormated("   cout << \"%s\";\n",prog.Data());
+   buffer.AppendFormated("   for (i=0;i<%d;i++) cout << \" \";\n",len2);
+   buffer.AppendFormated("   cout << \"*\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*   generated by the ROME Environment   *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*             %s              *\" << endl;\n",romeVersion.Data());
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*                                       *\" << endl;\n");
+   buffer.AppendFormated("   cout << \"*****************************************\" << endl << endl;\n");
+   buffer.AppendFormated("}\n");
+   buffer.AppendFormated("   \n");
+
+   // Close cpp-File
+   fileHandle = open(cppFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
       }
    }
+   else
+      identical = false;
    if (!identical) {
-      fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
-      fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
+      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << cppFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
 
-   delete [] cppFile;
    return true;
 }
-bool ROMEBuilder::WriteIOH() {
+
+bool ROMEBuilder::WriteAnalyzerH() {
    int i,j;
 
-   char format[100];
-   char* hFile=NULL;
-   char buffer[bufferLength];
+   ROMEString hFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
    int nb;
    int fileHandle;
 
+   ROMEString format;
    int nameLen = -1;
    int typeLen = 12;
-   int scl = strlen(shortCut);
+   int scl = shortCut.Length();
    for (i=0;i<numOfFolder;i++) {
-      if (typeLen<(int)strlen(folderName[i])+scl) typeLen = strlen(folderName[i])+scl;
-      if (nameLen<(int)strlen(folderName[i])) nameLen = strlen(folderName[i]);
+      if (typeLen<(int)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
+      if (nameLen<(int)folderName[i].Length()) nameLen = folderName[i].Length();
    }
+   int taskLen=0;
+   for (i=0;i<numOfTask;i++) {
+      if (taskLen<(int)taskName[i].Length()) taskLen = taskName[i].Length();
+   }
+
+
 
 
    // File name
-   hFile = new char[30+strlen(outDir)+strlen(shortCut)];
-   sprintf(hFile,"%s/include/framework/%sIO.h",outDir,shortCut);
+   hFile.SetFormated("%s/include/framework/%sAnalyzer.h",outDir.Data(),shortCut.Data());
 
    // Description
-   sprintf(buffer,"////////////////////////////////////////////////////////////////////////////////\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// This file has been generated by the ROMEBuilder.                           //\n");
-   sprintf(buffer+strlen(buffer),"// If you intend to change this file please contact:                          //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"// Manual changes to this file will always be overwritten by the builder.     //\n");
-   sprintf(buffer+strlen(buffer),"//                                                                            //\n");
-   sprintf(buffer+strlen(buffer),"////////////////////////////////////////////////////////////////////////////////\n\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// This file has been generated by the ROMEBuilder.                           //\n");
+   buffer.AppendFormated("// If you intend to change this file please contact:                          //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Matthias Schneebeli (PSI), (matthias.schneebeli@psi.ch)                    //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("// Manual changes to this file will always be overwritten by the builder.     //\n");
+   buffer.AppendFormated("//                                                                            //\n");
+   buffer.AppendFormated("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   sprintf(buffer+strlen(buffer),"#ifndef %sIO_H\n",shortCut);
-   sprintf(buffer+strlen(buffer),"#define %sIO_H\n\n",shortCut);
+   buffer.AppendFormated("#ifndef %sAnalyzer_H\n",shortCut.Data());
+   buffer.AppendFormated("#define %sAnalyzer_H\n\n",shortCut.Data());
 
-   sprintf(buffer+strlen(buffer),"#include<ROMEIO.h>\n");
-   sprintf(buffer+strlen(buffer),"#include<TClonesArray.h>\n");
-   sprintf(buffer+strlen(buffer),"#include<TString.h>\n");
+   buffer.AppendFormated("#include <TTask.h>\n");
+   buffer.AppendFormated("#include <TTree.h>\n");
+   buffer.AppendFormated("#include <TFolder.h>\n");
+   buffer.AppendFormated("#include <TClonesArray.h>\n");
+   buffer.AppendFormated("#include <ROMEString.h>\n");
+   buffer.AppendFormated("#include <ROMETask.h>\n");
+   buffer.AppendFormated("#include <ROMEAnalyzer.h>\n");
+
+   if (numOfSteering!=0) {
+      buffer.AppendFormated("#include <include/framework/%sGeneralSteering.h>\n",shortCut.Data());
+   }
+
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"#include <include/framework/%s%s.h>\n",shortCut,folderName[i]);
+         buffer.AppendFormated("#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"\n");
+
+   // Class
+   buffer.AppendFormated("\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut.Data());
+   buffer.AppendFormated("{\n");
+
+   // Fields
+   buffer.AppendFormated("private:\n");
 
    // bank structures
    if (numOfBank>0)
-      sprintf(buffer+strlen(buffer),"   // Bank Structures\n");
+      buffer.AppendFormated("   // Bank Structures\n");
    for (i=0;i<numOfBank;i++) {
-      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-         sprintf(buffer+strlen(buffer),"typedef struct {\n");
+      if (bankType[i]=="structure"||bankType[i]=="struct") {
+         buffer.AppendFormated("typedef struct {\n");
          for (j=0;j<numOfStructFields[i];j++) {
-            if (strlen(structFieldSize[i][j])>0)
-               sprintf(buffer+strlen(buffer),"   %s %s : %s;\n",structFieldType[i][j],structFieldName[i][j],structFieldSize[i][j]);
+            if (structFieldSize[i][j].Length()>0)
+               buffer.AppendFormated("   %s %s : %s;\n",structFieldType[i][j].Data(),structFieldName[i][j].Data(),structFieldSize[i][j].Data());
             else
-               sprintf(buffer+strlen(buffer),"   %s %s;\n",structFieldType[i][j],structFieldName[i][j]);
+               buffer.AppendFormated("   %s %s;\n",structFieldType[i][j].Data(),structFieldName[i][j].Data());
          }
-         sprintf(buffer+strlen(buffer),"} %s;\n",bankStructName[i]);
+         buffer.AppendFormated("} %s;\n",bankStructName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // Class
-
-   sprintf(buffer+strlen(buffer),"\nclass %sIO : public ROMEIO\n",shortCut);
-   sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"private:\n");
+   buffer.AppendFormated("\n");
 
    // Task Switches Structure
-   sprintf(buffer+strlen(buffer),"   // Task Switches Structure\n");
-   sprintf(buffer+strlen(buffer),"   struct TaskSwitches{\n");
+   buffer.AppendFormated("   // Task Switches Structure\n");
+   buffer.AppendFormated("   struct TaskSwitches{\n");
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"      int %s;   //! %s Task\n",taskName[i],taskName[i]);
+      buffer.AppendFormated("      int %s;   //! %s Task\n",taskName[i].Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"   } fTaskSwitches;               //! Task Switches\n\n");
-   sprintf(buffer+strlen(buffer),"   TString fTaskSwitchesString;   //! String describing Task Switches\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("   } fTaskSwitches;               //! Task Switches\n\n");
+   buffer.AppendFormated("   ROMEString fTaskSwitchesString;   //! String describing Task Switches\n");
+   buffer.AppendFormated("\n");
 
-   // Fields
 
-   // Pointers to Folders
-   sprintf(buffer+strlen(buffer),"   // Pointers to Folders\n");
+   buffer.AppendFormated("protected:\n");
+
+   // Folder Fields
+   buffer.AppendFormated("   // Folder Fields\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(format,"   TClonesArray*%%%ds f%%sObjects;%%%ds //! Handle to %%s%%s Objects\n",typeLen-12,nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,"",folderName[i],"",shortCut,folderName[i]);
+         if (folderArray[i]=="1") {
+            format.SetFormated("   %%s%%s*%%%ds f%%sObject; %%%ds // Handle to %%s%%s Object\n",typeLen-folderName[i].Length()-scl,nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data());
          }
          else {
-            sprintf(format,"   %%s%%s*%%%ds f%%sObject; %%%ds //! Handle to %%s%%s Object\n",typeLen-strlen(folderName[i])-scl,nameLen-strlen(folderName[i]));
-            sprintf(buffer+strlen(buffer),format,shortCut,folderName[i],"",folderName[i],"",shortCut,folderName[i]);
+            format.SetFormated("   TClonesArray*%%%ds f%%sObjects;%%%ds // Handle to %%s%%s Objects\n",typeLen-12,nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data());
          }
       }
    }
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
+
+   // Task Fields
+   buffer.AppendFormated("   // Task Fields\n");
+   for (i=0;i<numOfTask;i++) {
+      format.SetFormated("   ROMETask* f%%sTask%%%ds;  // Handle to %%s Task\n",taskLen-taskName[i].Length());
+      buffer.AppendFormated((char*)format.Data(),taskName[i].Data(),"",taskName[i].Data());
+   }
+   buffer.AppendFormated("\n");
+
+   // Steering Fields
+   if (numOfSteering!=0) {
+      buffer.AppendFormated("   // Steering Parameter Fields\n");
+      buffer.AppendFormated("\n   %sGeneralSteering* fGeneralSteeringParameters; // Handle to the GeneralSteering Class\n",shortCut.Data());
+   }
 
    // Bank Fields
    if (numOfBank>0) {
       int bankNameLen = -1;
       int bankTypeLen = -1;
       for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            if (bankTypeLen<(int)strlen(bankStructName[i])) bankTypeLen = strlen(bankStructName[i]);
+         if (bankType[i]=="structure"||bankType[i]=="struct") {
+            if (bankTypeLen<(int)bankStructName[i].Length()) bankTypeLen = bankStructName[i].Length();
          }
          else {
-            if (bankTypeLen<(int)strlen(bankType[i])) bankTypeLen = strlen(bankType[i]);
+            if (bankTypeLen<(int)bankType[i].Length()) bankTypeLen = bankType[i].Length();
          }
-         if (bankNameLen<(int)strlen(bankName[i])) bankNameLen = strlen(bankName[i]);
+         if (bankNameLen<(int)bankName[i].Length()) bankNameLen = bankName[i].Length();
       }
-      sprintf(buffer+strlen(buffer),"   // Bank Fields\n");
+      buffer.AppendFormated("   // Bank Fields\n");
       for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankStructName[i]),bankNameLen-strlen(bankName[i]));
-            sprintf(buffer+strlen(buffer),format,bankStructName[i],"",bankName[i],"",bankName[i]);
+         if (bankType[i]=="structure"||bankType[i]=="struct") {
+            format.SetFormated("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankStructName[i].Length(),bankNameLen-bankName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),bankStructName[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
          }
          else {
-            sprintf(format,"   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-strlen(bankType[i]),bankNameLen-strlen(bankName[i]));
-            sprintf(buffer+strlen(buffer),format,bankType[i],"",bankName[i],"",bankName[i]);
+            format.SetFormated("   %%s*%%%ds f%%sBankPointer; %%%ds //! Pointer to the %%s Bank\n",bankTypeLen-bankType[i].Length(),bankNameLen-bankName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),bankType[i].Data(),"",bankName[i].Data(),"",bankName[i].Data());
          }
-         sprintf(format,"   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-strlen(bankName[i]));
-         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
-         sprintf(format,"   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-strlen(bankName[i]));
-         sprintf(buffer+strlen(buffer),format,"",bankName[i],"",bankName[i]);
+         format.SetFormated("   int%%%ds f%%sBankLength;  %%%ds //! Length  of the %%s Bank\n",bankTypeLen-2,bankNameLen-bankName[i].Length());
+         buffer.AppendFormated((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
+         format.SetFormated("   bool%%%ds f%%sBankExists;  %%%ds //! Exist Flags of the %%s Bank\n",bankTypeLen-3,bankNameLen-bankName[i].Length());
+         buffer.AppendFormated((char*)format.Data(),"",bankName[i].Data(),"",bankName[i].Data());
       }
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("\n");
    }
 
-
-   sprintf(buffer+strlen(buffer),"\npublic:\n");
-
-   sprintf(buffer+strlen(buffer),"\n");
    // Methods
-
-   sprintf(buffer+strlen(buffer),"\npublic:\n");
-
+   buffer.AppendFormated("public:\n");
    // Constructor
-   sprintf(buffer+strlen(buffer),"   %sIO(",shortCut);
+   buffer.AppendFormated("   %sAnalyzer();\n",shortCut.Data());
+
+   // Getters
+   buffer.AppendFormated("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         if (strcmp(folderArray[i],"1")) {
-            sprintf(buffer+strlen(buffer),"TClonesArray* %sObjects,",folderName[i]);
+         int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
+         if (folderArray[i]=="1") {
+            format.SetFormated("   %%s%%s*%%%ds  Get%%sObject()%%%ds { return f%%sObject;%%%ds };\n",typeLen-folderName[i].Length()-scl,8+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormated("   %%s%%s**%%%ds Get%%sObjectAddress()%%%ds { return &f%%sObject;%%%ds };\n",typeLen-folderName[i].Length()-scl,1+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else {
-            sprintf(buffer+strlen(buffer),"%s%s* %sObject,",shortCut,folderName[i],folderName[i]);
+            format.SetFormated("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sObjects->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,3+nameLen-folderName[i].Length(),lt);
+            buffer.AppendFormated((char*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
+            format.SetFormated("   TClonesArray*%%%ds  Get%%sObjects()%%%ds { return f%%sObjects;%%%ds };\n",typeLen-12,7+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
+            format.SetFormated("   TClonesArray**%%%ds Get%%sObjectsAddress()%%%ds { return &f%%sObjects;%%%ds };\n",typeLen-12,nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
+            buffer.AppendFormated((char*)format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
       }
    }
-   sprintf(buffer+strlen(buffer)-1,");\n");
-   sprintf(buffer+strlen(buffer),"   ~%sIO();\n",shortCut);
-
-   // Task Switches
-   sprintf(buffer+strlen(buffer),"   // Task Switches\n");
-   sprintf(buffer+strlen(buffer),"   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
-   sprintf(buffer+strlen(buffer),"   int           GetTaskSwitchesSize() { return sizeof(TaskSwitches); };\n");
-   sprintf(buffer+strlen(buffer),"   char*         GetTaskSwitchesString() { return (char*)fTaskSwitchesString.Data(); };\n");
-   sprintf(buffer+strlen(buffer),"\n");
-
-   // ODB
-   sprintf(buffer+strlen(buffer),"   // ODB Methodes\n");
-   sprintf(buffer+strlen(buffer),"   bool InitODB();\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
 
    // Banks
    if (numOfBank>0) {
-      sprintf(buffer+strlen(buffer),"   // Bank Methodes\n");
-      sprintf(buffer+strlen(buffer),"   void InitMidasBanks();\n");
+      buffer.AppendFormated("   // Bank Methodes\n");
+      buffer.AppendFormated("   void InitMidasBanks();\n");
       for (i=0;i<numOfBank;i++) {
-         if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-            sprintf(buffer+strlen(buffer),"   %s* Get%sBankAt(int index);\n",bankStructName[i],bankName[i]);
+         if (bankType[i]=="structure"||bankType[i]=="struct") {
+            buffer.AppendFormated("   %s* Get%sBankAt(int index);\n",bankStructName[i].Data(),bankName[i].Data());
          }
          else {
-            sprintf(buffer+strlen(buffer),"   %s Get%sBankAt(int index);\n",bankType[i],bankName[i]);
+            buffer.AppendFormated("   %s Get%sBankAt(int index);\n",bankType[i].Data(),bankName[i].Data());
          }
-         sprintf(buffer+strlen(buffer),"   int Get%sBankEntries();\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"   void Init%sBank();\n",bankName[i]);
+         buffer.AppendFormated("   int Get%sBankEntries();\n",bankName[i].Data());
+         buffer.AppendFormated("   void Init%sBank();\n",bankName[i].Data());
       }
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("\n");
    }
+
+   // Task Switches
+   buffer.AppendFormated("   // Task Switches\n");
+   buffer.AppendFormated("   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
+   buffer.AppendFormated("   int           GetTaskSwitchesSize() { return sizeof(TaskSwitches); };\n");
+   buffer.AppendFormated("   char*         GetTaskSwitchesString() { return (char*)fTaskSwitchesString.Data(); };\n");
+   buffer.AppendFormated("\n");
+
+   // ODB
+   buffer.AppendFormated("   // ODB Methodes\n");
+   buffer.AppendFormated("   bool InitODB();\n");
+   buffer.AppendFormated("\n");
+
    // Data Base
-   sprintf(buffer+strlen(buffer),"   // DataBase Methodes\n");
-   sprintf(buffer+strlen(buffer),"   bool InitSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadSQLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"   bool ReadXMLDataBase();\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("   // DataBase Methodes\n");
+   buffer.AppendFormated("   bool InitSQLDataBase();\n");
+   buffer.AppendFormated("   bool ReadSQLDataBase();\n");
+   buffer.AppendFormated("   bool ReadXMLDataBase();\n");
+   buffer.AppendFormated("\n");
 
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
-         sprintf(buffer+strlen(buffer),"   void Write%sDataBase();\n",folderName[i]);
+         buffer.AppendFormated("   void Write%sDataBase();\n",folderName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("\n");
 
    // Trees
-   sprintf(buffer+strlen(buffer),"   // Tree Methodes\n");
-   sprintf(buffer+strlen(buffer),"   void ConnectTrees();\n");
-   sprintf(buffer+strlen(buffer),"   void FillTrees();\n");
-   sprintf(buffer+strlen(buffer),"   void ClearFolders();\n");
+   buffer.AppendFormated("   // Tree Methodes\n");
+   buffer.AppendFormated("   void ConnectTrees();\n");
+   buffer.AppendFormated("   void FillTrees();\n");
+   buffer.AppendFormated("   void ClearFolders();\n");
 
-   //private
-   sprintf(buffer+strlen(buffer),"\nprivate:\n");
-   sprintf(buffer+strlen(buffer),"   void NextFile(char* nextFile,char* file);\n");
+   // Configuration file
+   buffer.AppendFormated("   // Configuration File\n");
+   buffer.AppendFormated("   bool ReadROMEConfigXML(char *configFile);\n");
+   buffer.AppendFormated("   bool WriteROMEConfigXML(char *configFile);\n");
+   buffer.AppendFormated("\n");
+ 
+   // Steering
+   if (numOfSteering>0) {
+      buffer.AppendFormated("   // Steering Parameter Methodes\n");
+      buffer.AppendFormated("   %sGeneralSteering* GetGeneralSteeringParameters() { return fGeneralSteeringParameters; };\n",shortCut.Data());
+      buffer.AppendFormated("   %sGeneralSteering* GetGSP() { return fGeneralSteeringParameters; };\n",shortCut.Data());
+      buffer.AppendFormated("\n");
+   }
+
+   buffer.AppendFormated("   void InitFolders();\n\n");
+   buffer.AppendFormated("   void InitTaskSwitches();\n\n");
+   buffer.AppendFormated("   void UpdateTaskSwitches();\n\n");
+
+   // Private
+   buffer.AppendFormated("private:\n");
+   buffer.AppendFormated("   void startSplashScreen();\n");
+   buffer.AppendFormated("   void consoleStartScreen();\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   void NextFile(ROMEString& nextFile,ROMEString& file);\n");
 
    // Footer
-   sprintf(buffer+strlen(buffer),"};\n\n");
+   buffer.AppendFormated("};\n\n");
 
-   sprintf(buffer+strlen(buffer),"#endif   // %sIO_H\n",shortCut);
+   buffer.AppendFormated("#endif   // %sAnalyzer_H\n",shortCut.Data());
 
    // Write File
-   fileHandle = open(hFile,O_RDONLY);
+   fileHandle = open(hFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
       }
    }
+   else
+      identical = false;
    if (!identical) {
-      fileHandle = open(hFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
-      fileHandle = open(hFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
+      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << hFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
 
-   delete [] hFile;
    return true;
 }
 
 bool ROMEBuilder::WriteMain() {
    int i;
 
-   char* cppFile=NULL;
-   char buffer[bufferLength];
+   ROMEString cppFile;
+   ROMEString buffer;
    char fileBuffer[bufferLength];
 
    int nb;
    int fileHandle;
 
-   cppFile = new char[25+strlen(outDir)];
-   sprintf(cppFile,"%s/src/framework/main.cpp",outDir);
+   cppFile.SetFormated("%s/src/framework/main.cpp",outDir.Data());
 
-   sprintf(buffer,"#include <TApplication.h>\n");
-   sprintf(buffer+strlen(buffer),"#include <include/framework/%sAnalyzer.h>\n",shortCut);
-   sprintf(buffer+strlen(buffer),"#include <Riostream.h>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"int main(int argc, char *argv[])\n");
-   sprintf(buffer+strlen(buffer),"{\n");
-   sprintf(buffer+strlen(buffer),"   int argn = 1;\n");
-   sprintf(buffer+strlen(buffer),"   char arg[1][100];\n");
-   sprintf(buffer+strlen(buffer),"   char *argp = &arg[0][0];\n");
-   sprintf(buffer+strlen(buffer),"   strcpy(arg[0],argv[0]);\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   TApplication theApp(\"App\", &argn, &argp);\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   %sAnalyzer *analyzer = new %sAnalyzer();\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   if (!analyzer->Start(argc, argv)) {\n");
-   sprintf(buffer+strlen(buffer),"      delete analyzer;\n");
-   sprintf(buffer+strlen(buffer),"      return 1;\n");
-   sprintf(buffer+strlen(buffer),"   }\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   theApp.Run();\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   delete analyzer;\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"   return 0;\n");
-   sprintf(buffer+strlen(buffer),"}\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("#include <TApplication.h>\n");
+   buffer.AppendFormated("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
+   buffer.AppendFormated("#include <Riostream.h>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("int main(int argc, char *argv[])\n");
+   buffer.AppendFormated("{\n");
+   buffer.AppendFormated("   int argn = 1;\n");
+   buffer.AppendFormated("   char arg[1][100];\n");
+   buffer.AppendFormated("   char *argp = &arg[0][0];\n");
+   buffer.AppendFormated("   strcpy(arg[0],argv[0]);\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   TApplication theApp(\"App\", &argn, &argp);\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   %sAnalyzer *analyzer = new %sAnalyzer();\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   if (!analyzer->Start(argc, argv)) {\n");
+   buffer.AppendFormated("      delete analyzer;\n");
+   buffer.AppendFormated("      return 1;\n");
+   buffer.AppendFormated("   }\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   theApp.Run();\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   delete analyzer;\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("   return 0;\n");
+   buffer.AppendFormated("}\n");
 
-   fileHandle = open(cppFile,O_RDONLY);
+   fileHandle = open(cppFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
    bool identical = true;
-   for (i=0;i<nb||i<(int)strlen(buffer);i++) {
-      if (buffer[i] != fileBuffer[i]) {
-         identical = false;
+   if (nb==(int)buffer.Length()) {
+      for (i=0;i<nb;i++) {
+         if (buffer[i] != fileBuffer[i]) {
+            identical = false;
+            break;
+         }
       }
    }
+   else
+      identical = false;
    if (!identical) {
-      fileHandle = open(cppFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
-      fileHandle = open(cppFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile << endl;
-      nb = write(fileHandle,&buffer, strlen(buffer));
+      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+      if (makeOutput) cout << "      " << cppFile.Data() << endl;
+      nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
 
-   delete [] cppFile;
    return true;
 }
 int main(int argc, char *argv[])
 {
    ROMEBuilder* romeb = new ROMEBuilder();
 
-   romeb->romeVersion = new char[20];
-   strcpy(romeb->romeVersion,"Version 1.00");
+   romeb->romeVersion = "Version 1.00";
    
-   char xmlFile[1000];
+   ROMEString xmlFile = NULL;
 
-   xmlFile[0] = 0;
    const int workDirLen = 1000;
    char workDir[workDirLen];
    getcwd(workDir,workDirLen);
@@ -3905,23 +3613,16 @@ int main(int argc, char *argv[])
    romeb->offline = false;
    romeb->sql = true;
 
-   char midasFile[200];
-   sprintf(midasFile,"$MIDASSYS/include/midas.h");
+   ROMEString midasFile;
+   midasFile = getenv("MIDASSYS");
+   midasFile.Append("/include/midas.h");
    struct stat buf;
-   
-   cout << romeb->offline << endl;
-   cout << midasFile << endl;
-
    if( stat( midasFile, &buf )) {
       romeb->offline = true;
    }
    
-   cout << romeb->offline << endl;
-   romeb->offline = false;
-   
-   romeb->outDir = new char[strlen(workDir)+2];
-   strcpy(romeb->outDir,workDir);
-   strcat(romeb->outDir,"/");
+   romeb->outDir = workDir;
+   romeb->outDir.Append("/");
 
    if (argc==1) {
       cout << "  -i        Inputfile" << endl;
@@ -3949,15 +3650,13 @@ int main(int argc, char *argv[])
          romeb->sql = false;
       }
       else if (!strcmp(argv[i],"-i")&&i<argc-1) {
-         strcpy(xmlFile,argv[i+1]);
+         xmlFile = argv[i+1];
          i++;
       }
       else if (!strcmp(argv[i],"-o")&&i<argc-1) {
-         delete [] romeb->outDir;
-         romeb->outDir = new char[strlen(argv[i+1])+2];
-         strcpy(romeb->outDir,argv[i+1]);
-         if (romeb->outDir[strlen(romeb->outDir)-1]!='/' && romeb->outDir[strlen(romeb->outDir)-1]!='\\') 
-            strcat(romeb->outDir,"/");
+         romeb->outDir = argv[i+1];
+         if (romeb->outDir[romeb->outDir.Length()-1]!='/' && romeb->outDir[romeb->outDir.Length()-1]!='\\') 
+            romeb->outDir.Append("/");
          i++;
       }
       else if (argv[i][0]=='-') {
@@ -3970,57 +3669,55 @@ int main(int argc, char *argv[])
          return 0;
       }
       else {
-         strcpy(xmlFile,argv[i]);
+         xmlFile = argv[i];
       }
    }
 
-   if( stat( xmlFile, &buf )) {
-      if ( xmlFile[0] == 0)
+   if( stat( xmlFile.Data(), &buf )) {
+      if ( xmlFile == NULL)
          cout << "No inputfile specified." << endl;
       else
-         cout << "Inputfile '" << xmlFile << "' not found." << endl;
+         cout << "Inputfile '" << xmlFile.Data() << "' not found." << endl;
       return 1;
    }
-   char* path = new char[strlen(romeb->outDir)+30];
-   strcpy(path,romeb->outDir);
-   path[strlen(path)-1] = 0;
+   ROMEString path;
+   path = romeb->outDir;
+   path.Remove(path.Length()-1);
    if (stat( path, &buf )) {
-      cout << "Outputpath '" << romeb->outDir << "' not found." << endl;
+      cout << "Outputpath '" << romeb->outDir.Data() << "' not found." << endl;
       return 1;
    }
 #if defined( _MSC_VER )
-   sprintf(path,"%s/src",romeb->outDir);
+   path.SetFormated("%s/src",romeb->outDir.Data());
    mkdir(path);
-   sprintf(path,"%s/src/tasks",romeb->outDir);
+   path.SetFormated("%s/src/tasks",romeb->outDir.Data());
    mkdir(path);
-   sprintf(path,"%s/src/framework",romeb->outDir);
+   path.SetFormated("%s/src/framework",romeb->outDir.Data());
    mkdir(path);
-   sprintf(path,"%s/include/",romeb->outDir);
+   path.SetFormated("%s/include/",romeb->outDir.Data());
    mkdir(path);
-   sprintf(path,"%s/include/tasks",romeb->outDir);
+   path.SetFormated("%s/include/tasks",romeb->outDir.Data());
    mkdir(path);
-   sprintf(path,"%s/include/framework",romeb->outDir);
+   path.SetFormated("%s/include/framework",romeb->outDir.Data());
    mkdir(path);
 #endif
 
 #if defined ( __linux__ )
-   sprintf(path,"%s/src",romeb->outDir);
+   path.SetFormated("%s/src",romeb->outDir.Data());
    mkdir(path,0711);
-   sprintf(path,"%s/src/tasks",romeb->outDir);
+   path.SetFormated("%s/src/tasks",romeb->outDir.Data());
    mkdir(path,0711);
-   sprintf(path,"%s/src/framework",romeb->outDir);
+   path.SetFormated("%s/src/framework",romeb->outDir.Data());
    mkdir(path,0711);
-   sprintf(path,"%s/include/",romeb->outDir);
+   path.SetFormated("%s/include/",romeb->outDir.Data());
    mkdir(path,0711);
-   sprintf(path,"%s/include/tasks",romeb->outDir);
+   path.SetFormated("%s/include/tasks",romeb->outDir.Data());
    mkdir(path,0711);
-   sprintf(path,"%s/include/framework",romeb->outDir);
+   path.SetFormated("%s/include/framework",romeb->outDir.Data());
    mkdir(path,0711);
 #endif
 
-   delete [] path;
-
-   romeb->startBuilder(xmlFile);
+   romeb->startBuilder((char*)xmlFile.Data());
 
    return 0;
 }
@@ -4038,16 +3735,11 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    numOfBank = 0;
    numOfSteering = 0;
 
-   mainAuthor = new char[1];
-   strcpy(mainAuthor,"");
-   mainInstitute = new char[1];
-   strcpy(mainInstitute,"");
-   mainCollaboration = new char[1];
-   strcpy(mainCollaboration,"");
-   mainEmail = new char[1];
-   strcpy(mainEmail,"");
-   mainProgName = new char[1];
-   strcpy(mainProgName,"");
+   mainAuthor = "";
+   mainInstitute = "";
+   mainCollaboration = "";
+   mainEmail = "";
+   mainProgName = "";
       
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
@@ -4064,18 +3756,13 @@ void ROMEBuilder::startBuilder(char* xmlFile)
             }
             if (type == 1) {
                if (!strcmp((const char*)name,"Author")) {
-                  delete [] mainAuthor;
-                  delete [] mainInstitute;
-                  delete [] mainCollaboration;
-                  delete [] mainEmail;
-                  mainAuthor = xml->GetAttribute("Name",mainAuthor);
-                  mainInstitute = xml->GetAttribute("Institute",mainInstitute);
-                  mainCollaboration = xml->GetAttribute("Collaboration",mainCollaboration);
-                  mainEmail = xml->GetAttribute("Email",mainEmail);
+                  xml->GetAttribute("Name",mainAuthor,mainAuthor);
+                  xml->GetAttribute("Institute",mainInstitute,mainInstitute);
+                  xml->GetAttribute("Collaboration",mainCollaboration,mainCollaboration);
+                  xml->GetAttribute("Email",mainEmail,mainEmail);
                }
                if (!strcmp((const char*)name,"Programname")) {
-                  delete [] mainProgName;
-                  mainProgName = xml->GetAttribute("Name",mainProgName);
+                  xml->GetAttribute("Name",mainProgName,mainProgName);
                }
                if (!strcmp((const char*)name,"Folder")) {
                   numOfFolder = -1;
@@ -4110,16 +3797,14 @@ void ROMEBuilder::startBuilder(char* xmlFile)
    if (makeOutput) cout << "\n\nFramework :" << endl;
    if (!WriteAnalyzerCpp()) return;
    if (!WriteAnalyzerH()) return;
-   if (!WriteIOCpp()) return;
-   if (!WriteIOH()) return;
    if (!WriteMain()) return;
    delete xml;
 
-   char buffer[10000];
+   ROMEString buffer;
 // Dictionary
    if (makeOutput) cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
    WriteDictionaryBat(buffer);
-   chdir(outDir);
+   chdir(outDir.Data());
    system(buffer);
 
 // Linking
@@ -4144,618 +3829,615 @@ void ROMEBuilder::startBuilder(char* xmlFile)
 
 void ROMEBuilder::WriteMakefile() {
    // write a Makefile
-   char buffer[10000];
+   ROMEString buffer;
    int i;
 
 #if defined( _MSC_VER )
    // libs
-   sprintf(buffer,"rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libEG.lib $(ROOTSYS)/lib/libEGPythia6.lib $(ROOTSYS)/lib/libFumili.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHbook.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRFIO.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTable.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
-   sprintf(buffer+strlen(buffer),"xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libEG.lib $(ROOTSYS)/lib/libEGPythia6.lib $(ROOTSYS)/lib/libFumili.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHbook.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRFIO.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTable.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libfreetype.lib\n");
+   buffer.AppendFormated("xmllibs = $(ROMESYS)/lib_win/libxml2.lib $(ROMESYS)/lib_win/iconv.lib $(ROMESYS)/lib_win/zlib.lib\n");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer),"sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
+      buffer.AppendFormated("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
    else
-      sprintf(buffer+strlen(buffer),"sqllibs = \n");
+      buffer.AppendFormated("sqllibs = \n");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer),"midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
+      buffer.AppendFormated("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
    else
-      sprintf(buffer+strlen(buffer),"midaslibs = \n");
-   sprintf(buffer+strlen(buffer),"clibs = gdi32.lib user32.lib kernel32.lib\n");
-   sprintf(buffer+strlen(buffer),"Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("midaslibs = \n");
+   buffer.AppendFormated("clibs = gdi32.lib user32.lib kernel32.lib\n");
+   buffer.AppendFormated("Libraries = $(rootlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormated("\n");
    // flags
-   sprintf(buffer+strlen(buffer),"Flags = /GX /GR");
+   buffer.AppendFormated("Flags = /GX /GR");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer)," /DHAVE_MIDAS");
+      buffer.AppendFormated(" /DHAVE_MIDAS");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer)," /DHAVE_SQL");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated(" /DHAVE_SQL");
+   buffer.AppendFormated("\n");
    // includes
-   sprintf(buffer+strlen(buffer),"Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tasks/ /Iinclude/framework/ ");
+   buffer.AppendFormated("Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tasks/ /Iinclude/framework/ ");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer)," /I$(MIDASSYS)/include/");
+      buffer.AppendFormated(" /I$(MIDASSYS)/include/");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer)," /I$(ROMESYS)/include/mysql/");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated(" /I$(ROMESYS)/include/mysql/");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("\n");
    // objects
-   sprintf(buffer+strlen(buffer),"objects =");
+   buffer.AppendFormated("objects =");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUserCode[i]) continue;
-      sprintf(buffer+strlen(buffer)," obj/%s%s.obj",shortCut,folderName[i]);
+      buffer.AppendFormated(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
+      buffer.AppendFormated(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
+   buffer.AppendFormated(" obj/%sAnalyzer.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql) 
-      sprintf(buffer+strlen(buffer)," obj/ROMESQL.obj");
-   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
+      buffer.AppendFormated(" obj/ROMESQL.obj");
+   buffer.AppendFormated(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
    // all
-   sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
+   buffer.AppendFormated("all:obj %s%s.exe\n",shortCut.Data(),mainProgName.Data());
    // make obj
-   sprintf(buffer+strlen(buffer),"obj:\n");
-	sprintf(buffer+strlen(buffer),"\tif not exist obj mkdir obj\n");
+   buffer.AppendFormated("obj:\n");
+	buffer.AppendFormated("\tif not exist obj mkdir obj\n");
    // link
-   sprintf(buffer+strlen(buffer),"%s%s.exe: $(objects)\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut,mainProgName);
+   buffer.AppendFormated("%s%s.exe: $(objects)\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
    // compile
    for (i=0;i<numOfFolder;i++) {
       if (!folderUserCode[i]) continue;
-      sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
-      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut,folderName[i],shortCut,folderName[i]);
+      buffer.AppendFormated("obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/%s%s.obj src/framework/%s%s.cpp \n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
-      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tasks/%sT%s.cpp \n",shortCut,taskName[i],shortCut,taskName[i]);
+      buffer.AppendFormated("obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tasks/%sT%s.cpp \n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj src/framework/%sAnalyzer.cpp \n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/%sIO.obj: src/framework/%sIO.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sIO.obj src/framework/%sIO.cpp \n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/%sDict.obj: %sDict.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/main.obj: src/framework/main.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
+   buffer.AppendFormated("obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/%sAnalyzer.obj src/framework/%sAnalyzer.cpp \n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/%sDict.obj %sDict.cpp \n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("obj/main.obj: src/framework/main.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/main.obj src/framework/main.cpp \n");
 
-   sprintf(buffer+strlen(buffer),"obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEAnalyzer.obj $(ROMESYS)/src/ROMEAnalyzer.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEEventLoop.obj $(ROMESYS)/src/ROMEEventLoop.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEIO.obj: $(ROMESYS)/src/ROMEIO.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEIO.obj $(ROMESYS)/src/ROMEIO.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMETask.obj $(ROMESYS)/src/ROMETask.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESplashScreen.obj $(ROMESYS)/src/ROMESplashScreen.cpp \n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
-   sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
+   buffer.AppendFormated("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMEAnalyzer.obj $(ROMESYS)/src/ROMEAnalyzer.cpp \n");
+   buffer.AppendFormated("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMEEventLoop.obj $(ROMESYS)/src/ROMEEventLoop.cpp \n");
+   buffer.AppendFormated("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMETask.obj $(ROMESYS)/src/ROMETask.cpp \n");
+   buffer.AppendFormated("obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMESplashScreen.obj $(ROMESYS)/src/ROMESplashScreen.cpp \n");
+   buffer.AppendFormated("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
+   buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMEXML.obj $(ROMESYS)/src/ROMEXML.cpp \n");
    if (this->sql) {
-      sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
-      sprintf(buffer+strlen(buffer),"	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
+      buffer.AppendFormated("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
+      buffer.AppendFormated("	cl $(Flags) $(Includes) /c /Foobj/ROMESQL.obj $(ROMESYS)/src/ROMESQL.cpp \n");
    }
 
 #endif
 
 #if defined ( __linux__ )
-   char shortcut[20];
-   char mainprogname[20];
    // libs
-   sprintf(buffer,"rootlibs := $(shell root-config --libs)\n");
-   sprintf(buffer+strlen(buffer),"rootglibs := $(shell root-config --glibs)\n");
-   sprintf(buffer+strlen(buffer),"rootthreadlibs := -lThread\n");
-   sprintf(buffer+strlen(buffer),"xmllibs := -lxml2 -lz -liconv\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("rootlibs := $(shell root-config --libs)\n");
+   buffer.AppendFormated("rootglibs := $(shell root-config --glibs)\n");
+   buffer.AppendFormated("rootthreadlibs := -lThread\n");
+   buffer.AppendFormated("xmllibs := -lxml2 -lz -liconv\n");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer),"sqllibs := -lmysql\n");
+      buffer.AppendFormated("sqllibs := -lmysql\n");
    else
-      sprintf(buffer+strlen(buffer),"sqllibs := \n");
+      buffer.AppendFormated("sqllibs := \n");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer),"midaslibs := -lmidas\n");
+      buffer.AppendFormated("midaslibs := -lmidas\n");
    else
-      sprintf(buffer+strlen(buffer),"midaslibs := \n");
-   sprintf(buffer+strlen(buffer),"clibs := -lpthread -lHtml $(SYSLIBS)\n");
-   sprintf(buffer+strlen(buffer),"Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("midaslibs := \n");
+   buffer.AppendFormated("clibs := -lpthread -lHtml $(SYSLIBS)\n");
+   buffer.AppendFormated("Libraries := $(rootlibs) $(rootglibs) $(rootthreadlibs) $(xmllibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormated("\n");
    // flags
-   sprintf(buffer+strlen(buffer),"flags := ");
+   buffer.AppendFormated("flags := ");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer)," -DHAVE_MIDAS");
+      buffer.AppendFormated(" -DHAVE_MIDAS");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer)," -DHAVE_SQL");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated(" -DHAVE_SQL");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("\n");
    // includes
-   sprintf(buffer+strlen(buffer),"Includes := -I$(ROMESYS)/include/ -I$(ROOTSYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
+   buffer.AppendFormated("Includes := -I$(ROMESYS)/include/ -I$(ROOTSYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/ ");
    if (!this->offline) 
-      sprintf(buffer+strlen(buffer)," -I$(MIDASSYS)/include/");
+      buffer.AppendFormated(" -I$(MIDASSYS)/include/");
    if (this->sql) 
-      sprintf(buffer+strlen(buffer)," -I$(ROMESYS)/include/mysql/");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated(" -I$(ROMESYS)/include/mysql/");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("\n");
    // objects
-   sprintf(buffer+strlen(buffer),"objects :=");
+   buffer.AppendFormated("objects :=");
    for (i=0;i<numOfFolder;i++) {
       if (numOfGetters[i]==0) continue;
-      sprintf(buffer+strlen(buffer)," obj/%s%s.obj",shortCut,folderName[i]);
+      buffer.AppendFormated(" obj/%s%s.obj",shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer)," obj/%sT%s.obj",shortCut,taskName[i]);
+      buffer.AppendFormated(" obj/%sT%s.obj",shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer)," obj/%sAnalyzer.obj obj/%sIO.obj obj/%sDict.obj obj/main.obj",shortCut,shortCut,shortCut);
+   buffer.AppendFormated(" obj/%sAnalyzer.obj obj/%sDict.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->sql)
-      sprintf(buffer+strlen(buffer)," obj/ROMESQL.obj");
-   sprintf(buffer+strlen(buffer)," obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMEIO.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
+      buffer.AppendFormated(" obj/ROMESQL.obj");
+   buffer.AppendFormated(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj\n\n");
    // all
-   sprintf(buffer+strlen(buffer),"all:obj %s%s.exe\n",shortCut,mainProgName);
+   ROMEString shortcut(shortCut);
+   shortcut.ToLower();
+   ROMEString mainprogname(mainProgName);
+   mainprogname.ToLower();
+   buffer.AppendFormated("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
    // make obj
-   sprintf(buffer+strlen(buffer),"obj:\n");
-	sprintf(buffer+strlen(buffer),"\t@if [ ! -d  obj ] ; then \\\n");
-	sprintf(buffer+strlen(buffer),"\t\techo \"Making directory obj\" ; \\\n");
-	sprintf(buffer+strlen(buffer),"\t\tmkdir obj; \\\n");
-	sprintf(buffer+strlen(buffer),"\tfi;\n");
+   buffer.AppendFormated("obj:\n");
+	buffer.AppendFormated("\t@if [ ! -d  obj ] ; then \\\n");
+	buffer.AppendFormated("\t\techo \"Making directory obj\" ; \\\n");
+	buffer.AppendFormated("\t\tmkdir obj; \\\n");
+	buffer.AppendFormated("\tfi;\n");
    // link
-   sprintf(buffer+strlen(buffer),"%s%s.exe: $(objects)\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"	g++ -g -o $@ $(objects) $(Libraries)\n\n",shortCut,mainProgName);
+   buffer.AppendFormated("%s%s.exe: $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormated("	g++ -g -o $@ $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
    // compile
    for (i=0;i<numOfFolder;i++) {
       if (numOfGetters[i]==0) continue;
-      sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
-      sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut,folderName[i],shortCut,folderName[i]);
+      buffer.AppendFormated("obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+      buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
-      sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut,taskName[i],shortCut,taskName[i]);
+      buffer.AppendFormated("obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut.Data(),taskName[i].Data(),shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/%sIO.obj: src/framework/%sIO.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%sIO.cpp -o obj/%sIO.obj\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/%sDict.obj: %sDict.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"obj/main.obj: src/framework/main.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
+   buffer.AppendFormated("obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("obj/%sDict.obj: %sDict.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormated("obj/main.obj: src/framework/main.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
 
-   sprintf(buffer+strlen(buffer),"obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEIO.obj: $(ROMESYS)/src/ROMEIO.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEIO.cpp -o obj/ROMEIO.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
-   sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
+   buffer.AppendFormated("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
+   buffer.AppendFormated("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
+   buffer.AppendFormated("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
+   buffer.AppendFormated("obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
+   buffer.AppendFormated("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
+   buffer.AppendFormated("	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
    if (this->sql) {
-      sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
-      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
+      buffer.AppendFormated("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
+      buffer.AppendFormated("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");
    }
 #endif
-   char makeFile[20];
+   ROMEString makeFile;
 #if defined ( __linux__ )
-   sprintf(makeFile,"Makefile");
+   makeFile = "Makefile";
 #endif
 #if defined ( _MSC_VER )
-   sprintf(makeFile,"Makefile.win");
+   makeFile = "Makefile.win";
 #endif
-   int fileHandle = open(makeFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   int fileHandle = open(makeFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
-   fileHandle = open(makeFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer, strlen(buffer));
+   fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+   write(fileHandle,buffer.Data(), buffer.Length());
    close(fileHandle);
 }
 
-void ROMEBuilder::WriteDictionaryBat(char* buffer) 
+void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer) 
 {
    // writes a script file that executes rootcint
    int i;
 
-   sprintf(buffer,"rootcint -f %sDict.cpp -c ",shortCut);
+   buffer.Resize(0);
+   buffer.AppendFormated("rootcint -f %sDict.cpp -c ",shortCut.Data());
 #if defined( _MSC_VER )
-   sprintf(buffer+strlen(buffer),"-I%%ROMESYS%%/include ");
-   sprintf(buffer+strlen(buffer),"-I%%ROOTSYS%% ");
+   buffer.AppendFormated("-I%%ROMESYS%%/include ");
+   buffer.AppendFormated("-I%%ROOTSYS%% ");
 #endif
 #if defined ( __linux__ )
-   sprintf(buffer+strlen(buffer),"-I$ROMESYS/include ");
-   sprintf(buffer+strlen(buffer),"-I$ROOTSYS ");
+   buffer.AppendFormated("-I$ROMESYS/include ");
+   buffer.AppendFormated("-I$ROOTSYS ");
 #endif
-   sprintf(buffer+strlen(buffer),"-Iinclude -Iinclude/tasks -Iinclude/framework ");
+   buffer.AppendFormated("-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"include/framework/%s%s.h ",shortCut,folderName[i]);
+         buffer.AppendFormated("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());
          if (folderUserCode[i])
-            sprintf(buffer+strlen(buffer),"include/framework/%s%s_Base.h ",shortCut,folderName[i]);
+            buffer.AppendFormated("include/framework/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
       }
    }
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"include/tasks/%sT%s.h ",shortCut,taskName[i]);
+      buffer.AppendFormated("include/tasks/%sT%s.h ",shortCut.Data(),taskName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"ROMETask.h ROMETreeInfo.h \n");
-   strcat(buffer,"\0");
+   buffer.AppendFormated("ROMETask.h ROMETreeInfo.h \n");
+   buffer.Append("\0");
 
 #if defined( _MSC_VER )
-   char* batFile = new char[20+strlen(outDir)];
-   sprintf(batFile,"%smakeDictionary.bat",outDir);
-   int fileHandle = open(batFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   ROMEString batFile;
+   batFile.SetFormated("%smakeDictionary.bat",outDir.Data());
+   int fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
-   fileHandle = open(batFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer, strlen(buffer));
+   fileHandle = open(batFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+   write(fileHandle,buffer.Data(), buffer.Length());
    close(fileHandle);
-   delete [] batFile;
 #endif
 }
 
 void ROMEBuilder::WriteHTMLDoku() {
 
    int i=0,j=0,k=0;
-   char buffer[100000];
-   char parentt[100] = "";
+   ROMEString buffer;
+   ROMEString parentt;
    int depthold=0;
    int depth=0;
 
    // Header
-   sprintf(buffer,"<HTML>\n");
-   sprintf(buffer+strlen(buffer),"<HEAD>\n");
-   sprintf(buffer+strlen(buffer),"<TITLE>%s%s Manual</TITLE>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"</HEAD>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<H1>%s%s Manual</H1>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.Resize(0);
+   buffer.AppendFormated("<HTML>\n");
+   buffer.AppendFormated("<HEAD>\n");
+   buffer.AppendFormated("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("</HEAD>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<H1>%s%s Manual</H1>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
    // Table of Contents
-   sprintf(buffer+strlen(buffer),"<H2>Table of Contents</H2>\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#introduction\">Introduction</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<br>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#taskobjects\">Tasks</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#folderobjects\">Folders</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#treeobjects\">Trees</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<br>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<ul>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#foldermethods\">Folders</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#databasemethods\">Data Base</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<li><a href=\"#generalmethods\">General</a></li>\n");
-   sprintf(buffer+strlen(buffer),"<br>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n",outDir);
-   sprintf(buffer+strlen(buffer),"<br>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<H2>Table of Contents</H2>\n");
+   buffer.AppendFormated("<ul>\n");
+   buffer.AppendFormated("<li><a href=\"#introduction\">Introduction</a></li>\n");
+   buffer.AppendFormated("<br>\n");
+   buffer.AppendFormated("<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("<ul>\n");
+   buffer.AppendFormated("<li><a href=\"#taskobjects\">Tasks</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#folderobjects\">Folders</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#treeobjects\">Trees</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
+   buffer.AppendFormated("<br>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("<ul>\n");
+   buffer.AppendFormated("<li><a href=\"#foldermethods\">Folders</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#databasemethods\">Data Base</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#midasbankmethods\">Midas Banks</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#histogrammethods\">Histograms</a></li>\n");
+   buffer.AppendFormated("<li><a href=\"#generalmethods\">General</a></li>\n");
+   buffer.AppendFormated("<br>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n",outDir.Data());
+   buffer.AppendFormated("<br>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
    // Introduction
-   sprintf(buffer+strlen(buffer),"<H2><a name=introduction>Introduction</a> </H2>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The %s%s consists mainly of folders and tasks.\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"Folders are objects, where you can store data in. Typically you will store the data of one detector (or subdetector) component in it.\n");
-   sprintf(buffer+strlen(buffer),"Like disk folders (directories) they are hierarchically arranged.\n");
-   sprintf(buffer+strlen(buffer),"Folders may have a data structure (unlike disk folders). The data objects are called fields. Folders without fields can be used to structure the project.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"Tasks are objects, which privides actions. They make calculations, store and read data in folders, fill trees and histograms and so on.\n");
-   sprintf(buffer+strlen(buffer),"Tasks are also hierarchically arranged. That means that a task may have a subtask, which is executed after the task itself has been executed.\n");
-   sprintf(buffer+strlen(buffer),"Task also own histograms, which means that all histograms in this frame work belong to a task. The booking and saving of histograms is made by the frame work.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("<H2><a name=introduction>Introduction</a> </H2>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The %s%s consists mainly of folders and tasks.\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("Folders are objects, where you can store data in. Typically you will store the data of one detector (or subdetector) component in it.\n");
+   buffer.AppendFormated("Like disk folders (directories) they are hierarchically arranged.\n");
+   buffer.AppendFormated("Folders may have a data structure (unlike disk folders). The data objects are called fields. Folders without fields can be used to structure the project.\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("Tasks are objects, which privides actions. They make calculations, store and read data in folders, fill trees and histograms and so on.\n");
+   buffer.AppendFormated("Tasks are also hierarchically arranged. That means that a task may have a subtask, which is executed after the task itself has been executed.\n");
+   buffer.AppendFormated("Task also own histograms, which means that all histograms in this frame work belong to a task. The booking and saving of histograms is made by the frame work.\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
    // Objects
-   sprintf(buffer+strlen(buffer),"<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a> and <a href=\"#treeobjects\">Trees</a> are described here.\n");
+   buffer.AppendFormated("<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a> and <a href=\"#treeobjects\">Trees</a> are described here.\n");
    // Tasks
-   sprintf(buffer+strlen(buffer),"<h3><a name=taskobjects>Tasks</a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The %s%s consists of the following tasks :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<h3><a name=taskobjects>Tasks</a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The %s%s consists of the following tasks :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
 
    depthold=0;
    depth=0;
    for (i=0;i<numOfTask;i++) {
       depth=0;
-      if (strcmp(taskParentName[i],"GetMainTask()")) {
+      if (taskParentName[i]!="GetMainTask()") {
          depth++;
-         strcpy(parentt,taskParentName[i]);
+         parentt = taskParentName[i];
          for (j=0;j<100;j++) {
             for (k=0;k<numOfTask;k++) {
-               if (!strcmp(parentt,taskName[k])) break;
+               if (parentt==taskName[k]) break;
             }
             if (k>=numOfTask) {
                cout << "Invalid task structure." << endl;
                return;
             }
-            if (!strcmp(taskParentName[k],"GetMainTask()")) break;
+            if (taskParentName[k]=="GetMainTask()") break;
             depth++;
          }
       }
-      if (depth<depthold) sprintf(buffer+strlen(buffer),"</ul>\n");
-      if (depth>depthold) sprintf(buffer+strlen(buffer),"<ul>\n");
-      sprintf(buffer+strlen(buffer),"<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskName[i],shortCut,taskName[i]);
+      if (depth<depthold) buffer.AppendFormated("</ul>\n");
+      if (depth>depthold) buffer.AppendFormated("<ul>\n");
+      buffer.AppendFormated("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskName[i].Data(),shortCut.Data(),taskName[i].Data());
       depthold = depth;
    }
-   for (i=0;i<depth;i++) sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<p><b>Note</b> : The user should write code into the Init(), BeginOfRun(), Event(), EndOfRun() and Terminate() methods of the tasks methods file (.cpp). But the user may not add code to or alter code in the class file (.h). The class file (.h) is generated by the framework. Manual changes to this file will allways be overwritten.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"In the following all tasks will be described.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   for (i=0;i<depth;i++) buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<p><b>Note</b> : The user should write code into the Init(), BeginOfRun(), Event(), EndOfRun() and Terminate() methods of the tasks methods file (.cpp). But the user may not add code to or alter code in the class file (.h). The class file (.h) is generated by the framework. Manual changes to this file will allways be overwritten.\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("In the following all tasks will be described.\n");
+   buffer.AppendFormated("<p>\n");
 
    for (i=0;i<numOfTask;i++) {
-      sprintf(buffer+strlen(buffer),"<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i],taskName[i]);
-      sprintf(buffer+strlen(buffer),"%s<p>\n",taskDescription[i]);
+      buffer.AppendFormated("<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i].Data(),taskName[i].Data());
+      buffer.AppendFormated("%s<p>\n",taskDescription[i].Data());
       if (numOfHistos[i]>0) {
-         sprintf(buffer+strlen(buffer),"This task containes the following histograms :\n");
-         sprintf(buffer+strlen(buffer),"<ul>\n");
+         buffer.AppendFormated("This task containes the following histograms :\n");
+         buffer.AppendFormated("<ul>\n");
          for (j=0;j<numOfHistos[i];j++) {
-            sprintf(buffer+strlen(buffer),"<li type=\"circle\">%s</li>\n",histoName[i][j]);
+            buffer.AppendFormated("<li type=\"circle\">%s</li>\n",histoName[i][j].Data());
          }
-         sprintf(buffer+strlen(buffer),"</ul>\n");
-         sprintf(buffer+strlen(buffer),"\n");
-         sprintf(buffer+strlen(buffer),"\n");
-         sprintf(buffer+strlen(buffer),"\n");
-         sprintf(buffer+strlen(buffer),"\n");
+         buffer.AppendFormated("</ul>\n");
+         buffer.AppendFormated("\n");
+         buffer.AppendFormated("\n");
+         buffer.AppendFormated("\n");
+         buffer.AppendFormated("\n");
       }
       else {
-         sprintf(buffer+strlen(buffer),"This task containes no histograms.\n");
+         buffer.AppendFormated("This task containes no histograms.\n");
       }
-      sprintf(buffer+strlen(buffer),"<p>\n");
-      sprintf(buffer+strlen(buffer),"For more information take a look at the <A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">class file</a>\n",outDir,shortCut,taskName[i]);
-      sprintf(buffer+strlen(buffer),"<p>\n");
-      sprintf(buffer+strlen(buffer),"\n");
+      buffer.AppendFormated("<p>\n");
+      buffer.AppendFormated("For more information take a look at the <A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">class file</a>\n",outDir.Data(),shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormated("<p>\n");
+      buffer.AppendFormated("\n");
    }
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
 
    // Folders
-   sprintf(buffer+strlen(buffer),"<h3><a name=folderobjects>Folders</a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following folders :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
+   buffer.AppendFormated("<h3><a name=folderobjects>Folders</a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The %s%s incorporates the following folders :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<ul>\n");
 
    depthold=0;
    depth=0;
    for (i=0;i<numOfFolder;i++) {
       depth=0;
-      if (strcmp(folderParentName[i],"GetMainFolder()")) {
+      if (folderParentName[i]!="GetMainFolder()") {
          depth++;
-         strcpy(parentt,folderParentName[i]);
+         parentt = folderParentName[i];
          for (j=0;j<100;j++) {
             for (k=0;k<numOfFolder;k++) {
-               if (!strcmp(parentt,folderName[k])) break;
+               if (parentt==folderName[k]) break;
             }
             if (k>=numOfFolder) {
                cout << "Invalid folder structure." << endl;
                return;
             }
-            if (!strcmp(folderParentName[k],"GetMainFolder()")) break;
+            if (folderParentName[k]=="GetMainFolder()") break;
             depth++;
          }
       }
-      if (depth<depthold) sprintf(buffer+strlen(buffer),"</ul>\n");
-      if (depth>depthold) sprintf(buffer+strlen(buffer),"<ul>\n");
+      if (depth<depthold) buffer.AppendFormated("</ul>\n");
+      if (depth>depthold) buffer.AppendFormated("<ul>\n");
       if (numOfValue[i] > 0) {
-         sprintf(buffer+strlen(buffer),"<b>\n");
-         sprintf(buffer+strlen(buffer),"<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n",folderName[i],folderName[i]);
-         sprintf(buffer+strlen(buffer),"</b>\n");
+         buffer.AppendFormated("<b>\n");
+         buffer.AppendFormated("<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n",folderName[i].Data(),folderName[i].Data());
+         buffer.AppendFormated("</b>\n");
       }
       else {
-         sprintf(buffer+strlen(buffer),"<li type=\"circle\">%s</li>\n",folderName[i]);
+         buffer.AppendFormated("<li type=\"circle\">%s</li>\n",folderName[i].Data());
       }
       depthold = depth;
    }
-   for (i=0;i<depth;i++) sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"The bold folders are data folders. The others are only used to structure the frame work.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"In the following all folders will be described.\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   for (i=0;i<depth;i++) buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("The bold folders are data folders. The others are only used to structure the frame work.\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("In the following all folders will be described.\n");
+   buffer.AppendFormated("<p>\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] <= 0) continue;
-      sprintf(buffer+strlen(buffer),"<h4><a name=%s><u>%s</u></a></h4>\n",folderName[i],folderName[i]);
-      sprintf(buffer+strlen(buffer),"%s\n",folderDescription[i]);
-      sprintf(buffer+strlen(buffer),"<p>\n");
-      sprintf(buffer+strlen(buffer),"<u>Fields</u>\n");
-      sprintf(buffer+strlen(buffer),"<table border=\"1\">\n");
-      sprintf(buffer+strlen(buffer),"<tr><td>Name</td><td>Type</td></tr>\n");
+      buffer.AppendFormated("<h4><a name=%s><u>%s</u></a></h4>\n",folderName[i].Data(),folderName[i].Data());
+      buffer.AppendFormated("%s\n",folderDescription[i].Data());
+      buffer.AppendFormated("<p>\n");
+      buffer.AppendFormated("<u>Fields</u>\n");
+      buffer.AppendFormated("<table border=\"1\">\n");
+      buffer.AppendFormated("<tr><td>Name</td><td>Type</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
-         sprintf(buffer+strlen(buffer),"<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j],valueType[i][j]);
+         buffer.AppendFormated("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data());
       }
-      sprintf(buffer+strlen(buffer),"</table>\n");
+      buffer.AppendFormated("</table>\n");
 
    }
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
 
    // Trees
-   sprintf(buffer+strlen(buffer),"<h3><a name=treeobjects>Trees</a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following trees :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
+   buffer.AppendFormated("<h3><a name=treeobjects>Trees</a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The %s%s incorporates the following trees :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<ul>\n");
    for (i=0;i<numOfTree;i++) {
-      sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",treeName[i]);
+      buffer.AppendFormated("<li type=\"disc\">%s</li>\n",treeName[i].Data());
    }
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
 
    // Midas Banks
-   sprintf(buffer+strlen(buffer),"<h3><a name=midasbankobjects>Midas Banks</a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The %s%s incorporates the following midas banks :\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ul>\n");
+   buffer.AppendFormated("<h3><a name=midasbankobjects>Midas Banks</a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The %s%s incorporates the following midas banks :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<ul>\n");
    for (i=0;i<numOfBank;i++) {
-      if (!strcmp(bankType[i],"structure")||!strcmp(bankType[i],"struct")) {
-         sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",bankName[i]);
-         sprintf(buffer+strlen(buffer),"<ul>\n");
+      if (bankType[i]=="structure"||bankType[i]=="struct") {
+         buffer.AppendFormated("<li type=\"disc\">%s</li>\n",bankName[i].Data());
+         buffer.AppendFormated("<ul>\n");
          for (j=0;j<numOfStructFields[i];j++) {
-            sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",structFieldName[i][j]);
+            buffer.AppendFormated("<li type=\"disc\">%s</li>\n",structFieldName[i][j].Data());
          }
-         sprintf(buffer+strlen(buffer),"</ul>\n");
+         buffer.AppendFormated("</ul>\n");
       }
       else {
-         sprintf(buffer+strlen(buffer),"<li type=\"disc\">%s</li>\n",bankName[i]);
+         buffer.AppendFormated("<li type=\"disc\">%s</li>\n",bankName[i].Data());
       }
    }
-   sprintf(buffer+strlen(buffer),"</ul>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<hr>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("</ul>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<hr>\n");
+   buffer.AppendFormated("<p>\n");
 
    // Access Methods
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<H2><a name=accessmethods>Access Methods to Objects in the %s%s</a> </H2>\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"In the following the access methods of all types of objects in the %s%s are discussed.\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"All task can access these methods over their <b>fAnalyzer</b> handle, which every task has by\n");
-   sprintf(buffer+strlen(buffer),"default.<br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<H2><a name=accessmethods>Access Methods to Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("In the following the access methods of all types of objects in the %s%s are discussed.\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("All task can access these methods over their <b>fAnalyzer</b> handle, which every task has by\n");
+   buffer.AppendFormated("default.<br>\n");
+   buffer.AppendFormated("<p>\n");
 
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<h3><a name=foldermethods>Folders</a></h3>\n");
-   sprintf(buffer+strlen(buffer),"To access a folder one has to get a handle to it with the following methods : <p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;for object arrays.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Folder Name</i>]Object()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the object.</br>\n");
-   sprintf(buffer+strlen(buffer),"These methods return a pointer on the class of this folder.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"The get or set the content of a folder one has to use the following methods : <p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Field Name</i>]()</b></td><td>&nbsp;&nbsp;&nbsp;getter.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Set[<i>Field Name</i>]([<i>Value</i>])</td><td>&nbsp;&nbsp;&nbsp;setter.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Field Name</i></b> stands for the name of the field to access specified in the xml file (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Value</i></b> stands for the value given to the Field.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b>Example:</b> To give the field 'YY' of the 9 folder of a folderarray 'XX' the value 99 one has to type this :<p>\n");
-   sprintf(buffer+strlen(buffer),"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXAt(9)->SetYY(99) <p>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<h3><a name=foldermethods>Folders</a></h3>\n");
+   buffer.AppendFormated("To access a folder one has to get a handle to it with the following methods : <p>\n");
+   buffer.AppendFormated("<table border=\"0\">\n");
+   buffer.AppendFormated("<tr><td><b>Get[<i>Folder Name</i>]At([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;for object arrays.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Get[<i>Folder Name</i>]Object()</td><td>&nbsp;&nbsp;&nbsp;for single objects.</td></tr>\n");
+   buffer.AppendFormated("</table>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b><i>Folder Name</i></b> stands for the name of the folder specified in the xml file (see also list above).</br>\n");
+   buffer.AppendFormated("<b><i>Index</i></b> stands for the array index of the object.</br>\n");
+   buffer.AppendFormated("These methods return a pointer on the class of this folder.</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("The get or set the content of a folder one has to use the following methods : <p>\n");
+   buffer.AppendFormated("<table border=\"0\">\n");
+   buffer.AppendFormated("<tr><td><b>Get[<i>Field Name</i>]()</b></td><td>&nbsp;&nbsp;&nbsp;getter.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Set[<i>Field Name</i>]([<i>Value</i>])</td><td>&nbsp;&nbsp;&nbsp;setter.</td></tr>\n");
+   buffer.AppendFormated("</table>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b><i>Field Name</i></b> stands for the name of the field to access specified in the xml file (see also list above).</br>\n");
+   buffer.AppendFormated("<b><i>Value</i></b> stands for the value given to the Field.</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b>Example:</b> To give the field 'YY' of the 9 folder of a folderarray 'XX' the value 99 one has to type this :<p>\n");
+   buffer.AppendFormated("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXAt(9)->SetYY(99) <p>\n");
+   buffer.AppendFormated("<p>\n");
 
    // Data Base
-   sprintf(buffer+strlen(buffer),"<h3><a name=databasemethods><u>Data Base</u></a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"To add an entry to the data base the following methods are available :\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<h3><a name=databasemethods><u>Data Base</u></a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("To add an entry to the data base the following methods are available :\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<b>Write[<i>Folder Name</i>]DataBase(this)</b>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b><i>Folder Name</i></b> stands for the name of the folder, which is to be written to the data base (see also list above).</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
 
    // Midas Banks
-   sprintf(buffer+strlen(buffer),"<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
-   sprintf(buffer+strlen(buffer),"To access a bank in a midas input file the following methods are available :\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"One can get the entries in a bank with the following method :\n");
-   sprintf(buffer+strlen(buffer),"<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"The data can be accessed with :\n");
-   sprintf(buffer+strlen(buffer),"<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
-   sprintf(buffer+strlen(buffer),"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXBankAt(9)->YY <p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<h3><a name=midasbankmethods><u>Midas Banks</u></a></h3>\n");
+   buffer.AppendFormated("To access a bank in a midas input file the following methods are available :\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("One can get the entries in a bank with the following method :\n");
+   buffer.AppendFormated("<b>Get[<i>Bank Name</i>]BankEntries()</b>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("The data can be accessed with :\n");
+   buffer.AppendFormated("<b>Get[<i>Bank Name</i>]BankAt([<i>Index</i>])</b>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b><i>Bank Name</i></b> stands for the name of the bank.</br>\n");
+   buffer.AppendFormated("<b><i>Index</i></b> stands for the arrayindex of the value.</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("If the bank is a structured bank, the data access method returns a pointer on the structure.</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b>Example:</b> To get the 9 value 'YY' of a structured bank 'XX' one has to type this :<p>\n");
+   buffer.AppendFormated("&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;fAnalyzer->GetXXBankAt(9)->YY <p>\n");
+   buffer.AppendFormated("\n");
 
    // Histos
-   sprintf(buffer+strlen(buffer),"<h3><a name=histogrammethods><u>Histograms</u></a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"Histograms belong to a task. So a task can only access his own histograms. To do this the following methods are available :\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histo Name</i>]([<i>xValue</i>],[<i>weight</i>])</b></td>  <td>&nbsp;&nbsp;&nbsp;fills a single histogram.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Draw[<i>Histo Name</i>]()</b></td>       <td>&nbsp;&nbsp;&nbsp;draws a single histogram.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histo Name</i>]Handle()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Fill[<i>Histo Name</i>]At([<i>Index</i>],[<i>xValue</i>],[<i>weight</i>])</b></td><td>&nbsp;&nbsp;&nbsp;fills a histogram of a histogram array.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Draw[<i>Histo Name</i>]At([<i>Index</i>])</b></td>     <td>&nbsp;&nbsp;&nbsp;draws a histogram of a histogram array.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td><b>Get[<i>Histo Name</i>]HandleAt([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Histo Name</i></b> stands for the name of the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>Index</i></b> stands for the array index of the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>xValue</i></b> value to be filled to the histogram.</br>\n");
-   sprintf(buffer+strlen(buffer),"<b><i>weight</i></b> weight of the value.</br>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<h3><a name=histogrammethods><u>Histograms</u></a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("Histograms belong to a task. So a task can only access his own histograms. To do this the following methods are available :\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<table border=\"0\">\n");
+   buffer.AppendFormated("<tr><td><b>Fill[<i>Histo Name</i>]([<i>xValue</i>],[<i>weight</i>])</b></td>  <td>&nbsp;&nbsp;&nbsp;fills a single histogram.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Draw[<i>Histo Name</i>]()</b></td>       <td>&nbsp;&nbsp;&nbsp;draws a single histogram.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Get[<i>Histo Name</i>]Handle()</b></td>  <td>&nbsp;&nbsp;&nbsp;gets the handle to a single histogram.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Fill[<i>Histo Name</i>]At([<i>Index</i>],[<i>xValue</i>],[<i>weight</i>])</b></td><td>&nbsp;&nbsp;&nbsp;fills a histogram of a histogram array.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Draw[<i>Histo Name</i>]At([<i>Index</i>])</b></td>     <td>&nbsp;&nbsp;&nbsp;draws a histogram of a histogram array.</td></tr>\n");
+   buffer.AppendFormated("<tr><td><b>Get[<i>Histo Name</i>]HandleAt([<i>Index</i>])</b></td><td>&nbsp;&nbsp;&nbsp;gets the handle to a histogram of a histogram array.</td></tr>\n");
+   buffer.AppendFormated("</table>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<b><i>Histo Name</i></b> stands for the name of the histogram.</br>\n");
+   buffer.AppendFormated("<b><i>Index</i></b> stands for the array index of the histogram.</br>\n");
+   buffer.AppendFormated("<b><i>xValue</i></b> value to be filled to the histogram.</br>\n");
+   buffer.AppendFormated("<b><i>weight</i></b> weight of the value.</br>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
 
    // General Methods
-   sprintf(buffer+strlen(buffer),"<h3><a name=generalmethods><u>General</u></a></h3>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"%s%s provides some general methods for the user.\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"<table border=\"0\">\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isOnline()</td><td> : true if the program is running online.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isOffline()</td><td> : true if the program is running offline.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isRoot()</td><td> : true if the data is read from a root file.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isMidas()</td><td> : true if the data has the midas format.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isBatchMode()</td><td> : true if the program is running in batch mode.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isEndOfRun()</td><td> : true if the EndOfRun flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isBeginOfRun()</td><td> : true if the BeginOfRun flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>isTerminate()</td><td> : true if the Terminate flag is set.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>EndOfRun()</td><td> : sets the EndOfRun flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>BeginOfRun()</td><td> : sets the BeginOfRun flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>Terminate()</td><td> : sets the Terminate flag.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"<tr><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
-   sprintf(buffer+strlen(buffer),"</table>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
+   buffer.AppendFormated("<h3><a name=generalmethods><u>General</u></a></h3>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("%s%s provides some general methods for the user.\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("<table border=\"0\">\n");
+   buffer.AppendFormated("<tr><td>isOnline()</td><td> : true if the program is running online.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isOffline()</td><td> : true if the program is running offline.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isRoot()</td><td> : true if the data is read from a root file.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isMidas()</td><td> : true if the data has the midas format.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isBatchMode()</td><td> : true if the program is running in batch mode.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isEndOfRun()</td><td> : true if the EndOfRun flag is set.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isBeginOfRun()</td><td> : true if the BeginOfRun flag is set.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>isTerminate()</td><td> : true if the Terminate flag is set.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>EndOfRun()</td><td> : sets the EndOfRun flag.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>BeginOfRun()</td><td> : sets the BeginOfRun flag.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>Terminate()</td><td> : sets the Terminate flag.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>GetConfigDir()</td><td> : returns the configuration directory.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>GetDataBaseDir()</td><td> : returns the data base directory.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>GetInputDir()</td><td> : returns the input directory.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>GetOutputDir()</td><td> : returns the output directory.</td></tr>\n");
+   buffer.AppendFormated("<tr><td>GetCurrentRunNumber()</td><td> : returns the current run number.</td></tr>\n");
+   buffer.AppendFormated("</table>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
 
    // Footer
-   sprintf(buffer+strlen(buffer),"<HR>\n");
-   sprintf(buffer+strlen(buffer),"<p>\n");
-   sprintf(buffer+strlen(buffer),"\n");
-   sprintf(buffer+strlen(buffer),"<ADDRESS>\n");
-   sprintf(buffer+strlen(buffer),"<u> Contact person from the %s Experiment</u></br>\n",shortCut);
-   sprintf(buffer+strlen(buffer),"%s</br>\n",mainAuthor);
-   sprintf(buffer+strlen(buffer),"%s</br>\n",mainInstitute);
-   sprintf(buffer+strlen(buffer),"%s</br>\n",mainCollaboration);
-   sprintf(buffer+strlen(buffer),"email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail,mainEmail);
-   sprintf(buffer+strlen(buffer),"<u> Contact person from ROME</u></br>\n");
-   sprintf(buffer+strlen(buffer),"Matthias Schneebeli (PSI)</br>\n");
-   sprintf(buffer+strlen(buffer),"email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
-   sprintf(buffer+strlen(buffer),"</ADDRESS>\n");
-   sprintf(buffer+strlen(buffer),"</BODY>\n");
-   sprintf(buffer+strlen(buffer),"</HTML>\n");
+   buffer.AppendFormated("<HR>\n");
+   buffer.AppendFormated("<p>\n");
+   buffer.AppendFormated("\n");
+   buffer.AppendFormated("<ADDRESS>\n");
+   buffer.AppendFormated("<u> Contact person from the %s Experiment</u></br>\n",shortCut.Data());
+   buffer.AppendFormated("%s</br>\n",mainAuthor.Data());
+   buffer.AppendFormated("%s</br>\n",mainInstitute.Data());
+   buffer.AppendFormated("%s</br>\n",mainCollaboration.Data());
+   buffer.AppendFormated("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail.Data(),mainEmail.Data());
+   buffer.AppendFormated("<u> Contact person from ROME</u></br>\n");
+   buffer.AppendFormated("Matthias Schneebeli (PSI)</br>\n");
+   buffer.AppendFormated("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
+   buffer.AppendFormated("</ADDRESS>\n");
+   buffer.AppendFormated("</BODY>\n");
+   buffer.AppendFormated("</HTML>\n");
 
-   char *htmlFile = new char[6+strlen(outDir)+strlen(shortCut)+strlen(mainProgName)];
-   sprintf(htmlFile,"%s%s%s.html",outDir,shortCut,mainProgName);
-   int fileHandle = open(htmlFile,O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   ROMEString htmlFile;
+   htmlFile.SetFormated("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   int fileHandle = open(htmlFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
-   fileHandle = open(htmlFile,O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer, strlen(buffer));
+   fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
+   write(fileHandle,buffer.Data(), buffer.Length());
    close(fileHandle);
-   if (makeOutput) cout << htmlFile << endl;
-   delete [] htmlFile;
+   if (makeOutput) htmlFile.WriteLine();
 }
 
-void ROMEBuilder::GetFormat(char *buf,char *type) 
+void ROMEBuilder::GetFormat(ROMEString* buf,char *type) 
 {
+   buf->Resize(0);
    // get the format specifier (like '%s') of a declaration type
    if (!strcmp(type,"int") ||
        !strcmp(type,"unsigned int") ||
@@ -4780,7 +4462,7 @@ void ROMEBuilder::GetFormat(char *buf,char *type)
        !strcmp(type,"Color_t") ||
        !strcmp(type,"Font_t") ||
        !strcmp(type,"Version_t")) {
-      strcpy(buf,"%d");
+      buf->Append("%d");
    }
    else if (!strcmp(type,"char") ||
        !strcmp(type,"unsigned char") ||
@@ -4789,7 +4471,7 @@ void ROMEBuilder::GetFormat(char *buf,char *type)
 
        !strcmp(type,"Option_t") ||
        !strcmp(type,"Text_t")) {
-      strcpy(buf,"%s");
+      buf->Append("%s");
    }
    else if (!strcmp(type,"float") ||
        !strcmp(type,"Float_t") ||
@@ -4799,19 +4481,20 @@ void ROMEBuilder::GetFormat(char *buf,char *type)
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      strcpy(buf,"%f");
+      buf->Append("%f");
    }
    else if (!strcmp(type,"bool") ||
       !strcmp(type,"Bool_t")) {
-      strcpy(buf,"%d");
+      buf->Append("%d");
    }
    else {
-      strcpy(buf,"%s");
+      buf->Append("%s");
    }
 }
 
-void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type,int version)
+void ROMEBuilder::setValue(ROMEString* buf,char *destination,char *source,char *type,int version)
 {
+   buf->Resize(0);
    // returns code which transformes a source variable of any type into a destination variable of type character
    if (
        !strcmp(type,"int") ||
@@ -4838,17 +4521,17 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type,i
        !strcmp(type,"Font_t") ||
        !strcmp(type,"Version_t")) {
       if (version==0)
-         sprintf(buf,"%s = strtol(%s,&cstop,10)",destination,source);
+         buf->AppendFormated("%s = strtol(%s,&cstop,10)",destination,source);
       else
-         sprintf(buf,"strtol(%s,&cstop,10)",source);
+         buf->AppendFormated("strtol(%s,&cstop,10)",source);
    }
    else if (
        !strcmp(type,"bool") ||
        !strcmp(type,"Bool_t")) {
       if (version==0)
-         sprintf(buf,"%s = toBool(strtol(%s,&cstop,10))",destination,source);
+         buf->AppendFormated("%s = toBool(strtol(%s,&cstop,10))",destination,source);
       else
-         sprintf(buf,"toBool(strtol(%s,&cstop,10))",source);
+         buf->AppendFormated("toBool(strtol(%s,&cstop,10))",source);
    }
    else if (
        !strcmp(type,"char") ||
@@ -4859,9 +4542,9 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type,i
        !strcmp(type,"Option_t") ||
        !strcmp(type,"Text_t")) {
       if (version==0)
-         sprintf(buf,"strcpy(%s,%s)",destination,source);
+         buf->AppendFormated("strcpy(%s,%s)",destination,source);
       else
-         sprintf(buf,"%s",source);
+         buf->AppendFormated("%s",source);
    }
    else if (
        !strcmp(type,"float") ||
@@ -4873,15 +4556,15 @@ void ROMEBuilder::setValue(char *buf,char *destination,char *source,char *type,i
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
       if (version==0)
-         sprintf(buf,"%s = strtod(%s,&cstop)",destination,source);
+         buf->AppendFormated("%s = strtod(%s,&cstop)",destination,source);
       else
-         sprintf(buf,"strtod(%s,&cstop)",source);
+         buf->AppendFormated("strtod(%s,&cstop)",source);
    }
    else {
       if (version==0)
-         sprintf(buf,"%s = %s",destination,source);
+         buf->AppendFormated("%s = %s",destination,source);
       else
-         sprintf(buf,"%s",source);
+         buf->AppendFormated("%s",source);
    }
 }
 bool ROMEBuilder::isFloatingType(char *type)

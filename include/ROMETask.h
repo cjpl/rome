@@ -2,22 +2,22 @@
 #define ROMETask_H
 
 #include <TTask.h>
-#include <TString.h>
+#include <ROMEString.h>
 #include <TStopwatch.h>
 #include <ROMEAnalyzer.h>
 
 class ROMETask : public TTask {
 private:
    TStopwatch     fWatch;          // Stopwatch
-   char           fTitle[100];     // Task title
-   char           fName[100];      // Task name
-   char           fTimeString[14]; // Elapsed Time in a readable format
+   ROMEString     fTitle;     // Task title
+   ROMEString     fName;      // Task name
+   ROMEString     fTimeString; // Elapsed Time in a readable format
    TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 protected:
    ROMEAnalyzer*  fAnalyzer;       // Handle to the Analyzer Class (should be overriden by each Task)
    Int_t          fVersion;        // Version of Task
    Bool_t         fHasHistograms;  // Flags Tasks containing Histograms
-   TString        fEventID;        // TriggerID for event method
+   ROMEString        fEventID;        // TriggerID for event method
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title,ROMEAnalyzer *analyzer);

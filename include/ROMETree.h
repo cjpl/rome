@@ -2,7 +2,7 @@
 #define ROMETree_H
 
 #include<TObject.h>
-#include<TString.h>
+#include<ROMEString.h>
 #include<TTree.h>
 
 class ROMETree : public TObject 
@@ -13,7 +13,7 @@ private:
       int fWrite;          //!   Write Flag
    } fSwitches;               //!   Switches Structure
 
-   TString fSwitchesString;   //!   Switches String
+   ROMEString fSwitchesString;   //!   Switches String
 
 protected:
    TTree *fTree;              //   Tree

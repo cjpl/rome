@@ -2,6 +2,7 @@
 #define ROMEBuilder_H
 
 #include <ROMEXML.h>
+#include <ROMEString.h>
 
 const int maxNumberOfTasks = 200;
 const int maxNumberOfFolders = 100;
@@ -22,9 +23,9 @@ const int bufferLength = 100000;
 class ROMEBuilder
 {
 public:
-   char* romeVersion;
+   ROMEString romeVersion;
 
-   char* outDir;
+   ROMEString outDir;
    bool  makeOutput;
    bool  noLink;
    bool  offline;
@@ -33,32 +34,32 @@ public:
 private:
    ROMEXML* xml;
 
-   char* shortCut;
+   ROMEString shortCut;
 
 // folders
    int numOfFolder;
    int numOfValue[maxNumberOfFolders];
    int numOfFolderInclude[maxNumberOfTasks];
 
-   char* folderName[maxNumberOfFolders];
-   char* folderDescription[maxNumberOfFolders];
-   char* folderParentName[maxNumberOfFolders];
-   char* folderTitle[maxNumberOfFolders];
-   char* folderArray[maxNumberOfFolders];
-   char* folderAuthor[maxNumberOfFolders];
-   char* folderVersion[maxNumberOfFolders];
-   char* folderInclude[maxNumberOfTasks][maxNumberOfInclude];
+   ROMEString folderName[maxNumberOfFolders];
+   ROMEString folderDescription[maxNumberOfFolders];
+   ROMEString folderParentName[maxNumberOfFolders];
+   ROMEString folderTitle[maxNumberOfFolders];
+   ROMEString folderArray[maxNumberOfFolders];
+   ROMEString folderAuthor[maxNumberOfFolders];
+   ROMEString folderVersion[maxNumberOfFolders];
+   ROMEString folderInclude[maxNumberOfTasks][maxNumberOfInclude];
    bool  folderLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
    bool folderDataBase[maxNumberOfFolders];
    bool folderUserCode[maxNumberOfFolders];
 
-   char* valueName[maxNumberOfFolders][maxNumberOfValues];
-   char* valueType[maxNumberOfFolders][maxNumberOfValues];
-   char* valueRef[maxNumberOfFolders][maxNumberOfValues];
-   char* valueInit[maxNumberOfFolders][maxNumberOfValues];
-   char* valueComment[maxNumberOfFolders][maxNumberOfValues];
-   char* valueDataBasePath[maxNumberOfFolders][maxNumberOfValues];
-   char* valueArray[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueRef[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueComment[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueDataBasePath[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues];
 
 // task
 
@@ -67,79 +68,79 @@ private:
    int numOfTaskSteering[maxNumberOfTasks];
    int numOfTaskSteerFields[maxNumberOfTasks][maxNumberOfSteering];
    int numOfTaskInclude[maxNumberOfTasks];
-   char* taskName[maxNumberOfTasks];
-   char* taskEventID[maxNumberOfTasks];
-   char* taskDescription[maxNumberOfTasks];
+   ROMEString taskName[maxNumberOfTasks];
+   ROMEString taskEventID[maxNumberOfTasks];
+   ROMEString taskDescription[maxNumberOfTasks];
    bool  taskFortran[maxNumberOfTasks];
-   char* taskParentName[maxNumberOfTasks];
-   char* taskAuthor[maxNumberOfTasks];
-   char* taskVersion[maxNumberOfTasks];
-   char* taskInclude[maxNumberOfTasks][maxNumberOfInclude];
+   ROMEString taskParentName[maxNumberOfTasks];
+   ROMEString taskAuthor[maxNumberOfTasks];
+   ROMEString taskVersion[maxNumberOfTasks];
+   ROMEString taskInclude[maxNumberOfTasks][maxNumberOfInclude];
    bool  taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
-   char* histoName[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoType[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoArray[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoTitle[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoXBin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoXMin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoXMax[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoYBin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoYMin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoYMax[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoZBin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoZMin[maxNumberOfTasks][maxNumberOfHistos];
-   char* histoZMax[maxNumberOfTasks][maxNumberOfHistos];
-   char* taskSteerName[maxNumberOfTasks][maxNumberOfSteering];
-   char* taskSteerParent[maxNumberOfTasks][maxNumberOfSteering];
+   ROMEString histoName[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoType[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoArray[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoTitle[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXBin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXMin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXMax[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYBin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYMin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYMax[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZBin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZMin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZMax[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString taskSteerName[maxNumberOfTasks][maxNumberOfSteering];
+   ROMEString taskSteerParent[maxNumberOfTasks][maxNumberOfSteering];
    int   taskSteerDepth[maxNumberOfTasks][maxNumberOfSteering];
-   char* taskSteerFieldName[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   char* taskSteerFieldType[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   char* taskSteerFieldInit[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
-   char* taskSteerFieldComment[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString taskSteerFieldName[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString taskSteerFieldType[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString taskSteerFieldInit[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString taskSteerFieldComment[maxNumberOfTasks][maxNumberOfSteering][maxNumberOfSteeringField];
 
 // tree
    int numOfTree;
    int numOfBranch[maxNumberOfTrees];
-   char* treeName[maxNumberOfTrees];
-   char* treeTitle[maxNumberOfTrees];
-   char* branchName[maxNumberOfTrees][maxNumberOfBranches];
-   char* branchFolder[maxNumberOfTrees][maxNumberOfBranches];
+   ROMEString treeName[maxNumberOfTrees];
+   ROMEString treeTitle[maxNumberOfTrees];
+   ROMEString branchName[maxNumberOfTrees][maxNumberOfBranches];
+   ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
 
 // banks
    int numOfBank;
    int numOfStructFields[maxNumberOfBanks];
-   char* bankName[maxNumberOfBanks];
-   char* bankType[maxNumberOfBanks];
-   char* bankStructName[maxNumberOfBanks];
-   char* structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
-   char* structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
-   char* structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString bankName[maxNumberOfBanks];
+   ROMEString bankType[maxNumberOfBanks];
+   ROMEString bankStructName[maxNumberOfBanks];
+   ROMEString structFieldName[maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString structFieldType[maxNumberOfBanks][maxNumberOfStructFields];
+   ROMEString structFieldSize[maxNumberOfBanks][maxNumberOfStructFields];
    bool  bankHasHeader;
-   char* bankHeaderFolder;
-   char* bankHeaderEventID;
-   char* bankHeaderTriggerMask;
-   char* bankHeaderSerialNumber;
-   char* bankHeaderTimeStamp;
+   ROMEString bankHeaderFolder;
+   ROMEString bankHeaderEventID;
+   ROMEString bankHeaderTriggerMask;
+   ROMEString bankHeaderSerialNumber;
+   ROMEString bankHeaderTimeStamp;
 
 // steering
    int numOfSteering;
    int numOfSteerFields[maxNumberOfSteering];
-   char* steerName[maxNumberOfSteering];
-   char* steerParent[maxNumberOfSteering];
+   ROMEString steerName[maxNumberOfSteering];
+   ROMEString steerParent[maxNumberOfSteering];
    int   steerDepth[maxNumberOfSteering];
-   char* steerFieldName[maxNumberOfSteering][maxNumberOfSteeringField];
-   char* steerFieldType[maxNumberOfSteering][maxNumberOfSteeringField];
-   char* steerFieldInit[maxNumberOfSteering][maxNumberOfSteeringField];
-   char* steerFieldComment[maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldName[maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldType[maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldInit[maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldComment[maxNumberOfSteering][maxNumberOfSteeringField];
 
 // main
-   char* mainAuthor;
-   char* mainInstitute;
-   char* mainCollaboration;
-   char* mainEmail;
-   char* mainProgName;
+   ROMEString mainAuthor;
+   ROMEString mainInstitute;
+   ROMEString mainCollaboration;
+   ROMEString mainEmail;
+   ROMEString mainProgName;
 
 public:
    ROMEBuilder() {};
@@ -148,9 +149,9 @@ public:
    bool WriteFolderCpp();
    bool WriteFolderH();
    bool ReadXMLTask();
-   bool WriteTaskSteeringClass(char *buffer,int numOfTaskSteer,int numTask);
-   void WriteTaskSteerConfigWrite(char *buffer,int numSteer,int numTask);
-   void WriteTaskSteerConfigRead(char *buffer,int numSteer,int numTask);
+   bool WriteTaskSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask);
+   void WriteTaskSteerConfigWrite(ROMEString& buffer,int numSteer,int numTask);
+   void WriteTaskSteerConfigRead(ROMEString& buffer,int numSteer,int numTask);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
@@ -158,11 +159,11 @@ public:
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering();
    bool WriteSteering();
-   bool WriteSteeringClass(char *buffer,int numOfSteer);
+   bool WriteSteeringClass(ROMEString& buffer,int numOfSteer);
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
-   void WriteSteerConfigWrite(char *buffer,int numOfSteer);
-   void WriteSteerConfigRead(char *buffer,int numSteer);
+   void WriteSteerConfigWrite(ROMEString& buffer,int numOfSteer);
+   void WriteSteerConfigRead(ROMEString& buffer,int numSteer);
    bool WriteIOCpp();
    bool WriteIOH();
    bool WriteEventLoopCpp();
@@ -170,10 +171,10 @@ public:
    bool WriteMain();
    void WriteMakefile();
    void WriteHTMLDoku();
-   void WriteDictionaryBat(char* buffer);
+   void WriteDictionaryBat(ROMEString& buffer);
    void startBuilder(char* xmlFile);
-   void GetFormat(char *buf,char *type);
-   void setValue(char *buf,char *destination,char *source,char *type,int version);
+   void GetFormat(ROMEString *buf,char *type);
+   void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
    bool isFloatingType(char *type);
 };
 

@@ -16,6 +16,7 @@
 #define MY_ENCODING "ISO-8859-1"
 
 #include <ROMEXML.h>
+#include <ROMEString.h>
 #include <Riostream.h>
 
 ROMEXML::ROMEXML() {
@@ -37,7 +38,7 @@ ROMEXML::~ROMEXML() {
    }
 }
 
-bool ROMEXML::OpenFileForRead(char* file) {
+bool ROMEXML::OpenFileForRead(const char* file) {
    reader = xmlReaderForFile(file, NULL, 0);
    if (reader == NULL) {
       fprintf(stderr, "Unable to open %s\n", file);
@@ -46,73 +47,47 @@ bool ROMEXML::OpenFileForRead(char* file) {
    return true;
 }
 
-int ROMEXML::GetAttribute(char* name,char* value,unsigned int valueSize) {
+bool ROMEXML::GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue) {
+   return GetAttribute(name,value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue) {
+   return GetAttribute((char*)name.Data(),value,defaultValue);
+}
+bool ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+   return GetAttribute((char*)name.Data(),value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetAttribute(const char* name,ROMEString& value,const char* defaultValue) {
    const xmlChar* val = xmlTextReaderGetAttribute(reader,(xmlChar*)name);
    if (val==NULL) {
+      value = defaultValue;
       xmlFree((void*)val);
-      return 0;
+      return false;
    }
-   if (valueSize<strlen((const char*)val)) {
-      xmlFree((void*)val);
-      return -1;
-   }
-   strcpy(value,(char*)val);
+   value = (char*)val;
    xmlFree((void*)val);
-   return 1;
+   return true;
 }
 
-char* ROMEXML::GetAttribute(char* name,char* defaultValue) {
-   const xmlChar* val = xmlTextReaderGetAttribute(reader,(xmlChar*)name);
-   if (val==NULL) {
-      if (defaultValue==0) return NULL;
-      char* value = new char[strlen(defaultValue)+1];
-      strcpy(value,defaultValue);
-      xmlFree((void*)val);
-      return value;
-   }
-   char* value = new char[strlen((char*)val)+1];
-   strcpy(value,(char*)val);
-   xmlFree((void*)val);
-   return value;
+bool ROMEXML::GetValue(ROMEString& value,ROMEString& defaultValue) {
+   return GetValue(value,(char*)defaultValue.Data());
 }
-
-int ROMEXML::GetValue(char* value,unsigned int valueSize) {
-   if (xmlTextReaderRead(reader)==0)
-      return 0;
-   int type = xmlTextReaderNodeType(reader);
-   const xmlChar* val = xmlTextReaderConstValue(reader);
-   if (val!=NULL && type==3) {
-      if (valueSize<strlen((const char*)val)) {
-         xmlFree((void*)val);
-         return -1;
-      }
-      strcpy(value,(char*)val);
-      return 1;
-   }
-   xmlFree((void*)val);
-   return 0;
-}
-
-char* ROMEXML::GetValue(char* defaultValue) {
+bool ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
    if (xmlTextReaderRead(reader)==0) {
-      char* value = new char[strlen(defaultValue)+1];
-      strcpy(value,defaultValue);
-      return value;
+      value = defaultValue;
+      return false;
    }
    int type = xmlTextReaderNodeType(reader);
    const xmlChar* val = xmlTextReaderConstValue(reader);
    if (val!=NULL && type==3) {
-      char* value = new char[strlen((char*)val)+1];
-      strcpy(value,(char*)val);
-      return value;
+      value = (char*)val;
+      return true;
    }
-   char* value = new char[strlen(defaultValue)+1];
-   strcpy(value,defaultValue);
+   value = defaultValue;
    xmlFree((void*)val);
-   return value;
+   return false;
 }
 
-bool ROMEXML::OpenFileForWrite(char* file) {
+bool ROMEXML::OpenFileForWrite(const char* file) {
    writer = xmlNewTextWriterFilename(file, 0);
    if (writer == NULL) {
       fprintf(stderr, "Unable to open %s\n", file);
@@ -123,7 +98,7 @@ bool ROMEXML::OpenFileForWrite(char* file) {
    return true;
 }
 
-bool ROMEXML::StartElement(char* name) {
+bool ROMEXML::StartElement(const char* name) {
    xmlTextWriterStartElement(writer, BAD_CAST name);
    return true;
 }
@@ -141,17 +116,17 @@ bool ROMEXML::EndDocument() {
    return true;
 }
 
-bool ROMEXML::WriteAttribute(char* name,char* value) {
+bool ROMEXML::WriteAttribute(const char* name,const char* value) {
    xmlTextWriterWriteAttribute(writer, BAD_CAST name,BAD_CAST value);
    return true;
 }
 
-bool ROMEXML::WriteElement(char* name,char* value) {
+bool ROMEXML::WriteElement(const char* name,const char* value) {
    xmlTextWriterWriteElement(writer, BAD_CAST name, BAD_CAST value);
    return true;
 }
 
-bool ROMEXML::OpenFileForPath(char* file) {
+bool ROMEXML::OpenFileForPath(const char* file) {
    // Load XML document
    doc = xmlParseFile(file);
    if (doc == NULL) {
@@ -169,7 +144,7 @@ bool ROMEXML::OpenFileForPath(char* file) {
    return true;
 }
 
-bool ROMEXML::ExistPath(char* path) {
+bool ROMEXML::ExistPath(const char* path) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -182,87 +157,117 @@ bool ROMEXML::ExistPath(char* path) {
    return true;
 }
 
-bool ROMEXML::GetPathAttribute(char* path,char* name,char* value) {
-   char *pathI = new char[strlen(path)+20];
-   sprintf(pathI,"%s/attribute::*",path);
-   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI, xpathCtx);
+bool ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathAttribute((char*)path.Data(),(char*)name.Data(),value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue) {
+   return GetPathAttribute((char*)path.Data(),(char*)name.Data(),value,defaultValue);
+}
+bool ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathAttribute((char*)path.Data(),name,value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathAttribute(path,(char*)name.Data(),value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,const char* defaultValue) {
+   return GetPathAttribute((char*)path.Data(),name,value,defaultValue);
+}
+bool ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,const char* defaultValue) {
+   return GetPathAttribute(path,(char*)name.Data(),value,defaultValue);
+}
+bool ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathAttribute(path,name,value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue) {
+   ROMEString pathI(path);
+   pathI.Append("/attribute::*");
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI.Data(), xpathCtx);
    if(xpathObj == NULL) {
-      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI);
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI.Data());
       xmlXPathFreeContext(xpathCtx); 
       xmlFreeDoc(doc);
-      delete pathI;
+      value = defaultValue;
       return false;
    }
    if (xpathObj->nodesetval==NULL) {
-      delete pathI;
+      value = defaultValue;
       return false;
    }
    for (int i=0;i<xpathObj->nodesetval->nodeNr;i++) {
       if (!strcmp((char*)xpathObj->nodesetval->nodeTab[i]->name,name)) {
-         strcpy(value,(char*)xpathObj->nodesetval->nodeTab[i]->children->content);
-         delete pathI;
+         value = (char*)xpathObj->nodesetval->nodeTab[i]->children->content;
          return true;
       }
    }
-   delete pathI;
+   value = defaultValue;
    return false;
 }
 
-bool ROMEXML::GetPathValue(char* path,char* value) {
+bool ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathValue((char*)path.Data(),value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue) {
+   return GetPathValue((char*)path.Data(),value,defaultValue);
+}
+bool ROMEXML::GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue) {
+   return GetPathValue(path,value,(char*)defaultValue.Data());
+}
+bool ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaultValue) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
       xmlXPathFreeContext(xpathCtx); 
       xmlFreeDoc(doc); 
+      value = defaultValue;
       return false;
    }
-   strcpy(value,(char*)xpathObj->nodesetval->nodeTab[0]->children->content);
+   value = (char*)xpathObj->nodesetval->nodeTab[0]->children->content;
    return true;
 }
 
-bool ROMEXML::ReplacePathAttributeValue(char* path,char* name,char* value) {
-   char *pathI = new char[strlen(path)+20];
-   sprintf(pathI,"%s/attribute::*",path);
-   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI, xpathCtx);
+bool ROMEXML::ReplacePathAttributeValue(const char* path,const char* name,const char* value) {
+   ROMEString pathI(path);
+   pathI.Append("/attribute::*");
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI.Data(), xpathCtx);
    if(xpathObj == NULL) {
-      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI);
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI.Data());
       xmlXPathFreeContext(xpathCtx); 
       xmlFreeDoc(doc); 
       return false;
    }
    for (int i=0;i<xpathObj->nodesetval->nodeNr;i++) {
       if (!strcmp((char*)xpathObj->nodesetval->nodeTab[i]->name,name)) {
+         if (sizeof((char*)xpathObj->nodesetval->nodeTab[i]->children->content)<=strlen(value))
+            return false;
          strcpy((char*)xpathObj->nodesetval->nodeTab[i]->children->content,value);
-         delete pathI;
          return true;
       }
    }
-   delete pathI;
    return false;
 }
 
-bool ROMEXML::ReplacePathAttributeName(char* path,char* name,char* newName) {
-   char *pathI = new char[strlen(path)+20];
-   sprintf(pathI,"%s/attribute::*",path);
-   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI, xpathCtx);
+bool ROMEXML::ReplacePathAttributeName(const char* path,const char* name,const char* newName) {
+   ROMEString pathI(path);
+   pathI.Append("/attribute::*");
+   xpathObj = xmlXPathEvalExpression((const xmlChar*)pathI.Data(), xpathCtx);
    if(xpathObj == NULL) {
-      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI);
+      fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", pathI.Data());
       xmlXPathFreeContext(xpathCtx); 
       xmlFreeDoc(doc); 
       return false;
    }
    for (int i=0;i<xpathObj->nodesetval->nodeNr;i++) {
       if (!strcmp((char*)xpathObj->nodesetval->nodeTab[i]->name,name)) {
+         if (sizeof((char*)xpathObj->nodesetval->nodeTab[i]->name)<=strlen(newName))
+            return false;
          strcpy((char*)xpathObj->nodesetval->nodeTab[i]->name,newName);
-         delete pathI;
          return true;
       }
    }
-   delete pathI;
    return false;
 }
 
-bool ROMEXML::ReplacePathName(char* path,char* name) {
+bool ROMEXML::ReplacePathName(const char* path,const char* name) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -270,11 +275,13 @@ bool ROMEXML::ReplacePathName(char* path,char* name) {
       xmlFreeDoc(doc); 
       return false;
    }
+   if (sizeof((char*)xpathObj->nodesetval->nodeTab[0]->name)<=strlen(name))
+      return false;
    strcpy((char*)xpathObj->nodesetval->nodeTab[0]->name,name);
    return true;
 }
 
-bool ROMEXML::ReplacePathValue(char* path,char* value) {
+bool ROMEXML::ReplacePathValue(const char* path,const char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -282,11 +289,13 @@ bool ROMEXML::ReplacePathValue(char* path,char* value) {
       xmlFreeDoc(doc); 
       return false;
    }
+   if (sizeof((char*)xpathObj->nodesetval->nodeTab[0]->children->content)<=strlen(value))
+      return false;
    strcpy((char*)xpathObj->nodesetval->nodeTab[0]->children->content,value);
    return true;
 }
 
-bool ROMEXML::NewPathAttribute(char* path,char* name,char* value) {
+bool ROMEXML::NewPathAttribute(const char* path,const char* name,const char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -298,7 +307,7 @@ bool ROMEXML::NewPathAttribute(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::NewPathNextElement(char* path,char* name,char* value) {
+bool ROMEXML::NewPathNextElement(const char* path,const char* name,const char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -312,7 +321,7 @@ bool ROMEXML::NewPathNextElement(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::NewPathPrevElement(char* path,char* name,char* value) {
+bool ROMEXML::NewPathPrevElement(const char* path,const char* name,const char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -326,7 +335,7 @@ bool ROMEXML::NewPathPrevElement(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
+bool ROMEXML::NewPathChildElement(const char* path,const char* name,const char* value) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -338,7 +347,7 @@ bool ROMEXML::NewPathChildElement(char* path,char* name,char* value) {
    return true;
 }
 
-bool ROMEXML::HasPathChildren(char* path) {
+bool ROMEXML::HasPathChildren(const char* path) {
    xpathObj = xmlXPathEvalExpression((const xmlChar*)path, xpathCtx);
    if(xpathObj == NULL) {
       fprintf(stderr,"Error: unable to evaluate xpath expression \"%s\"\n", path);
@@ -350,7 +359,7 @@ bool ROMEXML::HasPathChildren(char* path) {
    return true;
 }
 
-bool ROMEXML::WritePathFile(char* file) {
+bool ROMEXML::WritePathFile(const char* file) {
    xmlSaveFormatFileEnc(file,doc,"ISO-8859-1",1);
    return true;
 }
