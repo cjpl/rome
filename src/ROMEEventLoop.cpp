@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.37  2004/12/07 15:03:12  schneebeli_m
+//  online steering
+//
 //  Revision 1.36  2004/12/06 16:03:02  sawada
 //  code cleanup (tab -> space)
 //
@@ -119,12 +122,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       this->InitTrees();
       return;
    }
-   if (gROME->isOnline()) {
-      this->SetStopped();
-   }
-   else {
-      this->SetRunning();
-   }
 
 // Event loop
    if (fgBeginTask) {
@@ -176,20 +173,24 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          break;
       }
 
-     // Begin of Run Tasks
-      if (ROMEAnalyzer::fTaskSwitchesChanged) {
-         this->UpdateTaskSwitches();
-         ROMEAnalyzer::fTaskSwitchesChanged = false;
-      }
       if (this->isRunning()) {
+         // Task Switches
+         if (ROMEAnalyzer::fTaskSwitchesChanged) {
+            this->UpdateTaskSwitches();
+            ROMEAnalyzer::fTaskSwitchesChanged = false;
+         }
+
+         // Begin of Run Tasks
          ExecuteTasks("b");
          CleanTasks();
+
+         // Output
+         if (gShowTime) TimeStart();
+         cout << "\n\nRun " << gROME->GetCurrentRunNumber() << " started" << endl; 
       }
           
       // Loop over Events
       //------------------
-      if (gShowTime) TimeStart();
-      cout << "\n\nRun " << gROME->GetCurrentRunNumber() << " started" << endl; 
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
 
          // User Input
@@ -214,6 +215,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             return;
          }
          if (this->isEndOfRun()) {
+            this->SetStopped();
             break;
          }
          if (this->isBeginOfRun()) {
@@ -252,25 +254,29 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             return;
          }
       }
-      if (gShowTime) TimeEnd();
+      if (this->isEndOfRun() || this->isTerminate()) {
+         if (this->isEndOfRun())
+            this->SetBeginOfRun();
+         if (gShowTime) TimeEnd();
 
-      // Show number of processed events
-      cout << "Run " << gROME->GetCurrentRunNumber() << " stopped                                             " << endl << endl; 
-      cout << (int)gROME->GetProcessedEvents() << " events processed" << endl <<endl;
-      if (gShowTime) {
-         cout << "run time = " << GetTime() << endl << endl;
-      }
+         // Show number of processed events
+         cout << "Run " << gROME->GetCurrentRunNumber() << " stopped                                             " << endl << endl; 
+         cout << (int)gROME->GetProcessedEvents() << " events processed" << endl <<endl;
+         if (gShowTime) {
+            cout << "run time = " << GetTime() << endl << endl;
+         }
 
-      // End of Run Tasks
-      ExecuteTasks("e");
-      CleanTasks();
+         // End of Run Tasks
+         ExecuteTasks("e");
+         CleanTasks();
 
-      // Disconnect
-      if (!this->Disconnect()) {
-         this->Termination();
-         gROME->SetTerminationFlag();
-         cout << "\n\nTerminating Program !" << endl;
-         return;
+         // Disconnect
+         if (!this->Disconnect()) {
+            this->Termination();
+            gROME->SetTerminationFlag();
+            cout << "\n\nTerminating Program !" << endl;
+            return;
+         }
       }
    }
 
@@ -360,6 +366,18 @@ bool ROMEEventLoop::Initialize() {
          return false;
       }
 
+      // Check Run Status
+      int state = 0;
+      int statesize = sizeof(state);
+      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/State",&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
+         cout << "\nCannot read run status from the online database" << endl;
+         return false;
+      }
+      if (state!=3) {
+         this->SetBeginOfRun();
+         this->SetStopped();
+      }
+
       // Get Runnumber
       int runNumber = 0;
       int size = sizeof(runNumber);
@@ -414,8 +432,6 @@ bool ROMEEventLoop::Initialize() {
       // Experiment dependent ODB initializations
       this->InitODB();
 
-      // Set Event Status
-      this->SetAnalyze();
 #else
       cout << "Need Midas support for Online Mode !!" << endl;
       cout << "Please link the midas library into this project." << endl;
@@ -455,9 +471,6 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    stat->writtenEvents = 0;
    fStatisticsTimeOfLastEvent = 0;
    fStatisticsLastEvent = 0;
-   // Status
-   this->SetRunning();
-   this->SetAnalyze();
 
    if (gROME->isOffline()) {
       if (gROME->GetNumberOfRunNumbers()<=runNumberIndex) {
@@ -562,8 +575,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       this->ConnectTrees();
    }
    else {
-           cout << "Severe program failure." << endl << endl;
-           return false;
+      cout << "Severe program failure." << endl << endl;
+      return false;
    }
    return true;
 }
@@ -784,8 +797,10 @@ bool ROMEEventLoop::Update()
             fProgressDelta /= 10;
       }
    }
+
    if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
       cout << (int)gROME->GetTriggerStatistics()->processedEvents << " events processed                                                    \r" << flush;
+
       fProgressWrite = false;
    }
  
@@ -837,7 +852,7 @@ bool ROMEEventLoop::UserInput()
          if (ch == 'q') {
             return false;
          }
-              if (ch == 'e') {
+         if (ch == 'e') {
             this->SetTerminate();
             wait = false;
          }
@@ -846,8 +861,10 @@ bool ROMEEventLoop::UserInput()
             wait = true;
          }
          if (ch == 'r') {
+
             if (fContinuous)
                cout << "                                  \r" << flush;
+
             wait = false;
          }
          if (ch == 'o') {

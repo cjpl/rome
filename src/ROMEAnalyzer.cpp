@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.47  2004/12/07 15:03:03  schneebeli_m
+//  online steering
+//
 //  Revision 1.46  2004/12/06 16:03:02  sawada
 //  code cleanup (tab -> space)
 //
@@ -75,6 +78,7 @@
 
 #if defined( _MSC_VER )
 #ifndef __CINT__
+#include <Windows4Root.h>
 #include <conio.h>
 #endif
 #include <io.h>
@@ -162,6 +166,8 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fOnlineHost = "";
    fDataBaseConnection = "";
    fDataBaseHandle = new ROMENoDataBase();
+   fPortNumber = 9090;
+   fSocketOffline = false;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
