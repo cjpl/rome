@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2004/07/08 08:19:36  schneebeli
+  write midas event header to folder
+
   Revision 1.12  2004/07/07 14:48:22  schneebeli
   io : root trees
 
@@ -1588,7 +1591,7 @@ bool ROMEBuilder::ReadXMLTree(xmlTextReaderPtr reader) {
 }
 bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
    const xmlChar *name, *value;
-   int type;
+   int type,i;
 
 // read XML file
 //===============
@@ -1603,7 +1606,7 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"Folder");
          if (value!=NULL) strcpy(bankHeaderFolder,(const char*)value);
          else {
-            cout << "Midas Event Header has no folder !" << endl;
+            cout << "Midas event header has no folder !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -1628,6 +1631,70 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
          if (value!=NULL) strcpy(bankHeaderTimeStamp,(const char*)value);
          else strcpy(bankHeaderTimeStamp,"");
          xmlFree((void*)value);
+         // Tests
+         int iFold = -1;
+         for (i=0;i<numOfFolder;i++) {
+            if (!strcmp(folderName[i],bankHeaderFolder)) {
+               iFold = i;
+               break;
+            }
+         }
+         if (iFold==-1) {
+            cout << "Midas event header : folder '" << bankHeaderFolder << "' does not exist !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         if (strcmp(folderArray[iFold],"1")) {
+            cout << "Midas event header : folder '" << bankHeaderFolder << "' is an array !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         bool foundID = false;
+         bool foundMask = false;
+         bool foundNum = false;
+         bool foundTime = false;
+         if (!strcmp(bankHeaderEventID,"")) 
+            foundID = true;
+         if (!strcmp(bankHeaderTriggerMask,"")) 
+            foundMask = true;
+         if (!strcmp(bankHeaderSerialNumber,"")) 
+            foundNum = true;
+         if (!strcmp(bankHeaderTimeStamp,"")) 
+            foundTime = true;
+         for (i=0;i<numOfValue[iFold];i++) {
+            if (!strcmp(valueName[iFold][i],bankHeaderEventID)) {
+               foundID = true;
+            }
+            if (!strcmp(valueName[iFold][i],bankHeaderTriggerMask)) {
+               foundMask = true;
+            }
+            if (!strcmp(valueName[iFold][i],bankHeaderSerialNumber)) {
+               foundNum = true;
+            }
+            if (!strcmp(valueName[iFold][i],bankHeaderTimeStamp)) {
+               foundTime = true;
+            }
+         }
+         if (!foundID) {
+            cout << "Midas event header : event id field '" << bankHeaderEventID << "' does not exist !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         if (!foundMask) {
+            cout << "Midas event header : trigger mask field '" << bankHeaderTriggerMask << "' does not exist !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         if (!foundNum) {
+            cout << "Midas event header : serial number field '" << bankHeaderSerialNumber << "' does not exist !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         if (!foundTime) {
+            cout << "Midas event header : time stamp field '" << bankHeaderTimeStamp << "' does not exist !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
       }
       else if (type == 1) {
          numOfBank++;
@@ -1646,7 +1713,7 @@ bool ROMEBuilder::ReadXMLMidasBanks(xmlTextReaderPtr reader) {
          // bank structure name
          value = xmlTextReaderGetAttribute(reader,(xmlChar*)"StructName");
          if (value!=NULL) strcpy(bankStructName[numOfBank],(const char*)value);
-         else strcpy(bankStructName[numOfBank],"");
+         else sprintf(bankStructName[numOfBank],"%sStruct",bankName[numOfBank]);
          xmlFree((void*)value);
          // output
          if (makeOutput) cout << "   " << bankName[numOfBank] << endl;
@@ -2877,6 +2944,16 @@ bool ROMEBuilder::WriteIOCpp() {
             sprintf(buffer+strlen(buffer),"      ((%s%s*)f%sObjects->At(i))->Reset();\n",shortCut,folderName[i],folderName[i]);
             sprintf(buffer+strlen(buffer),"   }\n");
          }
+      }
+      if (!strcmp(folderName[i],bankHeaderFolder)) {
+         if (strcmp(bankHeaderEventID,""))
+            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->event_id);\n",folderName[i],bankHeaderEventID);
+         if (strcmp(bankHeaderTriggerMask,""))
+            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->trigger_mask);\n",folderName[i],bankHeaderTriggerMask);
+         if (strcmp(bankHeaderSerialNumber,""))
+            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->serial_number);\n",folderName[i],bankHeaderSerialNumber);
+         if (strcmp(bankHeaderTimeStamp,""))
+            sprintf(buffer+strlen(buffer),"   f%sObject->Set%s(this->GetEventHeader()->time_stamp);\n",folderName[i],bankHeaderTimeStamp);
       }
    }
    sprintf(buffer+strlen(buffer),"}\n\n");
