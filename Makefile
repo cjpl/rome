@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.15  2005/02/21 23:07:28  sawada
+#  not compile when builder is up to data.
+#
 #  Revision 1.14  2005/02/21 22:47:31  sawada
 #  Support for DEC,Ultrix,FreeBSD,Solaris
 #
@@ -55,9 +58,9 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
-	g++ $(CFLAGS) -o $(ROMESYS)/bin/$@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp \
+$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/ROMEString.cpp
+	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 
 clean:
-	rm -rf $(ROMESYS)/bin/romebuilder.exe
+	rm -f $(ROMESYS)/bin/romebuilder.exe
