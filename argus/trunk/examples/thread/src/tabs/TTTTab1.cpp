@@ -85,11 +85,11 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 
 void TTTTab1::func_1_1()
 {
-   Float_t x = TMath::Abs(TMath::Sin(fText->GetX()*10));
+   Float_t y = TMath::Abs(TMath::Sin(fText->GetX()*10));
 #if defined (ROOT_TThread)
    TThread::Lock();
 #endif
-   fText->SetX(x);
+   fText->SetY(y);
 #if defined (ROOT_TThread)
    TThread::UnLock();
 #endif
@@ -101,11 +101,11 @@ void TTTTab1::func_1_1()
 
 void TTTTab1::func_1_2()
 {
-   Float_t y = TMath::Abs(TMath::Sin(fText->GetY()*10));
+   Float_t x = TMath::Abs(TMath::Sin(fText->GetY()*10));
 #if defined (ROOT_TThread)
    TThread::Lock();
 #endif
-   fText->SetY(y);
+   fText->SetX(x);
 #if defined (ROOT_TThread)
    TThread::UnLock();
 #endif
