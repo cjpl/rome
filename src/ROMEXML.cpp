@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.11  2004/09/17 16:16:18  schneebeli_m
+//  runing on linux
+//
 //  Revision 1.10  2004/09/17 15:59:16  schneebeli_m
 //  xml write not from libxml2
 //
@@ -18,6 +21,11 @@
 //////////////////////////////////////////////////////////////////////////
 #if defined ( __linux__ )
 #include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#define O_TEXT 0 
 #endif
 
 #if defined( _MSC_VER )
