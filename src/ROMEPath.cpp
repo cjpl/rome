@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.11  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.10  2005/03/17 15:44:51  schneebeli_m
 //  GetAbsolutePath error removed
 //
@@ -40,9 +43,8 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#include <ROMEPath.h>
-#include <ROMEAnalyzer.h>
 #include <TMath.h>
+#include <ROMEPath.h>
 
 ROMEPath::ROMEPath() {
    fOrderArray = false;
@@ -121,13 +123,14 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
    char* cstop;
    int value;
    int abspathposition = 0;
-   ROMEString originalPath = dataBasePath;
+   ROMEString originalPath;
    ROMEString orderPath;
    ROMEString path = dataBasePath;
    // replace # with the current run number
    ROMEString runNumberString;
    runNumberString.SetFormatted("%d",runNumber);
    path.ReplaceAll("#",runNumberString);
+   originalPath = path;
    // check path
    if (path.Length()<=0) {
       cout << "\nInvalid path." << endl;

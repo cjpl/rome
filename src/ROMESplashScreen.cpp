@@ -6,7 +6,11 @@
 //  Displays a splash screen.
 //                                                                      //
 //  $Log$
+//  Revision 1.6  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.5  2005/02/21 21:29:07  sawada
+//
 //  Changed OS specifying macros
 //  Support for DEC,Ultrix,FreeBSD,Solaris
 //
@@ -319,15 +323,18 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             TextOut(hDC,bm.bmWidth/2,400,buf.Data(),buf.Length());
 
             if (numberOfAuthors>0) {
-               if (numberOfAuthors==1) buf.SetFormatted("Author of the %s :",programName);
-               else buf.SetFormatted("Authors of the %s :",programName);
+               if (numberOfAuthors==1) 
+                  buf.SetFormatted("Author of the %s :",programName);
+               else 
+                  buf.SetFormatted("Authors of the %s :",programName);
                SelectObject(hDC,fontAuthor);
                TextOut(hDC,bm.bmWidth/2,430,buf.Data(),buf.Length());
 
                if (numberOfAuthors>5) {
                   for (i=0;i<numberOfAuthors;i++) {
                       buf = authorNames[i];
-                      if (i+1<numberOfAuthors) buf.AppendFormatted(", %s",authorNames[(i+1)].Data());
+                      if (i+1<numberOfAuthors) 
+                         buf.AppendFormatted(", %s",authorNames[(i+1)].Data());
                       SelectObject(hDC,fontAuthor);
                       TextOut(hDC,bm.bmWidth/2,450+20*(i/2),buf.Data(),buf.Length());
                       i++;

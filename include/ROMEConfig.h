@@ -2,6 +2,9 @@
   ROMEConfig.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.3  2005/03/13 08:43:14  sawada
   removed or comment out unused variables.
   made virtual destructor of ROMEConfig and ROMEDataBase.
@@ -26,8 +29,8 @@ public:
    ROMEConfig() {};
    virtual ~ROMEConfig() {};
 
-   virtual bool WriteConfigurationFile(char *file) = 0;
-   virtual bool ReadConfigurationFile(char *file) = 0;
+   virtual bool WriteConfigurationFile(const char *file) = 0;
+   virtual bool ReadConfigurationFile(const char *file) = 0;
    virtual bool CheckConfiguration(int runNumber) = 0;
 };
 

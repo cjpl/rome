@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.40  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.39  2005/03/23 09:06:11  schneebeli_m
   libxml replaced by mxml, Bool SP error
 
@@ -83,9 +86,8 @@
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
-#if defined ( HAVE_MIDAS )
-#include <midas.h>
-#endif
+#include <ROMEString.h>
+#include <ROMEDAQSystem.h>
 #if defined ( HAVE_SQL )
 #include <ROMESQL.h>
 #endif
@@ -99,11 +101,6 @@ typedef struct {
 class ROMEAnalyzer : public TObject
 {
 private:
-   // Data Format
-   enum {
-      kRoot  = 0,
-      kMidas = 1
-   };
    // Analysis Mode
    enum {
       kAnalyzeOffline = 0,
@@ -115,9 +112,11 @@ protected:
    // Application
    TRint*     fApplication;                     //! Application Handle
 
+   // Active DAQ System
+   ROMEDAQSystem *fActiveDAQ;                   //! Handle to the active DAQ system
+
    // Modes
    Int_t      fAnalysisMode;                    //! Analysis mode flag
-   ROMEString fDAQSystem;                       //! DAQ System
    Bool_t     fBatchMode;                       //! Batch mode flag
    Bool_t     fSplashScreen;                    //! Splash screen flag
 
@@ -127,7 +126,7 @@ protected:
    // Directories
    ROMEString fInputDir;                        //! General Input Directory
    ROMEString fOutputDir;                       //! General Output Directory
-   ROMEString fDataBaseDir;                     //! Data Base File Directory
+   ROMEString *fDataBaseDir;                    //! Data Base File Directories
    ROMEString fConfigDir;                       //! Configuration File Directory
 
    // Run & Event Numbers
@@ -143,8 +142,6 @@ protected:
    char       fEventID;                         //! Event ID of current Event
 
    // Midas
-   char       fRawDataEvent[2][0x80000];        //! Midas Inputdata Stack for the current Event and the last Event
-   int        fCurrentRawDataEvent;             //! Index of the current event buffer
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
 
    // Flags
@@ -166,10 +163,6 @@ protected:
    // Online
    ROMEString    fOnlineHost;                      //! Name of the Online Host
    ROMEString    fOnlineExperiment;                //! Name of the Online Experiment
-   int           fNumberOfEventRequests;           //! Number of Event Requests
-   int           fEventRequestID[5];               //! IDs of Event Requests
-   int           fEventRequestMask[5];             //! Trigger Masks of Event Requests
-   int           fEventRequestRate[5];             //! Sampling Rates of Event Requests
 
    // Socket
    int           fPortNumber;                      //! Port Number for TSocket
@@ -180,8 +173,9 @@ protected:
    Statistics    fScalerStatistics;                //! Scaler Statistics
 
    // Data base
-   ROMEDataBase *fDataBaseHandle;                  //! DataBase Handle
-   ROMEString    fDataBaseConnection;              //! DataBase connection string
+   ROMEDataBase **fDataBaseHandle;                 //! DataBase Handles
+   ROMEString    *fDataBaseConnection;             //! DataBase connection strings
+   int            fNumberOfDataBases;              //! Number of DataBases available
 
    // Configuration
    ROMEConfig   *fConfiguration;                   //! Configuration Handle
@@ -203,12 +197,20 @@ public:
    // Application Handle
    TRint*        GetApplication() { return fApplication; };
 
+   // Active DAQ System
+   ROMEDAQSystem* GetActiveDAQ() { return fActiveDAQ; };
+   void           SetActiveDAQ(ROMEDAQSystem* handle) { fActiveDAQ = handle; };
+
    // Data Base Handle
-   char*         GetDataBaseConnection() { return (char*)fDataBaseConnection.Data(); };
-   void          SetDataBaseConnection(char* connection) { fDataBaseConnection = connection; };
-   void          SetDataBaseConnection(ROMEString& connection) { fDataBaseConnection = connection; };
-   ROMEDataBase* GetDataBase() { return fDataBaseHandle; };
-   void          SetDataBase(ROMEDataBase* dataBase) { fDataBaseHandle = dataBase; };
+   const char*   GetDataBaseConnection(int i) { return fDataBaseConnection[i].Data(); };
+   void          SetDataBaseConnection(int i,const char* connection) { fDataBaseConnection[i] = connection; };
+   ROMEDataBase* GetDataBase(int i) { return fDataBaseHandle[i]; };
+   void          SetDataBase(int i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; };
+   int           GetNumberOfDataBases() { return fNumberOfDataBases; };
+   void          InitDataBases(int number) { fDataBaseHandle = new ROMEDataBase*[number]; 
+                                             fDataBaseConnection = new ROMEString[number];
+                                             fDataBaseDir = new ROMEString[number];
+                                             fNumberOfDataBases = number; };
 
    // modes
    Bool_t     isSplashScreen() { return fSplashScreen; };
@@ -224,24 +226,19 @@ public:
    void       SetOnline()  { fAnalysisMode = kAnalyzeOnline; };
    void       SetOffline() { fAnalysisMode = kAnalyzeOffline; };
 
-   // Data Format
-   ROMEString &GetDAQ() { return fDAQSystem; };
-
-   void       SetDAQ(ROMEString daqSystem)  { daqSystem.ToLower(); fDAQSystem = daqSystem; };
-
    // Directories
-   char*      GetInputDir() { return (char*)fInputDir.Data(); }
-   char*      GetOutputDir() { return (char*)fOutputDir.Data(); }
-   char*      GetDataBaseDir() { return (char*)fDataBaseDir.Data(); }
-   char*      GetConfigDir() { return (char*)fConfigDir.Data(); }
+   const char*      GetInputDir() { return fInputDir.Data(); }
+   const char*      GetOutputDir() { return fOutputDir.Data(); }
+   const char*      GetDataBaseDir(int i) { return fDataBaseDir[i].Data(); }
+   const char*      GetConfigDir() { return fConfigDir.Data(); }
 
-   void       SetInputDir(char* dir) { fInputDir = dir; }
+   void       SetInputDir(const char* dir) { fInputDir = dir; }
    void       SetInputDir(ROMEString& dir) { fInputDir = dir; }
-   void       SetOutputDir(char* dir) { fOutputDir = dir; }
+   void       SetOutputDir(const char* dir) { fOutputDir = dir; }
    void       SetOutputDir(ROMEString& dir) { fOutputDir = dir; }
-   void       SetDataBaseDir(char* dir) { fDataBaseDir = dir; }
-   void       SetDataBaseDir(ROMEString& dir) { fDataBaseDir = dir; }
-   void       SetConfigDir(char* dir) { fConfigDir = dir; }
+   void       SetDataBaseDir(int i,const char* dir) { fDataBaseDir[i] = dir; }
+   void       SetDataBaseDir(int i,ROMEString& dir) { fDataBaseDir[i] = dir; }
+   void       SetConfigDir(const char* dir) { fConfigDir = dir; }
    void       SetConfigDir(ROMEString& dir) { fConfigDir = dir; }
 
    // Fill Event Flag
@@ -274,24 +271,24 @@ public:
    void       GetCurrentRunNumberString(ROMEString& buffer) { buffer.SetFormatted("%0*d",5,fCurrentRunNumber); }
    int        GetCurrentRunNumber() { return fCurrentRunNumber; }
    int        GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
-   char*      GetRunNumberStringOriginal() { return (char*)fRunNumberString.Data(); }
+   const char* GetRunNumberStringOriginal() { return fRunNumberString.Data(); }
 
    void       SetCurrentRunNumber(int runNumber) { fCurrentRunNumber = runNumber; }
    void       SetRunNumbers(ROMEString& numbers) { 
                   fRunNumberString = numbers;
                   fRunNumber = decodeRunNumbers(numbers); }
-   void       SetRunNumbers(char* numbers) { 
+   void       SetRunNumbers(const char* numbers) { 
                   fRunNumberString = numbers;
                   fRunNumber = decodeRunNumbers(fRunNumberString); }
 
    int        GetCurrentEventNumber() { return fCurrentEventNumber; }
-   char*      GetEventNumberStringOriginal() { return (char*)fEventNumberString.Data(); }
+   const char* GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
    void       SetCurrentEventNumber(int eventNumber) { fCurrentEventNumber = eventNumber; }
    void       SetEventNumbers(ROMEString& numbers) { 
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(numbers); }
-   void       SetEventNumbers(char* numbers) { 
+   void       SetEventNumbers(const char* numbers) { 
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(fEventNumberString); }
 
@@ -313,40 +310,26 @@ public:
 
    void       SetHistoFileHandle(TFile *file) { fHistoFiles = file; };
 
-   char*      GetProgramName() { return (char*)fProgramName.Data(); };
+   const char* GetProgramName() { return fProgramName.Data(); };
 
    // Online
-   char*      GetOnlineHost() { return (char*)fOnlineHost.Data(); };
-   char*      GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };
-   int        GetNumberOfEventRequests() { return fNumberOfEventRequests; };
-   int        GetEventRequestID(int i) { return fEventRequestID[i]; };
-   int        GetEventRequestMask(int i) { return fEventRequestMask[i]; };
-   int        GetEventRequestRate(int i) { return fEventRequestRate[i]; };
+   const char* GetOnlineHost() { return fOnlineHost.Data(); };
+   const char* GetOnlineExperiment() { return fOnlineExperiment.Data(); };
 
-   void       SetOnlineHost(char* host) { fOnlineHost = host; };
-   void       SetOnlineExperiment(char* experiment) { fOnlineExperiment = experiment; };
-   void       SetNumberOfEventRequests(int value) { fNumberOfEventRequests = value; };
-   void       SetEventRequestID(int i,int value)    { fEventRequestID[i] = value; };
-   void       SetEventRequestMask(int i,int value)  { fEventRequestMask[i] = value; };
-   void       SetEventRequestRate(int i,int value)  { fEventRequestRate[i] = value; };
+   void       SetOnlineHost(const char* host) { fOnlineHost = host; };
+   void       SetOnlineExperiment(const char* experiment) { fOnlineExperiment = experiment; };
 
    // Socket
    int        GetPortNumber() { return fPortNumber; };
    bool       isSocketOffline() { return fSocketOffline; };
 
    void       SetPortNumber(int portNumber) { fPortNumber = portNumber; };
-   void       SetPortNumber(char* portNumber) { char* cstop; fPortNumber = strtol(portNumber,&cstop,10); };
+   void       SetPortNumber(const char* portNumber) { char* cstop; fPortNumber = strtol(portNumber,&cstop,10); };
    void       SetSocketOffline(bool flag=true) { fSocketOffline = flag; };
 
    // Midas ODB
    int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
    int*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
-
-   // Raw Data
-   void*      GetRawDataEvent() { return fRawDataEvent[fCurrentRawDataEvent]; };
-   void*      GetLastRawDataEvent() { return fRawDataEvent[1-fCurrentRawDataEvent]; };
-   int        GetRawDataEventSize() { return sizeof(fRawDataEvent[fCurrentRawDataEvent]); };
-   void       SwitchRawDataBuffer() { fCurrentRawDataEvent = 1-fCurrentRawDataEvent; };
 
    // Configuration
    ROMEConfig *GetConfiguration() { return fConfiguration; };
@@ -363,7 +346,6 @@ public:
 
    virtual bool ReadSingleDataBaseFolders() = 0;
    virtual bool ReadArrayDataBaseFolders() = 0;
-   virtual void InitMidasBanks() = 0;
 
    int ss_getchar(bool reset);
    Bool_t ss_kbhit();
@@ -371,6 +353,7 @@ public:
    long ss_millitime();
    bool strtobool(const char* str);
 
+   bool toBool(int value);
 protected:
 
    bool CreateHistoFolders(TList *,TFolder *);
@@ -381,11 +364,6 @@ protected:
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
    virtual void redirectOutput() = 0;
-
-#ifndef HAVE_MIDAS
-   bool bk_is32(void *event);
-   int bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata);
-#endif
 
    ClassDef(ROMEAnalyzer,0)
 };

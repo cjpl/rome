@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.15  2005/04/01 14:56:24  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.14  2005/03/23 09:06:11  schneebeli_m
 //  libxml replaced by mxml, Bool SP error
 //
@@ -56,10 +59,7 @@
 #include <ROMEString.h>
 #include <TObjString.h>
 
-#include <ROMEAnalyzer.h>
 #include <ROMEXMLDataBase.h>
-#include <ROMEPath.h>
-#include <ROMEStrArray.h>
 
 ROMEXMLDataBase::ROMEXMLDataBase() {
 }
@@ -67,9 +67,10 @@ ROMEXMLDataBase::ROMEXMLDataBase() {
 ROMEXMLDataBase::~ROMEXMLDataBase() {
 }
 
-bool ROMEXMLDataBase::Init(const char* path,const char* connection) {
+bool ROMEXMLDataBase::Init(const char* name,const char* path,const char* connection) {
    fDirectoryPath = path;
    fDataBaseName = connection;
+   fName = name;
    return true;
 }
 

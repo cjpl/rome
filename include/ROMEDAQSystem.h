@@ -2,6 +2,9 @@
   ROMEDAQSystem.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.1  2005/01/24 15:28:02  schneebeli_m
   Seperated DAQ classes
 
@@ -9,8 +12,6 @@
 ********************************************************************/
 #ifndef ROMEDAQSystem_H
 #define ROMEDAQSystem_H
-
-#include <ROMEAnalyzer.h>
 
 class ROMEDAQSystem {
    // Run Status
@@ -33,6 +34,7 @@ public:
    ROMEDAQSystem::ROMEDAQSystem() {};
 
    virtual int   GetTimeStamp() = 0;
+   virtual const char* GetName() = 0;
 
    virtual bool Initialize() = 0;
    virtual bool Connect() = 0;
@@ -41,18 +43,18 @@ public:
    virtual bool Termination() = 0;
 public:
    // Run Status
-   Bool_t     isRunning()  { return fRunStatus==kRunning; };
-   Bool_t     isStopped()  { return fRunStatus==kStopped; };
+   bool       isRunning()  { return fRunStatus==kRunning; };
+   bool       isStopped()  { return fRunStatus==kStopped; };
 
    void       SetRunning()  { fRunStatus = kRunning; };
    void       SetStopped()  { fRunStatus = kStopped; };
 
    // Event Status
-   Bool_t     isAnalyze()    { return fEventStatus==kAnalyze;    };
-   Bool_t     isContinue()   { return fEventStatus==kContinue;   };
-   Bool_t     isBeginOfRun() { return fEventStatus==kBeginOfRun; };
-   Bool_t     isEndOfRun()   { return fEventStatus==kEndOfRun;   };
-   Bool_t     isTerminate()  { return fEventStatus==kTerminate;  };
+   bool       isAnalyze()    { return fEventStatus==kAnalyze;    };
+   bool       isContinue()   { return fEventStatus==kContinue;   };
+   bool       isBeginOfRun() { return fEventStatus==kBeginOfRun; };
+   bool       isEndOfRun()   { return fEventStatus==kEndOfRun;   };
+   bool       isTerminate()  { return fEventStatus==kTerminate;  };
 
    void       SetAnalyze()    { fEventStatus = kAnalyze;    };
    void       SetContinue()   { fEventStatus = kContinue;   };

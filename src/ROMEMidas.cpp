@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.8  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.7  2005/03/21 17:29:47  schneebeli_m
 //  minor changes
 //
@@ -54,6 +57,7 @@ void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 
 ROMEMidas::ROMEMidas() {
    fStopRequest = false;
+   fCurrentRawDataEvent = 0;
 }
 
 bool ROMEMidas::Initialize() {
@@ -65,7 +69,7 @@ bool ROMEMidas::Initialize() {
       gROME->Println("Program is running online.\n");
 
       // Connect to the experiment
-      if (cm_connect_experiment(gROME->GetOnlineHost(), gROME->GetOnlineExperiment(),gROME->GetProgramName(), NULL) != SUCCESS) {
+      if (cm_connect_experiment((char*)gROME->GetOnlineHost(), (char*)gROME->GetOnlineExperiment(),(char*)gROME->GetProgramName(), NULL) != SUCCESS) {
          gROME->Println("\nCannot connect to experiment");
          return false;
       }
@@ -77,14 +81,14 @@ bool ROMEMidas::Initialize() {
       bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
 
       // place a request for a specific event id
-      if (gROME->GetNumberOfEventRequests()<=0) {
+      if (this->GetNumberOfEventRequests()<=0) {
          gROME->Println("\nNo Events Requests for online mode!");
          gROME->Println("\nPlace Events Requests into the ROME configuration file.");
          return false;
       }
-      for (i=0;i<gROME->GetNumberOfEventRequests();i++) {
-         bm_request_event(fMidasOnlineBuffer, gROME->GetEventRequestID(i), 
-            gROME->GetEventRequestMask(i),gROME->GetEventRequestRate(i), &requestId,NULL);
+      for (i=0;i<this->GetNumberOfEventRequests();i++) {
+         bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i), 
+            this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
 
       // place a request for system messages
@@ -159,7 +163,7 @@ bool ROMEMidas::Initialize() {
          str="//Tree switches/";
          str.Insert(1,gROME->GetProgramName());
          str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
-         db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
+         db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
          if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
             gROME->Println("\nCannot write to tree switches record.");
@@ -210,6 +214,9 @@ bool ROMEMidas::Connect() {
    return true;
 }
 bool ROMEMidas::ReadEvent(int event) {
+   // Switch Raw Data Buffer
+   this->SwitchRawDataBuffer();
+   
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       int runNumber,trans;
@@ -241,8 +248,8 @@ bool ROMEMidas::ReadEvent(int event) {
          this->SetContinue();
          return true;
       }
-      int size = gROME->GetRawDataEventSize();
-      void* mEvent = gROME->GetRawDataEvent();
+      int size = this->GetRawDataEventSize();
+      void* mEvent = this->GetRawDataEvent();
       status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
       if (status != BM_SUCCESS) {
          this->SetContinue();
@@ -259,13 +266,13 @@ bool ROMEMidas::ReadEvent(int event) {
               ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
               bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
-      gROME->InitMidasBanks();
+      this->InitMidasBanks();
 
 #endif
    }
    else if (gROME->isOffline()) {
       // read event header
-      EVENT_HEADER *pevent = (EVENT_HEADER*)gROME->GetRawDataEvent();
+      EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
 
       // read event
@@ -320,7 +327,7 @@ bool ROMEMidas::ReadEvent(int event) {
       gROME->SetCurrentEventNumber(pevent->serial_number);
       fTimeStamp = pevent->time_stamp;
 
-      gROME->InitMidasBanks();
+      this->InitMidasBanks();
    }
    this->InitHeader();
    return true;
@@ -471,5 +478,55 @@ void ROMEMidas::ByteSwap(ULong64_t *x) {
    _tmp= *(((Byte_t *)(x))+3);
    *(((Byte_t *)(x))+3) = *(((Byte_t *)(x))+4);
    *(((Byte_t *)(x))+4) = _tmp;
+}
+#endif
+#ifndef HAVE_MIDAS
+bool ROMEMidas::bk_is32(void *event)
+{
+   return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
+}
+
+int ROMEMidas::bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata)
+{
+   int tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
+   BANK *pbk;
+   BANK32 *pbk32;
+   unsigned long dname;
+
+   if (bk_is32(pbkh)) {
+      pbk32 = (BANK32 *) (((BANK_HEADER *)pbkh) + 1);
+      strncpy((char *) &dname, name, 4);
+      do {
+         if (*((unsigned long *) pbk32->name) == dname) {
+            *((void **) pdata) = pbk32 + 1;
+            if (tid_size[pbk32->type & 0xFF] == 0)
+               *bklen = pbk32->data_size;
+            else
+               *bklen = pbk32->data_size / tid_size[pbk32->type & 0xFF];
+
+            *bktype = pbk32->type;
+            return 1;
+         }
+         pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
+      } while ((unsigned long) pbk32 - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
+   } else {
+      pbk = (BANK *) (((BANK_HEADER *)pbkh) + 1);
+      strncpy((char *) &dname, name, 4);
+      do {
+         if (*((unsigned long *) pbk->name) == dname) {
+            *((void **) pdata) = pbk + 1;
+            if (tid_size[pbk->type & 0xFF] == 0)
+               *bklen = pbk->data_size;
+            else
+               *bklen = pbk->data_size / tid_size[pbk->type & 0xFF];
+
+            *bktype = pbk->type;
+            return 1;
+         }
+         pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
+      } while ((unsigned long) pbk - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
+   }
+   *((void **) pdata) = NULL;
+   return 0;
 }
 #endif

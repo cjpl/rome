@@ -2,6 +2,9 @@
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.4  2005/01/27 16:21:06  schneebeli_m
   print method & no gROME in path
 
@@ -18,13 +21,13 @@
 #ifndef ROMEXMLDataBase_H
 #define ROMEXMLDataBase_H
 
+#include <ROMEString.h>
 #include <ROMEStrArray.h>
 #include <ROMEStr2DArray.h>
 #include <ROMEXML.h>
-#include <Riostream.h>
-
+#include <ROMEPath.h>
 #include <ROMEDataBase.h>
-#include <ROMEString.h>
+#include <Riostream.h>
 
 class ROMEXMLDataBase : public ROMEDataBase
 {
@@ -38,7 +41,7 @@ public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();
 
-   bool   Init(const char* path,const char* connection);
+   bool   Init(const char* name,const char* path,const char* connection);
    bool   Read(ROMEStr2DArray *values,const char *path,int runNumber);
    bool   Write(ROMEStr2DArray* values,const char *path,int runNumber);
    char*  GetType() { return "xml"; }

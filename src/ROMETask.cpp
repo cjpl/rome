@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.22  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.21  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -39,7 +42,6 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETask.h>
-#include "ROME.h"
 #include "Riostream.h"
 
 ClassImp(ROMETask)
@@ -118,7 +120,7 @@ void ROMETask::TimeEnd()
    // Ends the Tasks stopwatch
    fWatch.Stop();
 }
-char* ROMETask::GetTime()
+const char* ROMETask::GetTime()
 {
    // Returns the elapsed time in a readable format
    int runTime = (int)fWatch.RealTime();
@@ -126,7 +128,7 @@ char* ROMETask::GetTime()
    fTimeString.SetFormatted("%d%d:%d%d:%d%d:%d", (int)(runTime / 36000), (int)((runTime % 36000) / 3600),
            (int)((runTime % 3600) / 600), (int)((runTime % 600) / 60), (int)((runTime % 60) / 10),
            (int)(runTime % 10),milli);
-   return (char*)fTimeString.Data();
+   return fTimeString.Data();
 }
 
 

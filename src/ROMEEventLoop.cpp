@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.50  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.49  2005/03/21 17:29:47  schneebeli_m
 //  minor changes
 //
@@ -127,13 +130,19 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
-#include "ROME.h"
+
+#ifdef HAVE_MIDAS
+#include <midas.h>
+#endif
+
 #include <ROMEEventLoop.h>
-#include <ROMEMidas.h>
 #include <Riostream.h>
 
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
+
+// Task switches handle initialization
+bool ROMEEventLoop::fTaskSwitchesChanged = false;
 
 ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title)
 {
@@ -173,16 +182,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Initialisation
    //----------------
-
-   // Select a DAQ system
-   if (gROME->GetDAQ()=="midas") {
-      fActiveDAQ = fMidas;
-   }
-   if (gROME->GetDAQ()=="root") {
-      fActiveDAQ = fRoot;
-   }
-   this->SetRunning();
-   this->SetAnalyze();
 
    if (!this->Initialize()) {
       this->Termination();
@@ -345,10 +344,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 bool ROMEEventLoop::Initialize() {
    // Initialize the analyzer. Called before the init tasks.
    int j;
+   this->SetRunning();
+   this->SetAnalyze();
+
    this->InitTaskSwitches();
    this->InitSingleFolders();
 
-   if (!fActiveDAQ->Initialize())
+   if (!gROME->GetActiveDAQ()->Initialize())
       return false;
 
    if (gROME->isOffline()&&gROME->GetNumberOfRunNumbers()<=0) {
@@ -426,7 +428,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       gROME->Println("\nError while reading the data base !");
       return false;
    }
-   this->InitArrayFolders();
+   if (runNumberIndex==0)
+      this->InitArrayFolders();
    if (!gROME->ReadArrayDataBaseFolders()) {
       gROME->Println("\nError while reading the data base !");
       return false;
@@ -438,7 +441,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    fProgressLastEvent = 0;
    fProgressWrite = false;
 
-   if (!fActiveDAQ->Connect())
+   if (!gROME->GetActiveDAQ()->Connect())
       return false;
 
    return true;
@@ -448,9 +451,6 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
 
-   // Switch Raw Data Buffer
-   gROME->SwitchRawDataBuffer();
-   
    this->SetAnalyze();
    this->ResetFolders();
 
@@ -471,7 +471,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       }
    }
 
-   if (!fActiveDAQ->ReadEvent(event))
+   if (!gROME->GetActiveDAQ()->ReadEvent(event))
       return false;
 
 
@@ -485,7 +485,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       stat->eventsPerSecond = (stat->processedEvents-fStatisticsLastEvent)/(time-fStatisticsTimeOfLastEvent)*1000.0;
    fStatisticsTimeOfLastEvent = time;
 
-   fTreeInfo->SetTimeStamp(fActiveDAQ->GetTimeStamp());
+   fTreeInfo->SetTimeStamp(gROME->GetActiveDAQ()->GetTimeStamp());
    fStatisticsLastEvent = stat->processedEvents;
 
    return true;
@@ -688,7 +688,7 @@ bool ROMEEventLoop::Disconnect() {
    folder->Write();
    fHistoFile->Close();
 
-   if (!fActiveDAQ->Disconnect())
+   if (!gROME->GetActiveDAQ()->Disconnect())
       return false;
 
    return true;
@@ -720,7 +720,7 @@ bool ROMEEventLoop::Termination() {
       }
    }
 
-   if (!fActiveDAQ->Termination())
+   if (!gROME->GetActiveDAQ()->Termination())
       return false;
 
    return true;

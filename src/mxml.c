@@ -5,42 +5,58 @@
 
    Contents:     Midas XML Library
 
+   This is a simple implementation of XML functions for writing and
+   reading XML files. For writing an XML file from scratch, following
+   functions can be used:
+
+   writer = mxml_open_file(file_name);
+     mxml_start_element(writer, name);
+     mxml_write_attribute(writer, name, value);
+     mxml_write_value(writer, value);
+     mxml_end_element(writer); 
+     ...
+   mxml_close_file(writer);
+
+   To read an XML file, the function
+
+   tree = mxml_parse_file(file_name, error, sizeof(error));
+
+   is used. It parses the complete XML file and stores it in a
+   hierarchical tree in memory. Nodes in that tree can be searched
+   for with
+
+   mxml_find_node(tree, xml_path);
+
+   or
+
+   mxml_find_nodes(tree, xml_path, &nodelist);
+
+   which support a subset of the XPath specification. Another set of
+   functions is availabe to retrieve attributes and values from nodes
+   in the tree and for manipulating nodes, like replacing, adding and
+   deleting nodes.
+
    $Log$
-   Revision 1.3  2005/03/29 07:12:52  schneebeli_m
-   node=NULL
+   Revision 1.4  2005/04/01 14:56:24  schneebeli_m
+   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
-   Revision 1.2  2005/03/23 11:48:47  schneebeli_m
-   link error on linux
+   Revision 1.6  2005/03/29 15:11:56  ritt
+   Close element before writing comment
 
-   Revision 1.10  2005/03/23 10:02:13  ritt
-   Fixed compiler warnings
+   Revision 1.5  2005/03/29 14:49:50  ritt
+   Fixed compiler warning
 
-   Revision 1.9  2005/03/22 16:10:09  ritt
-   Allow ' in xpath
+   Revision 1.4  2005/03/29 14:48:54  ritt
+   Implemented mxml_write_comment()
 
-   Revision 1.8  2005/03/22 14:26:19  ritt
-   Implemented mxml_find_nodes()
+   Revision 1.3  2005/03/29 14:37:46  ritt
+   Translate '<' and '&' always in writer
 
-   Revision 1.7  2005/03/21 16:05:21  ritt
-   Added STRLCPY_DEFINED
+   Revision 1.2  2005/03/29 14:14:38  ritt
+   Implemented mxml_set_translate
 
-   Revision 1.6  2005/03/21 16:02:08  ritt
-   Added code for strlcpy/cat ifndef STRLCPY_DEFINED
-
-   Revision 1.5  2005/03/21 07:37:22  ritt
-   Changed file mode
-
-   Revision 1.4  2005/03/03 15:36:05  ritt
-   Fixed compiler warnings
-
-   Revision 1.3  2005/03/03 15:34:21  ritt
-   Implemented mxml_debug_tree()
-
-   Revision 1.2  2005/03/01 23:55:43  ritt
-   Fixed compiler warnings
-
-   Revision 1.1  2005/03/01 23:48:18  ritt
-   Implemented MXML for password file
+   Revision 1.1.1.1  2005/03/29 08:19:45  ritt
+   Imported sources
 
 \********************************************************************/
 
@@ -77,9 +93,11 @@
 
 #include "mxml.h"
 
+#define XML_INDENT "  "
+
 /*------------------------------------------------------------------*/
 
-#ifdef STRLCPY_DEFINED
+#ifdef HAVE_STRLCPY
 
 extern size_t strlcpy(char *dst, const char *src, size_t size);
 extern size_t strlcat(char *dst, const char *src, size_t size);
@@ -153,7 +171,31 @@ size_t strlcat(char *dst, const char *src, size_t size)
 
 /*------------------------------------------------------------------*/
 
-MXML_WRITER *mxml_open_document(const char *file_name) 
+int mxml_write_line(MXML_WRITER *writer, const char *line)
+{
+   int len;
+   
+   len = strlen(line);
+
+   if (writer->buffer) {
+      if (writer->buffer_len + len >= writer->buffer_size) {
+         writer->buffer_size += 10000;
+         writer->buffer = (char *)realloc(writer->buffer, writer->buffer_size);
+      }
+      strcat(writer->buffer, line);
+      writer->buffer_len += len;
+      return len;
+   } else {
+      return write(writer->fh, line, len);
+   }
+
+   return 0;
+}
+
+
+/*------------------------------------------------------------------*/
+
+MXML_WRITER *mxml_open_buffer()
 /* open a file and write XML header */
 {
    char str[256], line[1000];
@@ -161,6 +203,42 @@ MXML_WRITER *mxml_open_document(const char *file_name)
    MXML_WRITER *writer;
 
    writer = (MXML_WRITER *)malloc(sizeof(MXML_WRITER));
+   memset(writer, 0, sizeof(MXML_WRITER));
+   writer->translate = 1;
+
+   writer->buffer_size = 10000;
+   writer->buffer = (char *)malloc(10000);
+   writer->buffer[0] = 0;
+   writer->buffer_len = 0;
+
+   /* write XML header */
+   strcpy(line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
+   mxml_write_line(writer, line);
+   time(&now);
+   strcpy(str, ctime(&now));
+   str[24] = 0;
+   sprintf(line, "<!-- created by MXML on %s -->\n", str);
+   mxml_write_line(writer, line);
+
+   /* initialize stack */
+   writer->level = 0;
+   writer->element_is_open = 0;
+
+   return writer;
+}
+
+/*------------------------------------------------------------------*/
+
+MXML_WRITER *mxml_open_file(const char *file_name) 
+/* open a file and write XML header */
+{
+   char str[256], line[1000];
+   time_t now;
+   MXML_WRITER *writer;
+
+   writer = (MXML_WRITER *)malloc(sizeof(MXML_WRITER));
+   memset(writer, 0, sizeof(MXML_WRITER));
+   writer->translate = 1;
 
    writer->fh = open(file_name, O_RDWR | O_CREAT | O_TRUNC | O_TEXT, 0644);
 
@@ -173,12 +251,12 @@ MXML_WRITER *mxml_open_document(const char *file_name)
 
    /* write XML header */
    strcpy(line, "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>\n");
-   write(writer->fh, line, strlen(line));
+   mxml_write_line(writer, line);
    time(&now);
    strcpy(str, ctime(&now));
    str[24] = 0;
    sprintf(line, "<!-- created by MXML on %s -->\n", str);
-   write(writer->fh, line, strlen(line));
+   mxml_write_line(writer, line);
 
    /* initialize stack */
    writer->level = 0;
@@ -189,45 +267,70 @@ MXML_WRITER *mxml_open_document(const char *file_name)
 
 /*------------------------------------------------------------------*/
 
-void mxml_encode(char *src, int size)
+void mxml_encode(char *src, int size, int translate)
 /* convert '<' '>' '&' '"' ''' into &xx; */
 {
-   char *dst, *ps, *pd;
+   char *ps, *pd;
+   static char *buffer = NULL;
+   static int buffer_size = 1000;
 
    assert(size);
-   dst = (char*) malloc(size);
+
+   if (buffer == NULL)
+      buffer = (char *) malloc(buffer_size);
+
+   if (size > buffer_size) {
+      buffer = (char *) realloc(buffer, size*2);
+      buffer_size = size;
+   }
+
    ps = src;
-   pd = dst;
-   for (ps = src ; *ps && (size_t)pd - (size_t)dst < (size_t)(size-10) ; ps++) {
-      switch (*ps) {
-      case '<':
-         strcpy(pd, "&lt;");
-         pd += 4;
-         break;
-      case '>':
-         strcpy(pd, "&gt;");
-         pd += 4;
-         break;
-      case '&':
-         strcpy(pd, "&amp;");
-         pd += 5;
-         break;
-      case '\"':
-         strcpy(pd, "&quot;");
-         pd += 6;
-         break;
-      case '\'':
-         strcpy(pd, "&apos;");
-         pd += 6;
-         break;
-      default:
-         *pd++ = *ps;
+   pd = buffer;
+   for (ps = src ; *ps && (size_t)pd - (size_t)buffer < (size_t)(size-10) ; ps++) {
+
+      if (translate) { // tranlate "<", ">", "&", """, "'"
+         switch (*ps) {
+         case '<':
+            strcpy(pd, "&lt;");
+            pd += 4;
+            break;
+         case '>':
+            strcpy(pd, "&gt;");
+            pd += 4;
+            break;
+         case '&':
+            strcpy(pd, "&amp;");
+            pd += 5;
+            break;
+         case '\"':
+            strcpy(pd, "&quot;");
+            pd += 6;
+            break;
+         case '\'':
+            strcpy(pd, "&apos;");
+            pd += 6;
+            break;
+         default:
+            *pd++ = *ps;
+         }
+      } else {
+         switch (*ps) { // translate only illegal XML characters "<" and "&"
+         case '<':
+            strcpy(pd, "&lt;");
+            pd += 4;
+            break;
+         case '&':
+            strcpy(pd, "&amp;");
+            pd += 5;
+            break;
+         default:
+            *pd++ = *ps;
+         }
       }
    }
    *pd = 0;
 
-   strlcpy(src, dst, size);
-   free(dst);
+   strlcpy(src, buffer, size);
 }
 
 /*------------------------------------------------------------------*/
@@ -269,6 +372,17 @@ void mxml_decode(char *str)
 
 /*------------------------------------------------------------------*/
 
+int mxml_set_translate(MXML_WRITER *writer, int flag)
+/* set translation of <,>,",',&, on/off in writer */
+{
+   int old_flag;
+
+   old_flag = writer->translate;
+   writer->translate = flag;
+   return old_flag;
+}
+/*------------------------------------------------------------------*/
+
 int mxml_start_element(MXML_WRITER *writer, const char *name)
 /* start a new XML element, must be followed by mxml_end_elemnt */
 {
@@ -276,16 +390,16 @@ int mxml_start_element(MXML_WRITER *writer, const char *name)
    char line[1000], name_enc[1000];
 
    if (writer->element_is_open) {
-      write(writer->fh, ">\n", 2);
+      mxml_write_line(writer, ">\n");
       writer->element_is_open = FALSE;
    }
 
    line[0] = 0;
    for (i=0 ; i<writer->level ; i++)
-      strlcat(line, "     ", sizeof(line));
+      strlcat(line, XML_INDENT, sizeof(line));
    strlcat(line, "<", sizeof(line));
    strlcpy(name_enc, name, sizeof(name_enc));
-   mxml_encode(name_enc, sizeof(name_enc));
+   mxml_encode(name_enc, sizeof(name_enc), writer->translate);
    strlcat(line, name_enc, sizeof(line));
 
    /* put element on stack */
@@ -300,7 +414,7 @@ int mxml_start_element(MXML_WRITER *writer, const char *name)
    writer->element_is_open = TRUE;
    writer->data_was_written = FALSE;
 
-   return write(writer->fh, line, strlen(line)) == (int)strlen(line);
+   return mxml_write_line(writer, line) == (int)strlen(line);
 }
 
 /*------------------------------------------------------------------*/
@@ -329,7 +443,7 @@ int mxml_end_element(MXML_WRITER *writer)
    line[0] = 0;
    if (!writer->data_was_written) {
       for (i=0 ; i<writer->level ; i++)
-         strlcat(line, "     ", sizeof(line));
+         strlcat(line, XML_INDENT, sizeof(line));
    }
 
    strlcat(line, "</", sizeof(line));
@@ -340,7 +454,7 @@ int mxml_end_element(MXML_WRITER *writer)
    strlcat(line, ">\n", sizeof(line));
    writer->data_was_written = FALSE;
 
-   return write(writer->fh, line, strlen(line)) == (int)strlen(line);
+   return mxml_write_line(writer, line) == (int)strlen(line);
 }
 
 /*------------------------------------------------------------------*/
@@ -348,23 +462,19 @@ int mxml_end_element(MXML_WRITER *writer)
 int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *value)
 /* write an attribute to the currently open XML element */
 {
-   char name_enc[1000];
+   char name_enc[1000], val_enc[1000], line[2000];
 
    if (!writer->element_is_open)
       return FALSE;
 
-   write(writer->fh, " ", 1);
    strcpy(name_enc, name);
-   mxml_encode(name_enc, sizeof(name_enc));
-   write(writer->fh, name_enc, strlen(name_enc));
-   write(writer->fh, "=\"", 2);
+   mxml_encode(name_enc, sizeof(name_enc), writer->translate);
+   strcpy(val_enc, value);
+   mxml_encode(val_enc, sizeof(val_enc), writer->translate);
 
-   strcpy(name_enc, value);
-   mxml_encode(name_enc, sizeof(name_enc));
-   write(writer->fh, name_enc, strlen(name_enc));
-   write(writer->fh, "\"", 1);
+   sprintf(line, " %s=\"%s\"", name_enc, val_enc);
 
-   return TRUE;
+   return mxml_write_line(writer, line) == (int)strlen(line);
 }
 
 /*------------------------------------------------------------------*/
@@ -372,14 +482,13 @@ int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *valu
 int mxml_write_value(MXML_WRITER *writer, const char *data)
 /* write value of an XML element, like <[name]>[value]</[name]> */
 {
-   int i, j;
    static char *data_enc;
    static int data_size = 0;
 
    if (!writer->element_is_open)
       return FALSE;
 
-   if (write(writer->fh, ">", 1) != 1)
+   if (mxml_write_line(writer, ">") != 1)
       return FALSE;
    writer->element_is_open = FALSE;
    writer->data_was_written = TRUE;
@@ -393,24 +502,70 @@ int mxml_write_value(MXML_WRITER *writer, const char *data)
    }
 
    strcpy(data_enc, data);
-   mxml_encode(data_enc, data_size);
-   j = strlen(data_enc);
-   i = write(writer->fh, data_enc, j);
-
-   return i == j;
+   mxml_encode(data_enc, data_size, writer->translate);
+   return mxml_write_line(writer, data_enc) == (int)strlen(data_enc);
 }
 
 /*------------------------------------------------------------------*/
 
-int mxml_close_document(MXML_WRITER *writer)
+int mxml_write_comment(MXML_WRITER *writer, const char *string)
+/* write a comment to an XML file, enclosed in "<!--" and "-->" */
+{
+   int  i;
+   char line[1000];
+
+   if (writer->element_is_open) {
+      mxml_write_line(writer, ">\n");
+      writer->element_is_open = FALSE;
+   }
+
+   line[0] = 0;
+   for (i=0 ; i<writer->level ; i++)
+      strlcat(line, XML_INDENT, sizeof(line));
+
+   strlcat(line, "<!-- ", sizeof(line));
+   strlcat(line, string, sizeof(line));
+   strlcat(line, " -->\n", sizeof(line));
+   if (mxml_write_line(writer, line) != strlen(line))
+      return FALSE;
+
+   return TRUE;
+}
+
+/*------------------------------------------------------------------*/
+
+char *mxml_close_buffer(MXML_WRITER *writer)
+/* close a file opened with mxml_open_writer */
+{
+   int i;
+   char *p;
+
+   if (writer->element_is_open) {
+      writer->element_is_open = FALSE;
+      if (mxml_write_line(writer, ">\n") != 2)
+         return NULL;
+   }
+
+   /* close remaining open levels */
+   for (i = 0 ; i<writer->level ; i++)
+      mxml_end_element(writer);
+
+   p = writer->buffer;
+   free(writer);
+   return p;
+}
+
+/*------------------------------------------------------------------*/
+
+int mxml_close_file(MXML_WRITER *writer)
 /* close a file opened with mxml_open_writer */
 {
    int i;
 
    if (writer->element_is_open) {
       writer->element_is_open = FALSE;
-      if (write(writer->fh, ">\n", 2) != 2)
-         return FALSE;
+      if (mxml_write_line(writer, ">\n") != 2)
+         return 0;
    }
 
    /* close remaining open levels */
@@ -419,7 +574,7 @@ int mxml_close_document(MXML_WRITER *writer)
 
    close(writer->fh);
    free(writer);
-   return TRUE;
+   return 1;
 }
 
 /*------------------------------------------------------------------*/
@@ -431,13 +586,14 @@ PMXML_NODE mxml_create_root_node()
 
    root = (PMXML_NODE)calloc(sizeof(MXML_NODE), 1);
    strcpy(root->name, "root");
+   root->node_type = DOCUMENT_NODE;
 
    return root;
 }
 
 /*------------------------------------------------------------------*/
 
-PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int index)
+PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, char *node_name, char *value, int index)
 /* add a subnode (child) to an existing parent node as a specific position */
 {
    PMXML_NODE pnode, pchild;
@@ -470,6 +626,7 @@ PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int
    pnode = &parent->child[index];
    memset(pnode, 0, sizeof(MXML_NODE));
    strlcpy(pnode->name, node_name, sizeof(pnode->name));
+   pnode->node_type = node_type;
    pnode->parent = parent;
    
    parent->n_children++;
@@ -485,10 +642,26 @@ PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int
 
 /*------------------------------------------------------------------*/
 
+PMXML_NODE mxml_add_special_node(PMXML_NODE parent, int node_type, char *node_name, char *value)
+/* add a subnode (child) to an existing parent node at the end */
+{
+   return mxml_add_special_node_at(parent, node_type, node_name, value, parent->n_children);
+}
+
+/*------------------------------------------------------------------*/
+
 PMXML_NODE mxml_add_node(PMXML_NODE parent, char *node_name, char *value)
 /* add a subnode (child) to an existing parent node at the end */
 {
-   return mxml_add_node_at(parent, node_name, value, parent->n_children);
+   return mxml_add_special_node_at(parent, ELEMENT_NODE, node_name, value, parent->n_children);
+}
+
+/*------------------------------------------------------------------*/
+
+PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int index)
+/* add a subnode (child) to an existing parent node at the end */
+{
+   return mxml_add_special_node_at(parent, ELEMENT_NODE, node_name, value, index);
 }
 
 /*------------------------------------------------------------------*/
@@ -549,7 +722,7 @@ int mxml_add_resultnode(PMXML_NODE node, char *xml_path, PMXML_NODE **nodelist, 
       (*found)++;
    } else {
       /* if not at end of path, branch into subtree */
-      return mxml_find_nodes1(node, xml_path, nodelist, found);
+      return mxml_find_nodes1(node, xml_path+1, nodelist, found);
    }
 
    return 1;
@@ -567,10 +740,11 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
    /<node>[index]/<node>               Find subnode of the above
    /<node>[<subnode>=<value>]          Find a node which has a specific subnode
    /<node>[<subnode>=<value>]/<node>   Find subnode of the above
+   /<node>[@<attrib>=<value>]/<node>   Find a node which has a specific attribute
 */
 {
    PMXML_NODE pnode;
-   char *p1, *p2, *p3, node_name[256], condition[256], subnode[256], value[256];
+   char *p1, *p2, *p3, node_name[256], condition[256], subnode[256], cond_attr[256], value[256];
    int i, j, index;
    size_t len;
 
@@ -592,7 +766,7 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
       memcpy(node_name, p1, len);
       node_name[len] = 0;
       index = 0;
-      subnode[0] = value[0] = 0;
+      subnode[0] = cond_attr[0] = value[0] = 0;
       if (*p2 == '[') {
          p2++;
          if (isdigit(*p2)) {
@@ -603,7 +777,7 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
                return 0;
             p2++;
          } else {
-            /* evaluate [<subnode>=<value>] */
+            /* evaluate [<@attrib>/<subnode>=<value>] */
             while (*p2 && isspace(*p2))
                p2++;
             strlcpy(condition, p2, sizeof(condition));
@@ -613,10 +787,18 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
                return 0;
             p2 = strchr(p2, ']')+1;
             if ((p3 = strchr(condition, '=')) != NULL) {
-               strlcpy(subnode, condition, sizeof(subnode));
-               *strchr(subnode, '=') = 0;
-               while (subnode[0] && isspace(subnode[strlen(subnode)-1]))
-                  subnode[strlen(subnode)-1] = 0;
+
+               if (condition[0] == '@') {
+                  strlcpy(cond_attr, condition+1, sizeof(cond_attr));
+                  *strchr(cond_attr, '=') = 0;
+                  while (cond_attr[0] && isspace(cond_attr[strlen(cond_attr)-1]))
+                     cond_attr[strlen(cond_attr)-1] = 0;
+               } else {
+                  strlcpy(subnode, condition, sizeof(subnode));
+                  *strchr(subnode, '=') = 0;
+                  while (subnode[0] && isspace(subnode[strlen(subnode)-1]))
+                     subnode[strlen(subnode)-1] = 0;
+               }
                p3++;
                while (*p3 && isspace(*p3))
                   p3++;
@@ -650,6 +832,13 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
                      if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
                         return 0;
 
+         } else if (cond_attr[0]) {
+            /* search node with attribute */
+            if (strcmp(pnode->child[i].name, node_name) == 0)
+               if (mxml_get_attribute(pnode->child+i, cond_attr) &&
+                  strcmp(mxml_get_attribute(pnode->child+i, cond_attr), value) == 0)
+                  if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
+                     return 0;
          } else {
             if (strcmp(pnode->child[i].name, node_name) == 0)
                if (index == 0 || ++j == index)
@@ -693,17 +882,25 @@ PMXML_NODE mxml_find_node(PMXML_NODE tree, char *xml_path)
    Return first found node. For syntax see mxml_find_nodes()
 */
 {
-   PMXML_NODE *node=NULL, pnode;
+   PMXML_NODE *node, pnode;
    int n;
 
    n = mxml_find_nodes(tree, xml_path, &node);
-   if (n > 0)
+   if (n > 0) {
       pnode = node[0];
-   else
+      free(node);
+   } else 
       pnode = NULL;
 
-   free(node);
    return pnode;
+}
+
+/*------------------------------------------------------------------*/
+
+char *mxml_get_name(PMXML_NODE pnode)
+{
+   assert(pnode);
+   return pnode->name;
 }
 
 /*------------------------------------------------------------------*/
@@ -885,7 +1082,10 @@ PMXML_NODE read_error(PMXML_NODE root, char *file_name, int line_number, char *e
    char *msg, str[1000];
    va_list argptr;
 
-   sprintf(str, "XML read error in file \"%s\", line %d: ", file_name, line_number);
+   if (file_name && file_name[0])
+      sprintf(str, "XML read error in file \"%s\", line %d: ", file_name, line_number);
+   else
+      sprintf(str, "XML read error, line %d: ", line_number);
    msg = (char *)malloc(error_size);
    strlcpy(error, str, error_size);
 
@@ -902,50 +1102,24 @@ PMXML_NODE read_error(PMXML_NODE root, char *file_name, int line_number, char *e
 
 /*------------------------------------------------------------------*/
 
-PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
-/* parse a XML file and convert it into a tree of MXML_NODE's. Return NULL
-   in case of an error, return error description */
+PMXML_NODE mxml_parse_buffer(char *buf, char *error, int error_size)
+/* parse a XML buffer and convert it into a tree of MXML_NODE's. Return NULL
+   in case of an error, return error description. Optional file_name is used
+   for error reporting if called from mxml_parse_file() */
 {
-   char line[1000], node_name[256], attrib_name[256], attrib_value[1000];
-   char *buf, *p, *pv;
-   int i, fh, length, line_number;
+   char node_name[256], attrib_name[256], attrib_value[1000];
+   char *p, *pv;
+   int i, line_number;
    PMXML_NODE root, ptree, pnew;
    int end_element;
    size_t len;
-
-   fh = open(file_name, O_RDONLY | O_TEXT, 0644);
-
-   if (fh == -1) {
-      sprintf(line, "Unable to open file \"%s\": ", file_name);
-      strlcat(line, strerror(errno), sizeof(line));
-      strlcpy(error, line, error_size);
-      return NULL;
-   }
-
-   length = lseek(fh, 0, SEEK_END);
-   lseek(fh, 0, SEEK_SET);
-   buf = (char *)malloc(length+1);
-   if (buf == NULL) {
-      close(fh);
-      sprintf(line, "Cannot allocate buffer: ");
-      strlcat(line, strerror(errno), sizeof(line));
-      strlcpy(error, line, error_size);
-      return NULL;
-   }
-
-   /* read complete file at once */
-   length = read(fh, buf, length);
-   buf[length] = 0;
-   close(fh);
+   char *file_name = NULL; // dummy for 'HERE'
 
    p = buf;
    line_number = 1;
 
    root = mxml_create_root_node();
    ptree = root;
-
-   /* store filename in attribute */
-   mxml_add_attribute(root, "filename", file_name);
 
    /* parse file contents */
    do {
@@ -966,6 +1140,12 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
          if (strncmp(p, "!--", 3) == 0) {
             
             /* found comment */
+
+            pnew = mxml_add_special_node(ptree, COMMENT_NODE, "Comment", NULL);
+            pv = p+3;
+            while (*pv == ' ')
+               pv++;
+
             p += 3;
             if (strstr(p, "-->") == NULL)
                return read_error(HERE, "Unterminated comment");
@@ -975,11 +1155,21 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
                   line_number++;
                p++;
             }
+
+            len = (size_t)p - (size_t)pv;
+            pnew->value = (char *)malloc(len+1);
+            memcpy(pnew->value, pv, len);
+            pnew->value[len] = 0;
+            mxml_decode(pnew->value);
+
             p += 3;
 
          } else if (*p == '?') {
 
             /* found ?...? element */
+            pnew = mxml_add_special_node(ptree, PROCESSING_INSTRUCTION_NODE, "PI", NULL);
+            pv = p+1;
+
             p++;
             if (strstr(p, "?>") == NULL)
                return read_error(HERE, "Unterminated ?...? element");
@@ -989,6 +1179,13 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
                   line_number++;
                p++;
             }
+
+            len = (size_t)p - (size_t)pv;
+            pnew->value = (char *)malloc(len+1);
+            memcpy(pnew->value, pv, len);
+            pnew->value[len] = 0;
+            mxml_decode(pnew->value);
+
             p += 2;
 
          } else {
@@ -1021,6 +1218,9 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
 
             if (end_element) {
 
+               if (!ptree)
+                  return read_error(HERE, "Found unexpected </%s>", node_name);
+
                /* close previously opened element */
                if (strcmp(ptree->name, node_name) != 0)
                   return read_error(HERE, "Found </%s>, expected </%s>", node_name, ptree->name);
@@ -1030,6 +1230,9 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
 
             } else {
             
+               if (ptree == NULL)
+                  return read_error(HERE, "Unexpected second top level node");
+
                /* allocate new element structure in parent tree */
                pnew = mxml_add_node(ptree, node_name, NULL);
 
@@ -1183,6 +1386,48 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
 
 /*------------------------------------------------------------------*/
 
+PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
+/* parse a XML file and convert it into a tree of MXML_NODE's. Return NULL
+   in case of an error, return error description */
+{
+   char *buf, line[1000];
+   int fh, length;
+   PMXML_NODE root;
+
+   fh = open(file_name, O_RDONLY | O_TEXT, 0644);
+
+   if (fh == -1) {
+      sprintf(line, "Unable to open file \"%s\": ", file_name);
+      strlcat(line, strerror(errno), sizeof(line));
+      strlcpy(error, line, error_size);
+      return NULL;
+   }
+
+   length = lseek(fh, 0, SEEK_END);
+   lseek(fh, 0, SEEK_SET);
+   buf = (char *)malloc(length+1);
+   if (buf == NULL) {
+      close(fh);
+      sprintf(line, "Cannot allocate buffer: ");
+      strlcat(line, strerror(errno), sizeof(line));
+      strlcpy(error, line, error_size);
+      return NULL;
+   }
+
+   /* read complete file at once */
+   length = read(fh, buf, length);
+   buf[length] = 0;
+   close(fh);
+
+   root = mxml_parse_buffer(buf, error, error_size);
+
+   free(buf);
+
+   return root;
+}
+
+/*------------------------------------------------------------------*/
+
 int mxml_write_subtree(MXML_WRITER *writer, PMXML_NODE tree)
 /* write complete subtree recursively into file opened with mxml_open_document() */
 {
@@ -1213,15 +1458,16 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree)
    int i;
 
    assert(tree);
-   writer = mxml_open_document(file_name);
+   writer = mxml_open_file(file_name);
    if (!writer)
       return FALSE;
 
    for (i=0 ; i<tree->n_children ; i++)
-      if (!mxml_write_subtree(writer, &tree->child[i]))
-         return FALSE;
+      if (tree->child[i].node_type == ELEMENT_NODE) // skip PI and comments
+         if (!mxml_write_subtree(writer, &tree->child[i]))
+            return FALSE;
 
-   if (!mxml_close_document(writer))
+   if (!mxml_close_file(writer))
       return FALSE;
 
    return TRUE;
@@ -1232,7 +1478,7 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree)
 void mxml_debug_tree(PMXML_NODE tree, int level)
 /* print XML tree for debugging */
 {
-   int i;
+   int i, j;
 
    for (i=0 ; i<level ; i++)
       printf("  ");
@@ -1240,6 +1486,17 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
    for (i=0 ; i<level ; i++)
       printf("  ");
    printf("Valu: %s\n", tree->value);
+   for (i=0 ; i<level ; i++)
+      printf("  ");
+   printf("Type: %d\n", tree->node_type);
+
+   for (j=0 ; j<tree->n_attributes ; j++) {
+      for (i=0 ; i<level ; i++)
+         printf("  ");
+      printf("%s: %s\n", tree->attribute_name+j*MXML_NAME_LENGTH, 
+         tree->attribute_value[j]);
+   }
+
    for (i=0 ; i<level ; i++)
       printf("  ");
    printf("Addr: %08X\n", (size_t)tree);
@@ -1290,27 +1547,32 @@ void mxml_free_tree(PMXML_NODE tree)
 
 /*------------------------------------------------------------------*/
 
-/*
 void mxml_test()
 {
    char err[256];
    PMXML_NODE tree, *node;
    int i, n;
+   MXML_WRITER *writer;
 
-   tree = mxml_create_root_node();
-   tree = mxml_parse_file("c:\\elogdemo\\forum.xml", err, sizeof(err));
+   writer = mxml_open_file("c:\\tmp\\test.xml");
+   mxml_start_element(writer, "odb");
+   mxml_start_element(writer, "dir");
+   mxml_write_value(writer, "contents");
+   mxml_end_element(writer);
+   mxml_write_comment(writer, "comment");
+   mxml_end_element(writer);
+   mxml_close_file(writer);
+
+   tree = mxml_parse_file("c:\\online\\odb.xml", err, sizeof(err));
 
    node = NULL;
-   n = mxml_find_nodes(tree, "/list/user[name='stefan']/full_name", &node);
+   n = mxml_find_nodes(tree, "/odb/dir[@name=\"Experiment\"]/dir[@name='Run Parameters']/key[@name='Comment']", &node);
    for (i=0 ; i<n ; i++)
       printf("%s\n", node[i]->value);
 
-   free(node);
-
-   *node = mxml_find_node(tree, "/list/user[name='stefan']/full_name");
    mxml_debug_tree(*node, 0);
+   free(node);
 
    mxml_debug_tree(tree, 0);
    mxml_free_tree(tree);
 }
-*/

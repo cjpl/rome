@@ -2,6 +2,9 @@
   ROMETask.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.13  2004/11/23 09:22:21  schneebeli_m
   User called Root Interpreter
 
@@ -55,7 +58,7 @@ protected:
 
    void  TimeStart();
    void  TimeEnd();
-   char* GetTime();
+   const char* GetTime();
 
    ClassDef(ROMETask,1)
 };

@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.10  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.9  2005/03/21 17:29:47  schneebeli_m
 //  minor changes
 //
@@ -33,16 +36,16 @@
 #include <ROMEString.h>
 #include "Riostream.h"
 
-bool ROMEString::AppendFormatted(char* format,...) 
+ROMEString& ROMEString::AppendFormatted(const char* format,...) 
 {
    bool res;
    va_list ap;
    va_start(ap,format);
    res = FormatString(this,format,ap);
    va_end(ap);
-   return res;
+   return *this;
 }
-bool ROMEString::InsertFormatted(int position,char* format,...) 
+ROMEString& ROMEString::InsertFormatted(int position,const char* format,...) 
 {
    bool res;
    va_list ap;
@@ -52,9 +55,9 @@ bool ROMEString::InsertFormatted(int position,char* format,...)
    va_end(ap);
    if (res)
       this->Insert(position,tmp);
-   return res;
+   return *this;
 }
-bool ROMEString::SetFormatted(char* format,...) 
+ROMEString& ROMEString::SetFormatted(const char* format,...) 
 {
    bool res;
    va_list ap;
@@ -62,14 +65,14 @@ bool ROMEString::SetFormatted(char* format,...)
    this->Resize(0);
    res = FormatString(this,format,ap);
    va_end(ap);
-   return res;
+   return *this;
 }
-bool ROMEString::FormatString(ROMEString* string,char* format,va_list parameters) 
+bool ROMEString::FormatString(ROMEString* string,const char* format,va_list parameters) 
 {
    char* cstop;
    char* tmp;
    char* pstart;
-   char* pactual;
+   const char* pactual;
    char* form;
    char* pp;
    bool    asterisk;
@@ -192,10 +195,10 @@ void ROMEString::WriteLine() {
 
 int ROMEString::NumberOfOccurrence(ROMEString& subString) 
 {
-   return this->NumberOfOccurrence((char*)subString.Data());
+   return this->NumberOfOccurrence(subString.Data());
 }
 
-int ROMEString::NumberOfOccurrence(char* subString) 
+int ROMEString::NumberOfOccurrence(const char* subString) 
 {
    int numberOfOccurrence = 0;
    const char* str = this->Data();
@@ -208,7 +211,7 @@ int ROMEString::NumberOfOccurrence(char* subString)
    return numberOfOccurrence;
 }
 
-int ROMEString::SearchFormatType(char* str)
+int ROMEString::SearchFormatType(const char* str)
 {
    const char numberOfTypes = 17;
    int i,j;

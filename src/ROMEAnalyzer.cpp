@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.59  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.58  2005/03/23 09:06:11  schneebeli_m
 //  libxml replaced by mxml, Bool SP error
 //
@@ -145,6 +148,10 @@
 #include <fcntl.h>
 #include <time.h>
 
+#ifdef HAVE_MIDAS
+#include <midas.h>
+#endif
+
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -154,19 +161,11 @@
 #include <TTree.h>
 #include <TFolder.h>
 #include <TList.h>
-#include <ROMEString.h>
 #include <TObjString.h>
 #include <TROOT.h>
 #include <TBrowser.h>
-#include <TH1.h>
-#include <TMath.h>
-#include <ROMEAnalyzer.h>
-#include <ROMEEventLoop.h>
-#include <ROMETree.h>
 #include <ROMETask.h>
-#include <ROMEString.h>
-#include <ROMEXMLDataBase.h>
-#include <ROMENoDataBase.h>
+#include <ROMEAnalyzer.h>
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)
@@ -193,7 +192,6 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fLastEventNumberIndex = 0;
    fApplication = app;
    fAnalysisMode = kAnalyzeOffline; 
-   fDAQSystem = "root"; 
    fBatchMode = false;
    fSplashScreen = true;
    fDontReadNextEvent = false;
@@ -205,8 +203,6 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fSocketOffline = false;
    fTreeObjects = new TObjArray(0);
    fOnlineHost = "";
-   fDataBaseConnection = "";
-   fDataBaseHandle = new ROMENoDataBase();
    fPortNumber = 9090;
    fSocketOffline = false;
 }
@@ -314,7 +310,6 @@ void ROMEAnalyzer::ParameterUsage()
    gROME->Println("  -b       Batch Mode (no Argument)");
    gROME->Println("  -ns      Splash Screen is not displayed (no Argument)");
    gROME->Println("  -m       Analysing Mode : (online/[offline])");
-   gROME->Println("  -f       Input Data Format : ([midas]/root)");
    gROME->Println("  -r       Runnumbers");
    gROME->Println("  -e       Eventnumbers");
    gROME->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
@@ -328,7 +323,6 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    ROMEString workDir(workDirLen);
    getcwd((char*)workDir.Data(),workDirLen);
    workDir.Append("/");
-   this->SetDataBaseDir(workDir);
    this->SetInputDir(workDir);
    this->SetOutputDir(workDir);
 
@@ -362,7 +356,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
       }
       if (answer!='n') {
-         if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
+         if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
             gROME->Println("\nTerminate program.\n");
             return false;
          }
@@ -374,11 +368,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       return false;
    }
-   if (!this->GetConfiguration()->ReadConfigurationFile((char*)configFile.Data())) {
+   if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
       gROME->Println("\nTerminate program.\n");
       return false;
    }
-   if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
+   if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
       gROME->Println("\nTerminate program.\n");
       return false;
    }
@@ -393,11 +387,6 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-m")) {
          if (!strcmp(argv[i+1],"online")) this->SetOnline();
          else this->SetOffline();
-         i++;
-      }
-      else if (!strcmp(argv[i],"-f")) {
-         if (!strcmp(argv[i+1],"root")) this->SetDAQ("root");
-         else if (!strcmp(argv[i+1],"midas")) this->SetDAQ("midas");
          i++;
       }
       else if (!strcmp(argv[i],"-r")&&i<argc-1) {
@@ -690,57 +679,6 @@ void StartServer(int port) {
 #endif
 }
 
-#ifndef HAVE_MIDAS
-bool ROMEAnalyzer::bk_is32(void *event)
-{
-   return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
-}
-
-int ROMEAnalyzer::bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata)
-{
-   int tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
-   BANK *pbk;
-   BANK32 *pbk32;
-   unsigned long dname;
-
-   if (bk_is32(pbkh)) {
-      pbk32 = (BANK32 *) (((BANK_HEADER *)pbkh) + 1);
-      strncpy((char *) &dname, name, 4);
-      do {
-         if (*((unsigned long *) pbk32->name) == dname) {
-            *((void **) pdata) = pbk32 + 1;
-            if (tid_size[pbk32->type & 0xFF] == 0)
-               *bklen = pbk32->data_size;
-            else
-               *bklen = pbk32->data_size / tid_size[pbk32->type & 0xFF];
-
-            *bktype = pbk32->type;
-            return 1;
-         }
-         pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
-      } while ((unsigned long) pbk32 - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
-   } else {
-      pbk = (BANK *) (((BANK_HEADER *)pbkh) + 1);
-      strncpy((char *) &dname, name, 4);
-      do {
-         if (*((unsigned long *) pbk->name) == dname) {
-            *((void **) pdata) = pbk + 1;
-            if (tid_size[pbk->type & 0xFF] == 0)
-               *bklen = pbk->data_size;
-            else
-               *bklen = pbk->data_size / tid_size[pbk->type & 0xFF];
-
-            *bktype = pbk->type;
-            return 1;
-         }
-         pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
-      } while ((unsigned long) pbk - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
-   }
-   *((void **) pdata) = NULL;
-   return 0;
-}
-#endif
-
 int ROMEAnalyzer::CheckEventNumber(int eventNumber) 
 {
    if (fEventNumber.GetSize()==0)
@@ -807,6 +745,10 @@ TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
    }
    arr.Set(na);
    return arr;
+}
+
+bool ROMEAnalyzer::toBool(int value) {
+   return value!=0;
 }
 
 Bool_t ROMEAnalyzer::ss_kbhit()

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.32  2005/04/01 14:56:22  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.31  2005/03/23 15:51:26  schneebeli_m
   BankFieldArray
 
@@ -70,6 +73,7 @@
 const int maxNumberOfTasks = 200;
 const int maxNumberOfFolders = 100;
 const int maxNumberOfTrees = 20;
+const int maxNumberOfDAQ = 20;
 const int maxNumberOfBranches = 10;
 const int maxNumberOfBanks = 20;
 const int maxNumberOfEvents = 5;
@@ -84,6 +88,7 @@ const int maxNumberOfStructFields = 50;
 const int bufferLength = 500000;
 
 const int maxNumberOfEventRequests = 5;
+const int maxNumberOfPathObjectInterpreterCodes = 10;
 
 class ROMEBuilder
 {
@@ -115,6 +120,8 @@ private:
    int recursiveSteerDepth;
    int actualSteerIndex;
 
+   int fNumberOfInterpreterCodes;
+
 // folders
    int numOfFolder;
    int numOfValue[maxNumberOfFolders];
@@ -136,7 +143,6 @@ private:
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueComment[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString valueDataBasePath[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues];
 
 // task
@@ -155,23 +161,8 @@ private:
    bool  taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
    ROMEString histoName[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoType[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoArray[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoArrayStartIndex[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoTitle[maxNumberOfTasks][maxNumberOfHistos];
+   bool histoArray[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoXLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoYLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoZLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoXBin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoXMin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoXMax[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoYBin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoYMin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoYMax[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoZBin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoZMin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoZMax[maxNumberOfTasks][maxNumberOfHistos];
 
 // task hierarchy
 
@@ -201,7 +192,11 @@ private:
    ROMEString branchName[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
 
-// banks
+// daq
+   int numOfDAQ;
+   ROMEString daqName[maxNumberOfDAQ];
+
+// midas
    int numOfEvent;
    int numOfBank[maxNumberOfEvents];
    int numOfStructFields[maxNumberOfEvents][maxNumberOfBanks];
@@ -235,6 +230,13 @@ private:
    ROMEString mainProgName;
    ROMEString mainDescription;
 
+// Compile Dependencies
+   ROMEString analyzerDep;
+   ROMEString eventLoopDep;
+   ROMEString configDep;
+   ROMEString midasDep;
+   ROMEString rootDep;
+
 public:
    ROMEBuilder() {};
 
@@ -247,12 +249,17 @@ public:
    bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
    bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer);
    bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab);
+   int  WriteSteeringInterpreterCode(ROMEString &buffer,int codeNumber,int numSteer,int numTask,ROMEString& path,int tab);
+   int  WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,int codeNumber,int numSteer,int numTask,ROMEString& steerPointer,int tab);
+   void WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
+   void WriteReadDataBaseFolders(ROMEString &buffer,int type);
    bool WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
    bool WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
    bool ReadXMLTree();
+   bool ReadXMLDAQ();
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering(int iTask);
    bool WriteSteering(int iTask);
@@ -265,6 +272,8 @@ public:
    bool WriteMidasH();
    bool WriteRootCpp();
    bool WriteRootH();
+   bool WriteDAQCpp();
+   bool WriteDAQH();
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
@@ -272,12 +281,13 @@ public:
    void WriteMakefile();
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
-   void startBuilder(char* xmlFile);
-   void GetFormat(ROMEString *buf,char *type);
-   void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
-   bool isFloatingType(char *type);
-   bool isNumber(ROMEString& string);
-   bool isBoolType(char *type);
+   void startBuilder(const char* xmlFile);
+   void GetFormat(ROMEString *buf,const char *type);
+   void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
+   bool isFloatingType(const char *type);
+   bool isNumber(const char * string);
+   bool isBoolType(const char *type);
+   ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
 };
 
 #endif   // ROMEBuilder_H

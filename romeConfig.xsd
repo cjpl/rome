@@ -9,7 +9,7 @@
 			<xs:enumeration value="offline"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:simpleType name="InputDataType">
+	<xs:simpleType name="DAQSystemType">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="root"/>
 			<xs:enumeration value="midas"/>
@@ -32,9 +32,9 @@
 					<xs:documentation>Describes the analyzing mode.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="InputDataFormat" type="InputDataType" default="root">
+			<xs:element name="DAQSystem" type="xs:string" default="root">
 				<xs:annotation>
-					<xs:documentation>Describes the format of the input data.</xs:documentation>
+					<xs:documentation>Describes the DAQ system used for IO. This can be 'midas', 'root' or a user defined DAQ system.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="BatchMode" type="xs:boolean" default="false" minOccurs="0">
@@ -51,17 +51,34 @@
 	</xs:complexType>
 	<xs:complexType name="DataBaseDesc">
 		<xs:annotation>
-			<xs:documentation>Describes the data base, to which the framework should be connected.</xs:documentation>
+			<xs:documentation>Describes a data base, to which the framework should be connected.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
+			<xs:element name="Name" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the data base connection.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="Type" type="DataBaseType" default="none">
 				<xs:annotation>
 					<xs:documentation>The type of the data base.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Connection" type="xs:string" minOccurs="0">
+			<xs:element name="Connection" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename".</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DataBasesDesc">
+		<xs:annotation>
+			<xs:documentation>Defines the data bases, which the analysis accesses.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DataBase" type="DataBaseDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Description of a data base, to which the framework should be connected.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -137,7 +154,7 @@
 					<xs:documentation>The title of the ROOT folder in which the histogram is stored.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistArraySize" type="xs:integer" minOccurs="0">
+			<xs:element name="HistArraySize" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The array size of the histogram. This value will be ignord if the histogram is not declared as an array in the ROME definition file. The histograms are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts.</xs:documentation>
 				</xs:annotation>
@@ -249,6 +266,45 @@
 			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a steering parameter group.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FieldDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a field of a folder.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FieldName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the field.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the database from which to read the field value.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The path to the value in the database.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FolderDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the folder configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FolderName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the folder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a field of a folder.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -386,9 +442,9 @@
 					<xs:documentation>Describes the modes in which the framework can run.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="DataBase" type="DataBaseDesc" minOccurs="0">
+			<xs:element name="DataBases" type="DataBasesDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the data base, to which the framework should be connected.</xs:documentation>
+					<xs:documentation>Definition of the data bases, which the analysis accesses.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Online" type="OnlineDesc" minOccurs="0">
@@ -405,6 +461,20 @@
 				<xs:annotation>
 					<xs:documentation>Describes the file paths the framework is using.</xs:documentation>
 				</xs:annotation>
+			</xs:element>
+			<xs:element name="Folders" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the folders in the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Folder" type="FolderDesc" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the folder configuration.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
 			</xs:element>
 			<xs:element name="Tasks" minOccurs="0">
 				<xs:annotation>

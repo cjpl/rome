@@ -208,11 +208,6 @@
 					<xs:documentation>The array size of the field. If this value is 1 or not present, then the field is a single value.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Path to the corresponding value inside the data base. Please visit the Database Path Description section in the UsersGuide.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="FolderDesc">
@@ -287,19 +282,9 @@
 					<xs:documentation>The name of the histogram.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The title of the histogram. Displayed in the ROOT browser.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="HistFolderName" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The ROOT folder, where the histogram is stored in (this folder has nothing to do with a data folder of ROME). The histograms are stored under //root/[Shortcut]/[TaskName]/[HistFolderName].</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistFolderTitle" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The title of the ROOT folder.</xs:documentation>
+					<xs:documentation>The ROOT folder, where the histogram is stored in (this folder has nothing to do with a data folder of ROME). The histograms are stored under //root/[Shortcut]/[TaskName]/[HistFolderName]. Default is HistName.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HistType" type="HistTypeDesc">
@@ -307,74 +292,9 @@
 					<xs:documentation>The type of the histogram. Can be any ROOT histogram type.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistArraySize" type="xs:string" minOccurs="0">
+			<xs:element name="HistArray" type="xs:boolean" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The array size of the histogram. If this value is 1 or not present, then the framework creates a single histogram. If the value is greater than 1 the framework creates an array of histograms. The histograms are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistArrayStartIndex" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation> Start index of histogram array name enumeration. Default is 0.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The label text of the x axis.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The label text of the y axis.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The label text of the z axis.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistXNbins" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The number of bins in x.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistXmin" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The minimum value in x.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistXmax" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The maximum value in x.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistYNbins" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The number of bins in y.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistYmin" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The minimum value in y.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistYmax" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The maximum value in y.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistZNbins" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The number of bins in z.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistZmin" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The minimum value in z.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="HistZmax" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The maximum value in z.</xs:documentation>
+					<xs:documentation>In ROME one can define arrays of histograms. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -504,6 +424,18 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="UserDAQSystemDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a DAQ system written by the user.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DAQSystemName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the DAQ system.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="EventHeaderDesc">
 		<xs:annotation>
 			<xs:documentation>Description of event header data.</xs:documentation>
@@ -619,7 +551,7 @@
 			</xs:element>
 			<xs:element name="BankFieldSize" type="xs:integer" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The pack size of the field of the structured bank.</xs:documentation>
+					<xs:documentation>The pack size of the field of the structured bank. E.g. the field length in bits. </xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="BankFieldArray" type="BankFieldArrayDesc" minOccurs="0">
@@ -787,6 +719,20 @@
 							<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>Describes a global steering parameter group of the framework.</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserDAQSystems" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of DAQ systems written by the user.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UserDAQSystem" type="UserDAQSystemDesc" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Describes  a DAQ system written by the user.</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>

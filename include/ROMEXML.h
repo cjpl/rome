@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.13  2005/03/23 11:48:47  schneebeli_m
   link error on linux
 
@@ -50,12 +53,8 @@ protected:
    bool endTag;
 
    // write
-   int xmlFile, xmlLevel; 
-   bool xmlElementIsOpen;
-   TObjArray *xmlStack;
+   MXML_WRITER *writer;
 
-
-   void  XmlEncode(ROMEString &str);
    int   IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode);
 public:
    ROMEXML();
@@ -76,11 +75,14 @@ public:
    bool  GetValue(ROMEString& value,const char* defaultValue="");
    // write
    bool  OpenFileForWrite(const char* file);
+   int   SetTranslate(int flag);
    bool  StartElement(const char* name);
    bool  EndElement();
    bool  EndDocument();
    bool  WriteAttribute(const char* name,const char* value);
    bool  WriteElement(const char* name,const char* value);
+   bool  WriteValue(const char* value);
+   bool  WriteComment(const char* text);
    // path
    bool  OpenFileForPath(const char* file);
    bool  ExistPath(const char* path);

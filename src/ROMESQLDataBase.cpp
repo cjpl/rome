@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.26  2005/04/01 14:56:23  schneebeli_m
+//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+//
 //  Revision 1.25  2005/03/03 19:24:32  sawada
 //  compatibility with SQL and XML database.
 //
@@ -88,17 +91,12 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
-#include <ROMEString.h>
 #include <TObjString.h>
-
-#include <ROMEAnalyzer.h>
-#include <ROMESQLDataBase.h>
-#include <ROMEPath.h>
-#include <ROMEStrArray.h>
-#include <ROMEPath.h>
 #if defined( R__UNIX )
 #include <unistd.h>
 #endif
+
+#include <ROMESQLDataBase.h>
 
 const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
@@ -360,7 +358,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    return true;
 }
 
-bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
+bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* connection) {
    ROMEString path = connection;
    ROMEString server;
    ROMEString user;
@@ -371,6 +369,8 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    int is,ie;
    int istart;
    
+   fName = name;
+
    //decode dataBasePath
    if ((istart=path.Index("mysql://",8,0,TString::kIgnoreCase))==-1) {
       cout << "Wrong path for SQL database : " << path << endl;

@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.11  2005/01/07 11:37:32  schneebeli_m
   Bank Arrays, Folder Array Getter
 
@@ -63,7 +66,7 @@ public:
    Int_t  GetMaxEntries() { return fSwitches.fMaxEntries; };
    Switches* GetSwitches() { return &fSwitches; };
    int       GetSwitchesSize() { return sizeof(Switches); };
-   char*     GetSwitchesString() { return (char*)fSwitchesString.Data(); };
+   const char* GetSwitchesString() { return fSwitchesString.Data(); };
    void SetTree(TTree *tree) { fTree = tree; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };
    void SetWrite(Bool_t write) { fSwitches.fWrite = write; };

@@ -2,6 +2,9 @@
   ROMERoot.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.1  2005/01/24 15:25:06  schneebeli_m
   Seperated DAQ classes
 
@@ -25,9 +28,10 @@ protected:
    int           fTimeStamp;                       //! Current time stamp
 
 public:
-   ROMERoot::ROMERoot();
+   ROMERoot();
 
    int   GetTimeStamp() { return fTimeStamp; };
+   const char* GetName() { return "root"; };
 
    bool Initialize();
    bool Connect();

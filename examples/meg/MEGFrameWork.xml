@@ -59,25 +59,21 @@
 						<FieldName>ADCPedestal</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>ADC Pedestal</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>ADCGain</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>ADC Gain</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XECalibGain[0,%d]/gain",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCOffset</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>TDC Offset</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCXScale</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>TDC X-Axis Scale</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/LPConf/LPCalibPedestal[0,%d]/mean0",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()-1</DataBasePath>
 					</Field>
 				</Folder>
 				<Folder>
@@ -95,37 +91,31 @@
 						<FieldName>ADCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>ADC Number</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>TDC Number</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/LPTdc/logicalNumber;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Address</FieldName>
 						<FieldType>TString</FieldType>
 						<FieldComment>Address</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/name;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>X</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>X-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/x;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Y</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Y-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/y;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>Z</FieldName>
 						<FieldType>Float_t</FieldType>
 						<FieldComment>Z-Coordinate</FieldComment>
-						<DataBasePath>"/RunCatalog(id=%d)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/z;XEGeometry/idx[0,%d]",gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()-1</DataBasePath>
 					</Field>
 				</Folder>
 				<Folder>
@@ -311,7 +301,6 @@
 	<Tasks>
 		<Task>
 			<TaskName>ReadMidas</TaskName>
-			<ChangeableClassFile>true</ChangeableClassFile>
 			<Author>
 				<AuthorName>Matthias Schneebeli</AuthorName>
 			</Author>
@@ -338,28 +327,15 @@
 			</Include>
 			<Histogram>
 				<HistName>ADC0Histo</HistName>
-				<HistTitle>ADC0 Histograms</HistTitle>
 				<HistFolderName>adc0</HistFolderName>
-				<HistFolderTitle>ADC0 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
-				<HistArrayStartIndex>10</HistArrayStartIndex>
-				<HistXLabel>ADC []</HistXLabel>
-				<HistYLabel>Entries []</HistYLabel>
-				<HistXNbins>4096</HistXNbins>
-				<HistXmin>0</HistXmin>
-				<HistXmax>4096</HistXmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>ADC1Histo</HistName>
-				<HistTitle>ADC1 Histograms</HistTitle>
 				<HistFolderName>adc1</HistFolderName>
-				<HistFolderTitle>ADC1 Histograms</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()</HistArraySize>
-				<HistXNbins>4096</HistXNbins>
-				<HistXmin>0</HistXmin>
-				<HistXmax>4096</HistXmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -386,13 +362,8 @@
 			<TaskDescription>Calculates the TDC Average.</TaskDescription>
 			<Histogram>
 				<HistName>TDCAverageHisto</HistName>
-				<HistTitle>TDC Avarage Histogram</HistTitle>
 				<HistFolderName>tdc</HistFolderName>
-				<HistFolderTitle>TDC Avarage Histogram</HistFolderTitle>
 				<HistType>TH1F</HistType>
-				<HistXNbins>400</HistXNbins>
-				<HistXmin>-200</HistXmin>
-				<HistXmax>200</HistXmax>
 			</Histogram>
 		</Task>
 		<Task>
@@ -408,87 +379,39 @@
 			</Include>
 			<Histogram>
 				<HistName>FrontMapHisto</HistName>
-				<HistTitle>Front side Map Histograms</HistTitle>
 				<HistFolderName>frontmap</HistFolderName>
-				<HistFolderTitle>Front side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>BackMapHisto</HistName>
-				<HistTitle>Back side Map Histograms</HistTitle>
 				<HistFolderName>backmap</HistFolderName>
-				<HistFolderTitle>Back side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>TopMapHisto</HistName>
-				<HistTitle>Top side Map Histograms</HistTitle>
 				<HistFolderName>topmap</HistFolderName>
-				<HistFolderTitle>Top side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>BottomMapHisto</HistName>
-				<HistTitle>Bottom side Map Histograms</HistTitle>
 				<HistFolderName>bottommap</HistFolderName>
-				<HistFolderTitle>Bottom side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>RightMapHisto</HistName>
-				<HistTitle>Right side Map Histograms</HistTitle>
 				<HistFolderName>rightmap</HistFolderName>
-				<HistFolderTitle>Right side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<Histogram>
 				<HistName>LeftMapHisto</HistName>
-				<HistTitle>Left side Map Histograms</HistTitle>
 				<HistFolderName>leftmap</HistFolderName>
-				<HistFolderTitle>Left side Map Histograms</HistFolderTitle>
 				<HistType>TH2F</HistType>
-				<HistArraySize>GetSP()->GetNumberOfMapHistos()</HistArraySize>
-				<HistXNbins>6</HistXNbins>
-				<HistXmin>-20</HistXmin>
-				<HistXmax>20</HistXmax>
-				<HistYNbins>6</HistYNbins>
-				<HistYmin>-20</HistYmin>
-				<HistYmax>20</HistYmax>
+				<HistArray>true</HistArray>
 			</Histogram>
 			<SteeringParameters>
 				<SteeringParameterField>

@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.13  2005/03/03 19:24:32  sawada
   compatibility with SQL and XML database.
 
@@ -67,7 +70,7 @@ public:
    ROMESQLDataBase();
    ~ROMESQLDataBase();
 
-   bool   Init(const char* dataBase,const char* connection);
+   bool   Init(const char* name,const char* dataBase,const char* connection);
    bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber);
    bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber);
    char*  GetType() { return "sql"; }

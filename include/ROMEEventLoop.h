@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
+  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+
   Revision 1.13  2005/02/06 01:26:55  sawada
   moved byte swapping functions to ROMEMidas
 
@@ -31,17 +34,10 @@
 #define ROMEEventLoop_H
 
 #include <ROMETask.h>
-#include <ROMEDAQSystem.h>
 #include <ROMEAnalyzer.h>
-#include <ROMEMidas.h>
-#include <ROMERoot.h>
 
 class ROMEEventLoop : public ROMETask {
 protected:
-   ROMEMidas*    fMidas;                           //! Handle to the Midas Systems
-   ROMERoot*     fRoot;                            //! Handle to root data written by ROME
-   ROMEDAQSystem *fActiveDAQ;                      //! Handle to the active DAQ system
-
    // Stop at
    Int_t         fStopAtRun;                       //! Stop execution at this run
    Int_t         fStopAtEvent;                     //! Stop execution at this event
@@ -87,24 +83,24 @@ public:
    void Terminate() {};
 protected:
    // Run Status
-   Bool_t     isRunning()  { return fActiveDAQ->isRunning(); };
-   Bool_t     isStopped()  { return fActiveDAQ->isStopped(); };
+   Bool_t     isRunning()  { return gROME->GetActiveDAQ()->isRunning(); };
+   Bool_t     isStopped()  { return gROME->GetActiveDAQ()->isStopped(); };
 
-   void       SetRunning()  { fActiveDAQ->SetRunning(); };
-   void       SetStopped()  { fActiveDAQ->SetStopped(); };
+   void       SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); };
+   void       SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); };
 
    // Event Status
-   Bool_t     isAnalyze()    { return fActiveDAQ->isAnalyze();    };
-   Bool_t     isContinue()   { return fActiveDAQ->isContinue();   };
-   Bool_t     isBeginOfRun() { return fActiveDAQ->isBeginOfRun(); };
-   Bool_t     isEndOfRun()   { return fActiveDAQ->isEndOfRun();   };
-   Bool_t     isTerminate()  { return fActiveDAQ->isTerminate();  };
+   Bool_t     isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze();    };
+   Bool_t     isContinue()   { return gROME->GetActiveDAQ()->isContinue();   };
+   Bool_t     isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); };
+   Bool_t     isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun();   };
+   Bool_t     isTerminate()  { return gROME->GetActiveDAQ()->isTerminate();  };
 
-   void       SetAnalyze()    { fActiveDAQ->SetAnalyze();    };
-   void       SetContinue()   { fActiveDAQ->SetContinue();   };
-   void       SetBeginOfRun() { fActiveDAQ->SetBeginOfRun(); };
-   void       SetEndOfRun()   { fActiveDAQ->SetEndOfRun();   };
-   void       SetTerminate()  { fActiveDAQ->SetTerminate();  };
+   void       SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze();    };
+   void       SetContinue()   { gROME->GetActiveDAQ()->SetContinue();   };
+   void       SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); };
+   void       SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun();   };
+   void       SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate();  };
 
    // event methods
    bool Initialize();
