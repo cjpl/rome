@@ -6,6 +6,10 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.18  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.17  2004/12/06 16:03:02  sawada
 //  code cleanup (tab -> space)
 //
@@ -37,7 +41,8 @@
 //  Added Log in header
 //
 //////////////////////////////////////////////////////////////////////////
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#include <RConfig.h>
+#if defined( R__UNIX )
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -46,7 +51,7 @@
 #define O_TEXT 0 
 #endif
 
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
 #include <io.h>
 #include <fcntl.h>
 #endif

@@ -8,6 +8,10 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.55  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.54  2005/01/31 17:13:33  schneebeli_m
 //  cm_set_msg_print
 //
@@ -97,7 +101,8 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #ifndef __CINT__
 #include <Windows4Root.h>
 #include <conio.h>
@@ -107,7 +112,7 @@
 #include <windows.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/ioctl.h>
@@ -119,7 +124,7 @@
 #define O_RDONLY_BINARY O_RDONLY
 #include <sys/time.h>
 #endif
-#if defined ( __linux__ )
+#ifndef R__MACOSX
 #include <sys/io.h>
 #endif
 #include <sys/stat.h>
@@ -202,7 +207,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    ROMEString text;
 
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
    cm_set_msg_print(0,0,NULL);
 #endif
 
@@ -255,7 +260,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 void ROMEAnalyzer::Print(char text)
 {
    cout << text;
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
    ROMEString strText = text;
 //   cm_msg(MINFO, "ROMEAnalyzer::Print", strText.Data());
 #endif
@@ -265,7 +270,7 @@ void ROMEAnalyzer::Print(char text)
 void ROMEAnalyzer::Print(const char* text)
 {
    cout << text;
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 //   cm_msg(MINFO, "ROMEAnalyzer::Print", text);
 #endif
    return;
@@ -274,7 +279,7 @@ void ROMEAnalyzer::Print(const char* text)
 void ROMEAnalyzer::Println(const char* text)
 {
    cout << text << endl;
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 //   cm_msg(MINFO, "ROMEAnalyzer::Println", text);
 #endif
    return;
@@ -283,7 +288,7 @@ void ROMEAnalyzer::Println(const char* text)
 void ROMEAnalyzer::Printfl(const char* text)
 {
    cout << text << flush;
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 //   cm_msg(MINFO, "ROMEAnalyzer::Printfl", text);
 #endif
    return;
@@ -430,11 +435,11 @@ bool ROMEAnalyzer::CreateHistoFolders(TList *taskList,TFolder *folder)
 #ifndef HAVE_MIDAS
 #define PTYPE int
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #define THREADRETURN NULL
 #define THREADTYPE void*
 #endif
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
 #define THREADRETURN 0
 #define THREADTYPE DWORD WINAPI
 #endif
@@ -610,7 +615,7 @@ int ResponseFunction(TSocket *fSocket) {
       if (!obj) {
          fSocket->Send("Error");
       } else {
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
          TThread::Lock();
          ((TH1 *) obj)->Reset();
          TThread::UnLock();
@@ -646,11 +651,11 @@ THREADTYPE ServerLoop(void *arg)
    do {
       TSocket *sock = lsock->Accept();
 
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
       TThread *thread = new TThread("Server", Server, sock);
       thread->Run();
 #endif
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
       LPDWORD lpThreadId=0;
       CloseHandle(CreateThread(NULL,1024,&Server,sock,0,lpThreadId));
 #endif
@@ -661,11 +666,11 @@ int pport;
 void StartServer(int port) {
    pport = port;
 // start fSocket server loop
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    TThread *thread = new TThread("server_loop", ServerLoop, &pport);
    thread->Run();
 #endif
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    LPDWORD lpThreadId=0;
    CloseHandle(CreateThread(NULL,1024,&ServerLoop,&pport,0,lpThreadId));
 #endif
@@ -792,10 +797,10 @@ TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
 
 Bool_t ROMEAnalyzer::ss_kbhit()
 {
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
    return toBool(kbhit());
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
    int n;
    ioctl(0, FIONREAD, &n);
    return (n > 0);
@@ -846,7 +851,7 @@ int ROMEAnalyzer::ss_sleep(int millisec)
 
 int ROMEAnalyzer::ss_getchar(bool reset)
 {
-#if defined ( __linux__ )  || defined ( __APPLE__ )
+#if defined( R__UNIX )
    static unsigned long int init = 0;
    static struct termios save_termios;
    struct termios buf;
@@ -927,7 +932,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
 
    return c[0];
 
-#elif defined( _MSC_VER )
+#elif defined( R__VISUAL_CPLUSPLUS )
 
    static bool init = false;
    static int repeat_count = 0;
@@ -1053,7 +1058,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
 
 long ROMEAnalyzer::ss_millitime()
 {
-#if defined ( __linux__ )  || defined ( __APPLE__ )
+#if defined( R__UNIX )
    {
       struct timeval tv;
 
@@ -1062,7 +1067,7 @@ long ROMEAnalyzer::ss_millitime()
       return tv.tv_sec * 1000 + tv.tv_usec / 1000;
    }
 
-#elif defined( _MSC_VER )
+#elif defined( R__VISUAL_CPLUSPLUS )
 
    return (int) GetTickCount();
 

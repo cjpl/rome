@@ -6,6 +6,10 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.23  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.22  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -74,6 +78,7 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////
+#include <RConfig.h>
 #include <ROMEString.h>
 #include <TObjString.h>
 
@@ -82,7 +87,7 @@
 #include <ROMEPath.h>
 #include <ROMEStrArray.h>
 #include <ROMEPath.h>
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #endif
 
@@ -376,7 +381,7 @@ bool ROMESQLDataBase::Init(const char* dataBase,const char* connection) {
    }
    
    if(passwd.Length()==1 && passwd(0) == '?'){
-#if defined ( __linux__ ) || defined (  __APPLE__  )
+#if defined( R__UNIX )
       prompt.SetFormatted("%s@%s's password: ",user.Data(),server.Data());
       passwd = getpass(prompt.Data());
 #endif

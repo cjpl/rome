@@ -2,6 +2,10 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/02/21 21:29:07  sawada
+  Changed OS specifying macros
+  Support for DEC,Ultrix,FreeBSD,Solaris
+
   Revision 1.2  2005/02/06 01:26:55  sawada
   moved byte swapping functions to ROMEMidas
 
@@ -13,6 +17,7 @@
 #ifndef ROMEMidas_H
 #define ROMEMidas_H
 
+#include <RConfig.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
 
@@ -41,8 +46,8 @@ public:
    virtual bool InitODB() = 0;
 
    //byte swapping
-#if defined( __ppc__ )
-#if !defined(HAVE_MIDAS)
+#ifndef R__BYTESWAP
+#ifndef HAVE_MIDAS
    void bk_swap(void *event, bool force);
 #endif
    void ByteSwap(UShort_t  *x);

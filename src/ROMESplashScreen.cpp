@@ -6,12 +6,17 @@
 //  Displays a splash screen.
 //                                                                      //
 //  $Log$
+//  Revision 1.5  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.4  2004/09/25 01:34:48  schneebeli_m
 //  implemented FW dependent EventLoop and DataBase classes
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 
 #include <ROMEString.h>
 #include <windows.h>

@@ -2,6 +2,10 @@
   ROMESQL.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2005/02/21 21:29:07  sawada
+  Changed OS specifying macros
+  Support for DEC,Ultrix,FreeBSD,Solaris
+
   Revision 1.9  2004/11/19 16:26:24  sawada
   speed up with reading order array at once.
 
@@ -27,8 +31,9 @@
 #ifndef ROMESQL_H
 #define ROMESQL_H
 
+#include <RConfig.h>
 #include <TString.h>
-#if defined ( _MSC_VER )
+#if defined ( R__VISUAL_CPLUSPLUS )
 #include <Windows4root.h>
 //typedef UINT_PTR        SOCKET;
 #endif

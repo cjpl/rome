@@ -7,6 +7,10 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.48  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.47  2005/02/06 01:26:55  sawada
 //  moved byte swapping functions to ROMEMidas
 //
@@ -106,11 +110,12 @@
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #include <io.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #define O_RDONLY_BINARY O_RDONLY
 #endif
@@ -512,7 +517,7 @@ bool ROMEEventLoop::Update()
       fProgressWrite = false;
    }
    // ODB update
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
    db_send_changed_records();
 #endif
 

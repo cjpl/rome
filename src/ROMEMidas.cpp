@@ -6,6 +6,10 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.5  2005/02/21 21:29:07  sawada
+//  Changed OS specifying macros
+//  Support for DEC,Ultrix,FreeBSD,Solaris
+//
 //  Revision 1.4  2005/02/20 19:17:22  sawada
 //  Large file support
 //
@@ -20,19 +24,19 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-#if defined( _MSC_VER )
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #include <io.h>
 #define O_RDONLY_BINARY O_RDONLY | O_BINARY
 #endif
-#if defined ( __linux__ ) || defined ( __APPLE__ )
+#if defined( R__UNIX )
 #include <unistd.h>
 #define O_RDONLY_BINARY O_RDONLY
 #endif
 #include <fcntl.h>
 #include <ROMEMidas.h>
 
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 #include <midas.h>
 #define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
@@ -46,7 +50,7 @@ ROMEMidas::ROMEMidas() {
 
 bool ROMEMidas::Initialize() {
    if (gROME->isOnline()) {
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
       // Connect to the Frontend
       int requestId,i;
 
@@ -191,7 +195,7 @@ bool ROMEMidas::Connect() {
 }
 bool ROMEMidas::ReadEvent(int event) {
    if (gROME->isOnline()) {
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
       int runNumber,trans;
       if (cm_query_transition(&trans, &runNumber, NULL)) {
          if (trans == TR_START) {
@@ -226,7 +230,7 @@ bool ROMEMidas::ReadEvent(int event) {
       gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
       gROME->SetEventID(((EVENT_HEADER*)mEvent)->event_id);
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
-#if defined( __ppc__ )
+#ifndef R__BYTESWAP
       //byte swapping
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
               ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
@@ -247,7 +251,7 @@ bool ROMEMidas::ReadEvent(int event) {
       
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
-#if defined( __ppc__ )
+#ifndef R__BYTESWAP
          //byte swapping
          ByteSwap((UShort_t *)&pevent->event_id);
          ByteSwap((UShort_t *)&pevent->trigger_mask);
@@ -277,7 +281,7 @@ bool ROMEMidas::ReadEvent(int event) {
          this->SetEndOfRun();
          return true;
       }
-#if defined( __ppc__ )
+#ifndef R__BYTESWAP
       //byte swapping
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
@@ -306,7 +310,7 @@ bool ROMEMidas::Disconnect() {
 }
 bool ROMEMidas::Termination() {
    if (gROME->isOnline()) {
-#if defined HAVE_MIDAS
+#if defined( HAVE_MIDAS )
       cm_disconnect_experiment();
 #endif
    }
@@ -314,8 +318,8 @@ bool ROMEMidas::Termination() {
 }
 
 
-#if defined( __ppc__ )
-#if !defined(HAVE_MIDAS)
+#ifndef R__BYTESWAP
+#ifndef HAVE_MIDAS
 /**
 Swaps bytes from little endian to big endian or vice versa for a whole event.
 
@@ -408,7 +412,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
    }   
    return;
 }
-#endif //if !defined(HAVE_MIDAS)
+#endif
 
 // Byte swapping big endian <-> little endian
 void ROMEMidas::ByteSwap(UShort_t *x) 
@@ -445,4 +449,4 @@ void ROMEMidas::ByteSwap(ULong64_t *x) {
    *(((Byte_t *)(x))+3) = *(((Byte_t *)(x))+4);
    *(((Byte_t *)(x))+4) = _tmp;
 }
-#endif // if defined( __ppc__ )
+#endif

@@ -2,6 +2,10 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.37  2005/02/21 21:29:07  sawada
+  Changed OS specifying macros
+  Support for DEC,Ultrix,FreeBSD,Solaris
+
   Revision 1.36  2005/01/27 16:21:06  schneebeli_m
   print method & no gROME in path
 
@@ -72,10 +76,10 @@
 #include <ROMETree.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
-#if defined HAVE_MIDAS
+#if defined ( HAVE_MIDAS )
 #include <midas.h>
 #endif
-#if defined HAVE_SQL
+#if defined ( HAVE_SQL )
 #include <ROMESQL.h>
 #endif
 

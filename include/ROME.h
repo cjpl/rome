@@ -2,6 +2,10 @@
   ROME.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/02/21 21:29:07  sawada
+  Changed OS specifying macros
+  Support for DEC,Ultrix,FreeBSD,Solaris
+
   Revision 1.5  2004/12/02 17:46:43  sawada
   Macintosh port
 
@@ -16,11 +20,11 @@
 #define ROME_H
 #include <Rtypes.h>
 
-#if defined( _MSC_VER )
+#if defined( R__VISUAL_CPLUSPLUS )
 #define OS_WINNT
 #endif
 
-#if defined(OS_WINNT) && defined(ROMEDLL_EXPORTS)
+#if defined( OS_WINNT ) && defined( ROMEDLL_EXPORTS )
 #define DLLEXPORT __declspec(dllexport)
 #else
 #define DLLEXPORT
