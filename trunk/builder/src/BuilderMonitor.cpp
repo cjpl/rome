@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/02/03 11:44:54  sawada
+  IO to MIDAS ODB
+
   Revision 1.4  2005/02/02 23:54:30  sawada
   link with midas library.
 
@@ -124,6 +127,11 @@ bool ArgusBuilder::WriteMonitorCpp() {
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
    // StartMonitor
    buffer.AppendFormatted("\nbool %sMonitor::StartMonitor() {\n",shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if(folderConnectionType[i] == "ODB"){
+         buffer.AppendFormatted("   f%sFolder->SetMidasOnlineDataBase(fMidasOnlineDataBase);\n",folderName[i].Data());
+      }
+   }
    buffer.AppendFormatted("   InitSingleFolders();\n");
    buffer.AppendFormatted("   // Update Data Base\n");
    buffer.AppendFormatted("   if (!ReadSingleDataBaseFolders()) {\n");
