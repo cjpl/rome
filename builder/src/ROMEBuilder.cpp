@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.71  2004/11/17 16:13:49  schneebeli_m
+  config structure changed
+
   Revision 1.70  2004/11/16 16:20:59  schneebeli_m
   detail
 
@@ -3416,22 +3419,15 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fDataBase->fTypeModified = true;\n");
-   // Name
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Name\",fConfigData[index]->fDataBase->fName,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fName==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fNameModified = false;\n");
+   // Connection
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Connection\",fConfigData[index]->fDataBase->fConnection,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fConnection==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fConnectionModified = false;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fNameModified = true;\n");
-   // Path
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/DataBase/Path\",fConfigData[index]->fDataBase->fPath,\"\");\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fPath==\"\")\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fPathModified = false;\n");
-   buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fPathModified = true;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fDataBase->fConnectionModified = true;\n");
    // all
    buffer.AppendFormatted("   if (fConfigData[index]->fDataBase->fTypeModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fNameModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fPathModified)\n");
+   buffer.AppendFormatted("       fConfigData[index]->fDataBase->fConnectionModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fDataBaseModified = false;\n");
@@ -3740,28 +3736,35 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(true);\n");
    buffer.AppendFormatted("   }\n");
+
    // DataBase
 
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fPathModified) {\n");
-   buffer.AppendFormatted("      if (fConfigData[index]->fDataBase->fPath[fConfigData[index]->fDataBase->fPath.Length()-1]!='/' && fConfigData[index]->fDataBase->fPath[fConfigData[index]->fDataBase->fPath.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("         fConfigData[index]->fDataBase->fPath.Append(\"/\");\n");
-   buffer.AppendFormatted("      gAnalyzer->SetDataBaseDir(fConfigData[index]->fDataBase->fPath);\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fNameModified) {\n");
-   buffer.AppendFormatted("      gAnalyzer->SetDataBaseConnection(fConfigData[index]->fDataBase->fName);\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fConnectionModified) {\n");
+   buffer.AppendFormatted("      gAnalyzer->SetDataBaseConnection(fConfigData[index]->fDataBase->fConnection);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fDataBase->fTypeModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fDataBase->fType==\"sql\") {\n");
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
+   buffer.AppendFormatted("         delete gAnalyzer->GetDataBase();\n");
    buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(\"\",gAnalyzer->GetDataBaseConnection()))\n");
    buffer.AppendFormatted("            return false;\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fType==\"xml\") {\n");
    buffer.AppendFormatted("         delete gAnalyzer->GetDataBase();\n");
    buffer.AppendFormatted("         gAnalyzer->SetDataBase(new ROMEXMLDataBase());\n");
-   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),gAnalyzer->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("         ROMEString str = gAnalyzer->GetDataBaseConnection();\n");
+   buffer.AppendFormatted("         int index;\n");
+   buffer.AppendFormatted("         if ((index=str.Index(\";\",1,0,TString::kExact))==-1) {\n");
+   buffer.AppendFormatted("            cout << \"Invalid database connection\" << endl;\n");
+   buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         ROMEString path = str(0,index);\n");
+   buffer.AppendFormatted("         if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("            path += \"/\";\n");
+   buffer.AppendFormatted("         gAnalyzer->SetDataBaseDir((char*)path.Data());\n");
+   buffer.AppendFormatted("         if (!gAnalyzer->GetDataBase()->Init(gAnalyzer->GetDataBaseDir(),((TString)str(index+1,str.Length()-index-1)).Data()))\n");
    buffer.AppendFormatted("            return false;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
@@ -3966,16 +3969,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"Type\",gAnalyzer->GetDataBase()->GetType());\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fTypeModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Type\",(char*)fConfigData[index]->fDataBase->fType.Data());\n");
-   // Name
+   // Connection
    buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Name\",gAnalyzer->GetDataBaseConnection());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fNameModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Name\",(char*)fConfigData[index]->fDataBase->fName.Data());\n");
-   // Path
-   buffer.AppendFormatted("      if (index==0)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Path\",(char*)gAnalyzer->GetDataBaseDir());\n");
-   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fPathModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Path\",(char*)fConfigData[index]->fDataBase->fPath.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Connection\",gAnalyzer->GetDataBaseConnection());\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fDataBase->fConnectionModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Connection\",(char*)fConfigData[index]->fDataBase->fConnection.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
    // online
@@ -4221,10 +4219,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      public:\n");
    buffer.AppendFormatted("         ROMEString  fType;\n");
    buffer.AppendFormatted("         bool        fTypeModified;\n");
-   buffer.AppendFormatted("         ROMEString  fName;\n");
-   buffer.AppendFormatted("         bool        fNameModified;\n");
-   buffer.AppendFormatted("         ROMEString  fPath;\n");
-   buffer.AppendFormatted("         bool        fPathModified;\n");
+   buffer.AppendFormatted("         ROMEString  fConnection;\n");
+   buffer.AppendFormatted("         bool        fConnectionModified;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      DataBase *fDataBase;\n");
    buffer.AppendFormatted("      bool   fDataBaseModified;\n");
