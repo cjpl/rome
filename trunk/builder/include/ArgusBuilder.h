@@ -2,8 +2,11 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:07  sawada
-  Initial revision
+  Revision 1.2  2005/02/01 21:53:24  sawada
+  implemented thread functions of tabs.
+
+  Revision 1.1.1.1  2005/01/29 22:45:07  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -28,6 +31,7 @@ const int maxNumberOfSteering = 20;
 const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
 const int maxNumberOfInclude = 10;
+const int maxNumberOfThreadFunctions = 4;
 const int bufferLength = 100000;
 
 class ArgusBuilder
@@ -39,6 +43,7 @@ public:
    bool       noLink;
    bool       midas;
    bool       sql;
+   bool       thread;
    
 private:
    ROMEXML* xml;
@@ -96,6 +101,10 @@ private:
    ROMEString tabHierarchyTitle[2*maxNumberOfTabs];
    int        tabHierarchyParentIndex[2*maxNumberOfTabs];
    int        tabHierarchyClassIndex[2*maxNumberOfTabs];
+
+// thread functions
+   int        numOfThreadFunctions[maxNumberOfTabs];
+   ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
 
 // steering
    int        numOfSteering[maxNumberOfTabs+1];

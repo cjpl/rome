@@ -14,61 +14,61 @@
 		<AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
 	</Author>
 	<Tabs>
-	  <Tab>
-	    <TabName>English</TabName>
-	    <TabTitle>1</TabTitle>
-	    <Author>Ryu Sawada</Author>
-	    <TabVersion>1</TabVersion>
-	    <SteeringParameters>
-	      <SteeringParameterField>
-		<SPFieldName>Color</SPFieldName>
-		<SPFieldType>Int_t</SPFieldType>
-		<SPFieldInitialization>1</SPFieldInitialization>
-		<SPFieldComment>Color of text.</SPFieldComment>
-	      </SteeringParameterField>
-	    </SteeringParameters>
-	  </Tab>
-	  <Tab>
-	    <TabName>German</TabName>
-	    <TabTitle>2</TabTitle>
-	    <Author>Ryu Sawada</Author>
-	    <TabVersion>1</TabVersion>
-	    <SteeringParameters>
-	      <SteeringParameterField>
-		<SPFieldName>Color</SPFieldName>
-		<SPFieldType>Int_t</SPFieldType>
-		<SPFieldInitialization>1</SPFieldInitialization>
-		<SPFieldComment>Color of text.</SPFieldComment>
-	      </SteeringParameterField>
-	    </SteeringParameters>
-	  </Tab>
-	  <Tab>
-	    <TabName>Italian</TabName>
-	    <TabTitle>3</TabTitle>
-	    <Author>Ryu Sawada</Author>
-	    <TabVersion>1</TabVersion>
-	    <SteeringParameters>
-	      <SteeringParameterField>
-		<SPFieldName>Color</SPFieldName>
-		<SPFieldType>Int_t</SPFieldType>
-		<SPFieldInitialization>1</SPFieldInitialization>
-		<SPFieldComment>Color of text.</SPFieldComment>
-	      </SteeringParameterField>
-	    </SteeringParameters>
-	  </Tab>
-	  <Tab>
-	    <TabName>French</TabName>
-	    <TabTitle>4</TabTitle>
-	    <Author>Ryu Sawada</Author>
-	    <TabVersion>1</TabVersion>
-	    <SteeringParameters>
-	      <SteeringParameterField>
-		<SPFieldName>Color</SPFieldName>
-		<SPFieldType>Int_t</SPFieldType>
-		<SPFieldInitialization>1</SPFieldInitialization>
-		<SPFieldComment>Color of text.</SPFieldComment>
-	      </SteeringParameterField>
-	    </SteeringParameters>
-	  </Tab>
+		<Tab>
+			<TabName>English</TabName>
+			<TabTitle>1</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>Color</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>1</SPFieldInitialization>
+					<SPFieldComment>Color of text.</SPFieldComment>
+				</SteeringParameterField>
+			</SteeringParameters>
+		</Tab>
+		<Tab>
+			<TabName>German</TabName>
+			<TabTitle>2</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>Color</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>1</SPFieldInitialization>
+					<SPFieldComment>Color of text.</SPFieldComment>
+				</SteeringParameterField>
+			</SteeringParameters>
+		</Tab>
+		<Tab>
+			<TabName>Italian</TabName>
+			<TabTitle>3</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>Color</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>1</SPFieldInitialization>
+					<SPFieldComment>Color of text.</SPFieldComment>
+				</SteeringParameterField>
+			</SteeringParameters>
+		</Tab>
+		<Tab>
+			<TabName>French</TabName>
+			<TabTitle>4</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>Color</SPFieldName>
+					<SPFieldType>Int_t</SPFieldType>
+					<SPFieldInitialization>1</SPFieldInitialization>
+					<SPFieldComment>Color of text.</SPFieldComment>
+				</SteeringParameterField>
+			</SteeringParameters>
+		</Tab>
 	</Tabs>
 </ArgusMonitorDefinition>
