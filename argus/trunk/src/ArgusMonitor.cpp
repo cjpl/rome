@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.3  2005/02/01 14:44:33  sawada
+  Resize frames in window.
+
   Revision 1.2  2005/01/31 10:59:46  sawada
   bug fix
 
@@ -66,7 +69,7 @@ ArgusMonitor::ArgusMonitor(TRint *app)
    fOnlineExperiment = "";
    fNetFolderPortNumber = 9090;
    fNetFolderHost = "";
-   fWindowSize = 1;
+   fWindowScale = 1;
    fWindowStyle = "Default";
 }
 

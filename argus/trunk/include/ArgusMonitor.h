@@ -2,8 +2,11 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/02/01 14:44:33  sawada
+  Resize frames in window.
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -46,7 +49,7 @@ protected:
    ROMEString    fNetFolderHost;                //! Host for TSocket
    
    // Window
-   float         fWindowSize;                   //! Window size
+   float         fWindowScale;                  //! Window scale
    ROMEString    fWindowStyle;                  //! Style
    
    // Configuration
@@ -102,11 +105,11 @@ public:
    void          SetNetFolderPortNumber(ROMEString& port) { SetNetFolderPortNumber((char*)port.Data()); };
    
    // Window
-   float         GetWindowSize() { return fWindowSize; };
+   float         GetWindowScale() { return fWindowScale; };
    char*         GetWindowStyle() { return (char*)fWindowStyle.Data(); };   
-   void          SetWindowSize(float size) { fWindowSize = size; };
-   void          SetWindowSize(char* size) { char* cstop; fWindowSize = strtod(size,&cstop); };
-   void          SetWindowSize(ROMEString& size) { SetWindowSize((char*)size.Data()); };
+   void          SetWindowScale(float scale) { fWindowScale = scale; };
+   void          SetWindowScale(char* scale) { char* cstop; fWindowScale = strtod(scale,&cstop); };
+   void          SetWindowScale(ROMEString& scale) { SetWindowScale((char*)scale.Data()); };
    void          SetWindowStyle(char* style) { fWindowStyle = style; };
    void          SetWindowStyle(ROMEString& style) { fWindowStyle = style; };
    

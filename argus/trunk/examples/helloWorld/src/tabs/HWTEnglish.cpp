@@ -16,10 +16,10 @@ ClassImp(HWTEnglish)
 void HWTEnglish::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(fParent, (UInt_t)700, (UInt_t)700);
+   fVert = new TGVerticalFrame(fParent, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(700*gMonitor->GetWindowScale()));
    
    // Create an embedded canvas and add to the main frame, centered in x and y 
-   fCanvas = new TRootEmbeddedCanvas("Hello World", fVert, (UInt_t)600, (UInt_t)600);
+   fCanvas = new TRootEmbeddedCanvas("Hello World", fVert, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(600*gMonitor->GetWindowScale()));
    
    // Create a text
    fText = new TLatex(0.5,0.5,"Hello world.");
@@ -28,7 +28,7 @@ void HWTEnglish::Init()
    
    fVert->AddFrame(fCanvas,
                    new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4, 4, 4, 4));
-   AddFrame(fVert, new TGLayoutHints(kLHintsCenterX, 10, 10, 4, 4));
+   AddFrame(fVert, new TGLayoutHints( kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
    
    fCanvas->GetCanvas()->cd();
    fText->Draw();
