@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2004/11/16 21:59:45  sawada
+  read/write field array at once.
+
   Revision 1.5  2004/11/16 12:11:06  sawada
   SQL Init,Read
 
@@ -32,6 +35,7 @@
 class ROMESQLDataBase : public ROMEDataBase
 {
 protected:
+  ROMEString fFieldList;
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
   ROMEString fOrderPhrase;
