@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.24  2004/07/15 10:23:39  schneebeli
+  running on linux
+
   Revision 1.23  2004/07/15 10:21:19  schneebeli
   running on linux
 
@@ -4068,38 +4071,38 @@ void ROMEBuilder::WriteMakefile() {
 	sprintf(buffer+strlen(buffer),"\tfi;\n");
    // link
    sprintf(buffer+strlen(buffer),"%s%s.exe: $(objects)\n",shortCut,mainProgName);
-   sprintf(buffer+strlen(buffer),"	g++ -o $@ $(objects) $(Libraries)\n\n",shortCut,mainProgName);
+   sprintf(buffer+strlen(buffer),"	g++ -g -o $@ $(objects) $(Libraries)\n\n",shortCut,mainProgName);
    // compile
    for (i=0;i<numOfFolder;i++) {
       if (numOfGetters[i]==0) continue;
       sprintf(buffer+strlen(buffer),"obj/%s%s.obj: src/framework/%s%s.cpp\n",shortCut,folderName[i],shortCut,folderName[i]);
-      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut,folderName[i],shortCut,folderName[i]);
+      sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%s%s.cpp -o obj/%s%s.obj\n",shortCut,folderName[i],shortCut,folderName[i]);
    }
    for (i=0;i<numOfTask;i++) {
       sprintf(buffer+strlen(buffer),"obj/%sT%s.obj: src/tasks/%sT%s.cpp\n",shortCut,taskName[i],shortCut,taskName[i]);
-      sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut,taskName[i],shortCut,taskName[i]);
+      sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/tasks/%sT%s.cpp -o obj/%sT%s.obj\n",shortCut,taskName[i],shortCut,taskName[i]);
    }
    sprintf(buffer+strlen(buffer),"obj/%sAnalyzer.obj: src/framework/%sAnalyzer.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%sAnalyzer.cpp -o obj/%sAnalyzer.obj\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"obj/%sIO.obj: src/framework/%sIO.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/%sIO.cpp -o obj/%sIO.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/%sIO.cpp -o obj/%sIO.obj\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"obj/%sDict.obj: %sDict.cpp\n",shortCut,shortCut);
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut,shortCut);
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) %sDict.cpp -o obj/%sDict.obj\n",shortCut,shortCut);
    sprintf(buffer+strlen(buffer),"obj/main.obj: src/framework/main.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) src/framework/main.cpp -o obj/main.obj\n");
 
    sprintf(buffer+strlen(buffer),"obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEAnalyzer.cpp -o obj/ROMEAnalyzer.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEEventLoop.cpp -o obj/ROMEEventLoop.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMEIO.obj: $(ROMESYS)/src/ROMEIO.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEIO.cpp -o obj/ROMEIO.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEIO.cpp -o obj/ROMEIO.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMETask.cpp -o obj/ROMETask.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESplashScreen.cpp -o obj/ROMESplashScreen.obj\n");
    sprintf(buffer+strlen(buffer),"obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp\n");
-   sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
+   sprintf(buffer+strlen(buffer),"	g++ -g -c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp -o obj/ROMEXML.obj\n");
    if (this->sql) {
       sprintf(buffer+strlen(buffer),"obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp\n");
       sprintf(buffer+strlen(buffer),"	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROMESQL.cpp -o obj/ROMESQL.obj\n");

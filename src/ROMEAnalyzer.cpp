@@ -68,7 +68,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 #if defined ( __linux__ )
    /* start socket server */
    TThread *th1 = new TThread("root_server_loop", root_server_loop, NULL);
-   th1->Run();
+//   th1->Run();
 #endif
 
    fMainTask->ExecuteTask();
