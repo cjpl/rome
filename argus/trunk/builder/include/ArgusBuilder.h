@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.5  2005/02/13 13:07:26  sawada
+  added unistd.h
+
   Revision 1.4  2005/02/04 22:58:46  sawada
   ROMEFolder
 
@@ -24,6 +27,7 @@
 #include <direct.h>
 #endif
 #if defined ( __linux__ ) ||  defined ( __APPLE__ )
+#include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
