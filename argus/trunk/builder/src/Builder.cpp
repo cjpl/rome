@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.31  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.30  2005/03/26 16:53:42  sawada
   libxml replaced by mxml.
 
@@ -480,70 +484,24 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                   }
                   // count tabs
                   numOfTab++;
-                  // default tab hierarchy
-                  for (i=0;i<numOfTab;i++) {
-                     tabHierarchyName[i] = tabName[i];
-                     tabHierarchyTitle[i] = tabTitle[i];
-                     tabHierarchyParentIndex[i] = tabParentIndex[i];
-                     tabHierarchyClassIndex[i] = i;
+                  for (i=0;i<numOfTab;i++)
                      numOfThreadFunctions[i]++;
-                  }
-                  numOfTabHierarchy = numOfTab;
                   // write tab classes
                   if (!WriteTabCpp()) return;
                   if (!WriteTabH()) return;
-               }
-               if (!strcmp((const char*)name,"TabHierarchy")) {
-                  int depth = 0;
-                  int parentIndex[2*maxNumberOfTabs];
-                  parentIndex[0] = -1;
-                  numOfTabHierarchy = -1;
-                  while (xml->NextLine()&&!finished) {
-                     type = xml->GetType();
-                     name = xml->GetName();
-                     if (type == 1 && !strcmp((const char*)name,"TabName")) {
-                        xml->GetValue(tabHierarchyName[numOfTabHierarchy],tabHierarchyName[numOfTabHierarchy]);
-                        tabHierarchyClassIndex[numOfTabHierarchy] = -1;
-                        for (i=0;i<numOfTab;i++) {
-                           if (tabName[i]==tabHierarchyName[numOfTabHierarchy])
-                              tabHierarchyClassIndex[numOfTabHierarchy] = i;
-                        }
-                        if (tabHierarchyClassIndex[numOfTabHierarchy] == -1) {
-                           cout << "The tab '" << tabHierarchyName[numOfTabHierarchy].Data() << "' used in the tab hierarchy is not defined !" << endl;
-                           cout << "Terminating program." << endl;
-                           return;
-                        }
-                     }
-                     if (type == 1 && !strcmp((const char*)name,"TabTitle"))
-                        xml->GetValue(tabHierarchyTitle[numOfTabHierarchy],tabHierarchyTitle[numOfTabHierarchy]);
-                     if (type == 1 && !strcmp((const char*)name,"Tab")) {
-                        depth++;
-                        numOfTabHierarchy++;
-                        parentIndex[depth] = numOfTabHierarchy;
-                        tabHierarchyName[numOfTabHierarchy] = "";
-                        tabHierarchyParentIndex[numOfTabHierarchy] = parentIndex[depth-1];
-                     }
-                     if (type == 15 && !strcmp((const char*)name,"Tab")) {
-                        depth--;
-                     }
-                     if (type == 15 && !strcmp((const char*)name,"TabHierarchy"))
-                        break;
-                  }
-                  numOfTabHierarchy++;
-                  continue;
                }
                if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
                   // output
                   if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
                   // initialisation
-                  steerName[numOfTabHierarchy][0] = "GlobalSteering";
+                  steerName[numOfTab][0] = "GlobalSteering";
                   actualSteerIndex = 0;
                   recursiveSteerDepth = 0;
-                  steerParent[numOfTabHierarchy][0] = -1;
-                  numOfSteering[numOfTabHierarchy] = -1;
-                  if (!ReadXMLSteering(numOfTabHierarchy)) return;
-                  numOfSteering[numOfTabHierarchy]++;
-                  if (!WriteSteering(numOfTabHierarchy)) return;
+                  steerParent[numOfTab][0] = -1;
+                  numOfSteering[numOfTab] = -1;
+                  if (!ReadXMLSteering(numOfTab)) return;
+                  numOfSteering[numOfTab]++;
+                  if (!WriteSteering(numOfTab)) return;
                }
             }
          }
@@ -865,7 +823,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMEFolderIncludes)");
    buffer.AppendFormatted(" $(ROMEBaseFolderIncludes)");
-   if (numOfSteering[numOfTabHierarchy]>0) {
+   if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted(" include/monitor/%sGlobalSteering.h",shortCut.Data());
    }
    buffer.AppendFormatted("\n");
@@ -1090,16 +1048,16 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("The %s%s has the following tab hierarchy :\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
    int index;
-   for (i=0;i<numOfTabHierarchy;i++) {
+   for (i=0;i<numOfTab;i++) {
       index = i;
       depth=0;
       while (index!=-1) {
          depth++;
-         index = tabHierarchyParentIndex[index];
+         index = tabParentIndex[index];
       }
       if (depth<depthold) buffer.AppendFormatted("</ul>\n");
       if (depth>depthold) buffer.AppendFormatted("<ul>\n");
-      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",tabHierarchyName[i].Data(),shortCut.Data(),tabHierarchyName[i].Data());
+      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       depthold = depth;
    }
    for (i=0;i<depth;i++) buffer.AppendFormatted("</ul>\n");

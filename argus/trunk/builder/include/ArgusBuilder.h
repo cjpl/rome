@@ -2,6 +2,10 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.15  2005/03/28 10:54:37  sawada
+  removed tab hierarchy.
+  made ReadXMLMenu.
+
   Revision 1.14  2005/03/20 18:19:55  sawada
   unified makefile for windows and unix.
 
@@ -139,20 +143,13 @@ private:
    ROMEString tabAuthor[maxNumberOfTabs];
    ROMEString tabVersion[maxNumberOfTabs];
    int        tabParentIndex[2*maxNumberOfTabs];
+   int        numOfTabMenu[maxNumberOfTabs];
+   int        numOfTabMenuItem[maxNumberOfTabs][maxNumberOfTabMenus];
+   ROMEString tabMenuTitle[maxNumberOfTabs][maxNumberOfTabMenus];
+   int        tabMenuItemID[maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
+   ROMEString tabMenuItemTitle[maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
+   int        tabNumOfChildren[maxNumberOfTabs];
       
-// tab hierarchy
-   int        numOfTabHierarchy;
-   int        numOfTabMenu[2*maxNumberOfTabs];
-   int        numOfTabMenuItem[2*maxNumberOfTabs][maxNumberOfTabMenus];
-   ROMEString tabHierarchyMenuTitle[2*maxNumberOfTabs][maxNumberOfTabMenus];
-   int        tabHierarchyMenuItemID[2*maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
-   ROMEString tabHierarchyMenuItemTitle[2*maxNumberOfTabs][maxNumberOfTabMenus][maxNumberOfTabMenuItems];
-   ROMEString tabHierarchyName[2*maxNumberOfTabs];
-   ROMEString tabHierarchyTitle[2*maxNumberOfTabs];
-   int        tabHierarchyParentIndex[2*maxNumberOfTabs];
-   int        tabHierarchyNumOfChildren[2*maxNumberOfTabs];
-   int        tabHierarchyClassIndex[2*maxNumberOfTabs];
-
 // thread functions
    int        numOfThreadFunctions[maxNumberOfTabs];
    ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
@@ -194,6 +191,7 @@ public:
    bool WriteWindowCpp();
    bool WriteWindowH();
    bool ReadXMLTab();
+   bool ReadXMLMenu();
    bool WriteSteeringClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
    bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
    bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTab,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
