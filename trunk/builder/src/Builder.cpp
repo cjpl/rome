@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.19  2005/02/27 13:21:41  sawada
+  recompile monitor and window when dictionary is changed.
+
   Revision 1.18  2005/02/25 16:14:00  sawada
   bug fix and example for ROMEFolder
 
@@ -605,12 +608,10 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sT%s.obj src/tabs/%sT%s.cpp \n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
    }
-   buffer.AppendFormatted("obj/%sWindow.obj: src/monitor/%sWindow.cpp include/monitor/%sWindow.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sWindow.obj: src/monitor/%sWindow.cpp include/monitor/%sWindow.h obj/%sDict.obj $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sWindow.obj src/monitor/%sWindow.cpp \n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/%sMonitor.obj: src/monitor/%sMonitor.cpp include/monitor/%sMonitor.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sMonitor.obj: src/monitor/%sMonitor.cpp include/monitor/%sMonitor.h obj/%sDict.obj $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sMonitor.obj src/monitor/%sMonitor.cpp \n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/%sWindow.obj: src/monitor/%sWindow.cpp include/monitor/%sWindow.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sWindow.obj src/monitor/%sWindow.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sConfig.obj: src/monitor/%sConfig.cpp include/monitor/%sConfig.h $(ARGUSSYS)/bin/argusbuilder.exe\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	cl $(Flags) $(Includes) /c /Foobj/%sConfig.obj src/monitor/%sConfig.cpp \n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/main.obj: src/monitor/main.cpp $(ARGUSSYS)/bin/argusbuilder.exe\n");
@@ -774,9 +775,9 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/%sT%s.o: src/tabs/%sT%s.cpp include/tabs/%sT%s.h\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/tabs/%sT%s.cpp -o obj/%sT%s.o\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
    }
-   buffer.AppendFormatted("obj/%sWindow.o: src/monitor/%sWindow.cpp include/monitor/%sWindow.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sWindow.o: src/monitor/%sWindow.cpp include/monitor/%sWindow.h obj/%sDict.o\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sWindow.cpp -o obj/%sWindow.o\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("obj/%sMonitor.o: src/monitor/%sMonitor.cpp include/monitor/%sMonitor.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sMonitor.o: src/monitor/%sMonitor.cpp include/monitor/%sMonitor.h obj/%sDict.o\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sMonitor.cpp -o obj/%sMonitor.o\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("obj/%sConfig.o: src/monitor/%sConfig.cpp include/monitor/%sConfig.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("	g++ -c $(Flags) $(Includes) src/monitor/%sConfig.cpp -o obj/%sConfig.o\n",shortCut.Data(),shortCut.Data());
