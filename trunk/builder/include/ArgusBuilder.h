@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.11  2005/03/11 19:49:34  sawada
+  *** empty log message ***
+
   Revision 1.10  2005/02/25 16:14:00  sawada
   bug fix and example for ROMEFolder
 
@@ -197,7 +200,7 @@ public:
    bool WriteConfigCpp();
    bool WriteConfigH();
    bool WriteMain();
-   void WriteMakefile();
+   void WriteMakefile(char* xmlFile);
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
    void startBuilder(char* xmlFile);
