@@ -47,9 +47,6 @@
 						<Z Type="Float_t" Initialisation="0" Comment="// Z-Coordinate"/>
 						<DeadFlag Type="Bool_t" Initialisation="false" Comment="// Dead Photo Multiplier Flag"/>
 					</Fields>
-					<AdditionalGetters>
-						<GetFace Type="Int_t"/>
-					</AdditionalGetters>
 				</SubFolder>
 				<SubFolder FolderName="CMRef" FolderTitle="References for ADC and TDC Counts">
 					<Author Name="Matthias Schneebeli"/>
@@ -158,7 +155,7 @@
 				<ADC1Histo Type="TH1F" ArraySize="gNumberOfPMT" FolderName="adc1" FolderTitle="ADC1 Histograms" Title="ADC1 Histograms" NumberOfBinsX="4096" XMin="0" XMax="4096"/>
 			</Histos>
 		</SubTask>
-		<SubTask Name="TDCAverage" OverWriteCpp="no">
+		<SubTask Name="TDCAverage">
 			<Author Name="Matthias Schneebeli"/>
 			<Version Number="1"/>
 			<ClassDescription Text="Calculates the TDC Average."/>
