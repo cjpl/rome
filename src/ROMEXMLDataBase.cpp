@@ -6,6 +6,11 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.9  2005/03/01 14:34:23  sawada
+//  compatibility of SQL and XML database of @constraint.
+//  bug fix of loop counter.
+//  field separator of field array was changed from $ to __.
+//
 //  Revision 1.8  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -70,6 +75,8 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    char *cstop;
    int orderTableIndex = -1;
    int nArrayTables = -1;
+   ROMEString preid;
+   ROMEString preidConstraint;
 
    // decode path
    if (!path->Decode(dataBasePath,runNumber)) {
@@ -118,6 +125,19 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
       // Data base constraint
       if (strlen(path->GetTableDBConstraintAt(i))>0) {
          basePath = xmlPath;
+         preid.Resize(0);
+         if (strlen(path->GetTableIDNameAt(i))>0&&i<path->GetNumberOfTables()-1) {
+            basePath += path->GetTableNameAt(i+1);
+            basePath += "_";
+            basePath += path->GetTableIDNameAt(i);
+            if (!xml->GetPathValue(basePath,preid)) {
+               cout << "\nWrong data base path : " << basePath.Data() << endl;
+               delete xml;
+               delete path;
+               return false;
+            }
+         }
+         basePath = xmlPath;
          int istart,iend;
          ROMEString newDataBasePath;
          ROMEString dbPath = dataBasePath;
@@ -153,6 +173,8 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          if ((is=value.Index(temp,temp.Length(),0,TString::kIgnoreCase))!=-1) {
             if ((ie=value.Index("\"",1,is+temp.Length(),TString::kIgnoreCase))!=-1) {
                value = value(is+temp.Length(),ie-is-temp.Length());
+               if(value(value.Length()-1)=='/')
+                  value.Remove(value.Length()-1,value.Length());
                while ((is=value.Index("(@@",3,0,TString::kIgnoreCase))!=-1) {
                   if ((ie=value.Index(")",1,is+3,TString::kIgnoreCase))==-1)
                      ie = value.Length();
@@ -173,6 +195,12 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                   value.Insert(is,val);
                }
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
+               if (i>0) {
+                  if (strlen(path->GetTableIDNameAt(i))>0) {
+                     preidConstraint.SetFormatted("(%s=%s)",path->GetTableIDNameAt(i),(char*)preid.Data());
+                  }
+               }
+               newDataBasePath.InsertFormatted(istart+value.Length()+strlen(path->GetTableNameAt(i+1))+1,(char*)preidConstraint.Data());
                // decode new path
                delete xml;
                delete path;
@@ -251,7 +279,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
                   xmlPath = xmlBase;
                   xmlPath += path->GetFieldName();
-                  xmlPath.AppendFormatted("$%d",j);
+                  xmlPath.AppendFormatted("__%d",j);
                   if (!xml->GetPathValues(xmlPath,&value)) {
                      cout << "\nWrong data base path : " << xmlPath.Data() << endl;
                      delete xml;
@@ -264,10 +292,10 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                      delete path;
                      return false;
                   }
-                  for (j=0;j<value.GetEntriesFast();j++) {
-                     int idxValue = strtol(idx.At(j).Data(),&cstop,10);
+                  for (k=0;k<value.GetEntriesFast();k++) {
+                     int idxValue = strtol(idx.At(k).Data(),&cstop,10);
                      if (idxValue>=0)
-                        fieldArray.SetAt(value.At(j),j,idxValue);
+                        fieldArray.SetAt(value.At(k),j,idxValue);
                   }
                }
             }
@@ -299,7 +327,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
                   xmlPath = xmlBase;
                   xmlPath += path->GetFieldName();
-                  xmlPath.AppendFormatted("$%d",j);
+                  xmlPath.AppendFormatted("__%d",j);
                   if (!xml->GetPathValues(xmlPath,&value)) {
                      cout << "\nWrong data base path : " << xmlPath.Data() << endl;
                      delete xml;
@@ -332,7 +360,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
             // field array
             if (path->IsFieldArray()) {
                for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
-                  values->SetAt(fieldArray.At(j,index),ii-path->GetOrderIndexAt(0),j=path->GetFieldIndexAt(0));
+                  values->SetAt(fieldArray.At(j,index),ii-path->GetOrderIndexAt(0),j);
                }
             }
             // single field
@@ -437,8 +465,8 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
                return false;
             }
             fieldName = path->GetFieldName();
-            fieldName.AppendFormatted("$%d",j);
-            xmlFieldPath.AppendFormatted("$%d",j);
+            fieldName.AppendFormatted("__%d",j);
+            xmlFieldPath.AppendFormatted("__%d",j);
             // new
             if (!xml->GetPathValue(xmlPath,value)) {
                xmlPath = xmlTablePath;

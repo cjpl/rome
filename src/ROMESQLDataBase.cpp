@@ -6,7 +6,13 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.24  2005/03/01 14:34:24  sawada
+//  compatibility of SQL and XML database of @constraint.
+//  bug fix of loop counter.
+//  field separator of field array was changed from $ to __.
+//
 //  Revision 1.23  2005/02/21 21:29:07  sawada
+//
 //  Changed OS specifying macros
 //  Support for DEC,Ultrix,FreeBSD,Solaris
 //
@@ -221,7 +227,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
              ;iField+=path->GetFieldIndexAt(2)){
          temp = path->GetFieldName();
          if(path->IsFieldArray())
-            temp.AppendFormatted("$%d",iField);     
+            temp.AppendFormatted("__%d",iField);     
          fFieldList.AppendFormatted("%s.%s%s,",path->GetTableNameAt(path->GetNumberOfTables()-1)
                                     ,temp.Data(),RSQLDB_STR);
          if(!path->IsFieldArray())
