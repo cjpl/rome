@@ -2,8 +2,11 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/01/31 10:59:46  sawada
+  bug fix
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -197,7 +200,7 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 Bool_t ArgusMonitor::ss_kbhit()
 {
 #if defined( _MSC_VER )
-   return toBool(kbhit());
+   return kbhit() != 0;
 #endif
 #if defined ( __linux__ ) || defined ( __APPLE__ )
    int n;
