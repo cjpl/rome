@@ -6,7 +6,7 @@
 	<Folder>
 		<SubFolder FolderName="megData" FolderTitle="MEG Data Root Folder">
 			<SubFolder FolderName="cm" FolderTitle="Calorimeter">
-				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" Array="yes">
+				<SubFolder FolderName="CMPMTData" FolderTitle="ADC and TDC Values of Photo Multipliers" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<ClassDescription Text="Folder Class for Calorimeter Photo Multiplier data." />
@@ -16,7 +16,7 @@
 						<TDCData Type="Float_t" Initialisation="0" Comment="TDC Data of Photo Multipliers" />
 					</Fields>
 				</SubFolder>
-				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" Array="yes" DataBase="yes">
+				<SubFolder FolderName="CMCalib" FolderTitle="Photo Multiplier Calibration" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter calibration data." />
@@ -27,7 +27,7 @@
 						<TDCXScale Type="Float_t" Initialisation="0" Comment="TDC X-Axis Scale" />
 					</Fields>
 				</SubFolder>
-				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" Array="yes" DataBase="yes">
+				<SubFolder FolderName="CMPMTInfo" FolderTitle="Photo Multiplier Info" ArraySize="fAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfPMT()" DataBase="yes">
 					<Author Name="Matthias Schneebeli" />
 					<Version Number="1" />
 					<ClassDescription Text="Container Class for Calorimeter Photo Multiplier Information." />
@@ -110,15 +110,15 @@
 					<Temp Type="Int_t" Initialisation="0" Comment="temp" />
 				</Fields>
 			</SubFolder>
-			<SubFolder FolderName="Trigger" FolderTitle="Trigger" MidasHeader="yes">
+			<SubFolder FolderName="Trigger" FolderTitle="Trigger">
 				<Author Name="Matthias Schneebeli" />
 				<Version Number="1" />
 				<ClassDescription Text="Container Class for Trigger data." />
 				<Fields>
-					<ID Type="Int_t" Initialisation="0" Comment="event ID" MidasName="event_id" />
-					<Mask Type="Int_t" Initialisation="0" Comment="Trigger Mask" MidasName="trigger_mask" />
-					<Time Type="Int_t" Initialisation="0" Comment="Time stamp" MidasName="time_stamp" />
-					<EventNumber Type="Int_t" Initialisation="0" Comment="Event Number" MidasName="serial_number" />
+					<ID Type="Int_t" Initialisation="0" Comment="event ID" />
+					<Mask Type="Int_t" Initialisation="0" Comment="Trigger Mask" />
+					<Time Type="Int_t" Initialisation="0" Comment="Time stamp" />
+					<EventNum Type="Int_t" Initialisation="0" Comment="Event Number" />
 				</Fields>
 			</SubFolder>
 		</SubFolder>
@@ -199,6 +199,7 @@
 		<InvalidValue Type="Float_t" Initialisation="-1000" Comment="Invalid Value" />
 	</GeneralSteeringParameters>
 	<MidasBanks>
+		<EventHeader Folder="Trigger" EventID="ID" TriggerMask="Mask" SerialNumber="EventNumber" TimeStamp="Time" />
 		<SCLR Type="unsigned long" />
 		<ADC0 Type="unsigned short" />
 		<ADC1 Type="unsigned short" />
