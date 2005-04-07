@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.60  2005/04/07 08:27:36  schneebeli_m
+//  config bug, db bug
+//
 //  Revision 1.59  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -205,6 +208,7 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fOnlineHost = "";
    fPortNumber = 9090;
    fSocketOffline = false;
+   fActiveDAQ = NULL;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {

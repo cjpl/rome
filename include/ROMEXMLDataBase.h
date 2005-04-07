@@ -2,6 +2,9 @@
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2005/04/07 08:27:36  schneebeli_m
+  config bug, db bug
+
   Revision 1.6  2005/04/05 14:54:51  schneebeli_m
   Database write & _exit on linux
 
@@ -46,8 +49,8 @@ protected:
    ROMEString    fFileName;
 
 
-   bool   WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value);
-   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber);
+   bool   WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,int arrayIndex);
+   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,bool write);
 public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();

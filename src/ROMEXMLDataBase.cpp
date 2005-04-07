@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.18  2005/04/07 08:27:36  schneebeli_m
+//  config bug, db bug
+//
 //  Revision 1.17  2005/04/05 15:03:05  schneebeli_m
 //  linux
 //
@@ -83,7 +86,7 @@ bool ROMEXMLDataBase::Init(const char* name,const char* path,const char* connect
 }
 
 
-int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber) {
+int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,bool write) {
    int i,j,k,ii,index;
    ROMEString value;
    ROMEString val;
@@ -213,8 +216,14 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
                }
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
                // decode new path
-               if (Read(values,newDataBasePath.Data(),runNumber))
-                  return -1;
+               if (write) {
+                  if (Write(values,newDataBasePath.Data(),runNumber))
+                     return -1;
+               }
+               else {
+                  if (Read(values,newDataBasePath.Data(),runNumber))
+                     return -1;
+               }
                return 0;
             }
          }
@@ -300,7 +309,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    ROMEString xmlPath;
    ROMEPath *path = new ROMEPath();
 
-   int retValue = SearchTable(path,values,dataBasePath,runNumber);
+   int retValue = SearchTable(path,values,dataBasePath,runNumber,false);
 
    if (retValue==0) {
       delete path;
@@ -406,13 +415,16 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    return true; 
 }
 
-bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value)
+bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,int arrayIndex)
 {
    int i;
    ROMEString xmlPath;
+   ROMEString fieldName = path->GetFieldName();
+   if (arrayIndex>-1)
+      fieldName.AppendFormatted("__%d",arrayIndex);
 
    xmlPath = basePath;
-   xmlPath += path->GetFieldName();
+   xmlPath += fieldName;
    if (xml->ExistPath(xmlPath)) {
       // replace
       if (!xml->ReplacePathValue(xmlPath,value)) {
@@ -425,7 +437,7 @@ bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePat
       // new
       basePath = basePath(1,basePath.Length()-1);
       if (xml->ExistPath("/"+basePath)) {
-         if (!xml->NewPathChildElement(basePath,path->GetFieldName(),value)) {
+         if (!xml->NewPathChildElement(basePath,fieldName,value)) {
             cout << "\nWrong data base path : " << ("/"+basePath).Data() << endl;
             delete path;
             return false;
@@ -434,13 +446,13 @@ bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePat
       else {
          xmlPath.SetFormatted("/%s/%s",fDataBaseName.Data(),path->GetTableNameAt(0));
          int num = xml->NumberOfOccurrenceOfPath(xmlPath.Data())+1;
-         if (!xml->NewPathLastElement(xmlPath.Data(),path->GetTableNameAt(0),"")) {
+         if (!xml->NewPathLastElement(xmlPath.Data(),path->GetTableNameAt(0),NULL)) {
             cout << "\nWrong data base path : " << xmlPath.Data() << endl;
             delete path;
             return false;
          }
          xmlPath.AppendFormatted("[%d]",num);
-         if (!xml->NewPathChildElement(xmlPath.Data(),path->GetFieldName(),value)) {
+         if (!xml->NewPathChildElement(xmlPath.Data(),fieldName,value)) {
             cout << "\nWrong data base path : " << xmlPath.Data() << endl;
             delete path;
             return false;
@@ -465,8 +477,9 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    ROMEStrArray valueArr;
    ROMEString xmlPath;
    ROMEPath *path = new ROMEPath();
+   ROMEString vTemp;
 
-   int retValue = SearchTable(path,values,dataBasePath,runNumber);
+   int retValue = SearchTable(path,values,dataBasePath,runNumber,true);
 
    if (retValue==0) {
       delete path;
@@ -479,8 +492,8 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
 
    // handle folder array
    if (retValue==2) {
-/*      if (path->IsFieldArray()) {
-         for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
+      if (path->IsFieldArray()) {
+/*         for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
             xmlPath = fXMLBase;
             xmlPath += path->GetFieldName();
             xmlPath.AppendFormatted("__%d",j);
@@ -499,77 +512,44 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
                if (idxValue>=0)
                   fieldArray.SetAt(valueArr.At(k),j,idxValue);
             }
-         }
-      }
-      else {
-         xmlPath = fXMLBase;
-         xmlPath += path->GetFieldName();
-         if (!xml->GetPathValues(xmlPath,&valueArr)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
-            delete path;
-            return false;
-         }
-         if (valueArr.GetEntriesFast()!=fIDX.GetEntriesFast()) {
-            cout << "\nInvalid Table : " << path->GetTableNameAt(path->GetNumberOfTables()-1) << endl;
-            delete path;
-            return false;
-         }
-         for (j=0;j<valueArr.GetEntriesFast();j++) {
-            int idxValue = strtol(fIDX.At(j).Data(),&cstop,10);
-            if (idxValue>=0)
-               fieldArray.SetAt(valueArr.At(j),0,idxValue);
-         }
-      }
-      for (ii=path->GetOrderIndexAt(0);ii<=path->GetOrderIndexAt(1);ii=ii+path->GetOrderIndexAt(2)) {
-         index = ii;
-         for (i=fOrderTableIndex;i<path->GetNumberOfTables();i++) {
-            // add field
-            if (i==path->GetNumberOfTables()-1) {
-               // field array
-               if (path->IsFieldArray()) {
-                  for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
-                     values->SetAt(fieldArray.At(j,index),ii-path->GetOrderIndexAt(0),j);
-                  }
-               }
-               // single field
-               else {
-                  values->SetAt(fieldArray.At(0,index),ii-path->GetOrderIndexAt(0),0);
-               }
-            }
-            else {
-               index = strtol(fPointerArray.At(i-fOrderTableIndex,index).Data(),&cstop,10);
-            }
-         }
-      }
-*/   }
-   // handle single folder
-   else {
-      if (path->IsFieldArray()) {
-/*         for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
-            if (!WriteValue(xml,path,fXMLBase,(ROMEString)values->At(0,0))) {
-               delete path;
-               return false;
-            }
-            xmlPath = fXMLBase;
-            xmlPath += path->GetFieldName();
-            xmlPath.AppendFormatted("__%d",j);
-            if (!xml->GetPathValues(xmlPath,&valueArr)) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
-               delete path;
-               return false;
-            }
-            values->SetAt(valueArr.At(0),0,j-path->GetFieldIndexAt(0));
          }*/
       }
       else {
-         ROMEString vTemp = values->At(0,0);
-         if (!WriteValue(xml,path,fXMLBase,vTemp)) {
+         for (i=0;i<fIDX.GetEntriesFast();i++) {
+            cout << i << endl;
+            xmlPath = fXMLBase;
+            xmlPath.InsertFormatted(xmlPath.Length()-1,"[idx=%d]",strtol(fIDX.At(i).Data(),&cstop,10));
+            xmlPath += path->GetFieldName();
+            path->Decode(xmlPath.Data(),0);
+            vTemp = values->At(i,0);
+            if (!WriteValue(xml,path,fXMLBase,vTemp,-1)) {
+               delete path;
+               return false;
+            }
+         }
+      }
+   }
+   // handle single folder
+   else {
+      if (path->IsFieldArray()) {
+         for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
+            vTemp = values->At(0,j);
+            if (!WriteValue(xml,path,fXMLBase,vTemp,j)) {
+               delete path;
+               return false;
+            }
+         }
+      }
+      else {
+         vTemp = values->At(0,0);
+         if (!WriteValue(xml,path,fXMLBase,vTemp,-1)) {
             delete path;
             return false;
          }
       }
    }
-   xml->WritePathFile(fFileName.Data());
+//   xml->WritePathFile(fFileName.Data());
+   xml->WritePathFile("C:/Data/analysis/MEG/DataBase/x.xml");
    delete path;
    return true; 
 }

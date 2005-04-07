@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.41  2005/04/07 08:27:36  schneebeli_m
+  config bug, db bug
+
   Revision 1.40  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -198,6 +201,7 @@ public:
    TRint*        GetApplication() { return fApplication; };
 
    // Active DAQ System
+   const char*    GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
    ROMEDAQSystem* GetActiveDAQ() { return fActiveDAQ; };
    void           SetActiveDAQ(ROMEDAQSystem* handle) { fActiveDAQ = handle; };
 
