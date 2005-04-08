@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.62  2005/04/08 17:08:08  schneebeli_m
+//  TNetFolderServer changes
+//
 //  Revision 1.61  2005/04/08 14:55:46  schneebeli_m
 //  Added TNetFolderServer class
 //
@@ -182,14 +185,6 @@ ClassImp(ROMEAnalyzer)
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 void *gPassToROME;  // void ROMEAnalyzer Handle
 
-const char* ROMEAnalyzer::LineToProcess = NULL;
-void writeLineToProcess(const char* str) {
-   while (ROMEAnalyzer::LineToProcess) {
-      gROME->ss_sleep(10);
-   }
-   ROMEAnalyzer::LineToProcess = str;
-}
-
 ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 {
 // Initialisations
@@ -245,7 +240,8 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    if (isSplashScreen()) startSplashScreen();
 
    if (gROME->isOnline() || gROME->isSocketOffline()) {
-      TNetFolderServer::StartServer(gROME->GetPortNumber());
+      TNetFolderServer *tnet = new TNetFolderServer();
+      tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
       text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
       gROME->Println(text.Data());
    }

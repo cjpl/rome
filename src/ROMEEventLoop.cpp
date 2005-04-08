@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.52  2005/04/08 17:08:09  schneebeli_m
+//  TNetFolderServer changes
+//
 //  Revision 1.51  2005/04/04 07:23:59  schneebeli_m
 //  Time report
 //
@@ -533,13 +536,6 @@ bool ROMEEventLoop::Update()
    return true;
 }
 
-void ROMEEventLoop::CheckLineToProcess()
-{
-   if (ROMEAnalyzer::LineToProcess){
-      gROME->GetApplication()->ProcessLine(ROMEAnalyzer::LineToProcess);
-      ROMEAnalyzer::LineToProcess = NULL;
-   }
-}
 bool ROMEEventLoop::UserInput() 
 {
    // Looks for user input. Called before the Event tasks.
@@ -562,8 +558,6 @@ bool ROMEEventLoop::UserInput()
       first = false;
       if (!fContinuous)
          wait = true;
-
-      CheckLineToProcess();
 
       interpreter = false;
       while (gROME->ss_kbhit()) {

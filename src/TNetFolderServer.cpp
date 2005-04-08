@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.2  2005/04/08 17:08:09  schneebeli_m
+//  TNetFolderServer changes
+//
 //  Revision 1.1  2005/04/08 14:54:55  schneebeli_m
 //  new
 //
@@ -16,7 +19,6 @@
 #endif
 
 #if defined( R__UNIX )
-#include <sys/socket.h>
 #include <TThread.h>
 #endif
 #include <TMessage.h>
@@ -26,7 +28,9 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include <TObjArray.h>
+#include <TApplication.h>
 #include <TNetFolderServer.h>
+#include <Riostream.h>
 
 #define PTYPE int
 
@@ -39,37 +43,39 @@
 #define THREADTYPE DWORD WINAPI
 #endif
 
-TFolder *ReadFolderPointer(TSocket *fSocket);
-int ResponseFunction(TSocket *fSocket);
+TApplication *fApplication;
+
+TFolder *ReadFolderPointer(TSocket *socket);
+int ResponseFunction(TSocket *socket);
 THREADTYPE Server(void *arg);
 THREADTYPE ServerLoop(void *arg);
-extern void writeLineToProcess(const char* str);
 
-TFolder *ReadFolderPointer(TSocket *fSocket)
+TFolder *ReadFolderPointer(TSocket *socket)
 {
    //read pointer to current folder
    TMessage *message = new TMessage(kMESS_OBJECT);
-   fSocket->Recv(message);
+   socket->Recv(message);
    Int_t p;
    *message>>p;
    delete message;
    return (TFolder*)p;
 }
 
-int ResponseFunction(TSocket *fSocket) {
+int ResponseFunction(TSocket *socket) {
+   // Command handling
    char str[80];
-   if (fSocket->Recv(str, sizeof(str)) <= 0) {
-      fSocket->Close();
-      delete fSocket;
+   if (socket->Recv(str, sizeof(str)) <= 0) {
+      socket->Close();
+      delete socket;
       return 0;
    }
-   TMessage *message = new TMessage(kMESS_OBJECT);
    if (strcmp(str, "GetListOfFolders") == 0) {
-      TFolder *folder = ReadFolderPointer(fSocket);
+      TMessage *message = new TMessage(kMESS_OBJECT);
+      TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
          message->Reset(kMESS_OBJECT);
          message->WriteObject(NULL);
-         fSocket->Send(*message);
+         socket->Send(*message);
          delete message;
          return 1;
       }
@@ -89,7 +95,7 @@ int ResponseFunction(TSocket *fSocket) {
       //write folder names
       message->Reset(kMESS_OBJECT);
       message->WriteObject(names);
-      fSocket->Send(*message);
+      socket->Send(*message);
 
       for (int i = 0; i < names->GetLast() + 1; i++)
          delete(TObjString *) names->At(i);
@@ -100,7 +106,8 @@ int ResponseFunction(TSocket *fSocket) {
       return 1;
    }
    else if (strncmp(str, "FindObject", 10) == 0) {
-      TFolder *folder = ReadFolderPointer(fSocket);
+      TMessage *message = new TMessage(kMESS_OBJECT);
+      TFolder *folder = ReadFolderPointer(socket);
 
       //get object
       TObject *obj;
@@ -113,30 +120,31 @@ int ResponseFunction(TSocket *fSocket) {
 
       //write object
       if (!obj) {
-         fSocket->Send("Error");
+         socket->Send("Error");
       } else {
          message->Reset(kMESS_OBJECT);
          message->WriteObject(obj);
-         fSocket->Send(*message);
+         socket->Send(*message);
       }
       delete message;
       return 1;
    }
 
    else if (strncmp(str, "FindFullPathName", 16) == 0) {
-      TFolder *folder = ReadFolderPointer(fSocket);
+      TMessage *message = new TMessage(kMESS_OBJECT);
+      TFolder *folder = ReadFolderPointer(socket);
 
       //find path
       const char* path = folder->FindFullPathName(str+17);
 
       //write path
       if (!path) {
-         fSocket->Send("Error");
+         socket->Send("Error");
       } else {
          TObjString *obj = new TObjString(path);
          message->Reset(kMESS_OBJECT);
          message->WriteObject(obj);
-         fSocket->Send(*message);
+         socket->Send(*message);
          delete obj;
       }
       delete message;
@@ -144,11 +152,12 @@ int ResponseFunction(TSocket *fSocket) {
    }
 
    else if (strncmp(str, "Occurence", 9) == 0) {
-      TFolder *folder = ReadFolderPointer(fSocket);
+      TMessage *message = new TMessage(kMESS_OBJECT);
+      TFolder *folder = ReadFolderPointer(socket);
 
       //read object
       message->Reset(kMESS_OBJECT);
-      fSocket->Recv(message);
+      socket->Recv(message);
       TObject *obj = ((TObject*) message->ReadObject(message->GetClass()));
 
       //get occurence
@@ -157,7 +166,7 @@ int ResponseFunction(TSocket *fSocket) {
       //write occurence
       message->Reset(kMESS_OBJECT);
       *message<<retValue;
-      fSocket->Send(*message);
+      socket->Send(*message);
 
       delete message;
       return 1;
@@ -165,31 +174,32 @@ int ResponseFunction(TSocket *fSocket) {
 
    else if (strncmp(str, "GetPointer", 10) == 0) {
       //find object
+      TMessage *message = new TMessage(kMESS_OBJECT);
       TObject *obj = gROOT->FindObjectAny(str+11);
 
       //write pointer
       message->Reset(kMESS_ANY);
       int p = (PTYPE)obj;
       *message<<p;
-      fSocket->Send(*message);
+      socket->Send(*message);
 
       delete message;
       return 1;
    }
-   else if (strncmp(str, "Command", 7) == 0) {
+   else if (strncmp(str, "ExecuteMethod", 13) == 0) {
       char objName[100];
       char method[100];
       char type[100];
       char arg[100];
-      fSocket->Recv(objName, sizeof(objName));
-      fSocket->Recv(type, sizeof(type));
-      fSocket->Recv(method, sizeof(method));
-      fSocket->Recv(arg, sizeof(arg));
+      socket->Recv(objName, sizeof(objName));
+      socket->Recv(type, sizeof(type));
+      socket->Recv(method, sizeof(method));
+      socket->Recv(arg, sizeof(arg));
 
       TString str = "temporarySocketObject = gROOT->FindObjectAny(\"";
       str += objName;
       str += "\");";
-      writeLineToProcess(str.Data());
+      fApplication->ProcessLine(str.Data());
       str = "((";
       str += type;
       str += ")temporarySocketObject)->";
@@ -197,9 +207,15 @@ int ResponseFunction(TSocket *fSocket) {
       str += "(";
       str += arg;
       str += ");";
-      writeLineToProcess(str.Data());
+      fApplication->ProcessLine(str.Data());
+      return 1;
+   }
+   else if (strncmp(str, "Execute", 7) == 0) {
+      char string[200];
+      socket->Recv(string, sizeof(string));
 
-      delete message;
+      TString str = string;
+      fApplication->ProcessLine(str.Data());
       return 1;
    }
    return 1;
@@ -210,9 +226,9 @@ int ResponseFunction(TSocket *fSocket) {
 
 THREADTYPE Server(void *arg)
 {
-   TSocket *fSocket = (TSocket *) arg;
+   TSocket *socket = (TSocket *) arg;
 
-   while (ResponseFunction(fSocket))
+   while (ResponseFunction(socket))
    {}
    return THREADRETURN;
 }
@@ -225,7 +241,7 @@ THREADTYPE ServerLoop(void *arg)
 // each connection.
    int port = *(int*)arg;
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
-   writeLineToProcess("TObject* temporarySocketObject;");
+   fApplication->ProcessLine("TObject* temporarySocketObject;");
 
    do {
       TSocket *sock = lsock->Accept();
@@ -243,17 +259,17 @@ THREADTYPE ServerLoop(void *arg)
 }
 
 
-void TNetFolderServer::StartServer(int port) 
+void TNetFolderServer::StartServer(TApplication *app,int port) 
 {
-   int pport;
-   pport = port;
-// start fSocket server loop
+// start Socket server loop
+   fApplication = app;
+   fPort = port;
 #if defined( R__UNIX )
-   TThread *thread = new TThread("server_loop", ServerLoop, &pport);
+   TThread *thread = new TThread("server_loop", ServerLoop, &fPort);
    thread->Run();
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
    LPDWORD lpThreadId=0;
-   CloseHandle(CreateThread(NULL,1024,&ServerLoop,&pport,0,lpThreadId));
+   CloseHandle(CreateThread(NULL,1024,&ServerLoop,&fPort,0,lpThreadId));
 #endif
 }

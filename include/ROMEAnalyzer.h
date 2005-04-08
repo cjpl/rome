@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.42  2005/04/08 17:07:59  schneebeli_m
+  TNetFolderServer changes
+
   Revision 1.41  2005/04/07 08:27:36  schneebeli_m
   config bug, db bug
 
@@ -182,9 +185,6 @@ protected:
 
    // Configuration
    ROMEConfig   *fConfiguration;                   //! Configuration Handle
-
-public:
-   static const char* LineToProcess;
 
 public:
    ROMEAnalyzer() {};

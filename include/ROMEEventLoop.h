@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2005/04/08 17:08:07  schneebeli_m
+  TNetFolderServer changes
+
   Revision 1.14  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -106,7 +109,6 @@ protected:
    bool Initialize();
    bool Connect(Int_t runNumber);
    bool ReadEvent(Int_t event);
-   void CheckLineToProcess();
    bool UserInput();
    bool WriteEvent();
    bool Update();
