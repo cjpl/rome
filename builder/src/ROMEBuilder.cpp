@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.128  2005/04/08 15:05:00  schneebeli_m
+  .
+
   Revision 1.127  2005/04/08 14:55:45  schneebeli_m
   Added TNetFolderServer class
 
@@ -7771,7 +7774,6 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
-   romeb->noLink = false;
    romeb->startBuilder(xmlFile.Data());
 
    return 0;
