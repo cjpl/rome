@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.22  2005/04/12 17:50:58  sawada
+  changes for mxml
+
   Revision 1.21  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -336,7 +339,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
             if (valueArray[i][j]=="1") {
                buffer.AppendFormatted("   %s %s_%s;\n",valueType[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
                buffer.AppendFormatted("   size = sizeof(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data());
-               buffer.AppendFormatted("   db_get_value(fMidasOnlineDataBase, 0, %s, &%s_%s, &size, %s, FALSE);\n",valueDataBasePath[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),tid.Data());
+               buffer.AppendFormatted("   db_get_value(fMidasOnlineDataBase, 0, \"%s\", &%s_%s, &size, %s, FALSE);\n",valueDataBasePath[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),tid.Data());
                buffer.AppendFormatted("   f%sFolder->Set%s(%s_%s);\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
             }
             else {

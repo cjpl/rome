@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.8  2005/04/12 17:51:04  sawada
+  changes for mxml
+
   Revision 1.7  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -169,6 +172,9 @@ public:
    virtual bool  StartMonitor() = 0 ;   
    virtual bool  ReadSingleDataBaseFolders() = 0;
    virtual bool  ReadArrayDataBaseFolders() = 0;
+
+   bool strtobool(const char* str);
+   bool toBool(int value){ return value!=0; }
    
 protected:      
    bool ReadParameters(int argc, char *argv[]);

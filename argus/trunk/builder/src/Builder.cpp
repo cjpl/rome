@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.33  2005/04/12 17:50:34  sawada
+  changes for mxml
+
   Revision 1.32  2005/04/01 12:31:19  sawada
   sub menu
 
@@ -1365,9 +1368,9 @@ void ArgusBuilder::setValue(ROMEString* buf,char *destination,char *source,char 
       !strcmp(type,"bool") ||
       !strcmp(type,"Bool_t")) {
       if (version==0)
-         buf->AppendFormatted("%s = toBool(strtol(%s,&cstop,10))",destination,source);
+         buf->AppendFormatted("%s = gMonitor->strtobool(%s)",destination,source);
       else
-         buf->AppendFormatted("toBool(strtol(%s,&cstop,10))",source);
+         buf->AppendFormatted("gMonitor->strtobool(%s)",source);
    }
    else if (
       !strcmp(type,"char") ||

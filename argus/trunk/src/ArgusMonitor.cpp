@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.14  2005/04/12 17:51:05  sawada
+  changes for mxml
+
   Revision 1.13  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -243,4 +246,14 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
       gArgus->SetOnlineExperiment(exp_name);
    
    return true;
+}
+
+bool ArgusMonitor::strtobool(const char* str) 
+{
+   char *cstop;
+   if (!strcmp(str,"true"))
+      return true;
+   if (!strcmp(str,"false"))
+      return false;
+   return strtol(str,&cstop,10)!=0;
 }

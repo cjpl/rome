@@ -52,7 +52,7 @@
 					<FieldName>comment</FieldName>
 					<FieldType>TString</FieldType>
 					<FieldComment>Run number</FieldComment>
-					<FieldInitialization>""</FieldInitialization>
+<!--					<FieldInitialization>""</FieldInitialization>-->
 					<DataBasePath>"/RunCatalog(id=%d)/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
 				</Field>
 			</Folder>

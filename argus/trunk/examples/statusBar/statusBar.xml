@@ -21,7 +21,7 @@
 				<SteeringParameterField>
 					<SPFieldName>text</SPFieldName>
 					<SPFieldType>TString</SPFieldType>
-					<SPFieldInitialization>&quot;&quot;</SPFieldInitialization>
+<!--					<SPFieldInitialization>&quot;&quot;</SPFieldInitialization>-->
 					<SPFieldComment>text in status bar.</SPFieldComment>
 				</SteeringParameterField>
 			</SteeringParameters>

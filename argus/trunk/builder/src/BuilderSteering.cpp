@@ -3,6 +3,9 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.5  2005/04/12 17:50:59  sawada
+  changes for mxml
+
   Revision 1.4  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -323,7 +326,7 @@ bool ArgusBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int n
    // Fields
    for (k=0;k<numOfSteerFields[numTab][numSteer];k++) {
       buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTab][numSteer][k].Data());
-      buffer.AppendFormatted("   xml->GetPathValue(%s/child::SteeringParameterField[child::SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTab][numSteer][k].Data(),pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
+      buffer.AppendFormatted("   xml->GetPathValue(%s/SteeringParameterField[SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTab][numSteer][k].Data(),pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
       buffer.AppendFormatted("   if (%s->f%s==\"\")\n",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
       buffer.AppendFormatted("      %s->f%sModified = false;\n",pointer.Data(),steerFieldName[numTab][numSteer][k].Data());
       buffer.AppendFormatted("   else {\n");
@@ -338,7 +341,7 @@ bool ArgusBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int n
       pathT = path;
       pointerT = pointer;
       classPathT = classPath;
-      path.AppendFormatted("/child::SteeringParameterGroup[child::SPGroupName='%s']",steerName[numTab][steerChildren[numTab][numSteer][k]].Data());
+      path.AppendFormatted("/SteeringParameterGroup[SPGroupName='%s']",steerName[numTab][steerChildren[numTab][numSteer][k]].Data());
       pointer.AppendFormatted("->f%s",steerName[numTab][steerChildren[numTab][numSteer][k]].Data());
       classPath.AppendFormatted("::%s",steerName[numTab][steerChildren[numTab][numSteer][k]].Data());
       WriteSteeringConfigRead(buffer,steerChildren[numTab][numSteer][k],numTab,xml,path,pointer,classPath);
