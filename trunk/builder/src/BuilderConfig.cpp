@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.11  2005/04/12 17:50:58  sawada
+  changes for mxml
+
   Revision 1.10  2005/03/28 10:54:37  sawada
   removed tab hierarchy.
   made ReadXMLMenu.
@@ -107,7 +110,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
    buffer.AppendFormatted("   delete fConfigData;\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData;\n");
-   buffer.AppendFormatted("   ROMEString path = \"//Configuration/MainConfiguration\";\n");
+   buffer.AppendFormatted("   ROMEString path = \"/Configuration/MainConfiguration\";\n");
    buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
    buffer.AppendFormatted("   if (!SetConfiguration())\n");
    buffer.AppendFormatted("      return false;\n");
@@ -217,7 +220,7 @@ bool ArgusBuilder::WriteConfigCpp() {
       classname.Resize(0);
       while (index!=-1) {
          pointer.InsertFormatted(0,"->f%sTab",tabName[index].Data());
-         path.InsertFormatted(0,"/child::Tab[child::TabName='%s']",tabName[index].Data());
+         path.InsertFormatted(0,"/Tab[TabName='%s']",tabName[index].Data());
          classname.InsertFormatted(0,"::%sTab",tabName[index].Data());
          index = tabParentIndex[index];
       }
@@ -276,6 +279,8 @@ bool ArgusBuilder::WriteConfigCpp() {
    // Set Configuration
    buffer.AppendFormatted("\n// Set Configuration\n");
    buffer.AppendFormatted("bool %sConfig::SetConfiguration() {\n",shortCut.Data());
+   bool need_cstop = true;
+/*
    bool need_cstop = false;
    for (i=0;i<numOfTab;i++) {
       for (j=0;j<numOfSteering[i];j++) {
@@ -285,6 +290,7 @@ bool ArgusBuilder::WriteConfigCpp() {
          }
       }
    }
+*/
    if(need_cstop)
       buffer.AppendFormatted("   char *cstop;\n");
    // Window
@@ -306,7 +312,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#ifdef HAVE_SQL\n");
    buffer.AppendFormatted("         delete gMonitor->GetDataBase();\n");
    buffer.AppendFormatted("         gMonitor->SetDataBase(new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("         if (!gMonitor->GetDataBase()->Init(\"\",gMonitor->GetDataBaseConnection()))\n");
+   buffer.AppendFormatted("         if (!gMonitor->GetDataBase()->Init(\"\",\"\",gMonitor->GetDataBaseConnection()))\n");
    buffer.AppendFormatted("            return false;\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("      }\n");
@@ -323,7 +329,7 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')\n");
    buffer.AppendFormatted("            path += \"/\";\n");
    buffer.AppendFormatted("         gMonitor->SetDataBaseDir((char*)path.Data());\n");
-   buffer.AppendFormatted("         if (!gMonitor->GetDataBase()->Init(gMonitor->GetDataBaseDir(),((TString)str(index+1,str.Length()-index-1)).Data()))\n");
+   buffer.AppendFormatted("         if (!gMonitor->GetDataBase()->Init(\"\",gMonitor->GetDataBaseDir(),((TString)str(index+1,str.Length()-index-1)).Data()))\n");
    buffer.AppendFormatted("            return false;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
