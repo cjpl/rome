@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.63  2005/04/14 07:56:46  schneebeli_m
+//  Implemented odb database (offline)
+//
 //  Revision 1.62  2005/04/08 17:08:08  schneebeli_m
 //  TNetFolderServer changes
 //
@@ -787,6 +790,16 @@ long ROMEAnalyzer::ss_millitime()
 
    return (int) GetTickCount();
 
+#endif
+}
+int ROMEAnalyzer::stricmp(const char* c1,const char* c2)
+{
+#if defined( R__UNIX )
+   return strcasecmp(c1,c2);
+#elif defined( R__VISUAL_CPLUSPLUS )
+   return _stricmp(c1,c2);
+#else
+   return 0;
 #endif
 }
 

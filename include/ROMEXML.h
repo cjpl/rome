@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2005/04/14 07:56:46  schneebeli_m
+  Implemented odb database (offline)
+
   Revision 1.14  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -60,6 +63,10 @@ public:
    ROMEXML();
    ~ROMEXML();
 
+   bool  isReaderOpen() { return rootNode!=NULL; };
+   bool  isWriterOpen() { return writer!=NULL; };
+   bool  isPathOpen() { return rootNode!=NULL; };
+
    // read
    bool  OpenFileForRead(const char* file);
    bool  NextLine();
@@ -85,6 +92,7 @@ public:
    bool  WriteComment(const char* text);
    // path
    bool  OpenFileForPath(const char* file);
+   bool  OpenBufferForPath(char* buffer);
    bool  ExistPath(const char* path);
    int   NumberOfOccurrenceOfPath(const char* path);
    bool  GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue);

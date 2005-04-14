@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2005/04/14 07:56:46  schneebeli_m
+  Implemented odb database (offline)
+
   Revision 1.7  2005/03/17 15:44:51  schneebeli_m
   GetAbsolutePath error removed
 
@@ -50,6 +53,7 @@ protected:
    TArrayI          fOrderIndex;             // Array indexes of the Order Field Array
    bool             fOrderArray;             // Flags Order Field Arrays
    ROMEString       fFieldName;              // Name of the Field
+   ROMEString       fFieldConstraints;       // Constraints on the Field
    TArrayI          fFieldIndex;             // Array indexes of the Field Array
    bool             fFieldArray;             // Flags Field Arrays
 
@@ -78,6 +82,7 @@ public:
    int         GetOrderIndexAt(int i)  { return fOrderIndex[i]; };
    bool        IsOrderArray() { return fOrderArray; };
    const char* GetFieldName() { return fFieldName.Data(); };
+   const char* GetFieldConstraints() { return fFieldConstraints.Data(); };
    int         GetFieldIndexAt(int i)  { return fFieldIndex[i]; };
    bool        IsFieldArray() { return fFieldArray; };
 
@@ -112,6 +117,8 @@ protected:
 
    void  SetFieldName(const char* name) { fFieldName = name; };
    void  SetFieldName(TString& name) { fFieldName = name; };
+   void  SetFieldConstraints(const char* constraints) { fFieldConstraints = constraints; };
+   void  SetFieldConstraints(TString& constraints) { fFieldConstraints = constraints; };
    void  SetFieldIndexAt(int i,int index) { fFieldIndex.AddAt(index,i); };
    void  SetFieldArray(bool flag) { fFieldArray = flag; };
 

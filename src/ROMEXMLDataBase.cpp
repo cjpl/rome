@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.19  2005/04/14 07:56:46  schneebeli_m
+//  Implemented odb database (offline)
+//
 //  Revision 1.18  2005/04/07 08:27:36  schneebeli_m
 //  config bug, db bug
 //
@@ -177,11 +180,11 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
          ROMEString dbPath = dataBasePath;
 
          // build new path
-         if ((istart=dbPath.Index("(@",2,0,TString::kExact))==-1) {
+         if ((istart=dbPath.Index("[@",2,0,TString::kExact))==-1) {
             cout << "\nData base constraint statment not found : " << dataBasePath << endl;
             return 0;
          }
-         if ((iend=dbPath.Index(")",1,istart,TString::kExact))==-1) {
+         if ((iend=dbPath.Index("]",1,istart,TString::kExact))==-1) {
             cout << "\nData base constraint statment not closed : " << dataBasePath << endl;
             return 0;
          }

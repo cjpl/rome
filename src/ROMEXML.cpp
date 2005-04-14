@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.21  2005/04/14 07:56:46  schneebeli_m
+//  Implemented odb database (offline)
+//
 //  Revision 1.20  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -75,9 +78,9 @@ ROMEXML::ROMEXML() {
 }
 ROMEXML::~ROMEXML() {
    if (rootNode!=NULL) {
-      mxml_free_tree(rootNode); 
+      mxml_free_tree(rootNode);
+      rootNode = NULL;
    }
-
 }
 
 // read
@@ -213,6 +216,20 @@ bool ROMEXML::WriteComment(const char* text) {
 bool ROMEXML::OpenFileForPath(const char* file) {
    char error[240];
    rootNode = mxml_parse_file((char*)file, error, sizeof(error));
+   if (rootNode == NULL) {
+      cout << error << endl;
+      return false;
+   }
+   return true;
+}
+
+bool ROMEXML::OpenBufferForPath(char* buffer) {
+   if (rootNode!=NULL) {
+      mxml_free_tree(rootNode);
+      rootNode = NULL;
+   }
+   char error[240];
+   rootNode = mxml_parse_buffer(buffer, error, sizeof(error));
    if (rootNode == NULL) {
       cout << error << endl;
       return false;

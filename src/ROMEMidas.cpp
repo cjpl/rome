@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.9  2005/04/14 07:56:46  schneebeli_m
+//  Implemented odb database (offline)
+//
 //  Revision 1.8  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -277,7 +280,6 @@ bool ROMEMidas::ReadEvent(int event) {
 
       // read event
       int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-      
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
 #ifndef R__BYTESWAP
@@ -300,6 +302,12 @@ bool ROMEMidas::ReadEvent(int event) {
       if (readError) {
          if (n > 0) gROME->Println("Unexpected end of file");
          this->SetEndOfRun();
+         return true;
+      }
+      // Get Handle to ODB header
+      if (pevent->event_id == EVENTID_BOR) {
+         ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
+         this->SetContinue();
          return true;
       }
       if (pevent->event_id < 0) {

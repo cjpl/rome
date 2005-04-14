@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/04/14 07:56:46  schneebeli_m
+  Implemented odb database (offline)
+
   Revision 1.5  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -27,6 +30,7 @@
 #include <RConfig.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
+#include <ROMEODBOfflineDataBase.h>
 
 #ifdef HAVE_MIDAS
 #include <midas.h>
@@ -88,10 +92,12 @@ protected:
    int        fEventRequestMask[5];             //! Trigger Masks of Event Requests
    int        fEventRequestRate[5];             //! Sampling Rates of Event Requests
 
-   int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base
+   int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base (Online)
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
    int        fMidasFileHandle;                 //! Handle to Midas Inputfile
    bool       fStopRequest;                     //! True if a Stop transition message was received
+
+   EVENT_HEADER *fOdbOffline;                    //! Handle to the Midas Online Data Base (Offline)
 
    int        fTimeStamp;                       //! Current time stamp
 

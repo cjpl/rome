@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.12  2005/04/14 07:56:46  schneebeli_m
+//  Implemented odb database (offline)
+//
 //  Revision 1.11  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -165,8 +168,8 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
       path = path(index+1,path.Length());
       abspathposition += index+1;
       // brackets
-      i1=subPath.Index("(",1,0,TString::kExact);
-      i2=subPath.Index("[",1,0,TString::kExact);
+      i1=subPath.Index("[",1,0,TString::kExact);
+      i2=subPath.Index("(",1,0,TString::kExact);
       i3=subPath.Index("{",1,0,TString::kExact);
       index = this->MinPosition(i1,i2,i3);
       if (index==-1) {
@@ -182,26 +185,26 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
          this->SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
          this->SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
       }
-      // handle '('
+      // handle '[' (Constraints)
       if (i1!=-1) {
          if ((iat1=subPath.Index("@",1,i1,TString::kExact))!=-1) {
-            if ((iat2=subPath.Index(")",1,iat1,TString::kExact))==-1) {
+            if ((iat2=subPath.Index("]",1,iat1,TString::kExact))==-1) {
                cout << "\nData base constraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
                return false;
             }
             this->SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
          }
          else {
-            if ((index=subPath.Index(")",1,i1,TString::kExact))==-1) {
+            if ((index=subPath.Index("]",1,i1,TString::kExact))==-1) {
                cout << "\nConstraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
                return false;
             }
             this->SetTableConstraintAt(nTable,((TString)subPath(i1+1,index-i1-1)).Data());
          }
       }
-      // handle '['
+      // handle '('  (Arrays)
       if (i2!=-1) {
-         if ((index=subPath.Index("]",1,i2,TString::kExact))==-1) {
+         if ((index=subPath.Index(")",1,i2,TString::kExact))==-1) {
             cout << "\nArray statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
             return false;
          }
@@ -215,8 +218,12 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
             value = strtol(temp.Data(),&cstop,10);
             if (cstop==NULL)
                return true;
+            if (*cstop!=',' && *cstop!=')') {
+               cout << "\nError in array statement." << endl;
+               return false;
+            }
             this->SetOrderIndexAt(i,value);
-            if (*cstop==']')
+            if (*cstop==')')
                break;
             temp = temp((int)(cstop+1-temp.Data()),temp.Length());
          }
@@ -264,34 +271,54 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
    }
 
    // extract field
-   index=path.Index("[",1,0,TString::kExact);
    this->SetFieldIndexAt(0,0);
    this->SetFieldIndexAt(1,-1);
    this->SetFieldIndexAt(2,1);
+   i1=path.Index("[",1,0,TString::kExact);
+   i2=path.Index("(",1,0,TString::kExact);
+   index = this->MinPosition(i1,i2);
    if (index==-1) {
       this->SetFieldName(path);
       this->SetFieldArray(false);
       return true;
    }
    else {
-      this->SetFieldName(((TString)path(0,index)).Data());
-      this->SetFieldArray(true);
-   }
-   path = path(index+1,path.Length());
-   abspathposition += index+1;
-
-   for (int i=0;i<3;i++) {
-      value = strtol(path.Data(),&cstop,10);
-      if (cstop==NULL)
-         return true;
-      if (*cstop!=',' && *cstop!=']') {
-         cout << "\nError in array statement." << endl;
+      if (index==0) {
+         cout << "\nNo field name specified." << endl;
          return false;
       }
-      this->SetFieldIndexAt(i,value);
-      if (*cstop==']')
-         return true;
-      path = path((int)(cstop+1-path.Data()),path.Length());
+      this->SetFieldName(((TString)path(0,index)).Data());
+   }
+   // handle '[' (Constraints)
+   if (i1!=-1) {
+      if ((index=path.Index("]",1,i1,TString::kExact))==-1) {
+         cout << "\nConstraint statement not closed in field '" << this->GetFieldName() << "'." << endl;
+         return false;
+      }
+      this->SetFieldConstraints(((TString)path(i1+1,index-i1-1)).Data());
+   }
+
+   // handle '('  (Arrays)
+   if (i2!=-1) {
+      if ((index=path.Index(")",1,i2,TString::kExact))==-1) {
+         cout << "\nArray statement not closed in field '" << this->GetFieldName() << "'." << endl;
+         return false;
+      }
+      this->SetFieldArray(true);
+      path = path(i2+1,index-i2);
+      for (int i=0;i<3;i++) {
+         value = strtol(path.Data(),&cstop,10);
+         if (cstop==NULL)
+            return true;
+         if (*cstop!=',' && *cstop!=')') {
+            cout << "\nError in array statement." << endl;
+            return false;
+         }
+         this->SetFieldIndexAt(i,value);
+         if (*cstop==')')
+            return true;
+         path = path((int)(cstop+1-path.Data()),path.Length());
+      }
    }
    return true;
 }
@@ -318,6 +345,7 @@ void ROMEPath::Print() {
    }
    cout << "\nField : " << endl;
    cout << "   Name : " << this->GetFieldName() << endl;
+   cout << "      Constraint     : " << this->GetFieldConstraints() << endl;
    if (this->IsFieldArray()) {
       cout << "\n   Array : " << endl;
       cout << "      start : " << this->GetFieldIndexAt(0) << endl;

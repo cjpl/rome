@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.43  2005/04/14 07:56:46  schneebeli_m
+  Implemented odb database (offline)
+
   Revision 1.42  2005/04/08 17:07:59  schneebeli_m
   TNetFolderServer changes
 
@@ -209,6 +212,15 @@ public:
    const char*   GetDataBaseConnection(int i) { return fDataBaseConnection[i].Data(); };
    void          SetDataBaseConnection(int i,const char* connection) { fDataBaseConnection[i] = connection; };
    ROMEDataBase* GetDataBase(int i) { return fDataBaseHandle[i]; };
+   ROMEDataBase* GetDataBase(const char *name) { 
+      for (int i=0;i<fNumberOfDataBases;i++) 
+         if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+            return fDataBaseHandle[i];
+      ROMEString str;
+      str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
+      this->Println(str.Data());
+      _exit(0);
+   };
    void          SetDataBase(int i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; };
    int           GetNumberOfDataBases() { return fNumberOfDataBases; };
    void          InitDataBases(int number) { fDataBaseHandle = new ROMEDataBase*[number]; 
@@ -357,6 +369,7 @@ public:
    long ss_millitime();
    bool strtobool(const char* str);
 
+   int  stricmp(const char*,const char*);
    bool toBool(int value);
 protected:
 

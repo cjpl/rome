@@ -59,7 +59,7 @@
 					<xs:documentation>The name of the data base connection.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Type" type="DataBaseType" default="none">
+			<xs:element name="Type" type="xs:string" default="none">
 				<xs:annotation>
 					<xs:documentation>The type of the data base.</xs:documentation>
 				</xs:annotation>

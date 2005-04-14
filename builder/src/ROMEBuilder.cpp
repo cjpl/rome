@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.129  2005/04/14 07:56:45  schneebeli_m
+  Implemented odb database (offline)
+
   Revision 1.128  2005/04/08 15:05:00  schneebeli_m
   .
 
@@ -3074,7 +3077,7 @@ bool ROMEBuilder::WriteSteering(int iTask) {
    return true;
 }
 bool ROMEBuilder::WriteAnalyzerCpp() {
-   int i,j,k;
+   int i,j;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -3295,7 +3298,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
 
    buffer.AppendFormatted("}\n\n");
 
-
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
 
@@ -3314,7 +3316,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
-   // WriteDataBaseFolders
+/*   // WriteDataBaseFolders
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
          buffer.AppendFormatted("void %sAnalyzer::Write%sDataBase() {\n",shortCut.Data(),folderName[i].Data());
@@ -3366,7 +3368,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          buffer.AppendFormatted("}\n");
       }
    }
-
+*/
 
    // Get Object Interpreter Code
    int codeNumber = 0;
@@ -3555,6 +3557,11 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (taskLen<(int)taskHierarchyName[i].Length()) taskLen = taskHierarchyName[i].Length();
    }
+   // max tree name length
+   int treeLen=0;
+   for (i=0;i<numOfTree;i++) {
+      if (treeLen<(int)treeName[i].Length()) treeLen = treeName[i].Length();
+   }
 
    // max task switch name length
    int switchLen = -1;
@@ -3739,6 +3746,26 @@ bool ROMEBuilder::WriteAnalyzerH() {
    }
    buffer.AppendFormatted("\n");
 
+   // Tree Getters
+   buffer.AppendFormatted("   // Trees\n");
+   for (i=0;i<numOfTree;i++) {
+      format.SetFormatted("   TTree* Get%%sTree()%%%ds { return ((ROMETree*)fTreeObjects->At(%%d))->GetTree(); };\n",treeLen-treeName[i].Length());
+      buffer.AppendFormatted(format.Data(),treeName[i].Data(),"",i);
+   }
+   buffer.AppendFormatted("\n");
+
+   // Database Getters
+   buffer.AppendFormatted("   // Database\n");
+   buffer.AppendFormatted("   ROMEDataBase* GetXMLDataBase() { return GetDataBase(\"XML\"); };\n");
+   buffer.AppendFormatted("   ROMEDataBase* GetODBDataBase() { return GetDataBase(\"ODB\"); };\n");
+   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
+   buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
+   buffer.AppendFormatted("#endif\n");
+   for (i=0;i<numOfDB;i++) {
+      buffer.AppendFormatted("   ROMEDataBase* Get%sDataBase() { return GetDataBase(\"%s\"); };\n",dbName[i].Data(),dbName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
    // Database Folder Field Getters
    buffer.AppendFormatted("   // Database Folder Field Getters\n");
    for (i=0;i<numOfFolder;i++) {
@@ -3794,13 +3821,13 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   bool ReadArrayDataBaseFolders();\n");
    buffer.AppendFormatted("\n");
 
-   for (i=0;i<numOfFolder;i++) {
+/*   for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
          buffer.AppendFormatted("   void Write%sDataBase();\n",folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
-
+*/
    // Object Interpreter
    buffer.AppendFormatted("   // Object Interpreter\n");
    buffer.AppendFormatted("   int         GetObjectInterpreterCode(const char* objectPath);\n");
@@ -4042,11 +4069,13 @@ bool ROMEBuilder::WriteConfigCpp() {
    configDep.AppendFormatted(" $(ROMESYS)/include/ROMEString.h");
 
    buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
+   buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
+   buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
    buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
    buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#endif\n");
    for (i=0;i<numOfDB;i++)
-      buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted("#include <include/framework/%s%sDataBase.h>\n",shortCut.Data(),dbName[i].Data());
    configDep.AppendFormatted(" $(DataBaseIncludes)");
 
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
@@ -4710,9 +4739,17 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
    buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"odb\") {\n");
+   buffer.AppendFormatted("               if (gAnalyzer->isOffline())\n");
+   buffer.AppendFormatted("                  gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());\n");
+   buffer.AppendFormatted("               else\n");
+   buffer.AppendFormatted("                  gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());\n");
+   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
+   buffer.AppendFormatted("                  return false;\n");
+   buffer.AppendFormatted("            }\n");
    for (i=0;i<numOfDB;i++) {
       buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"%s\") {\n",dbName[i].Data());
-      buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new %s%s());\n",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
       buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
       buffer.AppendFormatted("                  return false;\n");
       buffer.AppendFormatted("            }\n");
@@ -6449,36 +6486,36 @@ bool ROMEBuilder::WriteDBCpp() {
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iDB=0;iDB<numOfDB;iDB++) {
       // File name
-      cppFile.SetFormatted("%s/src/framework/%s%s.cpp",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
+      cppFile.SetFormatted("%s/src/framework/%s%sDataBase.cpp",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
 
       if( stat( cppFile.Data(), &buf )) {
 
          buffer.Resize(0);
 
-         buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("#include <include/framework/%s%sDataBase.h>\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("\n");
 
-         buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("%s%sDataBase::%s%sDataBase()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("%s%s::~%s%s()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("%s%sDataBase::~%s%sDataBase()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
 
-         buffer.AppendFormatted("bool %s%s::Init(const char* name,const char* path,const char* connection)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Init(const char* name,const char* path,const char* connection)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
@@ -6505,7 +6542,7 @@ bool ROMEBuilder::WriteDBH() {
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iDB=0;iDB<numOfDB;iDB++) {
       // File name
-      hFile.SetFormatted("%s/include/framework/%s%s.h",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
+      hFile.SetFormatted("%s/include/framework/%s%sDataBase.h",outDir.Data(),shortCut.Data(),dbName[iDB].Data());
 
       if( stat( hFile.Data(), &buf )) {
 
@@ -6513,21 +6550,21 @@ bool ROMEBuilder::WriteDBH() {
          buffer.Resize(0);
 
          // Header
-         buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),dbName[iDB].Data());
-         buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("#ifndef %s%sDataBase_H\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("#define %s%sDataBase_H\n\n",shortCut.Data(),dbName[iDB].Data());
 
          buffer.AppendFormatted("#include <ROMEDataBase.h>\n");
 
          // Class
-         buffer.AppendFormatted("\nclass %s%s : public ROMEDataBase\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("\nclass %s%sDataBase : public ROMEDataBase\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
 
          buffer.AppendFormatted("protected:\n");
          // Methods
          buffer.AppendFormatted("public:\n");
          // Constructor and Methods
-         buffer.AppendFormatted("   %s%s();\n",shortCut.Data(),dbName[iDB].Data());
-         buffer.AppendFormatted("   ~%s%s();\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("   %s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("   ~%s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
 
          // Methods
          buffer.AppendFormatted("\n");
@@ -6540,7 +6577,7 @@ bool ROMEBuilder::WriteDBH() {
          buffer.AppendFormatted("};\n\n");
 
 
-         buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("#endif   // %s%sDataBase_H\n",shortCut.Data(),dbName[iDB].Data());
 
          // Write File
          fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
@@ -6970,8 +7007,12 @@ bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
          buffer.AppendFormatted("%s               xml->WriteElement(\"HistFolderTitle\",fConfigData[index]%s->f%sHisto->fFolderTitle.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fArraySizeModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s               xml->WriteElement(\"HistArraySize\",fConfigData[index]%s->f%sHisto->fArraySize.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fArrayStartIndexModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistArrayStartIndex\",fConfigData[index]%s->f%sHisto->fArrayStartIndex.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fArrayStartIndexModified) {\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("%s               if (fConfigData[index]%s->f%sHisto->fArrayStartIndex==\"\")\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("%s                  xml->WriteElement(\"HistArrayStartIndex\",\"0\");\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("%s               else\n",blank.Data());
+         buffer.AppendFormatted("%s                  xml->WriteElement(\"HistArrayStartIndex\",fConfigData[index]%s->f%sHisto->fArrayStartIndex.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("%s            }\n",blank.Data());
          buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fXLabelModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s               xml->WriteElement(\"HistXLabel\",fConfigData[index]%s->f%sHisto->fXLabel.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYLabelModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -6984,18 +7025,22 @@ bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
          buffer.AppendFormatted("%s               xml->WriteElement(\"HistXmin\",fConfigData[index]%s->f%sHisto->fXmin.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fXmaxModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s               xml->WriteElement(\"HistXmax\",fConfigData[index]%s->f%sHisto->fXmax.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYNbinsModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistYNbins\",fConfigData[index]%s->f%sHisto->fYNbins.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYminModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistYmin\",fConfigData[index]%s->f%sHisto->fYmin.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYmaxModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistYmax\",fConfigData[index]%s->f%sHisto->fYmax.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZNbinsModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistZNbins\",fConfigData[index]%s->f%sHisto->fZNbins.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZminModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistZmin\",fConfigData[index]%s->f%sHisto->fZmin.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZmaxModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"HistZmax\",fConfigData[index]%s->f%sHisto->fZmax.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         if (histoType[taskHierarchyClassIndex[i]][j].Index("TH2")==0 || histoType[taskHierarchyClassIndex[i]][j].Index("TH3")==0) {
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYNbinsModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistYNbins\",fConfigData[index]%s->f%sHisto->fYNbins.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYminModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistYmin\",fConfigData[index]%s->f%sHisto->fYmin.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fYmaxModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistYmax\",fConfigData[index]%s->f%sHisto->fYmax.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         }
+         if (histoType[taskHierarchyClassIndex[i]][j].Index("TH3")==0) {
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZNbinsModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistZNbins\",fConfigData[index]%s->f%sHisto->fZNbins.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZminModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistZmin\",fConfigData[index]%s->f%sHisto->fZmin.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s            if (index==0 || fConfigData[index]%s->f%sHisto->fZmaxModified)\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("%s               xml->WriteElement(\"HistZmax\",fConfigData[index]%s->f%sHisto->fZmax.Data());\n",blank.Data(),pointerI.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         }
          buffer.AppendFormatted("%s            if (index==0) {\n",blank.Data());
          buffer.AppendFormatted("%s               if (((%sT%s*)gAnalyzer->Get%s%03dTask())->is%sAccumulation())\n",blank.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("%s                  xml->WriteElement(\"HistAccumulate\",\"true\");\n",blank.Data());
@@ -8078,6 +8123,7 @@ void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer;
+   ROMEString tmp;
    ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatRANY;
    int i;
    bool haveFortranTask = false;
@@ -8260,17 +8306,21 @@ void ROMEBuilder::WriteMakefile() {
 // data base
    buffer.AppendFormatted("DataBaseIncludes %s",EqualSign());
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEXMLDataBase.h");
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    if (this->sql)
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
    for (i=0;i<numOfDB;i++)
-      buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted(" include/framework/%s%sDataBase.h",shortCut.Data(),dbName[i].Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DataBaseObjects %s",EqualSign());
    buffer.AppendFormatted(" obj/ROMEXMLDataBase.obj");
+   buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
+   buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
    for (i=0;i<numOfDB;i++)
-      buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted(" obj/%s%sDataBase.obj",shortCut.Data(),dbName[i].Data());
    buffer.AppendFormatted("\n");
 
 // user classes
@@ -8294,7 +8344,7 @@ void ROMEBuilder::WriteMakefile() {
 // database dependences
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfDB;i++) {
-      buffer.AppendFormatted("%s%sDep %s include/framework/%sAnalyzer.h\n",shortCut.Data(),dbName[i].Data(),EqualSign(),shortCut.Data());
+      buffer.AppendFormatted("%s%sDataBaseDep %s include/framework/%sAnalyzer.h\n",shortCut.Data(),dbName[i].Data(),EqualSign(),shortCut.Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -8395,8 +8445,9 @@ void ROMEBuilder::WriteMakefile() {
    }
    // Databases
    for (i=0;i<numOfDB;i++) {
-      buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(%s%sDep)\n",shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data());
-      buffer.AppendFormatted(compileFormatFrame.Data(),dbName[i].Data(),dbName[i].Data());
+      tmp = dbName[i]+"DataBase";
+      buffer.AppendFormatted("obj/%s%sDataBase.obj: src/framework/%s%sDataBase.cpp include/framework/%s%sDataBase.h $(%s%sDataBaseDep)\n",shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data(),shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted(compileFormatFrame.Data(),tmp.Data(),tmp.Data());
    }
    // Fortran Analyzer
    if (haveFortranTask) {
@@ -8440,10 +8491,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatROME.Data(),"Task","Task");
    buffer.AppendFormatted("obj/ROMESplashScreen.obj: $(ROMESYS)/src/ROMESplashScreen.cpp $(ROMESYS)/include/ROMEString.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"SplashScreen","SplashScreen");
-   buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h\n");
-   buffer.AppendFormatted(compileFormatROME.Data(),"Midas","Midas");
-   buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h\n");
-   buffer.AppendFormatted(compileFormatROME.Data(),"Root","Root");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"String","String");
    buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h\n");
@@ -8460,6 +8507,14 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatRANY.Data(),"TNetFolderServer.cpp","TNetFolderServer");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"Root","Root");
+   buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"Midas","Midas");
+   buffer.AppendFormatted("obj/ROMEODBOfflineDataBase.obj: $(ROMESYS)/src/ROMEODBOfflineDataBase.cpp $(ROMESYS)/include/ROMEODBOfflineDataBase.h\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"ODBOfflineDataBase","ODBOfflineDataBase");
+   buffer.AppendFormatted("obj/ROMEODBOnlineDataBase.obj: $(ROMESYS)/src/ROMEODBOnlineDataBase.cpp $(ROMESYS)/include/ROMEODBOnlineDataBase.h\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"ODBOnlineDataBase","ODBOnlineDataBase");
    if (this->sql) {
       buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp $(ROMESYS)/include/ROMESQLDataBase.h\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"SQLDataBase","SQLDataBase");
