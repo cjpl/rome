@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.134  2005/04/15 15:13:48  schneebeli_m
+  rootcint fix
+
   Revision 1.133  2005/04/15 15:09:50  schneebeli_m
   rootcint fix
 
@@ -8599,7 +8602,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    int i;
 
    buffer.Resize(0);
-   buffer.AppendFormatted("rootcint -f %sDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("rootcint -f %sDict.cpp -c -p ",shortCut.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
