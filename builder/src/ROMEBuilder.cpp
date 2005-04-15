@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.131  2005/04/15 08:10:38  schneebeli_m
+  removed config error
+
   Revision 1.130  2005/04/15 07:33:13  schneebeli_m
   GetActiveDAQ() NULL pointer test
 
@@ -5036,10 +5039,10 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"AnalyzingMode\",fConfigData[index]->fModes->fAnalyzingMode.Data());\n");
    // DAQSystem
    buffer.AppendFormatted("      if (index==0) {\n");
-   buffer.AppendFormatted("         if (gAnalyzer->GetActiveDAQ()==NULL)\n");
-   buffer.AppendFormatted("            xml->WriteElement(\"DAQSystem\",\"none\");\n");
-   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isActiveDAQSet())\n");
    buffer.AppendFormatted("            xml->WriteElement(\"DAQSystem\",gAnalyzer->GetActiveDAQ()->GetName());\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"DAQSystem\",\"none\");\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDAQSystemModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"DAQSystem\",fConfigData[index]->fModes->fDAQSystem.Data());\n");
