@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.10  2005/04/15 14:44:40  schneebeli_m
+//  gzopen implemented
+//
 //  Revision 1.9  2005/04/14 07:56:46  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -198,21 +201,32 @@ bool ROMEMidas::Connect() {
       ROMEString runNumberString;
       gROME->GetCurrentRunNumberString(runNumberString);
       ROMEString filename;
+      ROMEString fileExtension = ".mid";
       filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
 #if defined( R__SEEK64 )
-      fMidasFileHandle = open64(filename.Data(),O_RDONLY_BINARY);
+      fMidasFileHandle64 = open64(filename.Data(),O_RDONLY_BINARY);
+      if (fMidasFileHandle64==-1) {
 #else
-      fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
+      fMidasFileHandle = gzopen(filename.Data(),"rb");
+      if (fMidasFileHandle==NULL) {
 #endif
-      if (fMidasFileHandle==-1) {
-         gROME->Print("Inputfile '");
-         gROME->Print(filename.Data());
-         gROME->Println("' not found.");
-         return false;
+#if defined( R__SEEK64 )
+         if (true) {
+#else
+         fileExtension = ".mid.gz";
+         filename.SetFormatted("%srun%s.mid.gz",gROME->GetInputDir(),runNumberString.Data());
+         fMidasFileHandle = gzopen(filename.Data(),"rb");
+         if (fMidasFileHandle==NULL) {
+#endif
+            gROME->Print("Inputfile '");
+            gROME->Print(filename.Data());
+            gROME->Println("' not found.");
+            return false;
+         }
       }
       gROME->Print("Reading Midas-File run");
       gROME->Print(runNumberString.Data());
-      gROME->Println(".mid");
+      gROME->Println(fileExtension.Data());
    }
    return true;
 }
@@ -279,7 +293,11 @@ bool ROMEMidas::ReadEvent(int event) {
       bool readError = false;
 
       // read event
-      int n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+#if defined( R__SEEK64 )
+      int n = read(fMidasFileHandle64,pevent, sizeof(EVENT_HEADER));
+#else
+      int n = gzread(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+#endif
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
 #ifndef R__BYTESWAP
@@ -293,7 +311,11 @@ bool ROMEMidas::ReadEvent(int event) {
          n = 0;
          if (pevent->data_size <= 0) readError = true;
          else {
-            n = read(fMidasFileHandle, pevent+1, pevent->data_size);
+#if defined( R__SEEK64 )
+            n = read(fMidasFileHandle64,pevent+1,pevent->data_size);
+#else
+            n = gzread(fMidasFileHandle,pevent+1,pevent->data_size);
+#endif
             if (n != (int) pevent->data_size) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
@@ -342,7 +364,11 @@ bool ROMEMidas::ReadEvent(int event) {
 }
 bool ROMEMidas::Disconnect() {
    if (gROME->isOffline()) {
-      close(fMidasFileHandle);
+#if defined( R__SEEK64 )
+      close(fMidasFileHandle64);
+#else
+      gzclose(fMidasFileHandle);
+#endif
    }
    return true;
 }

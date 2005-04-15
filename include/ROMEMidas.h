@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2005/04/15 14:44:40  schneebeli_m
+  gzopen implemented
+
   Revision 1.6  2005/04/14 07:56:46  schneebeli_m
   Implemented odb database (offline)
 
@@ -27,6 +30,7 @@
 #ifndef ROMEMidas_H
 #define ROMEMidas_H
 
+#include <zlib.h>
 #include <RConfig.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
@@ -94,7 +98,8 @@ protected:
 
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base (Online)
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
-   int        fMidasFileHandle;                 //! Handle to Midas Inputfile
+   gzFile     fMidasFileHandle;                 //! Handle to Midas Inputfile
+   int        fMidasFileHandle64;               //! Handle to a large Midas Inputfile
    bool       fStopRequest;                     //! True if a Stop transition message was received
 
    EVENT_HEADER *fOdbOffline;                    //! Handle to the Midas Online Data Base (Offline)
