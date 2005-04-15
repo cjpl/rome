@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.130  2005/04/15 07:33:13  schneebeli_m
+  GetActiveDAQ() NULL pointer test
+
   Revision 1.129  2005/04/14 07:56:45  schneebeli_m
   Implemented odb database (offline)
 
@@ -4950,7 +4953,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   // %s event\n",eventName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sEventModified) {\n",eventName[i].Data());
       // Active
-      buffer.AppendFormatted("      if (fConfigData[modIndex]->f%sEvent->fActiveModified && gAnalyzer->GetMidas()!=NULL) {\n",eventName[i].Data());
+      buffer.AppendFormatted("      if (fConfigData[modIndex]->f%sEvent->fActiveModified && !strcmp(gAnalyzer->GetNameOfActiveDAQ(),\"midas\")) {\n",eventName[i].Data());
       buffer.AppendFormatted("         if (fConfigData[index]->f%sEvent->fActive==\"true\")\n",eventName[i].Data());
       buffer.AppendFormatted("            gAnalyzer->GetMidas()->Set%sEventActive(true);\n",eventName[i].Data());
       buffer.AppendFormatted("         else\n");
@@ -4961,7 +4964,7 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("      // %s bank\n",bankName[i][j].Data());
          buffer.AppendFormatted("      if (fConfigData[modIndex]->f%sEvent->f%sBankModified) {\n",eventName[i].Data(),bankName[i][j].Data());
          // Active
-         buffer.AppendFormatted("         if (fConfigData[modIndex]->f%sEvent->f%sBank->fActiveModified && gAnalyzer->GetMidas()!=NULL) {\n",eventName[i].Data(),bankName[i][j].Data());
+         buffer.AppendFormatted("         if (fConfigData[modIndex]->f%sEvent->f%sBank->fActiveModified && !strcmp(gAnalyzer->GetNameOfActiveDAQ(),\"midas\")) {\n",eventName[i].Data(),bankName[i][j].Data());
          buffer.AppendFormatted("            if (fConfigData[index]->f%sEvent->f%sBank->fActive==\"true\")\n",eventName[i].Data(),bankName[i][j].Data());
          buffer.AppendFormatted("               gAnalyzer->GetMidas()->Set%sBankActive(true);\n",bankName[i][j].Data());
          buffer.AppendFormatted("            else\n");

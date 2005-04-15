@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.44  2005/04/15 07:33:14  schneebeli_m
+  GetActiveDAQ() NULL pointer test
+
   Revision 1.43  2005/04/14 07:56:46  schneebeli_m
   Implemented odb database (offline)
 
@@ -205,7 +208,12 @@ public:
 
    // Active DAQ System
    const char*    GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
-   ROMEDAQSystem* GetActiveDAQ() { return fActiveDAQ; };
+   ROMEDAQSystem* GetActiveDAQ() { 
+      if (fActiveDAQ!=NULL)
+         return fActiveDAQ;
+      this->Println("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
+      _exit(0);
+   };
    void           SetActiveDAQ(ROMEDAQSystem* handle) { fActiveDAQ = handle; };
 
    // Data Base Handle
