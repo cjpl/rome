@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2005/04/15 16:44:26  schneebeli_m
+  odb, zlib
+
   Revision 1.7  2005/04/15 14:44:40  schneebeli_m
   gzopen implemented
 
@@ -30,8 +33,8 @@
 #ifndef ROMEMidas_H
 #define ROMEMidas_H
 
-#include <zlib.h>
 #include <RConfig.h>
+#include <zlib.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
 #include <ROMEODBOfflineDataBase.h>

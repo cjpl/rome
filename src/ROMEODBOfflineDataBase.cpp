@@ -6,6 +6,9 @@
 //  Access to the Midas ODB parameters in the header of a midas file.
 //
 //  $Log$
+//  Revision 1.2  2005/04/15 16:44:26  schneebeli_m
+//  odb, zlib
+//
 //  Revision 1.1  2005/04/14 07:58:26  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -33,45 +36,11 @@ bool ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
 
 bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
 {
+   ROMEString value;
    if (!xml->isPathOpen())
       return false;
-   int i,j;
-   ROMEPath *path = new ROMEPath();
-   ROMEString odbPath = "/";
-   ROMEString value;
-
-   // decode path
-   if (!path->Decode(dataBasePath,runNumber)) {
-      cout << "\nPath decode error : " << dataBasePath << endl;
-      return false;
-   }
-   
-//   path->Print();
-
-   for (i=0;i<path->GetNumberOfTables();i++) {
-      odbPath += path->GetTableNameAt(i);
-      if (strcmp(path->GetTableConstraintAt(i),"")) {
-         odbPath += "[";
-         odbPath += path->GetTableConstraintAt(i);
-         odbPath += "]";
-      }
-      if (strcmp(path->GetTableDBConstraintAt(i),"")) {
-         odbPath += "[@";
-         odbPath += path->GetTableDBConstraintAt(i);
-         odbPath += "]";
-      }
-      odbPath += "/";
-   }
-   odbPath += path->GetFieldName();
-   if (strcmp(path->GetFieldConstraints(),"")) {
-      odbPath += "[";
-      odbPath += path->GetFieldConstraints();
-      odbPath += "]";
-   }
-   xml->GetPathValue(odbPath.Data(),value);
+   xml->GetPathValue(dataBasePath,value);
    values->SetAt(value.Data(),0,0);
-
-   delete path;
    return true; 
 }
 

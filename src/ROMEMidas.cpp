@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.11  2005/04/15 16:44:26  schneebeli_m
+//  odb, zlib
+//
 //  Revision 1.10  2005/04/15 14:44:40  schneebeli_m
 //  gzopen implemented
 //
@@ -203,6 +206,7 @@ bool ROMEMidas::Connect() {
       ROMEString filename;
       ROMEString fileExtension = ".mid";
       filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
+      filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),"00012");
 #if defined( R__SEEK64 )
       fMidasFileHandle64 = open64(filename.Data(),O_RDONLY_BINARY);
       if (fMidasFileHandle64==-1) {
@@ -227,6 +231,9 @@ bool ROMEMidas::Connect() {
       gROME->Print("Reading Midas-File run");
       gROME->Print(runNumberString.Data());
       gROME->Println(fileExtension.Data());
+      while (!isBeginOfRun())
+         ReadEvent(0);
+      SetAnalyze();
    }
    return true;
 }
@@ -329,7 +336,7 @@ bool ROMEMidas::ReadEvent(int event) {
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
          ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
-         this->SetContinue();
+         this->SetBeginOfRun();
          return true;
       }
       if (pevent->event_id < 0) {

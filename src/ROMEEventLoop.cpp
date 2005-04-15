@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.53  2005/04/15 16:44:26  schneebeli_m
+//  odb, zlib
+//
 //  Revision 1.52  2005/04/08 17:08:09  schneebeli_m
 //  TNetFolderServer changes
 //
@@ -428,6 +431,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       }
    }
 
+   if (!gROME->GetActiveDAQ()->Connect())
+      return false;
 
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
@@ -446,9 +451,6 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    fProgressTimeOfLastEvent = time(NULL);
    fProgressLastEvent = 0;
    fProgressWrite = false;
-
-   if (!gROME->GetActiveDAQ()->Connect())
-      return false;
 
    return true;
 }

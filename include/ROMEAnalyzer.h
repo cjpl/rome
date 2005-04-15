@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.48  2005/04/15 16:44:26  schneebeli_m
+  odb, zlib
+
   Revision 1.47  2005/04/15 14:30:24  sawada
   small bug fix.
 
@@ -221,7 +224,8 @@ public:
       if (fActiveDAQ!=NULL)
          return fActiveDAQ;
       this->Println("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
-      _exit(0);
+      fApplication->Terminate(1);
+      return NULL;
    };
    bool           isActiveDAQSet() { return fActiveDAQ!=NULL; };
    void           SetActiveDAQ(ROMEDAQSystem* handle) { fActiveDAQ = handle; };
@@ -233,7 +237,8 @@ public:
       if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
 	 return fDataBaseHandle[i];
       this->Println("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
-      _exit(0);
+      fApplication->Terminate(1);
+      return NULL;
    };
    ROMEDataBase* GetDataBase(const char *name) { 
       for (int i=0;i<fNumberOfDataBases;i++) 
@@ -242,7 +247,8 @@ public:
       ROMEString str;
       str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
       this->Println(str.Data());
-      _exit(0);
+      fApplication->Terminate(1);
+      return NULL;
    };
    void          SetDataBase(int i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; };
    int           GetNumberOfDataBases() { return fNumberOfDataBases; };

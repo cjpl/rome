@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.135  2005/04/15 16:44:26  schneebeli_m
+  odb, zlib
+
   Revision 1.134  2005/04/15 15:13:48  schneebeli_m
   rootcint fix
 
@@ -3863,7 +3866,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sMidas* GetMidas() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fMidas==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the midas DAQ system over a gAnalyzer->GetMidas()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         _exit(0);\n");
+   buffer.AppendFormatted("         fApplication->Terminate(1);\n");
+   buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fMidas;\n");
    buffer.AppendFormatted("   };\n");
@@ -3871,7 +3875,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sRoot*  GetRoot() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fRoot==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gAnalyzer->GetRoot()\\nhandle but the current DAQ system is not 'Root'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         _exit(0);\n");
+   buffer.AppendFormatted("         fApplication->Terminate(1);\n");
+   buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fRoot;\n");
    buffer.AppendFormatted("   };\n");
@@ -7834,6 +7839,7 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
+   romeb->noLink = false;
    romeb->startBuilder(xmlFile.Data());
 
    return 0;
