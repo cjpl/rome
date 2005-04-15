@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.132  2005/04/15 14:22:00  sawada
+  Makefile: added dependence on inherited class objects
+
   Revision 1.131  2005/04/15 08:10:38  schneebeli_m
   removed config error
 
@@ -8145,6 +8148,12 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString mainprogname(mainProgName);
    mainprogname.ToLower();
 
+   analyzerDep += " obj/ROMEAnalyzer.obj";
+   eventLoopDep += " obj/ROMEEventLoop.obj";
+   daqDep += " $(ROMESYS)/include/ROMEDAQSystem.h";
+   midasDep += daqDep;
+   rootDep += daqDep;
+
    buffer.Resize(0);
 // Libraries, Flags and Includes
 // -----------------------------
@@ -8343,7 +8352,7 @@ void ROMEBuilder::WriteMakefile() {
 // daq dependences
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfDAQ;i++) {
-      buffer.AppendFormatted("%s%sDep %s include/framework/%sAnalyzer.h\n",shortCut.Data(),daqName[i].Data(),EqualSign(),shortCut.Data());
+      buffer.AppendFormatted("%s%sDep %s include/framework/%sAnalyzer.h %s\n",shortCut.Data(),daqName[i].Data(),EqualSign(),shortCut.Data(),daqDep.Data());
    }
    buffer.AppendFormatted("\n");
 

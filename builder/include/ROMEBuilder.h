@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.35  2005/04/15 14:22:00  sawada
+  Makefile: added dependence on inherited class objects
+
   Revision 1.34  2005/04/04 10:14:54  schneebeli_m
   UserDataBase implemented
 
@@ -246,6 +249,7 @@ private:
    ROMEString configDep;
    ROMEString midasDep;
    ROMEString rootDep;
+   ROMEString daqDep;
 
 public:
    ROMEBuilder() {};
