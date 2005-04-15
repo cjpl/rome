@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.46  2005/04/15 14:22:47  sawada
+  check for NULL pointer.
+
   Revision 1.45  2005/04/15 08:10:46  schneebeli_m
   removed config error
 
@@ -223,7 +226,12 @@ public:
    // Data Base Handle
    const char*   GetDataBaseConnection(int i) { return fDataBaseConnection[i].Data(); };
    void          SetDataBaseConnection(int i,const char* connection) { fDataBaseConnection[i] = connection; };
-   ROMEDataBase* GetDataBase(int i) { return fDataBaseHandle[i]; };
+   ROMEDataBase* GetDataBase(int i) {
+      if(i>=fNumberOfDataBases || fDataBaseHandle[i]!=NULL)
+	 return fDataBaseHandle[i];
+      this->Println("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
+      _exit(0);
+   };
    ROMEDataBase* GetDataBase(const char *name) { 
       for (int i=0;i<fNumberOfDataBases;i++) 
          if (!stricmp(fDataBaseHandle[i]->GetName(),name))
