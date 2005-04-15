@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.12  2005/04/15 16:49:25  schneebeli_m
+//  *** empty log message ***
+//
 //  Revision 1.11  2005/04/15 16:44:26  schneebeli_m
 //  odb, zlib
 //
@@ -206,7 +209,6 @@ bool ROMEMidas::Connect() {
       ROMEString filename;
       ROMEString fileExtension = ".mid";
       filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
-      filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),"00012");
 #if defined( R__SEEK64 )
       fMidasFileHandle64 = open64(filename.Data(),O_RDONLY_BINARY);
       if (fMidasFileHandle64==-1) {

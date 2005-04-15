@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.136  2005/04/15 16:50:19  schneebeli_m
+  *** empty log message ***
+
   Revision 1.135  2005/04/15 16:44:26  schneebeli_m
   odb, zlib
 
@@ -7839,7 +7842,6 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
-   romeb->noLink = false;
    romeb->startBuilder(xmlFile.Data());
 
    return 0;
