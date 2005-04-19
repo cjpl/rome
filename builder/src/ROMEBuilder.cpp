@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.137  2005/04/19 06:47:23  schneebeli_m
+  $(ROOTSYS)/bin/rootcint in makefile
+
   Revision 1.136  2005/04/15 16:50:19  schneebeli_m
   *** empty log message ***
 
@@ -7842,6 +7845,7 @@ int main(int argc, char *argv[])
    mkdir(path,0711);
 #endif
 
+   romeb->noLink = false;
    romeb->startBuilder(xmlFile.Data());
 
    return 0;
@@ -8561,6 +8565,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("%sDict.h: dictionary\n",shortCut.Data());
    buffer.AppendFormatted("%sDict.cpp: dictionary\n",shortCut.Data());
    buffer.AppendFormatted("\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("LD_LIBRARY_PATH:=$(ROOTSYS)/lib\n");
+#endif
    buffer.AppendFormatted("dictionary: ");
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
@@ -8610,12 +8620,13 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    int i;
 
    buffer.Resize(0);
-   buffer.AppendFormatted("rootcint -f %sDict.cpp -c -p ",shortCut.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
 #endif
 #if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
 #endif
