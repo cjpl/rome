@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.139  2005/04/20 15:29:44  schneebeli_m
+  SP init
+
   Revision 1.138  2005/04/20 15:12:38  schneebeli_m
   histo and path in definition xml
 
@@ -3119,7 +3122,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                   cout << "Terminating program." << endl;
                   return false;
                }
-//               xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] != "std::string")
+                  xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
