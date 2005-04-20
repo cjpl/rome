@@ -208,6 +208,16 @@
 					<xs:documentation>The array size of the field. If this value is 1 or not present, then the field is a single value.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the database from which to read the field value. This value will be ignored if 'DataBaseAccess' is not true in the this folder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The path to the value in the database. This value will be ignored if 'DataBaseAccess' is not true in the this folder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="FolderDesc">
@@ -282,9 +292,19 @@
 					<xs:documentation>The name of the histogram.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the histogram. Displayed in the ROOT browser.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="HistFolderName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The ROOT folder, where the histogram is stored in (this folder has nothing to do with a data folder of ROME). The histograms are stored under //root/[Shortcut]/[TaskName]/[HistFolderName]. Default is HistName.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistFolderTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the ROOT folder in which the histogram is stored.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="HistType" type="HistTypeDesc">
@@ -292,9 +312,74 @@
 					<xs:documentation>The type of the histogram. Can be any ROOT histogram type.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistArray" type="xs:boolean" minOccurs="0">
+			<xs:element name="HistArraySize" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>In ROME one can define arrays of histograms. Default is false.</xs:documentation>
+					<xs:documentation>The array size of the histogram. If the value is 1 the histogram is a single histogram. If the histogram is an array they are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistArrayStartIndex" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation> Start index of histogram array name enumeration. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the x axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the y axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the z axis. Text has to be placed in quotes.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in x.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in y.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZNbins" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in z.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmin" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in z.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmax" type="xs:double" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in z.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>

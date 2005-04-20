@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/04/20 15:12:40  schneebeli_m
+  histo and path in definition xml
+
   Revision 1.4  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -23,9 +26,9 @@ public:
    ROMEString(const char* s) : TString(s) {};
    ROMEString(const TString& s) : TString(s) {};
    ROMEString(const TSubString& s) : TString(s) {};
-   ROMEString& AppendFormatted(const char* format,...);
-   ROMEString& InsertFormatted(int position,const char* format,...);
-   ROMEString& SetFormatted(const char* format,...);
+   ROMEString& AppendFormatted(const char* format=NULL,...);
+   ROMEString& InsertFormatted(int position,const char* format=NULL,...);
+   ROMEString& SetFormatted(const char* format=NULL,...);
    int  NumberOfOccurrence(ROMEString& subString);
    int  NumberOfOccurrence(const char* subString);
    void Write();

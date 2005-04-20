@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.36  2005/04/20 15:12:38  schneebeli_m
+  histo and path in definition xml
+
   Revision 1.35  2005/04/15 14:22:00  sawada
   Makefile: added dependence on inherited class objects
 
@@ -154,6 +157,8 @@ private:
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueComment[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueDBName[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueDBPath[maxNumberOfFolders][maxNumberOfValues];
 
 // task
 
@@ -170,9 +175,24 @@ private:
    ROMEString taskInclude[maxNumberOfTasks][maxNumberOfInclude];
    bool  taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
    ROMEString histoName[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString histoType[maxNumberOfTasks][maxNumberOfHistos];
-   bool histoArray[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoTitle[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoType[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoArraySize[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoArrayStartIndex[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXLabel[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYLabel[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZLabel[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXNbins[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXmin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoXmax[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYNbins[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYmin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoYmax[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZNbins[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZmin[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoZmax[maxNumberOfTasks][maxNumberOfHistos];
 
 // task hierarchy
 

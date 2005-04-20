@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.49  2005/04/20 15:12:40  schneebeli_m
+  histo and path in definition xml
+
   Revision 1.48  2005/04/15 16:44:26  schneebeli_m
   odb, zlib
 
@@ -249,6 +252,12 @@ public:
       this->Println(str.Data());
       fApplication->Terminate(1);
       return NULL;
+   };
+   bool isDataBaseActive(const char *name) { 
+      for (int i=0;i<fNumberOfDataBases;i++) 
+         if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+            return true;
+      return false;
    };
    void          SetDataBase(int i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; };
    int           GetNumberOfDataBases() { return fNumberOfDataBases; };

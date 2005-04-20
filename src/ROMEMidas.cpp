@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.13  2005/04/20 15:12:40  schneebeli_m
+//  histo and path in definition xml
+//
 //  Revision 1.12  2005/04/15 16:49:25  schneebeli_m
 //  *** empty log message ***
 //
@@ -337,7 +340,8 @@ bool ROMEMidas::ReadEvent(int event) {
       }
       // Get Handle to ODB header
       if (pevent->event_id == EVENTID_BOR) {
-         ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
+         if (gROME->isDataBaseActive("odb"))
+            ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
          this->SetBeginOfRun();
          return true;
       }
