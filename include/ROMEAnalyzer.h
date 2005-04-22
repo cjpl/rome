@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.51  2005/04/22 16:52:57  sawada
+  default return value of ReadUserParameter
+
   Revision 1.50  2005/04/22 16:25:15  sawada
   user defined command line option.
 
@@ -417,7 +420,7 @@ protected:
    bool CreateHistoFolders(TList *,TFolder *);
 
    bool ReadParameters(int argc, char *argv[]);
-   virtual bool ReadUserParameter(const char* opt, const char* value, int& i){ return true; }
+   virtual bool ReadUserParameter(const char* opt, const char* value, int& i) { return false; }
    void ParameterUsage();
    virtual void UserParameterUsage(){}
 
