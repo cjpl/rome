@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.65  2005/04/22 20:32:26  sawada
+//  default input/output file path in configuration file.
+//
 //  Revision 1.64  2005/04/22 16:25:15  sawada
 //  user defined command line option.
 //
@@ -330,9 +333,9 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    // Reads the Inputlineparameters
    int i;
    const int workDirLen = 1000;
-   ROMEString workDir(workDirLen);
-   getcwd((char*)workDir.Data(),workDirLen);
-   workDir.Append("/");
+   char workDir[workDirLen];
+   getcwd(workDir,workDirLen);
+   strcat(workDir,"/");
    this->SetInputDir(workDir);
    this->SetOutputDir(workDir);
 
