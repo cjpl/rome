@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.24  2005/04/22 10:27:36  sawada
+  small bug fix.
+
   Revision 1.23  2005/04/01 12:31:19  sawada
   sub menu
 
@@ -637,8 +640,6 @@ bool ArgusBuilder::WriteTabH() {
 #elif defined ( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("      LPDWORD fProcessMessageThreadId;\n");
       buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,&processMessageThreadId));\n");
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("      }\n");
 #endif
       buffer.AppendFormatted("      return true;\n");
       buffer.AppendFormatted("   }\n");     
