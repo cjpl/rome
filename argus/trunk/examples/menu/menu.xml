@@ -28,59 +28,59 @@
 							<MenuItems>
 								<MenuItem>
 									<MenuItemTitle>Gray1</MenuItemTitle>
-									<MenuItemID>5</MenuItemID>
+									<MenuItemEnumName>M_T1_Color_Gray_Gray1</MenuItemEnumName>
 								</MenuItem>
 								<MenuItem>
 									<MenuItemTitle>Gray2</MenuItemTitle>
-									<MenuItemID>6</MenuItemID>
+									<MenuItemEnumName>M_T1_Color_Gray_Gray2</MenuItemEnumName>
 								</MenuItem>
 								<MenuItem>
 									<MenuItemTitle>Gray3</MenuItemTitle>
-									<MenuItemID>7</MenuItemID>
+									<MenuItemEnumName>M_T1_Color_Gray_Gray3</MenuItemEnumName>
 								</MenuItem>
 								<MenuItem>
 									<MenuItemTitle>Gray4</MenuItemTitle>
-									<MenuItemID>8</MenuItemID>
+									<MenuItemEnumName>M_T1_Color_Gray_Gray4</MenuItemEnumName>
 								</MenuItem>
-							<Menu>
-								<MenuTitle>DarkGray</MenuTitle>
-								<MenuItems>
-									<MenuItem>
-										<MenuItemTitle>DarkGray1</MenuItemTitle>
-										<MenuItemID>21</MenuItemID>
-									</MenuItem>
-									<MenuItem>
-										<MenuItemTitle>DarkGray2</MenuItemTitle>
-										<MenuItemID>22</MenuItemID>
-									</MenuItem>
-									<MenuItem>
-										<MenuItemTitle>DarkGray3</MenuItemTitle>
-										<MenuItemID>23</MenuItemID>
-									</MenuItem>
-									<MenuItem>
-										<MenuItemTitle>DarkGray4</MenuItemTitle>
-										<MenuItemID>24</MenuItemID>
-									</MenuItem>
-								</MenuItems>
-							</Menu>
+								<Menu>
+									<MenuTitle>DarkGray</MenuTitle>
+									<MenuItems>
+										<MenuItem>
+											<MenuItemTitle>DarkGray1</MenuItemTitle>
+											<MenuItemEnumName>M_T1_Color_Gray_DarkGray_DarkGray1</MenuItemEnumName>
+										</MenuItem>
+										<MenuItem>
+											<MenuItemTitle>DarkGray2</MenuItemTitle>
+											<MenuItemEnumName>M_T1_Color_Gray_DarkGray_DarkGray2</MenuItemEnumName>
+										</MenuItem>
+										<MenuItem>
+											<MenuItemTitle>DarkGray3</MenuItemTitle>
+											<MenuItemEnumName>M_T1_Color_Gray_DarkGray_DarkGray3</MenuItemEnumName>
+										</MenuItem>
+										<MenuItem>
+											<MenuItemTitle>DarkGray4</MenuItemTitle>
+											<MenuItemEnumName>M_T1_Color_Gray_DarkGray_DarkGray4</MenuItemEnumName>
+										</MenuItem>
+									</MenuItems>
+								</Menu>
 							</MenuItems>
 						</Menu>
 						<MenuItem>
 							<MenuItemTitle>&amp;Black</MenuItemTitle>
-							<MenuItemID>1</MenuItemID>
+							<MenuItemEnumName>M_T1_Color_Black</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Red</MenuItemTitle>
-							<MenuItemID>2</MenuItemID>
+							<MenuItemEnumName>M_T1_Color_Red</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Green</MenuItemTitle>
-							<MenuItemID>3</MenuItemID>
+							<MenuItemEnumName>M_T1_Color_Green</MenuItemEnumName>
 						</MenuItem>
-						<Line></Line>
+						<Line/>
 						<MenuItem>
 							<MenuItemTitle>B&amp;lue</MenuItemTitle>
-							<MenuItemID>4</MenuItemID>
+							<MenuItemEnumName>M_T1_Color_Blue</MenuItemEnumName>
 						</MenuItem>
 					</MenuItems>
 				</Menu>
@@ -89,15 +89,15 @@
 					<MenuItems>
 						<MenuItem>
 							<MenuItemTitle>&amp;Small</MenuItemTitle>
-							<MenuItemID>11</MenuItemID>
+							<MenuItemEnumName>M_T1_Size_Small</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Midium</MenuItemTitle>
-							<MenuItemID>12</MenuItemID>
+							<MenuItemEnumName>M_T1_Size_Midium</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Large</MenuItemTitle>
-							<MenuItemID>13</MenuItemID>
+							<MenuItemEnumName>M_T1_Size_Large</MenuItemEnumName>
 						</MenuItem>
 					</MenuItems>
 				</Menu>
@@ -114,19 +114,19 @@
 					<MenuItems>
 						<MenuItem>
 							<MenuItemTitle>&amp;Black</MenuItemTitle>
-							<MenuItemID>1</MenuItemID>
+							<MenuItemEnumName>M_T2_Color_Black</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Red</MenuItemTitle>
-							<MenuItemID>2</MenuItemID>
+							<MenuItemEnumName>M_T2_Color_Red</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Green</MenuItemTitle>
-							<MenuItemID>3</MenuItemID>
+							<MenuItemEnumName>M_T2_Color_Green</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>B&amp;lue</MenuItemTitle>
-							<MenuItemID>4</MenuItemID>
+							<MenuItemEnumName>M_T2_Color_Blue</MenuItemEnumName>
 						</MenuItem>
 					</MenuItems>
 				</Menu>
@@ -135,15 +135,15 @@
 					<MenuItems>
 						<MenuItem>
 							<MenuItemTitle>&amp;Small</MenuItemTitle>
-							<MenuItemID>11</MenuItemID>
+							<MenuItemEnumName>M_T2_Size_Small</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Midium</MenuItemTitle>
-							<MenuItemID>12</MenuItemID>
+							<MenuItemEnumName>M_T2_Size_Midium</MenuItemEnumName>
 						</MenuItem>
 						<MenuItem>
 							<MenuItemTitle>&amp;Large</MenuItemTitle>
-							<MenuItemID>13</MenuItemID>
+							<MenuItemEnumName>M_T2_Size_Large</MenuItemEnumName>
 						</MenuItem>
 					</MenuItems>
 				</Menu>

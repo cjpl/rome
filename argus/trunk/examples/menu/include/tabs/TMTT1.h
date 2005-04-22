@@ -36,7 +36,7 @@ public:
    }
 
    void Init();
-   void MenuClicked(Long_t param);
+   void MenuClicked(TGPopupMenu *menu,Long_t param);
 
    ClassDef(TMTT1,1)
 };

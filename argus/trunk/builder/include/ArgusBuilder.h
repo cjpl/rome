@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.17  2005/04/22 15:29:08  schneebeli_m
+  added menu id enumeration
+
   Revision 1.16  2005/04/01 12:31:19  sawada
   sub menu
 
@@ -154,7 +157,7 @@ private:
    ROMEString menuTitle[maxNumberOfTabs][maxNumberOfMenus];
    int        menuDepth[maxNumberOfTabs][maxNumberOfMenus];
    int        menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
-   int        menuItemID[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   ROMEString menuItemEnumName[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
    ROMEString menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
 
 // thread functions
