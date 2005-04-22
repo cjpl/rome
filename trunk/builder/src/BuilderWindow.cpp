@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.17  2005/04/22 15:29:09  schneebeli_m
+  added menu id enumeration
+
   Revision 1.16  2005/04/22 12:58:24  schneebeli_m
   removed windows errors
 
@@ -233,10 +236,12 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
    buffer.AppendFormatted("      case kCM_MENU:\n");
    for (i=0;i<numOfTab;i++) {
-      buffer.AppendFormatted("         if (%d <= param1 && param1 < %d) {\n"
-			     ,(i+1)*maxNumberOfMenus*maxNumberOfMenuItems,(i+2)*maxNumberOfMenus*maxNumberOfMenuItems);
-      buffer.AppendFormatted("            f%s%03dTab->MenuClicked(param1-%d);\n"
-			     ,tabName[i].Data(),i,(i+1)*maxNumberOfMenus*maxNumberOfMenuItems);
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID) {\n",tabName[i].Data());
+      for (j=0;j<numOfMenu[i];j++) {
+         buffer.AppendFormatted("            if (f%sMenu[%d]->GetEntry(param1)!=0)\n",tabName[i].Data(),j);
+         buffer.AppendFormatted("               f%s%03dTab->MenuClicked(f%sMenu[%d],param1);\n"
+			        ,tabName[i].Data(),i,tabName[i].Data(),j);
+      }
       buffer.AppendFormatted("         }\n");
    }
    buffer.AppendFormatted("         switch (param1) {\n");
@@ -572,19 +577,19 @@ bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
    int k;
    for (k=0;k<numOfMenuItem[i][j];k++) {
       if(menuItemTitle[i][j][k] == LINE_TITLE){
-	 buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n",tabName[i].Data(),j);
+         buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n",tabName[i].Data(),j);
       }
       else if(menuItemChildMenuIndex[i][j][k]) {
-	 if(!AddMenuItems(buffer,i,menuItemChildMenuIndex[i][j][k]))
-	    return false;
-	 buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n"
-				,tabName[i].Data(),j,menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
-				,tabName[i].Data(),menuItemChildMenuIndex[i][j][k]);
+         if(!AddMenuItems(buffer,i,menuItemChildMenuIndex[i][j][k]))
+            return false;
+         buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n"
+            ,tabName[i].Data(),j,menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
+            ,tabName[i].Data(),menuItemChildMenuIndex[i][j][k]);
       }
       else {
-	 buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %d);\n"
-				,tabName[i].Data(),j,menuItemTitle[i][j][k].Data()
-				,menuItemID[i][j][k]+(i+1)*maxNumberOfMenus*maxNumberOfMenuItems);
+         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", gMonitor->%s);\n"
+         ,tabName[i].Data(),j,menuItemTitle[i][j][k].Data()
+         ,menuItemEnumName[i][j][k].Data());
       }
    }
    return true;

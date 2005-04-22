@@ -36,52 +36,53 @@ void TMTT1::Init()
    fCanvas->GetCanvas()->Update(); 
 }
 
-void TMTT1::MenuClicked(Long_t param)
+void TMTT1::MenuClicked(TGPopupMenu *menu,Long_t param)
 {
    switch (param){
-      case 1:
+      case gMonitor->M_T1_Color_Black:
 	 fText->SetTextColor(1);
+    menu->CheckEntry(param);
 	 break;
-      case 2:
+      case gMonitor->M_T1_Color_Red:
 	 fText->SetTextColor(2);
 	 break;
-      case 3:
+      case gMonitor->M_T1_Color_Green:
 	 fText->SetTextColor(3);
 	 break;
-      case 4:
+      case gMonitor->M_T1_Color_Blue:
 	 fText->SetTextColor(4);
 	 break;
-      case 21:
+      case gMonitor->M_T1_Color_Gray_Gray1:
 	 fText->SetTextColor(12);
 	 break;
-      case 22:
+      case gMonitor->M_T1_Color_Gray_Gray2:
 	 fText->SetTextColor(13);
 	 break;
-      case 23:
+      case gMonitor->M_T1_Color_Gray_Gray3:
 	 fText->SetTextColor(14);
 	 break;
-      case 24:
+      case gMonitor->M_T1_Color_Gray_Gray4:
 	 fText->SetTextColor(15);
 	 break;
-      case 5:
+      case gMonitor->M_T1_Color_Gray_DarkGray_DarkGray1:
 	 fText->SetTextColor(16);
 	 break;
-      case 6:
+      case gMonitor->M_T1_Color_Gray_DarkGray_DarkGray2:
 	 fText->SetTextColor(17);
 	 break;
-      case 7:
+      case gMonitor->M_T1_Color_Gray_DarkGray_DarkGray3:
 	 fText->SetTextColor(18);
 	 break;
-      case 8:
+      case gMonitor->M_T1_Color_Gray_DarkGray_DarkGray4:
 	 fText->SetTextColor(19);
 	 break;
-      case 11:
+      case gMonitor->M_T1_Size_Small:
 	 fText->SetTextSize(0.03);
 	 break;
-      case 12:
+      case gMonitor->M_T1_Size_Midium:
 	 fText->SetTextSize(0.08);
 	 break;
-      case 13:
+      case gMonitor->M_T1_Size_Large:
 	 fText->SetTextSize(0.15);
 	 break;
    }
