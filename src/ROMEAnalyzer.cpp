@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.64  2005/04/22 16:25:15  sawada
+//  user defined command line option.
+//
 //  Revision 1.63  2005/04/14 07:56:46  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -319,6 +322,7 @@ void ROMEAnalyzer::ParameterUsage()
    gROME->Println("  -r       Runnumbers");
    gROME->Println("  -e       Eventnumbers");
    gROME->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
+   gROME->UserParameterUsage();
    return;
 }
 bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
@@ -406,14 +410,14 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-i")) {
          i++;
       }
-      else {
+      else if(!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)){
          gROME->Print("Inputlineparameter '");
          gROME->Print(argv[i]);
          gROME->Println("' not available.");
          gROME->Println("Available inputlineparameter are : ");
          gROME->Println();
          ParameterUsage();
-              return false;
+         return false;
       }
    }
 

@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.50  2005/04/22 16:25:15  sawada
+  user defined command line option.
+
   Revision 1.49  2005/04/20 15:12:40  schneebeli_m
   histo and path in definition xml
 
@@ -414,7 +417,9 @@ protected:
    bool CreateHistoFolders(TList *,TFolder *);
 
    bool ReadParameters(int argc, char *argv[]);
+   virtual bool ReadUserParameter(const char* opt, const char* value, int& i){ return true; }
    void ParameterUsage();
+   virtual void UserParameterUsage(){}
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;

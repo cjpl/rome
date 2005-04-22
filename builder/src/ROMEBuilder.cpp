@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.140  2005/04/22 16:25:14  sawada
+  user defined command line option.
+
   Revision 1.139  2005/04/20 15:29:44  schneebeli_m
   SP init
 
@@ -3086,6 +3089,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
          steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -3131,6 +3136,26 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][0]!='/') {
                   steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Insert(0,"// ");
                }
+            }            
+            // steering parameter command line option
+            if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineOption")) {
+               xml->GetValue(steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               ROMEString steeropt =  steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
+               if( steeropt == "i"
+                   || steeropt ==  "b"
+                   || steeropt ==  "ns"
+                   || steeropt ==  "m"
+                   || steeropt ==  "r"
+                   || steeropt ==  "e"
+                   || steeropt ==  "docu"){
+                  cout << "Command line option \"" << steeropt <<"\" is reserved by ROME. Please use other word." <<endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+            // steering parameter command line option description
+            if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineDescription")) {
+               xml->GetValue(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field end
             if (type == 15 && !strcmp((const char*)name,"SteeringParameterField"))
@@ -3228,6 +3253,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    ROMEString parentt;
    ROMEString buf;
    ROMEString str;
+   ROMEString pointer;
 
    int nb,lenTot,ll;
    char *pos;
@@ -3458,6 +3484,70 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
+   // ReadUserParameter
+   buffer.AppendFormatted("bool %sAnalyzer::ReadUserParameter(const char* opt, const char* value, int& i) {\n",shortCut.Data());
+   // Global Steering Parameter
+   buffer.AppendFormatted("   ROMEString option = opt;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   // global steering parameters\n");
+   if (numOfSteering[numOfTaskHierarchy]>0) {
+      ROMEString pointerT;
+      ROMEString steerPointerT;
+      pointerT.SetFormatted("->fGlobalSteering");
+      steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
+      WriteSteeringReadParameters(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT);
+   }
+   // Task steering parameter
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
+      int index = i;
+      pointer.Resize(0);
+      while (index!=-1) {
+         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
+         index = taskHierarchyParentIndex[index];
+      }
+      if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("%s->fSteering",pointer.Data());
+         steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%s%03dTask())->GetSP()",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i);
+         WriteSteeringReadParameters(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT);
+      }
+   }
+   buffer.AppendFormatted("   return false;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // UserParameterUsage
+   buffer.AppendFormatted("void %sAnalyzer::UserParameterUsage() {\n",shortCut.Data());
+   // Global Steering Parameter
+   buffer.AppendFormatted("   // global steering parameters\n");
+   if (numOfSteering[numOfTaskHierarchy]>0) {
+      ROMEString pointerT;
+      ROMEString steerPointerT;
+      pointerT.SetFormatted("->fGlobalSteering");
+      steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
+      WriteSteeringParameterUsage(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT);
+   }
+   // Task steering parameter
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
+      int index = i;
+      pointer.Resize(0);
+      while (index!=-1) {
+         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
+         index = taskHierarchyParentIndex[index];
+      }
+      if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("%s->fSteering",pointer.Data());
+         steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%s%03dTask())->GetSP()",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i);
+         WriteSteeringParameterUsage(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT);
+      }
+   }
+   buffer.AppendFormatted("}\n\n");
+
+  
 /*   // WriteDataBaseFolders
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i]) {
@@ -4013,6 +4103,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // Private
    buffer.AppendFormatted("private:\n");
+   buffer.AppendFormatted("   bool ReadUserParameter(const char* opt, const char *value, int& i);\n");
+   buffer.AppendFormatted("   void UserParameterUsage();\n");
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
    buffer.AppendFormatted("   void redirectOutput();\n");
@@ -4213,6 +4305,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    configDep.AppendFormatted(" $(ROMESYS)/include/ROMEString.h");
 
    buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
+   buffer.AppendFormatted("#include <ROMENoDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
    buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
@@ -4867,6 +4960,12 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
    buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
+   buffer.AppendFormatted("                     fConfigData[index]->fDataBase[i]->fType==\"\") {\n");
+   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMENoDataBase());\n");
+   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
+   buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"xml\") {\n");
    buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());\n");
@@ -6952,6 +7051,79 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
    return true;
 }
 
+bool ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) {
+   ROMEString pointerT;
+   ROMEString steerPointerT;
+   ROMEString decodedValue;
+   ROMEString value;
+   int k;
+   // Fields
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      if(steerFieldCLOption[numTask][numSteer][k].Length()){
+         buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("   if (option == \"-%s\") {\n",steerFieldCLOption[numTask][numSteer][k].Data());
+         if (isBoolType(steerFieldType[numTask][numSteer][k].Data())){
+            buffer.AppendFormatted("      %s->Set%s(true);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         }
+         else{
+            buffer.AppendFormatted("      if(!strlen(value))\n");
+            buffer.AppendFormatted("         gAnalyzer->Println(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
+            setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
+            buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+            buffer.AppendFormatted("      i++;\n");
+         }
+         buffer.AppendFormatted("      return true;\n");
+         buffer.AppendFormatted("   }\n");
+      }
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pointerT = pointer;
+      steerPointerT = steerPointer;
+      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      WriteSteeringReadParameters(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer);
+      pointer = pointerT;
+      steerPointer = steerPointerT;
+   }
+   return true;
+}
+
+bool ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) {
+   ROMEString pointerT;
+   ROMEString steerPointerT;
+   ROMEString decodedValue;
+   ROMEString value;
+   ROMEString format;
+   int nspace;
+   int k;
+   // Fields
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      if(steerFieldCLOption[numTask][numSteer][k].Length()){
+         nspace = 8-steerFieldCLOption[numTask][numSteer][k].Length();
+         if(nspace<1)
+            nspace = 1;
+         format.SetFormatted("   gAnalyzer->Println(\"  -%%s%%%ds%%s",nspace);
+         buffer.AppendFormatted(format.Data(),steerFieldCLOption[numTask][numSteer][k].Data(),"",steerFieldCLDescription[numTask][numSteer][k].Data());
+         if(isBoolType(steerFieldCLOption[numTask][numSteer][k].Data()))
+            buffer.AppendFormatted(" (no Argument)");
+         buffer.AppendFormatted("\");\n");
+      }
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      pointerT = pointer;
+      steerPointerT = steerPointer;
+      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      WriteSteeringParameterUsage(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer);
+      pointer = pointerT;
+      steerPointer = steerPointerT;
+   }
+   return true;
+}
 
 int  ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,int codeNumber,int numSteer,int numTask,ROMEString& path,int tab) {
    ROMEString pathT;

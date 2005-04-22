@@ -154,6 +154,16 @@
 					<xs:documentation>A comment about the steering parameter field.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="SPFieldCommandLineOption" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The string to be used as command line option.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldCommandLineDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The Description which will be shown in command line help.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterGroupDesc">

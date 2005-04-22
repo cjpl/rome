@@ -308,9 +308,25 @@
 			<TaskDescription>Reads Midas Data.</TaskDescription>
 			<SteeringParameters>
 				<SteeringParameterField>
-					<SPFieldName>test</SPFieldName>
+					<SPFieldName>test_bool</SPFieldName>
 					<SPFieldType>Bool_t</SPFieldType>
 					<SPFieldInitialization>true</SPFieldInitialization>
+					<SPFieldCommandLineOption>bool</SPFieldCommandLineOption>
+					<SPFieldCommandLineDescription>make test_bool true</SPFieldCommandLineDescription>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>test_float</SPFieldName>
+					<SPFieldType>Float_t</SPFieldType>
+					<SPFieldInitialization>100</SPFieldInitialization>
+					<SPFieldCommandLineOption>float</SPFieldCommandLineOption>
+					<SPFieldCommandLineDescription>specify test_float</SPFieldCommandLineDescription>
+				</SteeringParameterField>
+				<SteeringParameterField>
+					<SPFieldName>test_string</SPFieldName>
+					<SPFieldType>TString</SPFieldType>
+					<SPFieldInitialization>""none""</SPFieldInitialization>
+					<SPFieldCommandLineOption>string</SPFieldCommandLineOption>
+					<SPFieldCommandLineDescription>specify test_string</SPFieldCommandLineDescription>
 				</SteeringParameterField>
 			</SteeringParameters>
 		</Task>

@@ -74,8 +74,16 @@
         <TaskName>ReadMidas</TaskName>
         <Active>true</Active>
         <SteeringParameterField>
-          <SPName>test</SPName>
-          <SPValue>true</SPValue>
+          <SPName>test_bool</SPName>
+          <SPValue>false</SPValue>
+        </SteeringParameterField>
+        <SteeringParameterField>
+          <SPName>test_float</SPName>
+          <SPValue>100.000000</SPValue>
+        </SteeringParameterField>
+        <SteeringParameterField>
+          <SPName>test_string</SPName>
+          <SPValue>none</SPValue>
         </SteeringParameterField>
       </Task>
       <Task>
