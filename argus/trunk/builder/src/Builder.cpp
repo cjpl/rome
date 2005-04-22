@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.34  2005/04/22 12:58:24  schneebeli_m
+  removed windows errors
+
   Revision 1.33  2005/04/12 17:50:34  sawada
   changes for mxml
 
@@ -541,7 +544,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
       cout << "working dir = " << workDir << endl;
-      system("nmake -f Makefile_monitor.win");
+      system("nmake -f Makefile.win");
 #endif
    }
 // Documentation
@@ -595,7 +598,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" /DHAVE_SQL");
    buffer.AppendFormatted("\n");
    // includes
-   buffer.AppendFormatted("Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/monitor/ ");
+   buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/monitor/ ");
    if (this->midas) 
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
    if (this->sql) 

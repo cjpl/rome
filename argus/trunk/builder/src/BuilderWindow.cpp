@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.16  2005/04/22 12:58:24  schneebeli_m
+  removed windows errors
+
   Revision 1.15  2005/04/01 12:31:19  sawada
   sub menu
 
@@ -561,6 +564,8 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
    }
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");
+
+   return true;
  }
 
 bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
