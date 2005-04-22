@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.25  2005/04/22 12:58:24  schneebeli_m
+  removed windows errors
+
   Revision 1.24  2005/04/22 10:27:36  sawada
   small bug fix.
 
@@ -550,8 +553,11 @@ bool ArgusBuilder::WriteTabH() {
 #if defined ( R__UNIX ) 
       buffer.AppendFormatted("#include <TThread.h>\n");
 #endif
+#if defined ( R__VISUAL_CPLUSPLUS ) 
+      buffer.AppendFormatted("#include <windows.h>\n");
+#endif
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("typedef struct %sArgs{\n",tabName[iTab].Data());
+      buffer.AppendFormatted("struct %sArgs{\n",tabName[iTab].Data());
       buffer.AppendFormatted("   void* inst;\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   Long_t msg;\n");
       buffer.AppendFormatted("   Long_t param1;\n");
@@ -622,11 +628,12 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   }\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#ifndef __CINT__\n");
       buffer.AppendFormatted("   static DWORD WINAPI ThreadProcessMessageThread(void* arg){\n");
-      buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("      ((%sArgs*)arg)->inst->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs)arg*)->param1, ((%sArgs*)arg)->param2);\n",tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      return 0;\n");
       buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("#endif\n");
 #endif      
       buffer.AppendFormatted("   bool RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n",tabName[iTab].Data(),tabName[iTab].Data());
@@ -638,8 +645,8 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
       buffer.AppendFormatted("      mProcessMessageThread->Run();\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("      LPDWORD fProcessMessageThreadId;\n");
-      buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,&processMessageThreadId));\n");
+      buffer.AppendFormatted("      LPDWORD processMessageThreadId=NULL;\n");
+      buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,processMessageThreadId));\n");
 #endif
       buffer.AppendFormatted("      return true;\n");
       buffer.AppendFormatted("   }\n");     

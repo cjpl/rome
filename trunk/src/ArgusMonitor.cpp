@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.15  2005/04/22 12:58:24  schneebeli_m
+  removed windows errors
+
   Revision 1.14  2005/04/12 17:51:05  sawada
   changes for mxml
 
@@ -73,9 +76,9 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <TThread.h>
-#endif
 #ifndef R__MACOSX
 #include <sys/io.h>
+#endif
 #endif
 #include <sys/stat.h>
 #include <fcntl.h>
