@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.3  2005/04/23 15:32:18  sawada
+//  small modification.
+//
 //  Revision 1.2  2005/04/08 17:08:09  schneebeli_m
 //  TNetFolderServer changes
 //
@@ -87,7 +90,7 @@ int ResponseFunction(TSocket *socket) {
       TCollection *folders = folder->GetListOfFolders();
       TIterator *iterFolders = folders->MakeIterator();
       TString str;
-      while (obj = iterFolders->Next()) {
+      while ((obj = iterFolders->Next())) {
          str = obj->GetName();
          names->Add(new TObjString(str.Data()));
       }

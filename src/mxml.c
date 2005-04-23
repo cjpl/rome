@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.5  2005/04/23 15:32:18  sawada
+   small modification.
+
    Revision 1.4  2005/04/01 14:56:24  schneebeli_m
    Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -526,7 +529,7 @@ int mxml_write_comment(MXML_WRITER *writer, const char *string)
    strlcat(line, "<!-- ", sizeof(line));
    strlcat(line, string, sizeof(line));
    strlcat(line, " -->\n", sizeof(line));
-   if (mxml_write_line(writer, line) != strlen(line))
+   if (mxml_write_line(writer, line) != (int)strlen(line))
       return FALSE;
 
    return TRUE;
