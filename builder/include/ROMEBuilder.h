@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.38  2005/04/23 09:24:46  sawada
+  command line option check.
+
   Revision 1.37  2005/04/22 16:25:14  sawada
   user defined command line option.
 
@@ -105,6 +108,9 @@ const int bufferLength = 500000;
 
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;
+
+const ROMEString ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
+const ROMEString cloSeparator = ":";
 
 class ROMEBuilder
 {
@@ -218,6 +224,8 @@ private:
    ROMEString steerFieldComment[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldCLOption[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldCLDescription[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+
+   ROMEString usedCLO;
 
 // tree
    int numOfTree;

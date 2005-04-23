@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.141  2005/04/23 09:24:46  sawada
+  command line option check.
+
   Revision 1.140  2005/04/22 16:25:14  sawada
   user defined command line option.
 
@@ -3140,18 +3143,13 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
             // steering parameter command line option
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineOption")) {
                xml->GetValue(steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               ROMEString steeropt =  steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
-               if( steeropt == "i"
-                   || steeropt ==  "b"
-                   || steeropt ==  "ns"
-                   || steeropt ==  "m"
-                   || steeropt ==  "r"
-                   || steeropt ==  "e"
-                   || steeropt ==  "docu"){
-                  cout << "Command line option \"" << steeropt <<"\" is reserved by ROME. Please use other word." <<endl;
+               ROMEString cloption = cloSeparator + steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] + cloSeparator;
+               if( usedCLO.Contains(cloption) ){
+                  cout << "Command line option \"" << steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] <<"\" is reserved by ROME or already used. Please use other word." <<endl;
                   cout << "Terminating program." << endl;
                   return false;
                }
+               usedCLO += cloption;
             }
             // steering parameter command line option description
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineDescription")) {
@@ -8160,6 +8158,7 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
    mainInstitute = "";
    mainCollaboration = "";
    mainEmail = "";
+   usedCLO = ROMECommandLineOptions;
 
    readExperiment = false;
    readAuthor = false;
