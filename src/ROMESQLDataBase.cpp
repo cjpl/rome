@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.27  2005/04/23 21:54:21  sawada
+//  remove () around @@ constraint.
+//
 //  Revision 1.26  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -139,12 +142,16 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
          while ((is1=value.Index("(@@",3,0,TString::kIgnoreCase))!=-1) {
             if ((ie1=value.Index(")",1,is1+3,TString::kIgnoreCase))==-1)
                ie1 = value.Length();
+            else
+               value.Remove(ie1,1);
             pathString = value(is1+3,ie1-is1-3);
             if(pathString.Contains ("_")){
-               value.Remove(is1+1,2);
+               //"[id=(@@AAA_id)]" -> "[id=currentTableName.AAA_id]"
+               value.Remove(is1,3);
                value.Insert(is1,val);
             }
             else{
+               //[(@@id)] -> [id=currentTableName.AAA_id]
                ie2=0;
                is3=1;
                ie3=value.Length();
@@ -168,8 +175,8 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
                                              ,pathString.Data(),currentTableName
                                              ,tname.Data()
                                              ,pathString.Data());
-               value.Remove(is1+1,ie1-is1-1);
-               value.Insert(is1+1,newpathString);
+               value.Remove(is1,ie1-is1);
+               value.Insert(is1,newpathString);
             }
          }
          if(!dbpath->Decode(value,runNumber)){
