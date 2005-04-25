@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.142  2005/04/25 15:04:44  sawada
+  added analyzer include in user DAQ cpp.
+
   Revision 1.141  2005/04/23 09:24:46  sawada
   command line option check.
 
@@ -6609,6 +6612,7 @@ bool ROMEBuilder::WriteDAQCpp() {
          buffer.Resize(0);
 
          buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
          buffer.AppendFormatted("\n");
 
          buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),daqName[iDAQ].Data(),shortCut.Data(),daqName[iDAQ].Data());
