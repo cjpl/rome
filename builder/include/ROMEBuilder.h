@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.39  2005/04/25 13:34:53  schneebeli_m
+  increased muximum numbers
+
   Revision 1.38  2005/04/23 09:24:46  sawada
   command line option check.
 
@@ -88,21 +91,19 @@
 #include <ROMEXML.h>
 #include <ROMEString.h>
 
-const int maxNumberOfTasks = 200;
-const int maxNumberOfFolders = 100;
-const int maxNumberOfTrees = 20;
-const int maxNumberOfDAQ = 20;
-const int maxNumberOfDB = 20;
-const int maxNumberOfBranches = 10;
-const int maxNumberOfBanks = 20;
+const int maxNumberOfTasks = 300;
+const int maxNumberOfFolders = 200;
+const int maxNumberOfTrees = 50;
+const int maxNumberOfDAQ = 10;
+const int maxNumberOfDB = 10;
+const int maxNumberOfBranches = 20;
+const int maxNumberOfBanks = 50;
 const int maxNumberOfEvents = 5;
-const int maxNumberOfSteering = 20;
+const int maxNumberOfSteering = 50;
 const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
-const int maxNumberOfGetters = 10;
-const int maxNumberOfSetters = 10;
 const int maxNumberOfInclude = 10;
-const int maxNumberOfHistos = 10;
+const int maxNumberOfHistos = 50;
 const int maxNumberOfStructFields = 50;
 const int bufferLength = 500000;
 
