@@ -1,3 +1,17 @@
+/********************************************************************
+  TNetFolder.h, M. Schneebeli PSI
+
+  $Log$
+  Revision 1.2  2005/04/25 14:40:31  sawada
+  new TNerFolder
+
+  Revision 1.3  2005/04/11 07:05:12  schneebeli
+  inserted header
+
+
+
+********************************************************************/
+
 #ifndef TNetFolder_H
 #define TNetFolder_H
 
@@ -14,6 +28,8 @@
 
 class TNetFolder : public TNamed
 {
+protected:
+  Int_t GetPointer();
 public:
   TSocket  *fSocket;     //connection to TObjServer server
   Int_t     fFolder;     //pointer to TFolder object
@@ -57,9 +73,10 @@ public:
   
   virtual void Remove( TObject * )
     { Error("Remove","Not available for TNetFolders"); }
-  
-  Int_t GetPointer();
-  
+    
+  void Execute(const char *line);
+  void ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
+
   ClassDef( TNetFolder, 0 )
 };
 

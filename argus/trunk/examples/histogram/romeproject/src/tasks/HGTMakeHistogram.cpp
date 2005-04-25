@@ -42,13 +42,11 @@
 
 ClassImp(HGTMakeHistogram)
 
+TRandom *rndm;
+
 void HGTMakeHistogram::Init()
 {
-   TRandom *rndm = new TRandom();
-   int i;
-   for(i=0;i<10000;i++){
-      FillhAdc(rndm->Gaus(2000,200));
-   }
+   rndm = new TRandom();
 }
 
 void HGTMakeHistogram::BeginOfRun()
@@ -57,6 +55,7 @@ void HGTMakeHistogram::BeginOfRun()
 
 void HGTMakeHistogram::Event()
 {
+   FillhAdc(rndm->Gaus(2000,200));
 }
 
 void HGTMakeHistogram::EndOfRun()
