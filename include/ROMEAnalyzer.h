@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.52  2005/04/25 13:35:11  schneebeli_m
+  .
+
   Revision 1.51  2005/04/22 16:52:57  sawada
   default return value of ReadUserParameter
 
@@ -136,8 +139,8 @@ class ROMEAnalyzer : public TObject
 private:
    // Analysis Mode
    enum {
-      kAnalyzeOffline = 0,
-      kAnalyzeOnline  = 1
+      kAnalyzeOffline,
+      kAnalyzeOnline
    };
 
 protected:
