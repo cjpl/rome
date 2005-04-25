@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.18  2005/04/25 17:06:16  schneebeli_m
+  GetMenuHandle() implemented
+
   Revision 1.17  2005/04/22 15:29:09  schneebeli_m
   added menu id enumeration
 
@@ -73,7 +76,7 @@
 #include "ArgusBuilder.h"
 
 bool ArgusBuilder::WriteWindowCpp() {
-   int i,j,k;
+   int i,j;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString format;
@@ -164,6 +167,9 @@ bool ArgusBuilder::WriteWindowCpp() {
          index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   fTabSwitches.%s = true;\n", switchString.Data());
+      for (j=0;j<numOfMenu[i];j++) {
+         buffer.AppendFormatted("   f%sMenu[%d] == NULL;\n",tabName[i].Data(),j);
+      }
    }
    for (i=0;i<numOfTab;i++) {
       format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n",tabName[i].Length());
@@ -311,6 +317,18 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("TGPopupMenu* %sWindow::GetMenuHandle(const char* menuName)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("   if(fCurrentTabID == f%sTabID) {\n",tabName[i].Data());
+      for (j=0;j<numOfMenu[i];j++) {
+	      buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\"))\n",menuTitle[i][j].Data());
+	      buffer.AppendFormatted("         return f%sMenu[%d];\n",tabName[i].Data(),j);
+      }
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow::~%sWindow()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("}\n");
@@ -340,12 +358,12 @@ bool ArgusBuilder::WriteWindowCpp() {
 }
 
 bool ArgusBuilder::WriteWindowH() {
-   int i;
+   int i,j,k;
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
    ROMEString buf;
-   int nb,lenTot,j,ll;
+   int nb,lenTot,ll;
    char *pos;
    int fileHandle;
    ROMEString classDescription;
@@ -433,6 +451,19 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("\n");
    // Class
    buffer.AppendFormatted("class %sWindow:public TGMainFrame {  \n",shortCut.Data());
+   // Enumeration
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   enum MenuEnumeration {\n");
+   buffer.AppendFormatted("      M_ROOT = 1000,\n");
+   for (i=0;i<numOfTab;i++) {
+      for (j=0;j<numOfMenu[i];j++) {
+         for (k=0;k<numOfMenuItem[i][j];k++) {
+            if (menuItemEnumName[i][j][k].Length()>0)
+               buffer.AppendFormatted("      %s,\n",menuItemEnumName[i][j][k].Data());
+         }
+      }
+   }
+   buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   TGStatusBar         *fStatusBar;\n");
    buffer.AppendFormatted("   Bool_t              fStatusBarSwitch;\n");
@@ -477,6 +508,9 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("   void SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; };\n");
    buffer.AppendFormatted("   Bool_t GetStatusBarSwitch() { return fStatusBarSwitch; };\n");
    buffer.AppendFormatted("   TGStatusBar* GetStatusBar() { return fStatusBar; };\n");
+   // Menu
+   buffer.AppendFormatted("   // Menu\n");
+   buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const char* menuName);\n");
    // Tab Switches
    buffer.AppendFormatted("   // Tab Switches\n");
    buffer.AppendFormatted("   TabSwitches* GetTabSwitches() { return &fTabSwitches; };\n");
@@ -587,7 +621,7 @@ bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
             ,tabName[i].Data(),menuItemChildMenuIndex[i][j][k]);
       }
       else {
-         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", gMonitor->%s);\n"
+         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n"
          ,tabName[i].Data(),j,menuItemTitle[i][j][k].Data()
          ,menuItemEnumName[i][j][k].Data());
       }
