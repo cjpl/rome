@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.24  2005/04/25 17:06:16  schneebeli_m
+  GetMenuHandle() implemented
+
   Revision 1.23  2005/04/22 15:29:08  schneebeli_m
   added menu id enumeration
 
@@ -517,7 +520,7 @@ bool ArgusBuilder::WriteMonitorCpp() {
 }
 
 bool ArgusBuilder::WriteMonitorH() {
-   int i,j,k;
+   int i;
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
@@ -570,19 +573,6 @@ bool ArgusBuilder::WriteMonitorH() {
    // Class
    buffer.AppendFormatted("\nclass %sMonitor : public ArgusMonitor\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   // Enumeration
-   buffer.AppendFormatted("public:\n");
-   buffer.AppendFormatted("   enum MenuEnumeration {\n");
-   buffer.AppendFormatted("      M_ROOT = 1000,\n");
-   for (i=0;i<numOfTab;i++) {
-      for (j=0;j<numOfMenu[i];j++) {
-         for (k=0;k<numOfMenuItem[i][j];k++) {
-            if (menuItemEnumName[i][j][k].Length()>0)
-               buffer.AppendFormatted("      %s,\n",menuItemEnumName[i][j][k].Data());
-         }
-      }
-   }
-   buffer.AppendFormatted("   };\n");
    // Fields
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   TSocket*    fSocketInterfaceSocket;\n");

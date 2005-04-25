@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.27  2005/04/25 17:06:16  schneebeli_m
+  GetMenuHandle() implemented
+
   Revision 1.26  2005/04/22 15:29:08  schneebeli_m
   added menu id enumeration
 
@@ -200,6 +203,9 @@ bool ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
                }
                // check input
                if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]=="") {
+                  cout << currentNumberOfTabs << endl;
+                  cout << currentNumberOfMenus << endl;
+                  cout << numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] << endl;
                   cout << "A menu item of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
