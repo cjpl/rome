@@ -81,7 +81,6 @@
 					<FolderTitle>Photo Multiplier Info</FolderTitle>
 					<ArraySize>gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</ArraySize>
 					<DataBaseAccess>true</DataBaseAccess>
-					<ChangeableClassFile>true</ChangeableClassFile>
 					<Author>
 						<AuthorName>Matthias Schneebeli</AuthorName>
 					</Author>
@@ -91,6 +90,8 @@
 						<FieldName>ADCID</FieldName>
 						<FieldType>Int_t</FieldType>
 						<FieldComment>ADC Number</FieldComment>
+						<DataBaseName>myXML</DataBaseName>
+						<DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/LPAdc/logicalNumber;XEGeometry/idx(0,%d)",gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT()</DataBasePath>
 					</Field>
 					<Field>
 						<FieldName>TDCID</FieldName>
@@ -284,18 +285,23 @@
 					<FieldComment>Event Number</FieldComment>
 				</Field>
 			</Folder>
-			<Folder>
-				<FolderName>test</FolderName>
-				<ArraySize>variable</ArraySize>
-				<Include>
-					<IncludeName>TVector.h</IncludeName>
-					<IncludeType>global</IncludeType>
-				</Include>
+			<!--Folder>
+				<FolderName>ODB</FolderName>
+				<FolderTitle>ODB</FolderTitle>
+				<DataBaseAccess>true</DataBaseAccess>
+				<Author>
+					<AuthorName>Matthias Schneebeli</AuthorName>
+				</Author>
+				<FolderVersion>1</FolderVersion>
+				<FolderDescription>ODB</FolderDescription>
 				<Field>
-					<FieldName>test</FieldName>
-					<FieldType>TVectorF*</FieldType>
+					<FieldName>ServerPort</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>ServerPort</FieldComment>
+					<DataBaseName>odb</DataBaseName>
+					<DataBasePath>/odb/dir[@name='root']/dir[@name='System']/dir[@name='Clients']/dir[@name='3024']/key[@name='Server Port']</DataBasePath>
 				</Field>
-			</Folder>
+			</Folder-->
 		</Folder>
 	</Folders>
 	<Tasks>
@@ -306,29 +312,6 @@
 			</Author>
 			<TaskVersion>1</TaskVersion>
 			<TaskDescription>Reads Midas Data.</TaskDescription>
-			<SteeringParameters>
-				<SteeringParameterField>
-					<SPFieldName>test_bool</SPFieldName>
-					<SPFieldType>Bool_t</SPFieldType>
-					<SPFieldInitialization>true</SPFieldInitialization>
-					<SPFieldCommandLineOption>bool</SPFieldCommandLineOption>
-					<SPFieldCommandLineDescription>make test_bool true</SPFieldCommandLineDescription>
-				</SteeringParameterField>
-				<SteeringParameterField>
-					<SPFieldName>test_float</SPFieldName>
-					<SPFieldType>Float_t</SPFieldType>
-					<SPFieldInitialization>100</SPFieldInitialization>
-					<SPFieldCommandLineOption>float</SPFieldCommandLineOption>
-					<SPFieldCommandLineDescription>specify test_float</SPFieldCommandLineDescription>
-				</SteeringParameterField>
-				<SteeringParameterField>
-					<SPFieldName>test_string</SPFieldName>
-					<SPFieldType>TString</SPFieldType>
-					<SPFieldInitialization>""none""</SPFieldInitialization>
-					<SPFieldCommandLineOption>string</SPFieldCommandLineOption>
-					<SPFieldCommandLineDescription>specify test_string</SPFieldCommandLineDescription>
-				</SteeringParameterField>
-			</SteeringParameters>
 		</Task>
 		<Task>
 			<TaskName>ADCPedestal</TaskName>
@@ -345,13 +328,13 @@
 				<HistName>ADC0Histo</HistName>
 				<HistFolderName>adc0</HistFolderName>
 				<HistType>TH1F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>ADC1Histo</HistName>
 				<HistFolderName>adc1</HistFolderName>
 				<HistType>TH1F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -378,8 +361,18 @@
 			<TaskDescription>Calculates the TDC Average.</TaskDescription>
 			<Histogram>
 				<HistName>TDCAverageHisto</HistName>
+				<HistTitle>TDC Avarage Histogram</HistTitle>
 				<HistFolderName>tdc</HistFolderName>
+				<HistFolderTitle>TDC Avarage Histogram</HistFolderTitle>
 				<HistType>TH1F</HistType>
+				<HistArraySize>1</HistArraySize>
+				<HistArrayStartIndex>0</HistArrayStartIndex>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Y</HistYLabel>
+				<HistZLabel>Z</HistZLabel>
+				<HistXNbins>400</HistXNbins>
+				<HistXmin>-200.000000</HistXmin>
+				<HistXmax>200.000000</HistXmax>
 			</Histogram>
 		</Task>
 		<Task>
@@ -397,37 +390,37 @@
 				<HistName>FrontMapHisto</HistName>
 				<HistFolderName>frontmap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>BackMapHisto</HistName>
 				<HistFolderName>backmap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>TopMapHisto</HistName>
 				<HistFolderName>topmap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>BottomMapHisto</HistName>
 				<HistFolderName>bottommap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>RightMapHisto</HistName>
 				<HistFolderName>rightmap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<Histogram>
 				<HistName>LeftMapHisto</HistName>
 				<HistFolderName>leftmap</HistFolderName>
 				<HistType>TH2F</HistType>
-				<HistArray>true</HistArray>
+				<HistArraySize>2</HistArraySize>
 			</Histogram>
 			<SteeringParameters>
 				<SteeringParameterField>
@@ -476,13 +469,6 @@
 			<Branch>
 				<BranchName>Trigger</BranchName>
 				<RelatedFolder>Trigger</RelatedFolder>
-			</Branch>
-		</Tree>
-		<Tree>
-			<TreeName>test</TreeName>
-			<Branch>
-				<BranchName>test</BranchName>
-				<RelatedFolder>test</RelatedFolder>
 			</Branch>
 		</Tree>
 	</Trees>
@@ -544,6 +530,17 @@
 			</SteeringParameterField>
 		</SteeringParameterGroup>
 	</GlobalSteeringParameters>
+	<UserDAQSystems>
+		<UserDAQSystem>
+			<DAQSystemName>MyDAQ</DAQSystemName>
+		</UserDAQSystem>
+	</UserDAQSystems>
+	<UserDatabases>
+		<UserDatabase>
+			<DatabaseName>MyDB</DatabaseName>
+			<DatabaseDescription>MyDB</DatabaseDescription>
+		</UserDatabase>
+	</UserDatabases>
 	<MidasBanks>
 		<EventHeader>
 			<Folder>Trigger</Folder>
@@ -669,6 +666,14 @@
 					<BankName>SCLR</BankName>
 					<BankType>unsigned long</BankType>
 				</Bank>
+				<StructuredBank>
+					<BankName>TEST</BankName>
+					<BankField>
+						<BankFieldName>data</BankFieldName>
+						<BankFieldType>unsigned short</BankFieldType>
+						<BankFieldArraySize>5</BankFieldArraySize>
+					</BankField>
+				</StructuredBank>
 			</Banks>
 		</EventDefinition>
 	</MidasBanks>

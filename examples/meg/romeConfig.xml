@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Apr 01 12:58:31 2005 -->
+<!-- created by MXML on Mon Apr 25 15:30:48 2005 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <MainConfiguration>
     <RunNumbers>6625</RunNumbers>
@@ -28,7 +28,7 @@
     </Online>
     <SocketInterface>
       <PortNumber>9091</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
+      <AvailableOffline>true</AvailableOffline>
     </SocketInterface>
     <Paths>
       <InputFilePath>C:\Data\analysis\MEG\data/</InputFilePath>
@@ -38,34 +38,29 @@
       <Folder>
         <FolderName>CMPMTInfo</FolderName>
         <Field>
-          <FieldName>ADCID</FieldName>
-          <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/LPAdc/logicalNumber;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
-        </Field>
-        <Field>
           <FieldName>TDCID</FieldName>
           <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/LPTdc/logicalNumber;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
+          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/LPTdc/logicalNumber;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
         <Field>
           <FieldName>Address</FieldName>
           <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/name;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
+          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/name;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
         <Field>
           <FieldName>X</FieldName>
           <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/x;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
+          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/x;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
         <Field>
           <FieldName>Y</FieldName>
           <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/y;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
+          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/y;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
         <Field>
           <FieldName>Z</FieldName>
           <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog(id=#)/XEConf/XEParam{,}(@XEAssign_definition)/XEGeometry/z;XEGeometry/idx[0,%s]",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
+          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/z;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
       </Folder>
     </Folders>
@@ -73,31 +68,10 @@
       <Task>
         <TaskName>ReadMidas</TaskName>
         <Active>true</Active>
-        <SteeringParameterField>
-          <SPName>test_bool</SPName>
-          <SPValue>false</SPValue>
-        </SteeringParameterField>
-        <SteeringParameterField>
-          <SPName>test_float</SPName>
-          <SPValue>100.000000</SPValue>
-        </SteeringParameterField>
-        <SteeringParameterField>
-          <SPName>test_string</SPName>
-          <SPValue>none</SPValue>
-        </SteeringParameterField>
       </Task>
       <Task>
         <TaskName>TDCAverage</TaskName>
-        <Active>false</Active>
-        <Histogram>
-          <HistName>TDCAverageHisto</HistName>
-          <HistTitle>TDC Avarage Histogram</HistTitle>
-          <HistFolderTitle>TDC Avarage Histogram</HistFolderTitle>
-          <HistXNbins>400</HistXNbins>
-          <HistXmin>-200</HistXmin>
-          <HistXmax>200</HistXmax>
-          <HistAccumulate>false</HistAccumulate>
-        </Histogram>
+        <Active>true</Active>
       </Task>
       <Task>
         <TaskName>ADCPedestal</TaskName>
@@ -120,6 +94,7 @@
           <HistTitle>ADC1 Histograms</HistTitle>
           <HistFolderTitle>ADC1 Histograms</HistFolderTitle>
           <HistArraySize>/GSP/PMT/Numbers/NumberOfPMT</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>4096</HistXNbins>
           <HistXmin>0</HistXmin>
           <HistXmax>4096</HistXmax>
@@ -142,6 +117,7 @@
           <HistTitle>Front side Map Histograms</HistTitle>
           <HistFolderTitle>Front side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -155,6 +131,7 @@
           <HistTitle>Back side Map Histograms</HistTitle>
           <HistFolderTitle>Back side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -168,6 +145,7 @@
           <HistTitle>Top side Map Histograms</HistTitle>
           <HistFolderTitle>Top side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -181,6 +159,7 @@
           <HistTitle>Bottom side Map Histograms</HistTitle>
           <HistFolderTitle>Bottom side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -194,6 +173,7 @@
           <HistTitle>Right side Map Histograms</HistTitle>
           <HistFolderTitle>Right side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -207,6 +187,7 @@
           <HistTitle>Left side Map Histograms</HistTitle>
           <HistFolderTitle>Left side Map Histograms</HistFolderTitle>
           <HistArraySize>/SP/NumberOfMapHistos</HistArraySize>
+          <HistArrayStartIndex>0</HistArrayStartIndex>
           <HistXNbins>6</HistXNbins>
           <HistXmin>-20</HistXmin>
           <HistXmax>20</HistXmax>
@@ -241,14 +222,6 @@
       </Tree>
       <Tree>
         <TreeName>Trigger</TreeName>
-        <Read>false</Read>
-        <Write>false</Write>
-        <Fill>false</Fill>
-        <CompressionLevel>0</CompressionLevel>
-        <MaxNumberOfEntries>0</MaxNumberOfEntries>
-      </Tree>
-      <Tree>
-        <TreeName>test</TreeName>
         <Read>false</Read>
         <Write>false</Write>
         <Fill>false</Fill>
@@ -325,6 +298,10 @@
         <Active>false</Active>
         <Bank>
           <BankName>SCLR</BankName>
+          <Active>true</Active>
+        </Bank>
+        <Bank>
+          <BankName>TEST</BankName>
           <Active>true</Active>
         </Bank>
       </Event>
