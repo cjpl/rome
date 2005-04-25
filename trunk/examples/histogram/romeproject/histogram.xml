@@ -1,35 +1,39 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
 <ROMEFrameworkDefinition>
-	<Experiment>
-		<ExperimentName>Histograms</ExperimentName>
-		<ExperimentShortCut>HG</ExperimentShortCut>
-		<ProgramName>framework</ProgramName>
-		<FrameworkDescription>Example to show histograms.</FrameworkDescription>
-	</Experiment>
-	<Author>
-		<AuthorName>Ryu Sawada</AuthorName>
-		<AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
-		<AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
-		<AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
-	</Author>
-	<Tasks>
-		<Task>
-			<TaskName>MakeHistogram</TaskName>
-			<Author>Ryu Sawada</Author>
-			<TaskVersion>1</TaskVersion>
-			<TaskDescription>Create and fill histograms at the begin of run</TaskDescription>
-			<TaskEventId>1</TaskEventId>
-			<Histogram>
-				<HistName>hAdc</HistName>
-				<HistTitle>ADC</HistTitle>
-				<HistFolderName>ADC</HistFolderName>
-				<HistFolderTitle>ADC</HistFolderTitle>
-				<HistType>TH1F</HistType>
-				<HistXNbins>3996</HistXNbins>
-				<HistXmin>10</HistXmin>
-				<HistXmax>3996</HistXmax>
-			</Histogram>
-		</Task>
-	</Tasks>
+  <Experiment>
+    <ExperimentName>Histograms</ExperimentName>
+    <ExperimentShortCut>HG</ExperimentShortCut>
+    <ProgramName>framework</ProgramName>
+    <FrameworkDescription>Example to show histograms.</FrameworkDescription>
+  </Experiment>
+  <Author>
+    <AuthorName>Ryu Sawada</AuthorName>
+    <AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+    <AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+    <AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
+  </Author>
+  <Tasks>
+    <Task>
+      <TaskName>MakeHistogram</TaskName>
+      <Author>Ryu Sawada</Author>
+      <TaskVersion>1</TaskVersion>
+      <TaskDescription>Create and fill histograms at the begin of run</TaskDescription>
+      <Histogram>
+	<HistName>hAdc</HistName>
+	<HistTitle>ADC</HistTitle>
+	<HistFolderName>ADC</HistFolderName>
+	<HistFolderTitle>ADC</HistFolderTitle>
+	<HistType>TH1F</HistType>
+	<HistXNbins>3996</HistXNbins>
+	<HistXmin>10</HistXmin>
+	<HistXmax>3996</HistXmax>
+      </Histogram>
+    </Task>
+  </Tasks>
+  <UserDAQSystems>
+    <UserDAQSystem>
+      <DAQSystemName>dummy</DAQSystemName>
+    </UserDAQSystem>
+  </UserDAQSystems>
 </ROMEFrameworkDefinition>

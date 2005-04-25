@@ -1,3 +1,21 @@
+// Author: Matthias Schneebeli
+//////////////////////////////////////////////////////////////////////////
+//
+//  TNetFolder
+//
+//  
+//
+//  $Log$
+//  Revision 1.3  2005/04/25 14:40:31  sawada
+//  new TNerFolder
+//
+//  Revision 1.4  2005/04/11 07:05:12  schneebeli
+//  inserted header
+//
+//
+//
+//////////////////////////////////////////////////////////////////////////
+
 #include "TNetFolder.h"
 
 ClassImp(TNetFolder)
@@ -96,7 +114,7 @@ TObject* TNetFolder::FindObjectAny(const char *name)
     return NULL;
   }
   TObject *obj = (TObject*) m->ReadObject(m->GetClass());
-
+  
   delete m;
   return obj;
 }
@@ -154,4 +172,22 @@ Int_t TNetFolder::Occurence(const TObject *obj)
   return retValue;
 }
 
-// end of file
+void TNetFolder::Execute(const char *line)
+{
+  // The line is executed by the CINT of the server
+  fSocket->Send("Execute");
+  fSocket->Send(line);
+}
+
+void TNetFolder::ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments)
+{
+  // A method of an object is executed by the CINT of the server. 
+  // The statment on the server side is the following :
+  //   ((objectType)objectName)->methodName(methodArguments);
+  fSocket->Send("ExecuteMethod");
+  fSocket->Send(objectName);
+  fSocket->Send(objectType);
+  fSocket->Send(methodName);
+  fSocket->Send(methodArguments);
+}
+
