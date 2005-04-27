@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2005/04/27 18:26:47  sawada
+  small bug fix.
+
   Revision 1.15  2005/04/27 10:30:45  sawada
   Added SQLite,SQLite3 support.
 
@@ -86,8 +89,7 @@ public:
 
    char*  GetDBMSType() { return (char*) fDBMSType.Data(); }
    void   LinkError() {
-      cout<<"Error: This program is not linked with "<<fDBMSType<<" library."<<endl
-          <<"To enable it, please execute ROMEBuilder.exe with -"<<fDBMSType<<" option."<<endl;
+      cout<<"Error: This program is not linked with "<<fDBMSType<<" library."<<endl;
    }
 
    bool   Init(const char* name,const char* dataBase,const char* connection);
