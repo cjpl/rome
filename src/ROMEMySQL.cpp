@@ -6,6 +6,9 @@
 //  Provides MySQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.2  2005/04/27 17:34:45  sawada
+//  Added PostgreSQL class. This is not yet available in ROME since it is not tested.
+//
 //  Revision 1.1  2005/04/27 10:30:45  sawada
 //  Added SQLite,SQLite3 support.
 //
@@ -94,7 +97,7 @@ void ROMEMySQL::FreeResult(){
 
 int ROMEMySQL::GetNumberOfRows() {
    if( !result ) {
-      cout << "NextRow error :" << GetErrorMessage() << endl;
+      cout << "GetNumberOfRows error : no query result." << endl;
       return -1;
    }
    return (int)mysql_num_rows(result);
@@ -102,7 +105,7 @@ int ROMEMySQL::GetNumberOfRows() {
 
 int ROMEMySQL::GetNumberOfFields() {
    if( !this->row ) {
-      cout << "GetFieldCount error : row is empty" << endl;
+      cout << "GetFieldCount error : no query result." << endl;
       return -1;
    }
    return mysql_num_fields(result);
@@ -119,7 +122,7 @@ bool ROMEMySQL::DataSeek(my_ulonglong offset) {
    }
    mysql_data_seek(result,offset);
    if( !(row = mysql_fetch_row(result)) ) {
-      cout << "NextRow error :" << GetErrorMessage() << endl;
+      cout << "DataSeek error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
@@ -127,7 +130,7 @@ bool ROMEMySQL::DataSeek(my_ulonglong offset) {
 
 char* ROMEMySQL::GetField(int fieldNumber) {
    if( !row ) {
-      cout << "GetField error :" << GetErrorMessage() << endl;
+      cout << "GetField error : no query result." << endl;
       return NULL;
    }
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
@@ -139,7 +142,7 @@ char* ROMEMySQL::GetField(int fieldNumber) {
 
 bool ROMEMySQL::NextRow() {
    if( !result ) {
-      cout << "NextRow error : no query result" << endl;
+      cout << "NextRow error : no query result." << endl;
       return false;
    }
    if( !(row = mysql_fetch_row(result)) ) {
