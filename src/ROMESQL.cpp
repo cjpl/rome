@@ -1,260 +1,125 @@
-// Author: Matthias Schneebeli
+// Author: Ryu Sawada
 //////////////////////////////////////////////////////////////////////////
 //                                                                      //
-// ROMESQL                                                             //
+// ROMESQL                                                              //
 //                                                                      //
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
-//  Revision 1.14  2005/03/13 08:43:14  sawada
-//  removed or comment out unused variables.
-//  made virtual destructor of ROMEConfig and ROMEDataBase.
-//
-//  Revision 1.13  2004/11/19 16:26:24  sawada
-//  speed up with reading order array at once.
-//
-//  Revision 1.12  2004/11/18 15:23:23  sawada
-//
-//  Modify handling the order of array.
-//  Enable inverse order.
-//  Enable to send sql query from user tasks.
-//
-//  Revision 1.11  2004/11/16 18:53:44  sawada
-//  SQL Write
-//
-//  Revision 1.10  2004/11/16 12:11:06  sawada
-//  SQL Init,Read
-//
-//  Revision 1.9  2004/10/05 07:52:44  schneebeli_m
-//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
-//
-//  Revision 1.8  2004/09/30 13:08:21  schneebeli_m
-//  ...
-//
-//  Revision 1.7  2004/09/25 01:34:48  schneebeli_m
-//  implemented FW dependent EventLoop and DataBase classes
+//  Revision 1.15  2005/04/27 10:30:45  sawada
+//  Added SQLite,SQLite3 support.
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <Riostream.h>
-#include <stdio.h>
-#include <iostream>
-#include <iomanip>
-#include <string.h>
 #include <ROMESQL.h>
 
-ROMESQL::ROMESQL() {
-   mysql_init(&mysql);
-}
-
-ROMESQL::~ROMESQL() {
-   mysql_close(&mysql);
-}
-
-bool ROMESQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
+bool ROMESQL::CreateDataBase(const char* database)
 {
-   if (!mysql_real_connect(&mysql, server, user, passwd, database,atoi(port), NULL, 0)) {
-      printf("Could not connect to the data base '%s' : Error: %s\n",database,mysql_error(&mysql));
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("CREATE DATABASE %s;",database);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not create data base '"<<database<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::DisConnect()
+bool ROMESQL::DeleteDataBase(const char* database)
 {
-   mysql_close(&mysql);
-   return true;
-}
-
-bool ROMESQL::CreateDataBase(char* database)
-{
-   char sqlquery[128];
-   sprintf(sqlquery,"CREATE DATABASE %s;",database);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not create data base '"<<database<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("DROP DATABASE IF EXISTS %s;",database);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not delete data base '"<<database<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::DeleteDataBase(char* database)
+bool ROMESQL::CreateTable(const char* table,const char* fields)
 {
-   char sqlquery[128];
-   sprintf(sqlquery,"DROP DATABASE IF EXISTS %s;",database);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not delete data base '"<<database<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("CREATE TABLE %s (%s);",table,fields);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not create table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::CreateTable(char* table,char* fields)
+bool ROMESQL::DeleteTable(const char* table)
 {
-   char sqlquery[128];
-   sprintf(sqlquery,"CREATE TABLE %s (%s);",table,fields);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not create table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("DROP TABLE IF EXISTS %s;",table);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not delete table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::DeleteTable(char* table)
+bool ROMESQL::InsertRow(const char* table,const char* fields,const char* values)
 {
-   char sqlquery[128];
-   sprintf(sqlquery,"DROP TABLE IF EXISTS %s;",table);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not delete table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("INSERT INTO %s (%s) VALUES (%s);",table,fields,values);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not insert row into table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::InsertRow(char *table,char* fields,char* values)
+bool ROMESQL::DeleteRow(const char* table,const char* constraint)
 {
-   char sqlquery[128000];
-   sprintf(sqlquery,"INSERT INTO %s (%s) VALUES (%s);",table,fields,values);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not insert row into table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("DELETE FROM %s WHERE %s;",table,constraint);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not delete row from table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::DeleteRow(char *table,char* constraint)
+bool ROMESQL::ReplaceField(const char* table,const char* field,const char* value,const char* constraint)
 {
-   char sqlquery[128000];
-   sprintf(sqlquery,"DELETE FROM %s WHERE %s;",table,constraint);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not delete row from table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("UPDATE %s SET %s=%s WHERE %s;",table,field,value,constraint);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Could not replace field '"<<field<<"' in table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
    return true;
 }
 
-bool ROMESQL::ReplaceField(char *table,char* field,char* value,char* constraint)
+bool ROMESQL::ExistField(const char* table,const char* field)
 {
-   char sqlquery[128];
-   sprintf(sqlquery,"UPDATE %s SET %s=%s WHERE %s;",table,field,value,constraint);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Could not replace field '"<<field<<"' in table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("select %s from %s;",field,table);
+   if (!MakeQuery(sqlquery,false)) {
       return false;
    }
+   StoreResult();
    return true;
 }
 
-bool ROMESQL::ExistField(char *table,char* field)
+bool ROMESQL::ReadField(const char* table,const char* field,const char* constraint)
 {
-   char sqlquery[128];
-   sprintf(sqlquery,"select %s from %s;",field,table);
-   if (mysql_query(&mysql,sqlquery)) {
+   ROMEString sqlquery;
+   sqlquery.SetFormatted("select %s from %s where %s;",field,table,constraint);
+   if (!MakeQuery(sqlquery,false)) {
+      cout << "Field '"<<field<<"' not found in table '"<<table<<"'. Error :" << GetErrorMessage() << endl;
       return false;
    }
-   mysql_store_result(&mysql);
-   return true;
-}
-
-bool ROMESQL::ReadField(char *table,char* field,char* constraint)
-{
-   char sqlquery[128];
-   sprintf(sqlquery,"select %s from %s where %s;",field,table,constraint);
-   if (mysql_query(&mysql,sqlquery)) {
-      cout << "Field '"<<field<<"' not found in table '"<<table<<"'. Error :" << mysql_error(&mysql) << endl;
-      return false;
-   }
-   if (!(result = mysql_store_result(&mysql))) {
+   if (!StoreResult()) {
       cout << "No value found in Field '"<<field<<"'." << endl;
       return false;
    }
-   if ((numberOfFields = mysql_num_fields(result))==0) {
+   if (!GetNumberOfFields()) {
       cout << "No value found in Field '"<<field<<"'." << endl;
       return false;
    }
-   if (!(row = mysql_fetch_row(result))) {
+   if (!NextRow()) {
       cout << "No value found in Field '"<<field<<"'." << endl;
       return false;
    }
    return true;
-}
-
-bool ROMESQL::MakeQuery(char* query, bool store)
-{
-#ifdef SQLDEBUG
-   cout<<endl<<"ROMESQL::MakeQuery : "<<query<<endl;
-#endif
-   if (mysql_query(&mysql,query)) {
-      cout << query <<endl;
-      cout << "Query error :" << mysql_error(&mysql) << endl;
-      return false;
-   }
-   if (store && !(result = mysql_store_result(&mysql))) {
-      cout << query <<endl;
-      cout << "Query error :" << mysql_error(&mysql) << endl;
-      return false;
-   }
-   this->numberOfRows = -1;
-   return true;
-}
-
-bool ROMESQL::NextRow() {
-   if( !result ) {
-      cout << "NextRow error : no query result" << endl;
-      return false;
-   }
-   row = mysql_fetch_row(result);
-   if( !row ) {
-      cout << "NextRow error :" << mysql_error(&mysql) << endl;
-      return false;
-   }
-   return true;
-}
-
-bool ROMESQL::DataSeek(my_ulonglong offset) {
-   if( !result ) {
-      cout << "DataSeek error : no query result" << endl;
-      return false;
-   }
-   if( mysql_num_rows(result) <= offset ) {
-      cout << "DataSeek error : offset is larger than number of results"<<endl;
-      return false;
-   }
-   mysql_data_seek(result,offset);
-   row = mysql_fetch_row(result);
-   if( !row ) {
-      cout << "NextRow error :" << mysql_error(&mysql) << endl;
-      return false;
-   }
-   return true;
-}
-
-int ROMESQL::GetNumberOfRows() {
-   if( !result ) {
-      cout << "NextRow error :" << mysql_error(&mysql) << endl;
-      return -1;
-   }
-   if( numberOfRows > -1 ) {
-      return numberOfRows;
-   }
-   numberOfRows = (int)mysql_num_rows(result);
-   return numberOfRows;
-}
-
-int ROMESQL::GetNumberOfFields() {
-   if( !this->row ) {
-      cout << "GetFieldCount error : row is empty" << endl;
-      return -1;
-   }
-   return mysql_num_fields(result);
-}
-
-char* ROMESQL::GetField(int fieldNumber) {
-   if( !row ) {
-      cout << "GetField error :" << mysql_error(&mysql) << endl;
-      return NULL;
-   }
-   if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
-      cout << "GetField error : field number out of bounds" << endl;
-      return NULL;
-   }
-   return this->row[fieldNumber];
 }

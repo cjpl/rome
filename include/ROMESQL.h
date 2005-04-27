@@ -1,73 +1,48 @@
 /********************************************************************
-  ROMESQL.h, M. Schneebeli PSI
+  ROMESQL.h, R.Sawada
 
   $Log$
-  Revision 1.10  2005/02/21 21:29:07  sawada
-  Changed OS specifying macros
-  Support for DEC,Ultrix,FreeBSD,Solaris
+  Revision 1.11  2005/04/27 10:30:45  sawada
+  Added SQLite,SQLite3 support.
 
-  Revision 1.9  2004/11/19 16:26:24  sawada
-  speed up with reading order array at once.
-
-  Revision 1.8  2004/11/18 15:23:23  sawada
-
-  Modify handling the order of array.
-  Enable inverse order.
-  Enable to send sql query from user tasks.
-
-  Revision 1.7  2004/11/16 12:11:06  sawada
-  SQL Init,Read
-
-  Revision 1.6  2004/10/05 07:52:44  schneebeli_m
-  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
-
-  Revision 1.5  2004/09/30 13:08:21  schneebeli_m
-  ...
-
-  Revision 1.4  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
 
 ********************************************************************/
 #ifndef ROMESQL_H
 #define ROMESQL_H
 
-#include <RConfig.h>
-#include <TString.h>
-#if defined ( R__VISUAL_CPLUSPLUS )
-#include <Windows4root.h>
-//typedef UINT_PTR        SOCKET;
-#endif
-#include <mysql.h>
+#include <Riostream.h>
+#include <ROMEString.h>
 
 class ROMESQL
 {
-protected:
-   MYSQL mysql;
-   MYSQL_RES *result;
-   int numberOfFields;
-   MYSQL_ROW row;
-   int numberOfRows;
 public:
-   ROMESQL();
-   ~ROMESQL();
-   bool Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
-   bool DisConnect();
-   bool CreateDataBase(char* database);
-   bool DeleteDataBase(char* database);
-   bool CreateTable(char* table,char* fields);
-   bool DeleteTable(char* table);
-   bool ReadField(char *table,char* field,char* constraint);
-   bool InsertRow(char *table,char* fields,char* values);
-   bool DeleteRow(char *table,char* constraint);
-   bool ReplaceField(char *table,char* field,char* value,char* constraint);
-   bool ExistField(char *table,char* field);
-   bool MakeQuery(char* query,bool store);
-   int  GetNumberOfRows();
-   bool NextRow();
-   bool DataSeek(my_ulonglong offset);
-   int  GetNumberOfFields();
-   char* GetField(int fieldNumber);
-   void FreeResult(){mysql_free_result(result);}
+   ROMESQL(){};
+   virtual ~ROMESQL(){};
+   
+   // DBMS dependent methods
+   virtual bool  Connect(const char* server,const char* user,const char* passwd,const char* database,const char* port) = 0;
+   virtual bool  DisConnect() = 0;
+   virtual bool  MakeQuery(const char* query,bool store) = 0;
+   virtual bool  StoreResult() = 0;
+   virtual bool  NextRow() = 0;
+   virtual char* GetField(int fieldNumber) = 0;
+   virtual int   GetNumberOfRows() = 0;
+   virtual int   GetNumberOfFields() = 0;
+   virtual void  FreeResult() = 0;
+   virtual int   GetErrorCode() = 0;
+   virtual char* GetErrorMessage() = 0;
+   
+   // DBMS independent methods
+   bool  MakeQuery(TString& query,bool store){ return MakeQuery(query.Data(),store); }
+   bool  CreateDataBase(const char* database);
+   bool  DeleteDataBase(const char* database);
+   bool  CreateTable(const char* table,const char* fields);
+   bool  DeleteTable(const char* table);
+   bool  ReadField(const char* table,const char* field,const char* constraint);
+   bool  InsertRow(const char* table,const char* fields,const char* values);
+   bool  DeleteRow(const char* table,const char* constraint);
+   bool  ReplaceField(const char* table,const char* field,const char* value,const char* constraint);
+   bool  ExistField(const char* table,const char* field);
 };
 
 #endif   // ROMESQL_H

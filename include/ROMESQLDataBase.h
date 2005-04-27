@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2005/04/27 10:30:45  sawada
+  Added SQLite,SQLite3 support.
+
   Revision 1.14  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -53,6 +56,15 @@
 
 #include <ROMEStr2DArray.h>
 #include <ROMESQL.h>
+#if defined( HAVE_MYSQL )
+#include <ROMEMySQL.h>
+#endif
+#if defined( HAVE_SQLITE )
+#include <ROMESQLite.h>
+#endif
+#if defined( HAVE_SQLITE3 )
+#include <ROMESQLite3.h>
+#endif
 #include <Riostream.h>
 
 #include <ROMEDataBase.h>
@@ -66,9 +78,17 @@ protected:
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
   ROMESQL    *fSQL;
+  TString    fDBMSType;
+
 public:
    ROMESQLDataBase();
    ~ROMESQLDataBase();
+
+   char*  GetDBMSType() { return (char*) fDBMSType.Data(); }
+   void   LinkError() {
+      cout<<"Error: This program is not linked with "<<fDBMSType<<" library."<<endl
+          <<"To enable it, please execute ROMEBuilder.exe with -"<<fDBMSType<<" option."<<endl;
+   }
 
    bool   Init(const char* name,const char* dataBase,const char* connection);
    bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber);
@@ -97,7 +117,7 @@ public:
    int    GetNumberOfFields(){return fSQL->GetNumberOfFields();}
    char*  GetField(int fieldNumber){return fSQL->GetField(fieldNumber);}
    void   FreeResult(){fSQL->FreeResult();}
-   bool   DataSeek(my_ulonglong offset);
+//   bool   DataSeek(my_ulonglong offset);
 
 protected:
    bool   MakePhrase(ROMEPath *dataBasePath,int runNumber);

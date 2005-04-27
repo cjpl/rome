@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.28  2005/04/27 10:30:45  sawada
+//  Added SQLite,SQLite3 support.
+//
 //  Revision 1.27  2005/04/23 21:54:21  sawada
 //  remove () around @@ constraint.
 //
@@ -105,12 +108,12 @@ const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 
 ROMESQLDataBase::ROMESQLDataBase() {
-   fSQL = new ROMESQL();
-   this->ResetPhrase();
+   fSQL = NULL;
 }
 
 ROMESQLDataBase::~ROMESQLDataBase() {
-   delete fSQL;
+   if(fSQL)
+      delete fSQL;
 }
 
 void ROMESQLDataBase:: ResetPhrase(){
@@ -269,7 +272,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
       fFieldList.Remove(fFieldList.Length()-1,1);
    }
    
-#ifdef SQLDEBUG
+#if defined ( SQLDEBUG )
    cout<<endl<<"******************************************************************************"<<endl;
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
       cout<<"Table\t: "<<path->GetTableNameAt(iTable)<<endl;
@@ -280,7 +283,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    
    // start following relation.
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
-#ifdef SQLDEBUG
+#if defined ( SQLDEBUG )
       cout<<"Level-"<<iTable<<": "<<path->GetTableNameAt(iTable);
 #endif
       //add table to FROM phrase
@@ -358,7 +361,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
                );
          }
       }
-#ifdef SQLDEBUG
+#if defined ( SQLDEBUG )
       cout<<"\t  ... OK"<<endl;
 #endif
    }
@@ -379,11 +382,19 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    fName = name;
 
    //decode dataBasePath
-   if ((istart=path.Index("mysql://",8,0,TString::kIgnoreCase))==-1) {
-      cout << "Wrong path for SQL database : " << path << endl;
+   if ((istart=path.Index("://",3,0,TString::kIgnoreCase))==-1) {
+      cout << "Wrong path for SQL database : " << path << endl
+           << "Path should look like," << endl
+           << "mysql://username:password@servername:port/database" << endl
+           << "sqlite://filename" << endl
+           << "sqlite3://filename" << endl;
       return false;
    }
-   istart+=8;
+   fDBMSType = path(0,istart);
+   fDBMSType.ToLower();
+   fDBMSType.ReplaceAll(" ","");
+
+   istart += 3;
    //search for user
    is = istart;
    if ((ie=path.Index("@",1,is,TString::kIgnoreCase))==-1) {
@@ -429,7 +440,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
 #endif
 // please implement similar function for windows
    }
-#ifdef SQLDEBUG
+#if defined ( SQLDEBUG )
    cout<<"******  SQL Connection  ******"<<endl
        <<"server   : "<<server<<endl
        <<"user     : "<<user<<endl
@@ -437,7 +448,40 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
        <<"database : "<<database<<endl
        <<"port     : "<<port<<endl;
 #endif
+
+   if ( fDBMSType == "mysql" ){
+#if defined ( HAVE_MYSQL )
+      fSQL = new ROMEMySQL();
+#else
+      LinkError();
+      return false;
+#endif
+   }
+   else if ( fDBMSType == "sqlite" ){
+#if defined ( HAVE_SQLITE )
+      fSQL = new ROMESQLite();
+#else
+      LinkError();
+      return false;
+#endif
+   }
+   else if ( fDBMSType == "sqlite3" ){
+#if defined ( HAVE_SQLITE3 )
+      fSQL = new ROMESQLite3();
+#else
+      LinkError();
+      return false;
+#endif
+   }
+   else{
+      cout<<"Error: DBMS \""<<fDBMSType<<"\" is not supported"<<endl;
+      return false;
+   }
+
+   this->ResetPhrase();
+
    fSQL->Connect(server.Data(),user.Data(),passwd.Data(),database.Data(),port.Data());
+
    return true;
 }
 
@@ -494,9 +538,17 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                                ,orderField.Data()
                                ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
                                ,TMath::Max(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1)));
-      if(path->GetOrderIndexAt(2)!=1)
-         sqlQuery.AppendFormatted(" AND MOD(%s-%d,%d)=0 "
-                                  ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+      if(path->GetOrderIndexAt(2)!=1){
+         if(fDBMSType == "mysql")
+            sqlQuery.AppendFormatted(" AND MOD(%s-%d,%d)=0 "
+                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+         if(fDBMSType == "sqlite")
+            sqlQuery.AppendFormatted(" AND ((%s-%d)%%%d)=0 "
+                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+         if(fDBMSType == "sqlite3")
+            sqlQuery.AppendFormatted(" AND ((%s-%d)%%%d)=0 "
+                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+      }
       sqlQuery.AppendFormatted(" ORDER BY %s ",orderField.Data());
       if(path->GetOrderIndexAt(2)<0)
          sqlQuery += " DESC ";
@@ -704,7 +756,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          sqlQuery += " LIMIT 1;";
       }
       
-#ifdef SQLDEBUG
+#if defined ( SQLDEBUG )
       cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
 #else
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){

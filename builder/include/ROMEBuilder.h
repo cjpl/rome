@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.40  2005/04/27 10:30:44  sawada
+  Added SQLite,SQLite3 support.
+
   Revision 1.39  2005/04/25 13:34:53  schneebeli_m
   increased muximum numbers
 
@@ -123,6 +126,9 @@ public:
    bool  noLink;
    bool  midas;
    bool  sql;
+   bool  mysql;
+   bool  sqlite;
+   bool  sqlite3;
 
 private:
    ROMEXML* xml;

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.143  2005/04/27 10:30:44  sawada
+  Added SQLite,SQLite3 support.
+
   Revision 1.142  2005/04/25 15:04:44  sawada
   added analyzer include in user DAQ cpp.
 
@@ -4960,6 +4963,9 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMESQLDataBase());\n");
    buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
    buffer.AppendFormatted("                  return false;\n");
+   buffer.AppendFormatted("#else\n");
+   buffer.AppendFormatted("                  cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
+   buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
@@ -7981,7 +7987,9 @@ void usage() {
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
    cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
-   cout << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
+   cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;
+   cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
+   cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -8012,7 +8020,10 @@ int main(int argc, char *argv[])
    romeb->makeOutput = false;
    romeb->noLink = false;
    romeb->midas = false;
-   romeb->sql = true;
+   romeb->sql = false;
+   romeb->mysql = false;
+   romeb->sqlite = false;
+   romeb->sqlite3 = false;
 
    romeb->outDir = workDir;
    romeb->outDir.Append("/");
@@ -8066,7 +8077,16 @@ int main(int argc, char *argv[])
          romeb->noLink = true;
       }
       else if (!strcmp(argv[i],"-nosql")) {
-         romeb->sql = false;
+         cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
+      }
+      else if (!strcmp(argv[i],"-mysql")) {
+         romeb->mysql = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite")) {
+         romeb->sqlite = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite3")) {
+         romeb->sqlite3 = true;
       }
       else if (!strcmp(argv[i],"-midas")) {
          romeb->midas = true;
@@ -8096,6 +8116,8 @@ int main(int argc, char *argv[])
          xmlFile = argv[i];
       }
    }
+
+   romeb->sql = (romeb->mysql || romeb->sqlite || romeb->sqlite3 );
 
    if( stat( xmlFile.Data(), &buf )) {
       if ( xmlFile == "")
@@ -8474,10 +8496,14 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib \n");
-   if (this->sql) 
-      buffer.AppendFormatted("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
-   else
-      buffer.AppendFormatted("sqllibs = \n");
+   buffer.AppendFormatted("sqllibs =");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
+   if (this->sqlite)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite.lib");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite3.lib");
+   buffer.AppendFormatted("\n");
    if (this->midas)
       buffer.AppendFormatted("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
    else
@@ -8489,8 +8515,14 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortcut.Data());
    if (this->midas) 
       buffer.AppendFormatted(" /DHAVE_MIDAS");
-   if (this->sql) 
+   if (this->sql)
       buffer.AppendFormatted(" /DHAVE_SQL");
+   if (this->mysql)
+      buffer.AppendFormatted(" /DHAVE_MYSQL");
+   if (this->sqlite)
+      buffer.AppendFormatted(" /DHAVE_SQLITE");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" /DHAVE_SQLITE3");
    buffer.AppendFormatted("\n");
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortcut.Data());
@@ -8498,7 +8530,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Includes = /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tasks/ /Iinclude/framework/ ");
    if (this->midas) 
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
-   if (this->sql) 
+   if (this->mysql) 
       buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -8508,14 +8540,24 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
    buffer.AppendFormatted("rootthreadlibs := -lThread\n");
-   if (this->sql){
-      buffer.AppendFormatted("sqllibs := $(shell mysql_config --libs)\n");
-      buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags) -DHAVE_SQL\n");
-   }
-   else{
-      buffer.AppendFormatted("sqllibs := \n");
-      buffer.AppendFormatted("sqlcflags := \n");
-   }
+   buffer.AppendFormatted("sqllibs :=");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(shell mysql_config --libs)");
+   if (this->sqlite)
+      buffer.AppendFormatted(" -lsqlite");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" -lsqlite3");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("sqlcflags :=");
+   if (this->mysql)
+      buffer.AppendFormatted(" -DHAVE_SQL");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
+   if (this->sqlite)
+      buffer.AppendFormatted(" -DHAVE_SQLITE");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" -DHAVE_SQLITE3");
+   buffer.AppendFormatted("\n");
 #if defined( R__ALPHA )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lc -lbsd\n");
@@ -8690,6 +8732,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (haveFortranTask)
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
+   if (this->mysql)
+      buffer.AppendFormatted(" obj/ROMEMySQL.obj");
+   if (this->sqlite)
+      buffer.AppendFormatted(" obj/ROMESQLite.obj");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/TNetFolderServer.obj");
@@ -8844,6 +8892,18 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatROME.Data(),"ODBOfflineDataBase","ODBOfflineDataBase");
    buffer.AppendFormatted("obj/ROMEODBOnlineDataBase.obj: $(ROMESYS)/src/ROMEODBOnlineDataBase.cpp $(ROMESYS)/include/ROMEODBOnlineDataBase.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"ODBOnlineDataBase","ODBOnlineDataBase");
+   if (this->mysql) {
+      buffer.AppendFormatted("obj/ROMEMySQL.obj: $(ROMESYS)/src/ROMEMySQL.cpp $(ROMESYS)/include/ROMEMySQL.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"MySQL","MySQL");
+   }
+   if (this->sqlite) {
+      buffer.AppendFormatted("obj/ROMESQLite.obj: $(ROMESYS)/src/ROMESQLite.cpp $(ROMESYS)/include/ROMESQLite.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"SQLite","SQLite");
+   }
+   if (this->sqlite3) {
+      buffer.AppendFormatted("obj/ROMESQLite3.obj: $(ROMESYS)/src/ROMESQLite3.cpp $(ROMESYS)/include/ROMESQLite3.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"SQLite3","SQLite3");
+   }
    if (this->sql) {
       buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp $(ROMESYS)/include/ROMESQLDataBase.h\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"SQLDataBase","SQLDataBase");
