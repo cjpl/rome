@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.144  2005/04/27 18:08:26  sawada
+  small bug fix.
+
   Revision 1.143  2005/04/27 10:30:44  sawada
   Added SQLite,SQLite3 support.
 
@@ -8549,7 +8552,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" -lsqlite3");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("sqlcflags :=");
-   if (this->mysql)
+   if (this->sql)
       buffer.AppendFormatted(" -DHAVE_SQL");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
