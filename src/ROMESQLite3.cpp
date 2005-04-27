@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.2  2005/04/27 18:34:08  sawada
+//  small bug fix.
+//
 //  Revision 1.1  2005/04/27 10:30:45  sawada
 //  Added SQLite,SQLite3 support.
 //
@@ -14,7 +17,8 @@
 #include <ROMESQLite3.h>
 
 ROMESQLite3::ROMESQLite3() {
-   db     = NULL;
+   db   = NULL;
+   stmt = NULL;
    FreeResult();
 }
 
