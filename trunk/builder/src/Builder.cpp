@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.35  2005/04/27 20:17:42  sawada
+  SQLite support.
+
   Revision 1.34  2005/04/22 12:58:24  schneebeli_m
   removed windows errors
 
@@ -212,7 +215,9 @@ void usage() {
         << "  -v        Verbose Mode (no Argument)" << endl
         << "  -nl       No Linking (no Argument)" << endl
         << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl
-        << "  -nosql    Generated program has no SQL data base access (no sql library needed) (no Argument)" << endl;
+        << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl
+        << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl
+        << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
 }
 
 int main(int argc, char *argv[])
@@ -242,7 +247,10 @@ int main(int argc, char *argv[])
    argusb->makeOutput = false;
    argusb->noLink = false;
    argusb->midas = false;
-   argusb->sql = true;
+   argusb->sql = false;
+   argusb->mysql = false;
+   argusb->sqlite = false;
+   argusb->sqlite3 = false;
    argusb->outDir = workDir;
    argusb->outDir.Append("/");
    if (argc==1) {
@@ -257,7 +265,16 @@ int main(int argc, char *argv[])
          argusb->noLink = true;
       }
       else if (!strcmp(argv[i],"-nosql")) {
-         argusb->sql = false;
+         cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
+      }
+      else if (!strcmp(argv[i],"-mysql")) {
+         argusb->mysql = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite")) {
+         argusb->sqlite = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite3")) {
+         argusb->sqlite3 = true;
       }
       else if (!strcmp(argv[i],"-midas")) {
          argusb->midas = true;
@@ -291,6 +308,7 @@ int main(int argc, char *argv[])
             xmlFile+=".xml";
       }
    }
+   argusb->sql = (argusb->mysql || argusb->sqlite || argusb->sqlite3 );
    if( stat( xmlFile.Data(), &buf )) {
       if ( xmlFile == "")
          cout << "No inputfile specified." << endl;
@@ -579,10 +597,14 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib \n");
-   if (this->sql) 
-      buffer.AppendFormatted("sqllibs = $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib\n");
-   else
-      buffer.AppendFormatted("sqllibs = \n");
+   buffer.AppendFormatted("sqllibs =");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
+   if (this->sqlite)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite.lib");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite3.lib");
+   buffer.AppendFormatted("\n");
    if (this->midas)
       buffer.AppendFormatted("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
    else
@@ -594,14 +616,20 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortcut.Data());
    if (this->midas) 
       buffer.AppendFormatted(" /DHAVE_MIDAS");
-   if (this->sql) 
+   if (this->sql)
       buffer.AppendFormatted(" /DHAVE_SQL");
+   if (this->mysql)
+      buffer.AppendFormatted(" /DHAVE_MYSQL");
+   if (this->sqlite)
+      buffer.AppendFormatted(" /DHAVE_SQLITE");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" /DHAVE_SQLITE3");
    buffer.AppendFormatted("\n");
    // includes
    buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/monitor/ ");
    if (this->midas) 
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
-   if (this->sql) 
+   if (this->mysql) 
       buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -611,14 +639,24 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
    buffer.AppendFormatted("rootthreadlibs := -lThread\n");
-   if (this->sql){
-      buffer.AppendFormatted("sqllibs := $(shell mysql_config --libs)\n");
-      buffer.AppendFormatted("sqlcflags := $(shell mysql_config --cflags) -DHAVE_SQL\n");
-   }
-   else{
-      buffer.AppendFormatted("sqllibs := \n");
-      buffer.AppendFormatted("sqlcflags := \n");
-   }
+   buffer.AppendFormatted("sqllibs :=");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(shell mysql_config --libs)");
+   if (this->sqlite)
+      buffer.AppendFormatted(" -lsqlite");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" -lsqlite3");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("sqlcflags :=");
+   if (this->sql)
+      buffer.AppendFormatted(" -DHAVE_SQL");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
+   if (this->sqlite)
+      buffer.AppendFormatted(" -DHAVE_SQLITE");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" -DHAVE_SQLITE3");
+   buffer.AppendFormatted("\n");
 #if defined( R__ALPHA )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lc -lbsd\n");
@@ -748,6 +786,12 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    }
    buffer.AppendFormatted(" $(TabObjects)");
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   if (this->mysql)
+      buffer.AppendFormatted(" obj/ROMEMySQL.obj");
+   if (this->sqlite)
+      buffer.AppendFormatted(" obj/ROMESQLite.obj");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
    buffer.AppendFormatted(" obj/ArgusMonitor.obj obj/ArgusTextDialog.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/%sDict.obj obj/mxml.obj\n\n",shortCut.Data());
@@ -860,6 +904,18 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted((char*)compileFormatROME.Data(),"Path","Path");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted((char*)compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   if (this->mysql) {
+      buffer.AppendFormatted("obj/ROMEMySQL.obj: $(ROMESYS)/src/ROMEMySQL.cpp $(ROMESYS)/include/ROMEMySQL.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"MySQL","MySQL");
+   }
+   if (this->sqlite) {
+      buffer.AppendFormatted("obj/ROMESQLite.obj: $(ROMESYS)/src/ROMESQLite.cpp $(ROMESYS)/include/ROMESQLite.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"SQLite","SQLite");
+   }
+   if (this->sqlite3) {
+      buffer.AppendFormatted("obj/ROMESQLite3.obj: $(ROMESYS)/src/ROMESQLite3.cpp $(ROMESYS)/include/ROMESQLite3.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"SQLite3","SQLite3");
+   }
    if (this->sql) {
       buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp $(ROMESYS)/include/ROMESQLDataBase.h\n");
       buffer.AppendFormatted((char*)compileFormatROME.Data(),"SQLDataBase","SQLDataBase");
@@ -910,8 +966,12 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" -nl");
    if(midas)
       buffer.AppendFormatted(" -midas");
-   if(!sql)
-      buffer.AppendFormatted(" -nosql");
+   if(mysql)
+      buffer.AppendFormatted(" -mysql");
+   if(sqlite)
+      buffer.AppendFormatted(" -sqlite");
+   if(sqlite3)
+      buffer.AppendFormatted(" -sqlite3");
    buffer.AppendFormatted("\n");
    ROMEString makeFile;
 #if defined( R__UNIX )
