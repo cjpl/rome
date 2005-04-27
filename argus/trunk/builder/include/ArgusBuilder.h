@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.18  2005/04/27 20:17:42  sawada
+  SQLite support.
+
   Revision 1.17  2005/04/22 15:29:08  schneebeli_m
   added menu id enumeration
 
@@ -97,6 +100,9 @@ public:
    bool       noLink;
    bool       midas;
    bool       sql;
+   bool       mysql;
+   bool       sqlite;
+   bool       sqlite3;
    bool       romefolder;
    
 private:

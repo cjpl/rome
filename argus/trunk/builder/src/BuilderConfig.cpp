@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/04/27 20:17:42  sawada
+  SQLite support.
+
   Revision 1.11  2005/04/12 17:50:58  sawada
   changes for mxml
 
@@ -314,6 +317,9 @@ bool ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         gMonitor->SetDataBase(new ROMESQLDataBase());\n");
    buffer.AppendFormatted("         if (!gMonitor->GetDataBase()->Init(\"\",\"\",gMonitor->GetDataBaseConnection()))\n");
    buffer.AppendFormatted("            return false;\n");
+   buffer.AppendFormatted("#else\n");
+   buffer.AppendFormatted("         cout<<gMonitor->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
+   buffer.AppendFormatted("         return false;\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData->fDataBase->fType==\"xml\") {\n");
