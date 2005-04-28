@@ -6,6 +6,12 @@
 //  Provides MySQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.3  2005/04/28 20:26:39  sawada
+//  Added transaction during writing database.
+//  This is disabled by default because it is not well tested.
+//  These codes are in "#ifdef USE_TRANSACTION #endif".
+//  Probably, database access will be accelerated with transaction.
+//
 //  Revision 1.2  2005/04/27 17:34:45  sawada
 //  Added PostgreSQL class. This is not yet available in ROME since it is not tested.
 //
@@ -158,4 +164,26 @@ int ROMEMySQL::GetErrorCode() {
 
 char* ROMEMySQL::GetErrorMessage() {
    return (char*) mysql_error(&mysql);
+}
+
+bool ROMEMySQL::StartTransaction( const char* option ){
+   TString sqlQuery = "START TRANSACTION ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
+
+}
+
+bool ROMEMySQL::CommitTransaction( const char* option ){
+   TString sqlQuery = "COMMIT ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
+}
+
+bool ROMEMySQL::RollbackTransaction( const char* option ){
+   TString sqlQuery = "ROLLBACK ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
 }

@@ -6,6 +6,12 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.32  2005/04/28 20:26:39  sawada
+//  Added transaction during writing database.
+//  This is disabled by default because it is not well tested.
+//  These codes are in "#ifdef USE_TRANSACTION #endif".
+//  Probably, database access will be accelerated with transaction.
+//
 //  Revision 1.31  2005/04/28 16:11:11  sawada
 //  small bug fix.
 //
@@ -684,7 +690,10 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
       delete path;
       return false;
    }
-      
+
+#if defined ( USE_TRANSACTION )
+   fSQL->StartTransaction("");
+#endif
    for(iOrder=path->GetOrderIndexAt(0),iArray=0
           ;!path->IsOrderArray() || InRange(iOrder,path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
           ;iOrder+=path->GetOrderIndexAt(2),iArray++){
@@ -710,6 +719,9 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          cout << "Invalid input for database write."<< endl;
          fSQL->FreeResult();
          delete path;
+#if defined ( USE_TRANSACTION )
+         fSQL->RollbackTransaction("");
+#endif
          return false;
       }      
       exist = fSQL->GetNumberOfRows()!=0;
@@ -782,12 +794,18 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
       if(!fSQL->MakeQuery((char*)sqlQuery.Data(),false)){
          cout<<"Invalid input for database write."<<endl;
          delete path;
+#if defined ( USE_TRANSACTION )
+         fSQL->RollbackTransaction("");
+#endif
          return false;
       }
 #endif
       if(!path->IsOrderArray())
          break;
    }
+#if defined ( USE_TRANSACTION )
+   fSQL->CommitTransaction("");
+#endif
    
    delete path;
    return true;

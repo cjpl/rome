@@ -2,6 +2,12 @@
   ROMESQL.h, R.Sawada
 
   $Log$
+  Revision 1.12  2005/04/28 20:26:39  sawada
+  Added transaction during writing database.
+  This is disabled by default because it is not well tested.
+  These codes are in "#ifdef USE_TRANSACTION #endif".
+  Probably, database access will be accelerated with transaction.
+
   Revision 1.11  2005/04/27 10:30:45  sawada
   Added SQLite,SQLite3 support.
 
@@ -31,6 +37,9 @@ public:
    virtual void  FreeResult() = 0;
    virtual int   GetErrorCode() = 0;
    virtual char* GetErrorMessage() = 0;
+   virtual bool  StartTransaction( const char* option ){ return true; }
+   virtual bool  CommitTransaction( const char* option ){ return true; }
+   virtual bool  RollbackTransaction( const char* option ){ return true; }
    
    // DBMS independent methods
    bool  MakeQuery(TString& query,bool store){ return MakeQuery(query.Data(),store); }

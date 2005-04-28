@@ -6,6 +6,12 @@
 //  Provides PostgreSQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.3  2005/04/28 20:26:39  sawada
+//  Added transaction during writing database.
+//  This is disabled by default because it is not well tested.
+//  These codes are in "#ifdef USE_TRANSACTION #endif".
+//  Probably, database access will be accelerated with transaction.
+//
 //  Revision 1.2  2005/04/28 10:01:45  sawada
 //  PostgreSQL support.
 //
@@ -113,4 +119,25 @@ int ROMEPgSQL::GetErrorCode() {
 
 char* ROMEPgSQL::GetErrorMessage() {
    return (char*) PQerrorMessage(connection);
+}
+
+bool ROMEPgSQL::StartTransaction( const char* option ){
+   TString sqlQuery = "START TRANSACTION ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
+}
+
+bool ROMEPgSQL::CommitTransaction( const char* option ){
+   TString sqlQuery = "COMMIT ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
+}
+
+bool ROMEPgSQL::RollbackTransaction( const char* option ){
+   TString sqlQuery = "ROLLBACK ";
+   sqlQuery += option;
+   sqlQuery += ";";
+   return MakeQuery(sqlQuery.Data(),false);
 }
