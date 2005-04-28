@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.19  2005/04/28 16:11:10  sawada
+  small bug fix.
+
   Revision 1.18  2005/04/28 16:02:22  sawada
   replaced MySQL dialect with standard SQL.
 
@@ -91,8 +94,8 @@ protected:
   ROMEString fSetFieldList;
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
-  ROMEString fAdditionalInsertFields;
-  ROMEString fAdditionalInsertValues;
+  ROMEString fAdInsertFields;
+  ROMEString fAdInsertValues;
   ROMESQL    *fSQL;
   TString    fDBMSType;
 

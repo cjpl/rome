@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.31  2005/04/28 16:11:11  sawada
+//  small bug fix.
+//
 //  Revision 1.30  2005/04/28 16:02:22  sawada
 //  replaced MySQL dialect with standard SQL.
 //
@@ -128,8 +131,8 @@ void ROMESQLDataBase:: ResetPhrase(){
    fSetFieldList.Resize(0);
    fFromPhrase.Resize(0);
    fWherePhrase.Resize(0);
-   fAdditionalFields.Resize(0);
-   fAdditionalValues.Resize(0);
+   fAdInsertFields.Resize(0);
+   fAdInsertValues.Resize(0);
 }
 
 bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName){
@@ -311,12 +314,12 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             return false;
          }
          for(iConstraint=0;iConstraint<path->GetNumberOfConstraints();iConstraint++){
-            if(fAdditionalFields.Length())
+            if(fAdInsertFields.Length())
                separator = ",";
             else
                separator = "";
-            fAdditionalFields.AppendFormatted("%s%s",separator.Data(),path->GetConstraintFieldAt(iConstraint));
-            fAdditionalValues.AppendFormatted("%s%s",separator.Data(),path->GetConstraintValueAt(iConstraint));
+            fAdInsertFields.AppendFormatted("%s%s",separator.Data(),path->GetConstraintFieldAt(iConstraint));
+            fAdInsertValues.AppendFormatted("%s%s",separator.Data(),path->GetConstraintValueAt(iConstraint));
             if(fWherePhrase.Length())
                fWherePhrase += " AND ";
             fWherePhrase.AppendFormatted("%s.%s=%s",path->GetTableNameAt(iTable)
@@ -722,8 +725,8 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
                                      strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx");
          }
-         if(fAdditionalFields.Length())
-            sqlQuery.AppendFormatted(",%s",fAdditionalFields.Data());
+         if(fAdInsertFields.Length())
+            sqlQuery.AppendFormatted(",%s",fAdInsertFields.Data());
          sqlQuery += " ) VALUES ( ";
          separator = "";            
          for(iField=path->GetFieldIndexAt(0),jArray=0
@@ -737,8 +740,8 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          if(path->IsOrderArray()){
             sqlQuery.AppendFormatted(",'%d'",iOrder);
          }
-         if(fAdditionalValues.Length())
-            sqlQuery.AppendFormatted(",%s",fAdditionalValues.Data());
+         if(fAdInsertValues.Length())
+            sqlQuery.AppendFormatted(",%s",fAdInsertValues.Data());
          sqlQuery += " ) ";
          sqlQuery += ";";
       }
