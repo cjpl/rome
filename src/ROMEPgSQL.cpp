@@ -6,6 +6,9 @@
 //  Provides PostgreSQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.2  2005/04/28 10:01:45  sawada
+//  PostgreSQL support.
+//
 //  Revision 1.1  2005/04/27 17:34:45  sawada
 //  Added PostgreSQL class. This is not yet available in ROME since it is not tested.
 //
@@ -25,8 +28,10 @@ ROMEPgSQL::~ROMEPgSQL() {
 
 bool ROMEPgSQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
-   connection = PQsetdbLogin(server, port, 0, 0, database, user, passwd);
-   if (PQstatus(connection) != CONNECTION_BAD) {
+   if(!strcmp(port,"0"))
+      port = NULL;
+   connection = PQsetdbLogin(server, port, NULL, NULL, database, user, passwd);
+   if (PQstatus(connection) == CONNECTION_BAD) {
       cout<<"Could not connect to the data base '"<<database<<"' : Error: "<<GetErrorMessage()<<endl;
       return false;
    }
@@ -107,5 +112,5 @@ int ROMEPgSQL::GetErrorCode() {
 }
 
 char* ROMEPgSQL::GetErrorMessage() {
-   return (char*) PQresultErrorMessage(result);
+   return (char*) PQerrorMessage(connection);
 }

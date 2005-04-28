@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.3  2005/04/28 10:01:45  sawada
+//  PostgreSQL support.
+//
 //  Revision 1.2  2005/04/27 18:34:08  sawada
 //  small bug fix.
 //
@@ -29,7 +32,7 @@ ROMESQLite::~ROMESQLite() {
 bool ROMESQLite::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
    TString filename = server;
-   if(strlen(database)){
+   if(strlen(database) && strlen(server)){
       filename += "/";
       filename += database;
    }

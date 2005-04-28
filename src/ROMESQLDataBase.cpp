@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.29  2005/04/28 10:01:45  sawada
+//  PostgreSQL support.
+//
 //  Revision 1.28  2005/04/27 10:30:45  sawada
 //  Added SQLite,SQLite3 support.
 //
@@ -386,6 +389,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
       cout << "Wrong path for SQL database : " << path << endl
            << "Path should look like," << endl
            << "mysql://username:password@servername:port/database" << endl
+           << "postgresql://username:password@servername:port/database" << endl
            << "sqlite://filename" << endl
            << "sqlite3://filename" << endl;
       return false;
@@ -452,6 +456,14 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    if ( fDBMSType == "mysql" ){
 #if defined ( HAVE_MYSQL )
       fSQL = new ROMEMySQL();
+#else
+      LinkError();
+      return false;
+#endif
+   }
+   else if ( fDBMSType == "postgresql" ){
+#if defined ( HAVE_PGSQL )
+      fSQL = new ROMEPgSQL();
 #else
       LinkError();
       return false;
@@ -539,15 +551,8 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                                ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
                                ,TMath::Max(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1)));
       if(path->GetOrderIndexAt(2)!=1){
-         if(fDBMSType == "mysql")
-            sqlQuery.AppendFormatted(" AND MOD(%s-%d,%d)=0 "
-                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
-         if(fDBMSType == "sqlite")
-            sqlQuery.AppendFormatted(" AND ((%s-%d)%%%d)=0 "
-                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
-         if(fDBMSType == "sqlite3")
-            sqlQuery.AppendFormatted(" AND ((%s-%d)%%%d)=0 "
-                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+         sqlQuery.AppendFormatted(" AND ((%s-%d) %% %d)=0 "
+                                  ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
       }
       sqlQuery.AppendFormatted(" ORDER BY %s ",orderField.Data());
       if(path->GetOrderIndexAt(2)<0)

@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2005/04/28 10:01:45  sawada
+  PostgreSQL support.
+
   Revision 1.16  2005/04/27 18:26:47  sawada
   small bug fix.
 
@@ -61,6 +64,9 @@
 #include <ROMESQL.h>
 #if defined( HAVE_MYSQL )
 #include <ROMEMySQL.h>
+#endif
+#if defined( HAVE_PGSQL )
+#include <ROMEPgSQL.h>
 #endif
 #if defined( HAVE_SQLITE )
 #include <ROMESQLite.h>

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.41  2005/04/28 10:01:44  sawada
+  PostgreSQL support.
+
   Revision 1.40  2005/04/27 10:30:44  sawada
   Added SQLite,SQLite3 support.
 
@@ -127,6 +130,7 @@ public:
    bool  midas;
    bool  sql;
    bool  mysql;
+   bool  pgsql;
    bool  sqlite;
    bool  sqlite3;
 

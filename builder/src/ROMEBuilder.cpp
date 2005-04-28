@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.145  2005/04/28 10:01:44  sawada
+  PostgreSQL support.
+
   Revision 1.144  2005/04/27 18:08:26  sawada
   small bug fix.
 
@@ -7991,6 +7994,7 @@ void usage() {
    cout << "  -nl       No Linking (no Argument)" << endl;
    cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
    cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;
+   cout << "  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)" << endl;
    cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
    cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
 }
@@ -8025,6 +8029,7 @@ int main(int argc, char *argv[])
    romeb->midas = false;
    romeb->sql = false;
    romeb->mysql = false;
+   romeb->pgsql = false;
    romeb->sqlite = false;
    romeb->sqlite3 = false;
 
@@ -8085,6 +8090,9 @@ int main(int argc, char *argv[])
       else if (!strcmp(argv[i],"-mysql")) {
          romeb->mysql = true;
       }
+      else if (!strcmp(argv[i],"-pgsql")) {
+         romeb->pgsql = true;
+      }
       else if (!strcmp(argv[i],"-sqlite")) {
          romeb->sqlite = true;
       }
@@ -8120,7 +8128,7 @@ int main(int argc, char *argv[])
       }
    }
 
-   romeb->sql = (romeb->mysql || romeb->sqlite || romeb->sqlite3 );
+   romeb->sql = (romeb->mysql || romeb->pgsql || romeb->sqlite || romeb->sqlite3 );
 
    if( stat( xmlFile.Data(), &buf )) {
       if ( xmlFile == "")
@@ -8502,6 +8510,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("sqllibs =");
    if (this->mysql)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
+   if (this->pgsql)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libpq.lib");
    if (this->sqlite)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite.lib");
    if (this->sqlite3)
@@ -8522,6 +8532,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /DHAVE_SQL");
    if (this->mysql)
       buffer.AppendFormatted(" /DHAVE_MYSQL");
+   if (this->pgsql)
+      buffer.AppendFormatted(" /DHAVE_PGSQL");
    if (this->sqlite)
       buffer.AppendFormatted(" /DHAVE_SQLITE");
    if (this->sqlite3)
@@ -8546,6 +8558,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("sqllibs :=");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
+   if (this->pgsql)
+      buffer.AppendFormatted(" -L$(shell pg_config --libdir) -lpq");
    if (this->sqlite)
       buffer.AppendFormatted(" -lsqlite");
    if (this->sqlite3)
@@ -8556,6 +8570,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" -DHAVE_SQL");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
+   if (this->pgsql)
+      buffer.AppendFormatted(" -I$(shell pg_config --includedir) -DHAVE_PGSQL");
    if (this->sqlite)
       buffer.AppendFormatted(" -DHAVE_SQLITE");
    if (this->sqlite3)
@@ -8737,6 +8753,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->mysql)
       buffer.AppendFormatted(" obj/ROMEMySQL.obj");
+   if (this->pgsql)
+      buffer.AppendFormatted(" obj/ROMEPgSQL.obj");
    if (this->sqlite)
       buffer.AppendFormatted(" obj/ROMESQLite.obj");
    if (this->sqlite3)
@@ -8898,6 +8916,10 @@ void ROMEBuilder::WriteMakefile() {
    if (this->mysql) {
       buffer.AppendFormatted("obj/ROMEMySQL.obj: $(ROMESYS)/src/ROMEMySQL.cpp $(ROMESYS)/include/ROMEMySQL.h obj/ROMESQL.obj\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"MySQL","MySQL");
+   }
+   if (this->pgsql) {
+      buffer.AppendFormatted("obj/ROMEPgSQL.obj: $(ROMESYS)/src/ROMEPgSQL.cpp $(ROMESYS)/include/ROMEPgSQL.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"PgSQL","PgSQL");
    }
    if (this->sqlite) {
       buffer.AppendFormatted("obj/ROMESQLite.obj: $(ROMESYS)/src/ROMESQLite.cpp $(ROMESYS)/include/ROMESQLite.h obj/ROMESQL.obj\n");
