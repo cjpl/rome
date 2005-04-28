@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.36  2005/04/28 16:26:26  sawada
+  PostgreSQL support.
+  Error message from GetMenuHandle.
+
   Revision 1.35  2005/04/27 20:17:42  sawada
   SQLite support.
 
@@ -216,6 +220,7 @@ void usage() {
         << "  -nl       No Linking (no Argument)" << endl
         << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl
         << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl
+        << "  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)" << endl
         << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl
         << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
 }
@@ -249,6 +254,7 @@ int main(int argc, char *argv[])
    argusb->midas = false;
    argusb->sql = false;
    argusb->mysql = false;
+   argusb->pgsql = false;
    argusb->sqlite = false;
    argusb->sqlite3 = false;
    argusb->outDir = workDir;
@@ -269,6 +275,9 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-mysql")) {
          argusb->mysql = true;
+      }
+      else if (!strcmp(argv[i],"-pgsql")) {
+         argusb->pgsql = true;
       }
       else if (!strcmp(argv[i],"-sqlite")) {
          argusb->sqlite = true;
@@ -308,7 +317,7 @@ int main(int argc, char *argv[])
             xmlFile+=".xml";
       }
    }
-   argusb->sql = (argusb->mysql || argusb->sqlite || argusb->sqlite3 );
+   argusb->sql = (argusb->mysql ||argusb->pgsql || argusb->sqlite || argusb->sqlite3 );
    if( stat( xmlFile.Data(), &buf )) {
       if ( xmlFile == "")
          cout << "No inputfile specified." << endl;
@@ -600,6 +609,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("sqllibs =");
    if (this->mysql)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
+   if (this->pgsql)
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libpq.lib");
    if (this->sqlite)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite.lib");
    if (this->sqlite3)
@@ -620,6 +631,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" /DHAVE_SQL");
    if (this->mysql)
       buffer.AppendFormatted(" /DHAVE_MYSQL");
+   if (this->pgsql)
+      buffer.AppendFormatted(" /DHAVE_PGSQL");
    if (this->sqlite)
       buffer.AppendFormatted(" /DHAVE_SQLITE");
    if (this->sqlite3)
@@ -642,6 +655,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("sqllibs :=");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
+   if (this->pgsql)
+      buffer.AppendFormatted(" -L$(shell pg_config --libdir) -lpq");
    if (this->sqlite)
       buffer.AppendFormatted(" -lsqlite");
    if (this->sqlite3)
@@ -652,6 +667,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" -DHAVE_SQL");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
+   if (this->pgsql)
+      buffer.AppendFormatted(" -I$(shell pg_config --includedir) -DHAVE_PGSQL");
    if (this->sqlite)
       buffer.AppendFormatted(" -DHAVE_SQLITE");
    if (this->sqlite3)
@@ -788,6 +805,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (this->mysql)
       buffer.AppendFormatted(" obj/ROMEMySQL.obj");
+   if (this->pgsql)
+      buffer.AppendFormatted(" obj/ROMEPgSQL.obj");
    if (this->sqlite)
       buffer.AppendFormatted(" obj/ROMESQLite.obj");
    if (this->sqlite3)
@@ -912,6 +931,10 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted("obj/ROMESQLite.obj: $(ROMESYS)/src/ROMESQLite.cpp $(ROMESYS)/include/ROMESQLite.h obj/ROMESQL.obj\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"SQLite","SQLite");
    }
+   if (this->pgsql) {
+      buffer.AppendFormatted("obj/ROMEPgSQL.obj: $(ROMESYS)/src/ROMEPgSQL.cpp $(ROMESYS)/include/ROMEPgSQL.h obj/ROMESQL.obj\n");
+      buffer.AppendFormatted(compileFormatROME.Data(),"PgSQL","PgSQL");
+   }
    if (this->sqlite3) {
       buffer.AppendFormatted("obj/ROMESQLite3.obj: $(ROMESYS)/src/ROMESQLite3.cpp $(ROMESYS)/include/ROMESQLite3.h obj/ROMESQL.obj\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"SQLite3","SQLite3");
@@ -968,6 +991,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" -midas");
    if(mysql)
       buffer.AppendFormatted(" -mysql");
+   if(pgsql)
+      buffer.AppendFormatted(" -pgsql");
    if(sqlite)
       buffer.AppendFormatted(" -sqlite");
    if(sqlite3)
