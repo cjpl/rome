@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2005/04/28 16:02:22  sawada
+  replaced MySQL dialect with standard SQL.
+
   Revision 1.17  2005/04/28 10:01:45  sawada
   PostgreSQL support.
 
@@ -83,9 +86,13 @@
 class ROMESQLDataBase : public ROMEDataBase
 {
 protected:
-  ROMEString fFieldList;
+  ROMEString fSelectFieldList;
+  ROMEString fInsertFieldList;
+  ROMEString fSetFieldList;
   ROMEString fFromPhrase;
   ROMEString fWherePhrase;
+  ROMEString fAdditionalInsertFields;
+  ROMEString fAdditionalInsertValues;
   ROMESQL    *fSQL;
   TString    fDBMSType;
 

@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.30  2005/04/28 16:02:22  sawada
+//  replaced MySQL dialect with standard SQL.
+//
 //  Revision 1.29  2005/04/28 10:01:45  sawada
 //  PostgreSQL support.
 //
@@ -120,9 +123,13 @@ ROMESQLDataBase::~ROMESQLDataBase() {
 }
 
 void ROMESQLDataBase:: ResetPhrase(){
-   fFieldList.Resize(0);
+   fSelectFieldList.Resize(0);
+   fInsertFieldList.Resize(0);
+   fSetFieldList.Resize(0);
    fFromPhrase.Resize(0);
    fWherePhrase.Resize(0);
+   fAdditionalFields.Resize(0);
+   fAdditionalValues.Resize(0);
 }
 
 bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName){
@@ -256,23 +263,26 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
+   ROMEString separator;
    int        iTable = 0;   
    int        iConstraint;
    int        iField;
-   //field list 
-   if(!fFieldList.Length()){      
+   //field list
+   if(!fSelectFieldList.Length()){
+      separator = "";
       for(iField=path->GetFieldIndexAt(0)
              ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
              ;iField+=path->GetFieldIndexAt(2)){
          temp = path->GetFieldName();
          if(path->IsFieldArray())
             temp.AppendFormatted("__%d",iField);     
-         fFieldList.AppendFormatted("%s.%s%s,",path->GetTableNameAt(path->GetNumberOfTables()-1)
-                                    ,temp.Data(),RSQLDB_STR);
+         fSelectFieldList.AppendFormatted("%s%s.%s",separator.Data(),path->GetTableNameAt(path->GetNumberOfTables()-1),temp.Data());
+         fInsertFieldList.AppendFormatted("%s%s",separator.Data(),temp.Data());
+         fSetFieldList.AppendFormatted("%s%s%s",separator.Data(),temp.Data(),RSQLDB_STR);
+         separator = ",";
          if(!path->IsFieldArray())
             break;
       }
-      fFieldList.Remove(fFieldList.Length()-1,1);
    }
    
 #if defined ( SQLDEBUG )
@@ -283,7 +293,6 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    cout<<"Field\t: "<<path->GetFieldName()<<endl<<endl;
    cout<<"following relations..."<<endl;
 #endif
-   
    // start following relation.
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
 #if defined ( SQLDEBUG )
@@ -302,6 +311,12 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             return false;
          }
          for(iConstraint=0;iConstraint<path->GetNumberOfConstraints();iConstraint++){
+            if(fAdditionalFields.Length())
+               separator = ",";
+            else
+               separator = "";
+            fAdditionalFields.AppendFormatted("%s%s",separator.Data(),path->GetConstraintFieldAt(iConstraint));
+            fAdditionalValues.AppendFormatted("%s%s",separator.Data(),path->GetConstraintValueAt(iConstraint));
             if(fWherePhrase.Length())
                fWherePhrase += " AND ";
             fWherePhrase.AppendFormatted("%s.%s=%s",path->GetTableNameAt(iTable)
@@ -534,8 +549,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                                  ? path->GetOrderFieldName() : "idx");
    
    sqlQuery = "SELECT ";
-   sqlQuery += fFieldList;
-   sqlQuery.ReplaceAll(RSQLDB_STR,"");
+   sqlQuery += fSelectFieldList;
    if(path->IsOrderArray())
       sqlQuery.AppendFormatted(",%s",orderField.Data());
    sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
@@ -638,8 +652,8 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    ROMEPath *path = new ROMEPath();
    ROMEString fieldName;
    ROMEString sqlQuery;
-   ROMEString setPhrase;
    ROMEString temp;
+   ROMEString separator;
    int iArray,jArray;
    int istart;
    bool exist;
@@ -667,18 +681,13 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
       delete path;
       return false;
    }
-   setPhrase = fWherePhrase;
-   setPhrase.ReplaceAll(" AND ",",");
-   setPhrase.ReplaceAll(" and ",",");
-   setPhrase.ReplaceAll(" And ",",");        
       
    for(iOrder=path->GetOrderIndexAt(0),iArray=0
           ;!path->IsOrderArray() || InRange(iOrder,path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
           ;iOrder+=path->GetOrderIndexAt(2),iArray++){
       //check if the row exists
       sqlQuery = "SELECT ";
-      sqlQuery += fFieldList;
-      sqlQuery.ReplaceAll(RSQLDB_STR,"");
+      sqlQuery += fSelectFieldList;
       sqlQuery += " FROM ";
       sqlQuery += fFromPhrase;
       if(fWherePhrase.Length())
@@ -706,27 +715,31 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
       if(!exist){ // insert new record
          sqlQuery = "INSERT INTO ";
          sqlQuery += fFromPhrase;
-         sqlQuery += " SET ";
-         sqlQuery += fFieldList;
-         for(iField=path->GetFieldIndexAt(0),jArray=0,istart=0
+         sqlQuery += " ( ";
+         sqlQuery += fInsertFieldList;
+         if(path->IsOrderArray()){
+            sqlQuery.AppendFormatted(",%s",
+                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
+                                     ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx");
+         }
+         if(fAdditionalFields.Length())
+            sqlQuery.AppendFormatted(",%s",fAdditionalFields.Data());
+         sqlQuery += " ) VALUES ( ";
+         separator = "";            
+         for(iField=path->GetFieldIndexAt(0),jArray=0
                 ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
                 ;iField+=path->GetFieldIndexAt(2),jArray++){
-            if ((istart=sqlQuery.Index(RSQLDB_STR,RSQLDB_STR_LEN,istart,TString::kIgnoreCase))!=-1) {
-               temp.SetFormatted("='%s'",values->At(iArray,jArray).Data());
-               sqlQuery.Remove(istart,RSQLDB_STR_LEN);
-               sqlQuery.Insert(istart,temp);
-            }
+            sqlQuery.AppendFormatted("%s'%s'",separator.Data(),values->At(iArray,jArray).Data());
+            separator = ",";
             if(!path->IsFieldArray())
                break;
-         }         
-         if(setPhrase.Length())
-            sqlQuery.AppendFormatted(",%s",setPhrase.Data());
-         if(path->IsOrderArray()){
-            sqlQuery.AppendFormatted(",%s.%s ='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
-                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
-                                     ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
-                                     ,iOrder);
          }
+         if(path->IsOrderArray()){
+            sqlQuery.AppendFormatted(",'%d'",iOrder);
+         }
+         if(fAdditionalValues.Length())
+            sqlQuery.AppendFormatted(",%s",fAdditionalValues.Data());
+         sqlQuery += " ) ";
          sqlQuery += ";";
       }
 
@@ -734,7 +747,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          sqlQuery = "UPDATE ";
          sqlQuery += fFromPhrase;
          sqlQuery += " SET ";
-         sqlQuery += fFieldList;         
+         sqlQuery += fSetFieldList;
          for(iField=path->GetFieldIndexAt(0),jArray=0,istart=0
                 ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
                 ;iField+=path->GetFieldIndexAt(2),jArray++){
@@ -758,7 +771,6 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
                                      ,iOrder);
          }
-         sqlQuery += " LIMIT 1;";
       }
       
 #if defined ( SQLDEBUG )
@@ -779,7 +791,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
 }
 
 void ROMESQLDataBase::Print() {
-   ROMEString temp = fFieldList;
+   ROMEString temp = fSelectFieldList;
    temp.ReplaceAll(RSQLDB_STR,"");
    cout << "******************************************************************************"<<endl
         << "   FIELD : " << temp         << endl
