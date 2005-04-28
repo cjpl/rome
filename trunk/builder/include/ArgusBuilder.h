@@ -2,6 +2,10 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.19  2005/04/28 16:26:26  sawada
+  PostgreSQL support.
+  Error message from GetMenuHandle.
+
   Revision 1.18  2005/04/27 20:17:42  sawada
   SQLite support.
 
@@ -101,6 +105,7 @@ public:
    bool       midas;
    bool       sql;
    bool       mysql;
+   bool       pgsql;
    bool       sqlite;
    bool       sqlite3;
    bool       romefolder;

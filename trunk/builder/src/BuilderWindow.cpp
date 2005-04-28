@@ -3,6 +3,10 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.19  2005/04/28 16:26:26  sawada
+  PostgreSQL support.
+  Error message from GetMenuHandle.
+
   Revision 1.18  2005/04/25 17:06:16  schneebeli_m
   GetMenuHandle() implemented
 
@@ -327,6 +331,8 @@ bool ArgusBuilder::WriteWindowCpp() {
       }
       buffer.AppendFormatted("   }\n");
    }
+   buffer.AppendFormatted("   cout<<\"Error: A menu (\"<<menuName<<\") was not found.\"<<endl;\n");
+   buffer.AppendFormatted("   return NULL;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow::~%sWindow()\n",shortCut.Data(),shortCut.Data());
