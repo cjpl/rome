@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.6  2005/04/29 13:24:04  schneebeli_m
+   Added node functions
+
    Revision 1.5  2005/04/23 15:32:18  sawada
    small modification.
 
@@ -100,12 +103,13 @@
 
 /*------------------------------------------------------------------*/
 
+#define HAVE_STRLCPY
 #ifdef HAVE_STRLCPY
 
 extern size_t strlcpy(char *dst, const char *src, size_t size);
 extern size_t strlcat(char *dst, const char *src, size_t size);
 
-#else
+#else 
 
 /*
  * Copy src to string dst of size siz.  At most siz-1 characters

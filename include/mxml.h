@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.3  2005/04/29 13:24:04  schneebeli_m
+   Added node functions
+
    Revision 1.2  2005/04/01 14:56:23  schneebeli_m
    Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -21,6 +24,9 @@
 \********************************************************************/
 
 /*------------------------------------------------------------------*/
+#ifndef MXML_H
+#define MXML_H
+
 
 #define MXML_NAME_LENGTH 64
 
@@ -100,4 +106,5 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree);
 void mxml_debug_tree(PMXML_NODE tree, int level);
 void mxml_free_tree(PMXML_NODE tree);
 
+#endif
 /*------------------------------------------------------------------*/

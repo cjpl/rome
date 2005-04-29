@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2005/04/29 13:24:04  schneebeli_m
+  Added node functions
+
   Revision 1.15  2005/04/14 07:56:46  schneebeli_m
   Implemented odb database (offline)
 
@@ -120,6 +123,13 @@ public:
    bool  NewPathChildElement(const char* path,const char* name,const char* value);
    bool  HasPathChildren(const char* path);
    bool  WritePathFile(const char* file);
+   // node
+   PMXML_NODE  GetPathNode(const char* path);
+   PMXML_NODE  GetRootNode();
+   PMXML_NODE  GetSubNode(PMXML_NODE node,int i);
+   const char* GetNodeValue(PMXML_NODE node);
+   const char* GetNodeName(PMXML_NODE node);
+   const char* GetNodeAttribute(PMXML_NODE node,const char* name);
 };
 
 #endif   // ROMEXML_H

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.22  2005/04/29 13:24:04  schneebeli_m
+//  Added node functions
+//
 //  Revision 1.21  2005/04/14 07:56:46  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -395,6 +398,28 @@ bool ROMEXML::WritePathFile(const char* file) {
    mxml_write_tree((char*)file,rootNode);
    return true;
 }
+
+// node
+PMXML_NODE ROMEXML::GetPathNode(const char* path) {
+   return mxml_find_node(rootNode,(char*)path);
+}
+
+PMXML_NODE ROMEXML::GetRootNode() {
+   return rootNode;
+}
+PMXML_NODE ROMEXML::GetSubNode(PMXML_NODE node,int i) {
+   return mxml_subnode(node,i);
+}
+const char* ROMEXML::GetNodeValue(PMXML_NODE node) {
+   return mxml_get_value(node);
+}
+const char* ROMEXML::GetNodeName(PMXML_NODE node) {
+   return mxml_get_name(node);
+}
+const char* ROMEXML::GetNodeAttribute(PMXML_NODE node,const char* name) {
+   return mxml_get_attribute(node,(char*)name);
+}
+
 // auxiliary
 int ROMEXML::IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode)
 {
