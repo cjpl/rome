@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.28  2005/04/29 14:43:34  schneebeli_m
+  Removed thread errors on Windows
+
   Revision 1.27  2005/04/25 17:06:16  schneebeli_m
   GetMenuHandle() implemented
 
@@ -580,9 +583,11 @@ bool ArgusBuilder::WriteTabH() {
 #if defined ( R__UNIX )
          buffer.AppendFormatted("   TThread* m%s;\n", threadFunctionName[iTab][i].Data());
 #elif defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("#ifndef __CINT__\n");
          buffer.AppendFormatted("   LPDWORD f%sId;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   LPDWORD f%sExCode;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   DWORD   f%sExCode;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("#endif\n");
 #endif
          buffer.AppendFormatted("   bool  f%sActive;\n", threadFunctionName[iTab][i].Data());
 	 buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
@@ -633,7 +638,6 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      return 0;\n");
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("#endif\n");
 #endif      
       buffer.AppendFormatted("   bool RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n",tabName[iTab].Data(),tabName[iTab].Data());
@@ -685,12 +689,12 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   static DWORD WINAPI Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("      Int_t iLoop = 0;\n");
-         buffer.AppendFormatted("      GetExitCodeThread(f%sHandle, &f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      while(inst->f%sActive && f%sExCode == STILL_ACTIVE && (f%sNumberOfLoops == 0 || iLoop<f%sNumberOfLoops)){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      GetExitCodeThread(inst->f%sHandle, &inst->f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      while(inst->f%sActive && inst->f%sExCode == STILL_ACTIVE && (inst->f%sNumberOfLoops == 0 || iLoop<inst->f%sNumberOfLoops)){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
-	 buffer.AppendFormatted("         if(f%sNumberOfLoops != 0 && ++iLoop>=f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            Stop%s();\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         gSystem->Sleep(f%sInterval);\n",threadFunctionName[iTab][i].Data());
+	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
@@ -707,11 +711,11 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      return true;\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("      if(!f%sHandle){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         f%sHandle = CreateThread(NULL,1024,&%s,0,0,&%sId);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         if( f!%sHandle ){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         f%sHandle = CreateThread(NULL,1024,&Thread%s,this,0,f%sId);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         if( !f%sHandle ){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("            f%sActive = false;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            %sId = 0;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            %sExCode = 0;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            f%sId = 0;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            f%sExCode = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("            return false;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
@@ -728,14 +732,16 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("      if(f%sHanele){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         CloseHandle(f%sHandle));\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(f%sHandle){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         CloseHandle(f%sHandle);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         f%sHandle = NULL;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
 #endif
          buffer.AppendFormatted("   } \n");         
          buffer.AppendFormatted("\n");
       }
+      buffer.AppendFormatted("#endif\n");
       buffer.AppendFormatted("\n");
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
