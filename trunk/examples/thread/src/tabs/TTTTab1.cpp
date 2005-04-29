@@ -64,7 +64,7 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
       case kCM_BUTTON:
          switch (param1){
          case B_STARTV:
-            Startfunc_1_1(2000);
+            Startfunc_1_1(200,100);
             break;
          case B_STOPV:
             Stopfunc_1_1();
@@ -89,7 +89,7 @@ void TTTTab1::func_1_1()
 #if defined (ROOT_TThread)
    TThread::Lock();
 #endif
-   fText->SetY(y);
+   fText->SetY(fText->GetY()+0.01);
 #if defined (ROOT_TThread)
    TThread::UnLock();
 #endif
