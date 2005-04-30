@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Mon Apr 25 16:23:08 2005 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/Argus/ArgusConfig.xsd">
+  <MainConfiguration>
+    <Window>
+      <Scale>1.0</Scale>
+      <StatusBar>true</StatusBar>
+    </Window>
+    <DataBase>
+      <Type>none</Type>
+      <Connection></Connection>
+    </DataBase>
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+    </Online>
+    <SocketInterface>
+      <Host>localhost</Host>
+      <PortNumber>9090</PortNumber>
+    </SocketInterface>
+    <Tabs>
+      <Tab>
+        <TabName>Tab</TabName>
+        <Active>true</Active>
+      </Tab>
+    </Tabs>
+  </MainConfiguration>
+</Configuration>

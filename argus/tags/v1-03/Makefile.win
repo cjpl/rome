@@ -1,0 +1,25 @@
+#####################################################################
+#
+#  Name:         Makefile.win
+#  Created by:   Ryu Sawada
+#
+#  $Log$
+#  Revision 1.3  2005/04/28 13:54:10  schneebeli_m
+#  small bug
+#
+#  Revision 1.2  2005/04/22 10:06:00  schneebeli_m
+#  libxml2 replaced by mxml
+#
+#  Revision 1.1  2005/03/18 16:40:28  sawada
+#  added Makefile.win
+#
+#
+#####################################################################
+#
+ROOTINC = /I$(ROOTSYS)/include/
+LIBRARY = $(ROOTSYS)/lib/libCore.lib
+
+ARGUSBuilder.exe: builder/src/Builder.cpp builder/src/BuilderSteering.cpp builder/src/BuilderConfig.cpp builder/src/BuilderTab.cpp builder/src/BuilderFolder.cpp builder/src/BuilderWindow.cpp builder/src/BuilderMonitor.cpp $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/ROMEString.cpp
+	cl /GX /I%ARGUSSYS%/builder/include/ /I%ARGUSSYS%/include/ /I%ROMESYS%/include/ $(ROOTINC) /Fo%ARGUSSYS%/bin/ /Fe%ARGUSSYS%/bin/ARGUSBuilder.exe builder/src/Builder.cpp builder/src/BuilderSteering.cpp builder/src/BuilderConfig.cpp builder/src/BuilderTab.cpp builder/src/BuilderFolder.cpp builder/src/BuilderWindow.cpp builder/src/BuilderMonitor.cpp %ROMESYS%/src/ROMEXML.cpp %ROMESYS%/src/mxml.c %ROMESYS%/src/ROMEString.cpp $(LIBRARY)
+
+
