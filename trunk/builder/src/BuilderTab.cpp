@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.29  2005/04/30 23:08:26  sawada
+  small bug fix.
+
   Revision 1.28  2005/04/29 14:43:34  schneebeli_m
   Removed thread errors on Windows
 
@@ -628,12 +631,12 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){return kTRUE;}\n");
+      buffer.AppendFormatted("#ifndef __CINT__\n");
 #if defined ( R__UNIX )
       buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg){\n");
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   }\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("#ifndef __CINT__\n");
       buffer.AppendFormatted("   static DWORD WINAPI ThreadProcessMessageThread(void* arg){\n");
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      return 0;\n");
