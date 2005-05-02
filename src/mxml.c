@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.7  2005/05/02 08:43:16  schneebeli_m
+   link error
+
    Revision 1.6  2005/04/29 13:24:04  schneebeli_m
    Added node functions
 
@@ -103,7 +106,6 @@
 
 /*------------------------------------------------------------------*/
 
-#define HAVE_STRLCPY
 #ifdef HAVE_STRLCPY
 
 extern size_t strlcpy(char *dst, const char *src, size_t size);

@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.146  2005/05/02 08:43:15  schneebeli_m
+  link error
+
   Revision 1.145  2005/04/28 10:01:44  sawada
   PostgreSQL support.
 
@@ -8053,6 +8056,10 @@ int main(int argc, char *argv[])
          romeb->makeOutput = true;
          romeb->midas = true;
          romeb->noLink = true;
+         romeb->sql = true;
+         romeb->mysql = true;
+         romeb->sqlite = false;
+//         romeb->sqlite3 = true;
          romeb->outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
          xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
       }
@@ -8513,9 +8520,9 @@ void ROMEBuilder::WriteMakefile() {
    if (this->pgsql)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libpq.lib");
    if (this->sqlite)
-      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite.lib");
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/sqlite.lib");
    if (this->sqlite3)
-      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libsqlite3.lib");
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/sqlite3.lib");
    buffer.AppendFormatted("\n");
    if (this->midas)
       buffer.AppendFormatted("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
@@ -8547,6 +8554,10 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
    if (this->mysql) 
       buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
+   if (this->sqlite)
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite/");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite3/");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 #endif

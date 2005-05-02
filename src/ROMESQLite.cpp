@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.5  2005/05/02 08:43:16  schneebeli_m
+//  link error
+//
 //  Revision 1.4  2005/04/28 20:26:39  sawada
 //  Added transaction during writing database.
 //  This is disabled by default because it is not well tested.
@@ -24,6 +27,10 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQLite.h>
+
+#if defined( R__VISUAL_CPLUSPLUS )
+#include <windows.h>
+#endif
 
 ROMESQLite::ROMESQLite() {
    db = NULL;
@@ -97,7 +104,12 @@ bool ROMESQLite::StoreResult()
    while((status = sqlite_step(vm, &nFields, &values, &colNames)) != SQLITE_DONE){
       switch (status){
          case SQLITE_BUSY:
+#if defined( R__VISUAL_CPLUSPLUS )
+            Sleep(10);
+#endif
+#if defined( R__UNIX )
             usleep(10);
+#endif
             continue;
             break;
          case SQLITE_ROW:

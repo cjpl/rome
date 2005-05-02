@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.23  2005/05/02 08:43:16  schneebeli_m
+//  link error
+//
 //  Revision 1.22  2005/04/29 13:24:04  schneebeli_m
 //  Added node functions
 //
@@ -349,6 +352,19 @@ bool ROMEXML::ReplacePathValue(const char* path,const char* value) {
    if (node==NULL)
       return false;
    return mxml_replace_node_value(node,(char*)value)!=0;
+}
+
+bool ROMEXML::DeletePathAttribute(const char* path,const char* name) {
+   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   if (node==NULL)
+      return false;
+   return mxml_delete_attribute(node,(char*)name)!=0;
+}
+bool ROMEXML::DeletePath(const char* path) {
+   PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
+   if (node==NULL)
+      return false;
+   return mxml_delete_node(node)!=0;
 }
 
 bool ROMEXML::NewPathAttribute(const char* path,const char* name,const char* value) {

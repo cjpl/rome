@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2005/05/02 08:43:16  schneebeli_m
+  link error
+
   Revision 1.16  2005/04/29 13:24:04  schneebeli_m
   Added node functions
 
@@ -116,6 +119,8 @@ public:
    bool  ReplacePathAttributeName(const char* path,const char* name,const char* newName);
    bool  ReplacePathName(const char* path,const char* name);
    bool  ReplacePathValue(const char* path,const char* value);
+   bool  DeletePathAttribute(const char* path,const char* name);
+   bool  DeletePath(const char* path);
    bool  NewPathAttribute(const char* path,const char* name,const char* value);
    bool  NewPathNextElement(const char* path,const char* name,const char* value);
    bool  NewPathPrevElement(const char* path,const char* name,const char* value);
