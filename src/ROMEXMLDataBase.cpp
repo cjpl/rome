@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.20  2005/05/02 09:32:01  sawada
+//  small bug fix.
+//
 //  Revision 1.19  2005/04/14 07:56:46  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -551,8 +554,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          }
       }
    }
-//   xml->WritePathFile(fFileName.Data());
-   xml->WritePathFile("C:/Data/analysis/MEG/DataBase/x.xml");
+   xml->WritePathFile(fFileName.Data());
    delete path;
    return true; 
 }
