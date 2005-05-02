@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.31  2005/05/02 16:18:33  schneebeli_m
+  kill thread on windows
+
   Revision 1.30  2005/05/02 10:36:12  schneebeli_m
   added threadfunction arguments
 
@@ -767,10 +770,22 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      if(f%sHandle){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         CloseHandle(f%sHandle);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         f%sHandle = NULL;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         ExitThread(0);\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return true;\n");
 #endif
+         buffer.AppendFormatted("   } \n");
+#if defined ( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("   bool Kill%s(){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sActive = false;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(f%sHandle){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         TerminateThread(f%sHandle,0);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         CloseHandle(f%sHandle);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         f%sHandle = NULL;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      return true;\n");
          buffer.AppendFormatted("   } \n");         
+#endif
          buffer.AppendFormatted("\n");
       }
       buffer.AppendFormatted("#endif\n");
