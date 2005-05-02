@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.20  2005/05/02 08:07:36  schneebeli_m
+  small bug
+
   Revision 1.19  2005/04/28 16:26:26  sawada
   PostgreSQL support.
   Error message from GetMenuHandle.
@@ -172,7 +175,7 @@ bool ArgusBuilder::WriteWindowCpp() {
       }
       buffer.AppendFormatted("   fTabSwitches.%s = true;\n", switchString.Data());
       for (j=0;j<numOfMenu[i];j++) {
-         buffer.AppendFormatted("   f%sMenu[%d] == NULL;\n",tabName[i].Data(),j);
+         buffer.AppendFormatted("   f%sMenu[%d] = NULL;\n",tabName[i].Data(),j);
       }
    }
    for (i=0;i<numOfTab;i++) {
