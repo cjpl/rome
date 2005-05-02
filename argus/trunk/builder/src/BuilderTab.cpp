@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.30  2005/05/02 10:36:12  schneebeli_m
+  added threadfunction arguments
+
   Revision 1.29  2005/04/30 23:08:26  sawada
   small bug fix.
 
@@ -346,7 +349,8 @@ bool ArgusBuilder::ReadXMLTab() {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] = "";               
+               threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] = "";
+               numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] = 0;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -359,6 +363,10 @@ bool ArgusBuilder::ReadXMLTab() {
                   }
                   if (type == 1 && !strcmp((const char*)name,"FunctionName"))
                      xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]],threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp((const char*)name,"FunctionArgument")) {
+                     xml->GetValue(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]],threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]);
+                     numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]++;
+                  }
                }
                // check input
                if (threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]=="") {
@@ -593,8 +601,10 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("#endif\n");
 #endif
          buffer.AppendFormatted("   bool  f%sActive;\n", threadFunctionName[iTab][i].Data());
-	 buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
+	      buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   Int_t f%sInterval;\n",threadFunctionName[iTab][i].Data());
+         for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
+            buffer.AppendFormatted("   %s f%sArgument_%d;\n",threadFunctionArgument[iTab][i][j].Data(),threadFunctionName[iTab][i].Data(),j);
       }
       buffer.AppendFormatted("   Int_t fVersion; // Version number\n");
       buffer.AppendFormatted("   Bool_t fActive; // is Active\n");
@@ -659,7 +669,13 @@ bool ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   }\n");     
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   virtual void %s()\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   virtual void %s(", threadFunctionName[iTab][i].Data());
+         for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++) {
+            buffer.AppendFormatted("%s",threadFunctionArgument[iTab][i][j].Data());
+            if (j<numOfThreadFunctionArguments[iTab][i]-1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted(")\n");
          buffer.AppendFormatted("   {\n");
          buffer.AppendFormatted("      cout<<endl\n");
          buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n",threadFunctionName[iTab][i].Data());
@@ -694,17 +710,30 @@ bool ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      Int_t iLoop = 0;\n");
          buffer.AppendFormatted("      GetExitCodeThread(inst->f%sHandle, &inst->f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      while(inst->f%sActive && inst->f%sExCode == STILL_ACTIVE && (inst->f%sNumberOfLoops == 0 || iLoop<inst->f%sNumberOfLoops)){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
-	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         inst->%s(",threadFunctionName[iTab][i].Data());
+         for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++) {
+            buffer.AppendFormatted("inst->f%sArgument_%d",threadFunctionName[iTab][i].Data(),j);
+            if (j<numOfThreadFunctionArguments[iTab][i]-1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted("); // call the user defined threaded function\n");
+
+      	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
 #endif
-         buffer.AppendFormatted("   bool Start%s(Int_t interval = 1000, Int_t nloop = 0){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   bool Start%s(",threadFunctionName[iTab][i].Data());
+         for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
+            buffer.AppendFormatted("%s arg%d,",threadFunctionArgument[iTab][i][j].Data(),j);
+         buffer.AppendFormatted("Int_t interval = 1000, Int_t nloop = 0){\n");
+
+         for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
+            buffer.AppendFormatted("      f%sArgument_%d = arg%d;\n",threadFunctionName[iTab][i].Data(),j,j);
          buffer.AppendFormatted("      f%sActive = true;\n",threadFunctionName[iTab][i].Data());
-	 buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
+	      buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sInterval = interval;\n",threadFunctionName[iTab][i].Data());
 #if defined ( R__UNIX )
          buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());

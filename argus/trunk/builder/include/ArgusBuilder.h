@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.20  2005/05/02 10:36:12  schneebeli_m
+  added threadfunction arguments
+
   Revision 1.19  2005/04/28 16:26:26  sawada
   PostgreSQL support.
   Error message from GetMenuHandle.
@@ -92,6 +95,7 @@ const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfThreadFunctions = 10;
+const int maxNumberOfThreadFunctionArguments = 10;
 const int bufferLength = 100000;
 const char LINE_TITLE[] = "NoDayWithoutItsLine";
 
@@ -173,7 +177,9 @@ private:
 
 // thread functions
    int        numOfThreadFunctions[maxNumberOfTabs];
+   int        numOfThreadFunctionArguments[maxNumberOfTabs][maxNumberOfThreadFunctions];
    ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
+   ROMEString threadFunctionArgument[maxNumberOfTabs][maxNumberOfThreadFunctions][maxNumberOfThreadFunctionArguments];
 
 // steering
    int        numOfSteering[maxNumberOfTabs+1];
