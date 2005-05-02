@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.54  2005/05/02 16:09:27  schneebeli_m
+//  -o commandline parameter
+//
 //  Revision 1.53  2005/04/15 16:44:26  schneebeli_m
 //  odb, zlib
 //
@@ -547,7 +550,7 @@ bool ROMEEventLoop::UserInput()
    bool hit = false;
    ROMEString text;
 
-   if (fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) {
+   if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
       text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
       gROME->Printfl(text.Data());
       wait = true;

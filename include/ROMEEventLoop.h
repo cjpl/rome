@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2005/05/02 16:09:22  schneebeli_m
+  -o commandline parameter
+
   Revision 1.15  2005/04/08 17:08:07  schneebeli_m
   TNetFolderServer changes
 
@@ -84,6 +87,8 @@ public:
    void Event() {};
    void EndOfRun() {};
    void Terminate() {};
+
+   void SetContinuousMode(bool mode) { fContinuous = mode; };
 protected:
    // Run Status
    Bool_t     isRunning()  { return gROME->GetActiveDAQ()->isRunning(); };

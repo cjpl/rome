@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.66  2005/05/02 16:09:24  schneebeli_m
+//  -o commandline parameter
+//
 //  Revision 1.65  2005/04/22 20:32:26  sawada
 //  default input/output file path in configuration file.
 //
@@ -187,6 +190,7 @@
 #include <TNetFolderServer.h>
 #include <ROMETask.h>
 #include <ROMEAnalyzer.h>
+#include <ROMEEventLoop.h>
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)
@@ -324,6 +328,7 @@ void ROMEAnalyzer::ParameterUsage()
    gROME->Println("  -m       Analysing Mode : (online/[offline])");
    gROME->Println("  -r       Runnumbers");
    gROME->Println("  -e       Eventnumbers");
+   gROME->Println("  -o       Start Analyzer in Step by Step Mode");
    gROME->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
    gROME->UserParameterUsage();
    return;
@@ -408,6 +413,10 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-e")&&i<argc-1) {
          this->SetEventNumbers(argv[i+1]);
+         i++;
+      }
+      else if (!strcmp(argv[i],"-o")) {
+         ((ROMEEventLoop*)fMainTask)->SetContinuousMode(false);
          i++;
       }
       else if (!strcmp(argv[i],"-i")) {
