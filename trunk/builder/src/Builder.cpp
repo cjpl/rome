@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.37  2005/05/03 18:18:45  sawada
+  enable to use Long64_t and ULong64_t as steering parameters.
+
   Revision 1.36  2005/04/28 16:26:26  sawada
   PostgreSQL support.
   Error message from GetMenuHandle.
@@ -1436,6 +1439,8 @@ void ArgusBuilder::setValue(ROMEString* buf,char *destination,char *source,char 
       !strcmp(type,"unsigned long") ||
       !strcmp(type,"Long_t") ||
       !strcmp(type,"ULong_t") ||
+      !strcmp(type,"Long64_t") ||
+      !strcmp(type,"ULong64_t") ||
       !strcmp(type,"short") ||
       !strcmp(type,"unsigned short") ||
       !strcmp(type,"Short_t") ||
