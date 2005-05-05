@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.14  2005/05/05 21:26:03  sawada
+  code clean up.
+
   Revision 1.13  2005/05/05 20:08:04  sawada
   code clean up.
 
@@ -126,6 +129,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    // Read Configuration
    buffer.AppendFormatted("\n// Read Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
    // Window
    buffer.AppendFormatted("   // window\n");
    buffer.AppendFormatted("   fConfigData->fWindow = new ConfigData::Window();\n");
@@ -148,6 +152,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData->fWindowModified = kTRUE;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fWindowModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
    // DataBase
    buffer.AppendFormatted("   // database\n");
    buffer.AppendFormatted("   fConfigData->fDataBase = new ConfigData::DataBase();\n");
@@ -170,6 +175,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData->fDataBaseModified = kTRUE;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fDataBaseModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
    // Online
    buffer.AppendFormatted("   // online\n");
    buffer.AppendFormatted("   fConfigData->fOnline = new ConfigData::Online();\n");
@@ -191,6 +197,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData->fOnlineModified = kTRUE;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fOnlineModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
    // SocketInterface
    buffer.AppendFormatted("   // SocketInterface\n");
    buffer.AppendFormatted("   fConfigData->fSocketInterface = new ConfigData::SocketInterface();\n");
@@ -212,6 +219,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData->fSocketInterfaceModified = kTRUE;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData->fSocketInterfaceModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
    // tabs
    buffer.AppendFormatted("   // tabs\n");
    buffer.AppendFormatted("   fConfigData->fTabsModified = kFALSE;\n");
@@ -608,86 +616,94 @@ Bool_t ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("   class ConfigData\n");
    buffer.AppendFormatted("   {\n");
    buffer.AppendFormatted("   public:\n");
+   buffer.AppendFormatted("\n");
    // window
    buffer.AppendFormatted("      // window;\n");
    buffer.AppendFormatted("      class Window {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fScale;\n");
-   buffer.AppendFormatted("         Bool_t        fScaleModified;\n");
-   buffer.AppendFormatted("         ROMEString  fStatusBar;\n");
-   buffer.AppendFormatted("         Bool_t        fStatusBarModified;\n");
+   buffer.AppendFormatted("         ROMEString       fScale;\n");
+   buffer.AppendFormatted("         Bool_t           fScaleModified;\n");
+   buffer.AppendFormatted("         ROMEString       fStatusBar;\n");
+   buffer.AppendFormatted("         Bool_t           fStatusBarModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      Window *fWindow;\n");
-   buffer.AppendFormatted("      Bool_t   fWindowModified;\n");
+   buffer.AppendFormatted("      Window*          fWindow;\n");
+   buffer.AppendFormatted("      Bool_t           fWindowModified;\n");
    // database
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      // database;\n");
    buffer.AppendFormatted("      class DataBase {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fType;\n");
-   buffer.AppendFormatted("         Bool_t        fTypeModified;\n");
-   buffer.AppendFormatted("         ROMEString  fConnection;\n");
-   buffer.AppendFormatted("         Bool_t        fConnectionModified;\n");
+   buffer.AppendFormatted("         ROMEString       fType;\n");
+   buffer.AppendFormatted("         Bool_t           fTypeModified;\n");
+   buffer.AppendFormatted("         ROMEString       fConnection;\n");
+   buffer.AppendFormatted("         Bool_t           fConnectionModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      DataBase *fDataBase;\n");
-   buffer.AppendFormatted("      Bool_t   fDataBaseModified;\n");
+   buffer.AppendFormatted("      DataBase*        fDataBase;\n");
+   buffer.AppendFormatted("      Bool_t           fDataBaseModified;\n");
+   buffer.AppendFormatted("\n");
    // online
    buffer.AppendFormatted("      // online;\n");
    buffer.AppendFormatted("      class Online {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fHost;\n");
-   buffer.AppendFormatted("         Bool_t        fHostModified;\n");
-   buffer.AppendFormatted("         ROMEString  fExperiment;\n");
-   buffer.AppendFormatted("         Bool_t        fExperimentModified;\n");
+   buffer.AppendFormatted("         ROMEString       fHost;\n");
+   buffer.AppendFormatted("         Bool_t           fHostModified;\n");
+   buffer.AppendFormatted("         ROMEString       fExperiment;\n");
+   buffer.AppendFormatted("         Bool_t           fExperimentModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      Online *fOnline;\n");
-   buffer.AppendFormatted("      Bool_t   fOnlineModified;\n");
+   buffer.AppendFormatted("      Online*          fOnline;\n");
+   buffer.AppendFormatted("      Bool_t           fOnlineModified;\n");
+   buffer.AppendFormatted("\n");
    // SocketInterface
    buffer.AppendFormatted("      // SocketInterface;\n");
    buffer.AppendFormatted("      class SocketInterface {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fHost;\n");
-   buffer.AppendFormatted("         Bool_t        fHostModified;\n");
-   buffer.AppendFormatted("         ROMEString  fPortNumber;\n");
-   buffer.AppendFormatted("         Bool_t        fPortNumberModified;\n");
+   buffer.AppendFormatted("         ROMEString       fHost;\n");
+   buffer.AppendFormatted("         Bool_t           fHostModified;\n");
+   buffer.AppendFormatted("         ROMEString       fPortNumber;\n");
+   buffer.AppendFormatted("         Bool_t           fPortNumberModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      SocketInterface *fSocketInterface;\n");
-   buffer.AppendFormatted("      Bool_t fSocketInterfaceModified;\n");
+   buffer.AppendFormatted("      SocketInterface* fSocketInterface;\n");
+   buffer.AppendFormatted("      Bool_t           fSocketInterfaceModified;\n");
+   buffer.AppendFormatted(" \n");
    // tabs
    buffer.AppendFormatted("      // tabs\n");
    WriteTabConfigClass(buffer,-1,0);
-   buffer.AppendFormatted("      Bool_t   fTabsModified;\n");
+   buffer.AppendFormatted("      Bool_t           fTabsModified;\n");
+   buffer.AppendFormatted("\n");
    // steering parameters
+   buffer.AppendFormatted("      // global steering parameters\n");
    buffer.AppendFormatted("      class GlobalSteering {\n");
    buffer.AppendFormatted("      public:\n");
    if (numOfSteering[numOfTab]>0) {
       WriteSteeringConfigClass(buffer,0,numOfTab,2);
    }
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      GlobalSteering *fGlobalSteering;\n");
-   buffer.AppendFormatted("      Bool_t            fGlobalSteeringModified;\n");
+   buffer.AppendFormatted("      GlobalSteering*  fGlobalSteering;\n");
+   buffer.AppendFormatted("      Bool_t           fGlobalSteeringModified;\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   public:\n");
    // Constructor
    buffer.AppendFormatted("      ConfigData() {\n");
-   buffer.AppendFormatted("         fDataBaseModified = kFALSE;\n");
-   buffer.AppendFormatted("         fOnlineModified = kFALSE;\n");
+   buffer.AppendFormatted("         fDataBaseModified        = kFALSE;\n");
+   buffer.AppendFormatted("         fOnlineModified          = kFALSE;\n");
    buffer.AppendFormatted("         fSocketInterfaceModified = kFALSE;\n");
-   buffer.AppendFormatted("         fTabsModified = kFALSE;\n");
+   buffer.AppendFormatted("         fTabsModified            = kFALSE;\n");
    for (i=0;i<numOfTab;i++) {
       if( tabParentIndex[i] != -1 )
          continue;
       buffer.AppendFormatted("         f%sTabModified = kFALSE;\n",tabName[i].Data());
-      buffer.AppendFormatted("         f%sTab = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("         f%sTab         = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
    }
    if (numOfSteering[numOfTab]>0) {
-      buffer.AppendFormatted("         fGlobalSteeringModified = kFALSE;\n");
-      buffer.AppendFormatted("         fGlobalSteering = new GlobalSteering();\n");
+      buffer.AppendFormatted("         fGlobalSteeringModified  = kFALSE;\n");
+      buffer.AppendFormatted("         fGlobalSteering          = new GlobalSteering();\n");
    }
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");
    // Fields
-   buffer.AppendFormatted("   ConfigData *fConfigData;\n");
-   buffer.AppendFormatted("   ROMEString fXMLFile;\n");
+   buffer.AppendFormatted("   ConfigData*         fConfigData;\n");
+   buffer.AppendFormatted("   ROMEString          fXMLFile;\n");
    buffer.AppendFormatted("\n");
    // Methods
    buffer.AppendFormatted("public:\n");

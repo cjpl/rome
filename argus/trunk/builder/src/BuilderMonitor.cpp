@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.26  2005/05/05 21:26:03  sawada
+  code clean up.
+
   Revision 1.25  2005/05/05 20:08:04  sawada
   code clean up.
 
@@ -649,14 +652,14 @@ Bool_t ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("\n");
    //NetFolder
 // if use net folder
-   buffer.AppendFormatted("   TNetFolder* GetNetFolder(){ return fNetFolder;}\n");
-   buffer.AppendFormatted("   Bool_t ConnectServer();\n");  
+   buffer.AppendFormatted("   TNetFolder*    GetNetFolder(){ return fNetFolder;}\n");
+   buffer.AppendFormatted("   Bool_t         ConnectServer();\n");  
    buffer.AppendFormatted("\n");
    // Data Base
    buffer.AppendFormatted("   // DataBase Methodes\n");
-   buffer.AppendFormatted("   Bool_t ReadSingleDataBaseFolders();\n");
-   buffer.AppendFormatted("   Bool_t ReadArrayDataBaseFolders();\n");
-   buffer.AppendFormatted("   Bool_t StartMonitor();\n");
+   buffer.AppendFormatted("   Bool_t         ReadSingleDataBaseFolders();\n");
+   buffer.AppendFormatted("   Bool_t         ReadArrayDataBaseFolders();\n");
+   buffer.AppendFormatted("   Bool_t         StartMonitor();\n");
    buffer.AppendFormatted("\n");
    // Steering
    if (numOfSteering[numOfTab]>0) {
@@ -668,10 +671,10 @@ Bool_t ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("private:\n");
    // Folders
    buffer.AppendFormatted("   // Folder Methodes\n");
-   buffer.AppendFormatted("   void InitSingleFolders();\n");
-   buffer.AppendFormatted("   void InitArrayFolders();\n");
-   buffer.AppendFormatted("   void ResetFolders();\n");
-   buffer.AppendFormatted("   void CleanUpFolders();\n");
+   buffer.AppendFormatted("   void           InitSingleFolders();\n");
+   buffer.AppendFormatted("   void           InitArrayFolders();\n");
+   buffer.AppendFormatted("   void           ResetFolders();\n");
+   buffer.AppendFormatted("   void           CleanUpFolders();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sMonitor,0);\n",shortCut.Data());
    // Footer

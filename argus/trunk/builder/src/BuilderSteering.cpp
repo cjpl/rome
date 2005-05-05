@@ -3,6 +3,9 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.7  2005/05/05 21:26:03  sawada
+  code clean up.
+
   Revision 1.6  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -298,7 +301,7 @@ Bool_t ArgusBuilder::WriteSteeringConfigClass(ROMEString &buffer,Int_t numSteer,
       blank.Append("   ");   
    for (k=0;k<numOfSteerFields[numTab][numSteer];k++) {
       buffer.AppendFormatted("%s   ROMEString  f%s;\n",blank.Data(),steerFieldName[numTab][numSteer][k].Data());
-      buffer.AppendFormatted("%s   Bool_t        f%sModified;\n",blank.Data(),steerFieldName[numTab][numSteer][k].Data());
+      buffer.AppendFormatted("%s   Bool_t      f%sModified;\n",blank.Data(),steerFieldName[numTab][numSteer][k].Data());
    }
    for (k=0;k<numOfSteerChildren[numTab][numSteer];k++) {
       buffer.AppendFormatted("%s   class %s {\n",blank.Data(),steerName[numTab][steerChildren[numTab][numSteer][k]].Data());
