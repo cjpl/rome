@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.10  2005/05/05 20:13:30  sawada
+  code clean up.
+
   Revision 1.9  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -97,10 +100,10 @@ protected:
    ArgusConfig*  fConfiguration;                //! Configuration Handle
    
    // virtual methods
-   virtual void InitSingleFolders() = 0;
-   virtual void InitArrayFolders() = 0;
-   virtual void CleanUpFolders() = 0;
-   virtual void ResetFolders() = 0;
+   virtual void  InitSingleFolders() = 0;
+   virtual void  InitArrayFolders() = 0;
+   virtual void  CleanUpFolders() = 0;
+   virtual void  ResetFolders() = 0;
    
 public:
    ArgusMonitor() {};
