@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.33  2005/05/05 21:26:03  sawada
+  code clean up.
+
   Revision 1.32  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -578,7 +581,7 @@ Bool_t ArgusBuilder::WriteTabH() {
 #endif
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n",tabName[iTab].Data());
-      buffer.AppendFormatted("   void* inst;\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   void*  inst;\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   Long_t msg;\n");
       buffer.AppendFormatted("   Long_t param1;\n");
       buffer.AppendFormatted("   Long_t param2;\n");
@@ -606,14 +609,14 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("#endif\n");
 #endif
-         buffer.AppendFormatted("   Bool_t  f%sActive;\n", threadFunctionName[iTab][i].Data());
-	      buffer.AppendFormatted("   Int_t f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   Int_t f%sInterval;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Bool_t   f%sActive;\n", threadFunctionName[iTab][i].Data());
+	      buffer.AppendFormatted("   Int_t    f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Int_t    f%sInterval;\n",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
             buffer.AppendFormatted("   %s f%sArgument_%d;\n",threadFunctionArgument[iTab][i][j].Data(),threadFunctionName[iTab][i].Data(),j);
       }
-      buffer.AppendFormatted("   Int_t fVersion; // Version number\n");
-      buffer.AppendFormatted("   Bool_t fActive; // is Active\n");
+      buffer.AppendFormatted("   Int_t    fVersion; // Version number\n");
+      buffer.AppendFormatted("   Bool_t   fActive; // is Active\n");
       Int_t nameLen = -1;
       // Methods
       buffer.AppendFormatted("public:\n");
@@ -621,15 +624,15 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   // Constructor\n");
       buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(){\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n",tabVersion[iTab].Data());
-      buffer.AppendFormatted("      fActive = kFALSE;\n");
+      buffer.AppendFormatted("      fActive  = kFALSE;\n");
       if (numOfSteering[iTab]>0) {
          buffer.AppendFormatted("      fSteering = new Steering();\n");
       }
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
 #if defined ( R__UNIX )
-         buffer.AppendFormatted("      m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s       = 0;\n", threadFunctionName[iTab][i].Data());
 #elif defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("      f%sId = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sId     = 0;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sExCode = 0;\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sHandle = 0;\n", threadFunctionName[iTab][i].Data());
 #endif
@@ -646,8 +649,12 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
       buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){return kTRUE;}\n");
+      buffer.AppendFormatted("\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#ifndef __CINT__\n");
+#endif
 #if defined ( R__UNIX )
       buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg){\n");
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
@@ -658,6 +665,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      return 0;\n");
       buffer.AppendFormatted("   }\n");
 #endif      
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   Bool_t RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n",tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      arg->inst   = this;\n");
@@ -672,8 +680,9 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,processMessageThreadId));\n");
 #endif
       buffer.AppendFormatted("      return kTRUE;\n");
-      buffer.AppendFormatted("   }\n");     
+      buffer.AppendFormatted("   }\n");
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   virtual void %s(", threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++) {
@@ -696,6 +705,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   }\n");
 #if defined ( R__UNIX )
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      TThread::SetCancelOn();\n");
          buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
@@ -711,6 +721,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
 #elif defined ( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   static DWORD WINAPI Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("      Int_t iLoop = 0;\n");
@@ -731,6 +742,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
 #endif
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t Start%s(",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
             buffer.AppendFormatted("%s arg%d,",threadFunctionArgument[iTab][i][j].Data(),j);
@@ -738,9 +750,9 @@ Bool_t ArgusBuilder::WriteTabH() {
 
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
             buffer.AppendFormatted("      f%sArgument_%d = arg%d;\n",threadFunctionName[iTab][i].Data(),j,j);
-         buffer.AppendFormatted("      f%sActive = kTRUE;\n",threadFunctionName[iTab][i].Data());
-	      buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sInterval = interval;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sActive        = kTRUE;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sInterval      = interval;\n",threadFunctionName[iTab][i].Data());
 #if defined ( R__UNIX )
          buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
@@ -760,6 +772,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      return kTRUE;\n");
 #endif
          buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t Stop%s(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = kFALSE;\n",threadFunctionName[iTab][i].Data());
 #if defined ( R__UNIX )
@@ -791,7 +804,9 @@ Bool_t ArgusBuilder::WriteTabH() {
 #endif
          buffer.AppendFormatted("\n");
       }
+#if defined ( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#endif\n");
+#endif
       buffer.AppendFormatted("\n");
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
@@ -799,8 +814,8 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   Steering* GetSteeringParameters() { return fSteering; };\n");
          buffer.AppendFormatted("   Steering* GetSP() { return fSteering; };\n");
       }
-      buffer.AppendFormatted("   Bool_t GetActive() { return fActive; };\n");
-      buffer.AppendFormatted("   void SetActive(Bool_t active) { fActive = active; };\n");
+      buffer.AppendFormatted("   Bool_t       GetActive() { return fActive; };\n");
+      buffer.AppendFormatted("   void         SetActive(Bool_t active) { fActive = active; };\n");
       buffer.AppendFormatted("   virtual void TabSelected(){};\n");
       buffer.AppendFormatted("   virtual void TabUnSelected(){};\n");
       buffer.AppendFormatted("   virtual void MenuClicked(TGPopupMenu *menu,Long_t param)\n");
@@ -968,25 +983,26 @@ Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,In
    for (i=0;i<numOfTab;i++) {
       if (tabParentIndex[i]!=parentIndex)
          continue;
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("%s      class %sTab {\n",blank.Data(),tabName[i].Data());
-      buffer.AppendFormatted("%s         public:\n",blank.Data());
-      buffer.AppendFormatted("%s            ROMEString  fActive;\n",blank.Data());
-      buffer.AppendFormatted("%s            Bool_t        fActiveModified;\n",blank.Data());
+      buffer.AppendFormatted("%s      public:\n",blank.Data());
+      buffer.AppendFormatted("%s         ROMEString       fActive;\n",blank.Data());
+      buffer.AppendFormatted("%s         Bool_t           fActiveModified;\n",blank.Data());
       if (numOfSteering[i]>0) {
          buffer.AppendFormatted("%s         // steering parameters\n",blank.Data());
          buffer.AppendFormatted("%s         class Steering {\n",blank.Data());
          buffer.AppendFormatted("%s         public:\n",blank.Data());
          WriteSteeringConfigClass(buffer,0,i,tab+3);
          buffer.AppendFormatted("%s         };\n",blank.Data());
-         buffer.AppendFormatted("%s         Steering *fSteering;\n",blank.Data());
-         buffer.AppendFormatted("%s         Bool_t   fSteeringModified;\n",blank.Data());
+         buffer.AppendFormatted("%s         Steering*        fSteering;\n",blank.Data());
+         buffer.AppendFormatted("%s         Bool_t           fSteeringModified;\n",blank.Data());
       }
       // Constructor
       buffer.AppendFormatted("%s      public:\n",blank.Data());
       buffer.AppendFormatted("%s         %sTab() {\n",blank.Data(),tabName[i].Data());
       if (numOfSteering[i]>0) {
-         buffer.AppendFormatted("%s            fSteeringModified = kFALSE;\n",blank.Data());
-         buffer.AppendFormatted("%s            fSteering = new Steering();\n",blank.Data());
+         buffer.AppendFormatted("%s         fSteeringModified = kFALSE;\n",blank.Data());
+         buffer.AppendFormatted("%s         fSteering         = new Steering();\n",blank.Data());
       }
       for (j=0;j<numOfTab;j++) {
          if (tabParentIndex[j]!=i)
@@ -997,8 +1013,8 @@ Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,In
       // Sub classes
       WriteTabConfigClass(buffer,i,tab+1);
       buffer.AppendFormatted("%s      };\n",blank.Data());
-      buffer.AppendFormatted("%s      %sTab *f%sTab;\n",blank.Data(),tabName[i].Data(),tabName[i].Data());
-      buffer.AppendFormatted("%s      Bool_t   f%sTabModified;\n",blank.Data(),tabName[i].Data());
+      buffer.AppendFormatted("%s      %sTab*          f%sTab;\n",blank.Data(),tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("%s      Bool_t           f%sTabModified;\n",blank.Data(),tabName[i].Data());
    }
    return kTRUE;
 }
