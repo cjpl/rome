@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.21  2005/05/05 20:08:05  sawada
+  code clean up.
+
   Revision 1.20  2005/05/02 08:07:36  schneebeli_m
   small bug
 
@@ -82,26 +85,26 @@
 ********************************************************************/
 #include "ArgusBuilder.h"
 
-bool ArgusBuilder::WriteWindowCpp() {
-   int i,j;
+Bool_t ArgusBuilder::WriteWindowCpp() {
+   Int_t i,j;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString format;
    ROMEString menu_title;
    char fileBuffer[bufferLength];
    ROMEString buf;
-   int nb,lenTot,ll;
+   Int_t nb,lenTot,ll;
    char *pos;
-   int fileHandle;
+   Int_t fileHandle;
    ROMEString classDescription;
    classDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
-   int nameLen = -1;
-   int typeLen = 12;
-   int scl = shortCut.Length();
+   Int_t nameLen = -1;
+   Int_t typeLen = 12;
+   Int_t scl = shortCut.Length();
    for (i=0;i<numOfFolder;i++) {
-      if (typeLen<(int)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
-      if (nameLen<(int)folderName[i].Length()) nameLen = folderName[i].Length();
+      if (typeLen<(Int_t)folderName[i].Length()+scl) typeLen = folderName[i].Length()+scl;
+      if (nameLen<(Int_t)folderName[i].Length()) nameLen = folderName[i].Length();
    }
    // File name
    cppFile.SetFormatted("%s/src/monitor/%sWindow.cpp",outDir.Data(),shortCut.Data());
@@ -142,7 +145,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow *gWindow;\n",shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("bool %sWindow::ConnectServer()\n",shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sWindow::ConnectServer()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   char buffer[80] = \"\";\n");
    buffer.AppendFormatted("   if(strlen(gMonitor->GetSocketInterfaceHost()) == 0 ) {\n");
@@ -155,25 +158,25 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      sprintf(buffer, \"Cannot connect to server on host %%s, port %%d\", gMonitor->GetSocketInterfaceHost(), gMonitor->GetSocketInterfacePortNumber());\n");
    buffer.AppendFormatted("      new TGMsgBox(gClient->GetRoot(), this, \"Error\", buffer, kMBIconExclamation, 0, NULL);    \n");
    buffer.AppendFormatted("      SetWindowName(gMonitor->GetProgramName());\n");
-   buffer.AppendFormatted("      return true;\n");
+   buffer.AppendFormatted("      return kTRUE;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title)\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   fStatusBarSwitch = true;\n");
+   buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
    for (i=0;i<numOfTab;i++) {
-      int index = tabParentIndex[i];
+      Int_t index = tabParentIndex[i];
       ROMEString switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
          switchString.Insert(0,tabName[index].Data());
          index = tabParentIndex[index];
       }
-      buffer.AppendFormatted("   fTabSwitches.%s = true;\n", switchString.Data());
+      buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
       for (j=0;j<numOfMenu[i];j++) {
          buffer.AppendFormatted("   f%sMenu[%d] = NULL;\n",tabName[i].Data(),j);
       }
@@ -184,7 +187,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("bool %sWindow::Start()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sWindow::Start()\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   // Create status bar\n");
    buffer.AppendFormatted("   Int_t parts[] = {5};\n");
@@ -210,7 +213,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    for (i=0;i<numOfTab;i++) {
       recursiveTabDepth=0;
       if(!AddTab(buffer,i))
-         return false;
+         return kFALSE;
    }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
@@ -222,7 +225,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   fCurrentTabID = 1;\n");
    buffer.AppendFormatted("   ProcessMessage(MK_MSG(kC_COMMAND,kCM_TAB),0,0);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("void %sWindow::CloseWindow()\n",shortCut.Data());
@@ -241,7 +244,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("   fStatusBar->SetText(\"\",0);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("bool %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n",shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
    buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
@@ -282,14 +285,14 @@ bool ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID)\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n",tabName[i].Data(),i);
       buffer.AppendFormatted("         if (");
-      int index = i;
+      Int_t index = i;
       do  {
          buffer.AppendFormatted(" param1 == f%sTabID ||",tabName[index].Data());
          index = tabParentIndex[index];
       } while(index!=-1);
       buffer.Remove(buffer.Length()-2); // remove the last "||"
       buffer.AppendFormatted(") {\n");
-      buffer.AppendFormatted("            f%s%03dTab->SetActive(true);\n",tabName[i].Data(),i);
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n",tabName[i].Data(),i);
       for (j=0;j<numOfMenu[i];j++) {
 	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabName[i].Data(),j);
 	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabName[i].Data(),j);
@@ -297,14 +300,14 @@ bool ArgusBuilder::WriteWindowCpp() {
       for (j=0;j<numOfMenu[i];j++) {
 	 if(menuDepth[i][j] == 1){
 	    if(!AddMenuItems(buffer,i,j))
-	       return false;
+	       return kFALSE;
 	    buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",menuTitle[i][j].Data(),tabName[i].Data(),j);
 	    buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
 	 }
       }
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         else {\n");
-      buffer.AppendFormatted("            f%s%03dTab->SetActive(false);\n",tabName[i].Data(),i);
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(kFALSE);\n",tabName[i].Data(),i);
       for (j=0;j<numOfMenu[i];j++) {
 	 menu_title = menuTitle[i][j];
 	 menu_title.ReplaceAll("&","");
@@ -321,7 +324,7 @@ bool ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      break;\n");    
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("TGPopupMenu* %sWindow::GetMenuHandle(const char* menuName)\n",shortCut.Data());
@@ -344,17 +347,17 @@ bool ArgusBuilder::WriteWindowCpp() {
    // Write File
    fileHandle = open(cppFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+   Bool_t identical = kTRUE;
+   if (nb==(Int_t)buffer.Length()) {
+      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
-            identical = false;
+            identical = kFALSE;
             break;
          }
       }
    }
    else
-      identical = false;
+      identical = kFALSE;
    if (!identical) {
       fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
@@ -363,43 +366,43 @@ bool ArgusBuilder::WriteWindowCpp() {
       nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
-   return true;
+   return kTRUE;
 }
 
-bool ArgusBuilder::WriteWindowH() {
-   int i,j,k;
+Bool_t ArgusBuilder::WriteWindowH() {
+   Int_t i,j,k;
    ROMEString hFile;
    ROMEString buffer;
    char fileBuffer[bufferLength];
    ROMEString buf;
-   int nb,lenTot,ll;
+   Int_t nb,lenTot,ll;
    char *pos;
-   int fileHandle;
+   Int_t fileHandle;
    ROMEString classDescription;
    classDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tabs.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
    ROMEString format;
-   int nameLen = -1;
-   int typeLen = 17;
+   Int_t nameLen = -1;
+   Int_t typeLen = 17;
    // max tab name length
-   int tabLen=0;
-   int scl = shortCut.Length();
+   Int_t tabLen=0;
+   Int_t scl = shortCut.Length();
    for (i=0;i<numOfTab;i++) {
-      if (tabLen<(int)tabName[i].Length()) tabLen = tabName[i].Length();
-      if (typeLen<(int)tabName[i].Length()+scl) typeLen = tabName[i].Length()+scl;
+      if (tabLen<(Int_t)tabName[i].Length()) tabLen = tabName[i].Length();
+      if (typeLen<(Int_t)tabName[i].Length()+scl) typeLen = tabName[i].Length()+scl;
    }
    // max tab switch name length
-   int switchLen = -1;
+   Int_t switchLen = -1;
    ROMEString switchString;
    for (i=0;i<numOfTab;i++) {
-      int index = tabParentIndex[i];
+      Int_t index = tabParentIndex[i];
       switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
          switchString.Insert(0,tabName[index].Data());
          index = tabParentIndex[index];
       }
-      if (switchLen<(int)switchString.Length()) switchLen = switchString.Length();
+      if (switchLen<(Int_t)switchString.Length()) switchLen = switchString.Length();
    }
    // File name
    hFile.SetFormatted("%s/include/monitor/%sWindow.h",outDir.Data(),shortCut.Data());
@@ -445,16 +448,16 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("// Tab Switches Structure\n");
    buffer.AppendFormatted("typedef struct{\n");
    for (i=0;i<numOfTab;i++) {
-      int index = tabParentIndex[i];
+      Int_t index = tabParentIndex[i];
       switchString = tabName[i].Data();
       while (index!=-1) {
          switchString.Insert(0,"_");
          switchString.Insert(0,tabName[index].Data());
          index = tabParentIndex[index];
       }
-      format.SetFormatted("   bool %%s;%%%ds  //! %%s Tab\n",switchLen-switchString.Length());
+      format.SetFormatted("   Bool_t %%s;%%%ds  //! %%s Tab\n",switchLen-switchString.Length());
       buffer.AppendFormatted((char*)format.Data(),switchString.Data(),"",switchString.Data());
-//      buffer.AppendFormatted("   int %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
+//      buffer.AppendFormatted("   Int_t %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
    }
    buffer.AppendFormatted("} TabSwitches;\n");
    buffer.AppendFormatted("\n");
@@ -511,7 +514,7 @@ bool ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("public:\n");
    buffer.AppendFormatted("   %sWindow(const TGWindow * p, char *title);\n",shortCut.Data());
    buffer.AppendFormatted("   ~%sWindow();\n",shortCut.Data());
-   buffer.AppendFormatted("   bool Start();\n");
+   buffer.AppendFormatted("   Bool_t Start();\n");
    buffer.AppendFormatted("\n");
    // Status bar
    buffer.AppendFormatted("   void SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; };\n");
@@ -542,17 +545,17 @@ bool ArgusBuilder::WriteWindowH() {
    // Write File
    fileHandle = open(hFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+   Bool_t identical = kTRUE;
+   if (nb==(Int_t)buffer.Length()) {
+      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
-            identical = false;
+            identical = kFALSE;
             break;
          }
       }
    }
    else
-      identical = false;
+      identical = kFALSE;
    if (!identical) {
       fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
@@ -561,16 +564,16 @@ bool ArgusBuilder::WriteWindowH() {
       nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
-   return true;
+   return kTRUE;
 }
 
-bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
-   int j;
+Bool_t ArgusBuilder::AddTab(ROMEString& buffer,Int_t& i) {
+   Int_t j;
    ROMEString parentt;
    ROMEString format;
-   int index = tabParentIndex[i];
+   Int_t index = tabParentIndex[i];
    ROMEString switchString = tabName[i].Data();
-   int depth;
+   Int_t depth;
    while (index!=-1) {
       switchString.Insert(0,"_");
       switchString.Insert(0,tabName[index].Data());
@@ -603,7 +606,7 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
    while(i<j+tabNumOfChildren[j]){
       i++;
       if(!AddTab(buffer,i))
-         return false;
+         return kFALSE;
    }
    recursiveTabDepth--;
    if(tabNumOfChildren[j]){
@@ -613,18 +616,18 @@ bool ArgusBuilder::AddTab(ROMEString& buffer,int& i) {
    for(depth=0;depth<recursiveTabDepth;depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");
 
-   return true;
+   return kTRUE;
  }
 
-bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
-   int k;
+Bool_t ArgusBuilder::AddMenuItems(ROMEString& buffer,Int_t i,Int_t j) {
+   Int_t k;
    for (k=0;k<numOfMenuItem[i][j];k++) {
       if(menuItemTitle[i][j][k] == LINE_TITLE){
          buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n",tabName[i].Data(),j);
       }
       else if(menuItemChildMenuIndex[i][j][k]) {
          if(!AddMenuItems(buffer,i,menuItemChildMenuIndex[i][j][k]))
-            return false;
+            return kFALSE;
          buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n"
             ,tabName[i].Data(),j,menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
             ,tabName[i].Data(),menuItemChildMenuIndex[i][j][k]);
@@ -635,5 +638,5 @@ bool ArgusBuilder::AddMenuItems(ROMEString& buffer,int i,int j) {
          ,menuItemEnumName[i][j][k].Data());
       }
    }
-   return true;
+   return kTRUE;
 }

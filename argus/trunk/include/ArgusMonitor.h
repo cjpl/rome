@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.9  2005/05/05 20:08:05  sawada
+  code clean up.
+
   Revision 1.8  2005/04/12 17:51:04  sawada
   changes for mxml
 
@@ -83,12 +86,12 @@ protected:
    ROMEString    fOnlineExperiment;             //! Name of the Online Experiment
    
    // SocketInterface
-   int           fSocketInterfacePortNumber;    //! Port Number for TSocket
+   Int_t         fSocketInterfacePortNumber;    //! Port Number for TSocket
    ROMEString    fSocketInterfaceHost;          //! Host for TSocket
-   int           fRunNumber;                    //! Run number for ROMEDataBase
+   Int_t         fRunNumber;                    //! Run number for ROMEDataBase
 
    // Window
-   float         fWindowScale;                  //! Window scale
+   Float_t       fWindowScale;                  //! Window scale
    
    // Configuration
    ArgusConfig*  fConfiguration;                //! Configuration Handle
@@ -115,69 +118,69 @@ public:
    TApplication* GetApplication() { return fApplication; };
 #endif
    // Data Base Handle
-   char*         GetDataBaseConnection() { return (char*)fDataBaseConnection.Data(); };
-   void          SetDataBaseConnection(char* connection) { fDataBaseConnection = connection; };
+   Char_t*       GetDataBaseConnection() { return (Char_t*)fDataBaseConnection.Data(); };
+   void          SetDataBaseConnection(Char_t* connection) { fDataBaseConnection = connection; };
    void          SetDataBaseConnection(ROMEString& connection) { fDataBaseConnection = connection; };
    ROMEDataBase* GetDataBase() { return fDataBaseHandle; };
    void          SetDataBase(ROMEDataBase* dataBase) { fDataBaseHandle = dataBase; };
    
    // Directories
-   char*         GetDataBaseDir() { return (char*)fDataBaseDir.Data(); }
-   char*         GetConfigDir() { return (char*)fConfigDir.Data(); }
-   void          SetDataBaseDir(char* dir) { fDataBaseDir = dir; }
+   Char_t*       GetDataBaseDir() { return (Char_t*)fDataBaseDir.Data(); }
+   Char_t*       GetConfigDir() { return (Char_t*)fConfigDir.Data(); }
+   void          SetDataBaseDir(Char_t* dir) { fDataBaseDir = dir; }
    void          SetDataBaseDir(ROMEString& dir) { fDataBaseDir = dir; }
-   void          SetConfigDir(char* dir) { fConfigDir = dir; }
+   void          SetConfigDir(Char_t* dir) { fConfigDir = dir; }
    void          SetConfigDir(ROMEString& dir) { fConfigDir = dir; }
    
    // Online
-   char*         GetOnlineHost() { return (char*)fOnlineHost.Data(); };
-   char*         GetOnlineExperiment() { return (char*)fOnlineExperiment.Data(); };   
-   void          SetOnlineHost(char* host) { fOnlineHost = host; };
+   Char_t*       GetOnlineHost() { return (Char_t*)fOnlineHost.Data(); };
+   Char_t*       GetOnlineExperiment() { return (Char_t*)fOnlineExperiment.Data(); };   
+   void          SetOnlineHost(Char_t* host) { fOnlineHost = host; };
    void          SetOnlineHost(ROMEString& host) { fOnlineHost = host; };
-   void          SetOnlineExperiment(char* experiment) { fOnlineExperiment = experiment; };
+   void          SetOnlineExperiment(Char_t* experiment) { fOnlineExperiment = experiment; };
    void          SetOnlineExperiment(ROMEString& experiment) { fOnlineExperiment = experiment; };
    
    // SocketInterface
-   char*         GetSocketInterfaceHost() { return (char*)fSocketInterfaceHost.Data(); };
-   int           GetSocketInterfacePortNumber() { return fSocketInterfacePortNumber; };
-   void          SetSocketInterfaceHost(char* host) { fSocketInterfaceHost = host; };
+   Char_t*       GetSocketInterfaceHost() { return (Char_t*)fSocketInterfaceHost.Data(); };
+   Int_t         GetSocketInterfacePortNumber() { return fSocketInterfacePortNumber; };
+   void          SetSocketInterfaceHost(Char_t* host) { fSocketInterfaceHost = host; };
    void          SetSocketInterfaceHost(ROMEString& host) { fSocketInterfaceHost = host; };
-   void          SetSocketInterfacePortNumber(int port) { fSocketInterfacePortNumber = port; };
-   void          SetSocketInterfacePortNumber(char* port) { char* cstop; fSocketInterfacePortNumber = strtol(port,&cstop,10); };
-   void          SetSocketInterfacePortNumber(ROMEString& port) { SetSocketInterfacePortNumber((char*)port.Data()); };
+   void          SetSocketInterfacePortNumber(Int_t port) { fSocketInterfacePortNumber = port; };
+   void          SetSocketInterfacePortNumber(Char_t* port) { Char_t* cstop; fSocketInterfacePortNumber = strtol(port,&cstop,10); };
+   void          SetSocketInterfacePortNumber(ROMEString& port) { SetSocketInterfacePortNumber((Char_t*)port.Data()); };
    
    // Window
-   float         GetWindowScale() { return fWindowScale; };
-   void          SetWindowScale(float scale) { fWindowScale = scale; };
-   void          SetWindowScale(char* scale) { char* cstop; fWindowScale = strtod(scale,&cstop); };
-   void          SetWindowScale(ROMEString& scale) { SetWindowScale((char*)scale.Data()); };
+   Float_t       GetWindowScale() { return fWindowScale; };
+   void          SetWindowScale(Float_t scale) { fWindowScale = scale; };
+   void          SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = strtod(scale,&cstop); };
+   void          SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); };
    
    // Midas
-   int           GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
-   int*          GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
+   Int_t         GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
+   Int_t*        GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
    
    // Configuration
    ArgusConfig*  GetConfiguration() { return fConfiguration; };
 
    // Program name
-   char*         GetProgramName() { return (char*)fProgramName.Data(); };
+   Char_t*       GetProgramName() { return (Char_t*)fProgramName.Data(); };
    
    // main objects
    TFolder*      GetMainFolder() { return fMainFolder; }
    
    // Start Method
-   bool          Start(int argc=0, char **argv=NULL);
+   Bool_t          Start(Int_t argc=0, Char_t **argv=NULL);
    
    // Start Monitor
-   virtual bool  StartMonitor() = 0 ;   
-   virtual bool  ReadSingleDataBaseFolders() = 0;
-   virtual bool  ReadArrayDataBaseFolders() = 0;
+   virtual Bool_t  StartMonitor() = 0 ;   
+   virtual Bool_t  ReadSingleDataBaseFolders() = 0;
+   virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
-   bool strtobool(const char* str);
-   bool toBool(int value){ return value!=0; }
+   Bool_t strtobool(const Char_t* str);
+   Bool_t toBool(Int_t value){ return value!=0; }
    
 protected:      
-   bool ReadParameters(int argc, char *argv[]);
+   Bool_t ReadParameters(Int_t argc, Char_t *argv[]);
    void ParameterUsage();
    
    ClassDef(ArgusMonitor,0)

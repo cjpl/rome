@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.38  2005/05/05 20:08:04  sawada
+  code clean up.
+
   Revision 1.37  2005/05/03 18:18:45  sawada
   enable to use Long64_t and ULong64_t as steering parameters.
 
@@ -138,14 +141,14 @@
 ********************************************************************/
 #include "ArgusBuilder.h"
 
-bool ArgusBuilder::WriteMain() {
-   int i;
+Bool_t ArgusBuilder::WriteMain() {
+   Int_t i;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString mainprogname(mainProgName);
-   char fileBuffer[bufferLength];
-   int nb;
-   int fileHandle;
+   Char_t fileBuffer[bufferLength];
+   Int_t nb;
+   Int_t fileHandle;
    cppFile.SetFormatted("%s/src/monitor/main.cpp",outDir.Data());
    buffer.Resize(0);
 //   buffer.AppendFormatted("#include <TROOT.h>\n");
@@ -168,7 +171,7 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
 #if defined( USE_TRINT )
-   buffer.AppendFormatted("   TRint *app = new TRint(\"App\", &argn, &argp,NULL,0,true);\n");
+   buffer.AppendFormatted("   TRint *app = new TRint(\"App\", &argn, &argp,NULL,0,kTRUE);\n");
 #else
    buffer.AppendFormatted("   TApplication *app = new TApplication(\"App\", &argn, &argp,NULL,0);\n");
 #endif
@@ -176,7 +179,7 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   // Monitor\n");
    buffer.AppendFormatted("   gMonitor = new %sMonitor(app);\n",shortCut.Data());
    buffer.AppendFormatted("   // Main window\n");
-   buffer.AppendFormatted("   char str[80];");
+   buffer.AppendFormatted("   Char_t str[80];");
    buffer.AppendFormatted("   sprintf(str, \"%%s connected to %%s\", gMonitor->GetProgramName(), gMonitor->GetSocketInterfaceHost());\n");
    buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());   
    buffer.AppendFormatted("\n");
@@ -194,17 +197,17 @@ bool ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("}\n");
    fileHandle = open(cppFile.Data(),O_RDONLY);
    nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   bool identical = true;
-   if (nb==(int)buffer.Length()) {
-      for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+   Bool_t identical = kTRUE;
+   if (nb==(Int_t)buffer.Length()) {
+      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
          if (buffer[i] != fileBuffer[i]) {
-            identical = false;
+            identical = kFALSE;
             break;
          }
       }
    }
    else
-      identical = false;
+      identical = kFALSE;
    if (!identical) {
       fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);
@@ -213,7 +216,7 @@ bool ArgusBuilder::WriteMain() {
       nb = write(fileHandle,buffer.Data(), buffer.Length());
       close(fileHandle);
    }
-   return true;
+   return kTRUE;
 }
 
 void usage() {
@@ -231,65 +234,65 @@ void usage() {
 int main(int argc, char *argv[])
 {
    struct stat buf;
-   char* argussys = getenv("ARGUSSYS");
+   Char_t* argussys = getenv("ARGUSSYS");
    if (argussys==NULL) {
       cout << "Please set the environment variable ARGUSSYS to the Argus root-directory." << endl;
       return 1;
    }
-   char* romesys = getenv("ROMESYS");
+   Char_t* romesys = getenv("ROMESYS");
    if (romesys==NULL) {
       cout << "Please set the environment variable ROMESYS to the ROME root-directory." << endl;
       return 1;
    }
-   char* rootsys = getenv("ROOTSYS");
+   Char_t* rootsys = getenv("ROOTSYS");
    if (rootsys==NULL) {
       cout << "Please set the environment variable ROOTSYS to the ROOT root-directory." << endl;
       return 1;
    }
    ArgusBuilder* argusb = new ArgusBuilder();
-   argusb->argusVersion = "Version 1.00";   
+   argusb->argusVersion = ARGUS_RELEASE;
    ROMEString xmlFile = "";
-   const int workDirLen = 1000;
-   char workDir[workDirLen];
+   const Int_t workDirLen = 1000;
+   Char_t workDir[workDirLen];
    getcwd(workDir,workDirLen);
-   argusb->makeOutput = false;
-   argusb->noLink = false;
-   argusb->midas = false;
-   argusb->sql = false;
-   argusb->mysql = false;
-   argusb->pgsql = false;
-   argusb->sqlite = false;
-   argusb->sqlite3 = false;
+   argusb->makeOutput = kFALSE;
+   argusb->noLink = kFALSE;
+   argusb->midas = kFALSE;
+   argusb->sql = kFALSE;
+   argusb->mysql = kFALSE;
+   argusb->pgsql = kFALSE;
+   argusb->sqlite = kFALSE;
+   argusb->sqlite3 = kFALSE;
    argusb->outDir = workDir;
    argusb->outDir.Append("/");
    if (argc==1) {
       usage();
       return 0;
    }
-   for (int i=1;i<argc;i++) {
+   for (Int_t i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-v")) {
-         argusb->makeOutput = true;
+         argusb->makeOutput = kTRUE;
       }
       else if (!strcmp(argv[i],"-nl")) {
-         argusb->noLink = true;
+         argusb->noLink = kTRUE;
       }
       else if (!strcmp(argv[i],"-nosql")) {
          cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
       }
       else if (!strcmp(argv[i],"-mysql")) {
-         argusb->mysql = true;
+         argusb->mysql = kTRUE;
       }
       else if (!strcmp(argv[i],"-pgsql")) {
-         argusb->pgsql = true;
+         argusb->pgsql = kTRUE;
       }
       else if (!strcmp(argv[i],"-sqlite")) {
-         argusb->sqlite = true;
+         argusb->sqlite = kTRUE;
       }
       else if (!strcmp(argv[i],"-sqlite3")) {
-         argusb->sqlite3 = true;
+         argusb->sqlite3 = kTRUE;
       }
       else if (!strcmp(argv[i],"-midas")) {
-         argusb->midas = true;
+         argusb->midas = kTRUE;
          ROMEString midasFile;
          midasFile = getenv("MIDASSYS");
          midasFile.Append("/include/midas.h");
@@ -363,17 +366,17 @@ int main(int argc, char *argv[])
    path.SetFormatted("%s/include/monitor",argusb->outDir.Data());
    mkdir(path,0711);
 #endif
-   argusb->startBuilder((char*)xmlFile.Data());
+   argusb->startBuilder((Char_t*)xmlFile.Data());
    return 0;
 }
 
-void ArgusBuilder::startBuilder(char* xmlFile) 
+void ArgusBuilder::startBuilder(Char_t* xmlFile) 
 {
    xml = new ROMEXML();
-   char* name;
-   bool finished = false;
-   int type;
-   int i,j;   
+   Char_t* name;
+   Bool_t finished = kFALSE;
+   Int_t type;
+   Int_t i,j;   
    experimentName = "";
    shortCut = "";
    mainProgName = "";
@@ -382,46 +385,46 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    mainInstitute = "";
    mainCollaboration = "";
    mainEmail = "";
-   readExperiment = false;
-   readAuthor = false;
-   readFolders = false;
-   readTabs = false;
-   readGlobalSteeringParameters = false;   
+   readExperiment = kFALSE;
+   readAuthor = kFALSE;
+   readFolders = kFALSE;
+   readTabs = kFALSE;
+   readGlobalSteeringParameters = kFALSE;   
    numOfFolder = -1;
    numOfTab = -1;
-   romefolder = false;
+   romefolder = kFALSE;
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
       name = xml->GetName();
-      if (type == 1 && !strcmp((const char*)name,"ArgusMonitorDefinition")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"ArgusMonitorDefinition")) {
          while (xml->NextLine()&&!finished) {
             type = xml->GetType();
             name = xml->GetName();
-            if (type == 15 && !strcmp((const char*)name,"ArgusMonitorDefinition")) {
+            if (type == 15 && !strcmp((const Char_t*)name,"ArgusMonitorDefinition")) {
                if (!readExperiment) {
                   cout << "Experiment tree missing!" << endl;
                   cout << "Terminating program." << endl;
                   return;
                }
-               finished = true;
+               finished = kTRUE;
                break;
             }
             if (type == 1) {
-               if (!strcmp((const char*)name,"Experiment")) {
-                  readExperiment = true;
+               if (!strcmp((const Char_t*)name,"Experiment")) {
+                  readExperiment = kTRUE;
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
                      name = xml->GetName();
-                     if (type == 1 && !strcmp((const char*)name,"ExperimentName"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"ExperimentName"))
                         xml->GetValue(experimentName,experimentName);
-                     if (type == 1 && !strcmp((const char*)name,"ExperimentShortCut"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"ExperimentShortCut"))
                         xml->GetValue(shortCut,shortCut);
-                     if (type == 1 && !strcmp((const char*)name,"ProgramName"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"ProgramName"))
                         xml->GetValue(mainProgName,mainProgName);
-                     if (type == 1 && !strcmp((const char*)name,"MonitorDescription"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"MonitorDescription"))
                         xml->GetValue(mainDescription,mainDescription);
-                     if (type == 15 && !strcmp((const char*)name,"Experiment")) {
+                     if (type == 15 && !strcmp((const Char_t*)name,"Experiment")) {
                         if (shortCut=="") {
                            cout << "Experiment must have a shortcut!" << endl;
                            cout << "Terminating program." << endl;
@@ -432,25 +435,25 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                   }
                   continue;
                }
-               if (!strcmp((const char*)name,"Author")) {
-                  readAuthor = true;
+               if (!strcmp((const Char_t*)name,"Author")) {
+                  readAuthor = kTRUE;
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
                      name = xml->GetName();
-                     if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"AuthorName"))
                         xml->GetValue(mainAuthor,mainAuthor);
-                     if (type == 1 && !strcmp((const char*)name,"AuthorInstitute"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"AuthorInstitute"))
                         xml->GetValue(mainInstitute,mainInstitute);
-                     if (type == 1 && !strcmp((const char*)name,"AuthorCollaboration"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"AuthorCollaboration"))
                         xml->GetValue(mainCollaboration,mainCollaboration);
-                     if (type == 1 && !strcmp((const char*)name,"AuthorEmail"))
+                     if (type == 1 && !strcmp((const Char_t*)name,"AuthorEmail"))
                         xml->GetValue(mainEmail,mainEmail);
-                     if (type == 15 && !strcmp((const char*)name,"Author"))
+                     if (type == 15 && !strcmp((const Char_t*)name,"Author"))
                         break;
                   }
                   continue;
                }
-               if (!strcmp((const char*)name,"Folders")) {
+               if (!strcmp((const Char_t*)name,"Folders")) {
                   // initialization
                   numOfFolder = -1;
                   parent[0] = "GetMainFolder()";
@@ -460,18 +463,18 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      type = xml->GetType();
                      name = xml->GetName();
                      // folder
-                     if (type == 1 && !strcmp((const char*)name,"Folder")) {
+                     if (type == 1 && !strcmp((const Char_t*)name,"Folder")) {
                         recursiveFolderDepth = 0;
                         if (!ReadXMLFolder()) return;
                      }
                      // rome folder
-                     if (type == 1 && !strcmp((const char*)name,"ROMEFolder")) {
+                     if (type == 1 && !strcmp((const Char_t*)name,"ROMEFolder")) {
                         recursiveFolderDepth = 0;
-			romefolder = true;
+			romefolder = kTRUE;
                         if (!ReadXMLROMEFolder()) return;
                      }
                      // folders end
-                     if (type == 15 && !strcmp((const char*)name,"Folders")) {
+                     if (type == 15 && !strcmp((const Char_t*)name,"Folders")) {
                         break;
                      }
                   }
@@ -491,7 +494,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                   if (!WriteFolderCpp()) return;
                   if (!WriteFolderH()) return;
                }
-               if (!strcmp((const char*)name,"Tabs")) {
+               if (!strcmp((const Char_t*)name,"Tabs")) {
                   // initialization
                   numOfTab = -1;
                   // output
@@ -500,13 +503,13 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                      type = xml->GetType();
                      name = xml->GetName();
                      // tab
-                     if (type == 1 && !strcmp((const char*)name,"Tab")) {
+                     if (type == 1 && !strcmp((const Char_t*)name,"Tab")) {
                         tabParentIndex[numOfTab+1] = -1;
                         recursiveTabDepth = 0;
                         if (!ReadXMLTab()) return;
                      }
                      // tabs end
-                     if (type == 15 && !strcmp((const char*)name,"Tabs")) {
+                     if (type == 15 && !strcmp((const Char_t*)name,"Tabs")) {
                         break;
                      }
                   }
@@ -528,7 +531,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
                   if (!WriteTabCpp()) return;
                   if (!WriteTabH()) return;
                }
-               if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
+               if (!strcmp((const Char_t*)name,"GlobalSteeringParameters")) {
                   // output
                   if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
                   // initialisation
@@ -570,8 +573,8 @@ void ArgusBuilder::startBuilder(char* xmlFile)
       system("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      const int workDirLen = 1000;
-      char workDir[workDirLen];
+      const Int_t workDirLen = 1000;
+      Char_t workDir[workDirLen];
       getcwd(workDir,workDirLen);
       cout << "working dir = " << workDir << endl;
       system("nmake -f Makefile.win");
@@ -582,7 +585,7 @@ void ArgusBuilder::startBuilder(char* xmlFile)
    WriteHTMLDoku();
 }
 
-char* ArgusBuilder::EqualSign() {
+Char_t* ArgusBuilder::EqualSign() {
 #if defined( R__VISUAL_CPLUSPLUS )
    return "=";
 #endif
@@ -592,13 +595,13 @@ char* ArgusBuilder::EqualSign() {
    return "";
 }
 
-void ArgusBuilder::WriteMakefile(char* xmlFile) {
+void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer[2];
    ROMEString romeFolderInclude;
    ROMEString compileFormatFrame,compileFormatTabs,compileFormatBlank,compileFormatROME,compileFormatARGUS,compileFormatROMEFolders,compileFormatMXML;
-   int i;
+   Int_t i;
    ROMEString shortcut(shortCut);
    shortcut.ToLower();
    ROMEString mainprogname(mainProgName);
@@ -873,23 +876,23 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       if (folderUserCode[i]) {
          if(folderDefinedInROME[i]){
             buffer.AppendFormatted("obj/%s%s.obj: %s/src/framework/%s%s.cpp %s/include/framework/%s%s.h %s/include/framework/%s%s_Base.h\n",shortCut.Data(),folderName[i].Data(),folderRomeProjPath[i].Data(),shortCut.Data(),folderName[i].Data(),folderRomeProjPath[i].Data(),shortCut.Data(),folderName[i].Data(),folderRomeProjPath[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted((char*)compileFormatROMEFolders.Data(),folderRomeProjPath[i].Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted((Char_t*)compileFormatROMEFolders.Data(),folderRomeProjPath[i].Data(),folderName[i].Data(),folderName[i].Data());
          }
          else{
             buffer.AppendFormatted("obj/%s%s.obj: src/monitor/%s%s.cpp include/monitor/%s%s.h include/monitor/%s%s_Base.h",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted((char*)compileFormatFrame.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted((Char_t*)compileFormatFrame.Data(),folderName[i].Data(),folderName[i].Data());
          }
       }
    }
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h include/tabs/%sT%s_Base.h $(%sT%sDep)\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
-      buffer.AppendFormatted((char*)compileFormatTabs.Data(),tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted((Char_t*)compileFormatTabs.Data(),tabName[i].Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("obj/%sWindow.obj: src/monitor/%sWindow.cpp include/monitor/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h include/monitor/%sMonitor.h",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted((char*)compileFormatFrame.Data(),"Window","Window");
+   buffer.AppendFormatted((Char_t*)compileFormatFrame.Data(),"Window","Window");
    buffer.AppendFormatted("obj/%sMonitor.obj: src/monitor/%sMonitor.cpp include/monitor/%sMonitor.h include/monitor/%sWindow.h include/monitor/%sConfig.h $(ROMESYS)/include/ROME.h",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
@@ -901,31 +904,31 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
       buffer.AppendFormatted(" include/monitor/%sGlobalSteering.h",shortCut.Data());
    }
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted((char*)compileFormatFrame.Data(),"Monitor","Monitor");
+   buffer.AppendFormatted((Char_t*)compileFormatFrame.Data(),"Monitor","Monitor");
    buffer.AppendFormatted("obj/%sConfig.obj: src/monitor/%sConfig.cpp include/monitor/%sConfig.h include/monitor/%sMonitor.h include/monitor/%sWindow.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted((char*)compileFormatFrame.Data(),"Config","Config");
+   buffer.AppendFormatted((Char_t*)compileFormatFrame.Data(),"Config","Config");
    buffer.AppendFormatted("obj/main.obj: src/monitor/main.cpp include/monitor/%sMonitor.h include/monitor/%sWindow.h\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted((char*)compileFormatBlank.Data(),"src/monitor/main","main");
+   buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),"src/monitor/main","main");
    buffer.AppendFormatted("obj/ArgusMonitor.obj: $(ARGUSSYS)/src/ArgusMonitor.cpp $(ARGUSSYS)/include/ArgusMonitor.h\n");
-   buffer.AppendFormatted((char*)compileFormatARGUS.Data(),"Monitor","Monitor");
+   buffer.AppendFormatted((Char_t*)compileFormatARGUS.Data(),"Monitor","Monitor");
    buffer.AppendFormatted("obj/ArgusTextDialog.obj: $(ARGUSSYS)/src/ArgusTextDialog.cpp $(ARGUSSYS)/include/ArgusTextDialog.h\n");
-   buffer.AppendFormatted((char*)compileFormatARGUS.Data(),"TextDialog","TextDialog");
+   buffer.AppendFormatted((Char_t*)compileFormatARGUS.Data(),"TextDialog","TextDialog");
    buffer.AppendFormatted("obj/TNetFolder.obj: $(ARGUSSYS)/src/TNetFolder.cpp $(ARGUSSYS)/include/TNetFolder.h\n");
-   buffer.AppendFormatted((char*)compileFormatBlank.Data(),"$(ARGUSSYS)/src/TNetFolder","TNetFolder");
+   buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),"$(ARGUSSYS)/src/TNetFolder","TNetFolder");
    buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"XML","XML");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"XML","XML");
    buffer.AppendFormatted("obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h\n");
-   buffer.AppendFormatted((char*)compileFormatMXML.Data(),"mxml","mxml");
+   buffer.AppendFormatted((Char_t*)compileFormatMXML.Data(),"mxml","mxml");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"String","String");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"String","String");
    buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"StrArray","StrArray");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"StrArray","StrArray");
    buffer.AppendFormatted("obj/ROMEStr2DArray.obj: $(ROMESYS)/src/ROMEStr2DArray.cpp $(ROMESYS)/include/ROMEStr2DArray.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"Str2DArray","Str2DArray");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"Str2DArray","Str2DArray");
    buffer.AppendFormatted("obj/ROMEPath.obj: $(ROMESYS)/src/ROMEPath.cpp $(ROMESYS)/include/ROMEPath.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"Path","Path");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"Path","Path");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
-   buffer.AppendFormatted((char*)compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
    if (this->mysql) {
       buffer.AppendFormatted("obj/ROMEMySQL.obj: $(ROMESYS)/src/ROMEMySQL.cpp $(ROMESYS)/include/ROMEMySQL.h obj/ROMESQL.obj\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"MySQL","MySQL");
@@ -944,14 +947,14 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    }
    if (this->sql) {
       buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp $(ROMESYS)/include/ROMESQLDataBase.h\n");
-      buffer.AppendFormatted((char*)compileFormatROME.Data(),"SQLDataBase","SQLDataBase");
+      buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"SQLDataBase","SQLDataBase");
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h\n");
-      buffer.AppendFormatted((char*)compileFormatROME.Data(),"SQL","SQL");
+      buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"SQL","SQL");
    }
    buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.h src/monitor/%sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("src/monitor/%sDict",shortCut.Data());
    tempBuffer[1].SetFormatted("%sDict",shortCut.Data());
-   buffer.AppendFormatted((char*)compileFormatBlank.Data(),tempBuffer[0].Data(),tempBuffer[1].Data());
+   buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),tempBuffer[0].Data(),tempBuffer[1].Data());
    buffer.AppendFormatted("\n");
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
@@ -974,8 +977,8 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
-   int pdnameend = 0;
-   int pbnamestart = 0;
+   Int_t pdnameend = 0;
+   Int_t pbnamestart = 0;
    ROMEString xmlfile = xmlFile;
    while((pdnameend = xmlfile.Index("/",1,pbnamestart,TString::kExact))!=-1)
       pbnamestart = pdnameend+1;
@@ -1008,7 +1011,7 @@ void ArgusBuilder::WriteMakefile(char* xmlFile) {
 #if defined ( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
 #endif
-   int fileHandle = open(makeFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   Int_t fileHandle = open(makeFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
    fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
    write(fileHandle,buffer.Data(), buffer.Length());
@@ -1038,7 +1041,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    // writes a script file that executes rootcint
    ROMEString romeFolderInclude;
    ROMEString romeprojectpath;
-   int i;
+   Int_t i;
    buffer.Resize(0);
    buffer.AppendFormatted("rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -1090,7 +1093,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEString batFile;
    batFile.SetFormatted("%smakeDictionary.bat",outDir.Data());
-   int fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
+   Int_t fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
    close(fileHandle);
    fileHandle = open(batFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
    write(fileHandle,buffer.Data(), buffer.Length());
@@ -1099,11 +1102,11 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 }
 
 void ArgusBuilder::WriteHTMLDoku() {
-   int i=0,j=0,k=0;
+   Int_t i=0,j=0,k=0;
    ROMEString buffer;
    ROMEString parentt;
-   int depthold=0;
-   int depth=0;
+   Int_t depthold=0;
+   Int_t depth=0;
    // Header
    buffer.Resize(0);
    buffer.AppendFormatted("<HTML>\n");
@@ -1145,7 +1148,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("The %s%s has the following tab hierarchy :\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
-   int index;
+   Int_t index;
    for (i=0;i<numOfTab;i++) {
       index = i;
       depth=0;
@@ -1167,15 +1170,15 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<p>\n");
    ROMEString cppFile;
    ROMEString str;
-   char fileBuffer[bufferLength];
-   int fileHandle;
+   Char_t fileBuffer[bufferLength];
+   Int_t fileHandle;
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("%s<p>\n",tabDescription[i].Data());
       buffer.AppendFormatted("<p>\n");
       cppFile.SetFormatted("%s/src/tabs/%sT%s.cpp",outDir.Data(),shortCut.Data(),tabName[i].Data());
       fileHandle = open(cppFile.Data(),O_RDONLY);
-      int n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
+      Int_t n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
       fileBuffer[n] = 0;
       buffer.AppendFormatted("%s accesses data from the following folders :\n",tabName[i].Data());
       buffer.AppendFormatted("<ul>\n");
@@ -1312,7 +1315,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    }
 }
 
-void ArgusBuilder::GetMidasTID(ROMEString* buf,char *type) 
+void ArgusBuilder::GetMidasTID(ROMEString* buf,Char_t *type) 
 {
    buf->Resize(0);
    if (!strcmp(type,"Byte_t") ||
@@ -1426,7 +1429,7 @@ void ArgusBuilder::GetFormat(ROMEString* buf,char *type)
    }
 }
 
-void ArgusBuilder::setValue(ROMEString* buf,char *destination,char *source,char *type,int version)
+void ArgusBuilder::setValue(ROMEString* buf,Char_t *destination,Char_t *source,Char_t *type,Int_t version)
 {
    buf->Resize(0);
    // returns code which transformes a source variable of any type into a destination variable of type character
@@ -1497,7 +1500,7 @@ void ArgusBuilder::setValue(ROMEString* buf,char *destination,char *source,char 
    }
 }
 
-bool ArgusBuilder::IsNumber(const char *type)
+Bool_t ArgusBuilder::IsNumber(const Char_t *type)
 {
    if (
       !strcmp(type,"int") ||
@@ -1527,7 +1530,7 @@ bool ArgusBuilder::IsNumber(const char *type)
       !strcmp(type,"Double_t") ||
       !strcmp(type,"Stat_t") ||
       !strcmp(type,"Axis_t"))
-      return true;
+      return kTRUE;
    else
-      return false;   
+      return kFALSE;   
 }

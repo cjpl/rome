@@ -2,6 +2,9 @@
   ArgusConfig.h, R. Sawada
 
   $Log$
+  Revision 1.4  2005/05/05 20:08:05  sawada
+  code clean up.
+
   Revision 1.3  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -16,6 +19,7 @@
 ********************************************************************/
 #ifndef ArgusConfig_H
 #define ArgusConfig_H
+#include <Rtypes.h>
 
 class ArgusConfig
 {
@@ -24,8 +28,8 @@ public:
    ArgusConfig() {};
    virtual ~ArgusConfig() {};
    
-   virtual bool WriteConfigurationFile(char *file) = 0;
-   virtual bool ReadConfigurationFile(char *file) = 0;
+   virtual Bool_t WriteConfigurationFile(const Char_t *file) = 0;
+   virtual Bool_t ReadConfigurationFile(const Char_t *file) = 0;
 };
 
 #endif   // ArgusConfig_H
