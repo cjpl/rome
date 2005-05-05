@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.22  2005/05/05 20:13:30  sawada
+  code clean up.
+
   Revision 1.21  2005/05/05 20:08:04  sawada
   code clean up.
 
@@ -110,8 +113,8 @@ const Char_t LINE_TITLE[] = "NoDayWithoutItsLine";
 class ArgusBuilder
 {
 public:
-   ROMEString argusVersion;
-   ROMEString outDir;
+   ROMEString   argusVersion;
+   ROMEString   outDir;
    Bool_t       makeOutput;
    Bool_t       noLink;
    Bool_t       midas;
@@ -125,8 +128,8 @@ public:
 private:
    ROMEXML* xml;
    
-   ROMEString shortCut;
-   ROMEString experimentName;
+   ROMEString   shortCut;
+   ROMEString   experimentName;
    
    Bool_t readExperiment;
    Bool_t readAuthor;
@@ -142,9 +145,9 @@ private:
    
 // folders
    ROMEString parent[maxNumberOfFolders];
-   Int_t        numOfFolder;
-   Int_t        numOfValue[maxNumberOfFolders];
-   Int_t        numOfFolderInclude[maxNumberOfFolders];
+   Int_t      numOfFolder;
+   Int_t      numOfValue[maxNumberOfFolders];
+   Int_t      numOfFolderInclude[maxNumberOfFolders];
    ROMEString folderName[maxNumberOfFolders];
    ROMEString folderRomeProjPath[maxNumberOfFolders];
    ROMEString folderDescription[maxNumberOfFolders];
@@ -155,10 +158,10 @@ private:
    ROMEString folderVersion[maxNumberOfFolders];
    ROMEString folderInclude[maxNumberOfFolders][maxNumberOfInclude];
    ROMEString folderConnectionType[maxNumberOfFolders];
-   Bool_t       folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
-   Bool_t       folderDataBase[maxNumberOfFolders];
-   Bool_t       folderUserCode[maxNumberOfFolders];
-   Bool_t       folderDefinedInROME[maxNumberOfFolders];
+   Bool_t     folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
+   Bool_t     folderDataBase[maxNumberOfFolders];
+   Bool_t     folderUserCode[maxNumberOfFolders];
+   Bool_t     folderDefinedInROME[maxNumberOfFolders];
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
