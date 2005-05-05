@@ -2,8 +2,11 @@
   ArgusTextDialog.cpp, R.Sawada
 
   $Log$
-  Revision 1.1  2005/01/29 22:45:08  sawada
-  Initial revision
+  Revision 1.2  2005/05/05 20:08:05  sawada
+  code clean up.
+
+  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
+  Advanced Root based GUi monitoring System
 
 
 ********************************************************************/
@@ -12,7 +15,7 @@
 ClassImp(ArgusTextDialog)
    
 ArgusTextDialog::ArgusTextDialog(const TGWindow * p, const TGWindow * main,
-                                 UInt_t w, UInt_t h, char *label, char *ret_str,
+                                 UInt_t w, UInt_t h, Char_t *label, Char_t *ret_str,
                                  UInt_t options):TGTransientFrame(p, main, w, h, options)
 {
    // Create a dialog to enter a single line text entry
@@ -109,9 +112,9 @@ void ArgusTextDialog::CloseWindow()
    DeleteWindow();
 }
 
-bool ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+Bool_t ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
-   const char *string;   
+   const Char_t *string;   
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
@@ -156,5 +159,5 @@ bool ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
    default:
       break;
    } 
-   return true;
+   return kTRUE;
 }

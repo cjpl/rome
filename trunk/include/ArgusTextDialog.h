@@ -2,6 +2,9 @@
   ArgusTextDialog.h, R.Sawada
 
   $Log$
+  Revision 1.3  2005/05/05 20:08:05  sawada
+  code clean up.
+
   Revision 1.2  2005/02/24 15:04:03  sawada
   Reduced number of configuration to 1.
   Replaced ss_getchar to getchar().
@@ -18,9 +21,9 @@
 
 #ifndef  ArgusTextDialog_H
 #define  ArgusTextDialog_H
-#include "TGButton.h"
-#include "TGLabel.h"
-#include "TGTextEntry.h"
+#include <TGButton.h>
+#include <TGLabel.h>
+#include <TGTextEntry.h>
 
 class ArgusTextDialog:public TGTransientFrame {
 protected:
@@ -35,11 +38,11 @@ protected:
    TGTextEntry*           fText;         // text entry widget
    TGTextBuffer*          fBLabel;       // text buffer
    TGLabel*               fLabel;        // label
-   char*                  fRetStr;       //! return string
+   Char_t*                fRetStr;       //! return string
    
 public:
    ArgusTextDialog(const TGWindow * p, const TGWindow * main, UInt_t w, UInt_t h,
-                   char *label, char *ret_str, UInt_t options = kVerticalFrame);
+                   Char_t *label, Char_t *ret_str, UInt_t options = kVerticalFrame);
    virtual ~ ArgusTextDialog();   
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);

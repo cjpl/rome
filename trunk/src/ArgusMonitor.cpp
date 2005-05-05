@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.16  2005/05/05 20:08:05  sawada
+  code clean up.
+
   Revision 1.15  2005/04/22 12:58:24  schneebeli_m
   removed windows errors
 
@@ -114,7 +117,7 @@ ArgusMonitor::ArgusMonitor(TApplication *app)
 ArgusMonitor::~ArgusMonitor() {
 }
 
-bool ArgusMonitor::Start(int argc, char **argv)
+Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
 {
    gArgus = (ArgusMonitor*)gPassToArgus;
    
@@ -123,13 +126,13 @@ bool ArgusMonitor::Start(int argc, char **argv)
       return kFALSE;
    }
    
-   if (!ReadParameters(argc,argv)) return false;
+   if (!ReadParameters(argc,argv)) return kFALSE;
    
 #if defined( HAVE_MIDAS )
    // Connect to the experiment
    if (cm_connect_experiment(gArgus->GetOnlineHost(), gArgus->GetOnlineExperiment(),gArgus->GetProgramName(), NULL) != SUCCESS) {
       cout << "\nCannot connect to experiment" << endl;
-      return false;
+      return kFALSE;
    }
 #ifdef MIDAS_DEBUG
    cm_set_watchdog_params(TRUE, 0);
@@ -137,15 +140,15 @@ bool ArgusMonitor::Start(int argc, char **argv)
    // Connect to the online database
    if (cm_get_experiment_database(gArgus->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
       cout << "\nCannot connect to the online database" << endl;
-      return false;
+      return kFALSE;
    }
    atexit((void (*)(void))cm_disconnect_experiment);
 #endif
    
    if(!gArgus->StartMonitor())
-      return false;
+      return kFALSE;
    
-   return true;
+   return kTRUE;
 }
 
 void ArgusMonitor::ParameterUsage()
@@ -157,20 +160,20 @@ void ArgusMonitor::ParameterUsage()
    return;
 }
 
-bool ArgusMonitor::ReadParameters(int argc, char *argv[])
+Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
 {
    // Reads the Inputlineparameters
-   int i;
-   const int workDirLen = 1000;
+   Int_t i;
+   const Int_t workDirLen = 1000;
    ROMEString workDir(workDirLen);
-   getcwd((char*)workDir.Data(),workDirLen);
+   getcwd((Char_t*)workDir.Data(),workDirLen);
    workDir.Append("/");
    this->SetDataBaseDir(workDir);
    
    ROMEString configFile("argusConfig.xml");
    
-   char host_name[256] = "";
-   char exp_name[32] = "";
+   Char_t host_name[256] = "";
+   Char_t exp_name[32] = "";
 #if defined( HAVE_MIDAS )
    cm_get_environment(host_name,sizeof(host_name),exp_name,sizeof(exp_name));
 #endif
@@ -178,12 +181,12 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help")) {
          ParameterUsage();
-         return false;
+         return kFALSE;
       }
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
-         html.MakeAll(true);
-         return false;
+         html.MakeAll(kTRUE);
+         return kFALSE;
       }
       if (!strcmp(argv[i],"-i")&&i<argc-1) {
          configFile = argv[i+1];
@@ -191,16 +194,16 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
       }
    }
    
-   char answer = 0;
+   Char_t answer = 0;
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
       cout << "Configuration file '" << configFile.Data() << "' not found." << endl;
       cout << "Do you like the framework to generate a new configuration file ([y]/n) ? " << flush;
       answer = getchar();
       if (answer!='n') {
-         if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
+         if (!this->fConfiguration->WriteConfigurationFile((Char_t*)configFile.Data())) {
             cout << "\nTerminate program.\n" << endl;
-            return false;
+            return kFALSE;
          }
          cout << "\nThe framework generated a new configuration file." << endl;
          cout << "Please edit this file and restart the program.\n" << endl;
@@ -208,15 +211,15 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
       else {
          cout << "\nTerminate program.\n" << endl;
       }
-      return false;
+      return kFALSE;
    }
-   if (!this->GetConfiguration()->ReadConfigurationFile((char*)configFile.Data())) {
+   if (!this->GetConfiguration()->ReadConfigurationFile((Char_t*)configFile.Data())) {
       cout << "\nTerminate program.\n" << endl;
-      return false;
+      return kFALSE;
    }
-   if (!this->fConfiguration->WriteConfigurationFile((char*)configFile.Data())) {
+   if (!this->fConfiguration->WriteConfigurationFile((Char_t*)configFile.Data())) {
       cout << "\nTerminate program.\n" << endl;
-      return false;
+      return kFALSE;
    }
 
    for (i=1;i<argc;i++) {
@@ -240,7 +243,7 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
 	     <<"' not available."<<endl
 	     <<"Available inputlineparameters are : "<<endl;
          ParameterUsage();
-	 return false;
+	 return kFALSE;
       }
    }
    if(strlen(host_name))
@@ -248,15 +251,15 @@ bool ArgusMonitor::ReadParameters(int argc, char *argv[])
    if(strlen(exp_name))
       gArgus->SetOnlineExperiment(exp_name);
    
-   return true;
+   return kTRUE;
 }
 
-bool ArgusMonitor::strtobool(const char* str) 
+Bool_t ArgusMonitor::strtobool(const Char_t* str) 
 {
-   char *cstop;
+   Char_t *cstop;
    if (!strcmp(str,"true"))
-      return true;
+      return kTRUE;
    if (!strcmp(str,"false"))
-      return false;
+      return kFALSE;
    return strtol(str,&cstop,10)!=0;
 }

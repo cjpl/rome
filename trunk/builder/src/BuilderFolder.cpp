@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.12  2005/05/05 20:08:04  sawada
+  code clean up.
+
   Revision 1.11  2005/03/13 08:40:43  sawada
   modified handling of recursiveDepth.
   removed unused variables.
@@ -45,32 +48,32 @@
 ********************************************************************/
 #include "ArgusBuilder.h"
 
-bool ArgusBuilder::ReadXMLFolder() {
+Bool_t ArgusBuilder::ReadXMLFolder() {
    // read the folder definitions out of the xml file
    ROMEString tmp;
-   char* name;
-   int type,i,j;
+   Char_t* name;
+   Int_t type,i,j;
    ROMEString currentFolderName = "";
-   int currentNumberOfFolders;   
+   Int_t currentNumberOfFolders;   
    // count folders
    numOfFolder++;
    currentNumberOfFolders = numOfFolder;
    if (currentNumberOfFolders>=maxNumberOfFolders) {
       cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
       cout << "Terminating program." << endl;
-      return false;
+      return kFALSE;
    }
    // initialisation
    folderName[currentNumberOfFolders] = "";
    folderRomeProjPath[currentNumberOfFolders] = "./";
    folderTitle[currentNumberOfFolders] = "";
    folderArray[currentNumberOfFolders] = "1";
-   folderDataBase[currentNumberOfFolders] = false;
-   folderUserCode[currentNumberOfFolders] = false;
+   folderDataBase[currentNumberOfFolders] = kFALSE;
+   folderUserCode[currentNumberOfFolders] = kFALSE;
    folderVersion[currentNumberOfFolders] = "1";
    folderDescription[currentNumberOfFolders] = "";
    folderAuthor[currentNumberOfFolders] = mainAuthor;
-   folderDefinedInROME[currentNumberOfFolders] = false;
+   folderDefinedInROME[currentNumberOfFolders] = kFALSE;
    folderConnectionType[currentNumberOfFolders] = "ROMEDataBase";
    numOfFolderInclude[currentNumberOfFolders] = 0;
    numOfValue[currentNumberOfFolders] = 0;   
@@ -80,30 +83,30 @@ bool ArgusBuilder::ReadXMLFolder() {
       type = xml->GetType();
       name = xml->GetName();
       // subfolder
-      if (type == 1 && (!strcmp((const char*)name,"Folder") ||  !strcmp((const char*)name,"ROMEFolder"))) {
+      if (type == 1 && (!strcmp((const Char_t*)name,"Folder") ||  !strcmp((const Char_t*)name,"ROMEFolder"))) {
          // set folder as parent for subsequent folders
          recursiveFolderDepth++;
 //         if (parent[recursiveFolderDepth].Length()==0)
          parent[recursiveFolderDepth] = folderName[currentNumberOfFolders].Data();
          // read subfolder
-         if ((!strcmp((const char*)name,"Folder")&&!ReadXMLFolder()) || (!strcmp((const char*)name,"ROMEFolder")&&!ReadXMLROMEFolder())) 
-            return false;
+         if ((!strcmp((const Char_t*)name,"Folder")&&!ReadXMLFolder()) || (!strcmp((const Char_t*)name,"ROMEFolder")&&!ReadXMLROMEFolder())) 
+            return kFALSE;
          continue;
       }
       // end folder
-      if (type == 15 && !strcmp((const char*)name,"Folder")) {
+      if (type == 15 && !strcmp((const Char_t*)name,"Folder")) {
          // check input
          if (currentFolderName=="") {
             cout << "The " << (currentNumberOfFolders+1) << ". Folder has no name !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          parent[recursiveFolderDepth+1] = "";
          recursiveFolderDepth--;
-         return true;
+         return kTRUE;
       }
       // folder name
-      if (type == 1 && !strcmp((const char*)name,"FolderName")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderName")) {
          xml->GetValue(folderName[currentNumberOfFolders],folderName[currentNumberOfFolders]);
          currentFolderName = folderName[currentNumberOfFolders];
          // output
@@ -111,92 +114,92 @@ bool ArgusBuilder::ReadXMLFolder() {
          if (makeOutput) folderName[currentNumberOfFolders].WriteLine();
       }
       // folder title
-      if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderTitle"))
          xml->GetValue(folderTitle[currentNumberOfFolders],folderTitle[currentNumberOfFolders]);
       // folder array size
-      if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+      if (type == 1 && !strcmp((const Char_t*)name,"ArraySize"))
          xml->GetValue(folderArray[currentNumberOfFolders],folderArray[currentNumberOfFolders]);
       // folder data base access
-      if (type == 1 && !strcmp((const char*)name,"DataBaseAccess")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"DataBaseAccess")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderDataBase[currentNumberOfFolders] = true;
+            folderDataBase[currentNumberOfFolders] = kTRUE;
       }
       // folder with changeble class file
-      if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"ChangeableClassFile")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderUserCode[currentNumberOfFolders] = true;
+            folderUserCode[currentNumberOfFolders] = kTRUE;
       }
       // folder version
-      if (type == 1 && !strcmp((const char*)name,"FolderVersion"))
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderVersion"))
          xml->GetValue(folderVersion[currentNumberOfFolders],folderVersion[currentNumberOfFolders]);
       // folder description
-      if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderDescription"))
          xml->GetValue(folderDescription[currentNumberOfFolders],folderDescription[currentNumberOfFolders]);
       // folder author
-      if (type == 1 && !strcmp((const char*)name,"Author")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"Author")) {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // author name
-            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+            if (type == 1 && !strcmp((const Char_t*)name,"AuthorName"))
                xml->GetValue(folderAuthor[currentNumberOfFolders],folderAuthor[currentNumberOfFolders]);
-            if (type == 15 && !strcmp((const char*)name,"Author"))
+            if (type == 15 && !strcmp((const Char_t*)name,"Author"))
                break;
          }
          continue;
       }
       // folder include
-      if (type == 1 && !strcmp((const char*)name,"Include")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"Include")) {
          // include initialisation
          folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = "";
-         folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = false;
+         folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = kFALSE;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // include name
-            if (type == 1 && !strcmp((const char*)name,"IncludeName"))
+            if (type == 1 && !strcmp((const Char_t*)name,"IncludeName"))
                xml->GetValue(folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]],folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]]);
             // include type
-            if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
+            if (type == 1 && !strcmp((const Char_t*)name,"IncludeType")) {
                xml->GetValue(tmp,"false");
                if (tmp == "local") 
-                  folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = true;
+                  folderLocalFlag[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]] = kTRUE;
             }
             // include end
-            if (type == 15 && !strcmp((const char*)name,"Include"))
+            if (type == 15 && !strcmp((const Char_t*)name,"Include"))
                break;
          }
          // check input
          if (folderInclude[currentNumberOfFolders][numOfFolderInclude[currentNumberOfFolders]]=="") {
             cout << "An Include of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          // count includes
          numOfFolderInclude[currentNumberOfFolders]++;
          if (numOfFolderInclude[currentNumberOfFolders]>=maxNumberOfInclude) {
             cout << "Maximal number of includes in folder '" << folderName[currentNumberOfFolders].Data() << "' reached : " << maxNumberOfInclude << " !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          continue;
       }
       // folder data base type
-      if (type == 1 && !strcmp((const char*)name,"ConnectionType")){
+      if (type == 1 && !strcmp((const Char_t*)name,"ConnectionType")){
          xml->GetValue(folderConnectionType[currentNumberOfFolders],folderConnectionType[currentNumberOfFolders]);
          if(!midas && !strcmp(folderConnectionType[currentNumberOfFolders],"ODB")){
             cout << "Need Midas support for ODB connection !!" << endl;
             cout << "Please link the midas library with \"-midas\"." << endl;
-            return false;
+            return kFALSE;
          }
       }
       // folder field
-      if (type == 1 && !strcmp((const char*)name,"Field")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"Field")) {
          // field initialisation
-         bool readName = false;
-         bool readType = false;
+         Bool_t readName = kFALSE;
+         Bool_t readType = kFALSE;
          valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
          valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
          valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "";
@@ -206,13 +209,13 @@ bool ArgusBuilder::ReadXMLFolder() {
             type = xml->GetType();
             name = xml->GetName();
             // field name
-            if (type == 1 && !strcmp((const char*)name,"FieldName")) {
-               readName = true;
+            if (type == 1 && !strcmp((const Char_t*)name,"FieldName")) {
+               readName = kTRUE;
                xml->GetValue(valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             }
             // field type
-            if (type == 1 && !strcmp((const char*)name,"FieldType")) {
-               readType = true;
+            if (type == 1 && !strcmp((const Char_t*)name,"FieldType")) {
+               readType = kTRUE;
                xml->GetValue(valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
                if (valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] == "TString")
                   valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "' '";
@@ -222,53 +225,53 @@ bool ArgusBuilder::ReadXMLFolder() {
                   valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]] = "0";
             }
             // field initialization
-            if (type == 1 && !strcmp((const char*)name,"FieldInitialization")) {
+            if (type == 1 && !strcmp((const Char_t*)name,"FieldInitialization")) {
                if (!readName) {
                   cout << "Please specify a field name befor the initial value in the " << (numOfValue[currentNumberOfFolders]+1) << ".field in folder '" << folderName[currentNumberOfFolders].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
-                  return false;
+                  return kFALSE;
                }
                if (!readType) {
                   cout << "Please specify a field type befor the initial value in field '" << valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Data() << "' in folder  '" << folderName[currentNumberOfFolders].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
-                  return false;
+                  return kFALSE;
                }
                xml->GetValue(valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueInit[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             }
             // field comment
-            if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
+            if (type == 1 && !strcmp((const Char_t*)name,"FieldComment")) {
                xml->GetValue(valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
                if (valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]][0]!='/') {
                   valueComment[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Insert(0,"// ");
                }
             }
             // field array size
-            if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+            if (type == 1 && !strcmp((const Char_t*)name,"ArraySize"))
                xml->GetValue(valueArray[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueArray[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             // field data base path
-            if (type == 1 && !strcmp((const char*)name,"DataBasePath"))
+            if (type == 1 && !strcmp((const Char_t*)name,"DataBasePath"))
                xml->GetValue(valueDataBasePath[currentNumberOfFolders][numOfValue[currentNumberOfFolders]],valueDataBasePath[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]);
             // field end
-            if (type == 15 && !strcmp((const char*)name,"Field"))
+            if (type == 15 && !strcmp((const Char_t*)name,"Field"))
                break;
          }
          // check input
          if (valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]=="") {
             cout << "A Field of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Name !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          if (valueType[currentNumberOfFolders][numOfValue[currentNumberOfFolders]]=="") {
             cout << "Field '" << valueName[currentNumberOfFolders][numOfValue[currentNumberOfFolders]].Data() << "' of Folder '" << folderName[currentNumberOfFolders].Data() << "' has no Type !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          for (i=0;i<numOfValue[currentNumberOfFolders];i++) {
             for (j=i+1;j<numOfValue[currentNumberOfFolders];j++) {
                if (valueName[currentNumberOfFolders][i]==valueName[currentNumberOfFolders][j]) {
                   cout << "\nFolder '" << folderName[currentNumberOfFolders].Data() << "' has two fields with the name '" << valueName[currentNumberOfFolders][i].Data() << "' !" << endl;
                   cout << "Terminating program." << endl;
-                  return false;
+                  return kFALSE;
                }
             }
          }
@@ -277,40 +280,40 @@ bool ArgusBuilder::ReadXMLFolder() {
          if (numOfValue[currentNumberOfFolders]>=maxNumberOfValues) {
             cout << "Maximal number of fields in folder '" << folderName[currentNumberOfFolders].Data() << "' reached : " << maxNumberOfValues << " !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          continue;
       }
    }
-   return true;
+   return kTRUE;
 }
 
-bool ArgusBuilder::ReadXMLROMEFolder() {
-   romefolder = true;
+Bool_t ArgusBuilder::ReadXMLROMEFolder() {
+   romefolder = kTRUE;
    // read the ROMEFolder definitions out of the xml file
    ROMEString tmp;
-   char* name;
-   int type,i,j;
+   Char_t* name;
+   Int_t type,i,j;
    ROMEString currentFolderName = "";
-   int currentNumberOfFolders;   
+   Int_t currentNumberOfFolders;   
    // count folders
    numOfFolder++;
    currentNumberOfFolders = numOfFolder;
    if (currentNumberOfFolders>=maxNumberOfFolders) {
       cout << "Maximal number of folders reached : " << maxNumberOfFolders << " !" << endl;
       cout << "Terminating program." << endl;
-      return false;
+      return kFALSE;
    }
    // initialisation
    folderName[currentNumberOfFolders] = "";
    folderTitle[currentNumberOfFolders] = "";
    folderArray[currentNumberOfFolders] = "1";
-   folderDataBase[currentNumberOfFolders] = true;
-   folderUserCode[currentNumberOfFolders] = false;
+   folderDataBase[currentNumberOfFolders] = kTRUE;
+   folderUserCode[currentNumberOfFolders] = kFALSE;
    folderVersion[currentNumberOfFolders] = "1";
    folderDescription[currentNumberOfFolders] = "";
    folderAuthor[currentNumberOfFolders] = mainAuthor;
-   folderDefinedInROME[currentNumberOfFolders] = true;
+   folderDefinedInROME[currentNumberOfFolders] = kTRUE;
    folderConnectionType[currentNumberOfFolders] = "Socket";
    numOfFolderInclude[currentNumberOfFolders] = 0;
    numOfValue[currentNumberOfFolders] = 1;//dummy
@@ -321,19 +324,19 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
       type = xml->GetType();
       name = xml->GetName();
       // end folder
-      if (type == 15 && !strcmp((const char*)name,"ROMEFolder")) {
+      if (type == 15 && !strcmp((const Char_t*)name,"ROMEFolder")) {
          // check input
          if (currentFolderName=="") {
             cout << "The " << (currentNumberOfFolders+1) << ". Folder has no name !" << endl;
             cout << "Terminating program." << endl;
-            return false;
+            return kFALSE;
          }
          parent[recursiveFolderDepth+1] = "";
          recursiveFolderDepth--;
-         return true;
+         return kTRUE;
       }
       // folder name
-      if (type == 1 && !strcmp((const char*)name,"FolderName")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderName")) {
          xml->GetValue(folderName[currentNumberOfFolders],folderName[currentNumberOfFolders]);
          currentFolderName = folderName[currentNumberOfFolders];
          // output
@@ -341,53 +344,53 @@ bool ArgusBuilder::ReadXMLROMEFolder() {
          if (makeOutput) folderName[currentNumberOfFolders].WriteLine();
       }
       // folder title
-      if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderTitle"))
          xml->GetValue(folderTitle[currentNumberOfFolders],folderTitle[currentNumberOfFolders]);
       // folder ROME project path for ROMEFolder
-      if (type == 1 && !strcmp((const char*)name,"ROMEProjectPath"))
+      if (type == 1 && !strcmp((const Char_t*)name,"ROMEProjectPath"))
          xml->GetValue(folderRomeProjPath[currentNumberOfFolders],folderRomeProjPath[currentNumberOfFolders]);
       // folder array size
-      if (type == 1 && !strcmp((const char*)name,"ArraySize"))
+      if (type == 1 && !strcmp((const Char_t*)name,"ArraySize"))
          xml->GetValue(folderArray[currentNumberOfFolders],folderArray[currentNumberOfFolders]);
       // folder description
-      if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
+      if (type == 1 && !strcmp((const Char_t*)name,"FolderDescription"))
          xml->GetValue(folderDescription[currentNumberOfFolders],folderDescription[currentNumberOfFolders]);
       // folder with changeble class file
-      if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"ChangeableClassFile")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true") 
-            folderUserCode[currentNumberOfFolders] = true;
+            folderUserCode[currentNumberOfFolders] = kTRUE;
       }
       // folder author
-      if (type == 1 && !strcmp((const char*)name,"Author")) {
+      if (type == 1 && !strcmp((const Char_t*)name,"Author")) {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // author name
-            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+            if (type == 1 && !strcmp((const Char_t*)name,"AuthorName"))
                xml->GetValue(folderAuthor[currentNumberOfFolders],folderAuthor[currentNumberOfFolders]);
-            if (type == 15 && !strcmp((const char*)name,"Author"))
+            if (type == 15 && !strcmp((const Char_t*)name,"Author"))
                break;
          }
          continue;
       }
    }
-   return true;
+   return kTRUE;
 }
 
-bool ArgusBuilder::WriteFolderCpp() {
+Bool_t ArgusBuilder::WriteFolderCpp() {
    ROMEString cppFile;
    ROMEString buffer;
-   char fileBuffer[bufferLength];   
-   int nb,ll,i,lenTot;
-   char *pos;
-   int fileHandle;
+   Char_t fileBuffer[bufferLength];   
+   Int_t nb,ll,i,lenTot;
+   Char_t *pos;
+   Int_t fileHandle;
    ROMEString format;
-   bool writeFile = false;
-   char *pBuffer;
-   int bufferLen=0;
+   Bool_t writeFile = kFALSE;
+   Char_t *pBuffer;
+   Int_t bufferLen=0;
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
-   for (int iFold=0;iFold<numOfFolder;iFold++) {
+   for (Int_t iFold=0;iFold<numOfFolder;iFold++) {
       if (numOfValue[iFold] == 0 || folderDefinedInROME[iFold]) continue;
       // File name
       cppFile.SetFormatted("%s/src/monitor/%s%s.cpp",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
@@ -402,9 +405,9 @@ bool ArgusBuilder::WriteFolderCpp() {
       buffer.AppendFormatted("//                                                                            //\n");
       ll = 74-shortCut.Length();
       format.SetFormatted("// %%sF%%-%d.%ds //\n",ll,ll);
-      buffer.AppendFormatted((char*)format.Data(),shortCut.Data(),folderName[iFold].Data());
+      buffer.AppendFormatted((Char_t*)format.Data(),shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("//                                                                            //\n");
-      pos = (char*)folderDescription[iFold].Data();
+      pos = (Char_t*)folderDescription[iFold].Data();
       lenTot = folderDescription[iFold].Length();
       while (pos-folderDescription[iFold].Data() < lenTot) {
          if (lenTot+(folderDescription[iFold].Data()-pos)<74) 
@@ -428,14 +431,14 @@ bool ArgusBuilder::WriteFolderCpp() {
          // Header Files
          buffer.AppendFormatted("\n\n#include \"include/monitor/%s%s.h\"\n",shortCut.Data(),folderName[iFold].Data());
          buffer.AppendFormatted("\nClassImp(%s%s)\n",shortCut.Data(),folderName[iFold].Data());
-         writeFile = true;
+         writeFile = kTRUE;
       }
       else {
          // compare old and new file
          fileHandle = open(cppFile.Data(),O_RDONLY);
          nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
          pBuffer = fileBuffer;
-         char *pend = "/////////////////////////////////////----///////////////////////////////////////";
+         Char_t *pend = "/////////////////////////////////////----///////////////////////////////////////";
          pBuffer = strstr(pBuffer,pend);
          if (pBuffer==NULL||nb-(pBuffer-fileBuffer)<0) {
             if (makeOutput) cout << "\n\nError : File '" << cppFile.Data() << "' has an invalid header !!!" << endl;
@@ -443,16 +446,16 @@ bool ArgusBuilder::WriteFolderCpp() {
          }
          bufferLen = nb-(pBuffer-fileBuffer);
          close(fileHandle);
-         writeFile = false;
+         writeFile = kFALSE;
          for (i=0;i<pBuffer-fileBuffer;i++) {
             if (buffer[i] != fileBuffer[i]) {
-               writeFile = true;
+               writeFile = kTRUE;
                break;
             }
          }
          fileBuffer[nb] = 0;
          format.SetFormatted("%%-%d.%ds",bufferLen-80,bufferLen-80);
-         buffer.AppendFormatted((char*)format.Data(),pBuffer+80);
+         buffer.AppendFormatted((Char_t*)format.Data(),pBuffer+80);
       }
       if (writeFile) {
          // write file
@@ -464,19 +467,19 @@ bool ArgusBuilder::WriteFolderCpp() {
          close(fileHandle);
       }
    }
-   return true;
+   return kTRUE;
 }
 
-bool ArgusBuilder::WriteFolderH() {
+Bool_t ArgusBuilder::WriteFolderH() {
    ROMEString hFile;
    ROMEString buffer;
-   char fileBuffer[bufferLength];
-   int nb,j,i;
+   Char_t fileBuffer[bufferLength];
+   Int_t nb,j,i;
    ROMEString str;
-   int fileHandle;
+   Int_t fileHandle;
    ROMEString format;
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
-   for (int iFold=0;iFold<numOfFolder;iFold++) {
+   for (Int_t iFold=0;iFold<numOfFolder;iFold++) {
      if (folderDefinedInROME[iFold] || numOfValue[iFold] == 0) continue;
       // File name
       if (folderUserCode[iFold])
@@ -534,31 +537,31 @@ bool ArgusBuilder::WriteFolderH() {
       buffer.AppendFormatted("{\n");
       // Fields
       buffer.AppendFormatted("protected:\n");
-      int typeLen = 5;
-      int nameLen = 19;
-      int nameLenT = 0;
+      Int_t typeLen = 6;
+      Int_t nameLen = 19;
+      Int_t nameLenT = 0;
       if(!folderDefinedInROME[iFold]){
          for (i=0;i<numOfValue[iFold];i++) {
             if (typeLen<valueType[iFold][i].Length()) typeLen = valueType[iFold][i].Length();
             if (valueArray[iFold][i]=="1")
-               nameLenT = (int)valueName[iFold][i].Length();
+               nameLenT = (Int_t)valueName[iFold][i].Length();
             else
-               nameLenT = (int)(valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
+               nameLenT = (Int_t)(valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
             if (nameLen<nameLenT) nameLen = nameLenT;
          }
          for (i=0;i<numOfValue[iFold];i++) {
             if (valueArray[iFold][i]!="1") {
                format.SetFormatted("   %%-%ds %%s[%s];%%%ds %%s\n",typeLen,valueArray[iFold][i].Data(),nameLen-valueName[iFold][i].Length()+2+valueArray[iFold][i].Length());
-               buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
+               buffer.AppendFormatted((Char_t*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
             }
             else {
                format.SetFormatted("   %%-%ds %%s;%%%ds %%s\n",typeLen,nameLen-valueName[iFold][i].Length());
-               buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
+               buffer.AppendFormatted((Char_t*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
             }
          }
          buffer.AppendFormatted("\n");
          format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
-         buffer.AppendFormatted((char*)format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+         buffer.AppendFormatted((Char_t*)format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
          buffer.AppendFormatted("\n");
       }
       // Methods
@@ -586,10 +589,10 @@ bool ArgusBuilder::WriteFolderH() {
             if (valueArray[iFold][i]=="1")
                buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             else {
-               buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
+               buffer.AppendFormatted("for (Int_t i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
             }
          }
-         buffer.AppendFormatted("fModified = false; ");
+         buffer.AppendFormatted("fModified = kFALSE; ");
          buffer.AppendFormatted("};\n");
          buffer.AppendFormatted("\n");
       }
@@ -616,67 +619,67 @@ bool ArgusBuilder::WriteFolderH() {
       // Getters
       if(!folderDefinedInROME[iFold]){
          for (i=0;i<numOfValue[iFold];i++) {
-            int lb = nameLen-valueName[iFold][i].Length();
+            Int_t lb = nameLen-valueName[iFold][i].Length();
             if (valueArray[iFold][i]!="1") {
                if (valueType[iFold][i]=="TRef") {
-                  format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
                else {
-                  format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                   format.SetFormatted("   %%-%ds* Get%%s()%%%ds { return &%%s[0];%%%ds };\n",typeLen,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
             }
             else {
                if (valueType[iFold][i]=="TRef") {
                   format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return &%%s;%%%ds };\n",typeLen,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  buffer.AppendFormatted((Char_t*)format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
                else {
                   format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
             }
          }       
          // isDefinedInROME
          format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return %%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
-         buffer.AppendFormatted((char*)format.Data(),"Bool_t","DefinedInROME","","false","");
+         buffer.AppendFormatted((Char_t*)format.Data(),"Bool_t","DefinedInROME","","false","");
          buffer.AppendFormatted("\n");
          // isModified
          format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
-         buffer.AppendFormatted((char*)format.Data(),"Bool_t","Modified","","Modified","");
+         buffer.AppendFormatted((Char_t*)format.Data(),"Bool_t","Modified","","Modified","");
          buffer.AppendFormatted("\n");
          // Setters
          for (i=0;i<numOfValue[iFold];i++) {
-            int lb = nameLen-valueName[iFold][i].Length();
+            Int_t lb = nameLen-valueName[iFold][i].Length();
             if (valueArray[iFold][i]=="1") {
                if (valueType[iFold][i]=="TRef") {
-                  format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = kTRUE; };\n",lb,typeLen,lb,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
                else {
-                  format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = kTRUE; };\n",lb,typeLen,lb,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
             }
             else {
                if (valueType[iFold][i]=="TRef") {
-                  format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = kTRUE; };\n",lb,typeLen,lb,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
                else {
-                  format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
-                  buffer.AppendFormatted((char*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+                  format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = kTRUE; };\n",lb,typeLen,lb,lb,lb);
+                  buffer.AppendFormatted((Char_t*)format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                }
             }
          }
          buffer.AppendFormatted("\n");
          // SetModified
-         int lb = nameLen-8;
+         Int_t lb = nameLen-8;
          format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s; };\n",lb,typeLen,lb,lb,lb);
-         buffer.AppendFormatted((char*)format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
+         buffer.AppendFormatted((Char_t*)format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
          buffer.AppendFormatted("\n");
          // Set All
          buffer.AppendFormatted("   void SetAll( ");
@@ -698,7 +701,7 @@ bool ArgusBuilder::WriteFolderH() {
                buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             }
          }
-         buffer.AppendFormatted("fModified = true; ");
+         buffer.AppendFormatted("fModified = kTRUE; ");
          buffer.AppendFormatted("};\n");
          buffer.AppendFormatted("\n");
          // Reset
@@ -708,15 +711,15 @@ bool ArgusBuilder::WriteFolderH() {
                buffer.AppendFormatted("%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
             }
             else {
-               buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
+               buffer.AppendFormatted("for (Int_t i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
             }
          }
-         buffer.AppendFormatted("fModified = false; ");
+         buffer.AppendFormatted("fModified = kFALSE; ");
          buffer.AppendFormatted("};\n");
       }
       else{
          format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return %%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
-         buffer.AppendFormatted((char*)format.Data(),"Bool_t","DefinedInROME","","true","");
+         buffer.AppendFormatted((Char_t*)format.Data(),"Bool_t","DefinedInROME","","true","");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
       }
@@ -733,17 +736,17 @@ bool ArgusBuilder::WriteFolderH() {
       // Write File
       fileHandle = open(hFile.Data(),O_RDONLY);
       nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-      bool identical = true;
-      if (nb==(int)buffer.Length()) {
-         for (i=0;i<nb&&i<(int)buffer.Length();i++) {
+      Bool_t identical = kTRUE;
+      if (nb==(Int_t)buffer.Length()) {
+         for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
             if (buffer[i] != fileBuffer[i]) {
-               identical = false;
+               identical = kFALSE;
                break;
             }
          }
       }
       else
-         identical = false;
+         identical = kFALSE;
       if (!identical) {
          fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
          close(fileHandle);
@@ -799,5 +802,5 @@ bool ArgusBuilder::WriteFolderH() {
          }
       }
    }
-   return true;
+   return kTRUE;
 }

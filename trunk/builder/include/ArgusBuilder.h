@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.21  2005/05/05 20:08:04  sawada
+  code clean up.
+
   Revision 1.20  2005/05/02 10:36:12  schneebeli_m
   added threadfunction arguments
 
@@ -73,6 +76,7 @@
 #define ArgusBuilder_H
 
 #include <RConfig.h>
+#include <Rtypes.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #include <io.h>
 #include <direct.h>
@@ -86,33 +90,37 @@
 #include "ROMEXML.h"
 #include "ROMEString.h"
 
-const int maxNumberOfTabs = 200;
-const int maxNumberOfMenus = 5;
-const int maxNumberOfMenuItems = 20;
-const int maxNumberOfFolders = 100;
-const int maxNumberOfSteering = 20;
-const int maxNumberOfSteeringField = 100;
-const int maxNumberOfValues = 50;
-const int maxNumberOfInclude = 10;
-const int maxNumberOfThreadFunctions = 10;
-const int maxNumberOfThreadFunctionArguments = 10;
-const int bufferLength = 100000;
-const char LINE_TITLE[] = "NoDayWithoutItsLine";
+#define ARGUS_RELEASE "Version 1.03"
+#define ARGUS_VERSION_CODE 010300
+#define ARGUS_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
+
+const Int_t maxNumberOfTabs                    =    200;
+const Int_t maxNumberOfMenus                   =      5;
+const Int_t maxNumberOfMenuItems               =     20;
+const Int_t maxNumberOfFolders                 =    100;
+const Int_t maxNumberOfSteering                =     20;
+const Int_t maxNumberOfSteeringField           =    100;
+const Int_t maxNumberOfValues                  =     50;
+const Int_t maxNumberOfInclude                 =     10;
+const Int_t maxNumberOfThreadFunctions         =     10;
+const Int_t maxNumberOfThreadFunctionArguments =     10;
+const Int_t bufferLength                       = 100000;
+const Char_t LINE_TITLE[] = "NoDayWithoutItsLine";
 
 class ArgusBuilder
 {
 public:
    ROMEString argusVersion;
    ROMEString outDir;
-   bool       makeOutput;
-   bool       noLink;
-   bool       midas;
-   bool       sql;
-   bool       mysql;
-   bool       pgsql;
-   bool       sqlite;
-   bool       sqlite3;
-   bool       romefolder;
+   Bool_t       makeOutput;
+   Bool_t       noLink;
+   Bool_t       midas;
+   Bool_t       sql;
+   Bool_t       mysql;
+   Bool_t       pgsql;
+   Bool_t       sqlite;
+   Bool_t       sqlite3;
+   Bool_t       romefolder;
    
 private:
    ROMEXML* xml;
@@ -120,23 +128,23 @@ private:
    ROMEString shortCut;
    ROMEString experimentName;
    
-   bool readExperiment;
-   bool readAuthor;
-   bool readFolders;
-   bool readTabs;
-   bool readGlobalSteeringParameters;
+   Bool_t readExperiment;
+   Bool_t readAuthor;
+   Bool_t readFolders;
+   Bool_t readTabs;
+   Bool_t readGlobalSteeringParameters;
 
-   int recursiveTabDepth;
-   int recursiveFolderDepth;
-   int recursiveSteerDepth;
-   int recursiveMenuDepth;
-   int actualSteerIndex;
+   Int_t recursiveTabDepth;
+   Int_t recursiveFolderDepth;
+   Int_t recursiveSteerDepth;
+   Int_t recursiveMenuDepth;
+   Int_t actualSteerIndex;
    
 // folders
    ROMEString parent[maxNumberOfFolders];
-   int        numOfFolder;
-   int        numOfValue[maxNumberOfFolders];
-   int        numOfFolderInclude[maxNumberOfFolders];
+   Int_t        numOfFolder;
+   Int_t        numOfValue[maxNumberOfFolders];
+   Int_t        numOfFolderInclude[maxNumberOfFolders];
    ROMEString folderName[maxNumberOfFolders];
    ROMEString folderRomeProjPath[maxNumberOfFolders];
    ROMEString folderDescription[maxNumberOfFolders];
@@ -147,10 +155,10 @@ private:
    ROMEString folderVersion[maxNumberOfFolders];
    ROMEString folderInclude[maxNumberOfFolders][maxNumberOfInclude];
    ROMEString folderConnectionType[maxNumberOfFolders];
-   bool       folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
-   bool       folderDataBase[maxNumberOfFolders];
-   bool       folderUserCode[maxNumberOfFolders];
-   bool       folderDefinedInROME[maxNumberOfFolders];
+   Bool_t       folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
+   Bool_t       folderDataBase[maxNumberOfFolders];
+   Bool_t       folderUserCode[maxNumberOfFolders];
+   Bool_t       folderDefinedInROME[maxNumberOfFolders];
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
@@ -159,41 +167,41 @@ private:
    ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues];
    
 // tab
-   int        numOfTab;
+   Int_t      numOfTab;
    ROMEString tabName[maxNumberOfTabs];
    ROMEString tabTitle[maxNumberOfTabs];
    ROMEString tabDescription[maxNumberOfTabs];
    ROMEString tabAuthor[maxNumberOfTabs];
    ROMEString tabVersion[maxNumberOfTabs];
-   int        tabParentIndex[maxNumberOfTabs];
-   int        tabNumOfChildren[maxNumberOfTabs];
-   int        numOfMenu[maxNumberOfTabs];
-   int        numOfMenuItem[maxNumberOfTabs][maxNumberOfMenus];
+   Int_t      tabParentIndex[maxNumberOfTabs];
+   Int_t      tabNumOfChildren[maxNumberOfTabs];
+   Int_t      numOfMenu[maxNumberOfTabs];
+   Int_t      numOfMenuItem[maxNumberOfTabs][maxNumberOfMenus];
    ROMEString menuTitle[maxNumberOfTabs][maxNumberOfMenus];
-   int        menuDepth[maxNumberOfTabs][maxNumberOfMenus];
-   int        menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   Int_t      menuDepth[maxNumberOfTabs][maxNumberOfMenus];
+   Int_t      menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
    ROMEString menuItemEnumName[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
    ROMEString menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
 
 // thread functions
-   int        numOfThreadFunctions[maxNumberOfTabs];
-   int        numOfThreadFunctionArguments[maxNumberOfTabs][maxNumberOfThreadFunctions];
+   Int_t      numOfThreadFunctions[maxNumberOfTabs];
+   Int_t      numOfThreadFunctionArguments[maxNumberOfTabs][maxNumberOfThreadFunctions];
    ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
    ROMEString threadFunctionArgument[maxNumberOfTabs][maxNumberOfThreadFunctions][maxNumberOfThreadFunctionArguments];
 
 // steering
-   int        numOfSteering[maxNumberOfTabs+1];
-   int        numOfSteerFields[maxNumberOfTabs+1][maxNumberOfSteering];
-   int        numOfSteerChildren[maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t      numOfSteering[maxNumberOfTabs+1];
+   Int_t      numOfSteerFields[maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t      numOfSteerChildren[maxNumberOfTabs+1][maxNumberOfSteering];
    ROMEString steerName[maxNumberOfTabs+1][maxNumberOfSteering];
-   int        steerParent[maxNumberOfTabs+1][maxNumberOfSteering];
-   int        steerChildren[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteering];
+   Int_t      steerParent[maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t      steerChildren[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteering];
    ROMEString steerFieldName[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldType[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldInit[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldComment[maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
 
-   bool       bankHasHeader;
+   Bool_t     bankHasHeader;
    ROMEString bankHeaderFolder;
    ROMEString bankHeaderEventID;
    ROMEString bankHeaderTriggerMask;
@@ -211,42 +219,42 @@ private:
 public:
    ArgusBuilder() {};
 
-   bool ReadXMLFolder();
-   bool ReadXMLROMEFolder();
-   bool WriteFolderCpp();
-   bool WriteFolderH();
-   bool WriteWindowCpp();
-   bool WriteWindowH();
-   bool ReadXMLTab();
-   bool ReadXMLMenu(Int_t currentNumberOfTabs);
-   bool WriteSteeringClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
-   bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTabSteer,int numTab,int tab);
-   bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTab,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
-   bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTab,ROMEString& pointer,ROMEString& steerPointer);
-   bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTab,ROMEString& pointer,ROMEString& steerPointer,int tab);
-   bool WriteTabConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
-   bool WriteTabConfigClass(ROMEString &buffer,int parentIndex,int tab);
-   bool WriteTabCpp();
-   bool WriteTabH();
-   bool AddTab(ROMEString& buffer,int& i);
-   bool AddMenuItems(ROMEString& buffer,int i,int j);
-   bool ReadXMLTree();
-   bool ReadXMLMidasBanks();
-   bool ReadXMLSteering(int iTab);
-   bool WriteSteering(int iTab);
-   bool WriteMonitorCpp();
-   bool WriteMonitorH();
-   bool WriteConfigCpp();
-   bool WriteConfigH();
-   bool WriteMain();
-   char* EqualSign();
-   void WriteMakefile(char* xmlFile);
-   void WriteHTMLDoku();
-   void WriteDictionaryBat(ROMEString& buffer);
-   void startBuilder(char* xmlFile);
-   void GetFormat(ROMEString *buf,char *type);
-   void GetMidasTID(ROMEString *buf,char *type);
-   void setValue(ROMEString *buf,char *destination,char *source,char *type,int version);
-   bool IsNumber(const char *type);
+   Bool_t ReadXMLFolder();
+   Bool_t ReadXMLROMEFolder();
+   Bool_t WriteFolderCpp();
+   Bool_t WriteFolderH();
+   Bool_t WriteWindowCpp();
+   Bool_t WriteWindowH();
+   Bool_t ReadXMLTab();
+   Bool_t ReadXMLMenu(Int_t currentNumberOfTabs);
+   Bool_t WriteSteeringClass(ROMEString& buffer,Int_t numOfTabSteer,Int_t numTab,Int_t tab);
+   Bool_t WriteSteeringConfigClass(ROMEString& buffer,Int_t numOfTabSteer,Int_t numTab,Int_t tab);
+   Bool_t WriteSteeringConfigRead(ROMEString &buffer,Int_t numSteer,Int_t numTab,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
+   Bool_t WriteSteeringConfigSet(ROMEString &buffer,Int_t numSteer,Int_t numTab,ROMEString& pointer,ROMEString& steerPointer);
+   Bool_t WriteSteeringConfigWrite(ROMEString &buffer,Int_t numSteer,Int_t numTab,ROMEString& pointer,ROMEString& steerPointer,Int_t tab);
+   Bool_t WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
+   Bool_t WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
+   Bool_t WriteTabCpp();
+   Bool_t WriteTabH();
+   Bool_t AddTab(ROMEString& buffer,Int_t& i);
+   Bool_t AddMenuItems(ROMEString& buffer,Int_t i,Int_t j);
+   Bool_t ReadXMLTree();
+   Bool_t ReadXMLMidasBanks();
+   Bool_t ReadXMLSteering(Int_t iTab);
+   Bool_t WriteSteering(Int_t iTab);
+   Bool_t WriteMonitorCpp();
+   Bool_t WriteMonitorH();
+   Bool_t WriteConfigCpp();
+   Bool_t WriteConfigH();
+   Bool_t WriteMain();
+   Char_t* EqualSign();
+   void   WriteMakefile(Char_t* xmlFile);
+   void   WriteHTMLDoku();
+   void   WriteDictionaryBat(ROMEString& buffer);
+   void   startBuilder(Char_t* xmlFile);
+   void   GetFormat(ROMEString *buf,Char_t *type);
+   void   GetMidasTID(ROMEString *buf,Char_t *type);
+   void   setValue(ROMEString *buf,Char_t *destination,Char_t *source,Char_t *type,Int_t version);
+   Bool_t IsNumber(const Char_t *type);
 };
 #endif   // ArgusBuilder_H
