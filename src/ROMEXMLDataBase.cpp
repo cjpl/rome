@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.21  2005/05/06 14:34:20  schneebeli_m
+//  .
+//
 //  Revision 1.20  2005/05/02 09:32:01  sawada
 //  small bug fix.
 //
@@ -93,7 +96,7 @@ bool ROMEXMLDataBase::Init(const char* name,const char* path,const char* connect
 
 
 int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,bool write) {
-   int i,j,k,ii,index;
+   int i,j;
    ROMEString value;
    ROMEString val;
    ROMEString id;
@@ -476,7 +479,7 @@ bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePat
 }
 bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
 {
-   int i,ii,j,k,index;
+   int i,j;
    char *cstop;
 
    ROMEStr2DArray fieldArray;
