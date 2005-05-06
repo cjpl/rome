@@ -2,6 +2,9 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.11  2005/05/06 14:37:41  schneebeli_m
+  small change
+
   Revision 1.10  2005/05/05 20:13:30  sawada
   code clean up.
 
@@ -155,7 +158,7 @@ public:
    // Window
    Float_t       GetWindowScale() { return fWindowScale; };
    void          SetWindowScale(Float_t scale) { fWindowScale = scale; };
-   void          SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = strtod(scale,&cstop); };
+   void          SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = (Float_t)strtod(scale,&cstop); };
    void          SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); };
    
    // Midas
