@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.149  2005/05/06 22:38:47  sawada
+  small bug fix.
+
   Revision 1.148  2005/05/06 18:24:32  sawada
   better makefile.
 
@@ -8960,6 +8963,11 @@ void ROMEBuilder::WriteMakefile() {
    WriteDictionaryBat(dictionarybat);
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#else
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#endif
    buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
@@ -8967,12 +8975,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(UserClassHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(ROOTSYS)/lib");
-#else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(ROOTSYS)/lib");
-#endif
-   buffer.AppendFormatted(" %s $(UserClassHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
