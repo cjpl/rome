@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.35  2005/05/06 11:38:38  schneebeli_m
+  thread end error
+
   Revision 1.34  2005/05/06 09:16:38  schneebeli_m
   ported windows threads to TThreads
 
@@ -592,19 +595,19 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("\n");
       }
       if (numOfSteering[iTab]>0) {
-         buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
+         buffer.AppendFormatted("   Steering* fSteering; //! Handle to Steering class\n\n");
       }
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
-         buffer.AppendFormatted("   TThread* m%s;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   Bool_t   f%sActive;\n", threadFunctionName[iTab][i].Data());
-	      buffer.AppendFormatted("   Int_t    f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   Int_t    f%sInterval;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   TThread* m%s; //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Bool_t   f%sActive; //!\n", threadFunctionName[iTab][i].Data());
+	      buffer.AppendFormatted("   Int_t    f%sNumberOfLoops; //!\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Int_t    f%sInterval; //!\n",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
-            buffer.AppendFormatted("   %s f%sArgument_%d;\n",threadFunctionArgument[iTab][i][j].Data(),threadFunctionName[iTab][i].Data(),j);
+            buffer.AppendFormatted("   %s f%sArgument_%d; //!\n",threadFunctionArgument[iTab][i][j].Data(),threadFunctionName[iTab][i].Data(),j);
       }
-      buffer.AppendFormatted("   Int_t    fVersion; // Version number\n");
-      buffer.AppendFormatted("   Bool_t   fActive; // is Active\n");
+      buffer.AppendFormatted("   Int_t    fVersion; //! Version number\n");
+      buffer.AppendFormatted("   Bool_t   fActive; //! is Active\n");
       Int_t nameLen = -1;
       // Methods
       buffer.AppendFormatted("public:\n");
@@ -687,8 +690,13 @@ Bool_t ArgusBuilder::WriteTabH() {
                buffer.AppendFormatted(",");
          }
          buffer.AppendFormatted("); // call the user defined threaded function\n");
-         buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops) {\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            inst->f%sActive = kFALSE;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            if(inst->m%s){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("               TThread::Delete(inst->m%s);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("               inst->m%s = 0;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
