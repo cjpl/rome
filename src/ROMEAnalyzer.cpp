@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.67  2005/05/06 08:39:16  schneebeli_m
+//  ported windows threads to TThread
+//
 //  Revision 1.66  2005/05/02 16:09:24  schneebeli_m
 //  -o commandline parameter
 //
@@ -154,7 +157,6 @@
 #include <sys/types.h>
 #include <sys/select.h>
 #include <sys/socket.h>
-#include <TThread.h>
 #define O_RDONLY_BINARY O_RDONLY
 #include <sys/time.h>
 #endif

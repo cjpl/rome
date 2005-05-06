@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.4  2005/05/06 08:39:16  schneebeli_m
+//  ported windows threads to TThread
+//
 //  Revision 1.3  2005/04/23 15:32:18  sawada
 //  small modification.
 //
@@ -16,14 +19,8 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////
-#include <RConfig.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#include <windows.h>
-#endif
 
-#if defined( R__UNIX )
 #include <TThread.h>
-#endif
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -37,14 +34,8 @@
 
 #define PTYPE int
 
-#if defined( R__UNIX )
 #define THREADRETURN NULL
 #define THREADTYPE void*
-#endif
-#if defined( R__VISUAL_CPLUSPLUS )
-#define THREADRETURN 0
-#define THREADTYPE DWORD WINAPI
-#endif
 
 TApplication *fApplication;
 
@@ -249,14 +240,9 @@ THREADTYPE ServerLoop(void *arg)
    do {
       TSocket *sock = lsock->Accept();
 
-#if defined( R__UNIX )
       TThread *thread = new TThread("Server", Server, sock);
       thread->Run();
-#endif
-#if defined( R__VISUAL_CPLUSPLUS )
-      LPDWORD lpThreadId=0;
-      CloseHandle(CreateThread(NULL,1024,&Server,sock,0,lpThreadId));
-#endif
+
    } while (1);
    return THREADRETURN;
 }
@@ -267,12 +253,6 @@ void TNetFolderServer::StartServer(TApplication *app,int port)
 // start Socket server loop
    fApplication = app;
    fPort = port;
-#if defined( R__UNIX )
    TThread *thread = new TThread("server_loop", ServerLoop, &fPort);
    thread->Run();
-#endif
-#if defined( R__VISUAL_CPLUSPLUS )
-   LPDWORD lpThreadId=0;
-   CloseHandle(CreateThread(NULL,1024,&ServerLoop,&fPort,0,lpThreadId));
-#endif
 }
