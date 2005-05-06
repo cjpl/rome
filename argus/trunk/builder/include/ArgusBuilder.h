@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.23  2005/05/06 12:08:23  schneebeli_m
+  changed max number of menus
+
   Revision 1.22  2005/05/05 20:13:30  sawada
   code clean up.
 
@@ -98,7 +101,7 @@
 #define ARGUS_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 const Int_t maxNumberOfTabs                    =    200;
-const Int_t maxNumberOfMenus                   =      5;
+const Int_t maxNumberOfMenus                   =     10;
 const Int_t maxNumberOfMenuItems               =     20;
 const Int_t maxNumberOfFolders                 =    100;
 const Int_t maxNumberOfSteering                =     20;
