@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.148  2005/05/06 18:24:32  sawada
+  better makefile.
+
   Revision 1.147  2005/05/06 08:39:15  schneebeli_m
   ported windows threads to TThread
 
@@ -8656,7 +8659,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
    buffer.AppendFormatted("\n");
 #endif
-
 // Dependencies
 // ------------
 // folders
@@ -8958,23 +8960,19 @@ void ROMEBuilder::WriteMakefile() {
    WriteDictionaryBat(dictionarybat);
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
-   buffer.AppendFormatted("%sDict.h: dictionary\n",shortCut.Data());
-   buffer.AppendFormatted("%sDict.cpp: dictionary\n",shortCut.Data());
-   buffer.AppendFormatted("\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif
-#if defined( R__UNIX )
-   buffer.AppendFormatted("LD_LIBRARY_PATH:=$(ROOTSYS)/lib\n");
-#endif
-   buffer.AppendFormatted("dictionary: ");
+   buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(UserClassHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(ROOTSYS)/lib");
+#else
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(ROOTSYS)/lib");
+#endif
+   buffer.AppendFormatted(" %s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
