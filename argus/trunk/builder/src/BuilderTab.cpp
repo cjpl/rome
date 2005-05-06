@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.34  2005/05/06 09:16:38  schneebeli_m
+  ported windows threads to TThreads
+
   Revision 1.33  2005/05/05 21:26:03  sawada
   code clean up.
 
@@ -126,7 +129,6 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
    ROMEString tmp;
    Int_t type,i,j;
    Char_t* name;
-   Char_t* cstop;
    Int_t currentNumberOfMenus = numOfMenu[currentNumberOfTabs];
    menuDepth[currentNumberOfTabs][currentNumberOfMenus] = recursiveMenuDepth;
    // count menus
@@ -261,7 +263,6 @@ Bool_t ArgusBuilder::ReadXMLTab() {
    // read the tab definitions out of the xml file
    ROMEString tmp;
    Char_t* name;
-   Char_t* cstop;
    Int_t type,i,j;
    ROMEString currentTabName = "";
    Int_t currentNumberOfTabs;
@@ -423,7 +424,7 @@ Bool_t ArgusBuilder::WriteTabCpp() {
    ROMEString cppFile;
    ROMEString buffer;
    Char_t fileBuffer[bufferLength];
-   Int_t lenTot,ll,i,j;
+   Int_t lenTot,ll,i;
    Char_t *pBuffer=NULL;
    Int_t bufferLen=0;
    Char_t *pos;
@@ -573,12 +574,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("#include <TGFrame.h>\n");
       buffer.AppendFormatted("#include <TGMenu.h>\n");
       buffer.AppendFormatted("#include \"include/monitor/%sMonitor.h\"\n",shortCut.Data());
-#if defined ( R__UNIX ) 
       buffer.AppendFormatted("#include <TThread.h>\n");
-#endif
-#if defined ( R__VISUAL_CPLUSPLUS ) 
-      buffer.AppendFormatted("#include <windows.h>\n");
-#endif
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n",tabName[iTab].Data());
       buffer.AppendFormatted("   void*  inst;\n",shortCut.Data(),tabName[iTab].Data());
@@ -600,15 +596,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       }
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
-#if defined ( R__UNIX )
          buffer.AppendFormatted("   TThread* m%s;\n", threadFunctionName[iTab][i].Data());
-#elif defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("#ifndef __CINT__\n");
-         buffer.AppendFormatted("   LPDWORD f%sId;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   DWORD   f%sExCode;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   HANDLE  f%sHandle;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("#endif\n");
-#endif
          buffer.AppendFormatted("   Bool_t   f%sActive;\n", threadFunctionName[iTab][i].Data());
 	      buffer.AppendFormatted("   Int_t    f%sNumberOfLoops;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   Int_t    f%sInterval;\n",threadFunctionName[iTab][i].Data());
@@ -629,13 +617,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      fSteering = new Steering();\n");
       }
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
-#if defined ( R__UNIX )
          buffer.AppendFormatted("      m%s       = 0;\n", threadFunctionName[iTab][i].Data());
-#elif defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("      f%sId     = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sExCode = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sHandle = 0;\n", threadFunctionName[iTab][i].Data());
-#endif
          buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
       }
       buffer.AppendFormatted("   }\n");
@@ -652,19 +634,9 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){return kTRUE;}\n");
       buffer.AppendFormatted("\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("#ifndef __CINT__\n");
-#endif
-#if defined ( R__UNIX )
       buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg){\n");
       buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
       buffer.AppendFormatted("   }\n");
-#elif defined ( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("   static DWORD WINAPI ThreadProcessMessageThread(void* arg){\n");
-      buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n",shortCut.Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("      return 0;\n");
-      buffer.AppendFormatted("   }\n");
-#endif      
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   Bool_t RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n",tabName[iTab].Data(),tabName[iTab].Data());
@@ -672,13 +644,8 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("      arg->msg    = msg;\n");
       buffer.AppendFormatted("      arg->param1 = param1;\n");
       buffer.AppendFormatted("      arg->param2 = param2;\n");
-#if defined ( R__UNIX )
       buffer.AppendFormatted("      TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
       buffer.AppendFormatted("      mProcessMessageThread->Run();\n");
-#elif defined ( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("      LPDWORD processMessageThreadId=NULL;\n");
-      buffer.AppendFormatted("      CloseHandle(CreateThread(NULL,1024,&ThreadProcessMessageThread,(LPVOID)arg,0,processMessageThreadId));\n");
-#endif
       buffer.AppendFormatted("      return kTRUE;\n");
       buffer.AppendFormatted("   }\n");
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
@@ -704,7 +671,6 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
          buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   }\n");
-#if defined ( R__UNIX )
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      TThread::SetCancelOn();\n");
@@ -714,19 +680,6 @@ Bool_t ArgusBuilder::WriteTabH() {
 //         buffer.AppendFormatted("      Int_t meid=TThread::SelfId(); // get pthread id\n");
          buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         TThread::CancelPoint();\n");
-         buffer.AppendFormatted("         inst->%s(); // call the user defined threaded function\n",threadFunctionName[iTab][i].Data());
-	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
-#elif defined ( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   static DWORD WINAPI Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
-         buffer.AppendFormatted("      Int_t iLoop = 0;\n");
-         buffer.AppendFormatted("      GetExitCodeThread(inst->f%sHandle, &inst->f%sExCode);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      while(inst->f%sActive && inst->f%sExCode == STILL_ACTIVE && (inst->f%sNumberOfLoops == 0 || iLoop<inst->f%sNumberOfLoops)){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         inst->%s(",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++) {
             buffer.AppendFormatted("inst->f%sArgument_%d",threadFunctionName[iTab][i].Data(),j);
@@ -734,14 +687,11 @@ Bool_t ArgusBuilder::WriteTabH() {
                buffer.AppendFormatted(",");
          }
          buffer.AppendFormatted("); // call the user defined threaded function\n");
-
-      	 buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops)\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("            inst->Stop%s();\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return 0;\n");
          buffer.AppendFormatted("   }\n");
-#endif
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t Start%s(",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++)
@@ -753,60 +703,33 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      f%sActive        = kTRUE;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sInterval      = interval;\n",threadFunctionName[iTab][i].Data());
-#if defined ( R__UNIX )
          buffer.AppendFormatted("      if(!m%s){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         m%s->Run();\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return kTRUE;\n");
-#elif defined ( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("      if(!f%sHandle){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         f%sHandle = CreateThread(NULL,1024,&Thread%s,this,0,f%sId);\n",threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data(),threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         if( !f%sHandle ){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            f%sActive = kFALSE;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            f%sId = 0;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            f%sExCode = 0;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            return kFALSE;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return kTRUE;\n");
-#endif
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t Stop%s(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = kFALSE;\n",threadFunctionName[iTab][i].Data());
-#if defined ( R__UNIX )
          buffer.AppendFormatted("      gSystem->Sleep(1000); // wait a while for threads to halt\n");
          buffer.AppendFormatted("      if(m%s){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         TThread::Delete(m%s);\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return kTRUE;\n");
-#elif defined ( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("      if(f%sHandle){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         CloseHandle(f%sHandle);\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         f%sHandle = NULL;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         ExitThread(0);\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return kTRUE;\n");
-#endif
          buffer.AppendFormatted("   } \n");
-#if defined ( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("   Bool_t Kill%s(){\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      f%sActive = kFALSE;\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      if(f%sHandle){\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         TerminateThread(f%sHandle,0);\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         CloseHandle(f%sHandle);\n",threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         f%sHandle = NULL;\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(m%s){\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s->Kill();\n",threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return kTRUE;\n");
          buffer.AppendFormatted("   } \n");         
-#endif
+
          buffer.AppendFormatted("\n");
       }
-#if defined ( R__VISUAL_CPLUSPLUS )
-      buffer.AppendFormatted("#endif\n");
-#endif
       buffer.AppendFormatted("\n");
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
@@ -858,7 +781,6 @@ Bool_t ArgusBuilder::WriteTabH() {
          close(fileHandle);
       }
       // User H-File
-      struct stat buf;
       hFile.SetFormatted("%s/include/tabs/%sT%s.h",outDir.Data(),shortCut.Data(),tabName[iTab].Data());
       // Description
       buffer.Resize(0);
@@ -913,7 +835,7 @@ Bool_t ArgusBuilder::WriteTabH() {
 }
 
 Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab) {
-   Int_t j,i;
+   Int_t i;
    // max tab switch name length
    Int_t switchLen = -1;
    ROMEString switchString;

@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.15  2005/05/06 09:16:38  schneebeli_m
+  ported windows threads to TThreads
+
   Revision 1.14  2005/05/05 21:26:03  sawada
   code clean up.
 
@@ -59,7 +62,7 @@
 #include "ArgusBuilder.h"
 
 Bool_t ArgusBuilder::WriteConfigCpp() {
-   Int_t i,j,k;
+   Int_t i,j;
    ROMEString cppFile;
    ROMEString buffer;
    Char_t fileBuffer[bufferLength];

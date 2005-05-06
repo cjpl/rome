@@ -3,6 +3,9 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.13  2005/05/06 09:16:38  schneebeli_m
+  ported windows threads to TThreads
+
   Revision 1.12  2005/05/05 20:08:04  sawada
   code clean up.
 
@@ -293,7 +296,7 @@ Bool_t ArgusBuilder::ReadXMLROMEFolder() {
    // read the ROMEFolder definitions out of the xml file
    ROMEString tmp;
    Char_t* name;
-   Int_t type,i,j;
+   Int_t type,i;
    ROMEString currentFolderName = "";
    Int_t currentNumberOfFolders;   
    // count folders
