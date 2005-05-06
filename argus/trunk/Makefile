@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.6  2005/05/06 18:40:12  sawada
+#  added ArgusVersion.h
+#
 #  Revision 1.5  2005/05/06 18:37:05  sawada
 #  added ArgusVersion.h
 #
@@ -24,7 +27,7 @@
 #
 #####################################################################
 #
-INCLUDE = -g -I$(ARGUSSYS)/include -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags)
+INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags)
 LIBRARY = -g $(shell root-config --libs)
 SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp BuilderFolder.cpp \
       BuilderSteering.cpp BuilderWindow.cpp Builder.cpp
