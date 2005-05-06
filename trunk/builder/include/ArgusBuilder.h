@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.24  2005/05/06 18:37:05  sawada
+  added ArgusVersion.h
+
   Revision 1.23  2005/05/06 12:08:23  schneebeli_m
   changed max number of menus
 
@@ -93,12 +96,9 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include "ArgusVersion.h"
 #include "ROMEXML.h"
 #include "ROMEString.h"
-
-#define ARGUS_RELEASE "Version 1.03"
-#define ARGUS_VERSION_CODE 010300
-#define ARGUS_VERSION(a,b,c) (((a) << 16) + ((b) << 8) + (c))
 
 const Int_t maxNumberOfTabs                    =    200;
 const Int_t maxNumberOfMenus                   =     10;
