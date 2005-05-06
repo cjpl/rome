@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.39  2005/05/06 18:26:03  sawada
+  better Makefile.
+
   Revision 1.38  2005/05/05 20:08:04  sawada
   code clean up.
 
@@ -951,7 +954,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h\n");
       buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"SQL","SQL");
    }
-   buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.h src/monitor/%sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sDict.obj: src/monitor/%sDict.h src/monitor/%sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("src/monitor/%sDict",shortCut.Data());
    tempBuffer[1].SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),tempBuffer[0].Data(),tempBuffer[1].Data());
@@ -961,9 +964,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
-   buffer.AppendFormatted("src/monitor/%sDict.cpp: dictionary\n",shortCut.Data());
-   buffer.AppendFormatted("src/monitor/%sDict.h: dictionary\n",shortCut.Data());
-   buffer.AppendFormatted("dictionary: ");
+   buffer.AppendFormatted("src/monitor/%sDict.h src/monitor/%sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
@@ -972,7 +973,12 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted(" $(BaseROMEFolderIncludes)");
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h include/monitor/%sMonitor.h $(UserClassHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(ROOTSYS)/lib");
+#else
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(ROOTSYS)/lib");
+#endif
+   buffer.AppendFormatted(" %s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
@@ -1043,7 +1049,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    ROMEString romeprojectpath;
    Int_t i;
    buffer.Resize(0);
-   buffer.AppendFormatted("rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f src/monitor/%sDict.cpp -c ",shortCut.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
