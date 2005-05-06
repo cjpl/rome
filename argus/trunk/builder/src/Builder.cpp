@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.40  2005/05/06 22:41:09  sawada
+  small bug fix.
+
   Revision 1.39  2005/05/06 18:26:03  sawada
   better Makefile.
 
@@ -964,6 +967,11 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#else
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#endif
    buffer.AppendFormatted("src/monitor/%sDict.h src/monitor/%sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
@@ -973,12 +981,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted(" $(BaseROMEFolderIncludes)");
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h include/monitor/%sMonitor.h $(UserClassHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(ROOTSYS)/lib");
-#else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(ROOTSYS)/lib");
-#endif
-   buffer.AppendFormatted(" %s $(UserClassHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("	%s $(UserClassHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj src/monitor/%sDict.cpp src/monitor/%sDict.h\n",shortCut.Data(),shortCut.Data());
