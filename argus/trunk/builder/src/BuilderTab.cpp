@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.36  2005/05/08 00:28:54  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.35  2005/05/06 11:38:38  schneebeli_m
   thread end error
 
@@ -580,7 +584,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("#include <TThread.h>\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n",tabName[iTab].Data());
-      buffer.AppendFormatted("   void*  inst;\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("   void*  inst;\n");
       buffer.AppendFormatted("   Long_t msg;\n");
       buffer.AppendFormatted("   Long_t param1;\n");
       buffer.AppendFormatted("   Long_t param2;\n");
@@ -608,7 +612,6 @@ Bool_t ArgusBuilder::WriteTabH() {
       }
       buffer.AppendFormatted("   Int_t    fVersion; //! Version number\n");
       buffer.AppendFormatted("   Bool_t   fActive; //! is Active\n");
-      Int_t nameLen = -1;
       // Methods
       buffer.AppendFormatted("public:\n");
       // Constructor
@@ -681,7 +684,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("      Int_t iLoop = 0;\n");
 //         buffer.AppendFormatted("      Int_t meid=TThread::SelfId(); // get pthread id\n");
-         buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("         TThread::CancelPoint();\n");
          buffer.AppendFormatted("         inst->%s(",threadFunctionName[iTab][i].Data());
          for (j=0;j<numOfThreadFunctionArguments[iTab][i];j++) {

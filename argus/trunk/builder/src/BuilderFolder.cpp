@@ -3,6 +3,10 @@
   BuilderFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.14  2005/05/08 00:28:53  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.13  2005/05/06 09:16:38  schneebeli_m
   ported windows threads to TThreads
 
@@ -681,7 +685,7 @@ Bool_t ArgusBuilder::WriteFolderH() {
          buffer.AppendFormatted("\n");
          // SetModified
          Int_t lb = nameLen-8;
-         format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s; };\n",lb,typeLen,lb,lb,lb);
+         format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds};\n",lb,typeLen,lb,lb,lb);
          buffer.AppendFormatted((Char_t*)format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
          buffer.AppendFormatted("\n");
          // Set All

@@ -4,6 +4,10 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.7  2005/05/08 00:28:53  sawada
+#  fixed mismathes of [Set,Append]Formatted in builder.
+#  added readme of examples.
+#
 #  Revision 1.6  2005/05/06 18:40:12  sawada
 #  added ArgusVersion.h
 #
@@ -28,7 +32,7 @@
 #####################################################################
 #
 INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags)
-LIBRARY = -g $(shell root-config --libs)
+LIBRARY = $(shell root-config --libs)
 SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp BuilderFolder.cpp \
       BuilderSteering.cpp BuilderWindow.cpp Builder.cpp
 
