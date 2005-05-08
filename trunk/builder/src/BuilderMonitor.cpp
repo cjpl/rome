@@ -3,6 +3,10 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.27  2005/05/08 00:28:54  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.26  2005/05/05 21:26:03  sawada
   code clean up.
 
@@ -628,8 +632,8 @@ Bool_t ArgusBuilder::WriteMonitorH() {
             buffer.AppendFormatted((Char_t*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
          }
          else if (folderArray[i]=="variable") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(Int_t index)%%%ds\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
-            buffer.AppendFormatted((Char_t*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
+            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(Int_t index)\n",typeLen-folderName[i].Length()-scl);
+            buffer.AppendFormatted((Char_t*)format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data());
             buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
             buffer.AppendFormatted("        for (Int_t i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
             buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());

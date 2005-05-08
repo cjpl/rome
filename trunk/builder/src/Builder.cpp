@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.41  2005/05/08 00:28:53  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.40  2005/05/06 22:41:09  sawada
   small bug fix.
 
@@ -851,12 +855,12 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe");
 #endif
-   buffer.AppendFormatted(": $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted(": $(objects)\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n\n");
 #endif
 // Compile Statements
 // ------------------
@@ -993,7 +997,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfile(pbnamestart,xmlfile.Length());
    buffer.AppendFormatted("build:\n");
-   buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder",xmlbasename.Data());
+   buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder");
 #if defined ( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe");
 #endif
@@ -1302,7 +1306,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("%s</br>\n",mainCollaboration.Data());
    buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail.Data(),mainEmail.Data());
    buffer.AppendFormatted("<u> Contact person from Argus</u></br>\n");
-   buffer.AppendFormatted("<a href=\"http://www.icepp.s.u-tokyo.ac.jp/%E7sawada\">Ryu Sawada</a> (ICEPP)</p>\n");
+   buffer.AppendFormatted("<a href=\"http://www.icepp.s.u-tokyo.ac.jp/%%E7sawada\">Ryu Sawada</a> (ICEPP)</p>\n");
    buffer.AppendFormatted("</ADDRESS>\n");
    buffer.AppendFormatted("</BODY>\n");
    buffer.AppendFormatted("</HTML>\n");
@@ -1317,7 +1321,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    if (makeOutput) htmlFile.WriteLine();
    // Write UserHTML
    struct stat buf;
-   htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data());
    if( stat( htmlFile.Data(), &buf )) {
       fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
       close(fileHandle);

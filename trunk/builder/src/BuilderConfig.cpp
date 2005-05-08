@@ -3,6 +3,10 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.16  2005/05/08 00:28:53  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.15  2005/05/06 09:16:38  schneebeli_m
   ported windows threads to TThreads
 
@@ -420,7 +424,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          buffer.AppendFormatted(" * gWindow->GetTabSwitches()->%s",switchString2.Data());
          index = tabParentIndex[index];
       }
-      buffer.AppendFormatted(";\n",pointer.Data());
+      buffer.AppendFormatted(";\n");
    }
    // Global Steering Parameter
    buffer.AppendFormatted("   // global steering parameters\n");

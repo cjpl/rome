@@ -3,6 +3,10 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.22  2005/05/08 00:28:54  sawada
+  fixed mismathes of [Set,Append]Formatted in builder.
+  added readme of examples.
+
   Revision 1.21  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -182,12 +186,12 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
       }
    }
    for (i=0;i<numOfTab;i++) {
-      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n",tabName[i].Length());
+      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n");
       buffer.AppendFormatted((char*)format.Data(),tabName[i].Data(),i,shortCut.Data(),tabName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("Bool_t %sWindow::Start()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sWindow::Start()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   // Create status bar\n");
    buffer.AppendFormatted("   Int_t parts[] = {5};\n");
@@ -207,7 +211,7 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("            new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Create tab widget\n");
-   buffer.AppendFormatted("   Int_t tabID = 0;\n",tabName[i].Data());      
+   buffer.AppendFormatted("   Int_t tabID = 0;\n");
    buffer.AppendFormatted("   fTab = new TGTab(this, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(400*gMonitor->GetWindowScale()));\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfTab;i++) {
@@ -382,7 +386,7 @@ Bool_t ArgusBuilder::WriteWindowH() {
    classDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tabs.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
    ROMEString format;
-   Int_t nameLen = -1;
+//   Int_t nameLen = -1;
    Int_t typeLen = 17;
    // max tab name length
    Int_t tabLen=0;
