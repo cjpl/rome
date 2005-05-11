@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.17  2005/05/11 12:50:01  schneebeli_m
+#  added strlcpy
+#
 #  Revision 1.16  2005/03/23 09:12:21  schneebeli_m
 #  libxml replaced by mxml
 #
@@ -61,8 +64,8 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/ROMEString.cpp
-	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c \
+$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
+	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 
 clean:

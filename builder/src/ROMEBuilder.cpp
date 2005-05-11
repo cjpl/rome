@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.150  2005/05/11 12:50:01  schneebeli_m
+  added strlcpy
+
   Revision 1.149  2005/05/06 22:38:47  sawada
   small bug fix.
 
@@ -8781,7 +8784,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/TNetFolderServer.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
@@ -8921,6 +8924,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatROME.Data(),"XML","XML");
    buffer.AppendFormatted("obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h\n");
    buffer.AppendFormatted(compileFormatRANY.Data(),"mxml.c","mxml");
+   buffer.AppendFormatted("obj/strlcpy.obj: $(ROMESYS)/src/strlcpy.c $(ROMESYS)/include/strlcpy.h\n");
+   buffer.AppendFormatted(compileFormatRANY.Data(),"strlcpy.c","strlcpy");
    buffer.AppendFormatted("obj/TNetFolderServer.obj: $(ROMESYS)/src/TNetFolderServer.cpp $(ROMESYS)/include/TNetFolderServer.h\n");
    buffer.AppendFormatted(compileFormatRANY.Data(),"TNetFolderServer.cpp","TNetFolderServer");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");

@@ -37,17 +37,20 @@
    deleting nodes.
 
    $Log$
-   Revision 1.7  2005/05/02 08:43:16  schneebeli_m
-   link error
+   Revision 1.8  2005/05/11 12:50:02  schneebeli_m
+   added strlcpy
 
-   Revision 1.6  2005/04/29 13:24:04  schneebeli_m
-   Added node functions
+   Revision 1.10  2005/05/09 18:43:52  ritt
+   Clear error
 
-   Revision 1.5  2005/04/23 15:32:18  sawada
-   small modification.
+   Revision 1.9  2005/05/09 09:12:25  ritt
+   Moved strlcpy/strlcat into separate file
 
-   Revision 1.4  2005/04/01 14:56:24  schneebeli_m
-   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+   Revision 1.8  2005/04/19 21:43:33  ritt
+   Implemented tree cloning and adding
+
+   Revision 1.7  2005/04/06 11:17:02  ritt
+   Nodes can now have values AND subnodes
 
    Revision 1.6  2005/03/29 15:11:56  ritt
    Close element before writing comment
@@ -101,82 +104,9 @@
 #endif
 
 #include "mxml.h"
+#include "strlcpy.h"
 
 #define XML_INDENT "  "
-
-/*------------------------------------------------------------------*/
-
-#ifdef HAVE_STRLCPY
-
-extern size_t strlcpy(char *dst, const char *src, size_t size);
-extern size_t strlcat(char *dst, const char *src, size_t size);
-
-#else 
-
-/*
- * Copy src to string dst of size siz.  At most siz-1 characters
- * will be copied.  Always NUL terminates (unless size == 0).
- * Returns strlen(src); if retval >= siz, truncation occurred.
- */
-size_t strlcpy(char *dst, const char *src, size_t size)
-{
-   char *d = dst;
-   const char *s = src;
-   size_t n = size;
-
-   /* Copy as many bytes as will fit */
-   if (n != 0 && --n != 0) {
-      do {
-         if ((*d++ = *s++) == 0)
-            break;
-      } while (--n != 0);
-   }
-
-   /* Not enough room in dst, add NUL and traverse rest of src */
-   if (n == 0) {
-      if (size != 0)
-         *d = '\0';             /* NUL-terminate dst */
-      while (*s++);
-   }
-
-   return (s - src - 1);        /* count does not include NUL */
-}
-
-/*
- * Appends src to string dst of size siz (unlike strncat, siz is the
- * full size of dst, not space left).  At most siz-1 characters
- * will be copied.  Always NUL terminates (unless size <= strlen(dst)).
- * Returns strlen(src) + MIN(size, strlen(initial dst)).
- * If retval >= size, truncation occurred.
- */
-size_t strlcat(char *dst, const char *src, size_t size)
-{
-   char *d = dst;
-   const char *s = src;
-   size_t n = size;
-   size_t dlen;
-
-   /* Find the end of dst and adjust bytes left but don't go past end */
-   while (n-- != 0 && *d != '\0')
-      d++;
-   dlen = d - dst;
-   n = size - dlen;
-
-   if (n == 0)
-      return (dlen + strlen(s));
-   while (*s != '\0') {
-      if (n != 1) {
-         *d++ = *s;
-         n--;
-      }
-      s++;
-   }
-   *d = '\0';
-
-   return (dlen + (s - src));   /* count does not include NUL */
-}
-
-#endif // STRLCPY_DEFINED
 
 /*------------------------------------------------------------------*/
 
@@ -392,7 +322,7 @@ int mxml_set_translate(MXML_WRITER *writer, int flag)
 }
 /*------------------------------------------------------------------*/
 
-int mxml_start_element(MXML_WRITER *writer, const char *name)
+int mxml_start_element1(MXML_WRITER *writer, const char *name, int indent)
 /* start a new XML element, must be followed by mxml_end_elemnt */
 {
    int i;
@@ -404,8 +334,9 @@ int mxml_start_element(MXML_WRITER *writer, const char *name)
    }
 
    line[0] = 0;
-   for (i=0 ; i<writer->level ; i++)
-      strlcat(line, XML_INDENT, sizeof(line));
+   if (indent)
+      for (i=0 ; i<writer->level ; i++)
+         strlcat(line, XML_INDENT, sizeof(line));
    strlcat(line, "<", sizeof(line));
    strlcpy(name_enc, name, sizeof(name_enc));
    mxml_encode(name_enc, sizeof(name_enc), writer->translate);
@@ -424,6 +355,20 @@ int mxml_start_element(MXML_WRITER *writer, const char *name)
    writer->data_was_written = FALSE;
 
    return mxml_write_line(writer, line) == (int)strlen(line);
+}
+
+/*------------------------------------------------------------------*/
+
+int mxml_start_element(MXML_WRITER *writer, const char *name)
+{
+   return mxml_start_element1(writer, name, TRUE);
+}
+
+/*------------------------------------------------------------------*/
+
+int mxml_start_element_noindent(MXML_WRITER *writer, const char *name)
+{
+   return mxml_start_element1(writer, name, FALSE);
 }
 
 /*------------------------------------------------------------------*/
@@ -640,7 +585,7 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, char *node
    
    parent->n_children++;
 
-   if (value) {
+   if (value && *value) {
       pnode->value = (char *)malloc(strlen(value)+1);
       assert(pnode->value);
       strcpy(pnode->value, value);
@@ -671,6 +616,69 @@ PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int
 /* add a subnode (child) to an existing parent node at the end */
 {
    return mxml_add_special_node_at(parent, ELEMENT_NODE, node_name, value, index);
+}
+
+/*------------------------------------------------------------------*/
+
+int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
+/* add a whole node tree to an existing parent node at a specific position */
+{
+   PMXML_NODE pchild;
+   int i, j;
+
+   assert(parent);
+   assert(tree);
+   if (parent->n_children == 0)
+      parent->child = (PMXML_NODE)malloc(sizeof(MXML_NODE));
+   else {
+      pchild = parent->child;
+      parent->child = (PMXML_NODE)realloc(parent->child, sizeof(MXML_NODE)*(parent->n_children+1));
+
+      if (parent->child != pchild) {
+         /* correct parent pointer for children */
+         for (i=0 ; i<parent->n_children ; i++) {
+            pchild = parent->child+i;
+            for (j=0 ; j<pchild->n_children ; j++)
+               pchild->child[j].parent = pchild;
+         }
+      }
+   }
+   assert(parent->child);
+
+   if (index < parent->n_children) 
+      for (i=parent->n_children ; i > index ; i--) {
+         /* move following nodes one down */
+         memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
+
+         /* correct parent pointer for children */
+         for (i=0 ; i<parent->n_children ; i++) {
+            pchild = parent->child+i;
+            for (j=0 ; j<pchild->n_children ; j++)
+               pchild->child[j].parent = pchild;
+         }
+      }
+
+   /* initialize new node */
+   memcpy(parent->child+index, tree, sizeof(MXML_NODE));
+   parent->n_children++;
+   parent->child[index].parent = parent;
+
+   /* correct parent pointer for children */
+   for (i=0 ; i<parent->n_children ; i++) {
+      pchild = parent->child+i;
+      for (j=0 ; j<pchild->n_children ; j++)
+         pchild->child[j].parent = pchild;
+   }
+
+   return TRUE;
+}
+
+/*------------------------------------------------------------------*/
+
+int mxml_add_tree(PMXML_NODE parent, PMXML_NODE tree)
+/* add a whole node tree to an existing parent node at the end */
+{
+   return mxml_add_tree_at(parent, tree, parent->n_children);
 }
 
 /*------------------------------------------------------------------*/
@@ -948,10 +956,14 @@ int mxml_replace_node_value(PMXML_NODE pnode, char *value)
 {
    if (pnode->value)
       pnode->value = (char *)realloc(pnode->value, strlen(value)+1);
-   else
+   else if (value)
       pnode->value = (char *)malloc(strlen(value)+1);
+   else
+      pnode->value = NULL;
    
-   strcpy(pnode->value, value);
+   if (value)
+      strcpy(pnode->value, value);
+
    return TRUE;
 }
 
@@ -1403,6 +1415,9 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
    int fh, length;
    PMXML_NODE root;
 
+   if (error)
+      error[0] = 0;
+
    fh = open(file_name, O_RDONLY | O_TEXT, 0644);
 
    if (fh == -1) {
@@ -1437,23 +1452,23 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
 
 /*------------------------------------------------------------------*/
 
-int mxml_write_subtree(MXML_WRITER *writer, PMXML_NODE tree)
+int mxml_write_subtree(MXML_WRITER *writer, PMXML_NODE tree, int indent)
 /* write complete subtree recursively into file opened with mxml_open_document() */
 {
    int i;
 
-   mxml_start_element(writer, tree->name);
+   mxml_start_element1(writer, tree->name, indent);
    for (i=0 ; i<tree->n_attributes ; i++)
       if (!mxml_write_attribute(writer, tree->attribute_name+i*MXML_NAME_LENGTH, tree->attribute_value[i]))
          return FALSE;
-   if (tree->value) {
+   
+   if (tree->value)
       if (!mxml_write_value(writer, tree->value))
          return FALSE;
-   } else {
-      for (i=0 ; i<tree->n_children ; i++)
-         if (!mxml_write_subtree(writer, &tree->child[i]))
-            return FALSE;
-   }
+
+   for (i=0 ; i<tree->n_children ; i++)
+      if (!mxml_write_subtree(writer, &tree->child[i], (tree->value == NULL) || i > 0))
+         return FALSE;
 
    return mxml_end_element(writer);
 }
@@ -1473,13 +1488,41 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree)
 
    for (i=0 ; i<tree->n_children ; i++)
       if (tree->child[i].node_type == ELEMENT_NODE) // skip PI and comments
-         if (!mxml_write_subtree(writer, &tree->child[i]))
+         if (!mxml_write_subtree(writer, &tree->child[i], TRUE))
             return FALSE;
 
    if (!mxml_close_file(writer))
       return FALSE;
 
    return TRUE;
+}
+
+/*------------------------------------------------------------------*/
+
+PMXML_NODE mxml_clone_tree(PMXML_NODE tree)
+{
+   PMXML_NODE clone;
+   int i;
+
+   clone = (PMXML_NODE)calloc(sizeof(MXML_NODE), 1);
+
+   /* copy name, node_type, n_attributes and n_children */
+   memcpy(clone, tree, sizeof(MXML_NODE));
+
+   clone->value = NULL;
+   mxml_replace_node_value(clone, tree->value);
+
+   clone->attribute_name = NULL;
+   clone->attribute_value = NULL;
+   for (i=0 ; i<tree->n_attributes ; i++)
+      mxml_add_attribute(clone, tree->attribute_name+i*MXML_NAME_LENGTH, tree->attribute_value[i]);
+
+   clone->child = NULL;
+   clone->n_children = 0;
+   for (i=0 ; i<tree->n_children ; i++)
+      mxml_add_tree(clone, mxml_clone_tree(mxml_subnode(tree, i)));
+
+   return clone;
 }
 
 /*------------------------------------------------------------------*/
@@ -1556,32 +1599,26 @@ void mxml_free_tree(PMXML_NODE tree)
 
 /*------------------------------------------------------------------*/
 
+/*
 void mxml_test()
 {
    char err[256];
-   PMXML_NODE tree, *node;
-   int i, n;
-   MXML_WRITER *writer;
+   PMXML_NODE tree, tree2, node;
 
-   writer = mxml_open_file("c:\\tmp\\test.xml");
-   mxml_start_element(writer, "odb");
-   mxml_start_element(writer, "dir");
-   mxml_write_value(writer, "contents");
-   mxml_end_element(writer);
-   mxml_write_comment(writer, "comment");
-   mxml_end_element(writer);
-   mxml_close_file(writer);
+   tree = mxml_parse_file("c:\\tmp\\test.xml", err, sizeof(err));
+   tree2 = mxml_clone_tree(tree);
 
-   tree = mxml_parse_file("c:\\online\\odb.xml", err, sizeof(err));
-
-   node = NULL;
-   n = mxml_find_nodes(tree, "/odb/dir[@name=\"Experiment\"]/dir[@name='Run Parameters']/key[@name='Comment']", &node);
-   for (i=0 ; i<n ; i++)
-      printf("%s\n", node[i]->value);
-
-   mxml_debug_tree(*node, 0);
-   free(node);
-
+   printf("Orig:\n");
    mxml_debug_tree(tree, 0);
+
+   printf("\nClone:\n");
+   mxml_debug_tree(tree2, 0);
+
+   printf("\nCombined:\n");
+   node = mxml_find_node(tree2, "cddb"); 
+   mxml_add_tree(tree, node);
+   mxml_debug_tree(tree, 0);
+
    mxml_free_tree(tree);
 }
+*/

@@ -6,11 +6,14 @@
    Contents:     Header file for mxml.c
 
    $Log$
-   Revision 1.3  2005/04/29 13:24:04  schneebeli_m
-   Added node functions
+   Revision 1.4  2005/05/11 12:50:01  schneebeli_m
+   added strlcpy
 
-   Revision 1.2  2005/04/01 14:56:23  schneebeli_m
-   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
+   Revision 1.5  2005/04/19 21:43:33  ritt
+   Implemented tree cloning and adding
+
+   Revision 1.4  2005/04/06 11:17:02  ritt
+   Nodes can now have values AND subnodes
 
    Revision 1.3  2005/03/29 14:48:54  ritt
    Implemented mxml_write_comment()
@@ -24,9 +27,6 @@
 \********************************************************************/
 
 /*------------------------------------------------------------------*/
-#ifndef MXML_H
-#define MXML_H
-
 
 #define MXML_NAME_LENGTH 64
 
@@ -69,6 +69,7 @@ MXML_WRITER *mxml_open_file(const char *file_name);
 MXML_WRITER *mxml_open_buffer(void); 
 int mxml_set_translate(MXML_WRITER *writer, int flag);
 int mxml_start_element(MXML_WRITER *writer, const char *name);
+int mxml_start_element_noindent(MXML_WRITER *writer, const char *name);
 int mxml_end_element(MXML_WRITER *writer); 
 int mxml_write_comment(MXML_WRITER *writer, const char *string);
 int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *value);
@@ -90,6 +91,10 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, char *node
 PMXML_NODE mxml_add_node(PMXML_NODE parent, char *node_name, char *value);
 PMXML_NODE mxml_add_node_at(PMXML_NODE parent, char *node_name, char *value, int index);
 
+PMXML_NODE mxml_clone_tree(PMXML_NODE tree);
+int mxml_add_tree(PMXML_NODE parent, PMXML_NODE tree);
+int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index);
+
 int mxml_replace_node_name(PMXML_NODE pnode, char *new_name);
 int mxml_replace_node_value(PMXML_NODE pnode, char *value);
 int mxml_replace_subvalue(PMXML_NODE pnode, char *name, char *value);
@@ -106,5 +111,4 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree);
 void mxml_debug_tree(PMXML_NODE tree, int level);
 void mxml_free_tree(PMXML_NODE tree);
 
-#endif
 /*------------------------------------------------------------------*/
