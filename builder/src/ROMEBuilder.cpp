@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.151  2005/05/11 12:50:37  schneebeli_m
+  .
+
   Revision 1.150  2005/05/11 12:50:01  schneebeli_m
   added strlcpy
 
@@ -8192,7 +8195,6 @@ int main(int argc, char *argv[])
    path.SetFormatted("%s/include/framework",romeb->outDir.Data());
    mkdir(path,0711);
 #endif
-   romeb->noLink = false;
 
    romeb->startBuilder(xmlFile.Data());
 
