@@ -376,7 +376,7 @@
 					<xs:documentation>Compression level for all branches of the tree.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="MaxNumberOfEntries" type="xs:boolean" default="0" minOccurs="0">
+			<xs:element name="MaxNumberOfEntries" type="xs:integer" default="0" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If this value is greater than 0 the tree is a circular tree with the specified size.</xs:documentation>
 				</xs:annotation>
