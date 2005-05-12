@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.154  2005/05/12 14:25:54  schneebeli_m
+  bug in .so in Makefile
+
   Revision 1.153  2005/05/12 14:19:43  schneebeli_m
   bug in .so in Makefile
 
@@ -8803,7 +8806,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:obj %s%s.exe %s%s.so\n",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("   g++ -shared -o %s%s.so $(objects) -lc -lutil -lpthread -ldl\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("	g++ -shared -o %s%s.so $(objects) -lc -lutil -lpthread -ldl\n",shortcut.Data(),mainprogname.Data());
 #endif
    buffer.AppendFormatted("\n");
 // user makefile
