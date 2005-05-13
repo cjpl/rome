@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.157  2005/05/13 20:26:53  sawada
+  small change.
+
   Revision 1.156  2005/05/13 20:20:54  sawada
   separated writing function of files.
   placeholder of user html.
@@ -8842,8 +8845,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    // Write documentation
    ROMEString htmlFile;
    htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
-   WriteFile(htmlFile.Data(),buffer.Data(),6);
-   if (makeOutput) htmlFile.WriteLine();
+   WriteFile(htmlFile.Data(),buffer.Data(),0);
 
    // Write UserHTML
    struct stat buf;
