@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2005/05/13 10:47:18  sawada
+  GZipped midas files on linux.
+
   Revision 1.8  2005/04/15 16:44:26  schneebeli_m
   odb, zlib
 
@@ -101,8 +104,9 @@ protected:
 
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base (Online)
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
-   gzFile     fMidasFileHandle;                 //! Handle to Midas Inputfile
-   int        fMidasFileHandle64;               //! Handle to a large Midas Inputfile
+   int        fMidasFileHandle;                 //! Handle to a un-gzipped Midas Inputfile
+   gzFile     fMidasGzFileHandle;               //! Handle to Midas gzipped Inputfile
+   bool       fGZippedMidasFile;                //! True if input file is gzipped.
    bool       fStopRequest;                     //! True if a Stop transition message was received
 
    EVENT_HEADER *fOdbOffline;                    //! Handle to the Midas Online Data Base (Offline)

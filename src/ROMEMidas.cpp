@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.14  2005/05/13 10:46:42  sawada
+//  GZipped midas files on linux.
+//
 //  Revision 1.13  2005/04/20 15:12:40  schneebeli_m
 //  histo and path in definition xml
 //
@@ -209,33 +212,36 @@ bool ROMEMidas::Connect() {
       // Open Midas File
       ROMEString runNumberString;
       gROME->GetCurrentRunNumberString(runNumberString);
+      fGZippedMidasFile = false;
       ROMEString filename;
+      ROMEString gzfilename;
       ROMEString fileExtension = ".mid";
-      filename.SetFormatted("%srun%s.mid",gROME->GetInputDir(),runNumberString.Data());
+      ROMEString gzfileExtension = ".mid.gz";
+      filename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),fileExtension.Data());
+      gzfilename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),gzfileExtension.Data());
 #if defined( R__SEEK64 )
-      fMidasFileHandle64 = open64(filename.Data(),O_RDONLY_BINARY);
-      if (fMidasFileHandle64==-1) {
+      fMidasFileHandle = open64(filename.Data(),O_RDONLY_BINARY);
 #else
-      fMidasFileHandle = gzopen(filename.Data(),"rb");
-      if (fMidasFileHandle==NULL) {
+      fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
 #endif
-#if defined( R__SEEK64 )
-         if (true) {
-#else
-         fileExtension = ".mid.gz";
-         filename.SetFormatted("%srun%s.mid.gz",gROME->GetInputDir(),runNumberString.Data());
-         fMidasFileHandle = gzopen(filename.Data(),"rb");
-         if (fMidasFileHandle==NULL) {
-#endif
-            gROME->Print("Inputfile '");
+      if (fMidasFileHandle == -1) {
+         fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
+         if (fMidasGzFileHandle==NULL) {
+            gROME->Print("Inputfile neither '");
             gROME->Print(filename.Data());
-            gROME->Println("' not found.");
+            gROME->Println("' nor '");
+            gROME->Print(gzfilename.Data());
+            gROME->Println("' was found.");
             return false;
          }
+         fGZippedMidasFile = true;
       }
-      gROME->Print("Reading Midas-File run");
-      gROME->Print(runNumberString.Data());
-      gROME->Println(fileExtension.Data());
+      gROME->Print("Reading Midas-File ");
+      if(!fGZippedMidasFile){
+         gROME->Println(filename.Data());
+      }
+      else
+         gROME->Println(gzfilename.Data());
       while (!isBeginOfRun())
          ReadEvent(0);
       SetAnalyze();
@@ -305,11 +311,11 @@ bool ROMEMidas::ReadEvent(int event) {
       bool readError = false;
 
       // read event
-#if defined( R__SEEK64 )
-      int n = read(fMidasFileHandle64,pevent, sizeof(EVENT_HEADER));
-#else
-      int n = gzread(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-#endif
+      int n;
+      if(!fGZippedMidasFile)
+         n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+      else
+         n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
 #ifndef R__BYTESWAP
@@ -323,11 +329,10 @@ bool ROMEMidas::ReadEvent(int event) {
          n = 0;
          if (pevent->data_size <= 0) readError = true;
          else {
-#if defined( R__SEEK64 )
-            n = read(fMidasFileHandle64,pevent+1,pevent->data_size);
-#else
-            n = gzread(fMidasFileHandle,pevent+1,pevent->data_size);
-#endif
+            if(!fGZippedMidasFile)
+               n = read(fMidasFileHandle,pevent+1,pevent->data_size);
+            else
+               n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
             if (n != (int) pevent->data_size) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
@@ -377,11 +382,10 @@ bool ROMEMidas::ReadEvent(int event) {
 }
 bool ROMEMidas::Disconnect() {
    if (gROME->isOffline()) {
-#if defined( R__SEEK64 )
-      close(fMidasFileHandle64);
-#else
-      gzclose(fMidasFileHandle);
-#endif
+      if(!fGZippedMidasFile)
+         close(fMidasFileHandle);
+      else
+         gzclose(fMidasGzFileHandle);
    }
    return true;
 }
