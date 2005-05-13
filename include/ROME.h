@@ -2,6 +2,9 @@
   ROME.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.8  2005/04/04 07:23:59  schneebeli_m
   Time report
 
@@ -28,13 +31,13 @@
 #include <Rtypes.h>
 
 #if defined( R__VISUAL_CPLUSPLUS )
-#define OS_WINNT
+#   define OS_WINNT
 #endif
 
 #if defined( OS_WINNT ) && defined( ROMEDLL_EXPORTS )
-#define DLLEXPORT __declspec(dllexport)
+#   define DLLEXPORT __declspec(dllexport)
 #else
-#define DLLEXPORT
+#   define DLLEXPORT
 #endif
 
 #endif   // ROME_H

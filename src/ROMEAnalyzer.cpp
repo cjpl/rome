@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.68  2005/05/13 23:51:14  sawada
+//  code cleanup.
+//
 //  Revision 1.67  2005/05/06 08:39:16  schneebeli_m
 //  ported windows threads to TThread
 //
@@ -140,41 +143,39 @@
 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#ifndef __CINT__
-#include <Windows4Root.h>
-#include <conio.h>
-#endif
-#include <direct.h>
-#include <windows.h>
-#define O_RDONLY_BINARY O_RDONLY | O_BINARY
+#   ifndef __CINT__
+#      include <Windows4Root.h>
+#      include <conio.h>
+#   endif
+#   include <direct.h>
+#   include <windows.h>
 #endif
 
 #if defined( R__UNIX )
-#include <unistd.h>
-#include <stdlib.h>
-#include <sys/ioctl.h>
-#include <termios.h>
-#include <sys/types.h>
-#include <sys/select.h>
-#include <sys/socket.h>
-#define O_RDONLY_BINARY O_RDONLY
-#include <sys/time.h>
+#   include <unistd.h>
+#   include <stdlib.h>
+#   include <sys/ioctl.h>
+#   include <termios.h>
+#   include <sys/types.h>
+#   include <sys/select.h>
+#   include <sys/socket.h>
+#   include <sys/time.h>
 #endif
 
 #ifndef R__MACOSX
-#if defined( R__VISUAL_CPLUSPLUS )
-#include <io.h>
-#endif
-#if defined( R__UNIX )
-#include <sys/io.h>
-#endif
+#   if defined( R__VISUAL_CPLUSPLUS )
+#      include <io.h>
+#   endif
+#   if defined( R__UNIX )
+#      include <sys/io.h>
+#   endif
 #endif // R__MACOSX
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
 
 #ifdef HAVE_MIDAS
-#include <midas.h>
+#   include <midas.h>
 #endif
 
 #include <TMessage.h>

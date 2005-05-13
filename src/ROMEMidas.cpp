@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.15  2005/05/13 23:51:14  sawada
+//  code cleanup.
+//
 //  Revision 1.14  2005/05/13 10:46:42  sawada
 //  GZipped midas files on linux.
 //
@@ -54,19 +57,27 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#include <io.h>
-#define O_RDONLY_BINARY O_RDONLY | O_BINARY
+#   include <io.h>
 #endif
 #if defined( R__UNIX )
-#include <unistd.h>
-#define O_RDONLY_BINARY O_RDONLY
+#   include <unistd.h>
 #endif
 #include <fcntl.h>
 #include <ROMEMidas.h>
 
+#if defined( R__VISUAL_CPLUSPLUS )
+#   define O_RDONLY_BINARY O_RDONLY | O_BINARY
+#else
+#   if defined( R__SEEK64 )
+#      define O_RDONLY_BINARY O_RDONLY | O_LARGEFILE
+#   else
+#      define O_RDONLY_BINARY O_RDONLY
+#   endif
+#endif
+
 #if defined( HAVE_MIDAS )
-#include <midas.h>
-#define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
+#   include <midas.h>
+#   define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
 {
 // This method is called, when a system message from the online system occurs
@@ -219,11 +230,7 @@ bool ROMEMidas::Connect() {
       ROMEString gzfileExtension = ".mid.gz";
       filename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),fileExtension.Data());
       gzfilename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),gzfileExtension.Data());
-#if defined( R__SEEK64 )
-      fMidasFileHandle = open64(filename.Data(),O_RDONLY_BINARY);
-#else
       fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
-#endif
       if (fMidasFileHandle == -1) {
          fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
          if (fMidasGzFileHandle==NULL) {
@@ -400,7 +407,7 @@ bool ROMEMidas::Termination() {
 
 
 #ifndef R__BYTESWAP
-#ifndef HAVE_MIDAS
+#   ifndef HAVE_MIDAS
 /**
 Swaps bytes from little endian to big endian or vice versa for a whole event.
 
@@ -493,7 +500,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
    }   
    return;
 }
-#endif
+#   endif
 
 // Byte swapping big endian <-> little endian
 void ROMEMidas::ByteSwap(UShort_t *x) 

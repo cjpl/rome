@@ -2,6 +2,9 @@
   ROMEPgSQL.h, R. Sawada
 
   $Log$
+  Revision 1.3  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.2  2005/04/28 20:26:39  sawada
   Added transaction during writing database.
   This is disabled by default because it is not well tested.
@@ -18,7 +21,7 @@
 
 #include <ROMESQL.h>
 #if defined ( R__VISUAL_CPLUSPLUS )
-#include <Windows4root.h>
+#   include <Windows4root.h>
 //typedef UINT_PTR        SOCKET;
 #endif
 //#include <postgres.h>

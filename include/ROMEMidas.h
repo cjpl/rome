@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.9  2005/05/13 10:47:18  sawada
   GZipped midas files on linux.
 
@@ -43,13 +46,13 @@
 #include <ROMEODBOfflineDataBase.h>
 
 #ifdef HAVE_MIDAS
-#include <midas.h>
+#   include <midas.h>
 #endif
 
 #ifndef HAVE_MIDAS
-#define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */
-#define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
-#define EVENTID_MESSAGE  ((short) 0x8002)  /**< Message events    */
+#   define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */
+#   define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
+#   define EVENTID_MESSAGE  ((short) 0x8002)  /**< Message events    */
 typedef struct {
    short int event_id;
    short int trigger_mask;
@@ -71,7 +74,7 @@ typedef struct {
    unsigned long int type;
    unsigned long int data_size;
 } BANK32;
-#define ALIGN8(x)  (((x)+7) & ~7)
+#   define ALIGN8(x)  (((x)+7) & ~7)
 //Data types Definition                         min      max
 const UShort_t TID_BYTE      = 1;       //< unsigned byte         0       255
 const UShort_t TID_SBYTE     = 2;       //< signed byte         -128      127
@@ -154,9 +157,9 @@ public:
 
    //byte swapping
 #ifndef R__BYTESWAP
-#ifndef HAVE_MIDAS
+#   ifndef HAVE_MIDAS
    void bk_swap(void *event, bool force);
-#endif
+#   endif
    void ByteSwap(UShort_t  *x);
    void ByteSwap(Short_t   *x){ByteSwap((UShort_t* )x);};
    void ByteSwap(UInt_t    *x);

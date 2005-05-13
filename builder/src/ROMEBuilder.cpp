@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.159  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.158  2005/05/13 21:18:36  sawada
   Fixed mismathes between format and arguments of [Set,Append]Formatted.
 
@@ -470,21 +473,21 @@
 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#include <direct.h>
+#   include <direct.h>
 #endif
 #if defined( R__UNIX )
-#include <unistd.h>
-#include <string.h>
-#include <ctype.h>
+#   include <unistd.h>
+#   include <string.h>
+#   include <ctype.h>
 #endif
 #ifndef R__MACOSX
-#if defined( R__VISUAL_CPLUSPLUS )
-#include <io.h>
+#   if defined( R__VISUAL_CPLUSPLUS )
+#      include <io.h>
+#   endif
+#   if defined( R__UNIX )
+#      include <sys/io.h>
+#   endif
 #endif
-#if defined( R__UNIX )
-#include <sys/io.h>
-#endif
-#endif // R__MACOSX
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <stdlib.h>
@@ -8295,9 +8298,9 @@ void ROMEBuilder::WriteMakefile() {
 #endif
 #if defined( R__UNIX )
    ROMEString soflags;
-#if defined( R__MACOSX )
+#   if defined( R__MACOSX )
    soflags.SetFormatted("-dynamiclib -single_module -install_name %s%s.so",shortcut.Data(),mainprogname.Data());
-#else
+#   else
    soflags = "-shared";
 #endif
    buffer.AppendFormatted("all:obj %s%s.exe %s%s.so\n",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());

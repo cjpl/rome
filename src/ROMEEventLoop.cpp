@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.55  2005/05/13 23:51:14  sawada
+//  code cleanup.
+//
 //  Revision 1.54  2005/05/02 16:09:27  schneebeli_m
 //  -o commandline parameter
 //
@@ -131,12 +134,10 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#include <io.h>
-#define O_RDONLY_BINARY O_RDONLY | O_BINARY
+#   include <io.h>
 #endif
 #if defined( R__UNIX )
-#include <unistd.h>
-#define O_RDONLY_BINARY O_RDONLY
+#   include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -144,7 +145,7 @@
 #include <time.h>
 
 #ifdef HAVE_MIDAS
-#include <midas.h>
+#   include <midas.h>
 #endif
 
 #include <ROMEEventLoop.h>

@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.33  2005/05/13 23:51:14  sawada
+//  code cleanup.
+//
 //  Revision 1.32  2005/04/28 20:26:39  sawada
 //  Added transaction during writing database.
 //  This is disabled by default because it is not well tested.
@@ -114,7 +117,7 @@
 #include <RConfig.h>
 #include <TObjString.h>
 #if defined( R__UNIX )
-#include <unistd.h>
+#   include <unistd.h>
 #endif
 
 #include <ROMESQLDataBase.h>

@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.53  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.52  2005/04/25 13:35:11  schneebeli_m
   .
 
@@ -125,7 +128,7 @@
 #include <ROMEString.h>
 #include <ROMEDAQSystem.h>
 #if defined ( HAVE_SQL )
-#include <ROMESQL.h>
+#   include <ROMESQL.h>
 #endif
 
 typedef struct {

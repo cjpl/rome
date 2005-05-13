@@ -2,6 +2,9 @@
   ROMESQLDataBase.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.20  2005/05/13 23:51:14  sawada
+  code cleanup.
+
   Revision 1.19  2005/04/28 16:11:10  sawada
   small bug fix.
 
@@ -69,16 +72,16 @@
 #include <ROMEStr2DArray.h>
 #include <ROMESQL.h>
 #if defined( HAVE_MYSQL )
-#include <ROMEMySQL.h>
+#   include <ROMEMySQL.h>
 #endif
 #if defined( HAVE_PGSQL )
-#include <ROMEPgSQL.h>
+#   include <ROMEPgSQL.h>
 #endif
 #if defined( HAVE_SQLITE )
-#include <ROMESQLite.h>
+#   include <ROMESQLite.h>
 #endif
 #if defined( HAVE_SQLITE3 )
-#include <ROMESQLite3.h>
+#   include <ROMESQLite3.h>
 #endif
 #include <Riostream.h>
 

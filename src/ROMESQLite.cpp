@@ -6,6 +6,9 @@
 //  Provides SQL data base access.
 //                                                                      //
 //  $Log$
+//  Revision 1.6  2005/05/13 23:51:14  sawada
+//  code cleanup.
+//
 //  Revision 1.5  2005/05/02 08:43:16  schneebeli_m
 //  link error
 //
@@ -29,7 +32,7 @@
 #include <ROMESQLite.h>
 
 #if defined( R__VISUAL_CPLUSPLUS )
-#include <windows.h>
+#   include <windows.h>
 #endif
 
 ROMESQLite::ROMESQLite() {
