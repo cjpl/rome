@@ -4,6 +4,10 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.18  2005/05/13 20:20:54  sawada
+#  separated writing function of files.
+#  placeholder of user html.
+#
 #  Revision 1.17  2005/05/11 12:50:01  schneebeli_m
 #  added strlcpy
 #
@@ -65,7 +69,7 @@ LIBRARY += -lsocket -lnsl
 endif
 
 $(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
-	g++ $(CFLAGS) -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
+	g++ $(CFLAGS) -g -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 
 clean:

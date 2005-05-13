@@ -2,6 +2,10 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.42  2005/05/13 20:20:54  sawada
+  separated writing function of files.
+  placeholder of user html.
+
   Revision 1.41  2005/04/28 10:01:44  sawada
   PostgreSQL support.
 
@@ -111,7 +115,6 @@ const int maxNumberOfValues = 50;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 50;
 const int maxNumberOfStructFields = 50;
-const int bufferLength = 500000;
 
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;
@@ -344,6 +347,8 @@ public:
    void WriteMakefile();
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
+   bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
+   bool WriteFile(const char* filename,const char* content,int nspace = 0);
    void startBuilder(const char* xmlFile);
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
