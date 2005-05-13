@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.155  2005/05/13 13:07:28  sawada
+  shared library.
+
   Revision 1.154  2005/05/12 14:25:54  schneebeli_m
   bug in .so in Makefile
 
@@ -8803,10 +8806,16 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
 #endif
 #if defined( R__UNIX )
+   ROMEString soflags;
+#if defined( R__MACOSX )
+   soflags.SetFormatted("-dynamiclib -single_module -install_name %s%s.so",shortcut.Data(),mainprogname.Data());
+#else
+   soflags = "-shared";
+#endif
    buffer.AppendFormatted("all:obj %s%s.exe %s%s.so\n",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("	g++ -shared -o %s%s.so $(objects) -lc -lutil -lpthread -ldl\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("	g++ $(Flags) %s -o %s%s.so $(objects) $(Libraries)\n",soflags.Data(),shortcut.Data(),mainprogname.Data());
 #endif
    buffer.AppendFormatted("\n");
 // user makefile
