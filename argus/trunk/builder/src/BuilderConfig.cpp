@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.17  2005/05/14 21:42:22  sawada
+  Separated file writing function in builder.
+
   Revision 1.16  2005/05/08 00:28:53  sawada
   fixed mismathes of [Set,Append]Formatted in builder.
   added readme of examples.
@@ -69,10 +72,8 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    Int_t i,j;
    ROMEString cppFile;
    ROMEString buffer;
-   Char_t fileBuffer[bufferLength];
    Int_t lenTot,ll;
    Char_t* pos;
-   Int_t fileHandle;
    ROMEString format;
    ROMEString classDescription;
    classDescription.SetFormatted("This class handles the monitor configuration file (argusConfig.xml).");
@@ -565,27 +566,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    // Close cpp-File
-   fileHandle = open(cppFile.Data(),O_RDONLY);
-   Int_t nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-     identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(cppFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
@@ -593,9 +574,6 @@ Bool_t ArgusBuilder::WriteConfigH() {
    Int_t i;
    ROMEString hFile;
    ROMEString buffer;
-   Char_t fileBuffer[bufferLength];
-   Int_t nb;
-   Int_t fileHandle;
    // File name
    hFile.SetFormatted("%s/include/monitor/%sConfig.h",outDir.Data(),shortCut.Data());
    // Description
@@ -730,26 +708,6 @@ Bool_t ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("};\n\n");
    buffer.AppendFormatted("#endif   // %sConfig_H\n",shortCut.Data());
    // Write File
-   fileHandle = open(hFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(hFile.Data(),buffer.Data(),6);
    return kTRUE;
 }

@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.23  2005/05/14 21:42:23  sawada
+  Separated file writing function in builder.
+
   Revision 1.22  2005/05/08 00:28:54  sawada
   fixed mismathes of [Set,Append]Formatted in builder.
   added readme of examples.
@@ -95,11 +98,9 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    ROMEString buffer;
    ROMEString format;
    ROMEString menu_title;
-   char fileBuffer[bufferLength];
    ROMEString buf;
-   Int_t nb,lenTot,ll;
+   Int_t lenTot,ll;
    char *pos;
-   Int_t fileHandle;
    ROMEString classDescription;
    classDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
@@ -349,27 +350,7 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("}\n");
    // Write File
-   fileHandle = open(cppFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(cppFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
@@ -377,11 +358,9 @@ Bool_t ArgusBuilder::WriteWindowH() {
    Int_t i,j,k;
    ROMEString hFile;
    ROMEString buffer;
-   char fileBuffer[bufferLength];
    ROMEString buf;
-   Int_t nb,lenTot,ll;
+   Int_t lenTot,ll;
    char *pos;
-   Int_t fileHandle;
    ROMEString classDescription;
    classDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all Folders, Tabs.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
@@ -547,27 +526,7 @@ Bool_t ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("extern %sWindow *gWindow;\n",shortCut.Data());
    buffer.AppendFormatted("#endif\n");
    // Write File
-   fileHandle = open(hFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(hFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
