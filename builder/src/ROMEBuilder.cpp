@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.160  2005/05/14 16:07:27  sawada
+  Improved performance with changing TString::ResizeIncrement to 4096.
+
   Revision 1.159  2005/05/13 23:51:14  sawada
   code cleanup.
 
@@ -7734,6 +7737,9 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
    numOfTask = -1;
    numOfTree = -1;
    numOfEvent = -1;
+
+   TString::MaxWaste(kTstringResizeIncrement-1);
+   TString::ResizeIncrement(kTstringResizeIncrement);
 
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {

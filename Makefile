@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.19  2005/05/14 16:07:27  sawada
+#  Improved performance with changing TString::ResizeIncrement to 4096.
+#
 #  Revision 1.18  2005/05/13 20:20:54  sawada
 #  separated writing function of files.
 #  placeholder of user html.
@@ -68,7 +71,7 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
+$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp builder/include/ROMEBuilder.h src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
 	g++ $(CFLAGS) -g -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 

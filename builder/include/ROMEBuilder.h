@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.43  2005/05/14 16:07:27  sawada
+  Improved performance with changing TString::ResizeIncrement to 4096.
+
   Revision 1.42  2005/05/13 20:20:54  sawada
   separated writing function of files.
   placeholder of user html.
@@ -118,6 +121,8 @@ const int maxNumberOfStructFields = 50;
 
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;
+
+const Ssiz_t kTstringResizeIncrement = 4096;
 
 const ROMEString ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
 const ROMEString cloSeparator = ":";
