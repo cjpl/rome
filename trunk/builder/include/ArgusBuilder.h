@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.25  2005/05/14 21:42:22  sawada
+  Separated file writing function in builder.
+
   Revision 1.24  2005/05/06 18:37:05  sawada
   added ArgusVersion.h
 
@@ -87,11 +90,11 @@
 #include <RConfig.h>
 #include <Rtypes.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#include <io.h>
-#include <direct.h>
+#   include <io.h>
+#   include <direct.h>
 #endif
 #if defined( R__UNIX )
-#include <unistd.h>
+#   include <unistd.h>
 #endif
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -110,8 +113,8 @@ const Int_t maxNumberOfValues                  =     50;
 const Int_t maxNumberOfInclude                 =     10;
 const Int_t maxNumberOfThreadFunctions         =     10;
 const Int_t maxNumberOfThreadFunctionArguments =     10;
-const Int_t bufferLength                       = 100000;
 const Char_t LINE_TITLE[] = "NoDayWithoutItsLine";
+const Ssiz_t kTstringResizeIncrement           =   4096;
 
 class ArgusBuilder
 {
@@ -257,6 +260,8 @@ public:
    void   WriteMakefile(Char_t* xmlFile);
    void   WriteHTMLDoku();
    void   WriteDictionaryBat(ROMEString& buffer);
+   bool   ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
+   bool   WriteFile(const char* filename,const char* content,int nspace = 0);
    void   startBuilder(Char_t* xmlFile);
    void   GetFormat(ROMEString *buf,Char_t *type);
    void   GetMidasTID(ROMEString *buf,Char_t *type);

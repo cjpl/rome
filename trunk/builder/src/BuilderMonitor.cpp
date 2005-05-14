@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.28  2005/05/14 21:42:22  sawada
+  Separated file writing function in builder.
+
   Revision 1.27  2005/05/08 00:28:54  sawada
   fixed mismathes of [Set,Append]Formatted in builder.
   added readme of examples.
@@ -108,12 +111,10 @@ Bool_t ArgusBuilder::WriteMonitorCpp() {
    Int_t i;
    ROMEString cppFile;
    ROMEString buffer;
-   Char_t fileBuffer[bufferLength];
    ROMEString parentt;
    ROMEString buf;
-   Int_t nb,lenTot,j,ll;
+   Int_t lenTot,j,ll;
    Char_t *pos;
-   Int_t fileHandle;
    ROMEString classDescription;
    classDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all folders.",shortCut.Data(),mainProgName.Data());
    ROMEString tmp;
@@ -505,27 +506,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp() {
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n\n");
    // Close cpp-File
-   fileHandle = open(cppFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(cppFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
@@ -533,9 +514,6 @@ Bool_t ArgusBuilder::WriteMonitorH() {
    Int_t i;
    ROMEString hFile;
    ROMEString buffer;
-   Char_t fileBuffer[bufferLength];
-   Int_t nb;
-   Int_t fileHandle;
    ROMEString bankname;
    ROMEString format;
    // max folder name length
@@ -686,26 +664,6 @@ Bool_t ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("extern %sMonitor *gMonitor;  // global Monitor Handle\n\n",shortCut.Data());
    buffer.AppendFormatted("#endif   // %sMonitor_H\n",shortCut.Data());
    // Write File
-   fileHandle = open(hFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(hFile.Data(),buffer.Data(),6);
    return kTRUE;
 }

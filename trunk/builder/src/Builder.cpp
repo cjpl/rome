@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.42  2005/05/14 21:42:22  sawada
+  Separated file writing function in builder.
+
   Revision 1.41  2005/05/08 00:28:53  sawada
   fixed mismathes of [Set,Append]Formatted in builder.
   added readme of examples.
@@ -152,13 +155,9 @@
 #include "ArgusBuilder.h"
 
 Bool_t ArgusBuilder::WriteMain() {
-   Int_t i;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString mainprogname(mainProgName);
-   Char_t fileBuffer[bufferLength];
-   Int_t nb;
-   Int_t fileHandle;
    cppFile.SetFormatted("%s/src/monitor/main.cpp",outDir.Data());
    buffer.Resize(0);
 //   buffer.AppendFormatted("#include <TROOT.h>\n");
@@ -205,27 +204,7 @@ Bool_t ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   return 0;\n");
    buffer.AppendFormatted("}\n");
-   fileHandle = open(cppFile.Data(),O_RDONLY);
-   nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(cppFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(cppFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << cppFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(cppFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
@@ -403,6 +382,8 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
    numOfFolder = -1;
    numOfTab = -1;
    romefolder = kFALSE;
+   TString::MaxWaste(kTstringResizeIncrement-1);
+   TString::ResizeIncrement(kTstringResizeIncrement);
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
@@ -1024,17 +1005,12 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
 #if defined ( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
 #endif
-   Int_t fileHandle = open(makeFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-   close(fileHandle);
-   fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer.Data(), buffer.Length());
-   close(fileHandle);
+   WriteFile(makeFile.Data(),buffer.Data(),0);
    // Write Makefile.usr
    struct stat buf;
    makeFile = "Makefile.usr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {
-      fileHandle = open(makeFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
       usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("# Description:\n");
@@ -1044,8 +1020,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("#\n");
-      write(fileHandle,usrBuffer.Data(), usrBuffer.Length());
-      close(fileHandle);
+      WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 }
 
@@ -1106,11 +1081,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEString batFile;
    batFile.SetFormatted("%smakeDictionary.bat",outDir.Data());
-   Int_t fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-   close(fileHandle);
-   fileHandle = open(batFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer.Data(), buffer.Length());
-   close(fileHandle);
+   WriteFile(batFile.Data(),buffer.Data(),0);
 #endif
 }
 
@@ -1183,27 +1154,30 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<p>\n");
    ROMEString cppFile;
    ROMEString str;
-   Char_t fileBuffer[bufferLength];
-   Int_t fileHandle;
+   fstream *fileStream;
+   TString fileBuffer;
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("%s<p>\n",tabDescription[i].Data());
       buffer.AppendFormatted("<p>\n");
       cppFile.SetFormatted("%s/src/tabs/%sT%s.cpp",outDir.Data(),shortCut.Data(),tabName[i].Data());
-      fileHandle = open(cppFile.Data(),O_RDONLY);
-      Int_t n = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-      fileBuffer[n] = 0;
+      fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
       buffer.AppendFormatted("%s accesses data from the following folders :\n",tabName[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j=0;j<numOfFolder;j++) {
          str = "Get";
          str.Append(folderName[j]);
-         if (strstr(fileBuffer,str.Data())) {
+         if (folderArray[j]=="1")
+            str += "(";
+         else
+            str += "At(";
+         if (fileBuffer.Contains(str)) {
             buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
          }
       }
       buffer.AppendFormatted("</ul>\n");
-      close(fileHandle);
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("For more information take a look at the <A TARGET=_top HREF=\"%s/htmldoc/%sT%s.html\">class file</a>\n",outDir.Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted("<p>\n");
@@ -1313,18 +1287,35 @@ void ArgusBuilder::WriteHTMLDoku() {
    // Write documentation
    ROMEString htmlFile;
    htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
-   fileHandle = open(htmlFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-   close(fileHandle);
-   fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,buffer.Data(), buffer.Length());
-   close(fileHandle);
-   if (makeOutput) htmlFile.WriteLine();
+   WriteFile(htmlFile.Data(),buffer.Data(),0);
    // Write UserHTML
    struct stat buf;
    htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data());
    if( stat( htmlFile.Data(), &buf )) {
-      fileHandle = open(htmlFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
+      buffer.Resize(0);
+      buffer.AppendFormatted("<html>\n");
+      buffer.AppendFormatted("<head>\n");
+      buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("</head>\n");
+      buffer.AppendFormatted("<body>\n");
+      buffer.AppendFormatted("  <h1>Additional Info</h1>\n");
+      buffer.AppendFormatted("  <a href=\"%s%s.html\">Main page</a>\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("  <hr width=\"100%%\">\n");
+      buffer.AppendFormatted("\n\n\n\n");
+      buffer.AppendFormatted("  <hr width=\"100%%\">\n");
+      buffer.AppendFormatted("<address>\n");
+      buffer.AppendFormatted("<u> Contact person from the %s Experiment</u></br>\n",shortCut.Data());
+      buffer.AppendFormatted("%s</br>\n",mainAuthor.Data());
+      buffer.AppendFormatted("%s</br>\n",mainInstitute.Data());
+      buffer.AppendFormatted("%s</br>\n",mainCollaboration.Data());
+      buffer.AppendFormatted("email: <a href=\"mailto:%s\">%s</a><p>\n",mainEmail.Data(),mainEmail.Data());
+      buffer.AppendFormatted("<u> Contact person from ARGUS</u></br>\n");
+      buffer.AppendFormatted("Ryu Sawada</br>\n");
+      buffer.AppendFormatted("<a href=\"http://www.icepp.s.u-tokyo.ac.jp/%%E7sawada\">Ryu Sawada</a> (ICEPP)</p>\n");
+      buffer.AppendFormatted("</address>\n");
+      buffer.AppendFormatted("</body>\n");
+      buffer.AppendFormatted("</html>");                             
+      WriteFile(htmlFile.Data(),buffer.Data(),0);
    }
 }
 
@@ -1546,4 +1537,64 @@ Bool_t ArgusBuilder::IsNumber(const Char_t *type)
       return kTRUE;
    else
       return kFALSE;   
+}
+
+Bool_t ArgusBuilder::ReplaceHeader(const Char_t* filename,const Char_t* header,const Char_t* body,Int_t nspace) {
+   Bool_t writeFile = kFALSE;
+   fstream *fileStream;
+   TString fileBuffer;
+   Int_t pBuffer=-1;
+   struct stat buf;
+   ROMEString buffer = header;
+   if( stat( filename, &buf )) {
+      writeFile = kTRUE;
+      buffer += body;
+   }
+   else {
+      // compare old and new file
+      if(!(fileStream = new fstream(filename,ios::in))){
+         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         return kFALSE;
+      }
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      pBuffer = fileBuffer.Index("/////////////////////////////////////----///////////////////////////////////////");
+      if (pBuffer<0) {
+         if (makeOutput) cout << "\n\nError : File '" << filename << "' has an invalid header !!!" << endl;
+         return kFALSE;
+      }
+      if(fileBuffer(0,pBuffer+80) != header)
+         writeFile = kTRUE;
+   }
+   if (writeFile) {
+      if(pBuffer>=0)
+         buffer += fileBuffer(pBuffer+80,fileBuffer.Length());
+      if(!(fileStream = new fstream(filename,ios::out | ios::trunc))){
+         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         return kFALSE;
+      }
+      if (makeOutput) cout << setw(nspace) << "" << filename << endl;
+      *fileStream<<buffer;
+      delete fileStream;
+   }
+   return kTRUE;
+}
+
+Bool_t ArgusBuilder::WriteFile(const Char_t* filename,const char* body,Int_t nspace) {
+   fstream *fileStream;
+   TString fileBuffer;
+   if((fileStream = new fstream(filename,ios::in))){
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+   }
+   if(fileBuffer != body){
+      if(!(fileStream = new fstream(filename,ios::out | ios::trunc))){
+         if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+         return kFALSE;
+      }
+      if (makeOutput) cout << setw(nspace)<< "" << filename << endl;
+      *fileStream<<body;
+      delete fileStream;
+   }
+   return kTRUE;
 }

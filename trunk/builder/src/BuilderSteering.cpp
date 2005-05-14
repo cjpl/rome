@@ -3,6 +3,9 @@
   BuilderSteering.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.8  2005/05/14 21:42:22  sawada
+  Separated file writing function in builder.
+
   Revision 1.7  2005/05/05 21:26:03  sawada
   code clean up.
 
@@ -174,10 +177,8 @@ Bool_t ArgusBuilder::ReadXMLSteering(Int_t iTab) {
 }
 
 Bool_t ArgusBuilder::WriteSteering(Int_t iTab) {
-   Int_t i;
    ROMEString hFile;
    ROMEString buffer;
-   Char_t fileBuffer[bufferLength];
    hFile.SetFormatted("%s/include/monitor/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
    if (numOfSteering[numOfTab]==-1) {
       remove(hFile.Data());
@@ -202,27 +203,7 @@ Bool_t ArgusBuilder::WriteSteering(Int_t iTab) {
    buffer.AppendFormatted("#include <string>\n\n");
    WriteSteeringClass(buffer,0,iTab,0);
    buffer.AppendFormatted("#endif   // %sGlobalSteering_H\n",shortCut.Data());
-   Int_t fileHandle = open(hFile.Data(),O_RDONLY);
-   Int_t nb = read(fileHandle,&fileBuffer, sizeof(fileBuffer));
-   Bool_t identical = kTRUE;
-   if (nb==(Int_t)buffer.Length()) {
-      for (i=0;i<nb&&i<(Int_t)buffer.Length();i++) {
-         if (buffer[i] != fileBuffer[i]) {
-            identical = kFALSE;
-            break;
-         }
-      }
-   }
-   else
-      identical = kFALSE;
-   if (!identical) {
-      fileHandle = open(hFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-      close(fileHandle);
-      fileHandle = open(hFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-      if (makeOutput) cout << "      " << hFile.Data() << endl;
-      nb = write(fileHandle,buffer.Data(), buffer.Length());
-      close(fileHandle);
-   }
+   WriteFile(hFile.Data(),buffer.Data(),6);
    return kTRUE;
 }
 
