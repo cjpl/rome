@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.161  2005/05/15 16:26:34  sawada
+  .so in Makefile
+
   Revision 1.160  2005/05/14 16:07:27  sawada
   Improved performance with changing TString::ResizeIncrement to 4096.
 
@@ -7738,8 +7741,8 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
    numOfTree = -1;
    numOfEvent = -1;
 
-   TString::MaxWaste(kTstringResizeIncrement-1);
-   TString::ResizeIncrement(kTstringResizeIncrement);
+   TString::MaxWaste(kTStringResizeIncrement-1);
+   TString::ResizeIncrement(kTStringResizeIncrement);
 
    if (!xml->OpenFileForRead(xmlFile)) return;
    while (xml->NextLine()&&!finished) {
@@ -7998,11 +8001,7 @@ char* ROMEBuilder::EqualSign() {
 #if defined( R__VISUAL_CPLUSPLUS )
    return "=";
 #else
-#if defined( R__UNIX )
    return ":=";
-#else
-   return "";
-#endif
 #endif
 }
 
@@ -8115,25 +8114,42 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__ALPHA )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lc -lbsd\n");
+   buffer.AppendFormatted("soflags := -Wl,-expect_unresolved,* -shared\n");
 #elif defined ( R__SGI )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs :=\n");
+   buffer.AppendFormatted("soflags := -shared\n");
 #elif defined ( R__FBSD )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lbsd -lcompat\n");
+   buffer.AppendFormatted("soflags := -shared -Wl,-x\n");
 #elif defined ( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
+   buffer.AppendFormatted("MACOSX_MAJOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 1)\n");
+   buffer.AppendFormatted("MACOSX_MINOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 2)\n");
+   buffer.AppendFormatted("MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+   buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
+   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.2)\n");
+   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
+   buffer.AppendFormatted("else\n");
+   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined dynamic_lookup\n");
+   buffer.AppendFormatted("endif\n");
 #elif defined ( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
+   buffer.AppendFormatted("soflags := -shared -Wl\n");
 #elif defined ( R__SOLARIS )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lsocket -lnsl\n");
+   buffer.AppendFormatted("soflags := -G\n");
 #else
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs :=\n");
+   buffer.AppendFormatted("soflags := -shared\n");
 #endif
    if (this->midas) {
 #if defined( R__ALPHA )
@@ -8163,7 +8179,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("midaslibs := \n");
       buffer.AppendFormatted("midascflags := \n");
    }
-   buffer.AppendFormatted("clibs :=-lHtml $(SYSLIBS)");
+   buffer.AppendFormatted("clibs := -lHtml $(SYSLIBS)");
    if (haveFortranTask)
       buffer.AppendFormatted(" -lg2c");
    buffer.AppendFormatted("\n");
@@ -8299,21 +8315,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("all:obj %s%s.exe\n",shortcut.Data(),mainprogname.Data());
-#endif
+   buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
-   ROMEString soflags;
-#   if defined( R__MACOSX )
-   soflags.SetFormatted("-dynamiclib -single_module -install_name %s%s.so",shortcut.Data(),mainprogname.Data());
-#   else
-   soflags = "-shared";
+   buffer.AppendFormatted(" %s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif
-   buffer.AppendFormatted("all:obj %s%s.exe %s%s.so\n",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("	g++ $(Flags) %s -o %s%s.so $(objects) $(Libraries)\n",soflags.Data(),shortcut.Data(),mainprogname.Data());
-#endif
    buffer.AppendFormatted("\n");
 // user makefile
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -8340,7 +8346,10 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n\n");
+   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("	g++ $(Flags) $(soflags) -o %s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("\n");
 #endif
 
 // Compile Statements
