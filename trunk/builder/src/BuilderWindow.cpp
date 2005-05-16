@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.24  2005/05/16 16:46:57  sawada
+  with gcc4, enumeration in class can not be constant in switch.
+
   Revision 1.23  2005/05/14 21:42:23  sawada
   Separated file writing function in builder.
 
@@ -444,21 +447,21 @@ Bool_t ArgusBuilder::WriteWindowH() {
    }
    buffer.AppendFormatted("} TabSwitches;\n");
    buffer.AppendFormatted("\n");
-   // Class
-   buffer.AppendFormatted("class %sWindow:public TGMainFrame {  \n",shortCut.Data());
    // Enumeration
-   buffer.AppendFormatted("public:\n");
-   buffer.AppendFormatted("   enum MenuEnumeration {\n");
-   buffer.AppendFormatted("      M_ROOT = 1000,\n");
+   buffer.AppendFormatted("enum MenuEnumeration {\n");
+   buffer.AppendFormatted("   M_ROOT = 1000,\n");
    for (i=0;i<numOfTab;i++) {
       for (j=0;j<numOfMenu[i];j++) {
          for (k=0;k<numOfMenuItem[i][j];k++) {
             if (menuItemEnumName[i][j][k].Length()>0)
-               buffer.AppendFormatted("      %s,\n",menuItemEnumName[i][j][k].Data());
+               buffer.AppendFormatted("   %s,\n",menuItemEnumName[i][j][k].Data());
          }
       }
    }
-   buffer.AppendFormatted("   };\n");
+   buffer.AppendFormatted("};\n");
+   buffer.AppendFormatted("\n\n");
+   // Class
+   buffer.AppendFormatted("class %sWindow:public TGMainFrame {  \n",shortCut.Data());
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   TGStatusBar         *fStatusBar;\n");
    buffer.AppendFormatted("   Bool_t              fStatusBarSwitch;\n");

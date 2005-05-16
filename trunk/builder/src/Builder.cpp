@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.43  2005/05/16 16:46:57  sawada
+  with gcc4, enumeration in class can not be constant in switch.
+
   Revision 1.42  2005/05/14 21:42:22  sawada
   Separated file writing function in builder.
 
@@ -810,7 +813,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj obj/ArgusTextDialog.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/%sDict.obj obj/mxml.obj\n\n",shortCut.Data());
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj obj/ArgusTextDialog.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
 // all
    buffer.AppendFormatted("all:obj %s%s",shortcut.Data(),mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -910,6 +913,8 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"XML","XML");
    buffer.AppendFormatted("obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatMXML.Data(),"mxml","mxml");
+   buffer.AppendFormatted("obj/strlcpy.obj: $(ROMESYS)/src/strlcpy.c $(ROMESYS)/include/strlcpy.h\n");
+   buffer.AppendFormatted((Char_t*)compileFormatMXML.Data(),"strlcpy","strlcpy");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"String","String");
    buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h\n");
