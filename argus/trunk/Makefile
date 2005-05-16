@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.8  2005/05/16 16:46:57  sawada
+#  with gcc4, enumeration in class can not be constant in switch.
+#
 #  Revision 1.7  2005/05/08 00:28:53  sawada
 #  fixed mismathes of [Set,Append]Formatted in builder.
 #  added readme of examples.
@@ -73,9 +76,9 @@ endif
 
 all: $(TARGET)
 
-bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c bin
+bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c bin
 	g++ $(CFLAGS) -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
-	$(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(INCLUDE) $(LIBRARY)
+	$(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY)
 
 bin:
 	@if [ ! -d  bin ] ; then \
