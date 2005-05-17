@@ -2,6 +2,10 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.45  2005/05/17 18:45:38  sawada
+  Separated main from ROMEBuilder.
+  Reading function for every database folders.
+
   Revision 1.44  2005/05/15 16:26:34  sawada
   .so in Makefile
 
@@ -145,7 +149,7 @@ public:
    bool  sqlite;
    bool  sqlite3;
 
-private:
+protected:
    ROMEXML* xml;
 
    ROMEString shortCut;
@@ -323,7 +327,7 @@ public:
    int  WriteSteeringInterpreterCode(ROMEString &buffer,int codeNumber,int numSteer,int numTask,ROMEString& path,int tab);
    int  WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,int codeNumber,int numSteer,int numTask,ROMEString& steerPointer,int tab);
    void WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
-   void WriteReadDataBaseFolders(ROMEString &buffer,int type);
+   void WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int type);
    bool WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
    bool WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab);
    bool WriteTaskCpp();
@@ -363,6 +367,8 @@ public:
    bool isFloatingType(const char *type);
    bool isNumber(const char * string);
    bool isBoolType(const char *type);
+   void usage();
+
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
 };
 

@@ -4,6 +4,10 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.20  2005/05/17 18:45:38  sawada
+#  Separated main from ROMEBuilder.
+#  Reading function for every database folders.
+#
 #  Revision 1.19  2005/05/14 16:07:27  sawada
 #  Improved performance with changing TString::ResizeIncrement to 4096.
 #
@@ -43,7 +47,7 @@
 #
 #####################################################################
 #
-INCLUDE :=  -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags)
+INCLUDE :=  -I. -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags)
 LIBRARY := $(shell root-config --libs)
 
 
@@ -71,8 +75,8 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp builder/include/ROMEBuilder.h src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
-	g++ $(CFLAGS) -g -o $@ builder/src/ROMEBuilder.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
+$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp builder/src/main.cpp builder/include/ROMEBuilder.h src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
+	g++ $(CFLAGS) -g -o $@ builder/src/ROMEBuilder.cpp builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
 	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
 
 clean:
