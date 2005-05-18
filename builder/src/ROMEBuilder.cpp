@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.165  2005/05/18 11:41:30  schneebeli_m
+  added ROMENoDAQSystem
+
   Revision 1.164  2005/05/18 11:04:23  schneebeli_m
   daq none
 
@@ -1899,22 +1902,24 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("   ROMEString name;\n");
          buffer.AppendFormatted("   ROMEString title;\n");
       }
-      buffer.AppendFormatted("   ROMEString histoTitle;\n");
-      buffer.AppendFormatted("   ROMEString folderTitle;\n");
-      buffer.AppendFormatted("   ROMEString xLabel;\n");
-      buffer.AppendFormatted("   ROMEString yLabel;\n");
-      buffer.AppendFormatted("   ROMEString zLabel;\n");
-      buffer.AppendFormatted("   int arraySize;\n");
-      buffer.AppendFormatted("   int arrayStartIndex;\n");
-      buffer.AppendFormatted("   int xNbins;\n");
-      buffer.AppendFormatted("   double xmin;\n");
-      buffer.AppendFormatted("   double xmax;\n");
-      buffer.AppendFormatted("   int yNbins;\n");
-      buffer.AppendFormatted("   double ymin;\n");
-      buffer.AppendFormatted("   double ymax;\n");
-      buffer.AppendFormatted("   int zNbins;\n");
-      buffer.AppendFormatted("   double zmin;\n");
-      buffer.AppendFormatted("   double zmax;\n");
+      if (numOfHistos[iTask]>0) {
+         buffer.AppendFormatted("   ROMEString histoTitle;\n");
+         buffer.AppendFormatted("   ROMEString folderTitle;\n");
+         buffer.AppendFormatted("   ROMEString xLabel;\n");
+         buffer.AppendFormatted("   ROMEString yLabel;\n");
+         buffer.AppendFormatted("   ROMEString zLabel;\n");
+         buffer.AppendFormatted("   int arraySize;\n");
+         buffer.AppendFormatted("   int arrayStartIndex;\n");
+         buffer.AppendFormatted("   int xNbins;\n");
+         buffer.AppendFormatted("   double xmin;\n");
+         buffer.AppendFormatted("   double xmax;\n");
+         buffer.AppendFormatted("   int yNbins;\n");
+         buffer.AppendFormatted("   double ymin;\n");
+         buffer.AppendFormatted("   double ymax;\n");
+         buffer.AppendFormatted("   int zNbins;\n");
+         buffer.AppendFormatted("   double zmin;\n");
+         buffer.AppendFormatted("   double zmax;\n");
+      }
       for (i=0;i<numOfHistos[iTask];i++) {
          bool sameFolder = false;
          bool homeFolder = false;
@@ -4125,6 +4130,7 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n",shortCut.Data());
+   buffer.AppendFormatted("#include <ROMENoDAQSystem.h>\n");
    for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),daqName[i].Data());
    configDep.AppendFormatted(" $(DAQIncludes)");
@@ -4736,7 +4742,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetRoot());\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"none\",TString::kIgnoreCase)) {\n");
-   buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(new ROMEDAQSystem());\n");
+   buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(new ROMENoDAQSystem());\n");
    buffer.AppendFormatted("      }\n");
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDAQSystem==\"%s\") {\n",daqName[i].Data());
@@ -7270,7 +7276,14 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // clean up folders
    buffer.AppendFormatted("// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sEventLoop::CleanUpFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i]>0 && !folderDataBase[i]) {
+         if (folderArray[i]=="variable") {
+            buffer.AppendFormatted("   int i;\n");
+            break;
+         }
+      }
+   }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i]>0 && !folderDataBase[i]) {
          if (folderArray[i]=="variable") {
@@ -8086,6 +8099,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("DAQIncludes %s",EqualSign());
    buffer.AppendFormatted(" include/framework/%sMidas.h",shortCut.Data());
    buffer.AppendFormatted(" include/framework/%sRoot.h",shortCut.Data());
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMENoDAQSystem.h",shortCut.Data());
    for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),daqName[i].Data());
    buffer.AppendFormatted("\n");

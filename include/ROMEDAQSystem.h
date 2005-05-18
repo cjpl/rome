@@ -2,6 +2,9 @@
   ROMEDAQSystem.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/05/18 11:41:31  schneebeli_m
+  added ROMENoDAQSystem
+
   Revision 1.3  2005/05/18 11:04:24  schneebeli_m
   daq none
 
@@ -36,14 +39,14 @@ class ROMEDAQSystem {
 public:
    ROMEDAQSystem::ROMEDAQSystem() {};
 
-   int   GetTimeStamp() { return -1; };
-   const char* GetName() { return "none"; };
+   virtual int   GetTimeStamp() = 0;
+   virtual const char* GetName() = 0;
 
-   bool Initialize() { return true; };
-   bool Connect() { return true; };
-   bool ReadEvent(int event) { return true; };
-   bool Disconnect() { return true; };
-   bool Termination() { return true; };
+   virtual bool Initialize() = 0;
+   virtual bool Connect() = 0;
+   virtual bool ReadEvent(int event) = 0;
+   virtual bool Disconnect() = 0;
+   virtual bool Termination() = 0;
 public:
    // Run Status
    bool       isRunning()  { return fRunStatus==kRunning; };
