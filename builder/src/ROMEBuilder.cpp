@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.164  2005/05/18 11:04:23  schneebeli_m
+  daq none
+
   Revision 1.163  2005/05/18 09:49:32  schneebeli_m
   removed run & event number error, implemented FileRead in ROMEString
 
@@ -4731,6 +4734,9 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"root\",TString::kIgnoreCase)) {\n");
    buffer.AppendFormatted("         gAnalyzer->SetRoot(new %sRoot());\n",shortCut.Data());
    buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetRoot());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"none\",TString::kIgnoreCase)) {\n");
+   buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(new ROMEDAQSystem());\n");
    buffer.AppendFormatted("      }\n");
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fDAQSystem==\"%s\") {\n",daqName[i].Data());

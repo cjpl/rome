@@ -2,6 +2,9 @@
   ROMEDAQSystem.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/05/18 11:04:24  schneebeli_m
+  daq none
+
   Revision 1.2  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -33,14 +36,14 @@ class ROMEDAQSystem {
 public:
    ROMEDAQSystem::ROMEDAQSystem() {};
 
-   virtual int   GetTimeStamp() = 0;
-   virtual const char* GetName() = 0;
+   int   GetTimeStamp() { return -1; };
+   const char* GetName() { return "none"; };
 
-   virtual bool Initialize() = 0;
-   virtual bool Connect() = 0;
-   virtual bool ReadEvent(int event) = 0;
-   virtual bool Disconnect() = 0;
-   virtual bool Termination() = 0;
+   bool Initialize() { return true; };
+   bool Connect() { return true; };
+   bool ReadEvent(int event) { return true; };
+   bool Disconnect() { return true; };
+   bool Termination() { return true; };
 public:
    // Run Status
    bool       isRunning()  { return fRunStatus==kRunning; };
