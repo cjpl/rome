@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/05/18 09:49:32  schneebeli_m
+  removed run & event number error, implemented FileRead in ROMEString
+
   Revision 1.5  2005/04/20 15:12:40  schneebeli_m
   histo and path in definition xml
 
@@ -33,6 +36,7 @@ public:
    int  NumberOfOccurrence(const char* subString);
    void Write();
    void WriteLine();
+   istream& ReadFile(istream& str);
 private:
    bool FormatString(ROMEString* string,const char* format,va_list parameters);
    int  SearchFormatType(const char* str);

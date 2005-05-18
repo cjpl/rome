@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.11  2005/05/18 09:49:32  schneebeli_m
+//  removed run & event number error, implemented FileRead in ROMEString
+//
 //  Revision 1.10  2005/04/01 14:56:23  schneebeli_m
 //  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 //
@@ -222,4 +225,19 @@ int ROMEString::SearchFormatType(const char* str)
       }
    }
    return -1;
+}
+istream& ROMEString::ReadFile(istream& str) {
+   this->Resize(0);
+   char *buffer = "";
+   int bufferSize = 2000;
+   int bufferLength = bufferSize-1;
+   while (bufferLength==bufferSize-1) {
+      bufferSize*=2;
+      buffer = new char[bufferSize];
+      str.get(buffer,bufferSize,0);
+      bufferLength = strlen(buffer);
+      this->Append(buffer);
+      delete buffer;
+   }
+   return str;
 }

@@ -69,6 +69,12 @@ void MEGTADCPedestal::Init()
 
 void MEGTADCPedestal::BeginOfRun()
 {
+//   gAnalyzer->WriteCMPMTInfoDataBase();
+/*   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);
+   values->SetAt("xxx",0,0);
+//   gAnalyzer->GetDataBase(0)->Write(values,"/RunCatalog2(id=0)/timestamp",0);
+   gAnalyzer->GetDataBase(0)->Write(values,"/RunCatalog2(id=0)/timestamp",0);
+*/
    int nPMT = gAnalyzer->GetGSP()->GetPMT()->GetNumbers()->GetNumberOfLXePMT();
    char name[80],title[80];
    for (int j=0;j<nPMT;j++) {

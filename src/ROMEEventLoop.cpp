@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.56  2005/05/18 09:49:32  schneebeli_m
+//  removed run & event number error, implemented FileRead in ROMEString
+//
 //  Revision 1.55  2005/05/13 23:51:14  sawada
 //  code cleanup.
 //
@@ -191,7 +194,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Declarations
    //--------------
-   int i,ii;
+   int i,ii,runNumberIndex;
 
    // Initialisation
    //----------------
@@ -206,11 +209,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    ExecuteTasks("i");
    CleanTasks();
 
+   runNumberIndex = 0;
+
    // Loop over Runs
    //----------------
    for (ii=0;!this->isTerminate();ii++) {
 
-      if (!this->Connect(ii)) {
+      if (!this->Connect(runNumberIndex)) {
          this->Termination();
          gROME->SetTerminationFlag();
          gROME->Println("\n\nTerminating Program !");
@@ -230,6 +235,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          // Begin of Run Tasks
          ExecuteTasks("b");
          CleanTasks();
+         runNumberIndex++;
 
          // Output
          TimeStart();
@@ -404,6 +410,8 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    stat->writtenEvents = 0;
    fStatisticsTimeOfLastEvent = 0;
    fStatisticsLastEvent = 0;
+   // Event Number Check
+   gROME->InitCheckEventNumber();
 
    if (gROME->isOffline()) {
       if (gROME->GetNumberOfRunNumbers()<=runNumberIndex) {

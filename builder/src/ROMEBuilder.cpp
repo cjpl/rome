@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.163  2005/05/18 09:49:32  schneebeli_m
+  removed run & event number error, implemented FileRead in ROMEString
+
   Revision 1.162  2005/05/17 18:45:38  sawada
   Separated main from ROMEBuilder.
   Reading function for every database folders.
@@ -1347,7 +1350,7 @@ bool ROMEBuilder::WriteTaskCpp() {
    ROMEString cppFile;
    ROMEString header;
    ROMEString buffer;
-   TString fileBuffer;
+   ROMEString fileBuffer;
 
    int lenTot,ll,i,j;
    char *pos;
@@ -8511,7 +8514,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    ROMEString cppFile;
    ROMEString str;
    fstream *fileStream;
-   TString fileBuffer;
+   ROMEString fileBuffer;
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("%s<p>\n",taskDescription[i].Data());
@@ -8966,7 +8969,7 @@ ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const
 bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,int nspace) {
    bool writeFile = false;
    fstream *fileStream;
-   TString fileBuffer;
+   ROMEString fileBuffer;
    int pBuffer=-1;
    struct stat buf;
    ROMEString buffer = header;
@@ -9006,7 +9009,8 @@ bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const ch
 
 bool ROMEBuilder::WriteFile(const char* filename,const char* body,int nspace) {
    fstream *fileStream;
-   TString fileBuffer;
+   ROMEString fileBuffer;
+
    if((fileStream = new fstream(filename,ios::in))){
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;

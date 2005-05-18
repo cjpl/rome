@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.54  2005/05/18 09:49:32  schneebeli_m
+  removed run & event number error, implemented FileRead in ROMEString
+
   Revision 1.53  2005/05/13 23:51:14  sawada
   code cleanup.
 
@@ -359,6 +362,7 @@ public:
                   fEventNumber = decodeRunNumbers(fEventNumberString); }
 
    int        CheckEventNumber(int eventNumber);
+   void       InitCheckEventNumber() { fLastEventNumberIndex = 0; };
 
    // Event ID
    int        GetEventID() { return fEventID-48; }

@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.46  2005/05/18 09:49:32  schneebeli_m
+  removed run & event number error, implemented FileRead in ROMEString
+
   Revision 1.45  2005/05/17 18:45:38  sawada
   Separated main from ROMEBuilder.
   Reading function for every database folders.
@@ -111,6 +114,7 @@
 #include <ROMEXML.h>
 #include <ROMEString.h>
 
+const int bufferLength = 500000;
 const int maxNumberOfTasks = 300;
 const int maxNumberOfFolders = 200;
 const int maxNumberOfTrees = 50;

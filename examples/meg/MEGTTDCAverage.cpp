@@ -66,12 +66,16 @@ void MEGTTDCAverage::Event()
    for (int j=0;j<nPMT&&!corrupt;j++) {
       MEGCMPMTData *pmtData = gAnalyzer->GetCMPMTDataAt(j);
       MEGCMPMTInfo *pmtInfo = gAnalyzer->GetCMPMTInfoAt(j);
-      if (pmtInfo->GetAddress()[0]=='F') {
-         if (pmtData->GetTDCData()!=invalid) {
-            sum = sum + pmtData->GetTDCData();
-            nsum++;
+      if (pmtInfo!=NULL) {
+         if (pmtInfo->GetAddress().Length()>0) {
+            if (pmtInfo->GetAddress()[0]=='F') {
+               if (pmtData->GetTDCData()!=invalid) {
+                  sum = sum + pmtData->GetTDCData();
+                  nsum++;
+               }
+               else corrupt = true;
+            }
          }
-         else corrupt = true;
       }
    }
 
@@ -81,9 +85,9 @@ void MEGTTDCAverage::Event()
 void MEGTTDCAverage::EndOfRun()
 {
    if (gAnalyzer->isBatchMode()) return;
-   TCanvas *c1 = new TCanvas("c1","Average of Frontface TDCs",600,400);
+//   TCanvas *c1 = new TCanvas("c1","Average of Frontface TDCs",600,400);
 
-   this->DrawTDCAverageHisto();
+//   this->DrawTDCAverageHisto();
 }
 
 void MEGTTDCAverage::Terminate()

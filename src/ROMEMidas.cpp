@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.16  2005/05/18 09:49:32  schneebeli_m
+//  removed run & event number error, implemented FileRead in ROMEString
+//
 //  Revision 1.15  2005/05/13 23:51:14  sawada
 //  code cleanup.
 //
@@ -220,6 +223,8 @@ bool ROMEMidas::Initialize() {
 }
 bool ROMEMidas::Connect() {
    if (gROME->isOffline()) {
+      this->SetAnalyze();
+      this->SetRunning();
       // Open Midas File
       ROMEString runNumberString;
       gROME->GetCurrentRunNumberString(runNumberString);

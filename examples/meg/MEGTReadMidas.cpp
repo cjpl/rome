@@ -47,9 +47,12 @@ void MEGTReadMidas::Init()
 void MEGTReadMidas::BeginOfRun()
 {
 }
-int ii=0;
 void MEGTReadMidas::Event()
 {
+   gAnalyzer->GetTest()->SetArrayAt(0,2);
+   gAnalyzer->GetTest()->SetArrayAt(1,9);
+   gAnalyzer->GetTest()->SetArrayAt(2,7);
+   gAnalyzer->GetTest()->SetArrayAt(3,6);
 /*   ROMEString path = "/Trigger/Eventnumber";
    int code = GetObjectInterpreterCode(path);
    cout << GetObjectInterpreterCharValue(code,"-999") << endl;
@@ -145,6 +148,12 @@ void MEGTReadMidas::Event()
 
 void MEGTReadMidas::EndOfRun()
 {
+   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);
+   ROMEString str;
+   str.SetFormatted("/odb/dir[@name=\"root\"]/dir[@name=\"System\"]/dir[@name=\"Clients\"]/dir[@name=\"3024\"]/key[@name=\"Server Port\"]");
+//   gAnalyzer->GetODBDataBase()->Read(values,str.Data(),0);
+//   cout << values->At(0,0) << endl;
+//   cout << gAnalyzer->GetODB()->GetServerPort() << endl;
 }
 
 void MEGTReadMidas::Terminate()
