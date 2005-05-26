@@ -3,6 +3,11 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.166  2005/05/26 09:43:28  sawada
+  Added ROMEBuilder::WriteFolderGetter.
+  Added make build.
+  Bug fix of Makefile for Macintosh.
+
   Revision 1.165  2005/05/18 11:41:30  schneebeli_m
   added ROMENoDAQSystem
 
@@ -3799,37 +3804,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sAnalyzer(TRint *app);\n",shortCut.Data());
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         int lt = typeLen-folderName[i].Length()-scl+nameLen-folderName[i].Length();
-         if (folderArray[i]=="1") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,11+nameLen-folderName[i].Length(),15+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[i].Length()-scl,4+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-         }
-         else if (folderArray[i]=="variable") {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)\n",typeLen-folderName[i].Length()-scl);
-            buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data());
-            buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[i].Data());
-            buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[i].Data());
-            buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-            buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-         }
-         else {
-            format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[i].Length()-scl,0+nameLen-folderName[i].Length(),lt);
-            buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[i].Data(),"",folderName[i].Data(),"",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[i].Length(),14+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-            format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[i].Length(),13+typeLen+nameLen-folderName[i].Length());
-            buffer.AppendFormatted(format.Data(),"",folderName[i].Data(),"",folderName[i].Data(),"");
-         }
-      }
-   }
+   for(i=0;i<numOfFolder;i++)
+      WriteFolderGetter(buffer,i,scl,nameLen,typeLen);
    buffer.AppendFormatted("\n");
 
    // Tree Getters
@@ -6945,6 +6921,39 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    buffer.AppendFormatted("   delete values;\n");
 }
 
+void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int nameLen,int typeLen) {
+   ROMEString format;
+   if (numOfValue[numFolder] > 0) {
+      int lt = typeLen-folderName[numFolder].Length()-scl+nameLen-folderName[numFolder].Length();
+      if (folderArray[numFolder]=="1") {
+         format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[numFolder].Length()-scl,11+nameLen-folderName[numFolder].Length(),15+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+         format.SetFormatted("   %%s%%s**%%%ds Get%%sAddress()%%%ds { return &f%%sFolder;%%%ds };\n",typeLen-folderName[numFolder].Length()-scl,4+nameLen-folderName[numFolder].Length(),14+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+      }
+      else if (folderArray[numFolder]=="variable") {
+         format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)\n",typeLen-folderName[numFolder].Length()-scl);
+         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data());
+         buffer.AppendFormatted("   { if (f%sFolders->GetEntries()<=index)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("           new((*f%sFolders)[i]) %s%s();\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
+         format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[numFolder].Length(),14+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+         format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[numFolder].Length(),13+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+      }
+      else {
+         format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[numFolder].Length()-scl,0+nameLen-folderName[numFolder].Length(),lt);
+         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),"");
+         format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[numFolder].Length(),14+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+         format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[numFolder].Length(),13+typeLen+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+      }
+   }
+}
+ 
 bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab) {
    int j,i;
    ROMEString blank = "";
@@ -7845,7 +7854,7 @@ void ROMEBuilder::startBuilder(const char* xmlFile)
 
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
-   WriteMakefile();
+   WriteMakefile(xmlFile);
    if (!noLink) {
 #if defined( R__UNIX )
       system("make -e");
@@ -7870,7 +7879,7 @@ char* ROMEBuilder::EqualSign() {
 #endif
 }
 
-void ROMEBuilder::WriteMakefile() {
+void ROMEBuilder::WriteMakefile(const char* xmlFile) {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer;
@@ -7995,15 +8004,17 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+/*
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.2)\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
    buffer.AppendFormatted("else\n");
-//   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined dynamic_lookup\n");
-   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
+   buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined dynamic_lookup\n");
    buffer.AppendFormatted("endif\n");
+*/
+   buffer.AppendFormatted("soflags := -dynamiclib -single_module\n");
 #elif defined ( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
@@ -8385,6 +8396,30 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
+   Int_t pdnameend = 0;
+   Int_t pbnamestart = 0;
+   ROMEString xmlfilename = xmlFile;
+   while((pdnameend = xmlfilename.Index("/",1,pbnamestart,TString::kExact))!=-1)
+      pbnamestart = pdnameend+1;
+   ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
+   buffer.AppendFormatted("build:\n");
+   buffer.AppendFormatted("	$(ROMESYS)/bin/romebuilder.exe");
+   buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
+   if (makeOutput)
+      buffer.AppendFormatted(" -v");
+   if(noLink)
+      buffer.AppendFormatted(" -nl");
+   if(midas)
+      buffer.AppendFormatted(" -midas");
+   if(mysql)
+      buffer.AppendFormatted(" -mysql");
+   if(pgsql)
+      buffer.AppendFormatted(" -pgsql");
+   if(sqlite)
+      buffer.AppendFormatted(" -sqlite");
+   if(sqlite3)
+      buffer.AppendFormatted(" -sqlite3");
+   buffer.AppendFormatted("\n");
 
    ROMEString makeFile;
 #if defined( R__UNIX )

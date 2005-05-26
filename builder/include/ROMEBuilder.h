@@ -2,6 +2,11 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.47  2005/05/26 09:43:28  sawada
+  Added ROMEBuilder::WriteFolderGetter.
+  Added make build.
+  Bug fix of Makefile for Macintosh.
+
   Revision 1.46  2005/05/18 09:49:32  schneebeli_m
   removed run & event number error, implemented FileRead in ROMEString
 
@@ -332,6 +337,7 @@ public:
    int  WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,int codeNumber,int numSteer,int numTask,ROMEString& steerPointer,int tab);
    void WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int type);
+   void WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int nameLen,int typeLen);
    bool WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
    bool WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab);
    bool WriteTaskCpp();
@@ -360,7 +366,7 @@ public:
    bool WriteEventLoopH();
    bool WriteMain();
    char* EqualSign();
-   void WriteMakefile();
+   void WriteMakefile(const char* xmlFile);
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
    bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
