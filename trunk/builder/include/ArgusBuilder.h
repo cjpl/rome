@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.27  2005/05/26 16:34:03  schneebeli_m
+  windows specific stuff
+
   Revision 1.26  2005/05/26 14:26:54  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -94,7 +97,7 @@
 #ifndef ArgusBuilder_H
 #define ArgusBuilder_H
 
-#include "ROMEBuilder.h"
+#include <ROMEBuilder.h>
 #include <RConfig.h>
 #include <Rtypes.h>
 #if defined( R__VISUAL_CPLUSPLUS )
