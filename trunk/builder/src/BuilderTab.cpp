@@ -3,6 +3,13 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.38  2005/05/26 14:26:55  sawada
+  Lots of changes.
+  Made ArgusBuilder an inheriting class of ROMEBuilder.
+  Remove ROMEFolder and added NetFolers.
+  Added ArgusWindow class.
+  and so on.
+
   Revision 1.37  2005/05/14 21:42:23  sawada
   Separated file writing function in builder.
 
@@ -139,6 +146,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
    ROMEString tmp;
    Int_t type,i,j;
    Char_t* name;
+
    Int_t currentNumberOfMenus = numOfMenu[currentNumberOfTabs];
    menuDepth[currentNumberOfTabs][currentNumberOfMenus] = recursiveMenuDepth;
    // count menus
@@ -149,6 +157,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
       return kFALSE;
    }
    menuTitle[currentNumberOfTabs][currentNumberOfMenus] = "";
+
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
@@ -167,6 +176,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
       }
       if (type == 1 && !strcmp((const Char_t*)name,"MenuTitle"))
          xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus],menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
+
       // tab menu items
       if (type == 1 && !strcmp((const Char_t*)name,"MenuItems")) {
          while (xml->NextLine()) {
@@ -175,6 +185,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
             // end
             if (type == 15 && !strcmp((const Char_t*)name,"MenuItems"))
                break;	    
+
             // menu
             if (type == 1 && !strcmp((const Char_t*)name,"Menu")) {
                recursiveMenuDepth++;
@@ -189,7 +200,8 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
                if (!ReadXMLMenu(currentNumberOfTabs)) return kFALSE;
                recursiveMenuDepth--;
             }	    
-            // menu
+
+            // Separator
             if (type == 1 && !strcmp((const Char_t*)name,"Line")) {
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
@@ -208,6 +220,8 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
                      break;
                }
             }
+
+            // menu item
             if (type == 1 && !strcmp((const Char_t*)name,"MenuItem")){
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
@@ -253,6 +267,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
          }
       }
    }
+
    // check input
    if (menuTitle[currentNumberOfTabs][currentNumberOfMenus]=="") {
       cout << "A menu of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
@@ -266,8 +281,10 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
 	      return kFALSE;
       }
    }
+
    return kTRUE;
 }
+
 
 Bool_t ArgusBuilder::ReadXMLTab() {
    // read the tab definitions out of the xml file
@@ -276,14 +293,18 @@ Bool_t ArgusBuilder::ReadXMLTab() {
    Int_t type,i,j;
    ROMEString currentTabName = "";
    Int_t currentNumberOfTabs;
+
    // count tabs
    numOfTab++;
+   numOfTask++;
+   numOfTaskHierarchy++;
    currentNumberOfTabs = numOfTab;
    if (currentNumberOfTabs>=maxNumberOfTabs) {
       cout << "Maximal number of tabs reached : " << maxNumberOfTabs << " !" << endl;
       cout << "Terminating program." << endl;
       return kFALSE;
    }
+
    // initialisation
    tabName[currentNumberOfTabs] = "";
    tabTitle[currentNumberOfTabs] = "";
@@ -294,9 +315,11 @@ Bool_t ArgusBuilder::ReadXMLTab() {
    numOfThreadFunctions[currentNumberOfTabs] = -1;
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
+
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
+
       // subtab
       if (type == 1 && !strcmp((const Char_t*)name,"Tab")) {
          // set tab as parent for subsequent tabs
@@ -319,6 +342,7 @@ Bool_t ArgusBuilder::ReadXMLTab() {
          recursiveTabDepth--;
          return kTRUE;
       }
+
       // tab name
       if (type == 1 && !strcmp((const Char_t*)name,"TabName")) {
          xml->GetValue(tabName[currentNumberOfTabs],tabName[currentNumberOfTabs]);
@@ -327,18 +351,23 @@ Bool_t ArgusBuilder::ReadXMLTab() {
          if (makeOutput) for (i=0;i<recursiveTabDepth;i++) cout << "   ";
          if (makeOutput) tabName[currentNumberOfTabs].WriteLine();
       }
+
       // tab title
       if (type == 1 && !strcmp((const Char_t*)name,"TabTitle"))
          xml->GetValue(tabTitle[currentNumberOfTabs],tabTitle[currentNumberOfTabs]);
+
       // tab author
       if (type == 1 && !strcmp((const Char_t*)name,"Author"))
          xml->GetValue(tabAuthor[currentNumberOfTabs],tabAuthor[currentNumberOfTabs]);
+
       // tab version
       if (type == 1 && !strcmp((const Char_t*)name,"TabVersion"))
          xml->GetValue(tabVersion[currentNumberOfTabs],tabVersion[currentNumberOfTabs]);
+
       // tab description
       if (type == 1 && !strcmp((const Char_t*)name,"TabDescription"))
          xml->GetValue(tabDescription[currentNumberOfTabs],tabDescription[currentNumberOfTabs]);
+
       // tab steering parameters
       if (type == 1 && !strcmp((const Char_t*)name,"SteeringParameters")) {
          // read steering parameter
@@ -350,6 +379,7 @@ Bool_t ArgusBuilder::ReadXMLTab() {
             return kFALSE;
          numOfSteering[currentNumberOfTabs]++;
       }
+
       // tab threadFunctions
       if (type == 1 && !strcmp((const Char_t*)name,"ThreadFunctions")) {
          if (makeOutput) for (i=0;i<recursiveTabDepth+1;i++) cout << "   ";
@@ -404,6 +434,7 @@ Bool_t ArgusBuilder::ReadXMLTab() {
             }
          }
       }
+
       // tab menu
       if (type == 1 && !strcmp((const Char_t*)name,"Menus")) {
 	 if (makeOutput) for (i=0;i<recursiveTabDepth+1;i++) cout << "   ";
@@ -426,9 +457,12 @@ Bool_t ArgusBuilder::ReadXMLTab() {
 	    }
 	 }
       }
+
    }
+
    return kTRUE;
 }
+
 
 Bool_t ArgusBuilder::WriteTabCpp() {
    ROMEString cppFile;
@@ -439,12 +473,14 @@ Bool_t ArgusBuilder::WriteTabCpp() {
    ROMEString format;
    ROMEString discript;
    ROMEString str;
+
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (Int_t iTab=0;iTab<numOfTab;iTab++) {
       header.Resize(0);
       buffer.Resize(0);
       // File name
       cppFile.SetFormatted("%s/src/tabs/%sT%s.cpp",outDir.Data(),shortCut.Data(),tabName[iTab].Data());
+
       // Description
       header.AppendFormatted("//// Author: %s\n",tabAuthor[iTab].Data());
       header.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
@@ -482,26 +518,32 @@ Bool_t ArgusBuilder::WriteTabCpp() {
       header.AppendFormatted("//                                                                            //\n");
       header.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
       buffer.Resize(0);
+
       // Header
       buffer.AppendFormatted("\n\n#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("#include \"include/monitor/%sWindow.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"include/framework/%sWindow.h\"\n",shortCut.Data());
       buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),tabName[iTab].Data());
+
       // Functions
       buffer.AppendFormatted("void %sT%s::Init()\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
+
       buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu *menu,Long_t param)\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
+
       buffer.AppendFormatted("void %sT%s::TabSelected()\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
+
       buffer.AppendFormatted("void %sT%s::TabUnSelected()\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
+
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("void %sT%s::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
@@ -510,11 +552,13 @@ Bool_t ArgusBuilder::WriteTabCpp() {
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
+
       // Write file
       ReplaceHeader(cppFile.Data(),header.Data(),buffer.Data(),6);
    }
    return kTRUE;
 }
+
 
 Bool_t ArgusBuilder::WriteTabH() {
    ROMEString hFile;
@@ -522,6 +566,7 @@ Bool_t ArgusBuilder::WriteTabH() {
    ROMEString format;
    Int_t i,j;
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
+
    for (Int_t iTab=0;iTab<numOfTab;iTab++) {
       // File name
       hFile.SetFormatted("%s/include/tabs/%sT%s_Base.h",outDir.Data(),shortCut.Data(),tabName[iTab].Data());
@@ -538,7 +583,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("#include <TGFrame.h>\n");
       buffer.AppendFormatted("#include <TGMenu.h>\n");
-      buffer.AppendFormatted("#include \"include/monitor/%sMonitor.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include <TThread.h>\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n",tabName[iTab].Data());
@@ -547,10 +592,12 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   Long_t param1;\n");
       buffer.AppendFormatted("   Long_t param2;\n");
       buffer.AppendFormatted("};\n");
+
       // Class
       buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("protected:\n");
+
       // Fields
       if (numOfSteering[iTab]>0) {
          WriteSteeringClass(buffer,0,iTab,1);
@@ -559,6 +606,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       if (numOfSteering[iTab]>0) {
          buffer.AppendFormatted("   Steering* fSteering; //! Handle to Steering class\n\n");
       }
+
       // Thread
       for(i=0; i<numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("   TThread* m%s; //!\n", threadFunctionName[iTab][i].Data());
@@ -570,8 +618,10 @@ Bool_t ArgusBuilder::WriteTabH() {
       }
       buffer.AppendFormatted("   Int_t    fVersion; //! Version number\n");
       buffer.AppendFormatted("   Bool_t   fActive; //! is Active\n");
+
       // Methods
       buffer.AppendFormatted("public:\n");
+
       // Constructor
       buffer.AppendFormatted("   // Constructor\n");
       buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(){\n",shortCut.Data(),tabName[iTab].Data());
@@ -591,6 +641,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
+
       // Thread      
       buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
@@ -700,6 +751,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("\n");
       }
       buffer.AppendFormatted("\n");
+
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
       if (numOfSteering[iTab]>0) {
@@ -723,12 +775,15 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("          <<\"      cout<<\\\"param = \\\"<< param <<endl;\"<<endl\n");
       buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
       buffer.AppendFormatted("   }\n");     
+
       // Footer
       buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n",shortCut.Data(),tabName[iTab].Data(),tabVersion[iTab].Data());
       buffer.AppendFormatted("};\n\n");
       buffer.AppendFormatted("#endif   // %sT%s_Base_H\n",shortCut.Data(),tabName[iTab].Data());
+
       // Write File
       WriteFile(hFile.Data(),buffer.Data(),6);
+
       // User H-File
       hFile.SetFormatted("%s/include/tabs/%sT%s.h",outDir.Data(),shortCut.Data(),tabName[iTab].Data());
       struct stat buf;
@@ -740,16 +795,19 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("// Editable class file for %s tab.\n",tabName[iTab].Data());
          buffer.AppendFormatted("//                                                                            //\n");
          buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
+
          // Header
          buffer.AppendFormatted("#ifndef %sT%s_H\n",shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("#include <include/tabs/%sT%s_Base.h>\n",shortCut.Data(),tabName[iTab].Data());
+
          // Class
          buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("public:\n");
+
          // Constructor
          buffer.AppendFormatted("   %sT%s():%sT%s_Base()\n",shortCut.Data(),tabName[iTab].Data(),shortCut.Data(),tabName[iTab].Data());
          buffer.AppendFormatted("   {\n");
@@ -763,24 +821,30 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
          buffer.AppendFormatted("   void TabSelected();\n");
          buffer.AppendFormatted("   void TabUnSelected();\n");
+
          // Thread
          for(i=0; i<numOfThreadFunctions[iTab]; i++){
             buffer.AppendFormatted("   void %s();\n",threadFunctionName[iTab][i].Data());
          }
          buffer.AppendFormatted("\n");
+
          // Fields
          buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),tabName[iTab].Data(),tabVersion[iTab].Data());
          buffer.AppendFormatted("};\n\n");
          buffer.AppendFormatted("#endif   // %sT%s_H\n",shortCut.Data(),tabName[iTab].Data());
+
          // Write File
          WriteFile(hFile.Data(),buffer.Data(),6);
       }
    }
+
    return kTRUE;
 }
 
+
 Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab) {
    Int_t i;
+
    // max tab switch name length
    Int_t switchLen = -1;
    ROMEString switchString;
@@ -794,9 +858,11 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
       }
       if (switchLen<(Int_t)switchString.Length()) switchLen = switchString.Length();
    }
+
    ROMEString blank = "";
    for (i=0;i<tab;i++)
       blank.Append("   ");
+
    ROMEString pointerI;
    for (i=0;i<numOfTab;i++) {
       if (tabParentIndex[i]!=parentIndex)
@@ -810,7 +876,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
       }
       pointerI = pointer;
       pointerI.AppendFormatted("->f%sTab",tabName[i].Data());
-      buffer.AppendFormatted("%s      if (fConfigData%sModified || index==0) {\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s      if (fConfigData[index]%sModified || index==0) {\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         // %s\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         xml->StartElement(\"Tab\");\n",blank.Data());
       buffer.AppendFormatted("%s         xml->WriteElement(\"TabName\",\"%s\");\n",blank.Data(),tabName[i].Data());
@@ -820,16 +886,17 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
       buffer.AppendFormatted("%s            else\n",blank.Data());
       buffer.AppendFormatted("%s               xml->WriteElement(\"Active\",\"false\");\n",blank.Data());
       buffer.AppendFormatted("%s         }\n",blank.Data());
-      buffer.AppendFormatted("%s         else if (fConfigData%s->fActiveModified)\n",blank.Data(),pointerI.Data());
-      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",(Char_t*)fConfigData%s->fActive.Data());\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s         else if (fConfigData[index]%s->fActiveModified)\n",blank.Data(),pointerI.Data());
+      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",(Char_t*)fConfigData[index]%s->fActive.Data());\n",blank.Data(),pointerI.Data());
+
       // Steering parameter
       if (numOfSteering[i]>0) {
          buffer.AppendFormatted("%s         // steering parameters\n",blank.Data());
-         buffer.AppendFormatted("%s         if (fConfigData%s->fSteeringModified || index==0) {\n",blank.Data(),pointerI.Data());
+         buffer.AppendFormatted("%s         if (fConfigData[index]%s->fSteeringModified || index==0) {\n",blank.Data(),pointerI.Data());
          buffer.AppendFormatted("%s            ROMEString value;\n",blank.Data());
          ROMEString pointerT;
          ROMEString steerPointerT;
-         pointerT.SetFormatted("fConfigData%s->fSteering",pointerI.Data());
+         pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointerI.Data());
          steerPointerT.SetFormatted("((%sT%s*)gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[i].Data(),tabName[i].Data(),i);
          WriteSteeringConfigWrite(buffer,0,i,pointerT,steerPointerT,3+tab);
       }
@@ -839,14 +906,18 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
       buffer.AppendFormatted("%s         xml->EndElement();\n",blank.Data());
       buffer.AppendFormatted("%s      }\n",blank.Data());
    }
+
    return kTRUE;
 }
 
+
 Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab) {
    Int_t j,i;
+
    ROMEString blank = "";
    for (i=0;i<tab;i++)
       blank.Append("   ");
+
    for (i=0;i<numOfTab;i++) {
       if (tabParentIndex[i]!=parentIndex)
          continue;
@@ -864,6 +935,7 @@ Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,In
          buffer.AppendFormatted("%s         Steering*        fSteering;\n",blank.Data());
          buffer.AppendFormatted("%s         Bool_t           fSteeringModified;\n",blank.Data());
       }
+
       // Constructor
       buffer.AppendFormatted("%s      public:\n",blank.Data());
       buffer.AppendFormatted("%s         %sTab() {\n",blank.Data(),tabName[i].Data());
@@ -877,6 +949,7 @@ Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,In
          buffer.AppendFormatted("%s            f%sTab = new %sTab();\n",blank.Data(),tabName[j].Data(),tabName[j].Data());
       }
       buffer.AppendFormatted("%s         };\n",blank.Data());
+
       // Sub classes
       WriteTabConfigClass(buffer,i,tab+1);
       buffer.AppendFormatted("%s      };\n",blank.Data());

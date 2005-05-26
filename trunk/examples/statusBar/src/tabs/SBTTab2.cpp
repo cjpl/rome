@@ -11,7 +11,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/SBTTab2.h"
-#include "include/monitor/SBWindow.h"
+#include "include/framework/SBWindow.h"
 
 ClassImp(SBTTab2)
 
