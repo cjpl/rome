@@ -2,6 +2,13 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.17  2005/05/26 14:26:55  sawada
+  Lots of changes.
+  Made ArgusBuilder an inheriting class of ROMEBuilder.
+  Remove ROMEFolder and added NetFolers.
+  Added ArgusWindow class.
+  and so on.
+
   Revision 1.16  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -90,6 +97,7 @@
 #include <ROMEDataBase.h>
 #include <ROMENoDataBase.h>
 #include <ArgusMonitor.h>
+#include <ArgusWindow.h>
 
 ClassImp(ArgusMonitor)
    
@@ -104,12 +112,8 @@ ArgusMonitor::ArgusMonitor(TApplication *app)
 {
 // Initialisations
    fApplication = app;
-   fDataBaseConnection = "";
-   fDataBaseHandle = new ROMENoDataBase();
-   fOnlineHost = "";
-   fOnlineExperiment = "";
-   fSocketInterfacePortNumber = 9090;
-   fSocketInterfaceHost = "";
+//   fOnlineHost = "";
+//   fOnlineExperiment = "";
    fWindowScale = 1;
    fRunNumber = 0;
 }
@@ -122,12 +126,13 @@ Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
    gArgus = (ArgusMonitor*)gPassToArgus;
    
    if (gROOT->IsBatch()) {
-      printf("%s: cannot run in batch mode\n", argv[0]);
+      printf("%s: cannot run in batch mode\n", GetProgramName());
       return kFALSE;
    }
    
    if (!ReadParameters(argc,argv)) return kFALSE;
    
+/*
 #if defined( HAVE_MIDAS )
    // Connect to the experiment
    if (cm_connect_experiment(gArgus->GetOnlineHost(), gArgus->GetOnlineExperiment(),gArgus->GetProgramName(), NULL) != SUCCESS) {
@@ -144,6 +149,7 @@ Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
    }
    atexit((void (*)(void))cm_disconnect_experiment);
 #endif
+*/
    
    if(!gArgus->StartMonitor())
       return kFALSE;
@@ -151,12 +157,42 @@ Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
    return kTRUE;
 }
 
+Bool_t ArgusMonitor::StartMonitor()
+{
+   // Connect net folders
+   if(!ConnectNetFolders())
+      return kFALSE;
+   
+   // Read Data Base
+   InitSingleFolders();
+   if (!ReadSingleDataBaseFolders()){
+      cout << "Error while reading the data base !" << endl;
+      return kFALSE;
+   }
+   InitArrayFolders();
+   if (!ReadArrayDataBaseFolders()) {
+      cout << "Error while reading the data base !" << endl;
+      return kFALSE;
+   }
+  
+   // main window 
+   if(!StartWindow())
+      return kFALSE;
+   
+   fApplication->Run();
+   
+   return kTRUE;
+}
+
 void ArgusMonitor::ParameterUsage()
 {
    cout<<"  -i       Configuration file (default argusConfig.xml)"<<endl
+/*
        <<"  -h       MIDAS server host name"<<endl
        <<"  -e       MIDAS experiment name"<<endl
+*/
        <<"  -docu    Generates a Root-Html-Documentation (no Argument)"<<endl;
+   gArgus->UserParameterUsage();
    return;
 }
 
@@ -168,8 +204,7 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
    ROMEString workDir(workDirLen);
    getcwd((Char_t*)workDir.Data(),workDirLen);
    workDir.Append("/");
-   this->SetDataBaseDir(workDir);
-   
+   this->SetConfigDir(workDir);
    ROMEString configFile("argusConfig.xml");
    
    Char_t host_name[256] = "";
@@ -237,13 +272,11 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
 	 ;
       else if (!strcmp(argv[i],"-i"))
 	 i++;
-      else {
-         cout<<"Inputlineparameter '"
-	     <<argv[i]
-	     <<"' not available."<<endl
-	     <<"Available inputlineparameters are : "<<endl;
+      else if(!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)){
+         cout<<"Inputlineparameter '"<<argv[i]<<"' not available."<<endl
+             <<"Available inputlineparameter are : "<<endl;
          ParameterUsage();
-	 return kFALSE;
+         return kFALSE;
       }
    }
    if(strlen(host_name))
@@ -254,6 +287,17 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
    return kTRUE;
 }
 
+Int_t ArgusMonitor::stricmp(const Char_t* c1,const Char_t* c2)
+{
+#if defined( R__UNIX )
+   return strcasecmp(c1,c2);
+#elif defined( R__VISUAL_CPLUSPLUS )
+   return _stricmp(c1,c2);
+#else
+   return 0;
+#endif
+}
+
 Bool_t ArgusMonitor::strtobool(const Char_t* str) 
 {
    Char_t *cstop;
@@ -262,4 +306,163 @@ Bool_t ArgusMonitor::strtobool(const Char_t* str)
    if (!strcmp(str,"false"))
       return kFALSE;
    return strtol(str,&cstop,10)!=0;
+}
+
+ROMEDataBase* ArgusMonitor::GetDataBase(Int_t i) {
+   if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
+      return fDataBaseHandle[i];
+   cout<<"\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program."<<endl;
+#if defined( USE_TRINT )
+   fApplication->Terminate(1);
+#else
+   fApplication->Terminate();
+#endif
+   return NULL;
+};
+
+ROMEDataBase* ArgusMonitor::GetDataBase(const Char_t *name) { 
+   for (Int_t i=0;i<fNumberOfDataBases;i++) 
+      if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+         return fDataBaseHandle[i];
+   ROMEString str;
+   str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
+   cout<<str<<endl;
+#if defined( USE_TRINT )
+   fApplication->Terminate(1);
+#else
+   fApplication->Terminate();
+#endif
+   return NULL;
+};
+
+Bool_t ArgusMonitor::isDataBaseActive(const Char_t *name) { 
+   for (Int_t i=0;i<fNumberOfDataBases;i++) 
+      if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+         return kTRUE;
+   return kFALSE;
+};
+
+void ArgusMonitor::InitDataBases(Int_t number) {
+   fDataBaseHandle     = new ROMEDataBase*[number]; 
+   fDataBaseConnection = new ROMEString[number];
+   fDataBaseDir        = new ROMEString[number];
+   fNumberOfDataBases  = number;
+};
+
+TNetFolder* ArgusMonitor::GetNetFolder(const Char_t *name) { 
+   for (Int_t i=0;i<fNumberOfNetFolders;i++) {
+      if (!stricmp(fNetFolderName[i].Data(),name)){
+         if(!fNetFolderActive[i]){
+            cout<<name<<" is not activated."<<endl;
+            return NULL;
+         }
+         return fNetFolder[i];
+      }
+   }
+   cout<<"Netfolder '"<<name<<"' is not defined"<<endl;
+   return NULL;
+};
+
+Bool_t ArgusMonitor::ConnectNetFolder(const Char_t* name) {
+   Int_t i;
+   for(i=0;i<fNumberOfNetFolders;i++){
+      if (!stricmp(fNetFolderName[i].Data(),name))
+         break;
+   }
+   return ConnectNetFolder(i);
+}
+
+Bool_t ArgusMonitor::ConnectNetFolder(Int_t i) {
+   if( ! (0<=i && i<fNumberOfNetFolders) )
+      return kFALSE;
+   
+   if (!fNetFolderActive[i])
+      return kTRUE;
+
+   DisconnectNetFolder(i);
+   fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
+   if (!fNetFolderSocket[i]->IsValid()){
+      cout<<"can not make socket connection for "<<fNetFolderName[i]<<endl;
+      return kFALSE;
+   }
+   fNetFolder[i] = new TNetFolder(fNetFolderName[i].Data(),fNetFolderTitle[i].Data(),fNetFolderSocket[i]);
+   
+   return kTRUE;
+}
+
+Bool_t ArgusMonitor::DisconnectNetFolder(const Char_t* name) {
+   Int_t i;
+   for(i=0;i<fNumberOfNetFolders;i++){
+      if (!stricmp(fNetFolderName[i].Data(),name))
+         break;
+   }
+   return DisconnectNetFolder(i);
+}
+
+Bool_t ArgusMonitor::DisconnectNetFolder(Int_t i) {
+   if( ! (0<=i && i<fNumberOfNetFolders) )
+      return kFALSE;
+   if(fNetFolderSocket[i]){
+      fNetFolderSocket[i]->Close();
+      delete fNetFolderSocket[i];
+      fNetFolderSocket[i] = 0;
+   }
+  
+   return kTRUE;
+}
+
+Bool_t ArgusMonitor::ConnectNetFolders() {
+   Int_t i;
+   for(i=0;i<fNumberOfNetFolders;i++){
+      if (!ConnectNetFolder(i))
+         return kFALSE;
+   }
+   return kTRUE;
+}
+
+Bool_t ArgusMonitor::DisconnectNetFolders() {
+   Int_t i;
+   for(i=0;i<fNumberOfNetFolders;i++){
+      if (!DisconnectNetFolder(i))
+         return kFALSE;
+   }
+   return kTRUE;
+}
+
+void ArgusMonitor::InitNetFolders(Int_t number) {
+   if(number<1)
+      return;
+   fNetFolder            = new TNetFolder*[number];
+   fNetFolderActive      = new Bool_t[number];
+   fNetFolderSocket      = new TSocket*[number];
+   fNetFolderPort        = new Int_t[number];
+   fNetFolderName        = new ROMEString[number];
+   fNetFolderTitle       = new ROMEString[number];
+   fNetFolderHost        = new ROMEString[number];
+   fNetFolderRoot        = new ROMEString[number];
+   fNumberOfNetFolders   = number;
+}
+
+void ArgusMonitor::Print(Char_t text)
+{
+   cout << text;
+   return;
+}
+
+void ArgusMonitor::Print(const Char_t* text)
+{
+   cout << text;
+   return;
+}
+
+void ArgusMonitor::Println(const Char_t* text)
+{
+   cout << text << endl;
+   return;
+}
+
+void ArgusMonitor::Printfl(const Char_t* text)
+{
+   cout << text << flush;
+   return;
 }

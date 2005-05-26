@@ -32,16 +32,15 @@ void HGTTab::Init()
 }
 
 void HGTTab::Update(){
-   if(!gMonitor->GetNetFolder()){
-      cout<<gMonitor->GetProgramName()<<" is not connected to server."<<endl;
+   if(!gMonitor->GetNetFolder("mynetfolder"))
       return;
-   }
+   
    fCanvas->GetCanvas()->cd();
    
    if(fHisto){
       delete fHisto;
    }
-   fHisto = (TH1F*)gMonitor->GetNetFolder()->FindObjectAny("hAdc0");
+   fHisto = (TH1F*)gMonitor->GetNetFolder("mynetfolder")->FindObjectAny("hAdc0");
    if (!fHisto){
       cout<<"Histo hAdc0 not available."<<endl;
    }

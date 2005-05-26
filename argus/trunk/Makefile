@@ -4,6 +4,13 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.9  2005/05/26 14:26:54  sawada
+#  Lots of changes.
+#  Made ArgusBuilder an inheriting class of ROMEBuilder.
+#  Remove ROMEFolder and added NetFolers.
+#  Added ArgusWindow class.
+#  and so on.
+#
 #  Revision 1.8  2005/05/16 16:46:57  sawada
 #  with gcc4, enumeration in class can not be constant in switch.
 #
@@ -34,10 +41,10 @@
 #
 #####################################################################
 #
-INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -Ibuilder/include/ $(shell root-config --cflags)
+INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -Ibuilder/include/ $(shell root-config --cflags)
 LIBRARY = $(shell root-config --libs)
-SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp BuilderFolder.cpp \
-      BuilderSteering.cpp BuilderWindow.cpp Builder.cpp
+SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp \
+      BuilderWindow.cpp Builder.cpp BuilderNetFolder.cpp main.cpp
 
 
 OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
@@ -76,9 +83,9 @@ endif
 
 all: $(TARGET)
 
-bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c bin
+bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/builder/include/ROMEBuilder.h $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c bin
 	g++ $(CFLAGS) -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
-	$(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY)
+	$(ROMESYS)/src/ROMEString.cpp  $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY)
 
 bin:
 	@if [ ! -d  bin ] ; then \
