@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.168  2005/05/27 12:47:00  sawada
+  Default value of bankArrayDigit to 0.
+
   Revision 1.167  2005/05/27 10:28:31  schneebeli_m
   docu
 
@@ -2707,7 +2710,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                      bankType[numOfEvent][numOfBank[numOfEvent]] = "";
                      bankArraySize[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankArrayStart[numOfEvent][numOfBank[numOfEvent]] = 0;
-                     bankArrayDigit[numOfEvent][numOfBank[numOfEvent]] = 1;
+                     bankArrayDigit[numOfEvent][numOfBank[numOfEvent]] = 0;
                      while (xml->NextLine()) {
                         type = xml->GetType();
                         name = xml->GetName();
