@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.167  2005/05/27 10:28:31  schneebeli_m
+  docu
+
   Revision 1.166  2005/05/26 09:43:28  sawada
   Added ROMEBuilder::WriteFolderGetter.
   Added make build.
@@ -2664,9 +2667,9 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
          }
          // event initialisation
          eventName[numOfEvent] = "";
-         eventID[numOfEvent] = "";
-         eventTriggerMask[numOfEvent] = "";
-         eventSamplingRate[numOfEvent] = "";
+         eventID[numOfEvent] = "-1";
+         eventTriggerMask[numOfEvent] = "-1";
+         eventSamplingRate[numOfEvent] = "1";
          numOfBank[numOfEvent] = -1;
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -2704,7 +2707,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                      bankType[numOfEvent][numOfBank[numOfEvent]] = "";
                      bankArraySize[numOfEvent][numOfBank[numOfEvent]] = 0;
                      bankArrayStart[numOfEvent][numOfBank[numOfEvent]] = 0;
-                     bankArrayDigit[numOfEvent][numOfBank[numOfEvent]] = 0;
+                     bankArrayDigit[numOfEvent][numOfBank[numOfEvent]] = 1;
                      while (xml->NextLine()) {
                         type = xml->GetType();
                         name = xml->GetName();
