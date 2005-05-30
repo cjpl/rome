@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.10  2005/05/30 18:22:15  sawada
+#  small change for Macintosh
+#
 #  Revision 1.9  2005/05/26 14:26:54  sawada
 #  Lots of changes.
 #  Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -59,7 +62,7 @@ endif
 
 ifeq ($(OSTYPE),darwin)
 FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
-Include += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
+INCLUDE += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
 LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -lpthread
 endif
 
@@ -84,7 +87,7 @@ endif
 all: $(TARGET)
 
 bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/builder/include/ROMEBuilder.h $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c bin
-	g++ $(CFLAGS) -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
+	g++ $(CFLAGS) -g -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
 	$(ROMESYS)/src/ROMEString.cpp  $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY)
 
 bin:
