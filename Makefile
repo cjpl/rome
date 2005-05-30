@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.21  2005/05/30 18:21:13  sawada
+#  small change for Macintosh
+#
 #  Revision 1.20  2005/05/17 18:45:38  sawada
 #  Separated main from ROMEBuilder.
 #  Reading function for every database folders.
@@ -63,7 +66,7 @@ endif
 
 ifeq ($(OSTYPE),darwin)
 FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
-Include += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
+INCLUDE += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
 LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -lpthread
 endif
 
