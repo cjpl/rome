@@ -3,6 +3,9 @@
   main.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.2  2005/05/31 06:47:49  sawada
+  added unistd.h
+
   Revision 1.1  2005/05/17 18:45:38  sawada
   Separated main from ROMEBuilder.
   Reading function for every database folders.
@@ -12,6 +15,9 @@
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <direct.h>
+#endif
+#if defined( R__UNIX )
+#   include <unistd.h>
 #endif
 #ifndef R__MACOSX
 #   if defined( R__VISUAL_CPLUSPLUS )
