@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.46  2005/06/01 11:08:39  schneebeli_m
+  error
+
   Revision 1.45  2005/06/01 10:17:50  schneebeli_m
   RootCintHeaders & RootCintIncludes
 
@@ -918,7 +921,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
-      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += myPath\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. RootCintHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("#\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
@@ -938,14 +941,14 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("-I$(RootCintIncludes) ");
+   buffer.AppendFormatted("$(RootCintIncludes) ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f src/framework/%sDict.cpp -c ",shortCut.Data());
    buffer.AppendFormatted("-I$ARGUSSYS/include ");
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("-I$(RootCintIncludes) ");
+   buffer.AppendFormatted("$(RootCintIncludes) ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/framework ");
    buffer.AppendFormatted("ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h TNetFolder.h include/framework/%sMonitor.h include/framework/%sWindow.h ",shortCut.Data(),shortCut.Data());
