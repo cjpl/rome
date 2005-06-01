@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.26  2005/06/01 14:41:48  schneebeli_m
+  menu changes
+
   Revision 1.25  2005/05/26 14:26:55  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -234,14 +237,6 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
 
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         // %s\n",tabName[i].Data());
-      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID)\n",tabName[i].Data(),tabName[i].Data());
-      buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n",tabName[i].Data(),i);
-   }
-
-   for (i=0;i<numOfTab;i++) {
-      buffer.AppendFormatted("         // %s\n",tabName[i].Data());
-      buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID)\n",tabName[i].Data(),tabName[i].Data());
-      buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n",tabName[i].Data(),i);
       buffer.AppendFormatted("         if (");
       Int_t index = i;
       do  {
@@ -252,8 +247,8 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted(") {\n");
       buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n",tabName[i].Data(),i);
       for (j=0;j<numOfMenu[i];j++) {
-	 buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabName[i].Data(),j);
-	 buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabName[i].Data(),j);
+         buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n",tabName[i].Data(),j);
+         buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n",tabName[i].Data(),j);
       }
       for (j=0;j<numOfMenu[i];j++) {
 	 if(menuDepth[i][j] == 1){
@@ -273,12 +268,24 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
       }
       buffer.AppendFormatted("         }\n");
    }
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("         // %s\n",tabName[i].Data());
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("            fCurrentTabID = param1;\n");
+      buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n",tabName[i].Data(),i);
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n",tabName[i].Data(),tabName[i].Data());
+      buffer.AppendFormatted("            fCurrentTabID = param1;\n");
+      buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n",tabName[i].Data(),i);
+      buffer.AppendFormatted("         }\n");
+   }
+   buffer.AppendFormatted("         fCurrentTabID = param1;\n");
+
 
    buffer.AppendFormatted("         MapSubwindows();\n");
    buffer.AppendFormatted("         Resize(fWidth-1,fHeight-1);\n");
    buffer.AppendFormatted("         Resize(fWidth+1,fHeight+1);\n");
    buffer.AppendFormatted("         MapWindow();\n");
-   buffer.AppendFormatted("         fCurrentTabID = param1;\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      break;\n");    
