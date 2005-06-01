@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.170  2005/06/01 11:09:02  schneebeli_m
+  error
+
   Revision 1.169  2005/06/01 10:17:25  schneebeli_m
   RootCintHeaders & RootCintIncludes
 
@@ -8457,7 +8460,7 @@ void ROMEBuilder::WriteMakefile(const char* xmlFile) {
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
-      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += myPath\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. RootCintHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("#\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),6);
@@ -8473,13 +8476,13 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("-I%%RootCintIncludes%% ");
+   buffer.AppendFormatted("%%RootCintIncludes%% ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("-I$RootCintIncludes ");
+   buffer.AppendFormatted("$RootCintIncludes ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
