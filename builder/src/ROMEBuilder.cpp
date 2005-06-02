@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.171  2005/06/02 08:26:26  schneebeli_m
+  RootCintHeader --> DictionaryHeader
+
   Revision 1.170  2005/06/01 11:09:02  schneebeli_m
   error
 
@@ -8155,11 +8158,11 @@ void ROMEBuilder::WriteMakefile(const char* xmlFile) {
 
    // root cint headers
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("RootCintHeaders %s",EqualSign());
+   buffer.AppendFormatted("DictionaryHeaders %s",EqualSign());
 
    // root cint includes
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("RootCintIncludes %s",EqualSign());
+   buffer.AppendFormatted("DictionaryIncludes %s",EqualSign());
 
 // task dependences
    buffer.AppendFormatted("\n");
@@ -8406,9 +8409,9 @@ void ROMEBuilder::WriteMakefile(const char* xmlFile) {
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(RootCintHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(RootCintHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean:\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
@@ -8460,8 +8463,8 @@ void ROMEBuilder::WriteMakefile(const char* xmlFile) {
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
-      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += -ImyPath\n");
-      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. RootCintHeaders += myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += myPath\n");
+      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("#\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),6);
    }
@@ -8476,13 +8479,13 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("%%RootCintIncludes%% ");
+   buffer.AppendFormatted("-I%%DictionaryIncludes%% ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("$RootCintIncludes ");
+   buffer.AppendFormatted("-I$DictionaryIncludes ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
