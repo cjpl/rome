@@ -1,21 +1,24 @@
 /********************************************************************
-  TGROMEController.h, R.Sawada
+  ArgusAnalyzerController.h, R.Sawada
 
   $Log$
+  Revision 1.1  2005/06/02 20:40:12  sawada
+  renamed TGROMEController as ArgusAnalyzerController
+
   Revision 1.1  2005/06/01 22:41:22  sawada
-  added TGROMEController for development.
+  added ArgusAnalyzerController for development.
 
 
 ********************************************************************/
-#ifndef TGROMECONTROLLER_H
-#define TGROMECONTROLLER_H
+#ifndef ArgusAnalyzerController_H
+#define ArgusAnalyzerController_H
 
 #include <TGNumberEntry.h>
 #include <TGButton.h>
 #include <TGLabel.h>
 #include "TNetFolder.h"
 
-class TGROMEController : public TGTransientFrame
+class ArgusAnalyzerController : public TGTransientFrame
 {
 protected:
    TNetFolder*         fNetFolder;
@@ -50,12 +53,12 @@ protected:
    };
       
 public:
-   TGROMEController():TGTransientFrame(){};
-   TGROMEController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,TNetFolder* nf,UInt_t options = kVerticalFrame);
-   virtual ~TGROMEController() { DeleteWindow(); }
+   ArgusAnalyzerController():TGTransientFrame(){};
+   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,TNetFolder* nf,UInt_t options = kVerticalFrame);
+   virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
    
-   ClassDef(TGROMEController,1)
+   ClassDef(ArgusAnalyzerController,1)
 };
 
 #endif

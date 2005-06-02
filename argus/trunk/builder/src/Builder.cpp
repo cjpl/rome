@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.48  2005/06/02 20:40:11  sawada
+  renamed TGROMEController as ArgusAnalyzerController
+
   Revision 1.47  2005/06/02 08:25:15  schneebeli_m
   RootCintHeader --> DictionaryHeader
 
@@ -708,7 +711,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEODBOnlineDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEODBOnlineDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
 
    // all
    buffer.AppendFormatted("all:obj %s%s",shortcut.Data(),mainprogname.Data());
@@ -774,7 +777,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h include/tabs/%sT%s_Base.h $(%sT%sDep)\n",shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       buffer.AppendFormatted((Char_t*)compileFormatTabs.Data(),tabName[i].Data(),tabName[i].Data());
    }
-   buffer.AppendFormatted("obj/%sWindow.obj: src/framework/%sWindow.cpp include/framework/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h include/framework/%sMonitor.h obj/ArgusWindow.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sWindow.obj: src/framework/%sWindow.cpp include/framework/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/ArgusAnalyzerController.h include/framework/%sMonitor.h obj/ArgusWindow.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted("\n");
@@ -801,6 +804,8 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted((Char_t*)compileFormatARGUS.Data(),"Window","Window");
    buffer.AppendFormatted("obj/ArgusTextDialog.obj: $(ARGUSSYS)/src/ArgusTextDialog.cpp $(ARGUSSYS)/include/ArgusTextDialog.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatARGUS.Data(),"TextDialog","TextDialog");
+   buffer.AppendFormatted("obj/ArgusAnalyzerController.obj: $(ARGUSSYS)/src/ArgusAnalyzerController.cpp $(ARGUSSYS)/include/ArgusAnalyzerController.h\n");
+   buffer.AppendFormatted((Char_t*)compileFormatARGUS.Data(),"AnalyzerController","AnalyzerController");
    buffer.AppendFormatted("obj/TNetFolder.obj: $(ARGUSSYS)/src/TNetFolder.cpp $(ARGUSSYS)/include/TNetFolder.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),"$(ARGUSSYS)/src/TNetFolder","TNetFolder");
    buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h\n");
@@ -954,7 +959,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("$(DictionaryIncludes) ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/framework ");
-   buffer.AppendFormatted("ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h TNetFolder.h include/framework/%sMonitor.h include/framework/%sWindow.h ",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h ArgusAnalyzerController.h TNetFolder.h include/framework/%sMonitor.h include/framework/%sWindow.h ",shortCut.Data(),shortCut.Data());
 
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {

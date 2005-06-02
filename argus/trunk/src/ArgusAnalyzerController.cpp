@@ -1,19 +1,24 @@
 /********************************************************************
-  TGROMEController.cpp, R.Sawada
+  ArgusAnalyzerController.cpp, R.Sawada
 
   $Log$
+  Revision 1.1  2005/06/02 20:40:12  sawada
+  renamed TGROMEController as ArgusAnalyzerController
+
   Revision 1.1  2005/06/01 22:33:00  sawada
-  added TGROMEController for development.
+  added ArgusAnalyzerController for development.
 
 
 ********************************************************************/
-#include "TGROMEController.h"
+#include "ArgusAnalyzerController.h"
 #include "ArgusMonitor.h"
 
-ClassImp(TGROMEController)
+ClassImp(ArgusAnalyzerController)
+
+#define DEBUG
 
 // Constructor
-TGROMEController::TGROMEController(const TGWindow * p,const TGWindow * main,UInt_t w, UInt_t h,TNetFolder *nf,UInt_t options)
+ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p,const TGWindow * main,UInt_t w, UInt_t h,TNetFolder *nf,UInt_t options)
    :TGTransientFrame(p, main, w, h, options)
 {
    fNetFolder     = nf;
@@ -126,7 +131,7 @@ TGROMEController::TGROMEController(const TGWindow * p,const TGWindow * main,UInt
 //   fClient->WaitFor(this);
 }
 
-Bool_t TGROMEController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
