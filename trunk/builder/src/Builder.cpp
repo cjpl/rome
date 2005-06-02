@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.47  2005/06/02 08:25:15  schneebeli_m
+  RootCintHeader --> DictionaryHeader
+
   Revision 1.46  2005/06/01 11:08:39  schneebeli_m
   error
 
@@ -674,10 +677,10 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
 
    // root cint headers
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("RootCintHeaders %s",EqualSign());
+   buffer.AppendFormatted("DictionaryHeaders %s",EqualSign());
    // root cint includes
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("RootCintIncludes %s",EqualSign());
+   buffer.AppendFormatted("DictionaryIncludes %s",EqualSign());
 
    // tab dependences
    buffer.AppendFormatted("\n");
@@ -862,9 +865,9 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(RootCintHeaders)\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n",shortCut.Data(),shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(RootCintHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
 // Clean and build
@@ -921,8 +924,8 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
-      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. RootCintIncludes += -ImyPath\n");
-      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. RootCintHeaders += myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
+      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("#\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
@@ -941,14 +944,14 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("$(RootCintIncludes) ");
+   buffer.AppendFormatted("$(DictionaryIncludes) ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f src/framework/%sDict.cpp -c ",shortCut.Data());
    buffer.AppendFormatted("-I$ARGUSSYS/include ");
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("$(RootCintIncludes) ");
+   buffer.AppendFormatted("$(DictionaryIncludes) ");
 #endif
    buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/framework ");
    buffer.AppendFormatted("ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h TNetFolder.h include/framework/%sMonitor.h include/framework/%sWindow.h ",shortCut.Data(),shortCut.Data());
