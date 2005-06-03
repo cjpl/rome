@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.13  2005/06/03 09:49:05  schneebeli_m
+//  taskhierarchy error
+//
 //  Revision 1.12  2005/04/14 07:56:46  schneebeli_m
 //  Implemented odb database (offline)
 //
@@ -219,7 +222,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
             if (cstop==NULL)
                return true;
             if (*cstop!=',' && *cstop!=')') {
-               cout << "\nError in array statement." << endl;
+               cout << "\nError in array statement.\n" << dataBasePath << endl;
                return false;
             }
             this->SetOrderIndexAt(i,value);
@@ -311,7 +314,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
          if (cstop==NULL)
             return true;
          if (*cstop!=',' && *cstop!=')') {
-            cout << "\nError in array statement." << endl;
+            cout << "\nError in array statement.\n" << dataBasePath << endl;
             return false;
          }
          this->SetFieldIndexAt(i,value);

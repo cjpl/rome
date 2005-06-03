@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.172  2005/06/03 09:49:04  schneebeli_m
+  taskhierarchy error
+
   Revision 1.171  2005/06/02 08:26:26  schneebeli_m
   RootCintHeader --> DictionaryHeader
 
@@ -3507,7 +3510,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("      return -1;\n");
    buffer.AppendFormatted("   if (path.Index(\"/GSP\")==0) {\n");
    ROMEString path = "/GSP";
-   codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,0,numOfTask,path,1);
+   codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,0,numOfTaskHierarchy,path,1);
    buffer.AppendFormatted("      gAnalyzer->Println(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
    buffer.AppendFormatted("      gAnalyzer->Println(\"   \"+path+\"\\n\");\n");
    buffer.AppendFormatted("      return -1;\n");
@@ -6836,7 +6839,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
    buffer.AppendFormatted("      case -1:\n");
    buffer.AppendFormatted("         return defaultValue;\n");
    ROMEString steerPointer = "gAnalyzer->GetGSP()";
-   int codeNumber = WriteSteeringInterpreterValue(buffer,type,0,0,numOfTask,steerPointer,1);
+   int codeNumber = WriteSteeringInterpreterValue(buffer,type,0,0,numOfTaskHierarchy,steerPointer,1);
    for (i=0;i<numOfFolder;i++) {
       if (folderArray[i]=="1") {
          for (j=0;j<numOfValue[i];j++) {
