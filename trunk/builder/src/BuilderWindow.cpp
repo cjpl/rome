@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.27  2005/06/08 13:03:20  schneebeli_m
+  menus with same name
+
   Revision 1.26  2005/06/01 14:41:48  schneebeli_m
   menu changes
 
@@ -106,9 +109,10 @@
 #include "ArgusBuilder.h"
 
 Bool_t ArgusBuilder::WriteWindowCpp() {
-   Int_t i,j;
+   Int_t i,j,k,kk;
    ROMEString cppFile;
    ROMEString buffer;
+   ROMEString bufferTemp;
    ROMEString format;
    ROMEString menu_title;
    ROMEString buf;
@@ -262,9 +266,21 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("         else {\n");
       buffer.AppendFormatted("            f%s%03dTab->SetActive(kFALSE);\n",tabName[i].Data(),i);
       for (j=0;j<numOfMenu[i];j++) {
-	 menu_title = menuTitle[i][j];
-	 menu_title.ReplaceAll("&","");
-	 buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menu_title.Data());
+	      menu_title = menuTitle[i][j];
+	      menu_title.ReplaceAll("&","");
+         bufferTemp = "";
+         for (k=0;k<i;k++) {
+            for (kk=0;kk<numOfMenu[k];kk++) {
+               if (menuTitle[k][kk]==menuTitle[i][j]) {
+         	      bufferTemp.AppendFormatted("param1 != f%sTabID && \n",tabName[kk].Data());
+               }
+            }
+         }
+         if (bufferTemp.Length()>0) {
+            bufferTemp = bufferTemp(0,bufferTemp.Length()-4);
+   	      buffer.AppendFormatted("            if (%s)\n",bufferTemp.Data());
+         }
+	      buffer.AppendFormatted("               delete fMenuBar->RemovePopup(\"%s\");\n",menu_title.Data());
       }
       buffer.AppendFormatted("         }\n");
    }
