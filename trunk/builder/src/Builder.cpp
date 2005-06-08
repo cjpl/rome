@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.49  2005/06/08 14:05:35  schneebeli_m
+  delete menu
+
   Revision 1.48  2005/06/02 20:40:11  sawada
   renamed TGROMEController as ArgusAnalyzerController
 
@@ -470,7 +473,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
 #if defined( R__VISUAL_CPLUSPLUS )
    if (makeOutput) cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
    WriteDictionaryBat(buffer);
-   system(buffer);
+//   system(buffer);
 #endif
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
@@ -945,7 +948,7 @@ void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.Resize(0);
 
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f src/framework/%sDict.cpp -c ",shortCut.Data());
+   buffer.AppendFormatted("rootcint -f src/framework/%sDict.cpp -c ",shortCut.Data());
    buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
@@ -1058,7 +1061,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    ROMEString cppFile;
    ROMEString str;
    fstream *fileStream;
-   TString fileBuffer;
+   ROMEString fileBuffer;
 
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",tabName[i].Data(),tabName[i].Data());

@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.28  2005/06/08 14:05:36  schneebeli_m
+  delete menu
+
   Revision 1.27  2005/06/08 13:03:20  schneebeli_m
   menus with same name
 
@@ -239,6 +242,16 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("         break;      \n");
    buffer.AppendFormatted("      case kCM_TAB:\n");
 
+
+   for (i=0;i<numOfTab;i++) {
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n",tabName[i].Data(),tabName[i].Data());
+      for (j=0;j<numOfMenu[i];j++) {
+	      menu_title = menuTitle[i][j];
+	      menu_title.ReplaceAll("&","");
+	      buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n",menu_title.Data());
+      }
+      buffer.AppendFormatted("         }\n");
+   }
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         // %s\n",tabName[i].Data());
       buffer.AppendFormatted("         if (");
@@ -261,26 +274,6 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
 	    buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n",menuTitle[i][j].Data(),tabName[i].Data(),j);
 	    buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
 	 }
-      }
-      buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         else {\n");
-      buffer.AppendFormatted("            f%s%03dTab->SetActive(kFALSE);\n",tabName[i].Data(),i);
-      for (j=0;j<numOfMenu[i];j++) {
-	      menu_title = menuTitle[i][j];
-	      menu_title.ReplaceAll("&","");
-         bufferTemp = "";
-         for (k=0;k<i;k++) {
-            for (kk=0;kk<numOfMenu[k];kk++) {
-               if (menuTitle[k][kk]==menuTitle[i][j]) {
-         	      bufferTemp.AppendFormatted("param1 != f%sTabID && \n",tabName[kk].Data());
-               }
-            }
-         }
-         if (bufferTemp.Length()>0) {
-            bufferTemp = bufferTemp(0,bufferTemp.Length()-4);
-   	      buffer.AppendFormatted("            if (%s)\n",bufferTemp.Data());
-         }
-	      buffer.AppendFormatted("               delete fMenuBar->RemovePopup(\"%s\");\n",menu_title.Data());
       }
       buffer.AppendFormatted("         }\n");
    }
