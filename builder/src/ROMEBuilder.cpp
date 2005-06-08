@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.173  2005/06/08 13:55:09  schneebeli_m
+  ReplaceHeader error
+
   Revision 1.172  2005/06/03 09:49:04  schneebeli_m
   taskhierarchy error
 
@@ -9082,7 +9085,7 @@ bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const ch
          return false;
       }
       if (makeOutput) cout << setw(nspace) << "" << filename << endl;
-      *fileStream<<buffer;
+      *fileStream<<buffer.Data();
       delete fileStream;
    }
    return true;
