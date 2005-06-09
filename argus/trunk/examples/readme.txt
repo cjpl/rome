@@ -41,5 +41,8 @@ processMessage
       This show how you create buttons. Buttons will publish signal
       when it is clicked. You can assign any function to the signal.
 
+analyzerControl
+      This example shows how you controll analysis program such as
+      ROME. Analyzer controller is still under development.
 
 Ryu, Sawada
