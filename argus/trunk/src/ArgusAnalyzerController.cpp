@@ -2,6 +2,9 @@
   ArgusAnalyzerController.cpp, R.Sawada
 
   $Log$
+  Revision 1.2  2005/06/10 19:21:27  sawada
+  replaced error and warning message output with ROOT error handler.
+
   Revision 1.1  2005/06/02 20:40:12  sawada
   renamed TGROMEController as ArgusAnalyzerController
 
@@ -29,7 +32,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p,const TGWind
 
 #ifndef DEBUG
    if(!fNetFolder->fSocket || !fNetFolder->fSocket->IsValid())
-      cout<<"Error: NetFolder is not connected to server."<<endl;
+      Error("ArgusAnalyzerController","NetFolder is not connected to server.");
       return;
 #endif
 
