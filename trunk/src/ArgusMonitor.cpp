@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.18  2005/06/10 19:21:27  sawada
+  replaced error and warning message output with ROOT error handler.
+
   Revision 1.17  2005/05/26 14:26:55  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -166,12 +169,12 @@ Bool_t ArgusMonitor::StartMonitor()
    // Read Data Base
    InitSingleFolders();
    if (!ReadSingleDataBaseFolders()){
-      cout << "Error while reading the data base !" << endl;
+      Error("StartMonitor","Error while reading the data base !");
       return kFALSE;
    }
    InitArrayFolders();
    if (!ReadArrayDataBaseFolders()) {
-      cout << "Error while reading the data base !" << endl;
+      Error("StartMonitor","while reading the data base !");
       return kFALSE;
    }
   
@@ -311,7 +314,7 @@ Bool_t ArgusMonitor::strtobool(const Char_t* str)
 ROMEDataBase* ArgusMonitor::GetDataBase(Int_t i) {
    if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
       return fDataBaseHandle[i];
-   cout<<"\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program."<<endl;
+   Error("GetDataBase","You have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.");
 #if defined( USE_TRINT )
    fApplication->Terminate(1);
 #else
@@ -325,8 +328,7 @@ ROMEDataBase* ArgusMonitor::GetDataBase(const Char_t *name) {
       if (!stricmp(fDataBaseHandle[i]->GetName(),name))
          return fDataBaseHandle[i];
    ROMEString str;
-   str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
-   cout<<str<<endl;
+   Error("GetDataBase","\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
 #if defined( USE_TRINT )
    fApplication->Terminate(1);
 #else
@@ -353,13 +355,13 @@ TNetFolder* ArgusMonitor::GetNetFolder(const Char_t *name) {
    for (Int_t i=0;i<fNumberOfNetFolders;i++) {
       if (!stricmp(fNetFolderName[i].Data(),name)){
          if(!fNetFolderActive[i]){
-            cout<<name<<" is not activated."<<endl;
+            Warning("GetNetFolder","%s is not activated.",name);
             return NULL;
          }
          return fNetFolder[i];
       }
    }
-   cout<<"Netfolder '"<<name<<"' is not defined"<<endl;
+   Error("GetNetFolder","Netfolder '%s' is not defined",name);
    return NULL;
 };
 
@@ -382,7 +384,7 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i) {
    DisconnectNetFolder(i);
    fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
    if (!fNetFolderSocket[i]->IsValid()){
-      cout<<"can not make socket connection for "<<fNetFolderName[i]<<endl;
+      Error("ConnectNetFolder","can not make socket connection for %s.",fNetFolderName[i].Data());
       return kFALSE;
    }
    fNetFolder[i] = new TNetFolder(fNetFolderName[i].Data(),fNetFolderTitle[i].Data(),fNetFolderSocket[i]);
