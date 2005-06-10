@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.17  2005/06/10 12:15:41  sawada
+//  modified a error message
+//
 //  Revision 1.16  2005/05/18 09:49:32  schneebeli_m
 //  removed run & event number error, implemented FileRead in ROMEString
 //
@@ -239,11 +242,9 @@ bool ROMEMidas::Connect() {
       if (fMidasFileHandle == -1) {
          fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
          if (fMidasGzFileHandle==NULL) {
-            gROME->Print("Inputfile neither '");
+            gROME->Print("Failed to open input file '");
             gROME->Print(filename.Data());
-            gROME->Println("' nor '");
-            gROME->Print(gzfilename.Data());
-            gROME->Println("' was found.");
+            gROME->Println("[.gz]'.");
             return false;
          }
          fGZippedMidasFile = true;
