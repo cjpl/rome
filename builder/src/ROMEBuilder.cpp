@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.176  2005/06/11 23:22:00  sawada
+  negligible change.
+
   Revision 1.175  2005/06/11 22:43:57  sawada
   enabled tree compression level more than 1.
 
@@ -6890,7 +6893,6 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
          buffer.AppendFormatted("      name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      name.SetFormatted(gAnalyzer->Get%s_%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("   // read database if database name is specified.\n");
          buffer.AppendFormatted("   if (name.Length()){\n");
          buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
