@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.174  2005/06/11 21:48:58  sawada
+  read database only when database name is specified.
+
   Revision 1.173  2005/06/08 13:55:09  schneebeli_m
   ReplaceHeader error
 
@@ -6885,58 +6888,62 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    for (j=0;j<numOfValue[numFolder];j++) {
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
-         buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("      path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
-         buffer.AppendFormatted("   else\n");
-         buffer.AppendFormatted("      path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
-            buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
-         buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBName())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("      name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      name.SetFormatted(gAnalyzer->Get%s_%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("   if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
-         buffer.AppendFormatted("      gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   // read database if database name is specified.\n");
+         buffer.AppendFormatted("   if (name.Length()){\n");
+         buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("         path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
+         buffer.AppendFormatted("      else\n");
+         buffer.AppendFormatted("         path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
+            buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
+         buffer.AppendFormatted(");\n");
+         buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
+         buffer.AppendFormatted("         gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("         return false;\n");
+         buffer.AppendFormatted("      }\n");
          if (type==2)
-            buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[numFolder].Data());
+            buffer.AppendFormatted("      for (i=0;i<f%sFolders->GetEntries();i++) {\n",folderName[numFolder].Data());
          if (valueArray[numFolder][j]=="1") {
-            buffer.AppendFormatted("%s   if (values->At(%s,0).Length()!=0)\n",blank.Data(),iValue.Data());
+            buffer.AppendFormatted("%s      if (values->At(%s,0).Length()!=0)\n",blank.Data(),iValue.Data());
             valueString.SetFormatted("values->At(%s,0).Data()",iValue.Data());
             setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),valueType[numFolder][j].Data(),1);
             if (type==1) {
-               buffer.AppendFormatted("%s      f%sFolder->Set%s((%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
-               buffer.AppendFormatted("%s   else\n",blank.Data());
-               buffer.AppendFormatted("%s      f%sFolder->Set%s(%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("%s         f%sFolder->Set%s((%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("%s      else\n",blank.Data());
+               buffer.AppendFormatted("%s         f%sFolder->Set%s(%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             else {
-               buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
-               buffer.AppendFormatted("      else\n");
-               buffer.AppendFormatted("         ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%s((%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("         else\n");
+               buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%s(%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
          }
          else {
-            buffer.AppendFormatted("%s   for (j=0;j<%s;j++) {\n",blank.Data(),valueArray[numFolder][j].Data());
-            buffer.AppendFormatted("%s      if (values->At(%s,j).Length()!=0)\n",blank.Data(),iValue.Data());
+            buffer.AppendFormatted("%s      for (j=0;j<%s;j++) {\n",blank.Data(),valueArray[numFolder][j].Data());
+            buffer.AppendFormatted("%s         if (values->At(%s,j).Length()!=0)\n",blank.Data(),iValue.Data());
             valueString.SetFormatted("values->At(%s,j).Data()",iValue.Data());
             setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),valueType[numFolder][j].Data(),1);
             if (type==1) {
-               buffer.AppendFormatted("%s         f%sFolder->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
-               buffer.AppendFormatted("%s      else\n",blank.Data());
-               buffer.AppendFormatted("%s         f%sFolder->Set%sAt(j,%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("%s            f%sFolder->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("%s         else\n",blank.Data());
+               buffer.AppendFormatted("%s            f%sFolder->Set%sAt(j,%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             else {
-               buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
-               buffer.AppendFormatted("         else\n");
-               buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
+               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("            else\n");
+               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
-            buffer.AppendFormatted("%s   }\n",blank.Data());
+            buffer.AppendFormatted("%s      }\n",blank.Data());
          }
          if (type==2)
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("      }\n");
       }
+            buffer.AppendFormatted("   }\n");
+
    }
    buffer.AppendFormatted("   values->RemoveAll();\n");
    buffer.AppendFormatted("   delete values;\n");
