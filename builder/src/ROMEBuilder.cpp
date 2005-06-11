@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.175  2005/06/11 22:43:57  sawada
+  enabled tree compression level more than 1.
+
   Revision 1.174  2005/06/11 21:48:58  sawada
   read database only when database name is specified.
 
@@ -4982,10 +4985,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   }\n");
       // CompressionLevel
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fCompressionLevelModified) {\n",treeName[i].Data());
-      buffer.AppendFormatted("      if (fConfigData[index]->f%sTree->fCompressionLevel==\"1\")\n",treeName[i].Data());
-      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(1);\n",i);
-      buffer.AppendFormatted("      else\n");
-      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(0);\n",i);
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(strtol(fConfigData[modIndex]->f%sTree->fCompressionLevel.Data(),&cstop,10));\n",i,treeName[i].Data());
       buffer.AppendFormatted("   }\n");
       // MaxNumberOfEntries
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fMaxNumberOfEntriesModified) {\n",treeName[i].Data());
@@ -5277,10 +5277,8 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("            xml->WriteElement(\"Fill\",fConfigData[index]->f%sTree->fFill.Data());\n",treeName[i].Data());
          // compression level
          buffer.AppendFormatted("         if (index==0) {\n");
-         buffer.AppendFormatted("            if (gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel()==1)\n",i);
-         buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"1\");\n");
-         buffer.AppendFormatted("            else\n");
-         buffer.AppendFormatted("               xml->WriteElement(\"CompressionLevel\",\"0\");\n");
+         buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",i);
+         buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",str.Data());\n");
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fCompressionLevelModified)\n",treeName[i].Data());
          buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",fConfigData[index]->f%sTree->fCompressionLevel.Data());\n",treeName[i].Data());
