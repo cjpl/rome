@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.49  2005/06/13 15:06:42  schneebeli_m
+  added supportFolders
+
   Revision 1.48  2005/06/13 12:33:05  schneebeli_m
   added Orca DAQ System
 
@@ -199,6 +202,7 @@ protected:
    bool  folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
    bool folderDataBase[maxNumberOfFolders];
    bool folderUserCode[maxNumberOfFolders];
+   bool folderSupport[maxNumberOfFolders];
 
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
@@ -381,6 +385,7 @@ public:
    bool isFloatingType(const char *type);
    bool isNumber(const char * string);
    bool isBoolType(const char *type);
+   bool isFolder(const char *type);
    void usage();
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);

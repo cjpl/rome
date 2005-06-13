@@ -752,6 +752,20 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
+				<xs:element name="SupportFolders">
+					<xs:annotation>
+						<xs:documentation>Description of all support folders of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SupportFolder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a support folder of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
 				<xs:element name="Tasks">
 					<xs:annotation>
 						<xs:documentation>Description of all tasks of the framework.</xs:documentation>
