@@ -3,6 +3,9 @@
   main.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/06/13 12:33:06  schneebeli_m
+  added Orca DAQ System
+
   Revision 1.2  2005/05/31 06:47:49  sawada
   added unistd.h
 
@@ -59,6 +62,7 @@ int main(int argc, char *argv[])
    romeb->makeOutput = false;
    romeb->noLink = false;
    romeb->midas = false;
+   romeb->orca = false;
    romeb->sql = false;
    romeb->mysql = false;
    romeb->pgsql = false;
@@ -84,6 +88,7 @@ int main(int argc, char *argv[])
       else if (!strcmp(argv[i],"-meg")) {
          romeb->makeOutput = true;
          romeb->midas = true;
+         romeb->orca = true;
          romeb->noLink = true;
          romeb->sql = true;
          romeb->mysql = true;
@@ -144,6 +149,9 @@ int main(int argc, char *argv[])
             cout << "Midas library not found. Have you set the MIDASSYS environment variable ?" << endl;
             return 1;
          }
+      }
+      else if (!strcmp(argv[i],"-orca")) {
+         romeb->orca = true;
       }
       else if (!strcmp(argv[i],"-i")&&i<argc-1) {
          xmlFile = argv[i+1];

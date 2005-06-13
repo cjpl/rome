@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.48  2005/06/13 12:33:05  schneebeli_m
+  added Orca DAQ System
+
   Revision 1.47  2005/05/26 09:43:28  sawada
   Added ROMEBuilder::WriteFolderGetter.
   Added make build.
@@ -152,6 +155,7 @@ public:
    bool  makeOutput;
    bool  noLink;
    bool  midas;
+   bool  orca;
    bool  sql;
    bool  mysql;
    bool  pgsql;
