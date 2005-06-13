@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.177  2005/06/13 07:18:30  sawada
+  small change in WriteReadDataBaseFolder.
+
   Revision 1.176  2005/06/11 23:22:00  sawada
   negligible change.
 
@@ -6893,14 +6896,18 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
          buffer.AppendFormatted("      name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      name.SetFormatted(gAnalyzer->Get%s_%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("   if (name.Length()){\n");
-         buffer.AppendFormatted("      if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("         path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         if(valueDBPath[numFolder][j].Length())
+            buffer.AppendFormatted("      path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
+         else
+            buffer.AppendFormatted("      path.SetFormatted(\"\");\n");
+         
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
             buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
-         buffer.AppendFormatted(");\n");
+         buffer.AppendFormatted(");\n"); 
+         buffer.AppendFormatted("   if (name.Length() && path.Length()){\n");
          buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
          buffer.AppendFormatted("         gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         return false;\n");
