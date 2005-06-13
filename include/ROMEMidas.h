@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.11  2005/06/13 15:49:04  schneebeli_m
+  changed name of DAQ user functions
+
   Revision 1.10  2005/05/13 23:51:14  sawada
   code cleanup.
 
@@ -145,11 +148,11 @@ public:
    int   GetTimeStamp() { return fTimeStamp; };
    const char* GetName() { return "midas"; };
 
-   bool Initialize();
-   bool Connect();
-   bool ReadEvent(int event);
-   bool Disconnect();
-   bool Termination();
+   bool Init();
+   bool BeginOfRun();
+   bool Event(int event);
+   bool EndOfRun();
+   bool Terminate();
 
    virtual bool InitODB() = 0;
    virtual bool InitHeader() = 0;

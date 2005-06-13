@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.57  2005/06/13 15:49:04  schneebeli_m
+//  changed name of DAQ user functions
+//
 //  Revision 1.56  2005/05/18 09:49:32  schneebeli_m
 //  removed run & event number error, implemented FileRead in ROMEString
 //
@@ -180,13 +183,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 // Event loop
    if (fgBeginTask) {
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
-      this->Termination();
+      this->Terminate();
       gROME->SetTerminationFlag();
       gROME->Println("\n\nTerminating Program !");
       return;
    }
    if (!IsActive()) {
-      this->Termination();
+      this->Terminate();
       gROME->SetTerminationFlag();
       gROME->Println("\n\nTerminating Program !");
       return;
@@ -199,8 +202,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Initialisation
    //----------------
 
-   if (!this->Initialize()) {
-      this->Termination();
+   if (!this->DAQInit()) {
+      this->Terminate();
       gROME->SetTerminationFlag();
       gROME->Println("\n\nTerminating Program !");
       return;
@@ -215,8 +218,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    //----------------
    for (ii=0;!this->isTerminate();ii++) {
 
-      if (!this->Connect(runNumberIndex)) {
-         this->Termination();
+      if (!this->DAQBeginOfRun(runNumberIndex)) {
+         this->DAQTerminate();
          gROME->SetTerminationFlag();
          gROME->Println("\n\nTerminating Program !");
          return;
@@ -248,7 +251,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
          // User Input
          if (!this->UserInput()) {
-            this->Termination();
+            this->DAQTerminate();
             gROME->SetTerminationFlag();
             gROME->Println("\n\nTerminating Program !");
             return;
@@ -261,8 +264,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->SetFillEvent();
 
          // Read Event
-         if (!this->ReadEvent(i)) {
-            this->Termination();
+         if (!this->DAQEvent(i)) {
+            this->Terminate();
             gROME->SetTerminationFlag();
             gROME->Println("\n\nTerminating Program !");
             return;
@@ -297,7 +300,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Write Event
          if (!this->WriteEvent() && gROME->isFillEvent()) {
-            this->Termination();
+            this->Terminate();
             gROME->SetTerminationFlag();
             gROME->Println("\n\nTerminating Program !");
             return;
@@ -305,7 +308,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Update
          if (!this->Update()) {
-            this->Termination();
+            this->Terminate();
             gROME->SetTerminationFlag();
             gROME->Println("\n\nTerminating Program !");
             return;
@@ -332,8 +335,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          CleanTasks();
 
          // Disconnect
-         if (!this->Disconnect()) {
-            this->Termination();
+         if (!this->DAQEndOfRun()) {
+            this->Terminate();
             gROME->SetTerminationFlag();
             gROME->Println("\n\nTerminating Program !");
             return;
@@ -352,7 +355,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
    // Terminate
-   if (!this->Termination()) {
+   if (!this->DAQTerminate()) {
       gROME->SetTerminationFlag();
       gROME->Println("\n\nTerminating Program !");
       return;
@@ -360,7 +363,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 }
 
 
-bool ROMEEventLoop::Initialize() {
+bool ROMEEventLoop::DAQInit() {
    // Initialize the analyzer. Called before the init tasks.
    int j;
    this->SetRunning();
@@ -369,7 +372,7 @@ bool ROMEEventLoop::Initialize() {
    this->InitTaskSwitches();
    this->InitSingleFolders();
 
-   if (!gROME->GetActiveDAQ()->Initialize())
+   if (!gROME->GetActiveDAQ()->Init())
       return false;
 
    if (gROME->isOffline()&&gROME->GetNumberOfRunNumbers()<=0) {
@@ -400,7 +403,7 @@ bool ROMEEventLoop::Initialize() {
 
    return true;
 }
-bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
+bool ROMEEventLoop::DAQBeginOfRun(Int_t runNumberIndex) {
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEString runNumberString;
    // Statistics
@@ -443,7 +446,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
       }
    }
 
-   if (!gROME->GetActiveDAQ()->Connect())
+   if (!gROME->GetActiveDAQ()->BeginOfRun())
       return false;
 
    // Update Data Base
@@ -467,7 +470,7 @@ bool ROMEEventLoop::Connect(Int_t runNumberIndex) {
    return true;
 }
 
-bool ROMEEventLoop::ReadEvent(Int_t event) {
+bool ROMEEventLoop::DAQEvent(Int_t event) {
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
 
@@ -491,7 +494,7 @@ bool ROMEEventLoop::ReadEvent(Int_t event) {
       }
    }
 
-   if (!gROME->GetActiveDAQ()->ReadEvent(event))
+   if (!gROME->GetActiveDAQ()->Event(event))
       return false;
 
 
@@ -667,7 +670,7 @@ bool ROMEEventLoop::UserInput()
    return true;
 }
 
-bool ROMEEventLoop::Disconnect() {
+bool ROMEEventLoop::DAQEndOfRun() {
    // Disconnects the current run. Called after the EndOfRun tasks.
 
    // Write non accumulative output tree files
@@ -699,13 +702,13 @@ bool ROMEEventLoop::Disconnect() {
    folder->Write();
    fHistoFile->Close();
 
-   if (!gROME->GetActiveDAQ()->Disconnect())
+   if (!gROME->GetActiveDAQ()->EndOfRun())
       return false;
 
    return true;
 }
 
-bool ROMEEventLoop::Termination() {
+bool ROMEEventLoop::DAQTerminate() {
    // Clean up the analyzer. Called after the Terminate tasks.
    // Write accumulative output tree files
    // Close all files
@@ -731,7 +734,7 @@ bool ROMEEventLoop::Termination() {
       }
    }
 
-   if (!gROME->GetActiveDAQ()->Termination())
+   if (!gROME->GetActiveDAQ()->Terminate())
       return false;
 
    return true;

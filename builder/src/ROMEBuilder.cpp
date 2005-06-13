@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.180  2005/06/13 15:49:04  schneebeli_m
+  changed name of DAQ user functions
+
   Revision 1.179  2005/06/13 15:06:42  schneebeli_m
   added supportFolders
 
@@ -6374,27 +6377,27 @@ bool ROMEBuilder::WriteDAQCpp() {
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
 
-         buffer.AppendFormatted("bool %s%s::Initialize()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("bool %s%s::Init()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::Connect()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("bool %s%s::BeginOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::ReadEvent(int event)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("bool %s%s::Event(int event)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::Disconnect()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("bool %s%s::EndOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%s::Termination()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("bool %s%s::Terminate()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
@@ -6442,11 +6445,11 @@ bool ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   int   GetTimeStamp() { return 0; };\n");
          buffer.AppendFormatted("   const char* GetName() { return \"%s\"; };\n",daqName[iDAQ].Data());
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   bool Initialize();\n");
-         buffer.AppendFormatted("   bool Connect();\n");
-         buffer.AppendFormatted("   bool ReadEvent(int event);\n");
-         buffer.AppendFormatted("   bool Disconnect();\n");
-         buffer.AppendFormatted("   bool Termination();\n");
+         buffer.AppendFormatted("   bool Init();\n");
+         buffer.AppendFormatted("   bool BeginOfRun();\n");
+         buffer.AppendFormatted("   bool Event(int event);\n");
+         buffer.AppendFormatted("   bool EndOfRun();\n");
+         buffer.AppendFormatted("   bool Terminate();\n");
 
          buffer.AppendFormatted("};\n\n");
 

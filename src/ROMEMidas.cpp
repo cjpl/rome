@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.18  2005/06/13 15:49:04  schneebeli_m
+//  changed name of DAQ user functions
+//
 //  Revision 1.17  2005/06/10 12:15:41  sawada
 //  modified a error message
 //
@@ -95,7 +98,7 @@ ROMEMidas::ROMEMidas() {
    fCurrentRawDataEvent = 0;
 }
 
-bool ROMEMidas::Initialize() {
+bool ROMEMidas::Init() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       // Connect to the Frontend
@@ -224,7 +227,7 @@ bool ROMEMidas::Initialize() {
    }
    return true;
 }
-bool ROMEMidas::Connect() {
+bool ROMEMidas::BeginOfRun() {
    if (gROME->isOffline()) {
       this->SetAnalyze();
       this->SetRunning();
@@ -256,12 +259,12 @@ bool ROMEMidas::Connect() {
       else
          gROME->Println(gzfilename.Data());
       while (!isBeginOfRun())
-         ReadEvent(0);
+         Event(0);
       SetAnalyze();
    }
    return true;
 }
-bool ROMEMidas::ReadEvent(int event) {
+bool ROMEMidas::Event(int event) {
    // Switch Raw Data Buffer
    this->SwitchRawDataBuffer();
    
@@ -393,7 +396,7 @@ bool ROMEMidas::ReadEvent(int event) {
    this->InitHeader();
    return true;
 }
-bool ROMEMidas::Disconnect() {
+bool ROMEMidas::EndOfRun() {
    if (gROME->isOffline()) {
       if(!fGZippedMidasFile)
          close(fMidasFileHandle);
@@ -402,7 +405,7 @@ bool ROMEMidas::Disconnect() {
    }
    return true;
 }
-bool ROMEMidas::Termination() {
+bool ROMEMidas::Terminate() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       cm_disconnect_experiment();
@@ -594,3 +597,4 @@ int ROMEMidas::bk_find(void* pbkh, const char *name, unsigned long * bklen, unsi
    return 0;
 }
 #endif
+

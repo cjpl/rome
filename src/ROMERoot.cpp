@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.3  2005/06/13 15:49:04  schneebeli_m
+//  changed name of DAQ user functions
+//
 //  Revision 1.2  2005/01/27 16:21:06  schneebeli_m
 //  print method & no gROME in path
 //
@@ -21,7 +24,7 @@ ROMERoot::ROMERoot() {
    fTreeInfo = new ROMETreeInfo();
 }
 
-bool ROMERoot::Initialize() {
+bool ROMERoot::Init() {
    if (gROME->isOnline()) {
       gROME->Println("Root mode is not supported for online analysis.\n");
       return false;
@@ -31,7 +34,7 @@ bool ROMERoot::Initialize() {
    }
    return true;
 }
-bool ROMERoot::Connect() {
+bool ROMERoot::BeginOfRun() {
    if (gROME->isOffline()) {
       // Read Trees
       int j;
@@ -85,7 +88,7 @@ bool ROMERoot::Connect() {
    }
    return true;
 }
-bool ROMERoot::ReadEvent(int event) {
+bool ROMERoot::Event(int event) {
    if (gROME->isOffline()) {
       ROMETree *romeTree;
       TTree *tree;
@@ -116,7 +119,7 @@ bool ROMERoot::ReadEvent(int event) {
    }
    return true;
 }
-bool ROMERoot::Disconnect() {
+bool ROMERoot::EndOfRun() {
    if (gROME->isOffline()) {
       for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
          if (gROME->GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
@@ -125,9 +128,11 @@ bool ROMERoot::Disconnect() {
    }
    return true;
 }
-bool ROMERoot::Termination() {
+bool ROMERoot::Terminate() {
    if (gROME->isOffline()) {
    }
    return true;
 }
+
+
 

@@ -2,6 +2,9 @@
   ROMERoot.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/06/13 15:49:04  schneebeli_m
+  changed name of DAQ user functions
+
   Revision 1.2  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -33,11 +36,11 @@ public:
    int   GetTimeStamp() { return fTimeStamp; };
    const char* GetName() { return "root"; };
 
-   bool Initialize();
-   bool Connect();
-   bool ReadEvent(int event);
-   bool Disconnect();
-   bool Termination();
+   bool Init();
+   bool BeginOfRun();
+   bool Event(int event);
+   bool EndOfRun();
+   bool Terminate();
 
    virtual void ConnectTrees() = 0;
 

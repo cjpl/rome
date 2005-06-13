@@ -2,6 +2,9 @@
   ROMEDAQSystem.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/06/13 15:49:04  schneebeli_m
+  changed name of DAQ user functions
+
   Revision 1.4  2005/05/18 11:41:31  schneebeli_m
   added ROMENoDAQSystem
 
@@ -42,11 +45,11 @@ public:
    virtual int   GetTimeStamp() = 0;
    virtual const char* GetName() = 0;
 
-   virtual bool Initialize() = 0;
-   virtual bool Connect() = 0;
-   virtual bool ReadEvent(int event) = 0;
-   virtual bool Disconnect() = 0;
-   virtual bool Termination() = 0;
+   virtual bool Init() = 0;
+   virtual bool BeginOfRun() = 0;
+   virtual bool Event(int event) = 0;
+   virtual bool EndOfRun() = 0;
+   virtual bool Terminate() = 0;
 public:
    // Run Status
    bool       isRunning()  { return fRunStatus==kRunning; };

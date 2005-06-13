@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2005/06/13 15:49:04  schneebeli_m
+  changed name of DAQ user functions
+
   Revision 1.16  2005/05/02 16:09:22  schneebeli_m
   -o commandline parameter
 
@@ -111,14 +114,14 @@ protected:
    void       SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate();  };
 
    // event methods
-   bool Initialize();
-   bool Connect(Int_t runNumber);
-   bool ReadEvent(Int_t event);
+   bool DAQInit();
+   bool DAQBeginOfRun(Int_t runNumber);
+   bool DAQEvent(Int_t event);
    bool UserInput();
    bool WriteEvent();
    bool Update();
-   bool Disconnect();
-   bool Termination();
+   bool DAQEndOfRun();
+   bool DAQTerminate();
 
    // virtual methods
    virtual void InitSingleFolders() = 0;
