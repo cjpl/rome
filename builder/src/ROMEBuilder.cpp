@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.181  2005/06/14 14:43:08  sawada
+  bk_swap only when the event is active.
+
   Revision 1.180  2005/06/13 15:49:04  schneebeli_m
   changed name of DAQ user functions
 
@@ -6015,6 +6018,13 @@ bool ROMEBuilder::WriteMidasCpp() {
       }
    }
 
+   buffer.AppendFormatted("bool %sMidas::IsActiveID(int id){\n",shortCut.Data());
+   for (i=0;i<numOfEvent;i++) {      
+      buffer.AppendFormatted("   if (f%sEventActive && id==%s)\n",eventName[i].Data(),eventID[i].Data());
+      buffer.AppendFormatted("      return true;\n");
+   }
+   buffer.AppendFormatted("   return false;\n");
+   buffer.AppendFormatted("}\n");
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -6207,6 +6217,7 @@ bool ROMEBuilder::WriteMidasH() {
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool InitODB();\n");
    buffer.AppendFormatted("   bool InitHeader();\n");
+   buffer.AppendFormatted("   bool IsActiveID(int id);\n");
 
    buffer.AppendFormatted("\n");
    // Footer

@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.19  2005/06/14 14:43:08  sawada
+//  bk_swap only when the event is active.
+//
 //  Revision 1.18  2005/06/13 15:49:04  schneebeli_m
 //  changed name of DAQ user functions
 //
@@ -379,7 +382,8 @@ bool ROMEMidas::Event(int event) {
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
          pevent->event_id != EVENTID_MESSAGE)
-         bk_swap(pevent + 1, 0);
+         if(IsActiveID( pevent->event_id ))
+            bk_swap(pevent + 1, 0);
 #endif
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
          this->SetContinue();

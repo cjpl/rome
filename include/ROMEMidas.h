@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.12  2005/06/14 14:43:08  sawada
+  bk_swap only when the event is active.
+
   Revision 1.11  2005/06/13 15:49:04  schneebeli_m
   changed name of DAQ user functions
 
@@ -154,6 +157,7 @@ public:
    bool EndOfRun();
    bool Terminate();
 
+   virtual bool IsActiveD(int id){ return true; }
    virtual bool InitODB() = 0;
    virtual bool InitHeader() = 0;
    virtual void InitMidasBanks() = 0;
