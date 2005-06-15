@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2005/06/15 07:34:14  sawada
+  bug fix on IsActiveEventID.
+
   Revision 1.12  2005/06/14 14:43:08  sawada
   bk_swap only when the event is active.
 
@@ -157,7 +160,7 @@ public:
    bool EndOfRun();
    bool Terminate();
 
-   virtual bool IsActiveD(int id){ return true; }
+   virtual bool IsActiveEventID(int id){ return true; }
    virtual bool InitODB() = 0;
    virtual bool InitHeader() = 0;
    virtual void InitMidasBanks() = 0;

@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.20  2005/06/15 07:34:14  sawada
+//  bug fix on IsActiveEventID.
+//
 //  Revision 1.19  2005/06/14 14:43:08  sawada
 //  bk_swap only when the event is active.
 //
@@ -315,10 +318,13 @@ bool ROMEMidas::Event(int event) {
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
 #ifndef R__BYTESWAP
       //byte swapping
+      // I'm not sure if bk_swap is necessary also online.
+      // If there is problem, please remove below.
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
-              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
-              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-              bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+         if(IsActiveEventID( pevent->event_id ))
+            bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       this->InitMidasBanks();
 
@@ -382,7 +388,7 @@ bool ROMEMidas::Event(int event) {
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
          pevent->event_id != EVENTID_MESSAGE)
-         if(IsActiveID( pevent->event_id ))
+         if(IsActiveEventID( pevent->event_id ))
             bk_swap(pevent + 1, 0);
 #endif
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {

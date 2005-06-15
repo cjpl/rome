@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.182  2005/06/15 07:34:14  sawada
+  bug fix on IsActiveEventID.
+
   Revision 1.181  2005/06/14 14:43:08  sawada
   bk_swap only when the event is active.
 
@@ -6018,7 +6021,7 @@ bool ROMEBuilder::WriteMidasCpp() {
       }
    }
 
-   buffer.AppendFormatted("bool %sMidas::IsActiveID(int id){\n",shortCut.Data());
+   buffer.AppendFormatted("bool %sMidas::IsActiveEventID(int id){\n",shortCut.Data());
    for (i=0;i<numOfEvent;i++) {      
       buffer.AppendFormatted("   if (f%sEventActive && id==%s)\n",eventName[i].Data(),eventID[i].Data());
       buffer.AppendFormatted("      return true;\n");
@@ -6217,7 +6220,7 @@ bool ROMEBuilder::WriteMidasH() {
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool InitODB();\n");
    buffer.AppendFormatted("   bool InitHeader();\n");
-   buffer.AppendFormatted("   bool IsActiveID(int id);\n");
+   buffer.AppendFormatted("   bool IsActiveEventID(int id);\n");
 
    buffer.AppendFormatted("\n");
    // Footer
