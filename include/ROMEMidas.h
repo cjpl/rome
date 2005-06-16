@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/06/16 02:52:54  sawada
+  added virtual destructer.
+
   Revision 1.13  2005/06/15 07:34:14  sawada
   bug fix on IsActiveEventID.
 
@@ -127,6 +130,7 @@ protected:
 
 public:
    ROMEMidas::ROMEMidas();
+   virtual ROMEMidas::~ROMEMidas() {};
 
    // Online Database
    int   GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };

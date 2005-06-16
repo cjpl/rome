@@ -2,6 +2,9 @@
   ROMERoot.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/06/16 02:52:54  sawada
+  added virtual destructer.
+
   Revision 1.3  2005/06/13 15:49:04  schneebeli_m
   changed name of DAQ user functions
 
@@ -32,6 +35,7 @@ protected:
 
 public:
    ROMERoot();
+   virtual ~ROMERoot() {};
 
    int   GetTimeStamp() { return fTimeStamp; };
    const char* GetName() { return "root"; };

@@ -2,6 +2,9 @@
   ROMEDAQSystem.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/06/16 02:52:53  sawada
+  added virtual destructer.
+
   Revision 1.5  2005/06/13 15:49:04  schneebeli_m
   changed name of DAQ user functions
 
@@ -41,6 +44,7 @@ class ROMEDAQSystem {
    int        fEventStatus;                     //! Event Status flag
 public:
    ROMEDAQSystem::ROMEDAQSystem() {};
+   virtual ROMEDAQSystem::~ROMEDAQSystem() {};
 
    virtual int   GetTimeStamp() = 0;
    virtual const char* GetName() = 0;
