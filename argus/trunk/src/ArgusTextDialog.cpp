@@ -2,6 +2,9 @@
   ArgusTextDialog.cpp, R.Sawada
 
   $Log$
+  Revision 1.3  2005/06/20 12:30:56  sawada
+  code clan up.
+
   Revision 1.2  2005/05/05 20:08:05  sawada
   code clean up.
 
@@ -114,7 +117,7 @@ void ArgusTextDialog::CloseWindow()
 
 Bool_t ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 {
-   const Char_t *string;   
+   const Char_t *string;
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
@@ -136,7 +139,7 @@ Bool_t ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
       default:
          break;
       }
-      break;      
+      break;
    case kC_TEXTENTRY:
       switch (GET_SUBMSG(msg)) {
       case kTE_TEXTCHANGED:
@@ -155,7 +158,7 @@ Bool_t ArgusTextDialog::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
       default:
          break;
       }
-      break;      
+      break;
    default:
       break;
    } 

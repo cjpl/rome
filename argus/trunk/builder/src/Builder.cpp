@@ -3,6 +3,9 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.50  2005/06/20 12:30:56  sawada
+  code clan up.
+
   Revision 1.49  2005/06/08 14:05:35  schneebeli_m
   delete menu
 
@@ -214,7 +217,7 @@ Bool_t ArgusBuilder::WriteMain() {
    buffer.AppendFormatted("   // Main window\n");
    buffer.AppendFormatted("   Char_t str[80];\n");
    buffer.AppendFormatted("   sprintf(str, \"%%s\", gMonitor->GetProgramName());\n");
-   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());   
+   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"Argus\",\"Argus Folder\");\n");
    buffer.AppendFormatted("   fMainFolder->Add(gMonitor);\n");
@@ -240,7 +243,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
    Char_t* name;
    Bool_t finished = kFALSE;
    Int_t type;
-   Int_t i,j;   
+   Int_t i,j;
    experimentName = "";
    shortCut = "";
    mainProgName = "";
@@ -461,7 +464,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
    if (makeOutput) cout << "\n\nUser Database Interfaces:" << endl;
    if (!WriteDBCpp()) return;
    if (!WriteDBH()) return;
-   if (!WriteSteering(numOfTab)) return;   
+   if (!WriteSteering(numOfTab)) return;
    if (!WriteConfigCpp()) return;
    if (!WriteConfigH()) return;
    if (!WriteMain()) return;
@@ -506,7 +509,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    ROMEString shortcut(shortCut);
    shortcut.ToLower();
    ROMEString mainprogname(mainProgName);
-   mainprogname.ToLower();   
+   mainprogname.ToLower();
    buffer.Resize(0);
 
 // Libraries, Flags and Includes
@@ -1220,7 +1223,7 @@ void ArgusBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<a href=\"http://www.icepp.s.u-tokyo.ac.jp/%%E7sawada\">Ryu Sawada</a> (ICEPP)</p>\n");
       buffer.AppendFormatted("</address>\n");
       buffer.AppendFormatted("</body>\n");
-      buffer.AppendFormatted("</html>");                             
+      buffer.AppendFormatted("</html>");
       WriteFile(htmlFile.Data(),buffer.Data(),0);
    }
 }
@@ -1282,7 +1285,7 @@ void ArgusBuilder::GetMidasTID(ROMEString* buf,Char_t *type)
    }
 #else
    else if (!strcmp(type,"Long_t"))
-      buf->Append("TID_INT");   
+      buf->Append("TID_INT");
    else if (!strcmp(type,"ULong_t"))
       buf->Append("TID_DWORD");
 #endif
