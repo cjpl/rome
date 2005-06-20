@@ -2,6 +2,9 @@
   ArgusAnalyzerController.cpp, R.Sawada
 
   $Log$
+  Revision 1.3  2005/06/20 12:30:56  sawada
+  code clan up.
+
   Revision 1.2  2005/06/10 19:21:27  sawada
   replaced error and warning message output with ROOT error handler.
 
@@ -79,15 +82,15 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p,const TGWind
 
 // Vertical frame which contains text entries
    fVerticalFrame[1]   = new TGVerticalFrame(fHorizontalFrame[1], 60, 20);
-   fRunNumberEntry     = new TGNumberEntryField(fVerticalFrame[1],T_RunNumber,fRunNumber,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative); 
-   fEventNumberEntry   = new TGNumberEntryField(fVerticalFrame[1],T_EventNumber,fEventNumber,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative); 
-   fEventStepEntry     = new TGNumberEntry(fVerticalFrame[1],fEventStep,5,T_EventStep,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative); 
-   fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1],fEventInterval,5,T_EventInterval,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative); 
+   fRunNumberEntry     = new TGNumberEntryField(fVerticalFrame[1],T_RunNumber,fRunNumber,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative);
+   fEventNumberEntry   = new TGNumberEntryField(fVerticalFrame[1],T_EventNumber,fEventNumber,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative);
+   fEventStepEntry     = new TGNumberEntry(fVerticalFrame[1],fEventStep,5,T_EventStep,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative);
+   fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1],fEventInterval,5,T_EventInterval,TGNumberFormat::kNESInteger,TGNumberFormat::kNEANonNegative);
    
-   fRunNumberEntry->Associate(this);   
-   fEventNumberEntry->Associate(this);   
-   fEventStepEntry->Associate(this);   
-   fEventIntervalEntry->Associate(this);   
+   fRunNumberEntry->Associate(this);
+   fEventNumberEntry->Associate(this);
+   fEventStepEntry->Associate(this);
+   fEventIntervalEntry->Associate(this);
 
    fVerticalFrame[1]->AddFrame(fRunNumberEntry    ,new TGLayoutHints(kLHintsLeft |kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fVerticalFrame[1]->AddFrame(fEventNumberEntry  ,new TGLayoutHints(kLHintsLeft |kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
@@ -164,11 +167,11 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          default:
             break;
          }
-         break;               
+         break;
       default:
          break;
       }
-      break;      
+      break;
    case kC_TEXTENTRY:
       switch (GET_SUBMSG(msg)) {
       case kTE_TEXTCHANGED:
@@ -186,7 +189,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          default:
             break;
          }
-         break;               
+         break;
       case kTE_ENTER:
          switch (parm1) {
          case T_RunNumber:
@@ -204,11 +207,11 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          default:
             break;
          }
-         break;               
+         break;
       default:
          break;
       }
-      break;      
+      break;
    default:
       break;
    }

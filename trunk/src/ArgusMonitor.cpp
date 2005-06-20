@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.19  2005/06/20 12:30:56  sawada
+  code clan up.
+
   Revision 1.18  2005/06/10 19:21:27  sawada
   replaced error and warning message output with ROOT error handler.
 
@@ -104,8 +107,8 @@
 
 ClassImp(ArgusMonitor)
    
-ArgusMonitor *gArgus;  // global ArgusMonitor Handle
-void *gPassToArgus;  // void ArgusMonitor Handle
+ArgusMonitor* gArgus;        // global ArgusMonitor Handle
+void*         gPassToArgus;  // void ArgusMonitor Handle
 
 #if defined( USE_TRINT )
 ArgusMonitor::ArgusMonitor(TRint *app)
@@ -345,7 +348,7 @@ Bool_t ArgusMonitor::isDataBaseActive(const Char_t *name) {
 };
 
 void ArgusMonitor::InitDataBases(Int_t number) {
-   fDataBaseHandle     = new ROMEDataBase*[number]; 
+   fDataBaseHandle     = new ROMEDataBase*[number];
    fDataBaseConnection = new ROMEString[number];
    fDataBaseDir        = new ROMEString[number];
    fNumberOfDataBases  = number;
