@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.183  2005/06/23 10:13:56  schneebeli_m
+  code cleanup
+
   Revision 1.182  2005/06/15 07:34:14  sawada
   bug fix on IsActiveEventID.
 
@@ -2271,7 +2274,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("inline int %sT%s_Base::GetObjectInterpreterIntValue(int code,int defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline int %sT%s::GetObjectInterpreterIntValue(int code,int defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop;\n");
+      buffer.AppendFormatted("   char *cstop=NULL;\n");
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2288,7 +2291,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("inline double %sT%s_Base::GetObjectInterpreterDoubleValue(int code,double defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline double %sT%s::GetObjectInterpreterDoubleValue(int code,double defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop;\n");
+      buffer.AppendFormatted("   char *cstop=NULL;\n");
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2620,7 +2623,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
    int type,i,j,k,kk;
    bankHasHeader = false;
    ROMEString tmp;
-   char *cstop;
+   char *cstop=NULL;
 
    // output
    if (makeOutput) cout << "\n\nBanks:" << endl;
@@ -3321,7 +3324,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Constructor
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TRint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
-   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
@@ -3451,7 +3454,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("bool %sAnalyzer::ReadUserParameter(const char* opt, const char* value, int& i) {\n",shortCut.Data());
    // Global Steering Parameter
    buffer.AppendFormatted("   ROMEString option = opt;\n");
-   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   char *cstop=NULL;\n");
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTaskHierarchy]>0) {
       ROMEString pointerT;
@@ -6932,7 +6935,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
       buffer.AppendFormatted("%s %sAnalyzer::GetObjectInterpreter%sValue(int code,%s defaultValue) {\n",type,shortCut.Data(),fctName,type);
       buffer.AppendFormatted("   ROMEString buffer;\n");
    }
-   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   char *cstop=NULL;\n");
    buffer.AppendFormatted("   switch (code) {\n");
    buffer.AppendFormatted("      case -1:\n");
    buffer.AppendFormatted("         return defaultValue;\n");
@@ -6976,7 +6979,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   char *cstop=NULL;\n");
    for (j=0;j<numOfValue[numFolder];j++) {
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[j]) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
