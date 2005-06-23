@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.19  2005/06/23 15:29:51  schneebeli_m
+  small error
+
   Revision 1.18  2005/05/26 14:26:54  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -435,7 +438,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData[index]->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStatusBarModified) {\n");
-   buffer.AppendFormatted("      if (fConfigData[index]->fWindow->fStatusBar==\"kFALSE\")\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fWindow->fStatusBar==\"false\")\n");
    buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(kFALSE);\n");
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(kTRUE);\n");
@@ -552,7 +555,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified) {\n",pointer.Data());
-      buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"kFALSE\")\n",pointer.Data());
+      buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"false\")\n",pointer.Data());
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = kFALSE;\n",switchString.Data());
       buffer.AppendFormatted("      else\n");
       buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = kTRUE;\n",switchString.Data());
