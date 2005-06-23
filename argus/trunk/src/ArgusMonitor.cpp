@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.20  2005/06/23 15:29:51  schneebeli_m
+  small error
+
   Revision 1.19  2005/06/20 12:30:56  sawada
   code clan up.
 
@@ -391,7 +394,7 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i) {
       return kFALSE;
    }
    fNetFolder[i] = new TNetFolder(fNetFolderName[i].Data(),fNetFolderTitle[i].Data(),fNetFolderSocket[i]);
-   
+
    return kTRUE;
 }
 
