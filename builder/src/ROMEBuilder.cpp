@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.186  2005/06/26 18:40:38  sawada
+  arrayed support folder getter.
+
   Revision 1.185  2005/06/26 12:53:35  sawada
   Initialization of support folder field.
   include TClonesArray.h in FolderH.
@@ -1034,8 +1037,8 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted(format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else if (isFolder(valueType[iFold][i].Data())) {
-               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s->At(index);%%%ds };\n",typeLen,lb,lb);
-               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return (%%-%ds)(%%s->At(index));%%%ds };\n",typeLen,lb,typeLen,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
