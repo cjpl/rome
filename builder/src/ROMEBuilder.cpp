@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.184  2005/06/26 11:49:11  sawada
+  Field getter of arrayed support folder.
+
   Revision 1.183  2005/06/23 10:13:56  schneebeli_m
   code cleanup
 
@@ -1024,6 +1027,12 @@ bool ROMEBuilder::WriteFolderH() {
             if (valueType[iFold][i]=="TRef") {
                format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else if (isFolder(valueType[iFold][i].Data())) {
+               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s->At(index);%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else {
                format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
