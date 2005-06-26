@@ -3,6 +3,10 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.185  2005/06/26 12:53:35  sawada
+  Initialization of support folder field.
+  include TClonesArray.h in FolderH.
+
   Revision 1.184  2005/06/26 11:49:11  sawada
   Field getter of arrayed support folder.
 
@@ -912,6 +916,7 @@ bool ROMEBuilder::WriteFolderH() {
       }
 
       buffer.AppendFormatted("#include <TObject.h>\n");
+      buffer.AppendFormatted("#include <TClonesArray.h>\n");
 
       // Includes
       for (i=0;i<numOfFolderInclude[iFold];i++) {
@@ -7495,6 +7500,8 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
             buffer.AppendFormatted("     new((*gAnalyzer->Get%ss())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
+               if (isFolder(valueType[i][j].Data()))
+                  continue;
                if (valueArray[i][j]=="1")
                   buffer.AppendFormatted("%s,",valueInit[i][j].Data());
             }
