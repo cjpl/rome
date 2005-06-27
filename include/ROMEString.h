@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.7  2005/06/27 07:26:21  schneebeli_m
+  added stdarg include
+
   Revision 1.6  2005/05/18 09:49:32  schneebeli_m
   removed run & event number error, implemented FileRead in ROMEString
 
@@ -18,7 +21,8 @@
 #ifndef ROMEString_H
 #define ROMEString_H
 
-#include<TString.h>
+#include <TString.h>
+#include <stdarg.h>
 
 class ROMEString : public TString
 {
