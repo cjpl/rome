@@ -2,6 +2,9 @@
   ROMETreeInfo.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/06/27 07:41:06  schneebeli_m
+  added IgnoreTObjectStreamer
+
   Revision 1.2  2004/09/25 01:34:48  schneebeli_m
   implemented FW dependent EventLoop and DataBase classes
 
@@ -10,6 +13,7 @@
 #define ROMETreeInfo_H
 
 #include<TObject.h>
+#include<TClass.h>
 
 class ROMETreeInfo : public TObject 
 {
@@ -20,7 +24,7 @@ protected:
    Int_t   fTimeStamp;        // Time Stamp
 
 public:
-   ROMETreeInfo() { };
+   ROMETreeInfo() { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); };
 
    Int_t GetSequentialNumber() { return fSequentialNumber; };
 

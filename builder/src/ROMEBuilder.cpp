@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.187  2005/06/27 07:41:06  schneebeli_m
+  added IgnoreTObjectStreamer
+
   Revision 1.186  2005/06/26 18:40:38  sawada
   arrayed support folder getter.
 
@@ -919,6 +922,7 @@ bool ROMEBuilder::WriteFolderH() {
       }
 
       buffer.AppendFormatted("#include <TObject.h>\n");
+      buffer.AppendFormatted("#include <TClass.h>\n");
       buffer.AppendFormatted("#include <TClonesArray.h>\n");
 
       // Includes
@@ -1014,7 +1018,7 @@ bool ROMEBuilder::WriteFolderH() {
       }
       buffer.Resize(buffer.Length()-1);
       buffer.AppendFormatted(" )\n");
-      buffer.AppendFormatted("   { ");
+      buffer.AppendFormatted("   { %s%s::Class()->IgnoreTObjectStreamer(); ",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
             continue;
