@@ -2,6 +2,9 @@
   ROMETreeInfo.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/06/28 14:53:30  sawada
+  renamed members of ROMETreeInfo.
+
   Revision 1.3  2005/06/27 07:41:06  schneebeli_m
   added IgnoreTObjectStreamer
 
@@ -18,20 +21,20 @@
 class ROMETreeInfo : public TObject 
 {
 protected:
-   Int_t   fSequentialNumber; // Sequential Number
-   Int_t   fRunNumber;        // Run Number
-   Int_t   fEventNumber;      // Event Number
-   Int_t   fTimeStamp;        // Time Stamp
+   Int_t   run;       // Run Number
+   Int_t   number;    // Sequential Number
+   Int_t   event;     // Event Number
+   Int_t   time;      // Time Stamp
 
 public:
    ROMETreeInfo() { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); };
 
-   Int_t GetSequentialNumber() { return fSequentialNumber; };
+   Int_t GetSequentialNumber() { return number; };
 
-   void  SetSequentialNumber(Int_t   SequentialNumber) { fSequentialNumber = SequentialNumber; };
-   void  SetRunNumber       (Int_t   RunNumber       ) { fRunNumber        = RunNumber;        };
-   void  SetEventNumber     (Int_t   EventNumber     ) { fEventNumber      = EventNumber;      };
-   void  SetTimeStamp       (Int_t   TimeStamp       ) { fTimeStamp        = TimeStamp;        };
+   void  SetSequentialNumber(Int_t   SequentialNumber) { number    = SequentialNumber; };
+   void  SetRunNumber       (Int_t   RunNumber       ) { run       = RunNumber;        };
+   void  SetEventNumber     (Int_t   EventNumber     ) { event     = EventNumber;      };
+   void  SetTimeStamp       (Int_t   TimeStamp       ) { time      = TimeStamp;        };
 
    ClassDef(ROMETreeInfo,1)
 };
