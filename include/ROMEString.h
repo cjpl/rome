@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.8  2005/06/28 07:12:31  sawada
+  replaced atdarg.h with Varargs.h. It is more safe under some platform.
+
   Revision 1.7  2005/06/27 07:26:21  schneebeli_m
   added stdarg include
 
@@ -22,7 +25,7 @@
 #define ROMEString_H
 
 #include <TString.h>
-#include <stdarg.h>
+#include <Varargs.h>
 
 class ROMEString : public TString
 {
