@@ -6,6 +6,9 @@
 //  
 //
 //  $Log$
+//  Revision 1.4  2005/07/01 12:43:37  schneebeli_m
+//  Update of TNetFolder : reconnect
+//
 //  Revision 1.3  2005/04/25 14:40:31  sawada
 //  new TNerFolder
 //
@@ -24,16 +27,58 @@ TNetFolder::TNetFolder() : TNamed()
 {
   fSocket = 0;
   fFolder = 0;
+  fReconnect = true;
 }
 
-TNetFolder::TNetFolder(const char *name, const char *title,TSocket *socket) : TNamed(name,title) 
+TNetFolder::TNetFolder(const char *name, const char *title,TSocket *socket,bool reconnect) : TNamed(name,title) 
 {
   fSocket = socket;  
   fFolder = GetPointer();
+  fReconnect = reconnect;
+  fHost = fSocket->GetUrl();
+  fPort = fSocket->GetPort();
 }
 
 TNetFolder::~TNetFolder()
 {
+}
+void TNetFolder::Reconnect() {
+   Warning("Reconnect","can not make socket connection to %s on port %d.",fHost.Data(),fPort);
+   Warning("Reconnect","program sleeps for 5s and tries again.");
+   gSystem->Sleep(5000);
+   delete fSocket;
+   fSocket = new TSocket(fHost.Data(),fPort);
+}
+
+Bool_t TNetFolder::Send(const TMessage& mess) {
+   if (fSocket->Send(mess)==-1) {
+      while (!fSocket->IsValid()) {
+         Reconnect();
+      }
+      fFolder = GetPointer();
+      return false;
+   }
+   return true;
+}
+Bool_t TNetFolder::Send(const char* mess, Int_t kind) {
+   if (fSocket->Send(mess,kind)==-1) {
+      do {
+         Reconnect();
+      } while (!fSocket->IsValid());
+      fFolder = GetPointer();
+      return false;
+   }
+   return true;
+}
+Bool_t TNetFolder::Recv(TMessage*& mess) {
+   if (fSocket->Recv(mess)==-1) {
+      while (!fSocket->IsValid()) {
+         Reconnect();
+      }
+      fFolder = GetPointer();
+      return false;
+   }
+   return true;
 }
 
 Int_t TNetFolder::GetPointer()
@@ -41,8 +86,11 @@ Int_t TNetFolder::GetPointer()
   TMessage *m;
   TString str = "GetPointer ";
   str.Append(this->GetName());
-  if( fSocket->Send(str.Data()) == -1 )return 0;
-  if( fSocket->Recv(m) == -1 )return 0;
+  if (!Send(str.Data()))
+     return GetPointer();
+  if (!Recv(m))
+     return GetPointer();
+
   if( m == NULL )
   {
     delete m;
@@ -56,13 +104,16 @@ Int_t TNetFolder::GetPointer()
 
 TObjArray* TNetFolder::GetListOfFolders()
 {
-  fSocket->Send("GetListOfFolders");
+  if (!Send("GetListOfFolders"))
+     return GetListOfFolders();
   
   TMessage *m = new TMessage(kMESS_ANY);
   m->Reset();
   *m<<fFolder;
-  fSocket->Send(*m);
-  fSocket->Recv(m);
+  if (!Send(*m))
+     return GetListOfFolders();
+  if (!Recv(m))
+     return GetListOfFolders();
   if (m) {
     TObjArray *list = (TObjArray*) m->ReadObject(m->GetClass());
     delete m;
@@ -75,14 +126,17 @@ TObject* TNetFolder::FindObject(const char *name)
 {
   TString str = "FindObject ";
   str.Append(name);
-  fSocket->Send(str.Data());
+  if (!Send(str.Data()))
+     return FindObject(name);
   
   TMessage *m = new TMessage(kMESS_ANY);
   m->Reset();
   *m<<fFolder;
-  fSocket->Send(*m);
+  if (!Send(*m))
+     return FindObject(name);
   
-  fSocket->Recv(m);
+  if (!Recv(m))
+     return FindObject(name);
   
   if( m == NULL )
   {
@@ -99,15 +153,18 @@ TObject* TNetFolder::FindObjectAny(const char *name)
 {
   TString str = "FindObjectAny ";
   str.Append(name);
-  fSocket->Send(str.Data());
+  if (!Send(str.Data()))
+     return FindObjectAny(name);
   
   TMessage *m = new TMessage(kMESS_ANY);
   m->Reset();
   *m<<fFolder;
-  fSocket->Send(*m);
-  
-  fSocket->Recv(m);
-  
+  if (!Send(*m))
+     return FindObjectAny(name);
+
+  if (!Recv(m))
+     return FindObjectAny(name);
+
   if( m == NULL )
   {
     delete m;
@@ -123,13 +180,16 @@ const char *TNetFolder::FindFullPathName(const char *name)
 {
   TString str = "FindFullPathName ";
   str.Append(name);
-  fSocket->Send(str.Data());
+  if (!Send(str.Data()))
+     return FindFullPathName(name);
   
   TMessage *m = new TMessage(kMESS_ANY);
   m->Reset();
   *m<<fFolder;
-  fSocket->Send(*m);
-  fSocket->Recv(m);
+  if (!Send(*m))
+     return FindFullPathName(name);
+  if (!Recv(m))
+     return FindFullPathName(name);
   
   if( m == NULL )
   {
@@ -145,19 +205,23 @@ const char *TNetFolder::FindFullPathName(const char *name)
 
 Int_t TNetFolder::Occurence(const TObject *obj)
 {
-  fSocket->Send("Occurence");
+  if (!Send("Occurence"))
+     return Occurence(obj);
   
   TMessage *m = new TMessage(kMESS_ANY);
   m->Reset();
   *m<<fFolder;
-  fSocket->Send(*m);
+  if (!Send(*m))
+     return Occurence(obj);
   delete m;
   
   m = new TMessage(kMESS_OBJECT);
   m->Reset();
   m->WriteObject(obj);
-  fSocket->Send(*m);
-  fSocket->Recv(m);
+  if (!Send(*m))
+     return Occurence(obj);
+  if (!Recv(m))
+     return Occurence(obj);
   
   if( m == NULL )
   {
@@ -175,8 +239,10 @@ Int_t TNetFolder::Occurence(const TObject *obj)
 void TNetFolder::Execute(const char *line)
 {
   // The line is executed by the CINT of the server
-  fSocket->Send("Execute");
-  fSocket->Send(line);
+  if (!Send("Execute"))
+     return Execute(line);
+  if (!Send(line))
+     return Execute(line);
 }
 
 void TNetFolder::ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments)
@@ -184,10 +250,15 @@ void TNetFolder::ExecuteMethod(const char *objectName,const char *objectType,con
   // A method of an object is executed by the CINT of the server. 
   // The statment on the server side is the following :
   //   ((objectType)objectName)->methodName(methodArguments);
-  fSocket->Send("ExecuteMethod");
-  fSocket->Send(objectName);
-  fSocket->Send(objectType);
-  fSocket->Send(methodName);
-  fSocket->Send(methodArguments);
+  if (!Send("ExecuteMethod"))
+     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
+  if (!Send(objectName))
+     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
+  if (!Send(objectType))
+     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
+  if (!Send(methodName))
+     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
+  if (!Send(methodArguments))
+     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
 }
 
