@@ -2,6 +2,9 @@
   TNetFolder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.3  2005/07/01 12:43:37  schneebeli_m
+  Update of TNetFolder : reconnect
+
   Revision 1.2  2005/04/25 14:40:31  sawada
   new TNerFolder
 
@@ -24,19 +27,23 @@
 #include "TObjString.h"
 #include "TFolder.h"
 #include "TMessage.h"
+#include "TSystem.h"
 #include "Riostream.h"
 
 class TNetFolder : public TNamed
 {
 protected:
   Int_t GetPointer();
-public:
-  TSocket  *fSocket;     //connection to TObjServer server
-  Int_t     fFolder;     //pointer to TFolder object
+  TSocket  *fSocket;     // connection to TObjServer server
+  Int_t     fFolder;     // pointer to TFolder object
+  Bool_t    fReconnect;  // try to reconnect when connection is broken
+  TString   fHost;       // host of socket connection
+  Int_t     fPort;       // port of socket connection
   
+public:
   TNetFolder();
   
-  TNetFolder( char const *, char const *, TSocket * );
+  TNetFolder( char const *, char const *, TSocket * ,bool reconnect=true);
   
   virtual ~TNetFolder();
   
@@ -76,6 +83,14 @@ public:
     
   void Execute(const char *line);
   void ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
+
+protected:
+
+  void Reconnect();
+  Bool_t Send(const TMessage& mess);
+  Bool_t Send(const char* mess, Int_t kind = kMESS_STRING);
+  Bool_t Recv(TMessage*& mess);
+
 
   ClassDef( TNetFolder, 0 )
 };

@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.29  2005/07/01 12:43:37  schneebeli_m
+  Update of TNetFolder : reconnect
+
   Revision 1.28  2005/06/08 14:05:36  schneebeli_m
   delete menu
 
@@ -280,7 +283,6 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    for (i=0;i<numOfTab;i++) {
       buffer.AppendFormatted("         // %s\n",tabName[i].Data());
       buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n",tabName[i].Data(),tabName[i].Data());
-      buffer.AppendFormatted("            fCurrentTabID = param1;\n");
       buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n",tabName[i].Data(),i);
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n",tabName[i].Data(),tabName[i].Data());

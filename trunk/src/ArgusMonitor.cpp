@@ -2,6 +2,9 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.21  2005/07/01 12:43:37  schneebeli_m
+  Update of TNetFolder : reconnect
+
   Revision 1.20  2005/06/23 15:29:51  schneebeli_m
   small error
 
@@ -103,6 +106,7 @@
 #include <fcntl.h>
 #include <Riostream.h>
 #include <THtml.h>
+#include <TSystem.h>
 #include <ROMEDataBase.h>
 #include <ROMENoDataBase.h>
 #include <ArgusMonitor.h>
@@ -389,9 +393,14 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i) {
 
    DisconnectNetFolder(i);
    fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
-   if (!fNetFolderSocket[i]->IsValid()){
-      Error("ConnectNetFolder","can not make socket connection for %s.",fNetFolderName[i].Data());
-      return kFALSE;
+   while (!fNetFolderSocket[i]->IsValid()){
+      delete fNetFolderSocket[i];
+      Print("can not make socket connection for ");
+      Print(fNetFolderName[i].Data());
+      Println(".");
+      Println("program sleeps for 5s and tries again.");
+      gSystem->Sleep(5000);
+      fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
    fNetFolder[i] = new TNetFolder(fNetFolderName[i].Data(),fNetFolderTitle[i].Data(),fNetFolderSocket[i]);
 
