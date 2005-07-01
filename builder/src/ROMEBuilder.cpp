@@ -3,27 +3,8 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
-  Revision 1.189  2005/07/01 07:29:41  schneebeli_m
-  changes of Folders
-
-  Revision 1.187  2005/06/27 07:41:06  schneebeli_m
-  added IgnoreTObjectStreamer
-
-  Revision 1.186  2005/06/26 18:40:38  sawada
-  arrayed support folder getter.
-
-  Revision 1.185  2005/06/26 12:53:35  sawada
-  Initialization of support folder field.
-  include TClonesArray.h in FolderH.
-
-  Revision 1.184  2005/06/26 11:49:11  sawada
-  Field getter of arrayed support folder.
-
-  Revision 1.183  2005/06/23 10:13:56  schneebeli_m
-  code cleanup
-
-  Revision 1.182  2005/06/15 07:34:14  sawada
-  bug fix on IsActiveEventID.
+  Revision 1.190  2005/07/01 07:36:39  schneebeli_m
+  added byte swapping of TID_STRUCTS
 
   Revision 1.181  2005/06/14 14:43:08  sawada
   bk_swap only when the event is active.
@@ -924,7 +905,7 @@ bool ROMEBuilder::WriteFolderH() {
          buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
 
-      buffer.AppendFormatted("#include <ROMEFolder.h>\n");
+      buffer.AppendFormatted("#include <TObject.h>\n");
 
       // Includes
       for (i=0;i<numOfFolderInclude[iFold];i++) {
@@ -957,9 +938,9 @@ bool ROMEBuilder::WriteFolderH() {
 
       // Class
       if (folderUserCode[iFold])
-         buffer.AppendFormatted("\nclass %s%s_Base : public ROMEFolder\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       else
-         buffer.AppendFormatted("\nclass %s%s : public ROMEFolder\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("{\n");
 
       // Fields
@@ -993,6 +974,9 @@ bool ROMEBuilder::WriteFolderH() {
          }
       }
       buffer.AppendFormatted("\n");
+      format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-8);
+      buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+      buffer.AppendFormatted("\n");
 
       // Methods
 
@@ -1016,34 +1000,18 @@ bool ROMEBuilder::WriteFolderH() {
       }
       buffer.Resize(buffer.Length()-1);
       buffer.AppendFormatted(" )\n");
-      buffer.AppendFormatted("   {\n");
-      buffer.AppendFormatted("      %s%s::Class()->IgnoreTObjectStreamer();\n",shortCut.Data(),folderName[iFold].Data());
-      ROMEString tmp;
+      buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data())){
-            tmp = valueType[iFold][i];
-            tmp.ReplaceAll("*","");
-            if (valueArray[iFold][i]=="1"){
-               buffer.AppendFormatted("      %s = new %s();\n",valueName[iFold][i].Data(),tmp.Data());
-               buffer.AppendFormatted("      %s->SetParentFolder(this);\n",valueName[iFold][i].Data());
-            }
-            else {
-               buffer.AppendFormatted("      %s = new TClonesArray(\"%s\");\n",valueName[iFold][i].Data(),tmp.Data());
-               if (valueArray[iFold][i]!="variable")
-                  buffer.AppendFormatted("      Allocate%s(%s);\n",valueName[iFold][i].Data(),valueArray[iFold][i].Data());
-            }
-         }
+         if (isFolder(valueType[iFold][i].Data()))
+            continue;
+         if (valueArray[iFold][i]=="1")
+            buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          else {
-            if (valueArray[iFold][i]=="1")
-               buffer.AppendFormatted("      %s = %s_value;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-            else {
-               buffer.AppendFormatted("      for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s;\n",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
-            }
+            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
-      buffer.AppendFormatted("      fModified = false;\n");
-      buffer.AppendFormatted("      fParentFolder = 0;\n");
-      buffer.AppendFormatted("   };\n");
+      buffer.AppendFormatted("fModified = false; ");
+      buffer.AppendFormatted("};\n");
       buffer.AppendFormatted("\n");
 
       // Getters
@@ -1053,12 +1021,6 @@ bool ROMEBuilder::WriteFolderH() {
             if (valueType[iFold][i]=="TRef") {
                format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return &%%s[index];%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
-            }
-            else if (isFolder(valueType[iFold][i].Data())) {
-               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return (%%-%ds)(%%s->At(index));%%%ds };\n",typeLen,lb,typeLen,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
-               format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
-               buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else {
                format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
@@ -1080,6 +1042,10 @@ bool ROMEBuilder::WriteFolderH() {
       }
       buffer.AppendFormatted("\n");
 
+      // isModified
+      format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-8);
+      buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","Modified","");
+      buffer.AppendFormatted("\n");
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
@@ -1087,68 +1053,30 @@ bool ROMEBuilder::WriteFolderH() {
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueArray[iFold][i]=="1") {
             if (valueType[iFold][i]=="TRef") {
-               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else {
-               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
          }
          else {
             if (valueType[iFold][i]=="TRef") {
-               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else {
-               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds = %%s_value;%%%ds fModified = true; };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
          }
       }
       buffer.AppendFormatted("\n");
-      // Add
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data()))
-            continue;
-         int lb = nameLen-valueName[iFold][i].Length();
-         if (valueArray[iFold][i]=="1") {
-            if (valueType[iFold][i]=="TRef") {
-               format.SetFormatted("   void Add%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
-            }
-            else {
-               format.SetFormatted("   void Add%%s%%%ds(%%-%ds %%s_value%%%ds) { %%s%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
-            }
-         }
-         else {
-            if (valueType[iFold][i]=="TRef") {
-               format.SetFormatted("   void Add%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"","TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
-            }
-            else {
-               format.SetFormatted("   void Add%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index]%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
-            }
-         }
-      }
-      buffer.AppendFormatted("\n");
-      // Allocate
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data()) && valueArray[iFold][i]=="variable"){
-            tmp = valueType[iFold][i];
-            tmp.ReplaceAll("*","");
-            buffer.AppendFormatted("   void Allocate%s(int number) {\n",valueName[iFold][i].Data());
-            buffer.AppendFormatted("      int i;\n");
-            buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-            buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
-            buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentFolder(this);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("   }\n");
-         }
-      }
+      // SetModified
+      int lb = nameLen-8;
+      format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s; };\n",lb,typeLen,lb,lb);
+      buffer.AppendFormatted(format.Data(),"Modified","","Bool_t","modified","","Modified","","modified");
       buffer.AppendFormatted("\n");
       // Set All
       buffer.AppendFormatted("   void SetAll( ");
@@ -1174,47 +1102,23 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
          }
       }
-      buffer.AppendFormatted("SetModified(true); ");
+      buffer.AppendFormatted("fModified = true; ");
       buffer.AppendFormatted("};\n");
       buffer.AppendFormatted("\n");
       // Reset
-      buffer.AppendFormatted("   void Reset() {\n");
-      buffer.AppendFormatted("      int i;\n");
+      buffer.AppendFormatted("   void Reset() {");
       for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data())) {
-            if (valueArray[iFold][i]=="1")
-               buffer.AppendFormatted("      %s->Reset();\n",valueName[iFold][i].Data());
-            else
-               buffer.AppendFormatted("      for(i=0;i<%s->GetEntries();i++) { ((%s)%s->At(i))->Reset(); }\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+         if (isFolder(valueType[iFold][i].Data()))
+            continue;
+         if (valueArray[iFold][i]=="1") {
+            buffer.AppendFormatted("%s = %s; ",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          else {
-            if (valueArray[iFold][i]=="1") {
-               buffer.AppendFormatted("      %s = %s;\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
-            }
-            else {
-               buffer.AppendFormatted("      for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s;\n",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
-            }
+            buffer.AppendFormatted("for (int i%d=0;i%d<%s;i%d++) %s[i%d] = %s; ",i,i,valueArray[iFold][i].Data(),i,valueName[iFold][i].Data(),i,valueInit[iFold][i].Data());
          }
       }
-      buffer.AppendFormatted("      fModified = false;\n");
-      buffer.AppendFormatted("   };\n");
-      buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("private:\n");
-      // Allocate
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data()) && valueArray[iFold][i]!="1" && valueArray[iFold][i]!="variable"){
-            tmp = valueType[iFold][i];
-            tmp.ReplaceAll("*","");
-            buffer.AppendFormatted("   void Allocate%s(int number) {\n",valueName[iFold][i].Data());
-            buffer.AppendFormatted("      int i;\n");
-            buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-            buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
-            buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentFolder(this);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("   }\n");
-         }
-      }
+      buffer.AppendFormatted("fModified = false; ");
+      buffer.AppendFormatted("};\n");
 
       // Footer
       if (folderUserCode[iFold])
@@ -2367,7 +2271,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("inline int %sT%s_Base::GetObjectInterpreterIntValue(int code,int defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline int %sT%s::GetObjectInterpreterIntValue(int code,int defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop=NULL;\n");
+      buffer.AppendFormatted("   char *cstop;\n");
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2384,7 +2288,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("inline double %sT%s_Base::GetObjectInterpreterDoubleValue(int code,double defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline double %sT%s::GetObjectInterpreterDoubleValue(int code,double defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop=NULL;\n");
+      buffer.AppendFormatted("   char *cstop;\n");
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2716,7 +2620,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
    int type,i,j,k,kk;
    bankHasHeader = false;
    ROMEString tmp;
-   char *cstop=NULL;
+   char *cstop;
 
    // output
    if (makeOutput) cout << "\n\nBanks:" << endl;
@@ -2958,7 +2862,7 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
                            structFieldName[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
                            structFieldType[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
                            structFieldSize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "";
-                           bankFieldArraySize[numOfEvent][numOfBank[numOfEvent]][numOfStructFields[numOfEvent][numOfBank[numOfEvent]]] = "1";
+                           bankFieldArraySize[ numOfEvent ][ numOfBank[ numOfEvent ]][ numOfStructFields[ numOfEvent][numOfBank[ numOfEvent ]]] = "1";
                            while (xml->NextLine()) {
                               type = xml->GetType();
                               name = xml->GetName();
@@ -3417,7 +3321,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Constructor
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TRint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
@@ -3547,7 +3451,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("bool %sAnalyzer::ReadUserParameter(const char* opt, const char* value, int& i) {\n",shortCut.Data());
    // Global Steering Parameter
    buffer.AppendFormatted("   ROMEString option = opt;\n");
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTaskHierarchy]>0) {
       ROMEString pointerT;
@@ -3918,7 +3822,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Class
    buffer.AppendFormatted("\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("friend class %sEventLoop;\n",shortCut.Data());
    // Fields
    buffer.AppendFormatted("protected:\n");
 
@@ -3995,27 +3898,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for(i=0;i<numOfFolder;i++)
       WriteFolderGetter(buffer,i,scl,nameLen,typeLen);
    buffer.AppendFormatted("\n");
-   // Allocate
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]=="variable"){
-         buffer.AppendFormatted("   void Allocate%s(int number) {\n",folderName[i].Data());
-         buffer.AppendFormatted("      int i;\n");
-         buffer.AppendFormatted("      if(f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
-         buffer.AppendFormatted("      for (i=0;i<number;i++) {\n");
-         buffer.AppendFormatted("         new((*f%sFolders)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-         for (j=0;j<numOfValue[i];j++) {
-            if (isFolder(valueType[i][j].Data()))
-               continue;
-            if (valueArray[i][j]=="1")
-               buffer.AppendFormatted("%s,",valueInit[i][j].Data());
-         }
-         buffer.Resize(buffer.Length()-1);
-         buffer.AppendFormatted(" );\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
-      }
-   }
-   buffer.AppendFormatted("\n");
+
    // Tree Getters
    buffer.AppendFormatted("   // Trees\n");
    for (i=0;i<numOfTree;i++) {
@@ -4162,27 +4045,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
    buffer.AppendFormatted("   void redirectOutput();\n");
-   // Allocate
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]!="1" && folderArray[i]!="variable"){
-         buffer.AppendFormatted("   void Allocate%s(int number) {\n",folderName[i].Data());
-         buffer.AppendFormatted("      int i;\n");
-         buffer.AppendFormatted("      if(f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
-         buffer.AppendFormatted("      for (i=0;i<number;i++) {\n");
-         buffer.AppendFormatted("         new((*f%sFolders)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-         for (j=0;j<numOfValue[i];j++) {
-            if (isFolder(valueType[i][j].Data()))
-               continue;
-            if (valueArray[i][j]=="1")
-               buffer.AppendFormatted("%s,",valueInit[i][j].Data());
-         }
-         buffer.Resize(buffer.Length()-1);
-         buffer.AppendFormatted(" );\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
-      }
-   }
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sAnalyzer,0);\n",shortCut.Data());
 
@@ -5885,6 +5747,7 @@ bool ROMEBuilder::WriteConfigH() {
 
    return true;
 }
+
 bool ROMEBuilder::WriteMidasCpp() {
    int i,j;
 
@@ -5894,6 +5757,8 @@ bool ROMEBuilder::WriteMidasCpp() {
    int lenTot,ll;
    char *pos;
    ROMEString format;
+   
+   hasStructuredBank = false;
 
    ROMEString classDescription;
    classDescription.SetFormatted("This class implements the midas odb access.");
@@ -5936,6 +5801,8 @@ bool ROMEBuilder::WriteMidasCpp() {
    midasDep.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
    midasDep.AppendFormatted(" include/framework/%sMidas.h",shortCut.Data());
+   buffer.AppendFormatted( " #include <GenUtilities.h>\n" );
+   midasDep.AppendFormatted( " $(ROMESYS)/include/GenUtilities.h" );
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
@@ -6159,19 +6026,83 @@ bool ROMEBuilder::WriteMidasCpp() {
       }
    }
 
-   buffer.AppendFormatted("bool %sMidas::IsActiveEventID(int id){\n",shortCut.Data());
+   buffer.AppendFormatted("bool %sMidas::IsActiveID(int id){\n",shortCut.Data());
    for (i=0;i<numOfEvent;i++) {      
       buffer.AppendFormatted("   if (f%sEventActive && id==%s)\n",eventName[i].Data(),eventID[i].Data());
       buffer.AppendFormatted("      return true;\n");
    }
    buffer.AppendFormatted("   return false;\n");
    buffer.AppendFormatted("}\n");
+   
+   // -- Append method for byte swapping bank structures that are defined ----------
+    buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
+    buffer.AppendFormatted( "void* %sMidas::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
+    buffer.AppendFormatted( "{\n" );
+    
+    for ( long iEvent = 0; iEvent < numOfEvent; iEvent++ )
+    {
+        for ( long iBank = 0; iBank < numOfBank[ iEvent ]; iBank++ )
+        {
+        
+            // We have a struct bank so create byte swapping code.
+            if ( bankType[ iEvent ][ iBank ] == "structure" || bankType[ iEvent ][ iBank ] == "struct" )
+            {
+                if ( !hasStructuredBank )
+                {
+                    buffer.AppendFormatted( "    if ( strstr( aName, \"%s\" ) )\n", bankName[ iEvent ][ iBank ].Data() );
+                    hasStructuredBank = true;
+                }
+                else
+                {
+                    buffer.AppendFormatted( "    else if ( strstr( aName, \"%s\" ) )\n", bankName[ iEvent ][ iBank ].Data() );
+                }
+                
+                buffer.AppendFormatted( "    {\n" );
+                
+                // Loop through all fields for this structure and write out code to perform byte swapping.
+                for ( long iField = 0; iField < numOfStructFields[ iEvent ][ iBank ]; iField++ )
+                {
+                    if ( structFieldType[ iEvent ][ iBank ][ iField ] == "char" )
+                    {
+                        buffer.AppendFormatted( "        pData = (void *)( ( (char *)pData ) + %s ); // %s\n", 
+                                                bankFieldArraySize[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+                    }
+                    
+                    else if ( bankFieldArraySize[ iEvent ][ iBank ][ iField ] == "1" )
+                    {
+                        buffer.AppendFormatted( "        ByteSwap( (%s *)pData ); // %s\n", 
+                                                structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+                        buffer.AppendFormatted( "        pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
+                    }
+                    else
+                    {
+                        buffer.AppendFormatted( "        for ( long i = 0; i < %s; i++ )\n", bankFieldArraySize[ iEvent ][ iBank ][ iField ].Data() );
+                        buffer.AppendFormatted( "        {\n" );
+                        buffer.AppendFormatted( "            ByteSwap( (%s *)pData ); // %s\n",
+                                                structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+                        buffer.AppendFormatted( "            pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
+                        buffer.AppendFormatted( "        }\n" );
+                    }
+                }    // End loop through fields.
+                buffer.AppendFormatted( "    }\n" );
 
-   // Write File
+            }        // End if is structured bank.            
+        }            // End loop through banks.
+    }                // End loop through events.
+    
+    if ( hasStructuredBank )
+    {
+        buffer.AppendFormatted( "    return( pData );\n" );
+        buffer.AppendFormatted( "}\n" );
+    }
+   
+
+   // -- Write File ------------------------------------------------------------
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
    return true;
 }
+
 bool ROMEBuilder::WriteMidasH() {
    int i,j,k;
 
@@ -6353,12 +6284,16 @@ bool ROMEBuilder::WriteMidasH() {
       buffer.AppendFormatted("   void Set%sEventActive(bool flag) { f%sEventActive = flag; };\n",eventName[i].Data(),eventName[i].Data());
       buffer.AppendFormatted("\n");
    }
+   
+    // Structured bank byte swap routine declaration
+    if ( hasStructuredBank )
+        buffer.AppendFormatted( "    void * ByteSwapStruct( char *aName, void* aData );\n\n" );
 
    // protected
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool InitODB();\n");
    buffer.AppendFormatted("   bool InitHeader();\n");
-   buffer.AppendFormatted("   bool IsActiveEventID(int id);\n");
+   buffer.AppendFormatted("   bool IsActiveID(int id);\n");
 
    buffer.AppendFormatted("\n");
    // Footer
@@ -7070,7 +7005,7 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
       buffer.AppendFormatted("%s %sAnalyzer::GetObjectInterpreter%sValue(int code,%s defaultValue) {\n",type,shortCut.Data(),fctName,type);
       buffer.AppendFormatted("   ROMEString buffer;\n");
    }
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
    buffer.AppendFormatted("   switch (code) {\n");
    buffer.AppendFormatted("      case -1:\n");
    buffer.AppendFormatted("         return defaultValue;\n");
@@ -7114,7 +7049,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
    for (j=0;j<numOfValue[numFolder];j++) {
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[j]) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
@@ -7617,8 +7552,17 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("   int i;\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0 && !folderSupport[i]) {
-         if (folderArray[i]!="1" && folderArray[i]!="variable")
-            buffer.AppendFormatted("   gAnalyzer->Allocate%s(%s);\n",folderName[i].Data(),folderArray[i].Data());
+         if (folderArray[i]!="1" && folderArray[i]!="variable") {
+            buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",folderArray[i].Data());
+            buffer.AppendFormatted("     new((*gAnalyzer->Get%ss())[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            for (j=0;j<numOfValue[i];j++) {
+               if (valueArray[i][j]=="1")
+                  buffer.AppendFormatted("%s,",valueInit[i][j].Data());
+            }
+            buffer.Resize(buffer.Length()-1);
+            buffer.AppendFormatted(" );\n");
+            buffer.AppendFormatted("   }\n");
+         }
       }
    }
    buffer.AppendFormatted("};\n\n");
@@ -7842,10 +7786,9 @@ void ROMEBuilder::usage() {
    cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
 }
 
-void ROMEBuilder::startBuilder(const char* xmlfile) 
+void ROMEBuilder::startBuilder(const char* xmlFile) 
 {
    xml = new ROMEXML();
-   xmlFile = xmlfile;
 
    char* name;
    bool finished = false;
@@ -7878,7 +7821,7 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
 
-   if (!xml->OpenFileForRead(xmlFile.Data())) return;
+   if (!xml->OpenFileForRead(xmlFile)) return;
    // read in configuration file
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
@@ -8150,7 +8093,7 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
 
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
-   WriteMakefile();
+   WriteMakefile(xmlFile);
    if (!noLink) {
 #if defined( R__UNIX )
       system("make -e");
@@ -8175,7 +8118,7 @@ char* ROMEBuilder::EqualSign() {
 #endif
 }
 
-void ROMEBuilder::WriteMakefile() {
+void ROMEBuilder::WriteMakefile(const char* xmlFile) {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer;
@@ -8495,7 +8438,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMESQL.obj");
    if (this->orca) 
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/strlcpy.obj obj/GenUtilities.obj obj/TNetFolderServer.obj"); // added GenUtilities.
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
@@ -8559,7 +8502,7 @@ void ROMEBuilder::WriteMakefile() {
    // Folders
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
-         buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(ROMESYS)/include/ROMEFolder.h",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
 	      buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted(compileFormatFrame.Data(),folderName[i].Data(),folderName[i].Data());
@@ -8622,7 +8565,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),"src/framework/main","main");
 
-   buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp  $(ROMESYS)/include/ROMEAnalyzer.h  $(ROMESYS)/include/ROMETask.h  $(ROMESYS)/include/ROMEFolder.h\n");
+   buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp  $(ROMESYS)/include/ROMEAnalyzer.h  $(ROMESYS)/include/ROMETask.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"Analyzer","Analyzer");
    buffer.AppendFormatted("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp $(ROMESYS)/include/ROMEEventLoop.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"EventLoop","EventLoop");
@@ -8650,7 +8593,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
    buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"Root","Root");
-   buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h\n");
+      
+   buffer.AppendFormatted( "obj/GenUtilities.obj: $(ROMESYS)/src/GenUtilities.cpp $(ROMESYS)/include/GenUtilities.h\n" );
+   buffer.AppendFormatted( compileFormatBlank.Data(), "$(ROMESYS)/src/GenUtilities", "GenUtilities" );
+    
+   buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h\n");   
    buffer.AppendFormatted(compileFormatROME.Data(),"Midas","Midas");
    if (this->orca) {
       buffer.AppendFormatted("obj/ROMEOrca.obj: $(ROMESYS)/src/ROMEOrca.cpp $(ROMESYS)/include/ROMEOrca.h\n");
@@ -8700,7 +8647,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMEFolder.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
    buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
@@ -8793,7 +8740,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
       if (taskUserCode[i])
          buffer.AppendFormatted("include/tasks/%sT%s_Base.h ",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted("ROMETask.h ROMEFolder.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
+   buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.Append("\0");
 
 #if defined( R__VISUAL_CPLUSPLUS )
