@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.53  2005/07/01 15:42:07  schneebeli_m
+  implemented SPField arrays
+
   Revision 1.52  2005/07/01 08:20:22  schneebeli_m
   added byte swapping of TID_STRUCTS
 
@@ -272,6 +275,7 @@ protected:
    int        steerChildren[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteering];
    ROMEString steerFieldName[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldType[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString steerFieldArraySize[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldInit[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldComment[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString steerFieldCLOption[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];

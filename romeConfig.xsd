@@ -231,6 +231,23 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="SteeringParameterValueArrayDesc">
+		<xs:annotation>
+			<xs:documentation>Description of an array value of the steering parameter field.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPArrayIndex" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The index of the value of a steering parameter field array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPArrayValue" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The value of the steering parameter field array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the steering parameter fields.</xs:documentation>
@@ -241,9 +258,14 @@
 					<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="SPValue" type="xs:string">
+			<xs:element name="SPValue" type="xs:string" default="0" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The value of the steering parameter field. (required)</xs:documentation>
+					<xs:documentation>The value of the steering parameter field. (required for single values)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPArray" type="SteeringParameterValueArrayDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes an array value of the steering parameter field. (required for array values)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
