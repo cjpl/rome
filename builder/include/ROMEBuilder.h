@@ -2,8 +2,8 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
-  Revision 1.50  2005/07/01 07:15:22  schneebeli_m
-  added byte swapping of TID_STRUCTS
+  Revision 1.51  2005/07/01 07:30:02  schneebeli_m
+  changes of Folders
 
   Revision 1.49  2005/06/13 15:06:42  schneebeli_m
   added supportFolders
@@ -158,6 +158,7 @@ public:
    ROMEString romeVersion;
 
    ROMEString outDir;
+   ROMEString xmlFile;
    bool  makeOutput;
    bool  noLink;
    bool  midas;
@@ -181,8 +182,6 @@ protected:
    bool readTrees;
    bool readGlobalSteeringParameters;
    bool readMidasBanks;
-   
-   bool hasStructuredBank;
 
    ROMEString parent[maxNumberOfTasks];
    int recursiveDepth;
@@ -379,12 +378,12 @@ public:
    bool WriteEventLoopH();
    bool WriteMain();
    char* EqualSign();
-   void WriteMakefile(const char* xmlFile);
+   void WriteMakefile();
    void WriteHTMLDoku();
    void WriteDictionaryBat(ROMEString& buffer);
    bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    bool WriteFile(const char* filename,const char* content,int nspace = 0);
-   void startBuilder(const char* xmlFile);
+   void startBuilder(const char* xmlfile);
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
    bool isFloatingType(const char *type);
