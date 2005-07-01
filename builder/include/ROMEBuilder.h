@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.52  2005/07/01 08:20:22  schneebeli_m
+  added byte swapping of TID_STRUCTS
+
   Revision 1.51  2005/07/01 07:30:02  schneebeli_m
   changes of Folders
 
@@ -182,6 +185,8 @@ protected:
    bool readTrees;
    bool readGlobalSteeringParameters;
    bool readMidasBanks;
+
+   bool hasStructuredBank;
 
    ROMEString parent[maxNumberOfTasks];
    int recursiveDepth;

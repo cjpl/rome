@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.22  2005/07/01 08:20:22  schneebeli_m
+//  added byte swapping of TID_STRUCTS
+//
 //  Revision 1.21  2005/07/01 07:15:23  schneebeli_m
 //  added byte swapping of TID_STRUCTS
 //
@@ -83,7 +86,7 @@
 #endif
 #include <fcntl.h>
 #include <ROMEMidas.h>
-#include <GenUtilities.h>
+#include <ROMEUtilities.h>
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define O_RDONLY_BINARY O_RDONLY | O_BINARY

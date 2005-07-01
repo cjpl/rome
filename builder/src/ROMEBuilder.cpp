@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.192  2005/07/01 08:20:22  schneebeli_m
+  added byte swapping of TID_STRUCTS
+
   Revision 1.191  2005/07/01 07:38:36  schneebeli_m
   commit problems
 
@@ -5898,6 +5901,8 @@ bool ROMEBuilder::WriteMidasCpp() {
    char *pos;
    ROMEString format;
 
+   hasStructuredBank = false;
+
    ROMEString classDescription;
    classDescription.SetFormatted("This class implements the midas odb access.");
 
@@ -5939,6 +5944,8 @@ bool ROMEBuilder::WriteMidasCpp() {
    midasDep.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
    midasDep.AppendFormatted(" include/framework/%sMidas.h",shortCut.Data());
+   buffer.AppendFormatted( " #include <ROMEUtilities.h>\n" );
+   midasDep.AppendFormatted( " $(ROMESYS)/include/ROMEUtilities.h" );
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
@@ -6170,6 +6177,68 @@ bool ROMEBuilder::WriteMidasCpp() {
    buffer.AppendFormatted("   return false;\n");
    buffer.AppendFormatted("}\n");
 
+   // -- Append method for byte swapping bank structures that are defined ----------
+   buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
+   buffer.AppendFormatted( "void* %sMidas::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
+   buffer.AppendFormatted( "{\n" );
+
+   for ( long iEvent = 0; iEvent < numOfEvent; iEvent++ )
+   {
+      for ( long iBank = 0; iBank < numOfBank[ iEvent ]; iBank++ )
+      {
+
+         // We have a struct bank so create byte swapping code.
+         if ( bankType[ iEvent ][ iBank ] == "structure" || bankType[ iEvent ][ iBank ] == "struct" )
+         {
+            if ( !hasStructuredBank )
+            {
+               buffer.AppendFormatted( "    if ( strstr( aName, \"%s\" ) )\n", bankName[ iEvent ][ iBank ].Data() );
+               hasStructuredBank = true;
+            }
+            else
+            {
+               buffer.AppendFormatted( "    else if ( strstr( aName, \"%s\" ) )\n", bankName[ iEvent ][ iBank ].Data() );
+            }
+
+            buffer.AppendFormatted( "    {\n" );
+
+            // Loop through all fields for this structure and write out code to perform byte swapping.
+            for ( long iField = 0; iField < numOfStructFields[ iEvent ][ iBank ]; iField++ )
+            {
+               if ( structFieldType[ iEvent ][ iBank ][ iField ] == "char" )
+               {
+                  buffer.AppendFormatted( "        pData = (void *)( ( (char *)pData ) + %s ); // %s\n", 
+                              bankFieldArraySize[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+               }
+
+               else if ( bankFieldArraySize[ iEvent ][ iBank ][ iField ] == "1" )
+               {
+                  buffer.AppendFormatted( "        ByteSwap( (%s *)pData ); // %s\n", 
+                              structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+                  buffer.AppendFormatted( "        pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
+               }
+               else
+               {
+                  buffer.AppendFormatted( "        for ( long i = 0; i < %s; i++ )\n", bankFieldArraySize[ iEvent ][ iBank ][ iField ].Data() );
+                  buffer.AppendFormatted( "        {\n" );
+                  buffer.AppendFormatted( "            ByteSwap( (%s *)pData ); // %s\n",
+                              structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
+                  buffer.AppendFormatted( "            pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
+                  buffer.AppendFormatted( "        }\n" );
+               }
+            }    // End loop through fields.
+            buffer.AppendFormatted( "    }\n" );
+
+         }        // End if is structured bank.            
+      }            // End loop through banks.
+   }                // End loop through events.
+
+   if ( hasStructuredBank )
+   {
+      buffer.AppendFormatted( "    return( pData );\n" );
+      buffer.AppendFormatted( "}\n" );
+   }
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -6356,6 +6425,10 @@ bool ROMEBuilder::WriteMidasH() {
       buffer.AppendFormatted("   void Set%sEventActive(bool flag) { f%sEventActive = flag; };\n",eventName[i].Data(),eventName[i].Data());
       buffer.AppendFormatted("\n");
    }
+
+   // Structured bank byte swap routine declaration
+   if ( hasStructuredBank )
+       buffer.AppendFormatted( "    void * ByteSwapStruct( char *aName, void* aData );\n\n" );
 
    // protected
    buffer.AppendFormatted("protected:\n");
@@ -8498,7 +8571,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMESQL.obj");
    if (this->orca) 
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
@@ -8651,6 +8724,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatRANY.Data(),"TNetFolderServer.cpp","TNetFolderServer");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   buffer.AppendFormatted("obj/ROMEUtilities.obj: $(ROMESYS)/src/ROMEUtilities.cpp $(ROMESYS)/include/ROMEUtilities.h\n" );
+   buffer.AppendFormatted(compileFormatBlank.Data(), "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities" );
    buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"Root","Root");
    buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h\n");
