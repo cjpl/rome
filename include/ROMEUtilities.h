@@ -2,6 +2,9 @@
   ROMEUtilities.h, J. Wouters LANL
 
   $Log$
+  Revision 1.2  2005/07/01 08:25:18  sawada
+  small bug fix.
+
   Revision 1.1  2005/07/01 07:14:31  schneebeli_m
   added to cvs
 
@@ -12,7 +15,7 @@
 #ifndef ROMEUtilities_H
 #define ROMEUtilities_H
 
-#include <RTypes.h>
+#include <Rtypes.h>
 
 void ByteSwap( UShort_t *aValue );
 void ByteSwap( Short_t *aValue );
