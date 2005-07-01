@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.195  2005/07/01 22:10:42  sawada
+  small bug fix in WriteMakefile.
+
   Revision 1.194  2005/07/01 21:55:48  sawada
   Multiple dimensional array fields in folders.
   Small bug fix in Midas classes.
@@ -9013,6 +9016,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteDictionaryBat(dictionarybat);
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
+   dictionarybat.ReplaceAll("$DictionaryIncludes","$(DictionaryIncludes)");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #else
