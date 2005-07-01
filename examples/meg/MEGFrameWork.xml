@@ -104,19 +104,10 @@
 						<FieldComment>Address</FieldComment>
 					</Field>
 					<Field>
-						<FieldName>X</FieldName>
+						<FieldName>Geometry</FieldName>
 						<FieldType>Float_t</FieldType>
-						<FieldComment>X-Coordinate</FieldComment>
-					</Field>
-					<Field>
-						<FieldName>Y</FieldName>
-						<FieldType>Float_t</FieldType>
-						<FieldComment>Y-Coordinate</FieldComment>
-					</Field>
-					<Field>
-						<FieldName>Z</FieldName>
-						<FieldType>Float_t</FieldType>
-						<FieldComment>Z-Coordinate</FieldComment>
+						<ArraySize>3:3</ArraySize>
+						<FieldComment>Position and direction</FieldComment>
 					</Field>
 				</Folder>
 				<Folder>

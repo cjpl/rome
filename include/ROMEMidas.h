@@ -2,6 +2,10 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2005/07/01 21:56:29  sawada
+  Multiple dimensional array fields in folders.
+  Small bug fix in Midas classes.
+
   Revision 1.15  2005/07/01 07:15:23  schneebeli_m
   added byte swapping of TID_STRUCTS
 
@@ -179,7 +183,7 @@ public:
    void ByteSwap(Long64_t  *x){ByteSwap((ULong64_t*)x);};
    void ByteSwap(Double_t  *x){ByteSwap((ULong64_t*)x);};
 */
-   virtual void* ByteSwapStruct( char* aName, void* aData ) { ; };       // Must be overwritten by analyzermidas code.
+   virtual void* ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
 #endif
 #ifndef HAVE_MIDAS
    bool bk_is32(void *event);

@@ -220,7 +220,7 @@
 			</xs:element>
 			<xs:element name="ArraySize" type="xs:string" default="1" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The array size of the field. If this value is 1 or not present, then the field is a single value. Default is 1.</xs:documentation>
+					<xs:documentation>The array size of the field. If this value is 1 or not present, then the field is a single value. Default is 1. You can have up to three dimensional array using ':' as the field separator.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">

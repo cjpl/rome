@@ -2,6 +2,10 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.54  2005/07/01 21:55:47  sawada
+  Multiple dimensional array fields in folders.
+  Small bug fix in Midas classes.
+
   Revision 1.53  2005/07/01 15:42:07  schneebeli_m
   implemented SPField arrays
 
@@ -146,9 +150,11 @@ const int maxNumberOfEvents = 5;
 const int maxNumberOfSteering = 50;
 const int maxNumberOfSteeringField = 100;
 const int maxNumberOfValues = 50;
+const int maxNumberOfValueDimension = 3;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 50;
 const int maxNumberOfStructFields = 50;
+const char valueCounter[][maxNumberOfValueDimension] = {"i","j","k"};
 
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;
@@ -220,7 +226,8 @@ protected:
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueInit[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueComment[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues];
+   int valueDimension[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues][maxNumberOfValueDimension];
    ROMEString valueDBName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueDBPath[maxNumberOfFolders][maxNumberOfValues];
 
