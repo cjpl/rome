@@ -6,8 +6,12 @@
 //  Interface to the Midas System.
 //
 //  $Log$
-//  Revision 1.20  2005/06/15 07:34:14  sawada
-//  bug fix on IsActiveEventID.
+//  Revision 1.21  2005/07/01 07:15:23  schneebeli_m
+//  added byte swapping of TID_STRUCTS
+//
+//  Revision 1.20  2005/06/30 08:19:00 Wouters
+//  Moved byte swapping methods to utility file.  No longer class methods.
+//  Added call to ByteSwapStruct in bk_swap for a TID_STRUCT.
 //
 //  Revision 1.19  2005/06/14 14:43:08  sawada
 //  bk_swap only when the event is active.
@@ -79,6 +83,7 @@
 #endif
 #include <fcntl.h>
 #include <ROMEMidas.h>
+#include <GenUtilities.h>
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define O_RDONLY_BINARY O_RDONLY | O_BINARY
@@ -318,13 +323,10 @@ bool ROMEMidas::Event(int event) {
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
 #ifndef R__BYTESWAP
       //byte swapping
-      // I'm not sure if bk_swap is necessary also online.
-      // If there is problem, please remove below.
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
-         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
-         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-         if(IsActiveEventID( pevent->event_id ))
-            bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+              bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       this->InitMidasBanks();
 
@@ -388,7 +390,7 @@ bool ROMEMidas::Event(int event) {
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
          pevent->event_id != EVENTID_MESSAGE)
-         if(IsActiveEventID( pevent->event_id ))
+         if(IsActiveID( pevent->event_id )) 
             bk_swap(pevent + 1, 0);
 #endif
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
@@ -443,12 +445,13 @@ is only swapped if it is in the wrong format.
 */
 void ROMEMidas::bk_swap(void *event, bool force)
 {
-   BANK_HEADER *pbh;
-   BANK *pbk;
-   BANK32 *pbk32;
-   void *pdata;
-   UShort_t type;
-   bool b32;
+   BANK_HEADER  *pbh;
+   BANK         *pbk;
+   BANK32       *pbk32;
+   char         name[ 4 ];
+   void         *pdata;
+   UShort_t     type;
+   bool         b32;
    
    pbh = (BANK_HEADER *) event;
    
@@ -474,11 +477,15 @@ void ROMEMidas::bk_swap(void *event, bool force)
          ByteSwap((UInt_t *)&pbk32->data_size);
          pdata = pbk32 + 1;
          type = (UShort_t) pbk32->type;
+         for ( long i = 0; i < 4; i++ )
+            name[ i ] = pbk32->name[ i ];
       } else {
          ByteSwap((UShort_t *)&pbk->type);
          ByteSwap((UShort_t *)&pbk->data_size);
          pdata = pbk + 1;
          type = pbk->type;
+         for ( long i = 0; i < 4; i++ )
+            name[ i ] = pbk->name[ i ];
       }
       
       // pbk points to next bank
@@ -515,6 +522,12 @@ void ROMEMidas::bk_swap(void *event, bool force)
                pdata = (void *) (((ULong64_t *) pdata) + 1);
             }
             break;
+            
+         case TID_STRUCT:
+            while ( (Seek_t) pdata < (Seek_t) pbk ) {
+                pdata = ByteSwapStruct( &name[ 0 ], pdata );
+            }
+            break;
       }
    }   
    return;
@@ -522,7 +535,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
 #   endif
 
 // Byte swapping big endian <-> little endian
-void ROMEMidas::ByteSwap(UShort_t *x) 
+/*void ROMEMidas::ByteSwap(UShort_t *x) 
 {
    Byte_t _tmp;
    _tmp= *((Byte_t *)(x));
@@ -556,6 +569,7 @@ void ROMEMidas::ByteSwap(ULong64_t *x) {
    *(((Byte_t *)(x))+3) = *(((Byte_t *)(x))+4);
    *(((Byte_t *)(x))+4) = _tmp;
 }
+*/
 #endif
 #ifndef HAVE_MIDAS
 bool ROMEMidas::bk_is32(void *event)

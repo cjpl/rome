@@ -2,11 +2,8 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
-  Revision 1.14  2005/06/16 02:52:54  sawada
-  added virtual destructer.
-
-  Revision 1.13  2005/06/15 07:34:14  sawada
-  bug fix on IsActiveEventID.
+  Revision 1.15  2005/07/01 07:15:23  schneebeli_m
+  added byte swapping of TID_STRUCTS
 
   Revision 1.12  2005/06/14 14:43:08  sawada
   bk_swap only when the event is active.
@@ -130,7 +127,6 @@ protected:
 
 public:
    ROMEMidas::ROMEMidas();
-   virtual ROMEMidas::~ROMEMidas() {};
 
    // Online Database
    int   GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
@@ -164,7 +160,7 @@ public:
    bool EndOfRun();
    bool Terminate();
 
-   virtual bool IsActiveEventID(int id){ return true; }
+   virtual bool IsActiveID(int id){ return true; }
    virtual bool InitODB() = 0;
    virtual bool InitHeader() = 0;
    virtual void InitMidasBanks() = 0;
@@ -174,7 +170,7 @@ public:
 #   ifndef HAVE_MIDAS
    void bk_swap(void *event, bool force);
 #   endif
-   void ByteSwap(UShort_t  *x);
+/*   void ByteSwap(UShort_t  *x);
    void ByteSwap(Short_t   *x){ByteSwap((UShort_t* )x);};
    void ByteSwap(UInt_t    *x);
    void ByteSwap(Int_t     *x){ByteSwap((UInt_t*   )x);};
@@ -182,6 +178,8 @@ public:
    void ByteSwap(ULong64_t *x);
    void ByteSwap(Long64_t  *x){ByteSwap((ULong64_t*)x);};
    void ByteSwap(Double_t  *x){ByteSwap((ULong64_t*)x);};
+*/
+   virtual void* ByteSwapStruct( char* aName, void* aData ) { ; };       // Must be overwritten by analyzermidas code.
 #endif
 #ifndef HAVE_MIDAS
    bool bk_is32(void *event);
