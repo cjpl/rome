@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.196  2005/07/02 13:00:56  sawada
+  removed ROMEFolder class.
+
   Revision 1.195  2005/07/01 22:10:42  sawada
   small bug fix in WriteMakefile.
 
@@ -919,7 +922,7 @@ bool ROMEBuilder::WriteFolderCpp() {
       header.AppendFormatted("//                                                                            //\n");
       header.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
 
-      buffer.AppendFormatted("\n\n#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[iFold].Data());      
+      buffer.AppendFormatted("\n\n#include <include/framework/%s%s.h>\n",shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("\nClassImp(%s%s)\n",shortCut.Data(),folderName[iFold].Data());
 
       // Write File      
@@ -965,9 +968,10 @@ bool ROMEBuilder::WriteFolderH() {
          buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),folderName[iFold].Data());
       }
 
-      buffer.AppendFormatted("#include <ROMEFolder.h>\n");
-
       // Includes
+      buffer.AppendFormatted("#include <TObject.h>\n");
+      buffer.AppendFormatted("#include <TClass.h>\n");
+      buffer.AppendFormatted("#include <TClonesArray.h>\n");
       for (i=0;i<numOfFolderInclude[iFold];i++) {
          if (folderLocalFlag[iFold][i]) {
             buffer.AppendFormatted("#include \"%s\"\n",folderInclude[iFold][i].Data());
@@ -982,7 +986,7 @@ bool ROMEBuilder::WriteFolderH() {
             break;
          }
       }
-
+      
       for (i=0;i<numOfValue[iFold];i++) {
          for (j=0;j<numOfFolder;j++) {
             str.SetFormatted("%s*",folderName[j].Data());
@@ -998,10 +1002,18 @@ bool ROMEBuilder::WriteFolderH() {
 
       // Class
       if (folderUserCode[iFold])
-         buffer.AppendFormatted("\nclass %s%s_Base : public ROMEFolder\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       else
-         buffer.AppendFormatted("\nclass %s%s : public ROMEFolder\n",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("\nclass %s%s : public TObject\n",shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("{\n");
+      // Friends
+      for (i=0;i<numOfValue[iFold];i++) {
+         if (isFolder(valueType[iFold][i])){
+            str = valueType[iFold][i](0,valueType[iFold][i].Length()-1);
+            buffer.AppendFormatted("friend class %s;\n",str.Data());
+         }
+      }
+      buffer.AppendFormatted("\n");
 
       // Fields
       buffer.AppendFormatted("protected:\n");
@@ -1036,9 +1048,15 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("[%s]",valueArray[iFold][i][iDm].Data());
                arrayLen += 2+valueArray[iFold][i][iDm].Length();
             }
-            format.SetFormatted(";%%%ds %%s\n",nameLen-valueName[iFold][i].Length()+arrayLen);
+            format.SetFormatted(";%%%ds %%s\n",nameLen-valueName[iFold][i].Length()-arrayLen);
             buffer.AppendFormatted(format.Data(),"",valueComment[iFold][i].Data());
          }
+      }
+      format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-9);
+      buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","//! Modified Folder Flag");
+      if (folderSupport[iFold]){
+         format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-10);
+         buffer.AppendFormatted(format.Data(),"Bool_t*","PMAddress","","//! Address of parent's fModified.");
       }
       buffer.AppendFormatted("\n");
 
@@ -1073,7 +1091,7 @@ bool ROMEBuilder::WriteFolderH() {
             tmp.ReplaceAll("*","");
             if (valueDimension[iFold][i]==0){
                buffer.AppendFormatted("      %s = new %s();\n",valueName[iFold][i].Data(),tmp.Data());
-               buffer.AppendFormatted("      %s->SetParentFolder(this);\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s->SetParentModifiedAddress(&(this->fModified));\n",valueName[iFold][i].Data());
             }
             else {
                buffer.AppendFormatted("      %s = new TClonesArray(\"%s\");\n",valueName[iFold][i].Data(),tmp.Data());
@@ -1098,12 +1116,12 @@ bool ROMEBuilder::WriteFolderH() {
                   format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm-1)*3);
                   buffer.AppendFormatted(format.Data(),"");
                }
-               buffer.AppendFormatted("\n");
             }
          }
       }
       buffer.AppendFormatted("      fModified = false;\n");
-      buffer.AppendFormatted("      fParentFolder = 0;\n");
+      if (folderSupport[iFold])
+         buffer.AppendFormatted("      fPMAddress = 0;\n");
       buffer.AppendFormatted("   };\n");
       buffer.AppendFormatted("\n");
 
@@ -1163,6 +1181,10 @@ bool ROMEBuilder::WriteFolderH() {
       }
       buffer.AppendFormatted("\n");
 
+      // isModified
+      format.SetFormatted("   %%-%ds  is%%s()%%%ds  { return f%%s;%%%ds };\n",typeLen,nameLen-8,nameLen-9);
+      buffer.AppendFormatted(format.Data(),"Bool_t","Modified","","Modified","");
+      buffer.AppendFormatted("\n");
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
@@ -1259,12 +1281,36 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
             buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentFolder(this);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&(this->fModified));\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
       }
       buffer.AppendFormatted("\n");
+      // SetModified
+      int lb = nameLen-8;
+      format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) {\n",lb,typeLen,lb);
+      buffer.AppendFormatted(format.Data(),"Modified","","Bool_t","modified","");
+      format.SetFormatted("      f%%s%%%ds = %%s;\n",lb);
+      buffer.AppendFormatted(format.Data(),"Modified","","modified");
+      if(folderSupport[iFold]){
+         lb = nameLen-9;
+         buffer.AppendFormatted("      if(modified && fPMAddress && !(*fPMAddress))\n");
+         format.SetFormatted("         *f%%s%%%ds = %%s;\n",lb-1);
+         buffer.AppendFormatted(format.Data(),"PMAddress","","modified");
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      // SetParentModifiedAddress
+      if(folderSupport[iFold]){
+         lb = nameLen-9;
+         format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) {\n",lb,typeLen,lb);
+         buffer.AppendFormatted(format.Data(),"ParentModifiedAddress","","Bool_t*","modified","");
+         format.SetFormatted("      f%%s%%%ds = %%s;\n",lb);
+         buffer.AppendFormatted(format.Data(),"PMAddress","","modified");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+      }
       // Set All
       buffer.AppendFormatted("   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
@@ -1332,7 +1378,7 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
             buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentFolder(this);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&(this->fModified));\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
@@ -3747,12 +3793,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             if (folderArray[i]=="1") {
                if (valueArray[i][j]=="1") {
                   buf = "buffer[0]";
-                  str.SetFormatted("f%sFolder->Get%s()",folderName[i].Data(),valueName[i][j].Data());                  
+                  str.SetFormatted("f%sFolder->Get%s()",folderName[i].Data(),valueName[i][j].Data());
                   buffer.AppendFormatted("   values->SetAt(%s,0,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
                else {
                   buf = "buffer[0]";
-                  str.SetFormatted("f%sFolder->Get%sAt(j)",folderName[i].Data(),valueName[i][j].Data());                  
+                  str.SetFormatted("f%sFolder->Get%sAt(j)",folderName[i].Data(),valueName[i][j].Data());
                   buffer.AppendFormatted("   for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
                   buffer.AppendFormatted("      values->SetAt(%s,0,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
@@ -3761,12 +3807,12 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
                buffer.AppendFormatted("   for (i=0;i<f%sFolders->GetEntries();i++)\n",folderName[i].Data());
                if (valueArray[i][j]=="1") {
                   buf = "buffer[0]";
-                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%s()",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());                  
+                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%s()",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                   buffer.AppendFormatted("      values->SetAt(%s,i,0);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
                else {
                   buf = "buffer[0]";
-                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%sAt(j)",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());                  
+                  str.SetFormatted("((%s%s*)f%sFolders->At(i))->Get%sAt(j)",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data());
                   buffer.AppendFormatted("      for (j=0;j<%s;j++)\n",valueArray[i][j].Data());
                   buffer.AppendFormatted("         values->SetAt(%s,i,j);\n",convertType(str.Data(),valueType[i][j].Data(),"ROMEString&",buf).Data());
                }
@@ -3844,7 +3890,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   gAnalyzer->Println(\"*****************************************\");\n");   
+   buffer.AppendFormatted("   gAnalyzer->Println(\"*****************************************\");\n");
    buffer.AppendFormatted("   gAnalyzer->Println(\"*                                       *\");\n");
    buffer.AppendFormatted("   gAnalyzer->Println(\"*                                       *\");\n");
    buffer.AppendFormatted("   gAnalyzer->Print(\"*\");\n");
@@ -6938,7 +6984,7 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
    else 
       sc = "";
    for (i=0;i<tab;i++)
-      blank.Append("   ");   
+      blank.Append("   ");
 
    buffer.AppendFormatted("\n%sclass %s%s\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
    buffer.AppendFormatted("%s{\n",blank.Data());
@@ -7024,7 +7070,7 @@ bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int n
    ROMEString blank="";
    int i,k;
    for (i=0;i<tab;i++)
-      blank.Append("   ");   
+      blank.Append("   ");
 
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if (steerFieldArraySize[numTask][numSteer][k]=="1") {
@@ -7453,7 +7499,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
          buffer.AppendFormatted("      path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
             buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
-         buffer.AppendFormatted(");\n"); 
+         buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("   if (name.Length() && path.Length()){\n");
          buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
          buffer.AppendFormatted("         gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
@@ -8883,8 +8929,8 @@ void ROMEBuilder::WriteMakefile() {
    // Folders
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
-         buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(ROMESYS)/include/ROMEFolder.h",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-	      buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h",shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted(compileFormatFrame.Data(),folderName[i].Data(),folderName[i].Data());
       }
@@ -8946,7 +8992,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),"src/framework/main","main");
 
-   buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp  $(ROMESYS)/include/ROMEAnalyzer.h  $(ROMESYS)/include/ROMETask.h  $(ROMESYS)/include/ROMEFolder.h\n");
+   buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp  $(ROMESYS)/include/ROMEAnalyzer.h  $(ROMESYS)/include/ROMETask.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"Analyzer","Analyzer");
    buffer.AppendFormatted("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp $(ROMESYS)/include/ROMEEventLoop.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"EventLoop","EventLoop");
@@ -9027,7 +9073,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMEFolder.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
    buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
@@ -9120,7 +9166,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
       if (taskUserCode[i])
          buffer.AppendFormatted("include/tasks/%sT%s_Base.h ",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted("ROMETask.h ROMEFolder.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
+   buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
    buffer.Append("\0");
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -9440,7 +9486,7 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("email: <a href=\"mailto:matthias.schneebeli@psi.ch\">matthias.schneebeli@psi.ch</a><p>\n");
       buffer.AppendFormatted("</address>\n");
       buffer.AppendFormatted("</body>\n");
-      buffer.AppendFormatted("</html>");                             
+      buffer.AppendFormatted("</html>");
       WriteFile(userHtmlFile.Data(),buffer.Data(),0);
    }
 }
