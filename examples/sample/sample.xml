@@ -22,7 +22,7 @@
 				<FieldName>ADCPedestal</FieldName>
 				<FieldType>Float_t</FieldType>
 				<FieldComment>ADC Pedestal</FieldComment>
-				<DataBasePath>"/RunCatalog(id=#)/LPConf/LPCalibPedestal[0,227]/mean0"</DataBasePath>
+				<DataBasePath>""/RunCatalog(id=#)/LPConf/LPCalibPedestal[0,227]/mean0""</DataBasePath>
 			</Field>
 		</Folder>
 	</Folders>
