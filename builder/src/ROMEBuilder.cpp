@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.197  2005/07/02 13:06:27  sawada
+  small change.
+
   Revision 1.196  2005/07/02 13:00:56  sawada
   removed ROMEFolder class.
 
@@ -1091,7 +1094,7 @@ bool ROMEBuilder::WriteFolderH() {
             tmp.ReplaceAll("*","");
             if (valueDimension[iFold][i]==0){
                buffer.AppendFormatted("      %s = new %s();\n",valueName[iFold][i].Data(),tmp.Data());
-               buffer.AppendFormatted("      %s->SetParentModifiedAddress(&(this->fModified));\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s->SetParentModifiedAddress(&fModified);\n",valueName[iFold][i].Data());
             }
             else {
                buffer.AppendFormatted("      %s = new TClonesArray(\"%s\");\n",valueName[iFold][i].Data(),tmp.Data());
@@ -1281,7 +1284,7 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
             buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&(this->fModified));\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&fModified);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
@@ -1378,7 +1381,7 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("      if(%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
             buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
-            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&(this->fModified));\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+            buffer.AppendFormatted("         ((%s)%s->At(i))->SetParentModifiedAddress(&fModified);\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
