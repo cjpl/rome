@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.198  2005/07/02 13:20:48  sawada
+  small change in WriteDictionaryBat.
+
   Revision 1.197  2005/07/02 13:06:27  sawada
   small change.
 
@@ -9132,7 +9135,7 @@ void ROMEBuilder::WriteMakefile() {
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
-      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += myPath\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("#\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),6);
@@ -9148,15 +9151,15 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("-I%%DictionaryIncludes%% ");
+   buffer.AppendFormatted("%%DictionaryIncludes%% ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I$ROMESYS/include ");
    buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("-I$DictionaryIncludes ");
+   buffer.AppendFormatted("$DictionaryIncludes ");
 #endif
-   buffer.AppendFormatted("-Iinclude -Iinclude/tasks -Iinclude/framework ");
+   buffer.AppendFormatted("-I. -Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());
