@@ -3,6 +3,10 @@
   main.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.2  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.1  2005/05/26 14:26:55  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -92,7 +96,7 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-o")&&i<argc-1) {
          argusb->outDir = argv[i+1];
-         if (argusb->outDir[argusb->outDir.Length()-1]!='/' && argusb->outDir[argusb->outDir.Length()-1]!='\\') 
+         if (argusb->outDir[argusb->outDir.Length()-1]!='/' && argusb->outDir[argusb->outDir.Length()-1]!='\\')
             argusb->outDir.Append("/");
          i++;
       }

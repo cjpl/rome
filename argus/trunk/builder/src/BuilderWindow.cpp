@@ -3,6 +3,10 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.30  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.29  2005/07/01 12:43:37  schneebeli_m
   Update of TNetFolder : reconnect
 
@@ -144,10 +148,10 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    pos = (Char_t*)classDescription.Data();
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
-      if (lenTot+(classDescription.Data()-pos)<74) 
+      if (lenTot+(classDescription.Data()-pos)<74)
          i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
-      if (i<=0) 
+      if (i<=0)
          i=TMath::Min(75,lenTot);
       pos[i] = 0;
       buffer.AppendFormatted("// %-74.74s   \n",pos);
@@ -238,7 +242,7 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
       buffer.AppendFormatted("            break;\n");
    }
    buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         break;\n");      
+   buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      case kCM_BUTTON:\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      case kCM_LISTBOX:\n");
@@ -299,7 +303,7 @@ Bool_t ArgusBuilder::WriteWindowCpp() {
    buffer.AppendFormatted("         MapWindow();\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      break;\n");    
+   buffer.AppendFormatted("      break;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
@@ -395,10 +399,10 @@ Bool_t ArgusBuilder::WriteWindowH() {
    pos = (Char_t*)classDescription.Data();
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
-      if (lenTot+(classDescription.Data()-pos)<74) 
+      if (lenTot+(classDescription.Data()-pos)<74)
          i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
-      if (i<=0) 
+      if (i<=0)
          i=TMath::Min(75,lenTot);
       pos[i] = 0;
       buffer.AppendFormatted("// %-74.74s   \n",pos);

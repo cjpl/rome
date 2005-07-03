@@ -54,6 +54,12 @@
           <DataBaseName>myxml</DataBaseName>
           <DataBasePath>"/RunCatalog[id=%d]/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
         </Field>
+        <Field>
+          <FieldName>multipleDimension</FieldName>
+          <FieldType>Float_t</FieldType>
+          <FieldComment>multiple dimension field</FieldComment>
+          <ArraySize>3:4:5</ArraySize>
+        </Field>
       </Folder>
     </Folder>
   </Folders>

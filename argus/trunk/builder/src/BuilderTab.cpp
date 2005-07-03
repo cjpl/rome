@@ -3,6 +3,10 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.39  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.38  2005/05/26 14:26:55  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -184,7 +188,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
             name = xml->GetName();
             // end
             if (type == 15 && !strcmp((const Char_t*)name,"MenuItems"))
-               break;	    
+               break;
 
             // menu
             if (type == 1 && !strcmp((const Char_t*)name,"Menu")) {
@@ -199,7 +203,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
                menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = numOfMenu[currentNumberOfTabs];
                if (!ReadXMLMenu(currentNumberOfTabs)) return kFALSE;
                recursiveMenuDepth--;
-            }	    
+            }
 
             // Separator
             if (type == 1 && !strcmp((const Char_t*)name,"Line")) {
@@ -255,7 +259,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs) {
                   return kFALSE;
                }
                for(j=0;j<numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus];j++){
-                  if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE && 
+                  if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE &&
                   menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j]
                   ==menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]){
                      cout << "Two menu items of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
@@ -327,7 +331,7 @@ Bool_t ArgusBuilder::ReadXMLTab() {
          tabParentIndex[numOfTab+1] = currentNumberOfTabs;
          tabNumOfChildren[currentNumberOfTabs]++;
          // read subtab
-         if (!ReadXMLTab()) 
+         if (!ReadXMLTab())
             return kFALSE;
          continue;
       }
@@ -375,7 +379,7 @@ Bool_t ArgusBuilder::ReadXMLTab() {
          steerParent[currentNumberOfTabs][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
-         if (!ReadXMLSteering(currentNumberOfTabs)) 
+         if (!ReadXMLSteering(currentNumberOfTabs))
             return kFALSE;
          numOfSteering[currentNumberOfTabs]++;
       }
@@ -493,7 +497,7 @@ Bool_t ArgusBuilder::WriteTabCpp() {
       pos = (Char_t*)discript.Data();
       lenTot = discript.Length();
       while (pos-discript.Data() < lenTot) {
-         if (lenTot+(discript.Data()-pos)<74) 
+         if (lenTot+(discript.Data()-pos)<74)
             i=lenTot+(discript.Data()-pos);
          else for (i=74;pos[i]!=32&&i>0;i--) {}
          if (i<=0)
@@ -642,7 +646,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
 
-      // Thread      
+      // Thread
       buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2){\n");
       buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
       buffer.AppendFormatted("   }\n");
@@ -746,7 +750,7 @@ Bool_t ArgusBuilder::WriteTabH() {
          buffer.AppendFormatted("         m%s = 0;\n",threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      return kTRUE;\n");
-         buffer.AppendFormatted("   } \n");         
+         buffer.AppendFormatted("   } \n");
 
          buffer.AppendFormatted("\n");
       }
@@ -774,7 +778,7 @@ Bool_t ArgusBuilder::WriteTabH() {
       buffer.AppendFormatted("          <<\"   {\"<<endl\n");
       buffer.AppendFormatted("          <<\"      cout<<\\\"param = \\\"<< param <<endl;\"<<endl\n");
       buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
-      buffer.AppendFormatted("   }\n");     
+      buffer.AppendFormatted("   }\n");
 
       // Footer
       buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n",shortCut.Data(),tabName[iTab].Data(),tabVersion[iTab].Data());
@@ -901,7 +905,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
          WriteSteeringConfigWrite(buffer,0,i,pointerT,steerPointerT,3+tab);
       }
       if (numOfSteering[i]>0)
-         buffer.AppendFormatted("%s         }\n",blank.Data());      
+         buffer.AppendFormatted("%s         }\n",blank.Data());
       WriteTabConfigWrite(buffer,i,pointerI,tab+1);
       buffer.AppendFormatted("%s         xml->EndElement();\n",blank.Data());
       buffer.AppendFormatted("%s      }\n",blank.Data());

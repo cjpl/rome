@@ -3,6 +3,10 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.20  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.19  2005/06/23 15:29:51  schneebeli_m
   small error
 
@@ -103,10 +107,10 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    pos = (Char_t*)classDescription.Data();
    lenTot = classDescription.Length();
    while (pos-classDescription.Data() < lenTot) {
-      if (lenTot+(classDescription.Data()-pos)<74) 
+      if (lenTot+(classDescription.Data()-pos)<74)
          i=lenTot+(classDescription.Data()-pos);
       else for (i=74;pos[i]!=32&&i>0;i--) {}
-      if (i<=0) 
+      if (i<=0)
          i=TMath::Min(75,lenTot);
       pos[i] = 0;
       buffer.AppendFormatted("// %-74.74s   \n",pos);
@@ -356,7 +360,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       ROMEString tempPointer = pointer;
       while (kTRUE) {
          for (j=tempPointer.Length()-1;tempPointer[j]!='>' && j>0;j--) {}
-         if (j<=1) 
+         if (j<=1)
             break;
          tempPointer = tempPointer(0,j-1);
          buffer.AppendFormatted("      fConfigData[index]%sModified = kTRUE;\n",tempPointer.Data());
@@ -369,9 +373,11 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    // Folders
    buffer.AppendFormatted("   // folders\n");
    for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
+      if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("   // %s Folder\n",folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             buffer.AppendFormatted("   // %s Field\n",valueName[i][j].Data());
             // Name
             buffer.AppendFormatted("   xml->GetPathValue(path+\"/Folders/Folder[FolderName='%s']/Field[FieldName='%s']/DataBaseName\",fConfigData[index]->f%sFolder->f%sField->fName,\"\");\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
@@ -520,7 +526,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   for(i=0;i<gMonitor->GetNumberOfNetFolders();i++){\n",i);
       buffer.AppendFormatted("      if (fConfigData[index]->fNetFolderModified[i]){\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fActiveModified){\n");
-      buffer.AppendFormatted("            if(fConfigData[index]->fNetFolder[i]->fActive == \"true\")\n");      
+      buffer.AppendFormatted("            if(fConfigData[index]->fNetFolder[i]->fActive == \"true\")\n");
       buffer.AppendFormatted("               gMonitor->SetNetFolderActive(i,kTRUE);\n");
       buffer.AppendFormatted("            else\n");
       buffer.AppendFormatted("               gMonitor->SetNetFolderActive(i,kFALSE);\n");
@@ -605,9 +611,11 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       }
    }
    for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
+      if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("   // %s folder\n",folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             buffer.AppendFormatted("   // %s field\n",valueName[i][j].Data());
             // Name
             buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sFolder->f%sField->fNameModified)\n",folderName[i].Data(),valueName[i][j].Data());
@@ -803,12 +811,14 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (fConfigData[index]->fFoldersModified) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Folders\");\n");
    for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
+      if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("      if (fConfigData[index]->f%sFolderModified) {\n",folderName[i].Data());
          buffer.AppendFormatted("         // %s folder\n",folderName[i].Data());
          buffer.AppendFormatted("         xml->StartElement(\"Folder\");\n");
          buffer.AppendFormatted("         xml->WriteElement(\"FolderName\",\"%s\");\n",folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             buffer.AppendFormatted("         if (fConfigData[index]->f%sFolder->f%sFieldModified) {\n",folderName[i].Data(),valueName[i][j].Data());
             buffer.AppendFormatted("            // %s field\n",valueName[i][j].Data());
             buffer.AppendFormatted("            xml->StartElement(\"Field\");\n");
@@ -961,10 +971,12 @@ Bool_t ArgusBuilder::WriteConfigH() {
    // folders
    buffer.AppendFormatted("      // folders\n");
    for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
+      if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("      class %sFolder {\n",folderName[i].Data());
          buffer.AppendFormatted("      public:\n");
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             buffer.AppendFormatted("         class %sField {\n",valueName[i][j].Data());
             buffer.AppendFormatted("         public:\n");
             buffer.AppendFormatted("            ROMEString  fName;\n");
@@ -977,6 +989,8 @@ Bool_t ArgusBuilder::WriteConfigH() {
          }
          buffer.AppendFormatted("         %sFolder() {\n",folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             buffer.AppendFormatted("            f%sFieldModified = false;\n",valueName[i][j].Data());
             buffer.AppendFormatted("            f%sField = new %sField();\n",valueName[i][j].Data(),valueName[i][j].Data());
          }
@@ -1015,7 +1029,7 @@ Bool_t ArgusBuilder::WriteConfigH() {
       buffer.AppendFormatted("         f%sTab         = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
    }
    for (i=0;i<numOfFolder;i++) {
-      if (folderDataBase[i]) {
+      if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("         f%sFolderModified = false;\n",folderName[i].Data());
          buffer.AppendFormatted("         f%sFolder = new %sFolder();\n",folderName[i].Data(),folderName[i].Data());
       }
