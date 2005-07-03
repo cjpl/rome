@@ -3,6 +3,10 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.51  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.50  2005/06/20 12:30:56  sawada
   code clan up.
 
@@ -237,8 +241,9 @@ Bool_t ArgusBuilder::WriteMain() {
 }
 
 
-void ArgusBuilder::startBuilder(Char_t* xmlFile) 
+void ArgusBuilder::startBuilder(Char_t* xmlfile)
 {
+   xmlFile = xmlfile;
    xml = new ROMEXML();
    Char_t* name;
    Bool_t finished = kFALSE;
@@ -267,7 +272,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
 
-   if (!xml->OpenFileForRead(xmlFile)) return;
+   if (!xml->OpenFileForRead(xmlFile.Data())) return;
    while (xml->NextLine()&&!finished) {
       type = xml->GetType();
       name = xml->GetName();
@@ -480,7 +485,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
 #endif
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
-   WriteMakefile(xmlFile);
+   WriteMakefile();
    if (!noLink) {
 #if defined( R__UNIX )
       system("make -e");
@@ -500,7 +505,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlFile)
 }
 
 
-void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
+void ArgusBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer[2];
@@ -536,7 +541,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortcut.Data());
-   if (this->midas) 
+   if (this->midas)
       buffer.AppendFormatted(" /DHAVE_MIDAS");
    if (this->sql)
       buffer.AppendFormatted(" /DHAVE_SQL");
@@ -551,9 +556,9 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted("\n");
    // includes
    buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/framework/ ");
-   if (this->midas) 
+   if (this->midas)
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
-   if (this->mysql) 
+   if (this->mysql)
       buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -733,7 +738,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
    buffer.AppendFormatted("-include Makefile.usr\n");
 #endif
    buffer.AppendFormatted("\n");
-   
+
    // make obj
    buffer.AppendFormatted("obj:\n");
    buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
@@ -943,7 +948,7 @@ void ArgusBuilder::WriteMakefile(Char_t* xmlFile) {
 }
 
 
-void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer) 
+void ArgusBuilder::WriteDictionaryBat(ROMEString& buffer)
 {
    // writes a script file that executes rootcint
    ROMEString noInclude;
@@ -1229,54 +1234,54 @@ void ArgusBuilder::WriteHTMLDoku() {
 }
 
 
-void ArgusBuilder::GetMidasTID(ROMEString* buf,Char_t *type) 
+void ArgusBuilder::GetMidasTID(ROMEString* buf,Char_t *type)
 {
    buf->Resize(0);
    if (!strcmp(type,"Byte_t") ||
        !strcmp(type,"BYTE"))
-      buf->Append("TID_BYTE");     // < unsigned byte         0       255   
+      buf->Append("TID_BYTE");     // < unsigned byte         0       255
    else if (!strcmp(type,"Char_t") ||
             !strcmp(type,"Text_t") ||
             !strcmp(type,"char"))
-      buf->Append("TID_SBYTE");    //< signed byte         -128      127   
+      buf->Append("TID_SBYTE");    //< signed byte         -128      127
    else if (!strcmp(type,"UChar_t") ||
             !strcmp(type,"unsigned char"))
-      buf->Append("TID_CHAR");     //< single character      0       255   
+      buf->Append("TID_CHAR");     //< single character      0       255
    else if (!strcmp(type,"UShort_t") ||
             !strcmp(type,"WORD") ||
             !strcmp(type,"unsigned short") ||
             !strcmp(type,"unsigned short int"))
-      buf->Append("TID_WORD");     //< two bytes             0      65535   
+      buf->Append("TID_WORD");     //< two bytes             0      65535
    else if (!strcmp(type,"Short_t") ||
             !strcmp(type,"Version_t") ||
             !strcmp(type,"short") ||
             !strcmp(type,"short int"))
-      buf->Append("TID_SHORT");    //< signed word        -32768    32767   
+      buf->Append("TID_SHORT");    //< signed word        -32768    32767
    else if (!strcmp(type,"UInt_t") ||
             !strcmp(type,"DWORD") ||
             !strcmp(type,"unsigned int") ||
             !strcmp(type,"unsigned long") ||
             !strcmp(type,"unsigned long int"))
-      buf->Append("TID_DWORD");    //< four bytes            0      2^32-1   
+      buf->Append("TID_DWORD");    //< four bytes            0      2^32-1
    else if (!strcmp(type,"Int_t") ||
             !strcmp(type,"INT") ||
             !strcmp(type,"Ssize_t") ||
             !strcmp(type,"int") ||
             !strcmp(type,"long") ||
             !strcmp(type,"long int"))
-      buf->Append("TID_INT");      //< signed dword        -2^31    2^31-1   
+      buf->Append("TID_INT");      //< signed dword        -2^31    2^31-1
    else if (!strcmp(type,"Bool_t") ||
             !strcmp(type,"BOOL") ||
             !strcmp(type,"bool"))
-      buf->Append("TID_BOOL");     //< four bytes bool       0        1   
+      buf->Append("TID_BOOL");     //< four bytes bool       0        1
    else if (!strcmp(type,"Float_t") ||
             !strcmp(type,"Real_t") ||
             !strcmp(type,"float"))
-      buf->Append("TID_FLOAT");    //< 4 Byte float format   
+      buf->Append("TID_FLOAT");    //< 4 Byte float format
    else if (!strcmp(type,"Double_t") ||
             !strcmp(type,"Double32_t") ||
             !strcmp(type,"double"))
-      buf->Append("TID_DOUBLE");   //< 8 Byte float format   
+      buf->Append("TID_DOUBLE");   //< 8 Byte float format
 #if defined ( R__B64 ) // Note: Long_t and ULong_t are currently not portable types
    else if (!strcmp(type,"Long_t") ||
             !strcmp(type,"ULong_t")){

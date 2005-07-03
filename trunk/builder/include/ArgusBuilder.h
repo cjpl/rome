@@ -2,6 +2,10 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.28  2005/07/03 17:31:34  sawada
+  Support folder.
+  Multiple dimension fields in folders.
+
   Revision 1.27  2005/05/26 16:34:03  schneebeli_m
   windows specific stuff
 
@@ -183,7 +187,7 @@ public:
    Bool_t WriteConfigCpp();
    Bool_t WriteConfigH();
    Bool_t WriteMain();
-   void   WriteMakefile(Char_t* xmlFile);
+   void   WriteMakefile();
    void   WriteHTMLDoku();
    void   WriteDictionaryBat(ROMEString& buffer);
    void   startBuilder(Char_t* xmlFile);
