@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.202  2005/07/03 17:18:50  sawada
+  negligible change.
+
   Revision 1.201  2005/07/03 11:27:45  sawada
   folders reset values only when it has been modified.
 
@@ -3688,6 +3691,8 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i] && !folderSupport[i]) {
          for (j=0;j<numOfValue[i];j++) {
+            if( valueDimension[i][j]>1 )
+               continue;
             buffer.AppendFormatted("   f%s_%sDBName = \"\";\n",folderName[i].Data(),valueName[i][j].Data());
             buffer.AppendFormatted("   f%s_%sDBPath = \"\";\n",folderName[i].Data(),valueName[i][j].Data());
             buffer.AppendFormatted("   f%s_%sDBCode = new TArrayI(%d);\n",folderName[i].Data(),valueName[i][j].Data(),maxNumberOfPathObjectInterpreterCodes);
@@ -4141,6 +4146,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i] && !folderSupport[i]) {
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             format.SetFormatted("   ROMEString f%%s_%%sDBName;%%%ds // Name of the database from which to read the field %%s of the folder %%s\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
             buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",valueName[i][j].Data(),folderName[i].Data());
             format.SetFormatted("   ROMEString f%%s_%%sDBPath; %%%ds // Database path to the value of the field %%s of the folder %%s\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
@@ -4237,6 +4244,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i] && !folderSupport[i]) {
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             format.SetFormatted("   const char* Get%%s_%%sDBName()%%%ds          { return f%%s_%%sDBName; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
             buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
             format.SetFormatted("   const char* Get%%s_%%sDBPath()%%%ds          { return f%%s_%%sDBPath; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
@@ -4255,6 +4264,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i] && !folderSupport[i]) {
          for (j=0;j<numOfValue[i];j++) {
+            if(valueDimension[i][j]>1)
+               continue;
             format.SetFormatted("   void Set%%s_%%sDBName(const char* name)%%%ds  { f%%s_%%sDBName = name; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
             buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
             format.SetFormatted("   void Set%%s_%%sDBPath(const char* path)%%%ds  { f%%s_%%sDBPath = path; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
