@@ -40,50 +40,50 @@ void TMTT1::Init()
 void TMTT1::MenuClicked(TGPopupMenu *menu,Long_t param)
 {
    switch (param){
-      case M_T1_Color_Black:
+      case TMWindow::M_T1_Color_Black:
 	 fText->SetTextColor(1);
          menu->CheckEntry(param);
 	 break;
-      case M_T1_Color_Red:
+      case TMWindow::M_T1_Color_Red:
 	 fText->SetTextColor(2);
 	 break;
-      case M_T1_Color_Green:
+      case TMWindow::M_T1_Color_Green:
 	 fText->SetTextColor(3);
 	 break;
-      case M_T1_Color_Blue:
+      case TMWindow::M_T1_Color_Blue:
 	 fText->SetTextColor(4);
 	 break;
-      case M_T1_Color_Gray_Gray1:
+      case TMWindow::M_T1_Color_Gray_Gray1:
 	 fText->SetTextColor(12);
 	 break;
-      case M_T1_Color_Gray_Gray2:
+      case TMWindow::M_T1_Color_Gray_Gray2:
 	 fText->SetTextColor(13);
 	 break;
-      case M_T1_Color_Gray_Gray3:
+      case TMWindow::M_T1_Color_Gray_Gray3:
 	 fText->SetTextColor(14);
 	 break;
-      case M_T1_Color_Gray_Gray4:
+      case TMWindow::M_T1_Color_Gray_Gray4:
 	 fText->SetTextColor(15);
 	 break;
-      case M_T1_Color_Gray_DarkGray_DarkGray1:
+      case TMWindow::M_T1_Color_Gray_DarkGray_DarkGray1:
 	 fText->SetTextColor(16);
 	 break;
-      case M_T1_Color_Gray_DarkGray_DarkGray2:
+      case TMWindow::M_T1_Color_Gray_DarkGray_DarkGray2:
 	 fText->SetTextColor(17);
 	 break;
-      case M_T1_Color_Gray_DarkGray_DarkGray3:
+      case TMWindow::M_T1_Color_Gray_DarkGray_DarkGray3:
 	 fText->SetTextColor(18);
 	 break;
-      case M_T1_Color_Gray_DarkGray_DarkGray4:
+      case TMWindow::M_T1_Color_Gray_DarkGray_DarkGray4:
 	 fText->SetTextColor(19);
 	 break;
-      case M_T1_Size_Small:
+      case TMWindow::M_T1_Size_Small:
 	 fText->SetTextSize(0.03);
 	 break;
-      case M_T1_Size_Midium:
+      case TMWindow::M_T1_Size_Midium:
 	 fText->SetTextSize(0.08);
 	 break;
-      case M_T1_Size_Large:
+      case TMWindow::M_T1_Size_Large:
 	 fText->SetTextSize(0.15);
 	 break;
    }
