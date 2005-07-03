@@ -3,6 +3,9 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.31  2005/07/03 18:42:01  sawada
+  get enumerations back into window class.
+
   Revision 1.30  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -444,29 +447,31 @@ Bool_t ArgusBuilder::WriteWindowH() {
    buffer.AppendFormatted("} TabSwitches;\n");
    buffer.AppendFormatted("\n");
 
+   // Class
+   buffer.AppendFormatted("class %sWindow : public ArgusWindow {  \n",shortCut.Data());
    // Enumeration
-   buffer.AppendFormatted("enum CommandIdentifiers{\n");
-   buffer.AppendFormatted("   M_FILE_CONNECT_ROOT = 10,\n");
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   enum CommandIdentifiers{\n");
+   buffer.AppendFormatted("      M_FILE_CONNECT_ROOT = 10,\n");
    for (i=0;i<numOfNetFolder;i++)
-      buffer.AppendFormatted("   M_FILE_CONNECT_%s,\n",netFolderName[i].Data());
-   buffer.Remove(buffer.Length()-1);
-   buffer.AppendFormatted("};\n");
+      buffer.AppendFormatted("      M_FILE_CONNECT_%s,\n",netFolderName[i].Data());
+   buffer.Remove(buffer.Length()-2,1); // remove the last ','
+   buffer.AppendFormatted("   };\n");
 
-   buffer.AppendFormatted("enum MenuEnumeration {\n");
-   buffer.AppendFormatted("   M_ROOT = 1000,\n");
+   buffer.AppendFormatted("   enum MenuEnumeration {\n");
+   buffer.AppendFormatted("      M_ROOT = 1000,\n");
    for (i=0;i<numOfTab;i++) {
       for (j=0;j<numOfMenu[i];j++) {
          for (k=0;k<numOfMenuItem[i][j];k++) {
             if (menuItemEnumName[i][j][k].Length()>0)
-               buffer.AppendFormatted("   %s,\n",menuItemEnumName[i][j][k].Data());
+               buffer.AppendFormatted("      %s,\n",menuItemEnumName[i][j][k].Data());
          }
       }
    }
-   buffer.AppendFormatted("};\n");
-   buffer.AppendFormatted("\n\n");
+   buffer.Remove(buffer.Length()-2,1); // remove the last ','
+   buffer.AppendFormatted("   };\n");
+   buffer.AppendFormatted("\n");
 
-   // Class
-   buffer.AppendFormatted("class %sWindow : public ArgusWindow {  \n",shortCut.Data());
    buffer.AppendFormatted("private:\n");
    for (i=0;i<numOfTab;i++) {
       if(tabNumOfChildren[i])
