@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Sun Jul  3 19:26:07 2005 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/Argus/ArgusConfig.xsd">
+  <Window>
+    <Scale>1.0</Scale>
+    <StatusBar>true</StatusBar>
+  </Window>
+  <DataBases>
+    <DataBase>
+      <Name>myodb</Name>
+      <Type>odb</Type>
+      <Connection></Connection>
+    </DataBase>
+    <DataBase>
+      <Name>myxml</Name>
+      <Type>xml</Type>
+      <Connection>.;FODataBase</Connection>
+    </DataBase>
+  </DataBases>
+  <Online>
+    <Host></Host>
+    <Experiment></Experiment>
+  </Online>
+  <NetFolders>
+    <mynetfolder>
+      <Active>false</Active>
+      <Title>rome folder</Title>
+      <Host>localhost</Host>
+      <Port>9090</Port>
+      <Root>FO</Root>
+    </mynetfolder>
+  </NetFolders>
+  <Tabs>
+    <Tab>
+      <TabName>Tab</TabName>
+      <Active>true</Active>
+    </Tab>
+  </Tabs>
+</Configuration>

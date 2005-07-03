@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Ryu Sawada -->
+<ArgusMonitorDefinition>
+  <Experiment>
+    <ExperimentName>Analyzer Controller</ExperimentName>
+    <ExperimentShortCut>AC</ExperimentShortCut>
+    <ProgramName>monitor</ProgramName>
+    <MonitorDescription>The example of analyzer controller.</MonitorDescription>
+  </Experiment>
+  <Author>
+    <AuthorName>Ryu Sawada</AuthorName>
+    <AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+    <AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+    <AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
+  </Author>
+  <Tabs>
+    <Tab>
+      <TabName>Tab</TabName>
+      <Author>Ryu Sawada</Author>
+    </Tab>
+  </Tabs>
+</ArgusMonitorDefinition>

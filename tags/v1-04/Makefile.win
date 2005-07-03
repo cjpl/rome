@@ -1,0 +1,41 @@
+#####################################################################
+#
+#  Name:         Makefile.win
+#  Created by:   Ryu Sawada
+#
+#  $Log$
+#  Revision 1.5  2005/05/26 16:34:03  schneebeli_m
+#  windows specific stuff
+#
+#  Revision 1.4  2005/05/26 14:26:54  sawada
+#  Lots of changes.
+#  Made ArgusBuilder an inheriting class of ROMEBuilder.
+#  Remove ROMEFolder and added NetFolers.
+#  Added ArgusWindow class.
+#  and so on.
+#
+#  Revision 1.3  2005/04/28 13:54:10  schneebeli_m
+#  small bug
+#
+#  Revision 1.2  2005/04/22 10:06:00  schneebeli_m
+#  libxml2 replaced by mxml
+#
+#  Revision 1.1  2005/03/18 16:40:28  sawada
+#  added Makefile.win
+#
+#
+#####################################################################
+#
+ARGUSINCLUDES = /I%ARGUSSYS%/builder/include/ /I%ARGUSSYS%/include/ 
+ROMEINCLUDES = /I%ROMESYS%/include/ /I%ROMESYS%/include/ /I%ROMESYS%/builder/include/ 
+ROOTINCLUDES = /I%ROOTSYS%/include/ 
+INCLUDES = $(ARGUSINCLUDES) $(ROMEINCLUDES) $(ROOTINCLUDES)
+ARGUSSRC = builder/src/main.cpp builder/src/Builder.cpp builder/src/BuilderConfig.cpp builder/src/BuilderTab.cpp builder/src/BuilderNetFolder.cpp builder/src/BuilderWindow.cpp builder/src/BuilderMonitor.cpp 
+ROMESRC = $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/builder/src/ROMEBuilder.cpp
+SRC = $(ARGUSSRC) $(ROMESRC)
+LIBRARY = $(ROOTSYS)/lib/libCore.lib
+
+ARGUSBuilder.exe: $(SRC)
+	cl /GX $(INCLUDES) /Fo%ARGUSSYS%/bin/ /Fe%ARGUSSYS%/bin/ARGUSBuilder.exe $(SRC) $(LIBRARY)
+
+
