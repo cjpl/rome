@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.203  2005/07/03 17:30:53  sawada
+  negligible change.
+
   Revision 1.202  2005/07/03 17:18:50  sawada
   negligible change.
 
@@ -864,7 +867,10 @@ bool ROMEBuilder::ReadXMLFolder() {
             cout << "Terminating program." << endl;
             return false;
          }
-         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 && (valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())) {
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 && 
+             (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
+              || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())
+            ) {
             cout << "Multiple dimension field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
             cout << "Terminating program." << endl;
             return false;
