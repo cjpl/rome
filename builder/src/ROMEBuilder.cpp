@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.200  2005/07/03 09:24:05  sawada
+  negligible change.
+
   Revision 1.199  2005/07/03 09:00:15  sawada
   Changed the way to check modified. Before this commit, children changed
   parent's fModified. From now, parent checks children's fModified when
@@ -1206,10 +1209,11 @@ bool ROMEBuilder::WriteFolderH() {
             }
          }
       }
+      // check remaining elements
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i]>0) {
-               buffer.AppendFormatted("      for(i=0;i<%s->GetEntries();i++) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      for(i=1;i<%s->GetEntries();i++) {\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("         if( ((%s)%s->At(i))->isModified() ) {\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("            SetModified(true);\n");
                buffer.AppendFormatted("            return true;\n");
