@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.201  2005/07/03 11:27:45  sawada
+  folders reset values only when it has been modified.
+
   Revision 1.200  2005/07/03 09:24:05  sawada
   negligible change.
 
@@ -1360,6 +1363,7 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("\n");
       // Reset
       buffer.AppendFormatted("   void Reset() {\n");
+      buffer.AppendFormatted("      if( !isModified() ) return;\n");
       buffer.AppendFormatted("      int i;\n");
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data())) {
