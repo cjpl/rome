@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.204  2005/07/04 16:41:21  schneebeli_m
+  added SPGroup Arrays
+
   Revision 1.203  2005/07/03 17:30:53  sawada
   negligible change.
 
@@ -1716,6 +1719,7 @@ bool ROMEBuilder::ReadXMLTask() {
       if (type == 1 && !strcmp((const char*)name,"SteeringParameters")) {
          // read steering parameter
          steerName[numOfTask][0] = "Steering";
+         steerArraySize[numOfTask][0] = "1";
          steerParent[numOfTask][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
@@ -3295,8 +3299,10 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
       return false;
    }
    // initialisation
-   if (numOfSteering[iTask]>0)
+   if (numOfSteering[iTask]>0) {
       steerName[iTask][numOfSteering[iTask]] = "";
+      steerArraySize[iTask][numOfSteering[iTask]] = "1";
+   }
    numOfSteerFields[iTask][numOfSteering[iTask]] = 0;
    numOfSteerChildren[iTask][numOfSteering[iTask]] = 0;
 
@@ -3343,6 +3349,8 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
          if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
          if (makeOutput) steerName[iTask][actualSteerIndex].WriteLine();
       }
+      if (type == 1 && !strcmp((const char*)name,"SPGroupArraySize"))
+         xml->GetValue(steerArraySize[iTask][actualSteerIndex],steerArraySize[iTask][actualSteerIndex]);
       // steering parameter field
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterField")) {
          // include initialisation
@@ -4963,10 +4971,13 @@ bool ROMEBuilder::WriteConfigCpp() {
          ROMEString pathT;
          ROMEString pointerT;
          ROMEString classT;
+         ROMEString indexT;
+         ROMEString blankT;
+         int indexCounter = 0;
          pathT.SetFormatted("path+\"/Tasks%s",path.Data());
          pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointer.Data());
          classT.SetFormatted("ConfigData%s::Steering",classname.Data());
-         WriteSteeringConfigRead(buffer,0,taskHierarchyClassIndex[i],xml,pathT,pointerT,classT);
+         WriteSteeringConfigRead(buffer,0,taskHierarchyClassIndex[i],xml,pathT,pointerT,classT,indexT,blankT,&indexCounter);
       }
       // all
       buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified",pointer.Data());
@@ -5058,10 +5069,13 @@ bool ROMEBuilder::WriteConfigCpp() {
       ROMEString pathT;
       ROMEString pointerT;
       ROMEString classT;
+      ROMEString indexT;
+      ROMEString blankT;
+      int indexCounter = 0;
       pathT.SetFormatted("path+\"/GlobalSteeringParameters");
       pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
       classT.SetFormatted("ConfigData::GlobalSteering");
-      WriteSteeringConfigRead(buffer,0,numOfTaskHierarchy,xml,pathT,pointerT,classT);
+      WriteSteeringConfigRead(buffer,0,numOfTaskHierarchy,xml,pathT,pointerT,classT,indexT,blankT,&indexCounter);
    }
    // midas banks
    for (i=0;i<numOfEvent;i++) {
@@ -5389,9 +5403,11 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("   // steering parameters\n");
          ROMEString pointerT;
          ROMEString steerPointerT;
+         ROMEString blankT;
+         int indexCounter = 0;
          pointerT.SetFormatted("%s->fSteering",pointer.Data());
          steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%s%03dTask())->GetSP()",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i);
-         WriteSteeringConfigSet(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT);
+         WriteSteeringConfigSet(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT,blankT,&indexCounter);
       }
    }
    // Trees
@@ -5440,9 +5456,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    if (numOfSteering[numOfTaskHierarchy]>0) {
       ROMEString pointerT;
       ROMEString steerPointerT;
+      ROMEString blankT;
+      int indexCounter = 0;
       pointerT.SetFormatted("->fGlobalSteering");
       steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
-      WriteSteeringConfigSet(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT);
+      WriteSteeringConfigSet(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT,blankT,&indexCounter);
    }
 
    // midas banks
@@ -5747,9 +5765,10 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("      xml->StartElement(\"GlobalSteeringParameters\");\n");
       ROMEString pointerT;
       ROMEString steerPointerT;
+      int indexCounter = 0;
       pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
       steerPointerT.SetFormatted("gAnalyzer->GetGSP()");
-      WriteSteeringConfigWrite(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT,1);
+      WriteSteeringConfigWrite(buffer,0,numOfTaskHierarchy,pointerT,steerPointerT,1,&indexCounter);
    }
    if (numOfSteering[numOfTaskHierarchy]>0) {
       buffer.AppendFormatted("      xml->EndElement();\n");
@@ -7042,13 +7061,19 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
          buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
       }
       else {
-         format.SetFormatted("%%s   %%-%ds f%%s[%%s];%%%ds %%s\n",typeLen,nameLen+3-steerFieldName[numTask][numSteer][j].Length());
+         format.SetFormatted("%%s   %%-%ds f%%s[%%s];%%%ds %%s\n",typeLen,nameLen+3-steerFieldName[numTask][numSteer][j].Length()-steerFieldArraySize[numTask][numSteer][j].Length());
          buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldArraySize[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
-      format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length()-steerFieldArraySize[numTask][numSteer][j].Length());
-      buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]=="1") {
+         format.SetFormatted("%%s   %%-%ds *f%%s;%%%ds // Handle to %%s Class\n",typeLen-1,nameLen+5-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
+      else {
+         format.SetFormatted("%%s   %%-%ds *f%%s[%%s];%%%ds // Handle to %%s Class\n",typeLen-1,nameLen+3-steerName[numTask][steerChildren[numTask][numSteer][i]].Length()-steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Length());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
    }
    buffer.AppendFormatted("\n%spublic:\n",blank.Data());
    // Constructor
@@ -7068,13 +7093,24 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
-      buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]!="1") {
+         buffer.AppendFormatted("int i; ");
+         break;
+      }
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]=="1") {
+         buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
+      else {
+         buffer.AppendFormatted("for (i=0;i<%s;i++) f%s[i] = new %s(); ",steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
    }
    buffer.AppendFormatted("};\n");
    // Getters
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (steerFieldArraySize[numTask][numSteer][j]=="1") {
-         format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen+9-steerFieldName[numTask][numSteer][j].Length());
+         format.SetFormatted("%%s   %%-%ds Get%%s()%%%ds { return f%%s; };\n",typeLen,nameLen+7-steerFieldName[numTask][numSteer][j].Length());
          buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldName[numTask][numSteer][j].Data());
       }
       else {
@@ -7083,8 +7119,14 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
-      format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
-      buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]=="1") {
+         format.SetFormatted("%%s   %%-%ds *Get%%s()%%%ds { return f%%s; };\n",typeLen-1,nameLen+7-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
+      else {
+         format.SetFormatted("%%s   %%-%ds *Get%%sAt(int i)%%%ds { return f%%s[i]; };\n",typeLen-1,nameLen-steerName[numTask][steerChildren[numTask][numSteer][i]].Length());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
    }
    // Setters
    buffer.AppendFormatted("\n");
@@ -7108,6 +7150,7 @@ bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int n
    ROMEString format;
    ROMEString sc;
    ROMEString blank="";
+   bool intDefined = false;
    int i,k;
    for (i=0;i<tab;i++)
       blank.Append("   ");
@@ -7128,14 +7171,22 @@ bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int n
       buffer.AppendFormatted("%s   public:\n",blank.Data());
       WriteSteeringConfigClass(buffer,steerChildren[numTask][numSteer][k],numTask,tab+1);
       buffer.AppendFormatted("%s   };\n",blank.Data());
-      buffer.AppendFormatted("%s   %s *f%s;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      buffer.AppendFormatted("%s   bool f%sModified;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
+         buffer.AppendFormatted("%s   %s *f%s;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s   bool f%sModified;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      }
+      else {
+         buffer.AppendFormatted("%s   %s *f%s[%s];\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s   bool f%sModified[%s];\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s   bool f%sArrayModified;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      }
    }
    buffer.AppendFormatted("%spublic:\n",blank.Data());
    buffer.AppendFormatted("%s   %s() {\n",blank.Data(),steerName[numTask][numSteer].Data());
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if (steerFieldArraySize[numTask][numSteer][k]!="1") {
          buffer.AppendFormatted("%s      int i;\n",blank.Data());
+         intDefined = true;
          break;
       }
    }
@@ -7149,109 +7200,174 @@ bool ROMEBuilder::WriteSteeringConfigClass(ROMEString &buffer,int numSteer,int n
          buffer.AppendFormatted("%s      f%sArrayModified = false;\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
       }
    }
+   for (k=0;k<numOfSteerChildren[numTask][numSteer] && !intDefined;k++) {
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]!="1") {
+         buffer.AppendFormatted("%s      int i;\n",blank.Data());
+         break;
+      }
+   }
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
-      buffer.AppendFormatted("%s      f%s = new %s;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
+         buffer.AppendFormatted("%s      f%sModified = false;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      f%s = new %s();\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      }
+      else {
+         buffer.AppendFormatted("%s      for (i=0;i<%s;i++) {\n",blank.Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s         f%sModified[i] = false;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s         f%s[i] = new %s();\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      }\n",blank.Data());
+         buffer.AppendFormatted("%s      f%sArrayModified = false;\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      }
    }
    buffer.AppendFormatted("%s   }\n",blank.Data());
    return true;
 }
-bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath) {
+bool ROMEBuilder::WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath,ROMEString& index,ROMEString& blank,int *indexCounter) {
    int k;
    ROMEString pathT;
    ROMEString pointerT;
    ROMEString classPathT;
-   buffer.AppendFormatted("   %sModified = false;\n",pointer.Data());
+   ROMEString indexT;
+   ROMEString blankT;
+
+   ROMEString currentIndex;
+   ROMEString currentPointer = pointer;
+   if (pointer[pointer.Length()-1]==']') {
+      currentIndex = pointer(pointer.Last('['),pointer.Length()-1-pointer.Last('['))+"]";
+      currentPointer = pointer(0,pointer.Last('['));
+   }
+
+   buffer.AppendFormatted("%s   %sModified%s = false;\n",blank.Data(),currentPointer.Data(),currentIndex.Data());
    // Fields
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
-      buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s   // %s Field\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
       if (steerFieldArraySize[numTask][numSteer][k]=="1") {
-         buffer.AppendFormatted("   xml->GetPathValue(%s/SteeringParameterField[SPName='%s']/SPValue\",%s->f%s,\"\");\n",path.Data(),steerFieldName[numTask][numSteer][k].Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("   if (%s->f%s==\"\")\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      %s->f%sModified = false;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("   else {\n");
-         buffer.AppendFormatted("      %s->f%sModified = true;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      %sModified = true;\n",pointer.Data());
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("%s   buf.SetFormatted(%s/SteeringParameterField[SPName='%s']/SPValue\"%s);\n",blank.Data(),path.Data(),steerFieldName[numTask][numSteer][k].Data(),index.Data());
+         buffer.AppendFormatted("%s   xml->GetPathValue(buf.Data(),%s->f%s,\"\");\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s   if (%s->f%s==\"\")\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      %s->f%sModified = false;\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s   else {\n",blank.Data());
+         buffer.AppendFormatted("%s      %s->f%sModified = true;\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      %sModified%s = true;\n",blank.Data(),currentPointer.Data(),currentIndex.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
       }
       else {
-         buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",steerFieldArraySize[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      buf.SetFormatted(%s/SteeringParameterField[SPName='%s']/SPArray[SPArrayIndex=%%d]/SPArrayValue\",i);\n",path.Data(),steerFieldName[numTask][numSteer][k].Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      xml->GetPathValue(buf.Data(),%s->f%s[i],\"\");\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      if (%s->f%s[i]==\"\")\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("         %s->f%sModified[i] = false;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      else {\n");
-         buffer.AppendFormatted("         %s->f%sModified[i] = true;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("         %s->f%sArrayModified = true;\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("         %sModified = true;\n",pointer.Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("%s   for (i=0;i<%s;i++) {\n",blank.Data(),steerFieldArraySize[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      buf.SetFormatted(%s/SteeringParameterField[SPName='%s']/SPFieldArray[SPFieldArrayIndex=%%d]/SPFieldArrayValue\"%s,i);\n",blank.Data(),path.Data(),steerFieldName[numTask][numSteer][k].Data(),index.Data());
+         buffer.AppendFormatted("%s      xml->GetPathValue(buf.Data(),%s->f%s[i],\"\");\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      if (%s->f%s[i]==\"\")\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s         %s->f%sModified[i] = false;\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      else {\n",blank.Data());
+         buffer.AppendFormatted("%s         %s->f%sModified[i] = true;\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s         %s->f%sArrayModified = true;\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s         %sModified%s = true;\n",blank.Data(),currentPointer.Data(),currentIndex.Data());
+         buffer.AppendFormatted("%s      }\n",blank.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
       }
    }
    // Groups
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
-      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s   // %s Group\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       pathT = path;
       pointerT = pointer;
       classPathT = classPath;
-      path.AppendFormatted("/SteeringParameterGroup[SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath);
-      path = pathT;
-      pointer = pointerT;
-      classPath = classPathT;
-      buffer.AppendFormatted("   if (%s->f%sModified)\n",pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      buffer.AppendFormatted("      %sModified = true;\n",pointer.Data());
+      indexT = index;
+      blankT = blank;
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
+         path.AppendFormatted("/SteeringParameterGroup[SPGroupName='%s']",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath,index,blank,indexCounter);
+         path = pathT;
+         pointer = pointerT;
+         classPath = classPathT;
+         index = indexT;
+         blank = blankT;
+         buffer.AppendFormatted("%s   if (%s->f%sModified)\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      %sModified%s = true;\n",blank.Data(),currentPointer.Data(),currentIndex.Data());
+      }
+      else {
+         (*indexCounter)++;
+         buffer.AppendFormatted("%s   for (int i%d=0;i%d<%s;i%d++) {\n",blank.Data(),*indexCounter,*indexCounter,steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         index.AppendFormatted(",i%d",*indexCounter);
+         blank.AppendFormatted("   ");
+         path.AppendFormatted("/SteeringParameterGroup[SPGroupName='%s']/SPGroupArray[SPGroupArrayIndex=%%d]",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         pointer.AppendFormatted("->f%s[i%d]",steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         classPath.AppendFormatted("::%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         WriteSteeringConfigRead(buffer,steerChildren[numTask][numSteer][k],numTask,xml,path,pointer,classPath,index,blank,indexCounter);
+         path = pathT;
+         pointer = pointerT;
+         classPath = classPathT;
+         index = indexT;
+         blank = blankT;
+         buffer.AppendFormatted("%s      if (%s->f%sModified[i%d])\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         buffer.AppendFormatted("%s         %sModified%s = true;\n",blank.Data(),currentPointer.Data(),currentIndex.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
+      }
    }
    return true;
 }
 
-bool ROMEBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) {
+bool ROMEBuilder::WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,ROMEString& blank,int *indexCounter) {
    ROMEString pointerT;
    ROMEString steerPointerT;
+   ROMEString blankT;
    ROMEString decodedValue;
    ROMEString value;
    int k;
    // Fields
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
-      buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+      buffer.AppendFormatted("%s   // %s Field\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
       if (steerFieldArraySize[numTask][numSteer][k]=="1") {
-         buffer.AppendFormatted("   if (fConfigData[modIndex]%s->f%sModified) {\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s   if (fConfigData[modIndex]%s->f%sModified) {\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          value.SetFormatted("fConfigData[index]%s->f%s",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          setValue(&decodedValue,"",value.Data(),steerFieldType[numTask][numSteer][k].Data(),1);
          if (steerFieldType[numTask][numSteer][k]=="std::string")
-            buffer.AppendFormatted("      %s->Set%s(%s.Data());\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),value.Data());
+            buffer.AppendFormatted("%s      %s->Set%s(%s.Data());\n",blank.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),value.Data());
          else
-            buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
-         buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("%s      %s->Set%s((%s)%s);\n",blank.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
       }
       else {
-         buffer.AppendFormatted("   for (i=0;i<%s;i++) {\n",steerFieldArraySize[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("      if (fConfigData[modIndex]%s->f%sModified[i]) {\n",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s   for (i=0;i<%s;i++) {\n",blank.Data(),steerFieldArraySize[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      if (fConfigData[modIndex]%s->f%sModified[i]) {\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          value.SetFormatted("fConfigData[index]%s->f%s[i]",pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          setValue(&decodedValue,"",value.Data(),steerFieldType[numTask][numSteer][k].Data(),1);
          if (steerFieldType[numTask][numSteer][k]=="std::string")
-            buffer.AppendFormatted("         %s->Set%sAt(i,%s.Data());\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),value.Data());
+            buffer.AppendFormatted("%s         %s->Set%sAt(i,%s.Data());\n",blank.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),value.Data());
          else
-            buffer.AppendFormatted("         %s->Set%sAt(i,(%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("%s         %s->Set%sAt(i,(%s)%s);\n",blank.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+         buffer.AppendFormatted("%s      }\n",blank.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
       }
    }
    // Groups
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
-      buffer.AppendFormatted("   // %s Group\n",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("%s   // %s Group\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
       pointerT = pointer;
       steerPointerT = steerPointer;
-      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      WriteSteeringConfigSet(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer);
+      blankT = blank;
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
+         pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         WriteSteeringConfigSet(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,blank,indexCounter);
+      }
+      else {
+         (*indexCounter)++;
+         buffer.AppendFormatted("%s   for (int i%d=0;i%d<%s;i%d++) {\n",blank.Data(),*indexCounter,*indexCounter,steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         pointer.AppendFormatted("->f%s[i%d]",steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         steerPointer.AppendFormatted("->Get%sAt(i%d)",steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         blank.AppendFormatted("   ");
+         WriteSteeringConfigSet(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,blank,indexCounter);
+         buffer.AppendFormatted("%s   }\n",blankT.Data());
+      }
       pointer = pointerT;
       steerPointer = steerPointerT;
+      blank = blankT;
    }
    return true;
 }
-bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab) {
+bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab,int *indexCounter) {
    ROMEString pointerT;
    ROMEString steerPointerT;
    ROMEString decodedValue;
@@ -7294,9 +7410,9 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
          buffer.AppendFormatted("%s      xml->WriteElement(\"SPName\",\"%s\");\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
          buffer.AppendFormatted("%s      for (i=0;i<%s;i++) {\n",blank.Data(),steerFieldArraySize[numTask][numSteer][k].Data());
          buffer.AppendFormatted("%s         if (%s->f%sModified[i] || index==0) {\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("%s            xml->StartElement(\"SPArray\");\n",blank.Data());
+         buffer.AppendFormatted("%s            xml->StartElement(\"SPFieldArray\");\n",blank.Data());
          buffer.AppendFormatted("%s            value.SetFormatted(\"%%d\",i);\n",blank.Data());
-         buffer.AppendFormatted("%s            xml->WriteElement(\"SPArrayIndex\",value.Data());\n",blank.Data());
+         buffer.AppendFormatted("%s            xml->WriteElement(\"SPFieldArrayIndex\",value.Data());\n",blank.Data());
          buffer.AppendFormatted("%s            if (index==0) {\n",blank.Data());
          GetFormat(&value,steerFieldType[numTask][numSteer][k].Data());
          if (steerFieldType[numTask][numSteer][k]=="TString")
@@ -7311,10 +7427,10 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
          }
          else
             buffer.AppendFormatted("%s               value.SetFormatted(\"%s\",%s->Get%sAt(i));\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"SPArrayValue\",value.Data());\n",blank.Data());
+         buffer.AppendFormatted("%s               xml->WriteElement(\"SPFieldArrayValue\",value.Data());\n",blank.Data());
          buffer.AppendFormatted("%s            }\n",blank.Data());
          buffer.AppendFormatted("%s            else if (%s->f%sModified)\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("%s               xml->WriteElement(\"SPArrayValue\",%s->f%s[i].Data());\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s               xml->WriteElement(\"SPFieldArrayValue\",%s->f%s[i].Data());\n",blank.Data(),pointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          buffer.AppendFormatted("%s            xml->EndElement();\n",blank.Data());
          buffer.AppendFormatted("%s         }\n",blank.Data());
          buffer.AppendFormatted("%s      }\n",blank.Data());
@@ -7325,18 +7441,48 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
    // Groups
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
       buffer.AppendFormatted("%s   // %s Group\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      buffer.AppendFormatted("%s   if (%s->f%sModified || index==0) {\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      buffer.AppendFormatted("%s      xml->StartElement(\"SteeringParameterGroup\");\n",blank.Data());
-      buffer.AppendFormatted("%s      xml->WriteElement(\"SPGroupName\",\"%s\");\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      pointerT = pointer;
-      steerPointerT = steerPointer;
-      pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      WriteSteeringConfigWrite(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,tab+1);
-      pointer = pointerT;
-      steerPointer = steerPointerT;
-      buffer.AppendFormatted("%s      xml->EndElement();\n",blank.Data());
-      buffer.AppendFormatted("%s   }\n",blank.Data());
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
+         buffer.AppendFormatted("%s   if (%s->f%sModified || index==0) {\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      xml->StartElement(\"SteeringParameterGroup\");\n",blank.Data());
+         buffer.AppendFormatted("%s      xml->WriteElement(\"SPGroupName\",\"%s\");\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         pointerT = pointer;
+         steerPointerT = steerPointer;
+         pointer.AppendFormatted("->f%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         steerPointer.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         WriteSteeringConfigWrite(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,tab+1,indexCounter);
+         pointer = pointerT;
+         steerPointer = steerPointerT;
+         buffer.AppendFormatted("%s      xml->EndElement();\n",blank.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
+      }
+      else {
+         (*indexCounter)++;
+         buffer.AppendFormatted("%s   for (int i%d=0;i%d<%s;i%d++) {\n",blank.Data(),*indexCounter,*indexCounter,steerArraySize[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         blank.Append("   ");
+         tab++;
+         buffer.AppendFormatted("%s   if (%s->f%sArrayModified || index==0) {\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      xml->StartElement(\"SteeringParameterGroup\");\n",blank.Data());
+         buffer.AppendFormatted("%s      xml->WriteElement(\"SPGroupName\",\"%s\");\n",blank.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         buffer.AppendFormatted("%s      if (%s->f%sModified[i%d] || index==0) {\n",blank.Data(),pointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         buffer.AppendFormatted("%s         xml->StartElement(\"SPGroupArray\");\n",blank.Data());
+         buffer.AppendFormatted("%s         value.SetFormatted(\"%%d\",i%d);\n",blank.Data(),*indexCounter);
+         buffer.AppendFormatted("%s         xml->WriteElement(\"SPGroupArrayIndex\",value.Data());\n",blank.Data());
+         pointerT = pointer;
+         steerPointerT = steerPointer;
+         pointer.AppendFormatted("->f%s[i%d]",steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         steerPointer.AppendFormatted("->Get%sAt(i%d)",steerName[numTask][steerChildren[numTask][numSteer][k]].Data(),*indexCounter);
+         WriteSteeringConfigWrite(buffer,steerChildren[numTask][numSteer][k],numTask,pointer,steerPointer,tab+2,indexCounter);
+         pointer = pointerT;
+         steerPointer = steerPointerT;
+         buffer.AppendFormatted("%s         xml->EndElement();\n",blank.Data());
+         buffer.AppendFormatted("%s      }\n",blank.Data());
+         buffer.AppendFormatted("%s      xml->EndElement();\n",blank.Data());
+         buffer.AppendFormatted("%s   }\n",blank.Data());
+         tab--;
+         blank.Resize(blank.Length()-3);
+         buffer.AppendFormatted("%s   }\n",blank.Data());
+
+      }
    }
    return true;
 }
@@ -7715,9 +7861,10 @@ bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
          buffer.AppendFormatted("%s            ROMEString value;\n",blank.Data());
          ROMEString pointerT;
          ROMEString steerPointerT;
+         int indexCounter = 0;
          pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointerI.Data());
          steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%s%03dTask())->GetSP()",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i);
-         WriteSteeringConfigWrite(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT,3+tab);
+         WriteSteeringConfigWrite(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT,3+tab,&indexCounter);
       }
       if (numOfSteering[taskHierarchyClassIndex[i]]>0)
          buffer.AppendFormatted("%s         }\n",blank.Data());

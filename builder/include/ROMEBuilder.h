@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.55  2005/07/04 16:41:11  schneebeli_m
+  added SPGroup Arrays
+
   Revision 1.54  2005/07/01 21:55:47  sawada
   Multiple dimensional array fields in folders.
   Small bug fix in Midas classes.
@@ -278,6 +281,7 @@ protected:
    int numOfSteerFields[maxNumberOfTasks+1][maxNumberOfSteering];
    int numOfSteerChildren[maxNumberOfTasks+1][maxNumberOfSteering];
    ROMEString steerName[maxNumberOfTasks+1][maxNumberOfSteering];
+   ROMEString steerArraySize[maxNumberOfTasks+1][maxNumberOfSteering];
    int        steerParent[maxNumberOfTasks+1][maxNumberOfSteering];
    int        steerChildren[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteering];
    ROMEString steerFieldName[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
@@ -356,9 +360,9 @@ public:
    bool ReadXMLTask();
    bool WriteSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
    bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
-   bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath);
-   bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer);
-   bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab);
+   bool WriteSteeringConfigRead(ROMEString &buffer,int numSteer,int numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath,ROMEString& index,ROMEString& blank,int *indexCounter);
+   bool WriteSteeringConfigSet(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,ROMEString& blank,int *indexCounter);
+   bool WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer,int tab,int *indexCounter);
    bool WriteSteeringReadParameters(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) ;
    bool WriteSteeringParameterUsage(ROMEString &buffer,int numSteer,int numTask,ROMEString& pointer,ROMEString& steerPointer) ;
    int  WriteSteeringInterpreterCode(ROMEString &buffer,int codeNumber,int numSteer,int numTask,ROMEString& path,int tab);

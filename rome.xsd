@@ -181,6 +181,11 @@
 					<xs:documentation>The name of a steering parameter group.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="SPGroupArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the steering parameter group. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>The fields of this steering parameter group. (optional)</xs:documentation>

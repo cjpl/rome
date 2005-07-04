@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2005/07/04 16:41:21  schneebeli_m
+  added SPGroup Arrays
+
   Revision 1.8  2005/06/28 07:12:31  sawada
   replaced atdarg.h with Varargs.h. It is more safe under some platform.
 
@@ -44,6 +47,7 @@ public:
    void Write();
    void WriteLine();
    istream& ReadFile(istream& str);
+
 private:
    bool FormatString(ROMEString* string,const char* format,va_list parameters);
    int  SearchFormatType(const char* str);
