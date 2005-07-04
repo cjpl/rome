@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.11  2005/07/04 14:39:38  sawada
+#  error message when compilation is failed.
+#
 #  Revision 1.10  2005/05/30 18:22:15  sawada
 #  small change for Macintosh
 #
@@ -87,8 +90,11 @@ endif
 all: $(TARGET)
 
 bin/argusbuilder: $(addprefix builder/src/, $(SRC)) $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/builder/include/ROMEBuilder.h $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c bin
-	g++ $(CFLAGS) -g -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
-	$(ROMESYS)/src/ROMEString.cpp  $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY)
+	@echo 'compiling argusbuilder...'
+	@g++ $(CFLAGS) -g -o $@ $(addprefix builder/src/, $(SRC)) $(ROMESYS)/src/ROMEXML.cpp \
+	$(ROMESYS)/src/ROMEString.cpp  $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/src/mxml.c \
+	$(ROMESYS)/src/strlcpy.c $(INCLUDE) $(LIBRARY) \
+	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
 
 bin:
 	@if [ ! -d  bin ] ; then \
