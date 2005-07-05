@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.56  2005/07/05 09:37:44  sawada
+  TArray? as fields in folders.
+
   Revision 1.55  2005/07/04 16:41:11  schneebeli_m
   added SPGroup Arrays
 
@@ -410,6 +413,10 @@ public:
    bool isNumber(const char * string);
    bool isBoolType(const char *type);
    bool isFolder(const char *type);
+   bool isTArrayType(const char *type);
+   bool isTArrayType(TString &type) { return isTArrayType(type.Data()); };
+   const char* TArray2StandardType(const char *type);
+   const char* TArray2StandardType(TString &type) { return TArray2StandardType(type.Data()); };
    void usage();
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);

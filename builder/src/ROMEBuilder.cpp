@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.206  2005/07/05 09:37:44  sawada
+  TArray? as fields in folders.
+
   Revision 1.205  2005/07/04 17:14:47  schneebeli_m
   removed some errors
 
@@ -809,6 +812,11 @@ bool ROMEBuilder::ReadXMLFolder() {
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
                else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
+               else if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
+                  valueDimension[numOfFolder][numOfValue[numOfFolder]] = 1;
+                  valueArray[numOfFolder][numOfValue[numOfFolder]][0] = "0";
+               }
                else
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
             }
@@ -880,6 +888,21 @@ bool ROMEBuilder::ReadXMLFolder() {
             cout << "Multiple dimension field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
             cout << "Terminating program." << endl;
             return false;
+         }
+         if (isTArrayType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+            if(valueDimension[numOfFolder][numOfValue[numOfFolder]]>2) {
+               cout << "Array of TArray is not supported. ( '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' )"<<endl;
+               cout << "Terminating program." << endl;
+               return false;
+            }
+/*
+            if(valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
+               || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length()) {
+               cout << "TArray type field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
+               cout << "Terminating program." << endl;
+               return false;
+            }
+*/
          }
          for (i=0;i<numOfValue[numOfFolder];i++) {
             for (j=i+1;j<numOfValue[numOfFolder];j++) {
@@ -1017,6 +1040,11 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("#include <%s.h>\n",valueType[iFold][i].Data());
             break;
          }
+         if (isTArrayType(valueType[iFold][i])) {
+            buffer.AppendFormatted("#include <%s.h>\n",valueType[iFold][i].Data());
+            valueType[iFold][i] += "*";
+            break;
+         }
       }
 
       for (i=0;i<numOfValue[iFold];i++) {
@@ -1068,9 +1096,11 @@ bool ROMEBuilder::WriteFolderH() {
             format.SetFormatted("   %%-%ds %%s",typeLen);
             buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
             arrayLen = 0;
-            for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
-               buffer.AppendFormatted("[%s]",valueArray[iFold][i][iDm].Data());
-               arrayLen += 2+valueArray[iFold][i][iDm].Length();
+            if(!isTArrayType(valueType[iFold][i])){
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
+                  buffer.AppendFormatted("[%s]",valueArray[iFold][i][iDm].Data());
+                  arrayLen += 2+valueArray[iFold][i][iDm].Length();
+               }
             }
             format.SetFormatted(";%%%ds %%s\n",nameLen-valueName[iFold][i].Length()-arrayLen);
             buffer.AppendFormatted(format.Data(),"",valueComment[iFold][i].Data());
@@ -1121,6 +1151,12 @@ bool ROMEBuilder::WriteFolderH() {
                   buffer.AppendFormatted("      Allocate%s(%s);\n",valueName[iFold][i].Data(),valueArray[iFold][i][0].Data());
             }
          }
+         else if(isTArrayType(valueType[iFold][i])) {
+            tmp = valueType[iFold][i];
+            tmp.ReplaceAll("*","");
+            buffer.AppendFormatted("      %s = new %s(%s);\n",valueName[iFold][i].Data(),tmp.Data(),valueArray[iFold][i][0].Data());
+            buffer.AppendFormatted("      %s->Reset(%s);\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+         }
          else {
             if (valueDimension[iFold][i]==0)
                buffer.AppendFormatted("      %s = %s_value;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
@@ -1167,6 +1203,12 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else if(isTArrayType(valueType[iFold][i])) {
+               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s->At(index);%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),TArray2StandardType(valueType[iFold][i]),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else {
                format.SetFormatted("   %%-%ds  Get%%sAt(",typeLen);
@@ -1274,6 +1316,10 @@ bool ROMEBuilder::WriteFolderH() {
                format.SetFormatted("%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,lb);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"");
             }
+            else if(isTArrayType(valueType[iFold][i])) {
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s->AddAt(%%s_value,index)%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i]),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
+            }
             else {
                format.SetFormatted("   void Set%%sAt%%%ds(",lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
@@ -1319,6 +1365,15 @@ bool ROMEBuilder::WriteFolderH() {
                format.SetFormatted("%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,lb);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"");
             }
+            else if(isTArrayType(valueType[iFold][i])) {
+               format.SetFormatted("   void Add%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) {\n",lb,typeLen,lb);
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i]),valueName[iFold][i].Data(),"");
+               buffer.AppendFormatted("      %s tmp = %s->At(index);\n",TArray2StandardType(valueType[iFold][i]),valueName[iFold][i].Data());
+               buffer.AppendFormatted("      tmp += %s_value;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s->AddAt(tmp,index);\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      SetModified(true);\n");
+               buffer.AppendFormatted("   };\n");
+            }
             else {
                if (!isBoolType(valueType[iFold][i].Data())) {
                   format.SetFormatted("   void Add%%sAt%%%ds(",lb);
@@ -1347,6 +1402,11 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("      for(i=0;i<number;i++) {\n");
             buffer.AppendFormatted("         new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
             buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("   }\n");
+         }
+         else if(isTArrayType(valueType[iFold][i])){
+            buffer.AppendFormatted("   void Allocate%s(int number) {\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("         %s->Set(number);\n",valueName[iFold][i].Data());
             buffer.AppendFormatted("   }\n");
          }
       }
@@ -1393,6 +1453,9 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      %s->Reset();\n",valueName[iFold][i].Data());
             else
                buffer.AppendFormatted("      for(i=0;i<%s->GetEntries();i++) { ((%s)%s->At(i))->Reset(); }\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+         }
+         else if(isTArrayType(valueType[iFold][i])) {
+            buffer.AppendFormatted("      %s->Reset(%s);\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
          }
          else {
             for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
@@ -7722,14 +7785,14 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
             buffer.AppendFormatted("%s      for (j=0;j<%s;j++) {\n",blank.Data(),valueArray[numFolder][j][0].Data());
             buffer.AppendFormatted("%s         if (values->At(%s,j).Length()!=0)\n",blank.Data(),iValue.Data());
             valueString.SetFormatted("values->At(%s,j).Data()",iValue.Data());
-            setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),valueType[numFolder][j].Data(),1);
+            setValue(&buf,valueName[numFolder][j].Data(),valueString.Data(),TArray2StandardType(valueType[numFolder][j]),1);
             if (type==1) {
-               buffer.AppendFormatted("%s            f%sFolder->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("%s            f%sFolder->Set%sAt(j,(%s)%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j]),buf.Data());
                buffer.AppendFormatted("%s         else\n",blank.Data());
                buffer.AppendFormatted("%s            f%sFolder->Set%sAt(j,%s);\n",blank.Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
             else {
-               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueType[numFolder][j].Data(),buf.Data());
+               buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%sAt(j,(%s)%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),TArray2StandardType(valueType[numFolder][j]),buf.Data());
                buffer.AppendFormatted("            else\n");
                buffer.AppendFormatted("               ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),valueName[numFolder][j].Data(),valueInit[numFolder][j].Data());
             }
@@ -9921,6 +9984,48 @@ bool ROMEBuilder::isFolder(const char *type) {
          return true;
    }
    return false;
+}
+bool ROMEBuilder::isTArrayType(const char *type) {
+   int j;
+   ROMEString str;
+   const char arrayTypes[][8]
+      = {"TArrayC"
+         ,"TArrayI"
+         ,"TArrayD"
+         ,"TArrayL"
+         ,"TArrayF"
+         ,"TArrayS"
+      };
+   
+   for (j=0;j<6;j++) {
+      if (!strcmp(type,arrayTypes[j]))
+         return true;
+      str.SetFormatted("%s*",arrayTypes[j]);
+      if (!strcmp(type,str.Data()))
+         return true;
+   }
+   return false;
+}
+const char* ROMEBuilder::TArray2StandardType(const char *type) {
+   int j;
+   ROMEString str;
+   const char arrayTypes[][2][9]
+      = { {"TArrayC","Char_t  "}
+         ,{"TArrayI","Int_t   "}
+         ,{"TArrayD","Double_t"}
+         ,{"TArrayL","Long_t  "}
+         ,{"TArrayF","Float_t "}
+         ,{"TArrayS","Short_t "}
+      };
+   
+   for (j=0;j<6;j++) {
+      if (!strcmp(type,arrayTypes[j][0]))
+         return arrayTypes[j][1];
+      str.SetFormatted("%s*",arrayTypes[j]);
+      if (!strcmp(type,str.Data()))
+         return arrayTypes[j][1];
+   }
+   return type;
 }
 bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,int nspace) {
    bool writeFile = false;
