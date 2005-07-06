@@ -3,6 +3,10 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.207  2005/07/06 07:46:25  sawada
+  Command line option for arrayed steering parameters.
+  Revised way to check access to folders within task code.
+
   Revision 1.206  2005/07/05 09:37:44  sawada
   TArray? as fields in folders.
 
@@ -1853,24 +1857,16 @@ bool ROMEBuilder::WriteTaskCpp() {
          delete fileStream;
          bool first = true;
          for (j=0;j<numOfFolder;j++) {
-            if (!folderSupport[j]) {
-               str = "Get";
-               str += folderName[j];
-               if (folderArray[j]=="1")
-                  str += "(";
-               else
-                  str += "At(";
-               if (fileBuffer.Contains(str)) {
-                  if (first) {
-                     header.AppendFormatted("// \n");
-                     header.AppendFormatted("// Please note: The following information is only correct after executing the\n");
-                     header.AppendFormatted("//              ROMEBuilder.\n");
-                     header.AppendFormatted("// \n");
-                     header.AppendFormatted("// This task accesses the following folders :\n");
-                     first = false;
-                  }
-                  header.AppendFormatted("//    %s\n",folderName[j].Data());
+            if (accessFolder(fileBuffer,j)) {
+               if (first) {
+                  header.AppendFormatted("// \n");
+                  header.AppendFormatted("// Please note: The following information is only correct after executing the\n");
+                  header.AppendFormatted("//              ROMEBuilder.\n");
+                  header.AppendFormatted("// \n");
+                  header.AppendFormatted("// This task accesses the following folders :\n");
+                  first = false;
                }
+               header.AppendFormatted("//    %s\n",folderName[j].Data());
             }
          }
          header.AppendFormatted("// \n");
@@ -3835,6 +3831,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("bool %sAnalyzer::ReadUserParameter(const char* opt, const char* value, int& i) {\n",shortCut.Data());
    // Global Steering Parameter
    buffer.AppendFormatted("   ROMEString option = opt;\n");
+   buffer.AppendFormatted("   ROMEString tmp;\n");
    buffer.AppendFormatted("   char *cstop=NULL;\n");
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTaskHierarchy]>0) {
@@ -7569,20 +7566,42 @@ bool ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,int numSteer,in
    // Fields
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if(steerFieldCLOption[numTask][numSteer][k].Length()){
-         buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
-         buffer.AppendFormatted("   if (option == \"-%s\") {\n",steerFieldCLOption[numTask][numSteer][k].Data());
-         if (isBoolType(steerFieldType[numTask][numSteer][k].Data())){
-            buffer.AppendFormatted("      %s->Set%s(true);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+         if (steerFieldArraySize[numTask][numSteer][k]=="1") {
+            buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+            buffer.AppendFormatted("   if (option == \"-%s\") {\n",steerFieldCLOption[numTask][numSteer][k].Data());
+            if (isBoolType(steerFieldType[numTask][numSteer][k].Data())){
+               buffer.AppendFormatted("      %s->Set%s(true);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
+            }
+            else{
+               buffer.AppendFormatted("      if(!strlen(value))\n");
+               buffer.AppendFormatted("         gAnalyzer->Println(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
+               setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
+               buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+               buffer.AppendFormatted("      i++;\n");
+            }
+            buffer.AppendFormatted("      return true;\n");
+            buffer.AppendFormatted("   }\n");
          }
          else{
-            buffer.AppendFormatted("      if(!strlen(value))\n");
-            buffer.AppendFormatted("         gAnalyzer->Println(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
-            setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
-            buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
-            buffer.AppendFormatted("      i++;\n");
+            buffer.AppendFormatted("   // %s Field\n",steerFieldName[numTask][numSteer][k].Data());
+            buffer.AppendFormatted("   for(int i_%s=0;i_%s<%s;i_%s++){\n",steerFieldCLOption[numTask][numSteer][k].Data(),steerFieldCLOption[numTask][numSteer][k].Data(),steerFieldArraySize[numTask][numSteer][k].Data(),steerFieldCLOption[numTask][numSteer][k].Data());
+            buffer.AppendFormatted("      tmp = \"-%s\";\n",steerFieldCLOption[numTask][numSteer][k].Data());
+            buffer.AppendFormatted("      tmp += i_%s;\n",steerFieldCLOption[numTask][numSteer][k].Data());
+            buffer.AppendFormatted("      if (option == tmp) {\n");
+            if (isBoolType(steerFieldType[numTask][numSteer][k].Data())){
+               buffer.AppendFormatted("         %s->Set%sAt(i_%s,true);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldCLOption[numTask][numSteer][k].Data());
+            }
+            else{
+               buffer.AppendFormatted("         if(!strlen(value))\n");
+               buffer.AppendFormatted("            gAnalyzer->Println(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
+               setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
+               buffer.AppendFormatted("         %s->Set%sAt(i_%s,(%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldCLOption[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
+               buffer.AppendFormatted("         i++;\n");
+            }
+            buffer.AppendFormatted("         return true;\n");
+            buffer.AppendFormatted("      }\n");
+            buffer.AppendFormatted("   }\n");
          }
-         buffer.AppendFormatted("      return true;\n");
-         buffer.AppendFormatted("   }\n");
       }
    }
    // Groups
@@ -7605,16 +7624,21 @@ bool ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,int numSteer,in
    ROMEString decodedValue;
    ROMEString value;
    ROMEString format;
+   ROMEString arrayIndex;
    int nspace;
+   char *cstop=NULL;
    int k;
    // Fields
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if(steerFieldCLOption[numTask][numSteer][k].Length()){
-         nspace = 8-steerFieldCLOption[numTask][numSteer][k].Length();
+         arrayIndex = "";
+         if (steerFieldArraySize[numTask][numSteer][k]!="1")
+            arrayIndex.SetFormatted("[0-%d]",strtol(steerFieldArraySize[numTask][numSteer][k].Data(),&cstop,10)-1);
+         nspace = 8-steerFieldCLOption[numTask][numSteer][k].Length()-arrayIndex.Length();
          if(nspace<1)
             nspace = 1;
-         format.SetFormatted("   gAnalyzer->Println(\"  -%%s%%%ds%%s",nspace);
-         buffer.AppendFormatted(format.Data(),steerFieldCLOption[numTask][numSteer][k].Data(),"",steerFieldCLDescription[numTask][numSteer][k].Data());
+         format.SetFormatted("   gAnalyzer->Println(\"  -%%s%%s%%%ds%%s",nspace);
+         buffer.AppendFormatted(format.Data(),steerFieldCLOption[numTask][numSteer][k].Data(),arrayIndex.Data(),"",steerFieldCLDescription[numTask][numSteer][k].Data());
          if(isBoolType(steerFieldCLOption[numTask][numSteer][k].Data()))
             buffer.AppendFormatted(" (no Argument)");
          buffer.AppendFormatted("\");\n");
@@ -10086,4 +10110,48 @@ bool ROMEBuilder::WriteFile(const char* filename,const char* body,int nspace) {
       delete fileStream;
    }
    return true;
+}
+bool ROMEBuilder::accessFolder(ROMEString &fileBuffer, int numFolder) {
+   if (folderSupport[numFolder])
+      return false;
+
+   ROMEString str;
+
+   // Get
+   str = "Get";
+   str += folderName[numFolder];
+   if (folderArray[numFolder]!="1")
+      str += "At";
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+  
+   // Set
+   str = "Set";
+   str += folderName[numFolder];
+   if (folderArray[numFolder]!="1")
+      str += "At";
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+
+   // Add
+   str = "Add";
+   str += folderName[numFolder];
+   if (folderArray[numFolder]!="1")
+      str += "At";
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+
+   // Allocate
+   if (folderArray[numFolder]=="variable"){
+      str = "Allocate";
+      str += folderName[numFolder];
+      str += "(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
+
+   return false;
 }

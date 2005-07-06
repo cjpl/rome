@@ -2,6 +2,10 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.57  2005/07/06 07:46:24  sawada
+  Command line option for arrayed steering parameters.
+  Revised way to check access to folders within task code.
+
   Revision 1.56  2005/07/05 09:37:44  sawada
   TArray? as fields in folders.
 
@@ -417,6 +421,7 @@ public:
    bool isTArrayType(TString &type) { return isTArrayType(type.Data()); };
    const char* TArray2StandardType(const char *type);
    const char* TArray2StandardType(TString &type) { return TArray2StandardType(type.Data()); };
+   bool accessFolder(ROMEString &fileBuffer, int numFolder);
    void usage();
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
