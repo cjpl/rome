@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.12  2005/07/07 18:35:24  sawada
+//  write float and double with %g instead of %f.
+//
 //  Revision 1.11  2005/05/18 09:49:32  schneebeli_m
 //  removed run & event number error, implemented FileRead in ROMEString
 //
@@ -148,6 +151,8 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
             delete [] tmp;
             break;
          case 'd' :
+         case 'i' :
+         case 'x' :
             if (asterisk)
                numberOfDigits = va_arg(parameters,int);
             else
@@ -161,7 +166,9 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
             string->Append(tmp);
             delete [] tmp;
             break;
+         case 'e' : 
          case 'f' : 
+         case 'g' : 
             if (precision==-1)
                precision = 6;
             if (asterisk)

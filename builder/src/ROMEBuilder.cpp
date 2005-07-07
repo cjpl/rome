@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.209  2005/07/07 18:35:24  sawada
+  write float and double with %g instead of %f.
+
   Revision 1.208  2005/07/07 09:49:27  schneebeli_m
   don't know what I have changed
 
@@ -9835,7 +9838,7 @@ void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
-      buf->Append("%f");
+      buf->Append("%g");
    }
    else if (!strcmp(type,"bool") ||
       !strcmp(type,"Bool_t")) {
