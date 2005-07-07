@@ -3,6 +3,9 @@
   BuilderTab.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.40  2005/07/07 09:56:23  sawada
+  bug fix around configuration.
+
   Revision 1.39  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -900,9 +903,10 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,RO
          buffer.AppendFormatted("%s            ROMEString value;\n",blank.Data());
          ROMEString pointerT;
          ROMEString steerPointerT;
+         Int_t indexCounter = 0;
          pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointerI.Data());
          steerPointerT.SetFormatted("((%sT%s*)gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[i].Data(),tabName[i].Data(),i);
-         WriteSteeringConfigWrite(buffer,0,i,pointerT,steerPointerT,3+tab);
+         WriteSteeringConfigWrite(buffer,0,i,pointerT,steerPointerT,3+tab,&indexCounter);
       }
       if (numOfSteering[i]>0)
          buffer.AppendFormatted("%s         }\n",blank.Data());
