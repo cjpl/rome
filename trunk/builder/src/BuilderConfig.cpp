@@ -3,6 +3,9 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.21  2005/07/07 09:56:23  sawada
+  bug fix around configuration.
+
   Revision 1.20  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -164,7 +167,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   Int_t i;\n");
-
+   buffer.AppendFormatted("   ROMEString buf = \"\";\n");
    // Window
    buffer.AppendFormatted("   // window\n");
    buffer.AppendFormatted("   fConfigData[index]->fWindow = new ConfigData::Window();\n");
@@ -345,10 +348,13 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          ROMEString pathT;
          ROMEString pointerT;
          ROMEString classT;
+         ROMEString indexT;
+         ROMEString blankT;
+         Int_t indexCounter = 0;
          pathT.SetFormatted("path+\"/Tabs%s",path.Data());
          pointerT.SetFormatted("fConfigData[index]%s->fSteering",pointer.Data());
          classT.SetFormatted("ConfigData%s::Steering",classname.Data());
-         WriteSteeringConfigRead(buffer,0,i,xml,pathT,pointerT,classT);
+         WriteSteeringConfigRead(buffer,0,i,xml,pathT,pointerT,classT,indexT,blankT,&indexCounter);
       }
       // all
       buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified",pointer.Data());
@@ -411,10 +417,13 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       ROMEString pathT;
       ROMEString pointerT;
       ROMEString classT;
+      ROMEString indexT;
+      ROMEString blankT;
+      Int_t indexCounter = 0;
       pathT.SetFormatted("path+\"/GlobalSteeringParameters");
       pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
       classT.SetFormatted("ConfigData::GlobalSteering");
-      WriteSteeringConfigRead(buffer,0,numOfTab,xml,pathT,pointerT,classT);
+      WriteSteeringConfigRead(buffer,0,numOfTab,xml,pathT,pointerT,classT,indexT,blankT,&indexCounter);
    }
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n\n");
@@ -571,9 +580,11 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("   // steering parameters\n");
          ROMEString pointerT;
          ROMEString steerPointerT;
+         ROMEString blankT;
+         Int_t indexCounter = 0;
          pointerT.SetFormatted("%s->fSteering",pointer.Data());
          steerPointerT.SetFormatted("((%sT%s*) gWindow->Get%s%03dTab())->GetSP()",shortCut.Data(),tabName[i].Data(),tabName[i].Data(),i);
-         WriteSteeringConfigSet(buffer,0,i,pointerT,steerPointerT);
+         WriteSteeringConfigSet(buffer,0,i,pointerT,steerPointerT,blankT,&indexCounter);
       }
    }
    for (i=0;i<numOfTab;i++) {
@@ -653,9 +664,11 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    if (numOfSteering[numOfTab]>0) {
       ROMEString pointerT;
       ROMEString steerPointerT;
+      ROMEString blankT;
+      Int_t indexCounter = 0;
       pointerT.SetFormatted("->fGlobalSteering");
       steerPointerT.SetFormatted("gMonitor->GetGSP()");
-      WriteSteeringConfigSet(buffer,0,numOfTab,pointerT,steerPointerT);
+      WriteSteeringConfigSet(buffer,0,numOfTab,pointerT,steerPointerT,blankT,&indexCounter);
    }
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n\n");
@@ -847,9 +860,10 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("      xml->StartElement(\"GlobalSteeringParameters\");\n");
       ROMEString pointerT;
       ROMEString steerPointerT;
+      Int_t indexCounter = 0;
       pointerT.SetFormatted("fConfigData[index]->fGlobalSteering");
       steerPointerT.SetFormatted("gMonitor->GetGSP()");
-      WriteSteeringConfigWrite(buffer,0,numOfTab,pointerT,steerPointerT,1);
+      WriteSteeringConfigWrite(buffer,0,numOfTab,pointerT,steerPointerT,1,&indexCounter);
    }
    if (numOfSteering[numOfTab]>0) {
       buffer.AppendFormatted("      xml->EndElement();\n");
