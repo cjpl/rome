@@ -3,6 +3,11 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.210  2005/07/08 16:32:41  sawada
+  Tree buffer size and split level in definition file.
+  Swap the order of DAQ->BeginOfRun and updating folders.
+  Added ShortCutConfig.h in ShortCutDAQ.cpp.
+
   Revision 1.209  2005/07/07 18:35:24  sawada
   write float and double with %g instead of %f.
 
@@ -2782,6 +2787,8 @@ bool ROMEBuilder::ReadXMLTree() {
                // branch initialisation
                branchName[numOfTree][numOfBranch[numOfTree]] = "";
                branchFolder[numOfTree][numOfBranch[numOfTree]] = "";
+               branchBufferSize[numOfTree][numOfBranch[numOfTree]] = "32000";
+               branchSplitLevel[numOfTree][numOfBranch[numOfTree]] = "99";
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -2794,6 +2801,12 @@ bool ROMEBuilder::ReadXMLTree() {
                   // branch folder
                   if (type == 1 && !strcmp((const char*)name,"RelatedFolder"))
                      xml->GetValue(branchFolder[numOfTree][numOfBranch[numOfTree]],branchFolder[numOfTree][numOfBranch[numOfTree]]);
+                  // branch buffer size
+                  if (type == 1 && !strcmp((const char*)name,"BufferSize"))
+                     xml->GetValue(branchBufferSize[numOfTree][numOfBranch[numOfTree]],branchBufferSize[numOfTree][numOfBranch[numOfTree]]);
+                  // branch split level
+                  if (type == 1 && !strcmp((const char*)name,"SplitLevel"))
+                     xml->GetValue(branchSplitLevel[numOfTree][numOfBranch[numOfTree]],branchSplitLevel[numOfTree][numOfBranch[numOfTree]]);
                   // branch end
                   if (type == 15 && !strcmp((const char*)name,"Branch"))
                      break;
@@ -6907,6 +6920,7 @@ bool ROMEBuilder::WriteDAQCpp() {
 
          buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
+         buffer.AppendFormatted("#include <include/framework/%sConfig.h>\n",shortCut.Data());
          buffer.AppendFormatted("\n");
 
          buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),daqName[iDAQ].Data(),shortCut.Data(),daqName[iDAQ].Data());
@@ -8206,10 +8220,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
                iFold = k;
          }
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),32000,99);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data());
+            buffer.AppendFormatted("   tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
          else {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),32000,99);\n",branchName[i][j].Data(),branchFolder[i][j].Data());
+            buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
       }
       buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");

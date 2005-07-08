@@ -7,6 +7,11 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.58  2005/07/08 16:32:41  sawada
+//  Tree buffer size and split level in definition file.
+//  Swap the order of DAQ->BeginOfRun and updating folders.
+//  Added ShortCutConfig.h in ShortCutDAQ.cpp.
+//
 //  Revision 1.57  2005/06/13 15:49:04  schneebeli_m
 //  changed name of DAQ user functions
 //
@@ -446,9 +451,6 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t runNumberIndex) {
       }
    }
 
-   if (!gROME->GetActiveDAQ()->BeginOfRun())
-      return false;
-
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
       gROME->Println("\nError while reading the data base !");
@@ -460,6 +462,9 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t runNumberIndex) {
       gROME->Println("\nError while reading the data base !");
       return false;
    }
+
+   if (!gROME->GetActiveDAQ()->BeginOfRun())
+      return false;
 
    // Progress Display
    fProgressDelta = 10000;

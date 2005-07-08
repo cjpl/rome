@@ -2,6 +2,11 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.58  2005/07/08 16:32:41  sawada
+  Tree buffer size and split level in definition file.
+  Swap the order of DAQ->BeginOfRun and updating folders.
+  Added ShortCutConfig.h in ShortCutDAQ.cpp.
+
   Revision 1.57  2005/07/06 07:46:24  sawada
   Command line option for arrayed steering parameters.
   Revised way to check access to folders within task code.
@@ -308,6 +313,8 @@ protected:
    ROMEString treeTitle[maxNumberOfTrees];
    ROMEString branchName[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
+   ROMEString branchBufferSize[maxNumberOfTrees][maxNumberOfBranches];
+   ROMEString branchSplitLevel[maxNumberOfTrees][maxNumberOfBranches];
 
 // daq
    int numOfDAQ;

@@ -505,6 +505,16 @@
 					<xs:documentation>The name of the folder, whose data is stored to the branch. This folder has to be defined in the folder definition section of the xml file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="BufferSize" type="xs:integer" default="32000" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The buffer size of the branch. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SplitLevel" type="xs:integer" default="99" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The split level of the branch. If you have support folder fields in related folder, large split level might not safe. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TreeDesc">
