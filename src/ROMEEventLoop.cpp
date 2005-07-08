@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.59  2005/07/08 21:20:17  sawada
+//  Fixed the issue from the previous update. (order of DAQ BOR and updating folders)
+//
 //  Revision 1.58  2005/07/08 16:32:41  sawada
 //  Tree buffer size and split level in definition file.
 //  Swap the order of DAQ->BeginOfRun and updating folders.
@@ -451,6 +454,9 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t runNumberIndex) {
       }
    }
 
+   if (!gROME->GetActiveDAQ()->BeginOfRun())
+      return false;
+
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
       gROME->Println("\nError while reading the data base !");
@@ -462,9 +468,6 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t runNumberIndex) {
       gROME->Println("\nError while reading the data base !");
       return false;
    }
-
-   if (!gROME->GetActiveDAQ()->BeginOfRun())
-      return false;
 
    // Progress Display
    fProgressDelta = 10000;
