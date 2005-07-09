@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.213  2005/07/09 21:22:46  sawada
+  AddXXXAt for variable length field.
+
   Revision 1.212  2005/07/09 20:49:21  sawada
   bug fix.
 
@@ -1528,17 +1531,25 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   };\n");
             }
-            else if(!isBoolType(valueType[iFold][i].Data()) && valueArray[iFold][i][0]!="variable") {
+            else if(!isBoolType(valueType[iFold][i].Data())) {
                format.SetFormatted("   void Add%%sAt%%%ds(",lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("int %s, ",valueCounter[iDm]);
-               format.SetFormatted("%%-%ds %%s_value%%%ds) { %%s",typeLen,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
+               format.SetFormatted("%%-%ds %%s_value%%%ds) {\n",typeLen,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
+/*
+               if(valueArray[iFold][i][0]!="variable"){
+                  buffer.AppendFormatted("      if(%s>%sSize) return;\n",valueCounter[0],valueName[iFold][i].Data());
+               }
+*/
+               buffer.AppendFormatted("      %s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%s]",valueCounter[iDm]);
-               format.SetFormatted("%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,lb);
-               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("%%%ds += %%s_value;\n",lb);
+               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      SetModified(true);\n");
+               buffer.AppendFormatted("   }");
             }
          }
       }
