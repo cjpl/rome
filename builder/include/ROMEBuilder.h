@@ -2,6 +2,12 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.59  2005/07/09 18:33:27  sawada
+  Added variable length field support.
+  Changed name of a method 'AllocateXXX' -> 'SetXXXSize'
+  Added some method in folders 'GetXXXSize', 'SetXXXCopy', 'GetXXXCopy'
+  Added XXXConfig.h include in XXXEventLoop.
+
   Revision 1.58  2005/07/08 16:32:41  sawada
   Tree buffer size and split level in definition file.
   Swap the order of DAQ->BeginOfRun and updating folders.
@@ -423,6 +429,7 @@ public:
    bool isFloatingType(const char *type);
    bool isNumber(const char * string);
    bool isBoolType(const char *type);
+   bool isIntType(const char *type);
    bool isFolder(const char *type);
    bool isTArrayType(const char *type);
    bool isTArrayType(TString &type) { return isTArrayType(type.Data()); };

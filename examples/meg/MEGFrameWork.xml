@@ -106,7 +106,7 @@
 					<Field>
 						<FieldName>Geometry</FieldName>
 						<FieldType>Float_t</FieldType>
-						<ArraySize>3:3</ArraySize>
+						<ArraySize>2:3</ArraySize>
 						<FieldComment>Position and direction</FieldComment>
 					</Field>
 				</Folder>
