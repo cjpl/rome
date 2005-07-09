@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.212  2005/07/09 20:49:21  sawada
+  bug fix.
+
   Revision 1.211  2005/07/09 18:33:32  sawada
   Added variable length field support.
   Changed name of a method 'AllocateXXX' -> 'SetXXXSize'
@@ -4430,7 +4433,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
          buffer.AppendFormatted("   }\n");
          if(folderArray[i]!="variable")
             buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data());
+         buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
