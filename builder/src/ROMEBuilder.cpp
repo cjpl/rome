@@ -3,6 +3,10 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.214  2005/07/10 15:21:39  sawada
+  setValue for Double32_t
+  disable database access of variable length array.
+
   Revision 1.213  2005/07/09 21:22:46  sawada
   AddXXXAt for variable length field.
 
@@ -7920,7 +7924,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
    buffer.AppendFormatted("   char *cstop=NULL;\n");
    for (j=0;j<numOfValue[numFolder];j++) {
-      if( valueDimension[numFolder][j]>1 )
+      if( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
          continue;
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[j]) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
@@ -10050,6 +10054,7 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
 
        !strcmp(type,"double") ||
        !strcmp(type,"Double_t") ||
+       !strcmp(type,"Double32_t") ||
 
        !strcmp(type,"Stat_t") ||
        !strcmp(type,"Axis_t")) {
