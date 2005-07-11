@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.215  2005/07/11 21:47:06  sawada
+  Error message when one tries to make TArray or variale lenght field with database connection.
+
   Revision 1.214  2005/07/10 15:21:39  sawada
   setValue for Double32_t
   disable database access of variable length array.
@@ -929,6 +932,13 @@ bool ROMEBuilder::ReadXMLFolder() {
                }
             }
          }
+         if (valueArray[numOfFolder][numOfValue[numOfFolder]][0]=="variable"
+             && ( valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
+                  || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())) {
+            cout << "Variable length array field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
          tmp = valueComment[numOfFolder][numOfValue[numOfFolder]];
          tmp.ReplaceAll("//","");
          tmp.ReplaceAll(" ","");
@@ -954,14 +964,12 @@ bool ROMEBuilder::ReadXMLFolder() {
                cout << "Terminating program." << endl;
                return false;
             }
-/*
             if(valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
                || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length()) {
                cout << "TArray type field '" << valueName[numOfFolder][numOfValue[numOfFolder]] << "' can not have database connection"<<endl;
                cout << "Terminating program." << endl;
                return false;
             }
-*/
          }
          for (i=0;i<numOfValue[numOfFolder];i++) {
             for (j=i+1;j<numOfValue[numOfFolder];j++) {
