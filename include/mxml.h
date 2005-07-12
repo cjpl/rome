@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.6  2005/07/12 08:43:28  schneebeli_m
+   ifndef mxml_H added
+
    Revision 1.5  2005/07/12 06:42:21  sawada
    Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 
@@ -30,6 +33,8 @@
 \********************************************************************/
 
 /*------------------------------------------------------------------*/
+#ifndef mxml_H
+#define mxml_H
 
 #define MXML_NAME_LENGTH 64
 
@@ -113,5 +118,7 @@ PMXML_NODE mxml_parse_buffer(char *buffer, char *error, int error_size);
 int mxml_write_tree(char *file_name, PMXML_NODE tree);
 void mxml_debug_tree(PMXML_NODE tree, int level);
 void mxml_free_tree(PMXML_NODE tree);
+
+#endif   // mxml_H
 
 /*------------------------------------------------------------------*/
