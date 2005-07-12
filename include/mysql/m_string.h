@@ -198,7 +198,7 @@ extern int strcmp(const char *, const char *);
 extern size_t strlen(const char *);
 #endif
 #endif
-#ifndef HAVE_STRNLEN 
+#ifndef HAVE_STRNLEN
 extern uint strnlen(const char *s, uint n);
 #endif
 

@@ -6,6 +6,9 @@
 //  Data base path decoding.
 //
 //  $Log$
+//  Revision 1.14  2005/07/12 06:42:22  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.13  2005/06/03 09:49:05  schneebeli_m
 //  taskhierarchy error
 //
@@ -69,7 +72,7 @@ ROMEPath::ROMEPath() {
    this->SetFieldIndexAt(0,0);
    this->SetFieldIndexAt(1,-1);
    this->SetFieldIndexAt(2,1);
-   
+
    fConstraintField = new ROMEStrArray(0);
    fConstraintValue = new ROMEStrArray(0);
 }

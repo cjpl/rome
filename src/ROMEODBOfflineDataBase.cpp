@@ -6,6 +6,9 @@
 //  Access to the Midas ODB parameters in the header of a midas file.
 //
 //  $Log$
+//  Revision 1.3  2005/07/12 06:42:22  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.2  2005/04/15 16:44:26  schneebeli_m
 //  odb, zlib
 //
@@ -41,10 +44,10 @@ bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePat
       return false;
    xml->GetPathValue(dataBasePath,value);
    values->SetAt(value.Data(),0,0);
-   return true; 
+   return true;
 }
 
 bool ROMEODBOfflineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
 {
-   return true; 
+   return true;
 }

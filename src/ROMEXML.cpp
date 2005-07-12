@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.24  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.23  2005/05/02 08:43:16  schneebeli_m
 //  link error
 //
@@ -64,7 +67,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#define O_TEXT 0 
+#define O_TEXT 0
 #endif
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -173,7 +176,7 @@ int ROMEXML::SetTranslate(int flag) {
    return mxml_set_translate(writer,flag);
 }
 
-bool ROMEXML::StartElement(const char* name) 
+bool ROMEXML::StartElement(const char* name)
 {
    if (!mxml_start_element(writer,name))
       return false;

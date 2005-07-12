@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.13  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.12  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -34,7 +37,7 @@
 #include<ROMEString.h>
 #include<TTree.h>
 
-class ROMETree : public TObject 
+class ROMETree : public TObject
 {
 private:
    struct Switches {
@@ -51,10 +54,10 @@ protected:
    TTree *fTree;              //   Tree
 public:
    ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Int_t maxEntries=0)
-   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries; 
+   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries;
      if (maxEntries>0) fTree->SetCircular(maxEntries);
      TObjArray *branches = fTree->GetListOfBranches();
-     for (int i=0;i<branches->GetEntriesFast();i++) 
+     for (int i=0;i<branches->GetEntriesFast();i++)
         ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
      fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n"; };
    TTree *GetTree() { return fTree; };
@@ -71,12 +74,12 @@ public:
    void SetRead(Bool_t read) { fSwitches.fRead = read; };
    void SetWrite(Bool_t write) { fSwitches.fWrite = write; };
    void SetFill(Bool_t fill) { fSwitches.fFill = fill; };
-   void SetCompressionLevel(Int_t compressionLevel) { 
-      fSwitches.fCompressionLevel = compressionLevel; 
+   void SetCompressionLevel(Int_t compressionLevel) {
+      fSwitches.fCompressionLevel = compressionLevel;
       TObjArray *branches = fTree->GetListOfBranches();
       for (int i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
    };
-   void SetMaxEntries(Int_t maxEntries) 
+   void SetMaxEntries(Int_t maxEntries)
    {  fSwitches.fMaxEntries = maxEntries;
       if (maxEntries>0) fTree->SetCircular(maxEntries);
    };

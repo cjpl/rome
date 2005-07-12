@@ -6,6 +6,9 @@
 //  XMLDataBase access.
 //
 //  $Log$
+//  Revision 1.22  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.21  2005/05/06 14:34:20  schneebeli_m
 //  .
 //
@@ -113,7 +116,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
 
    fOrderTableIndex = -1;
    fPointerArray.RemoveAll();
-   
+
    // decode path
    if (!path->Decode(dataBasePath,runNumber)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
@@ -130,7 +133,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
       fFileName += "/";
       fFileName += path->GetTableNameAt(i);
       fFileName += ".xml";
-      if (!xml->OpenFileForPath(fFileName.Data())) { 
+      if (!xml->OpenFileForPath(fFileName.Data())) {
          cout << "\nFailed to load xml database file : '" << fFileName.Data() << "'" << endl;
          return 0;
       }
@@ -148,7 +151,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
          for(j=0;j<path->GetNumberOfConstraints();j++){
             xmlPath += "[";
             xmlPath += path->GetConstraintFieldAt(j);
-            
+
             ConstraintTable = path->GetConstraintValueAt(j);
             if ((itmp=ConstraintTable.Index(".",1,0,TString::kExact))!=-1) {
                ConstraintField = ConstraintTable(itmp,ConstraintTable.Length());
@@ -167,7 +170,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
             }
             xmlPath += "]";
          }
-      }      
+      }
       if (i>0) {
          if (strlen(path->GetTableIDNameAt(i-1))>0) {
             xmlPath += "[";
@@ -221,7 +224,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
                   ConstraintPath += val;
                   Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
                   value.Remove(is,ie-is+1);
-                  value.Insert(is,ConstraintValue.At(0,0));           
+                  value.Insert(is,ConstraintValue.At(0,0));
                }
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
                // decode new path
@@ -421,7 +424,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
       }
    }
    delete path;
-   return true; 
+   return true;
 }
 
 bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,int arrayIndex)
@@ -559,7 +562,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    }
    xml->WritePathFile(fFileName.Data());
    delete path;
-   return true; 
+   return true;
 }
 
 /*

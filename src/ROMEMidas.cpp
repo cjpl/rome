@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.23  2005/07/12 06:42:22  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.22  2005/07/01 08:20:22  schneebeli_m
 //  added byte swapping of TID_STRUCTS
 //
@@ -139,7 +142,7 @@ bool ROMEMidas::Init() {
          return false;
       }
       for (i=0;i<this->GetNumberOfEventRequests();i++) {
-         bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i), 
+         bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
             this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
 
@@ -281,7 +284,7 @@ bool ROMEMidas::BeginOfRun() {
 bool ROMEMidas::Event(int event) {
    // Switch Raw Data Buffer
    this->SwitchRawDataBuffer();
-   
+
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       int runNumber,trans;
@@ -327,12 +330,12 @@ bool ROMEMidas::Event(int event) {
 #ifndef R__BYTESWAP
       //byte swapping
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
-              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
-              ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-              bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+         if(IsActiveEventID( pevent->event_id ))
+            bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       this->InitMidasBanks();
-
 #endif
    }
    else if (gROME->isOffline()) {
@@ -393,7 +396,7 @@ bool ROMEMidas::Event(int event) {
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
          pevent->event_id != EVENTID_MESSAGE)
-         if(IsActiveID( pevent->event_id )) 
+         if(IsActiveEventID( pevent->event_id ))
             bk_swap(pevent + 1, 0);
 #endif
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
@@ -455,23 +458,23 @@ void ROMEMidas::bk_swap(void *event, bool force)
    void         *pdata;
    UShort_t     type;
    bool         b32;
-   
+
    pbh = (BANK_HEADER *) event;
-   
+
    // only swap if flags in high 16-bit
    if (pbh->flags < 0x10000 && !force)
       return;
-   
-   // swap bank header 
+
+   // swap bank header
    ByteSwap((UInt_t   *)&pbh->data_size);
-   ByteSwap((UInt_t   *)&pbh->flags);   
-   
+   ByteSwap((UInt_t   *)&pbh->flags);
+
    // check for 32bit banks
    b32 = ((pbh->flags & (1<<4)) > 0);
-   
+
    pbk = (BANK *) (pbh + 1);
    pbk32 = (BANK32 *) pbk;
-   
+
    // scan event
    while ((Seek_t) pbk - (Seek_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
       // swap bank header
@@ -490,7 +493,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
          for ( long i = 0; i < 4; i++ )
             name[ i ] = pbk->name[ i ];
       }
-      
+
       // pbk points to next bank
       if (b32) {
          pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
@@ -499,7 +502,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
          pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
          pbk32 = (BANK32 *) pbk;
       }
-      
+
       switch (type) {
          case TID_WORD:
          case TID_SHORT:
@@ -508,7 +511,7 @@ void ROMEMidas::bk_swap(void *event, bool force)
                pdata = (void *) (((UShort_t *) pdata) + 1);
             }
             break;
-            
+
          case TID_DWORD:
          case TID_INT:
          case TID_BOOL:
@@ -518,27 +521,27 @@ void ROMEMidas::bk_swap(void *event, bool force)
                pdata = (void *) (((UInt_t *) pdata) + 1);
             }
             break;
-            
+
          case TID_DOUBLE:
             while ((Seek_t) pdata < (Seek_t) pbk) {
                ByteSwap((ULong64_t*)pdata);
                pdata = (void *) (((ULong64_t *) pdata) + 1);
             }
             break;
-            
+
          case TID_STRUCT:
             while ( (Seek_t) pdata < (Seek_t) pbk ) {
                 pdata = ByteSwapStruct( &name[ 0 ], pdata );
             }
             break;
       }
-   }   
+   }
    return;
 }
 #   endif
 
 // Byte swapping big endian <-> little endian
-/*void ROMEMidas::ByteSwap(UShort_t *x) 
+/*void ROMEMidas::ByteSwap(UShort_t *x)
 {
    Byte_t _tmp;
    _tmp= *((Byte_t *)(x));
@@ -546,18 +549,18 @@ void ROMEMidas::bk_swap(void *event, bool force)
    *(((Byte_t *)(x))+1) = _tmp;
 }
 
-void ROMEMidas::ByteSwap(UInt_t *x) 
+void ROMEMidas::ByteSwap(UInt_t *x)
 {
    Byte_t _tmp;
    _tmp= *((Byte_t *)(x));
    *((Byte_t *)(x)) = *(((Byte_t *)(x))+3);
    *(((Byte_t *)(x))+3) = _tmp;
    _tmp= *(((Byte_t *)(x))+1);
-   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+2); 
+   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+2);
    *(((Byte_t *)(x))+2) = _tmp;
 }
 
-void ROMEMidas::ByteSwap(ULong64_t *x) { 
+void ROMEMidas::ByteSwap(ULong64_t *x) {
    Byte_t _tmp;
    _tmp= *((Byte_t *)(x));
    *((Byte_t *)(x)) = *(((Byte_t *)(x))+7);

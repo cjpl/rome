@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.5  2005/07/12 06:42:21  sawada
+   Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
    Revision 1.4  2005/05/11 12:50:01  schneebeli_m
    added strlcpy
 
@@ -66,11 +69,11 @@ typedef struct mxml_struct {
 /*------------------------------------------------------------------*/
 
 MXML_WRITER *mxml_open_file(const char *file_name);
-MXML_WRITER *mxml_open_buffer(void); 
+MXML_WRITER *mxml_open_buffer(void);
 int mxml_set_translate(MXML_WRITER *writer, int flag);
 int mxml_start_element(MXML_WRITER *writer, const char *name);
 int mxml_start_element_noindent(MXML_WRITER *writer, const char *name);
-int mxml_end_element(MXML_WRITER *writer); 
+int mxml_end_element(MXML_WRITER *writer);
 int mxml_write_comment(MXML_WRITER *writer, const char *string);
 int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *value);
 int mxml_write_value(MXML_WRITER *writer, const char *value);

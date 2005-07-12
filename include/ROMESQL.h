@@ -2,6 +2,9 @@
   ROMESQL.h, R.Sawada
 
   $Log$
+  Revision 1.13  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.12  2005/04/28 20:26:39  sawada
   Added transaction during writing database.
   This is disabled by default because it is not well tested.
@@ -24,7 +27,7 @@ class ROMESQL
 public:
    ROMESQL(){};
    virtual ~ROMESQL(){};
-   
+
    // DBMS dependent methods
    virtual bool  Connect(const char* server,const char* user,const char* passwd,const char* database,const char* port) = 0;
    virtual bool  DisConnect() = 0;
@@ -40,7 +43,7 @@ public:
    virtual bool  StartTransaction( const char* option ){ return true; }
    virtual bool  CommitTransaction( const char* option ){ return true; }
    virtual bool  RollbackTransaction( const char* option ){ return true; }
-   
+
    // DBMS independent methods
    bool  MakeQuery(TString& query,bool store){ return MakeQuery(query.Data(),store); }
    bool  CreateDataBase(const char* database);

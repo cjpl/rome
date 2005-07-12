@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.5  2005/07/12 06:42:24  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.4  2005/05/06 08:39:16  schneebeli_m
 //  ported windows threads to TThread
 //
@@ -248,7 +251,7 @@ THREADTYPE ServerLoop(void *arg)
 }
 
 
-void TNetFolderServer::StartServer(TApplication *app,int port) 
+void TNetFolderServer::StartServer(TApplication *app,int port)
 {
 // start Socket server loop
    fApplication = app;

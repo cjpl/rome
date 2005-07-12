@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.4  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.3  2005/06/13 15:49:04  schneebeli_m
 //  changed name of DAQ user functions
 //
@@ -110,7 +113,7 @@ bool ROMERoot::Event(int event) {
                tree->GetEntry(fTreePosition[j]);
                fTreePosition[j]++;
             }
-         }  
+         }
       }
       if (!found) {
          this->SetEndOfRun();

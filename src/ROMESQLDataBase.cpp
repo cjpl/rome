@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.34  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.33  2005/05/13 23:51:14  sawada
 //  code cleanup.
 //
@@ -156,7 +159,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
    ROMEString pathString;
    ROMEString newpathString;
    ROMEString tname;
-   
+
    // constraint is a path
    if ((is1=value.Index(temp,temp.Length(),0,TString::kIgnoreCase))!=-1) {
       if ((ie1=value.Index("\"",1,is1+temp.Length(),TString::kIgnoreCase))!=-1) {
@@ -266,7 +269,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
       delete dbpath;
       return false;
    }
-   
+
    delete dbpath;
    return true;
 }
@@ -276,7 +279,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
    ROMEString sqlResult;
    ROMEString temp;
    ROMEString separator;
-   int        iTable = 0;   
+   int        iTable = 0;
    int        iConstraint;
    int        iField;
    //field list
@@ -287,7 +290,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
              ;iField+=path->GetFieldIndexAt(2)){
          temp = path->GetFieldName();
          if(path->IsFieldArray())
-            temp.AppendFormatted("__%d",iField);     
+            temp.AppendFormatted("__%d",iField);
          fSelectFieldList.AppendFormatted("%s%s.%s",separator.Data(),path->GetTableNameAt(path->GetNumberOfTables()-1),temp.Data());
          fInsertFieldList.AppendFormatted("%s%s",separator.Data(),temp.Data());
          fSetFieldList.AppendFormatted("%s%s%s",separator.Data(),temp.Data(),RSQLDB_STR);
@@ -296,7 +299,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             break;
       }
    }
-   
+
 #if defined ( SQLDEBUG )
    cout<<endl<<"******************************************************************************"<<endl;
    for(iTable=0;iTable<path->GetNumberOfTables();iTable++){
@@ -316,7 +319,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             fFromPhrase += ",";
          fFromPhrase.AppendFormatted("%s",path->GetTableNameAt(iTable));
       }
-      
+
       //add constraint
       if(strlen(path->GetTableConstraintAt(iTable))){
          if (!path->DecodeConstraint(path->GetTableConstraintAt(iTable))) {
@@ -348,7 +351,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
          sqlQuery += fWherePhrase;
          sqlQuery += " LIMIT 1;";
          if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
-            cout << "Wrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;            
+            cout << "Wrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;
             fSQL->FreeResult();
             return false;
          }
@@ -365,7 +368,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
          }
          fSQL->FreeResult();
       }
-      
+
       //add relation to the next table
       if(iTable<path->GetNumberOfTables()-1 && !strlen(path->GetTableDBConstraintAt(iTable))){
          if(strlen(path->GetTableIDNameAt(iTable))){
@@ -408,7 +411,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    ROMEString prompt;
    int is,ie;
    int istart;
-   
+
    fName = name;
 
    //decode dataBasePath
@@ -463,7 +466,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
       //search for database
       database = path(istart,path.Length());
    }
-   
+
    if(passwd.Length()==1 && passwd(0) == '?'){
 #if defined( R__UNIX )
       prompt.SetFormatted("%s@%s's password: ",user.Data(),server.Data());
@@ -534,13 +537,13 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    ROMEString fieldName;
    ROMEString sqlQuery;
    ROMEString orderField;
-   
+
    if (!path->Decode(dataBasePath,runNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
    }
-   
+
    this->ResetPhrase();
    if(!MakePhrase(path,runNumber)){
       cout<<"Invalid input for database read."<<endl;
@@ -559,7 +562,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
                                  ? path->GetOrderTableName() : path->GetTableNameAt(path->GetNumberOfTables()-1),
                                  strlen(path->GetOrderFieldName())
                                  ? path->GetOrderFieldName() : "idx");
-   
+
    sqlQuery = "SELECT ";
    sqlQuery += fSelectFieldList;
    if(path->IsOrderArray())
@@ -585,7 +588,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          sqlQuery += " DESC ";
    }
    sqlQuery += ";";
-   
+
    if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
       cout<<"Invalid input for database read."<<endl;
       fSQL->FreeResult();
@@ -599,7 +602,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
       delete path;
       return true;
    }
-   
+
    for(iOrder=path->GetOrderIndexAt(0),iArray=0
           ;!path->IsOrderArray() || InRange(iOrder,path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
           ;iOrder+=path->GetOrderIndexAt(2),iArray++){
@@ -612,7 +615,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          }
       }
       keepCursor = false;
-      
+
       if(path->IsOrderArray()){
          // check number of records which have the same order number.
          iCount = 0;
@@ -629,7 +632,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          if(iCount)
             cout << "Warning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<" has "<<iCount+1
                  <<" records which satisfy "<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iLastOrder<<endl;
-         
+
          // check if the record exists
          if(TMath::Sign(iOrder,path->GetOrderIndexAt(2))
             < TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)),path->GetOrderIndexAt(2))){
@@ -648,12 +651,12 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          iLastOrder = iOrder;
          if(!path->IsFieldArray())
             break;
-      }            
+      }
       if(!path->IsOrderArray())
          break;
    }
-   
-   fSQL->FreeResult();      
+
+   fSQL->FreeResult();
    delete path;
    return true;
 }
@@ -669,13 +672,13 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    int iArray,jArray;
    int istart;
    bool exist;
-   
+
    if (!path->Decode(dataBasePath,runNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
    }
-//   path->Print();   
+//   path->Print();
    if (path->GetNumberOfTables()!=1) {
       cout << "Wrong data base path : " << dataBasePath << endl;
       delete path;
@@ -686,7 +689,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
       delete path;
       return false;
    }
-   
+
    this->ResetPhrase();
    if(!MakePhrase(path,runNumber)){
       cout<<"Invalid input for database write."<<endl;
@@ -713,7 +716,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          else
             sqlQuery += " AND ";
          sqlQuery.AppendFormatted("%s.%s='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
-                                  strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
+                                  strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                   ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
                                   ,iOrder);
       }
@@ -726,10 +729,10 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          fSQL->RollbackTransaction("");
 #endif
          return false;
-      }      
+      }
       exist = fSQL->GetNumberOfRows()!=0;
       fSQL->FreeResult();
-      
+
       if(!exist){ // insert new record
          sqlQuery = "INSERT INTO ";
          sqlQuery += fFromPhrase;
@@ -737,13 +740,13 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
          sqlQuery += fInsertFieldList;
          if(path->IsOrderArray()){
             sqlQuery.AppendFormatted(",%s",
-                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
+                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx");
          }
          if(fAdInsertFields.Length())
             sqlQuery.AppendFormatted(",%s",fAdInsertFields.Data());
          sqlQuery += " ) VALUES ( ";
-         separator = "";            
+         separator = "";
          for(iField=path->GetFieldIndexAt(0),jArray=0
                 ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
                 ;iField+=path->GetFieldIndexAt(2),jArray++){
@@ -785,12 +788,12 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
             else
                sqlQuery += " WHERE ";
             sqlQuery.AppendFormatted("%s.%s ='%d'",path->GetTableNameAt(path->GetNumberOfTables()-1),
-                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1)) 
+                                     strlen(path->GetTableIDXNameAt(path->GetNumberOfTables()-1))
                                      ? path->GetTableIDXNameAt(path->GetNumberOfTables()-1) : "idx"
                                      ,iOrder);
          }
       }
-      
+
 #if defined ( SQLDEBUG )
       cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
 #else
@@ -809,7 +812,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
 #if defined ( USE_TRANSACTION )
    fSQL->CommitTransaction("");
 #endif
-   
+
    delete path;
    return true;
 }

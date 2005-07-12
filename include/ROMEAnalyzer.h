@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.55  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.54  2005/05/18 09:49:32  schneebeli_m
   removed run & event number error, implemented FileRead in ROMEString
 
@@ -238,7 +241,7 @@ public:
 
    // Active DAQ System
    const char*    GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
-   ROMEDAQSystem* GetActiveDAQ() { 
+   ROMEDAQSystem* GetActiveDAQ() {
       if (fActiveDAQ!=NULL)
          return fActiveDAQ;
       this->Println("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
@@ -258,8 +261,8 @@ public:
       fApplication->Terminate(1);
       return NULL;
    };
-   ROMEDataBase* GetDataBase(const char *name) { 
-      for (int i=0;i<fNumberOfDataBases;i++) 
+   ROMEDataBase* GetDataBase(const char *name) {
+      for (int i=0;i<fNumberOfDataBases;i++)
          if (!stricmp(fDataBaseHandle[i]->GetName(),name))
             return fDataBaseHandle[i];
       ROMEString str;
@@ -268,15 +271,15 @@ public:
       fApplication->Terminate(1);
       return NULL;
    };
-   bool isDataBaseActive(const char *name) { 
-      for (int i=0;i<fNumberOfDataBases;i++) 
+   bool isDataBaseActive(const char *name) {
+      for (int i=0;i<fNumberOfDataBases;i++)
          if (!stricmp(fDataBaseHandle[i]->GetName(),name))
             return true;
       return false;
    };
    void          SetDataBase(int i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; };
    int           GetNumberOfDataBases() { return fNumberOfDataBases; };
-   void          InitDataBases(int number) { fDataBaseHandle = new ROMEDataBase*[number]; 
+   void          InitDataBases(int number) { fDataBaseHandle = new ROMEDataBase*[number];
                                              fDataBaseConnection = new ROMEString[number];
                                              fDataBaseDir = new ROMEString[number];
                                              fNumberOfDataBases = number; };
@@ -343,10 +346,10 @@ public:
    const char* GetRunNumberStringOriginal() { return fRunNumberString.Data(); }
 
    void       SetCurrentRunNumber(int runNumber) { fCurrentRunNumber = runNumber; }
-   void       SetRunNumbers(ROMEString& numbers) { 
+   void       SetRunNumbers(ROMEString& numbers) {
                   fRunNumberString = numbers;
                   fRunNumber = decodeRunNumbers(numbers); }
-   void       SetRunNumbers(const char* numbers) { 
+   void       SetRunNumbers(const char* numbers) {
                   fRunNumberString = numbers;
                   fRunNumber = decodeRunNumbers(fRunNumberString); }
 
@@ -354,10 +357,10 @@ public:
    const char* GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
    void       SetCurrentEventNumber(int eventNumber) { fCurrentEventNumber = eventNumber; }
-   void       SetEventNumbers(ROMEString& numbers) { 
+   void       SetEventNumbers(ROMEString& numbers) {
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(numbers); }
-   void       SetEventNumbers(const char* numbers) { 
+   void       SetEventNumbers(const char* numbers) {
                   fEventNumberString = numbers;
                   fEventNumber = decodeRunNumbers(fEventNumberString); }
 

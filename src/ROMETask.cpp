@@ -3,7 +3,7 @@
 //                                                                      //
 // ROMETask                                                             //
 //                                                                      //
-//  The Base Class for all Tasks in ROME. 
+//  The Base Class for all Tasks in ROME.
 //  The following methods should be overriden by derived Classes :
 //    Init
 //    BeginOfRun
@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.24  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.23  2005/04/04 07:23:59  schneebeli_m
 //  Time report
 //
@@ -104,7 +107,7 @@ void ROMETask::Exec(Option_t *option)
    else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
       fCurrentEventMethod = "Event";
       TimeStart();
-      if (gROME->isFillEvent()) 
+      if (gROME->isFillEvent())
          Event();
       TimeEnd();
    }
@@ -114,7 +117,7 @@ void ROMETask::StartRootInterpreter(const char* message) {
    ROMEString text;
    text.SetFormatted("\nIn method %s of task %s of event number %d of run number %d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
    gROME->Println(text.Data());
-   if (message) 
+   if (message)
       gROME->Println(message);
    gROME->GetApplication()->Run(true);
 }

@@ -2,6 +2,9 @@
   ROMETreeInfo.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.4  2005/06/28 14:53:30  sawada
   renamed members of ROMETreeInfo.
 
@@ -18,7 +21,7 @@
 #include<TObject.h>
 #include<TClass.h>
 
-class ROMETreeInfo : public TObject 
+class ROMETreeInfo : public TObject
 {
 protected:
    Int_t   run;       // Run Number

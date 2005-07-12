@@ -3,10 +3,13 @@
 //                                                                      //
 // ROMEString                                                           //
 //                                                                      //
-//  Handles character strings. 
+//  Handles character strings.
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.13  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.12  2005/07/07 18:35:24  sawada
 //  write float and double with %g instead of %f.
 //
@@ -42,7 +45,7 @@
 #include <ROMEString.h>
 #include "Riostream.h"
 
-ROMEString& ROMEString::AppendFormatted(const char* format,...) 
+ROMEString& ROMEString::AppendFormatted(const char* format,...)
 {
    bool res;
    va_list ap;
@@ -51,7 +54,7 @@ ROMEString& ROMEString::AppendFormatted(const char* format,...)
    va_end(ap);
    return *this;
 }
-ROMEString& ROMEString::InsertFormatted(int position,const char* format,...) 
+ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
 {
    bool res;
    va_list ap;
@@ -63,7 +66,7 @@ ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
       this->Insert(position,tmp);
    return *this;
 }
-ROMEString& ROMEString::SetFormatted(const char* format,...) 
+ROMEString& ROMEString::SetFormatted(const char* format,...)
 {
    bool res;
    va_list ap;
@@ -73,7 +76,7 @@ ROMEString& ROMEString::SetFormatted(const char* format,...)
    va_end(ap);
    return *this;
 }
-bool ROMEString::FormatString(ROMEString* string,const char* format,va_list parameters) 
+bool ROMEString::FormatString(ROMEString* string,const char* format,va_list parameters)
 {
    char* cstop;
    char* tmp;
@@ -102,7 +105,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
          continue;
       }
       ind = SearchFormatType(pstart);
-      if (ind==-1) 
+      if (ind==-1)
          return false;
       form = new char[ind+2];
       strncpy(form,pstart,ind+1);
@@ -134,13 +137,13 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
          precision = strtol(pp+1,&cstop,10);
       }
       switch (pstart[ind]) {
-         case 's' : 
+         case 's' :
             if (asterisk)
                numberOfDigits = va_arg(parameters,int);
             else
                numberOfDigits = TMath::Max(numberOfDigits,precision);
             stringValue = va_arg(parameters,char*);
-            if (stringValue==NULL) 
+            if (stringValue==NULL)
                return false;
             tmp = new char[TMath::Max(numberOfDigits,(int)strlen(stringValue))+2+additionalDigits];
             if (asterisk)
@@ -166,9 +169,9 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
             string->Append(tmp);
             delete [] tmp;
             break;
-         case 'e' : 
-         case 'f' : 
-         case 'g' : 
+         case 'e' :
+         case 'f' :
+         case 'g' :
             if (precision==-1)
                precision = 6;
             if (asterisk)
@@ -183,7 +186,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
             delete [] tmp;
             break;
             break;
-         default : 
+         default :
             delete form;
             return false;
             break;
@@ -203,12 +206,12 @@ void ROMEString::WriteLine() {
    cout << this->Data() << endl;
 }
 
-int ROMEString::NumberOfOccurrence(ROMEString& subString) 
+int ROMEString::NumberOfOccurrence(ROMEString& subString)
 {
    return this->NumberOfOccurrence(subString.Data());
 }
 
-int ROMEString::NumberOfOccurrence(const char* subString) 
+int ROMEString::NumberOfOccurrence(const char* subString)
 {
    int numberOfOccurrence = 0;
    const char* str = this->Data();

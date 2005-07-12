@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.69  2005/07/12 06:42:22  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.68  2005/05/13 23:51:14  sawada
 //  code cleanup.
 //
@@ -208,11 +211,11 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    int i=0;
    fLastEventNumberIndex = 0;
    fApplication = app;
-   fAnalysisMode = kAnalyzeOffline; 
+   fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
    fSplashScreen = true;
    fDontReadNextEvent = false;
-   fCurrentRunNumber = 0; 
+   fCurrentRunNumber = 0;
    fEventID = 'a';
    fTerminate = false;
    fTreeAccumulation = false;
@@ -461,7 +464,7 @@ bool ROMEAnalyzer::CreateHistoFolders(TList *taskList,TFolder *folder)
 }
 
 
-int ROMEAnalyzer::CheckEventNumber(int eventNumber) 
+int ROMEAnalyzer::CheckEventNumber(int eventNumber)
 {
    if (fEventNumber.GetSize()==0)
       return 1;
@@ -595,7 +598,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
    struct termios buf;
    int i, fd;
    char c[3];
-  
+
    fd = fileno(stdin);
 
    if (reset) {
@@ -822,7 +825,7 @@ int ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 #endif
 }
 
-bool ROMEAnalyzer::strtobool(const char* str) 
+bool ROMEAnalyzer::strtobool(const char* str)
 {
    char *cstop;
    if (!strcmp(str,"true"))

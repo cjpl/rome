@@ -3,9 +3,12 @@
 //                                                                      //
 // ROMEStrArray                                                           //
 //                                                                      //
-//  Handles character string array. 
+//  Handles character string array.
 //                                                                      //
 //  $Log$
+//  Revision 1.5  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.4  2005/04/05 14:54:52  schneebeli_m
 //  Database write & _exit on linux
 //

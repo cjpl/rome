@@ -2,6 +2,9 @@
   ROMEPath.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.9  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.8  2005/04/14 07:56:46  schneebeli_m
   Implemented odb database (offline)
 
@@ -44,7 +47,7 @@ protected:
    // decode
    ROMEStrArray*    fTableNames;             // Array of TableNames
    ROMEStrArray*    fTableAbsolutePaths;     // Absolute path to the table
-   ROMEStrArray*    fTableConstraints;       // Array of Constraints on the Table 
+   ROMEStrArray*    fTableConstraints;       // Array of Constraints on the Table
    ROMEStrArray*    fTableDBConstraints;     // Array of Constraints read from Data Base
    ROMEStrArray*    fTableIDName;            // ID name of the Table
    ROMEStrArray*    fTableIDXName;           // IDX name of the Table

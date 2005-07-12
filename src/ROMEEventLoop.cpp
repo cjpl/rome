@@ -3,10 +3,13 @@
 //                                                                      //
 // ROMEEventLoop                                                        //
 //                                                                      //
-//  Implements the event loop. This Class must be the root Task of 
+//  Implements the event loop. This Class must be the root Task of
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.60  2005/07/12 06:42:22  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.59  2005/07/08 21:20:17  sawada
 //  Fixed the issue from the previous update. (order of DAQ BOR and updating folders)
 //
@@ -216,7 +219,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       gROME->Println("\n\nTerminating Program !");
       return;
    }
- 
+
    ExecuteTasks("i");
    CleanTasks();
 
@@ -253,7 +256,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
          gROME->Println(text.Data());
       }
-          
+
       // Loop over Events
       //------------------
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
@@ -325,7 +328,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (this->isEndOfRun() || this->isTerminate()) {
          if (this->isEndOfRun())
             this->SetBeginOfRun();
-         
+
          TimeEnd();
 
          // Show number of processed events
@@ -529,7 +532,7 @@ bool ROMEEventLoop::WriteEvent() {
    this->FillTrees();
    return true;
 }
-bool ROMEEventLoop::Update() 
+bool ROMEEventLoop::Update()
 {
    // Update the Analyzer. Called after the Event tasks.
 
@@ -540,7 +543,7 @@ bool ROMEEventLoop::Update()
          time(&fProgressTimeOfLastEvent);
          fProgressLastEvent = (int)gROME->GetTriggerStatistics()->processedEvents;
          fProgressWrite = true;
-      } 
+      }
       else {
          if (time(NULL) > fProgressTimeOfLastEvent+1)
             fProgressDelta /= 10;
@@ -561,7 +564,7 @@ bool ROMEEventLoop::Update()
    return true;
 }
 
-bool ROMEEventLoop::UserInput() 
+bool ROMEEventLoop::UserInput()
 {
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
@@ -636,7 +639,7 @@ bool ROMEEventLoop::UserInput()
             }
             gROME->Printfl("                                  \r");
             int inumber = strtol(number.Data(),&cstop,10);
-            if (inumber!=0) 
+            if (inumber!=0)
                fStopAtRun = inumber;
             else
                fStopAtRun = gROME->GetCurrentRunNumber();
@@ -655,7 +658,7 @@ bool ROMEEventLoop::UserInput()
             }
             gROME->Printfl("                                  \r");
             inumber = strtol(number.Data(),&cstop,10);
-            if (inumber!=0) 
+            if (inumber!=0)
                fStopAtEvent = inumber;
             else
                fStopAtEvent = -1;

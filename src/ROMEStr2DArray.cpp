@@ -3,9 +3,12 @@
 //                                                                      //
 // ROMEStr2DArray                                                       //
 //                                                                      //
-//  Handles character string array of array. 
+//  Handles character string array of array.
 //                                                                      //
 //  $Log$
+//  Revision 1.5  2005/07/12 06:42:23  sawada
+//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+//
 //  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
 //  fast xml database
 //

@@ -2,6 +2,9 @@
   ROMEMidas.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2005/07/12 06:42:21  sawada
+  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
+
   Revision 1.16  2005/07/01 21:56:29  sawada
   Multiple dimensional array fields in folders.
   Small bug fix in Midas classes.
@@ -164,7 +167,7 @@ public:
    bool EndOfRun();
    bool Terminate();
 
-   virtual bool IsActiveID(int id){ return true; }
+   virtual bool IsActiveEventID(int id){ return true; }
    virtual bool InitODB() = 0;
    virtual bool InitHeader() = 0;
    virtual void InitMidasBanks() = 0;
