@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.216  2005/07/13 14:11:31  sawada
+  implemented FolderNoReset.
+
   Revision 1.215  2005/07/11 21:47:06  sawada
   Error message when one tries to make TArray or variale lenght field with database connection.
 
@@ -702,6 +705,7 @@ bool ROMEBuilder::ReadXMLFolder() {
    folderAuthor[numOfFolder] = mainAuthor;
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
+   folderNoReset[numOfFolder] = false;
 
    // set parent
    folderParentName[numOfFolder] = parent[recursiveDepth];
@@ -753,8 +757,10 @@ bool ROMEBuilder::ReadXMLFolder() {
             continue;
          }
          xml->GetValue(tmp,"false");
-         if (tmp == "true")
+         if (tmp == "true") {
             folderDataBase[numOfFolder] = true;
+            folderNoReset[numOfFolder] = true;
+         }
       }
       // folder with changeble class file
       if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
@@ -816,6 +822,12 @@ bool ROMEBuilder::ReadXMLFolder() {
             return false;
          }
          continue;
+      }
+      // folder no reset by framework
+      if (type == 1 && !strcmp((const char*)name,"NoResetByFramework")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true")
+            folderNoReset[numOfFolder] = true;
       }
       // folder field
       if (type == 1 && !strcmp((const char*)name,"Field")) {
@@ -1572,6 +1584,24 @@ bool ROMEBuilder::WriteFolderH() {
       format.SetFormatted("   void Set%%s%%%ds(%%-%ds %%s%%%ds) { f%%s%%%ds = %%s;%%%ds};\n",lb,typeLen,lb,lb,lb);
       buffer.AppendFormatted(format.Data(),"Modified","","Bool_t","modified","","Modified","","modified","");
       buffer.AppendFormatted("\n");
+
+      // ResetModified
+      buffer.AppendFormatted("   void ResetModified() {\n");
+      buffer.AppendFormatted("      int i=0;\n");
+      buffer.AppendFormatted("      if(isModified()){\n");
+      for (i=0;i<numOfValue[iFold];i++) {
+         if (!isFolder(valueType[iFold][i].Data()))
+            continue;
+         if (valueDimension[iFold][i]==0)
+            buffer.AppendFormatted("         %s->ResetModified();\n",valueName[iFold][i].Data());
+         else
+            buffer.AppendFormatted("         for(i=0;i<%s->GetEntries();i++) { ((%s)%s->At(i))->ResetModified(); }\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+      }
+      buffer.AppendFormatted("         SetModified(false);\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   };\n");
+      buffer.AppendFormatted("\n");
+
       // Set All
       buffer.AppendFormatted("   void SetAll( ");
       for (i=0;i<numOfValue[iFold];i++) {
@@ -8399,18 +8429,25 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("void %sEventLoop::ResetFolders() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0 && !folderDataBase[i] && !folderSupport[i]) {
+      if(numOfValue[i]<=0 || folderSupport[i])
+         continue;
+      if (folderNoReset[i]) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   gAnalyzer->Get%s()->Reset();\n",folderName[i].Data());
-         }
-         else if (folderArray[i]=="variable") {
-            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
-            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   gAnalyzer->Get%s()->ResetModified();\n",folderName[i].Data());
          }
          else {
             buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
-            buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->SetModified(false);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->ResetModified();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   }\n");
+         }         
+      }
+      else {
+         if (folderArray[i]=="1") {
+            buffer.AppendFormatted("   gAnalyzer->Get%s()->Reset();\n",folderName[i].Data());
+         }
+         else {
+            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
+            buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->Reset();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
       }

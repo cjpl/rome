@@ -265,6 +265,11 @@
 					<xs:documentation>If this value is 'true', the fields of this folder are read from the data base at the beginning of each run. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="NoResetByFramework" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is 'true', the fields of this folder are not reset by framework, otherwise they are reset before every events. If the folder has database access, this flag is always true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="ChangeableClassFile" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If this value is 'true', the folder will have a class file (.h), that can be modified by the user. Therefore the romebuilder will not overwrite the class file. Default is false.</xs:documentation>

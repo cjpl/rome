@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.60  2005/07/13 14:11:31  sawada
+  implemented FolderNoReset.
+
   Revision 1.59  2005/07/09 18:33:27  sawada
   Added variable length field support.
   Changed name of a method 'AllocateXXX' -> 'SetXXXSize'
@@ -242,6 +245,7 @@ protected:
    bool folderDataBase[maxNumberOfFolders];
    bool folderUserCode[maxNumberOfFolders];
    bool folderSupport[maxNumberOfFolders];
+   bool folderNoReset[maxNumberOfFolders];
 
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
