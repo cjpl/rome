@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.217  2005/07/16 15:14:09  sawada
+  not clean if folderNoReset.
+
   Revision 1.216  2005/07/13 14:11:31  sawada
   implemented FolderNoReset.
 
@@ -8404,7 +8407,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sEventLoop::CleanUpFolders() {\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0 && !folderDataBase[i]) {
+      if (numOfValue[i]>0 && !folderNoReset[i]) {
          if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   int i;\n");
             break;
@@ -8412,7 +8415,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
       }
    }
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0 && !folderDataBase[i] && !folderSupport[i]) {
+      if (numOfValue[i]>0 && !folderNoReset[i] && !folderSupport[i]) {
          if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   for (i=gAnalyzer->Get%ss()->GetEntriesFast()-1;i>=0;i--) {\n",folderName[i].Data());
             buffer.AppendFormatted("      if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified())\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
