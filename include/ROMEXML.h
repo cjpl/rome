@@ -2,6 +2,9 @@
   ROMEXML.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2005/07/21 18:00:52  schneebeli_m
+  added getNodeIntValue
+
   Revision 1.17  2005/05/02 08:43:16  schneebeli_m
   link error
 
@@ -133,6 +136,8 @@ public:
    PMXML_NODE  GetRootNode();
    PMXML_NODE  GetSubNode(PMXML_NODE node,int i);
    const char* GetNodeValue(PMXML_NODE node);
+   int         GetNodeIntValue(PMXML_NODE node);
+   double      GetNodeDoubleValue(PMXML_NODE node);
    const char* GetNodeName(PMXML_NODE node);
    const char* GetNodeAttribute(PMXML_NODE node,const char* name);
 };

@@ -6,6 +6,9 @@
 //  XML file access.
 //
 //  $Log$
+//  Revision 1.25  2005/07/21 18:00:52  schneebeli_m
+//  added getNodeIntValue
+//
 //  Revision 1.24  2005/07/12 06:42:23  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -431,6 +434,14 @@ PMXML_NODE ROMEXML::GetSubNode(PMXML_NODE node,int i) {
 }
 const char* ROMEXML::GetNodeValue(PMXML_NODE node) {
    return mxml_get_value(node);
+}
+int ROMEXML::GetNodeIntValue(PMXML_NODE node) {
+   char *cstop;
+   return strtol(mxml_get_value(node),&cstop,10);
+}
+double ROMEXML::GetNodeDoubleValue(PMXML_NODE node) {
+   char *cstop;
+   return strtod(mxml_get_value(node),&cstop);
 }
 const char* ROMEXML::GetNodeName(PMXML_NODE node) {
    return mxml_get_name(node);
