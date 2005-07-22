@@ -777,7 +777,7 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="SupportFolders">
+				<xs:element name="SupportFolders" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Description of all support folders of the framework.</xs:documentation>
 					</xs:annotation>
