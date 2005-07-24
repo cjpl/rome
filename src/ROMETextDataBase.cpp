@@ -6,6 +6,9 @@
 //  Text format non-relational database.
 //
 //  $Log$
+//  Revision 1.2  2005/07/24 17:37:54  sawada
+//  added row number comment.
+//
 //  Revision 1.1  2005/07/24 16:52:47  sawada
 //  added ROMETextDataBase.
 //
@@ -168,6 +171,8 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
       for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
          buffer += values->At(iRow,iCol);
          if(iCol == values->GetEntriesAt(iRow)-1){
+            if(values->GetEntries()>1)
+               buffer.AppendFormatted("\t//%5d",iRow);
             buffer += "\n";
          }
          else{
