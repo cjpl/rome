@@ -6,6 +6,9 @@
 //  Text format non-relational database.
 //
 //  $Log$
+//  Revision 1.3  2005/07/24 19:02:20  sawada
+//  small modification.
+//
 //  Revision 1.2  2005/07/24 17:37:54  sawada
 //  added row number comment.
 //
@@ -15,14 +18,17 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETextDataBase.h>
-#include <TTimeStamp.h>
+#include <TArrayI.h>
 
 const char* EndOfHeader = "/////////////////////////////////////----///////////////////////////////////////";
+const int   numbering = 10;
 
 ROMETextDataBase::ROMETextDataBase() {
+   fTime = new TTimeStamp();
 }
 
 ROMETextDataBase::~ROMETextDataBase() {
+   delete fTime;
 }
 
 bool ROMETextDataBase::Init(const char* name,const char* path,const char* connection) {
@@ -80,26 +86,31 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
       return true;
 
    // read data
-   bool isData = false;
+   bool start = false;
+   bool end = false;
+
    iRow = 0;
    while(lineBuffer.ReadLine(*fileStream)){
+      if(end)
+         break;
+
       RemoveComment(lineBuffer);
       if(!ContainsData(lineBuffer.Data()))
          continue;
 
       if(lineBuffer.Contains(StartMark(valueName.Data())))
-         isData = true;
+         start = true;
 
-      if(isData && lineBuffer.Contains(EndMark(valueName.Data()))){
-         isData = false;
-         break;
-      }
-
-      if(isData){
+      if(start){
          iCol=0;
          ps = pe = 0;
          // skip start mark
          lineBuffer.ReplaceAll(StartMark(valueName.Data()),"");
+         if((ps=lineBuffer.Index(EndMark(valueName.Data()),strlen(EndMark(valueName.Data())),0,TString::kExact))!=-1){
+            end = true;
+            lineBuffer.ReplaceAll(EndMark(valueName.Data()),"");
+         }
+
          if(!ContainsData(lineBuffer.Data()))
             continue;
 
@@ -125,10 +136,14 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
    ROMEString buffer;
    ROMEString fileName;
    ROMEString valueName;
+   ROMEString format;
    int        iRow,iCol;
    bool       append  = false;
    bool       prepend = false;
    int        ps,pe;
+   TArrayI    fieldLen;
+
+   fTime->Set();
 
    // extract value name and file name
    fileName = dataBasePath;
@@ -164,19 +179,40 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
       }
    }
 
+   // count field length
+   for(iRow=0;iRow<values->GetEntries();iRow++){
+      if(values->GetEntriesAt(iRow)>fieldLen.GetSize())
+         fieldLen.Set(values->GetEntriesAt(iRow));
+      for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
+         if(strlen(values->At(iRow,iCol))>fieldLen.At(iCol))
+            fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol);
+      }
+   }
+
    // format data
    buffer.Resize(0);
-   buffer.AppendFormatted("%s\n",StartMark(valueName.Data()));
+   if(append || prepend)
+      buffer.AppendFormatted("// %s\n",fTime->AsString("l"));
+   buffer.AppendFormatted("%s",StartMark(valueName.Data()));
+   if(values->GetEntries()>1)
+      buffer += "\n";
    for(iRow=0;iRow<values->GetEntries();iRow++){
-      for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
-         buffer += values->At(iRow,iCol);
-         if(iCol == values->GetEntriesAt(iRow)-1){
+      for(iCol=0;iCol<fieldLen.GetSize();iCol++){
+         format.SetFormatted(" %%%ds",fieldLen.At(iCol));
+         if(iCol<values->GetEntriesAt(iRow))
+            buffer.AppendFormatted(format.Data(),values->At(iRow,iCol).Data());
+         else
+            buffer.AppendFormatted(format.Data(),"");
+         if(iCol == fieldLen.GetSize()-1){
+            if(values->GetEntries()>numbering)
+               buffer.AppendFormatted("        //%5d",iRow);
             if(values->GetEntries()>1)
-               buffer.AppendFormatted("\t//%5d",iRow);
-            buffer += "\n";
+               buffer += "\n";
+            else
+               buffer += " ";
          }
          else{
-            buffer += ",\t";
+            buffer += ",";
          }
       }
    }
@@ -271,8 +307,6 @@ const char* ROMETextDataBase::EndMark(const char* valueName) {
 }
 
 void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
-   TTimeStamp time;
-   time.Set();
    ROMEString filename = fileName;
    ROMEString tmp;
    ROMEStrArray valueNames;
@@ -292,7 +326,7 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    header.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
    header.AppendFormatted("//\n");
    header.AppendFormatted("// %s\n",filename.Data());
-   header.AppendFormatted("// %s\n",time.AsString("l"));
+   header.AppendFormatted("// %s\n",fTime->AsString("l"));
    header.AppendFormatted("//\n");
    header.AppendFormatted("// This file contains following data.\n");
    ps = pe = 0;
