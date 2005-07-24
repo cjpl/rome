@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.218  2005/07/24 16:52:46  sawada
+  added ROMETextDataBase.
+
   Revision 1.217  2005/07/16 15:14:09  sawada
   not clean if folderNoReset.
 
@@ -4504,6 +4507,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Database Getters
    buffer.AppendFormatted("   // Database\n");
    buffer.AppendFormatted("   ROMEDataBase* GetXMLDataBase() { return GetDataBase(\"XML\"); };\n");
+   buffer.AppendFormatted("   ROMEDataBase* GetTextDataBase() { return GetDataBase(\"TEXT\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetODBDataBase() { return GetDataBase(\"ODB\"); };\n");
    buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
    buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
@@ -4817,6 +4821,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    configDep.AppendFormatted(" $(ROMESYS)/include/ROMEString.h");
 
    buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
+   buffer.AppendFormatted("#include <ROMETextDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMENoDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
@@ -5517,6 +5522,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("                  path += \"/\";\n");
    buffer.AppendFormatted("               gAnalyzer->SetDataBaseDir(i,path.Data());\n");
    buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
+   buffer.AppendFormatted("                  return false;\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"text\") {\n");
+   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMETextDataBase());\n");
+   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseConnection(i),\"\"))\n");
    buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"odb\") {\n");
@@ -9288,6 +9298,7 @@ void ROMEBuilder::WriteMakefile() {
 // data base
    buffer.AppendFormatted("DataBaseIncludes %s",EqualSign());
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEXMLDataBase.h");
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETextDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    if (this->sql)
@@ -9297,6 +9308,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DataBaseObjects %s",EqualSign());
    buffer.AppendFormatted(" obj/ROMEXMLDataBase.obj");
+   buffer.AppendFormatted(" obj/ROMETextDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
    if (this->sql)
@@ -9512,6 +9524,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatRANY.Data(),"TNetFolderServer.cpp","TNetFolderServer");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted(compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   buffer.AppendFormatted("obj/ROMETextDataBase.obj: $(ROMESYS)/src/ROMETextDataBase.cpp $(ROMESYS)/include/ROMETextDataBase.h\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"TextDataBase","TextDataBase");
    buffer.AppendFormatted("obj/ROMEUtilities.obj: $(ROMESYS)/src/ROMEUtilities.cpp $(ROMESYS)/include/ROMEUtilities.h\n" );
    buffer.AppendFormatted(compileFormatBlank.Data(), "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities" );
    buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h\n");
