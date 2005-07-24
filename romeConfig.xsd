@@ -20,6 +20,7 @@
 			<xs:enumeration value="none"/>
 			<xs:enumeration value="xml"/>
 			<xs:enumeration value="sql"/>
+			<xs:enumeration value="text"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:complexType name="ModeDesc">
@@ -66,7 +67,7 @@
 			</xs:element>
 			<xs:element name="Connection" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename". (required)</xs:documentation>
+					<xs:documentation>The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename". For text: "your/database/directory". (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
