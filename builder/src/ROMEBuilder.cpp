@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.219  2005/07/26 16:33:39  sawada
+  added make shortCutclean and userclean.
+
   Revision 1.218  2005/07/24 16:52:46  sawada
   added ROMETextDataBase.
 
@@ -9585,8 +9588,12 @@ void ROMEBuilder::WriteMakefile() {
    dictionarybat.Remove(dictionarybat.Length()-1);
    buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("clean:\n");
+   buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
+   tmp = shortCut;
+   tmp.ToLower();
+   buffer.AppendFormatted("%sclean:\n",tmp.Data());
+   buffer.AppendFormatted("	rm -f obj/%s*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;
    ROMEString xmlfilename = xmlFile;
@@ -9639,7 +9646,12 @@ void ROMEBuilder::WriteMakefile() {
       usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
+      usrBuffer.AppendFormatted("#       userclean:\n");
+      usrBuffer.AppendFormatted("#          rm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
+      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
       WriteFile(makeFile.Data(),usrBuffer.Data(),6);
    }
 }
