@@ -6,6 +6,9 @@
 //  Text format non-relational database.
 //
 //  $Log$
+//  Revision 1.5  2005/07/27 08:37:23  sawada
+//  modified comparison between sign and unsigned integer.
+//
 //  Revision 1.4  2005/07/24 19:28:46  sawada
 //  strip spaces when reading.
 //
@@ -190,7 +193,7 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
       if(values->GetEntriesAt(iRow)>fieldLen.GetSize())
          fieldLen.Set(values->GetEntriesAt(iRow));
       for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
-         if(strlen(values->At(iRow,iCol))>fieldLen.At(iCol))
+         if(fieldLen.At(iCol)<(Int_t)strlen(values->At(iRow,iCol)))
             fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol);
       }
    }
