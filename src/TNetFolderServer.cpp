@@ -5,6 +5,10 @@
 //
 //
 //  $Log$
+//  Revision 1.7  2005/08/02 10:44:19  sawada
+//  cm_disconnect_experiment is called when program is terminated.
+//  NULL pointer handling in TNetFolderServer.
+//
 //  Revision 1.6  2005/08/02 09:35:24  schneebeli_m
 //  root version handling
 //
@@ -115,6 +119,13 @@ int ResponseFunction(TSocket *socket) {
    else if (strncmp(str, "FindObject", 10) == 0) {
       TMessage *message = new TMessage(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
+      if (folder==NULL) {
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(NULL);
+         socket->Send(*message);
+         delete message;
+         return 1;
+      }
 
       //get object
       TObject *obj;
@@ -140,6 +151,13 @@ int ResponseFunction(TSocket *socket) {
    else if (strncmp(str, "FindFullPathName", 16) == 0) {
       TMessage *message = new TMessage(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
+      if (folder==NULL) {
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(NULL);
+         socket->Send(*message);
+         delete message;
+         return 1;
+      }
 
       //find path
       const char* path = folder->FindFullPathName(str+17);
@@ -161,6 +179,13 @@ int ResponseFunction(TSocket *socket) {
    else if (strncmp(str, "Occurence", 9) == 0) {
       TMessage *message = new TMessage(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
+      if (folder==NULL) {
+         message->Reset(kMESS_OBJECT);
+         message->WriteObject(NULL);
+         socket->Send(*message);
+         delete message;
+         return 1;
+      }
 
       //read object
       message->Reset(kMESS_OBJECT);

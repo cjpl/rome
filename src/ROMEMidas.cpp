@@ -6,6 +6,10 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.24  2005/08/02 10:44:19  sawada
+//  cm_disconnect_experiment is called when program is terminated.
+//  NULL pointer handling in TNetFolderServer.
+//
 //  Revision 1.23  2005/07/12 06:42:22  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -81,6 +85,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
+#include <stdlib.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <io.h>
 #endif
@@ -128,6 +133,9 @@ bool ROMEMidas::Init() {
          gROME->Println("\nCannot connect to experiment");
          return false;
       }
+
+      // regesters a disconnection to be executed when the program terminates normally.
+      atexit((void (*)(void))cm_disconnect_experiment);
 
       // open the "system" buffer, 1M size
       bm_open_buffer("SYSTEM", EVENT_BUFFER_SIZE, &fMidasOnlineBuffer);
