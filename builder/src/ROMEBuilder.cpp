@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.221  2005/08/02 14:44:51  schneebeli_m
+  correct taskHierarchy handling
+
   Revision 1.220  2005/08/02 09:35:23  schneebeli_m
   root version handling
 
@@ -2372,6 +2375,7 @@ bool ROMEBuilder::WriteTaskH() {
          format.SetFormatted("   bool       f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",20+nameLen-histoName[iTask][i].Length()-12);
          buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
       }
+      buffer.AppendFormatted("\n   ROMEString fHistoSuffix; //!\n");
       buffer.AppendFormatted("\n   char* cstop; //!\n\n");
 
 
@@ -2380,9 +2384,9 @@ bool ROMEBuilder::WriteTaskH() {
       // Constructor and Event Methods
       buffer.AppendFormatted("   // Constructor\n");
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title);\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
       else
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title);\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
       if (numOfSteering[iTask]>0) {
@@ -2475,9 +2479,11 @@ bool ROMEBuilder::WriteTaskH() {
       // Histo Inline Methods
       // Constructor
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline %sT%s_Base::%sT%s_Base(const char *name,const char *title):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline %sT%s_Base::%sT%s_Base(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
       else
-         buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("   fHistoSuffix = histoSuffix;\n");
+      buffer.AppendFormatted("   fHistoFolder = histoFolder;\n");
       buffer.AppendFormatted("   fEventID = '%s';\n",taskEventID[iTask].Data());
       buffer.AppendFormatted("   fVersion = %s;\n",taskVersion[iTask].Data());
       if (numOfHistos[iTask]>0)
@@ -2538,6 +2544,8 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("   ROMEString title;\n");
       }
       if (numOfHistos[iTask]>0) {
+         buffer.AppendFormatted("   int i;\n");
+         buffer.AppendFormatted("   ROMEString histoName;\n");
          buffer.AppendFormatted("   ROMEString histoTitle;\n");
          buffer.AppendFormatted("   ROMEString folderTitle;\n");
          buffer.AppendFormatted("   ROMEString xLabel;\n");
@@ -2647,17 +2655,23 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("   zNbins = GetObjectInterpreterIntValue(f%sZNbinsCode,zNbins);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("   zmin = GetObjectInterpreterDoubleValue(f%sZminCode,zmin);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("   zmax = GetObjectInterpreterDoubleValue(f%sZmaxCode,zmax);\n",histoName[iTask][i].Data());
+
+         // create histo folder
+         if (!sameFolder&&!homeFolder) {
+            buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
+         }
+         // create histos
+         buffer.AppendFormatted("   histoName = \"%s\";\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   histoName+=fHistoSuffix;\n");
          if (histoArraySize[iTask][i]=="1") {
-            if (!sameFolder&&!homeFolder)
-               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
             if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   f%s = new %s(\"%s\",histoTitle.Data(),xNbins,xmin,xmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
             if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   f%s = new %s(\"%s\",histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
             if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   f%s = new %s(\"%s\",histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
             if (!homeFolder)
                buffer.AppendFormatted("   %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
@@ -2670,11 +2684,9 @@ bool ROMEBuilder::WriteTaskH() {
          else {
             buffer.AppendFormatted("   %s *hist%d;\n",histoType[iTask][i].Data(),i);
             buffer.AppendFormatted("   f%ss = new TObjArray(arraySize);\n",histoName[iTask][i].Data());
-            if (!sameFolder&&!homeFolder)
-               buffer.AppendFormatted("   TFolder *%sFolder = GetHistoFolder()->AddFolder(\"%s\",folderTitle.Data());\n",histoFolderName[iTask][i].Data(),histoFolderName[iTask][i].Data());
             buffer.AppendFormatted("   for (j=0;j<arraySize;j++) {\n");
-            buffer.AppendFormatted("      name.SetFormatted(\"%%0*d\",3,j+arrayStartIndex);\n");
-            buffer.AppendFormatted("      name.Insert(0,\"%s_\");\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,j+arrayStartIndex);\n");
+            buffer.AppendFormatted("      name.Insert(0,histoName.Data());\n",histoName[iTask][i].Data());
             buffer.AppendFormatted("      title.SetFormatted(\" %%0*d\",3,j+arrayStartIndex);\n");
             buffer.AppendFormatted("      title.Insert(0,histoTitle.Data());\n");
             if (histoType[iTask][i][2]==49) {
@@ -3948,18 +3960,50 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
 
    int taskLen=0;
+   int suffixNumber;
+   int multiplicity;
+   ROMEString suffix;
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (taskLen<(int)taskHierarchyName[i].Length()) taskLen = taskHierarchyName[i].Length();
    }
+
+   buffer.AppendFormatted("   fMainHistoFolder = fMainFolder->AddFolder(\"histos\",\"Histogram Folder\");\n");
+   buffer.AppendFormatted("\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
-      format.SetFormatted("   f%%s%%03dTask%%%ds = new %%sT%%s(\"%%s\",\"%%s\");\n",taskLen-taskHierarchyName[i].Length());
-      buffer.AppendFormatted(format.Data(),taskHierarchyName[i].Data(),i,"",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),"");
+      // create suffix
+      suffixNumber = 0;
+      multiplicity = 0;
+      for (j=0;j<numOfTaskHierarchy;j++) {
+         if (j!=i && taskHierarchyName[i]==taskHierarchyName[j]) {
+            multiplicity++;
+            if (j<i)
+               suffixNumber++;
+         }
+      }
+      if (multiplicity>0) {
+         if (multiplicity<=9)
+            suffix.SetFormatted("_%01d",suffixNumber);
+         if (multiplicity>9)
+            suffix.SetFormatted("_%02d",suffixNumber);
+         if (multiplicity>99)
+            suffix.SetFormatted("_%03d",suffixNumber);
+      }
+      else
+         suffix = "";
+      // create histo folder
+      if (taskHierarchyParentIndex[i]==-1)
+         buffer.AppendFormatted("   fHistoFolders->AddAtAndExpand(fMainHistoFolder->AddFolder(\"%sHistos%s\",\"Histograms of Task '%s%s'\"),%d);\n",taskHierarchyName[i].Data(),suffix.Data(),taskHierarchyName[i].Data(),suffix.Data(),i);
+      else
+         buffer.AppendFormatted("   fHistoFolders->AddAtAndExpand(GetHistoFolderAt(%d)->AddFolder(\"%sHistos%s\",\"Histograms of Task '%s%s'\"),%d);\n",taskHierarchyParentIndex[i],taskHierarchyName[i].Data(),suffix.Data(),taskHierarchyName[i].Data(),suffix.Data(),i);
+      // create task
+      buffer.AppendFormatted("   f%s%03dTask = new %sT%s(\"%s\",\"%s\",\"%s\",GetHistoFolderAt(%d));\n",taskHierarchyName[i].Data(),i,shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),"",suffix.Data(),i);
       buffer.AppendFormatted("   ((%sT%s*)f%s%03dTask)->SetActive(false);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),i);
       if (taskHierarchyParentIndex[i]==-1)
          parentt = "GetMainTask()";
       else
          parentt.SetFormatted("f%s%03dTask",taskHierarchyName[taskHierarchyParentIndex[i]].Data(),taskHierarchyParentIndex[i]);
       buffer.AppendFormatted("   %s->Add(f%s%03dTask);\n",parentt.Data(),taskHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("\n");
    }
    buffer.AppendFormatted("\n");
 
@@ -5628,8 +5672,13 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   if (fConfigData[modIndex]%s->fActiveModified) {\n",pointer.Data());
       buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"true\")\n",pointer.Data());
       buffer.AppendFormatted("         gAnalyzer->Get%s%03dTask()->SetActive(true);\n",taskHierarchyName[i].Data(),i);
-      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("      else {\n");
+      if (taskHierarchyParentIndex[i]==-1)
+         buffer.AppendFormatted("         gAnalyzer->GetMainHistoFolder()->Remove(gAnalyzer->GetHistoFolderAt(%d));\n",i);
+      else
+         buffer.AppendFormatted("         gAnalyzer->GetHistoFolderAt(%d)->Remove(gAnalyzer->GetHistoFolderAt(%d));\n",taskHierarchyParentIndex[i],i);
       buffer.AppendFormatted("         gAnalyzer->Get%s%03dTask()->SetActive(false);\n",taskHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
       // Histogram
       if (numOfHistos[i]>0)
@@ -9046,7 +9095,7 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
 // Documentation
    if (makeOutput) cout << "\nWrite HTML Documentation." << endl;
    WriteHTMLDoku();
-#if (ROOT_VERSION_CODE < 262400)
+#if (ROOT_VERSION_CODE < ROOT_VERSION(4,0,0))
    cout << endl << endl;
    cout << "******************* WARNING *******************" << endl;
    cout << "You are using a version of ROOT which does not" << endl;
@@ -9054,14 +9103,14 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
    cout << endl;
    cout << "However, ROME will work fine." << endl;
    cout << "But you can not use the following features:" << endl;
-#if (ROOT_VERSION_CODE < 262400)
+#if (ROOT_VERSION_CODE < ROOT_VERSION(4,1,0))
    cout << endl;
    cout << " - Circular trees (e.g. MaxNumberOfEntries>0)" << endl;
    cout << " - The socket interface" << endl;
    cout << endl;
    cout << " --> All of the above are available with version 4.01/00" << endl;
    cout << endl;
-#endif // 262400
+#endif // 4.01/00
    cout << endl;
 #endif // ROOT_VERSION
 
@@ -9106,7 +9155,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib");
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    buffer.AppendFormatted(" $(ROOTSYS)/lib/libThread.lib \n");
 #endif // ROOT_VERSION
    buffer.AppendFormatted("\n");

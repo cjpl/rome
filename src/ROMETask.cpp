@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.25  2005/08/02 14:44:52  schneebeli_m
+//  correct taskHierarchy handling
+//
 //  Revision 1.24  2005/07/12 06:42:23  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -72,9 +75,6 @@ void ROMETask::Exec(Option_t *option)
    if (!strncmp(option,"i",1)) {
       fCurrentEventMethod = "Init";
       TimeReset();
-      ROMEString foldername;
-      foldername.SetFormatted("%sHistos",this->GetName());
-      fHistoFolder = ((TFolder*)gROOT->FindObjectAny(foldername.Data()));
       BookHisto();
       TimeStart();
       Init();

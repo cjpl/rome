@@ -2,6 +2,9 @@
   ROMETask.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.16  2005/08/02 14:44:51  schneebeli_m
+  correct taskHierarchy handling
+
   Revision 1.15  2005/04/04 07:23:59  schneebeli_m
   Time report
 
@@ -35,12 +38,12 @@ private:
    ROMEString     fTitle;     // Task title
    ROMEString     fName;      // Task name
    ROMEString     fTimeString; // Elapsed Time in a readable format
-   TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 protected:
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
    char           fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
+   TFolder*       fHistoFolder;    // Histogram Folder of this Task in the Memory
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title);

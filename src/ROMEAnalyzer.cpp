@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.70  2005/08/02 14:44:52  schneebeli_m
+//  correct taskHierarchy handling
+//
 //  Revision 1.69  2005/07/12 06:42:22  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -222,6 +225,7 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fPortNumber = 9090;
    fSocketOffline = false;
    fTreeObjects = new TObjArray(0);
+   fHistoFolders = new TObjArray(0);
    fOnlineHost = "";
    fPortNumber = 9090;
    fSocketOffline = false;
@@ -276,10 +280,6 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    gROME->Println("g : Run until event #");
    gROME->Println("i : Root interpreter");
    gROME->Println();
-
-   TFolder *fHistoFolder = fMainFolder->AddFolder("histos","Histogram Folder");
-   TList *taskList = fMainTask->GetListOfTasks();
-   CreateHistoFolders(taskList,fHistoFolder);
 
    fMainTask->ExecuteTask("start");
 
@@ -441,28 +441,6 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    return true;
 }
-
-bool ROMEAnalyzer::CreateHistoFolders(TList *taskList,TFolder *folder)
-{
-   // Recursive Creation of Histogram Subfolders
-   ROMEString name;
-   ROMEString title;
-   bool folderCreated = false;
-   for (int j=0;j<taskList->GetSize();j++) {
-      ROMETask *task = (ROMETask*)taskList->At(j);
-      if (!task->IsActive()) continue;
-      if (task->hasHistograms())
-         folderCreated = true;
-      name.SetFormatted("%sHistos",task->GetName());
-      title.SetFormatted("Histograms of Task '%s'",task->GetName());
-      TFolder *subFolder = folder->AddFolder(name.Data(),title.Data());
-      TList *subTaskList = task->GetListOfTasks();
-      if (!CreateHistoFolders(subTaskList,subFolder) && !task->hasHistograms())
-         folder->Remove(subFolder);
-   }
-   return folderCreated;
-}
-
 
 int ROMEAnalyzer::CheckEventNumber(int eventNumber)
 {

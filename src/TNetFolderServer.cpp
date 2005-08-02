@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.8  2005/08/02 14:44:52  schneebeli_m
+//  correct taskHierarchy handling
+//
 //  Revision 1.7  2005/08/02 10:44:19  sawada
 //  cm_disconnect_experiment is called when program is terminated.
 //  NULL pointer handling in TNetFolderServer.
@@ -40,7 +43,7 @@
 #include <TNetFolderServer.h>
 #include <Riostream.h>
 
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #include <TThread.h>
 #endif // ROOT_VERSION
 
@@ -58,7 +61,7 @@ THREADTYPE ServerLoop(void *arg);
 
 TFolder *ReadFolderPointer(TSocket *socket)
 {
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    //read pointer to current folder
    TMessage *message = new TMessage(kMESS_OBJECT);
    socket->Recv(message);
@@ -72,7 +75,7 @@ TFolder *ReadFolderPointer(TSocket *socket)
 }
 
 int ResponseFunction(TSocket *socket) {
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    // Command handling
    char str[80];
    if (socket->Recv(str, sizeof(str)) <= 0) {
@@ -259,7 +262,7 @@ int ResponseFunction(TSocket *socket) {
 
 THREADTYPE Server(void *arg)
 {
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
 
    while (ResponseFunction(socket))
@@ -271,7 +274,7 @@ THREADTYPE Server(void *arg)
 
 THREADTYPE ServerLoop(void *arg)
 {
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for
 // each connection.
@@ -293,7 +296,7 @@ THREADTYPE ServerLoop(void *arg)
 
 void TNetFolderServer::StartServer(TApplication *app,int port)
 {
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // start Socket server loop
    fApplication = app;
    fPort = port;

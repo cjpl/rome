@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.15  2005/08/02 14:44:51  schneebeli_m
+  correct taskHierarchy handling
+
   Revision 1.14  2005/08/02 09:35:23  schneebeli_m
   root version handling
 
@@ -58,7 +61,7 @@ protected:
 public:
    ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Int_t maxEntries=0)
    { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries; 
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
      if (maxEntries>0) fTree->SetCircular(maxEntries);
 #endif 
      TObjArray *branches = fTree->GetListOfBranches();
@@ -86,7 +89,7 @@ public:
    };
    void SetMaxEntries(Int_t maxEntries)
    {  fSwitches.fMaxEntries = maxEntries;
-#if (ROOT_VERSION_CODE >= 262400)
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
       if (maxEntries>0) fTree->SetCircular(maxEntries);
 #endif 
    };

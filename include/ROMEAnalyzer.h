@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.56  2005/08/02 14:44:51  schneebeli_m
+  correct taskHierarchy handling
+
   Revision 1.55  2005/07/12 06:42:21  sawada
   Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 
@@ -202,6 +205,10 @@ protected:
    TObjArray*    fTreeObjects;                     //! Handle to Tree Objects
    bool          fTreeAccumulation;                //! Accumulation of runs in Trees
 
+   // Histogram Folders
+   TFolder*      fMainHistoFolder;                 //! Handle to Main Histogram Folder (histos)
+   TObjArray*    fHistoFolders;                    //! Handle to Histogram Folder Objects
+
    // Program name
    ROMEString    fProgramName;                     //! Name of this Program
 
@@ -336,6 +343,10 @@ public:
    void       AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree,0,0)); };
    ROMETree*  GetTreeObjectAt(int index) { return (ROMETree*)fTreeObjects->At(index); };
    int        GetTreeObjectEntries() { return fTreeObjects->GetEntries(); };
+
+   // Histogram Folders
+   TFolder*  GetMainHistoFolder() { return fMainHistoFolder; };
+   TFolder*  GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); };
 
    // Run Number
    void       GetRunNumberStringAt(ROMEString& buffer,int i) { buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
