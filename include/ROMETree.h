@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.14  2005/08/02 09:35:23  schneebeli_m
+  root version handling
+
   Revision 1.13  2005/07/12 06:42:21  sawada
   Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 
@@ -54,8 +57,10 @@ protected:
    TTree *fTree;              //   Tree
 public:
    ROMETree(TTree *tree=NULL,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Int_t maxEntries=0)
-   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries;
+   { fTree = tree; fSwitches.fRead = read; fSwitches.fWrite = write; fSwitches.fFill = fill; fSwitches.fCompressionLevel = compressionLevel; fSwitches.fMaxEntries = maxEntries; 
+#if (ROOT_VERSION_CODE >= 262400)
      if (maxEntries>0) fTree->SetCircular(maxEntries);
+#endif 
      TObjArray *branches = fTree->GetListOfBranches();
      for (int i=0;i<branches->GetEntriesFast();i++)
         ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
@@ -81,7 +86,9 @@ public:
    };
    void SetMaxEntries(Int_t maxEntries)
    {  fSwitches.fMaxEntries = maxEntries;
+#if (ROOT_VERSION_CODE >= 262400)
       if (maxEntries>0) fTree->SetCircular(maxEntries);
+#endif 
    };
 };
 

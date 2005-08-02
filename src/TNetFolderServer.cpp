@@ -5,6 +5,9 @@
 //
 //
 //  $Log$
+//  Revision 1.6  2005/08/02 09:35:24  schneebeli_m
+//  root version handling
+//
 //  Revision 1.5  2005/07/12 06:42:24  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -22,8 +25,6 @@
 //
 //
 //////////////////////////////////////////////////////////////////////////
-
-#include <TThread.h>
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -34,6 +35,10 @@
 #include <TApplication.h>
 #include <TNetFolderServer.h>
 #include <Riostream.h>
+
+#if (ROOT_VERSION_CODE >= 262400)
+#include <TThread.h>
+#endif // ROOT_VERSION
 
 #define PTYPE int
 
@@ -49,6 +54,7 @@ THREADTYPE ServerLoop(void *arg);
 
 TFolder *ReadFolderPointer(TSocket *socket)
 {
+#if (ROOT_VERSION_CODE >= 262400)
    //read pointer to current folder
    TMessage *message = new TMessage(kMESS_OBJECT);
    socket->Recv(message);
@@ -56,9 +62,13 @@ TFolder *ReadFolderPointer(TSocket *socket)
    *message>>p;
    delete message;
    return (TFolder*)p;
+#else
+   return NULL;
+#endif // ROOT_VERSION
 }
 
 int ResponseFunction(TSocket *socket) {
+#if (ROOT_VERSION_CODE >= 262400)
    // Command handling
    char str[80];
    if (socket->Recv(str, sizeof(str)) <= 0) {
@@ -215,6 +225,7 @@ int ResponseFunction(TSocket *socket) {
       fApplication->ProcessLine(str.Data());
       return 1;
    }
+#endif // ROOT_VERSION
    return 1;
 }
 
@@ -223,16 +234,19 @@ int ResponseFunction(TSocket *socket) {
 
 THREADTYPE Server(void *arg)
 {
+#if (ROOT_VERSION_CODE >= 262400)
    TSocket *socket = (TSocket *) arg;
 
    while (ResponseFunction(socket))
    {}
+#endif // ROOT_VERSION
    return THREADRETURN;
 }
 
 
 THREADTYPE ServerLoop(void *arg)
 {
+#if (ROOT_VERSION_CODE >= 262400)
 // Server loop listening for incoming network connections on port
 // specified by command line option -s. Starts a searver_thread for
 // each connection.
@@ -247,15 +261,18 @@ THREADTYPE ServerLoop(void *arg)
       thread->Run();
 
    } while (1);
+#endif // ROOT_VERSION
    return THREADRETURN;
 }
 
 
 void TNetFolderServer::StartServer(TApplication *app,int port)
 {
+#if (ROOT_VERSION_CODE >= 262400)
 // start Socket server loop
    fApplication = app;
    fPort = port;
    TThread *thread = new TThread("server_loop", ServerLoop, &fPort);
    thread->Run();
+#endif // ROOT_VERSION
 }

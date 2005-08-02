@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.220  2005/08/02 09:35:23  schneebeli_m
+  root version handling
+
   Revision 1.219  2005/07/26 16:33:39  sawada
   added make shortCutclean and userclean.
 
@@ -9043,6 +9046,25 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
 // Documentation
    if (makeOutput) cout << "\nWrite HTML Documentation." << endl;
    WriteHTMLDoku();
+#if (ROOT_VERSION_CODE < 262400)
+   cout << endl << endl;
+   cout << "******************* WARNING *******************" << endl;
+   cout << "You are using a version of ROOT which does not" << endl;
+   cout << "provide all the functionality that ROME needs!" << endl;
+   cout << endl;
+   cout << "However, ROME will work fine." << endl;
+   cout << "But you can not use the following features:" << endl;
+#if (ROOT_VERSION_CODE < 262400)
+   cout << endl;
+   cout << " - Circular trees (e.g. MaxNumberOfEntries>0)" << endl;
+   cout << " - The socket interface" << endl;
+   cout << endl;
+   cout << " --> All of the above are available with version 4.01/00" << endl;
+   cout << endl;
+#endif // 262400
+   cout << endl;
+#endif // ROOT_VERSION
+
 }
 char* ROMEBuilder::EqualSign() {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -9083,7 +9105,11 @@ void ROMEBuilder::WriteMakefile() {
 // -----------------------------
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libVMC.lib $(ROOTSYS)/lib/libGeom.lib $(ROOTSYS)/lib/libGeomPainter.lib $(ROOTSYS)/lib/libMLP.lib $(ROOTSYS)/lib/libProof.lib $(ROOTSYS)/lib/libProofGui.lib $(ROOTSYS)/lib/libRGL.lib $(ROOTSYS)/lib/libfreetype.lib\n");
-   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib $(ROOTSYS)/lib/libThread.lib \n");
+   buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib");
+#if (ROOT_VERSION_CODE >= 262400)
+   buffer.AppendFormatted(" $(ROOTSYS)/lib/libThread.lib \n");
+#endif // ROOT_VERSION
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("sqllibs =");
    if (this->mysql)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
