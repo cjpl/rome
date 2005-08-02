@@ -2,6 +2,11 @@
   ArgusMonitor.cpp, R.Sawada
 
   $Log$
+  Revision 1.22  2005/08/02 12:39:04  sawada
+  Removed netfolder title config.
+  Added netfolder reconnect config.
+  Check if the root folder is found when netfolder connects server.
+
   Revision 1.21  2005/07/01 12:43:37  schneebeli_m
   Update of TNetFolder : reconnect
 
@@ -402,7 +407,12 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i) {
       gSystem->Sleep(5000);
       fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
-   fNetFolder[i] = new TNetFolder(fNetFolderName[i].Data(),fNetFolderTitle[i].Data(),fNetFolderSocket[i]);
+   fNetFolder[i] = new TNetFolder(fNetFolderRoot[i].Data(),fNetFolderName[i].Data(),fNetFolderSocket[i],fNetFolderReconnect[i]);
+   ROMEString errMessage;
+   if(!fNetFolder[i]->GetPointer()){
+      errMessage.SetFormatted("%s failed to connect to %s folder of %s.",fNetFolderName[i].Data(),fNetFolderRoot[i].Data(),fNetFolderHost[i].Data());
+      Warning("ConnectNetFolder",errMessage);
+   }
 
    return kTRUE;
 }
@@ -451,10 +461,10 @@ void ArgusMonitor::InitNetFolders(Int_t number) {
       return;
    fNetFolder            = new TNetFolder*[number];
    fNetFolderActive      = new Bool_t[number];
+   fNetFolderReconnect   = new Bool_t[number];
    fNetFolderSocket      = new TSocket*[number];
    fNetFolderPort        = new Int_t[number];
    fNetFolderName        = new ROMEString[number];
-   fNetFolderTitle       = new ROMEString[number];
    fNetFolderHost        = new ROMEString[number];
    fNetFolderRoot        = new ROMEString[number];
    fNumberOfNetFolders   = number;

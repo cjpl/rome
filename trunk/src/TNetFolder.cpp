@@ -6,6 +6,11 @@
 //  
 //
 //  $Log$
+//  Revision 1.5  2005/08/02 12:39:04  sawada
+//  Removed netfolder title config.
+//  Added netfolder reconnect config.
+//  Check if the root folder is found when netfolder connects server.
+//
 //  Revision 1.4  2005/07/01 12:43:37  schneebeli_m
 //  Update of TNetFolder : reconnect
 //
@@ -30,7 +35,7 @@ TNetFolder::TNetFolder() : TNamed()
   fReconnect = true;
 }
 
-TNetFolder::TNetFolder(const char *name, const char *title,TSocket *socket,bool reconnect) : TNamed(name,title) 
+TNetFolder::TNetFolder(const char *name, const char *title,TSocket *socket,bool reconnect) : TNamed(name,title)
 {
   fSocket = socket;  
   fFolder = GetPointer();

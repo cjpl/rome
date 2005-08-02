@@ -3,6 +3,11 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.31  2005/08/02 12:39:04  sawada
+  Removed netfolder title config.
+  Added netfolder reconnect config.
+  Check if the root folder is found when netfolder connects server.
+
   Revision 1.30  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -237,12 +242,9 @@ Bool_t ArgusBuilder::WriteMonitorCpp() {
       buffer.AppendFormatted("   // %s\n",netFolderName[i].Data());
       buffer.AppendFormatted("   fNetFolderName[%d]   = \"%s\";\n",i,netFolderName[i].Data());
       buffer.AppendFormatted("   fNetFolderActive[%d] = kFALSE;\n",i);
+      buffer.AppendFormatted("   fNetFolderReconnect[%d] = kTRUE;\n",i);
       buffer.AppendFormatted("   fNetFolder[%d]       = 0;\n",i);
       buffer.AppendFormatted("   fNetFolderSocket[%d] = 0;\n",i);
-      if(netFolderTitle[i].Length())
-         buffer.AppendFormatted("   fNetFolderTitle[%d]  = \"%s\";\n",i,netFolderTitle[i].Data());
-      else
-         buffer.AppendFormatted("   fNetFolderTitle[%d]  = \"\";\n",i);
       if(netFolderHost[i].Length())
          buffer.AppendFormatted("   fNetFolderHost[%d]   = \"%s\";\n",i,netFolderHost[i].Data());
       else

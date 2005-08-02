@@ -3,6 +3,11 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.22  2005/08/02 12:39:04  sawada
+  Removed netfolder title config.
+  Added netfolder reconnect config.
+  Check if the root folder is found when netfolder connects server.
+
   Revision 1.21  2005/07/07 09:56:23  sawada
   bug fix around configuration.
 
@@ -270,28 +275,24 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fActiveModified = kFALSE;\n",i);
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fActiveModified = kTRUE;\n",i);
-
-         // NetFolder/Title
-         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/%s/Title\",fConfigData[index]->fNetFolder[%d]->fTitle,\"\");\n",netFolderName[i].Data(),i);
-         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fTitle==\"\")\n",i);
-         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fTitleModified = kFALSE;\n",i);
+         // NetFolder/Reconnect
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/%s/Reconnect\",fConfigData[index]->fNetFolder[%d]->fReconnect,\"\");\n",netFolderName[i].Data(),i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fReconnect==\"\")\n",i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fReconnectModified = kFALSE;\n",i);
          buffer.AppendFormatted("   else\n");
-         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fTitleModified = kTRUE;\n",i);
-
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fReconnectModified = kTRUE;\n",i);
          // NetFolder/Host
          buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/%s/Host\",fConfigData[index]->fNetFolder[%d]->fHost,\"\");\n",netFolderName[i].Data(),i);
          buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fHost==\"\")\n",i);
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fHostModified = kFALSE;\n",i);
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fHostModified = kTRUE;\n",i);
-
          // NetFolder/Port
          buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/%s/Port\",fConfigData[index]->fNetFolder[%d]->fPort,\"\");\n",netFolderName[i].Data(),i);
          buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fPort==\"\")\n",i);
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fPortModified = kFALSE;\n",i);
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fPortModified = kTRUE;\n",i);
-
          // NetFolder/Root
          buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/%s/Root\",fConfigData[index]->fNetFolder[%d]->fRoot,\"\");\n",netFolderName[i].Data(),i);
          buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fRoot==\"\")\n",i);
@@ -299,10 +300,10 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fRootModified = kTRUE;\n",i);
          // --NetFolder
-         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fActiveModified ||\n",i);
-         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fTitleModified  ||\n",i);
-         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fHostModified   ||\n",i);
-         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fPortModified   ||\n",i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fActiveModified    ||\n",i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fReconnectModified ||\n",i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fHostModified      ||\n",i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fPortModified      ||\n",i);
          buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fRootModified)\n",i);
          buffer.AppendFormatted("      fConfigData[index]->fNetFolderModified[%d] = kTRUE;\n",i);
          buffer.AppendFormatted("   else\n");
@@ -530,6 +531,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   // net folders\n");
    for(i=0;i<numOfNetFolder;i++){
       buffer.AppendFormatted("   gMonitor->SetNetFolderName(%d,\"%s\");\n",i,netFolderName[i].Data());
+      buffer.AppendFormatted("   gMonitor->SetNetFolderRoot(%d,\"%s\");\n",i,shortCut.Data());
    }
    if(numOfNetFolder>0){
       buffer.AppendFormatted("   for(i=0;i<gMonitor->GetNumberOfNetFolders();i++){\n",i);
@@ -540,8 +542,12 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("            else\n");
       buffer.AppendFormatted("               gMonitor->SetNetFolderActive(i,kFALSE);\n");
       buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fTitleModified)\n");
-      buffer.AppendFormatted("            gMonitor->SetNetFolderTitle(i,(Char_t*)fConfigData[index]->fNetFolder[i]->fTitle.Data());\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fReconnectModified){\n");
+      buffer.AppendFormatted("            if(fConfigData[index]->fNetFolder[i]->fReconnect == \"true\")\n");
+      buffer.AppendFormatted("               gMonitor->SetNetFolderReconnect(i,kTRUE);\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               gMonitor->SetNetFolderReconnect(i,kFALSE);\n");
+      buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fHostModified)\n");
       buffer.AppendFormatted("            gMonitor->SetNetFolderHost(i,(Char_t*)fConfigData[index]->fNetFolder[i]->fHost.Data());\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fPortModified)\n");
@@ -780,11 +786,15 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fActiveModified)\n",i);
          buffer.AppendFormatted("            xml->WriteElement(\"Active\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fActive.Data());\n",i);
-         // NetFolder/Title
-         buffer.AppendFormatted("         if (index==0)\n");
-         buffer.AppendFormatted("            xml->WriteElement(\"Title\",gMonitor->GetNetFolderTitle(%d));\n",i);
-         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fTitleModified)\n",i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Title\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fTitle.Data());\n",i);
+         // NetFolder/Reconnect
+         buffer.AppendFormatted("         if (index==0){\n");
+         buffer.AppendFormatted("            if(gMonitor->GetNetFolderReconnect(%d))\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Reconnect\",\"true\");\n");
+         buffer.AppendFormatted("            else\n",i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Reconnect\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fReconnectModified)\n",i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Reconnect\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fReconnect.Data());\n",i);
          // NetFolder/Host
          buffer.AppendFormatted("         if (index==0)\n");
          buffer.AppendFormatted("            xml->WriteElement(\"Host\",gMonitor->GetNetFolderHost(%d));\n",i);
@@ -960,8 +970,8 @@ Bool_t ArgusBuilder::WriteConfigH() {
    buffer.AppendFormatted("      public:\n");
    buffer.AppendFormatted("         ROMEString       fActive;\n");
    buffer.AppendFormatted("         Bool_t           fActiveModified;\n");
-   buffer.AppendFormatted("         ROMEString       fTitle;\n");
-   buffer.AppendFormatted("         Bool_t           fTitleModified;\n");
+   buffer.AppendFormatted("         ROMEString       fReconnect;\n");
+   buffer.AppendFormatted("         Bool_t           fReconnectModified;\n");
    buffer.AppendFormatted("         ROMEString       fRoot;\n");
    buffer.AppendFormatted("         Bool_t           fRootModified;\n");
    buffer.AppendFormatted("         ROMEString       fHost;\n");

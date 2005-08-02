@@ -2,6 +2,11 @@
   TNetFolder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.4  2005/08/02 12:39:04  sawada
+  Removed netfolder title config.
+  Added netfolder reconnect config.
+  Check if the root folder is found when netfolder connects server.
+
   Revision 1.3  2005/07/01 12:43:37  schneebeli_m
   Update of TNetFolder : reconnect
 
@@ -33,7 +38,6 @@
 class TNetFolder : public TNamed
 {
 protected:
-  Int_t GetPointer();
   TSocket  *fSocket;     // connection to TObjServer server
   Int_t     fFolder;     // pointer to TFolder object
   Bool_t    fReconnect;  // try to reconnect when connection is broken
@@ -81,6 +85,7 @@ public:
   virtual void Remove( TObject * )
     { Error("Remove","Not available for TNetFolders"); }
     
+  Int_t GetPointer();
   void Execute(const char *line);
   void ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
 
