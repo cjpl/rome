@@ -2,6 +2,11 @@
   ArgusMonitor.h, R.Sawada
 
   $Log$
+  Revision 1.13  2005/08/02 12:39:04  sawada
+  Removed netfolder title config.
+  Added netfolder reconnect config.
+  Check if the root folder is found when netfolder connects server.
+
   Revision 1.12  2005/05/26 14:26:55  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -110,10 +115,10 @@ protected:
    // NetFolder
    TNetFolder**     fNetFolder;                    //! netfoldr handle
    Bool_t*          fNetFolderActive;              //! active flag
+   Bool_t*          fNetFolderReconnect;           //! reconnect flag
    TSocket**        fNetFolderSocket;              //! socket connection handle
    Int_t*           fNetFolderPort;                //! port number
    ROMEString*      fNetFolderName;                //! name
-   ROMEString*      fNetFolderTitle;               //! title
    ROMEString*      fNetFolderHost;                //! server host name
    ROMEString*      fNetFolderRoot;                //! root directory name
 
@@ -181,15 +186,13 @@ public:
    // NetFolder
    TNetFolder*     GetNetFolder(const Char_t* name);
    Char_t*         GetNetFolderName(Int_t i) { return (Char_t*)fNetFolderName[i].Data(); }
-   Char_t*         GetNetFolderTitle(Int_t i) { return (Char_t*)fNetFolderTitle[i].Data(); }
    Char_t*         GetNetFolderHost(Int_t i) { return (Char_t*)fNetFolderHost[i].Data(); }
    Int_t           GetNetFolderPort(Int_t i) { return fNetFolderPort[i]; }
    Char_t*         GetNetFolderRoot(Int_t i) { return (Char_t*)fNetFolderRoot[i].Data(); }
    Bool_t          GetNetFolderActive(Int_t i) { return fNetFolderActive[i]; }
+   Bool_t          GetNetFolderReconnect(Int_t i) { return fNetFolderReconnect[i]; }
    void            SetNetFolderName(Int_t i,const Char_t* name) { fNetFolderName[i] = name; }
    void            SetNetFolderName(Int_t i,ROMEString& name) { fNetFolderName[i] = name; }
-   void            SetNetFolderTitle(Int_t i,const Char_t* title) { fNetFolderTitle[i] = title; }
-   void            SetNetFolderTitle(Int_t i,ROMEString& title) { fNetFolderTitle[i] = title; }
    void            SetNetFolderHost(Int_t i,const Char_t* host) { fNetFolderHost[i] = host; }
    void            SetNetFolderHost(Int_t i,ROMEString& host) { fNetFolderHost[i] = host; }
    void            SetNetFolderPort(Int_t i,Int_t port) { fNetFolderPort[i] = port; }
@@ -198,6 +201,7 @@ public:
    void            SetNetFolderRoot(Int_t i,const Char_t* root) { fNetFolderRoot[i] = root; }
    void            SetNetFolderRoot(Int_t i,ROMEString& root) { fNetFolderRoot[i] = root; }
    void            SetNetFolderActive(Int_t i,Bool_t active) { fNetFolderActive[i] = active; }
+   void            SetNetFolderReconnect(Int_t i,Bool_t reconnect) { fNetFolderReconnect[i] = reconnect; }
    Int_t           GetNumberOfNetFolders() { return fNumberOfNetFolders; }
 
    // Window
