@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.57  2005/08/05 07:45:00  schneebeli_m
+  added UserEvents
+
   Revision 1.56  2005/08/02 14:44:51  schneebeli_m
   correct taskHierarchy handling
 
@@ -185,6 +188,19 @@ protected:
    TArrayI    fEventNumber;                     //! Event Numbers to Analyze
    ROMEString fEventNumberString;               //! Event Numbers in Input String Format
    Int_t      fLastEventNumberIndex;            //! Index of the last Analyzed Event Number
+
+   // User Events
+   bool       fUserEvent;                       //! General User Event Flag
+   bool       fUserEventQ;                      //! Flag for User Event of Type Q
+   bool       fUserEventE;                      //! Flag for User Event of Type E
+   bool       fUserEventS;                      //! Flag for User Event of Type S
+   bool       fUserEventR;                      //! Flag for User Event of Type R
+   bool       fUserEventO;                      //! Flag for User Event of Type O
+   bool       fUserEventC;                      //! Flag for User Event of Type C
+   bool       fUserEventG;                      //! Flag for User Event of Type G
+   int        fUserEventGRunNumber;             //! Run Number for User Event of Type G
+   int        fUserEventGEventNumber;           //! Event Number for User Event of Type G
+   bool       fUserEventI;                      //! Flag for User Event of Type I
 
    // Event ID
    char       fEventID;                         //! Event ID of current Event
@@ -377,6 +393,29 @@ public:
 
    int        CheckEventNumber(int eventNumber);
    void       InitCheckEventNumber() { fLastEventNumberIndex = 0; };
+
+   // User Events
+   void       SetUserEventQ() { fUserEvent = true; fUserEventQ = true; };
+   void       SetUserEventE() { fUserEvent = true; fUserEventE = true; };
+   void       SetUserEventS() { fUserEvent = true; fUserEventS = true; };
+   void       SetUserEventR() { fUserEvent = true; fUserEventR = true; };
+   void       SetUserEventO() { fUserEvent = true; fUserEventO = true; };
+   void       SetUserEventC() { fUserEvent = true; fUserEventC = true; };
+   void       SetUserEventG() { fUserEvent = true; fUserEventG = true; };
+   void       SetUserEventI() { fUserEvent = true; fUserEventI = true; };
+
+   bool       HasUserEvent() { return fUserEvent; };
+   void       DeleteUserEvent() { fUserEvent = false; fUserEventQ = false; fUserEventE = false; fUserEventS = false; fUserEventR = false; fUserEventO = false; fUserEventC = false; fUserEventG = false; fUserEventI = false; };
+   bool       IsUserEventQ() { return fUserEventQ; };
+   bool       IsUserEventE() { return fUserEventE; };
+   bool       IsUserEventS() { return fUserEventS; };
+   bool       IsUserEventR() { return fUserEventR; };
+   bool       IsUserEventO() { return fUserEventO; };
+   bool       IsUserEventC() { return fUserEventC; };
+   bool       IsUserEventG() { return fUserEventG; };
+   int        GetUserEventGRunNumber() { return fUserEventGRunNumber; };
+   int        GetUserEventGEventNumber() { return fUserEventGEventNumber; };
+   bool       IsUserEventI() { return fUserEventI; };
 
    // Event ID
    int        GetEventID() { return fEventID-48; }

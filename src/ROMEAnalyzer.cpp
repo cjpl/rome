@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.71  2005/08/05 07:45:00  schneebeli_m
+//  added UserEvents
+//
 //  Revision 1.70  2005/08/02 14:44:52  schneebeli_m
 //  correct taskHierarchy handling
 //
@@ -230,6 +233,15 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
    fPortNumber = 9090;
    fSocketOffline = false;
    fActiveDAQ = NULL;
+   fUserEvent = false;
+   fUserEventQ = false;
+   fUserEventE = false;
+   fUserEventS = false;
+   fUserEventR = false;
+   fUserEventO = false;
+   fUserEventC = false;
+   fUserEventG = false;
+   fUserEventI = false;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {

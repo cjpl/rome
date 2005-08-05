@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.61  2005/08/05 07:45:00  schneebeli_m
+//  added UserEvents
+//
 //  Revision 1.60  2005/07/12 06:42:22  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -588,86 +591,93 @@ bool ROMEEventLoop::UserInput()
          wait = true;
 
       interpreter = false;
-      while (gROME->ss_kbhit()) {
+      while (gROME->ss_kbhit() || gROME->HasUserEvent()) {
          hit = true;
          char ch = gROME->ss_getchar(0);
          if (ch == -1) {
             ch = getchar();
          }
-         if (ch == 'q') {
+         if (ch == 'q' || gROME->IsUserEventQ()) {
             return false;
          }
-         if (ch == 'e') {
+         if (ch == 'e' || gROME->IsUserEventE()) {
             this->SetTerminate();
             wait = false;
          }
-         if (ch == 's') {
+         if (ch == 's' || gROME->IsUserEventS()) {
             text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
             gROME->Printfl(text.Data());
             wait = true;
          }
-         if (ch == 'r') {
+         if (ch == 'r' || gROME->IsUserEventR()) {
 
             if (fContinuous)
                gROME->Printfl("                                  \r");
 
             wait = false;
          }
-         if (ch == 'o') {
+         if (ch == 'o' || gROME->IsUserEventO()) {
             gROME->Println("Step by step mode                 ");
             fContinuous = false;
          }
-         if (ch == 'c') {
+         if (ch == 'c' || gROME->IsUserEventC()) {
             gROME->Println("Continues mode                    ");
             fContinuous = true;
             wait = false;
          }
-         if (ch == 'g') {
-            char *cstop;
-            ROMEString number;
-            // run number
-            gROME->Printfl("                                  \r");
-            gROME->Print("Run number :");
-            while (true) {
-               ch = gROME->ss_getchar(0);
-               if (ch == 0)
-                  continue;
-               if (ch == 13)
-                  break;
-               gROME->Print(ch);
-               number += ch;
+         if (ch == 'g' || gROME->IsUserEventG()) {
+            if (gROME->IsUserEventG()) {
+               fStopAtRun = gROME->GetUserEventGRunNumber();
+               fStopAtEvent = gROME->GetUserEventGEventNumber();
             }
-            gROME->Printfl("                                  \r");
-            int inumber = strtol(number.Data(),&cstop,10);
-            if (inumber!=0)
-               fStopAtRun = inumber;
-            else
-               fStopAtRun = gROME->GetCurrentRunNumber();
-            // event number
-            number.Resize(0);
-            gROME->Printfl("                                  \r");
-            gROME->Print("Event number :");
-            while (true) {
-               ch = gROME->ss_getchar(0);
-               if (ch == 0)
-                  continue;
-               if (ch == 13)
-                  break;
-               gROME->Print(ch);
-               number += ch;
+            else {
+               char *cstop;
+               ROMEString number;
+               // run number
+               gROME->Printfl("                                  \r");
+               gROME->Print("Run number :");
+               while (true) {
+                  ch = gROME->ss_getchar(0);
+                  if (ch == 0)
+                     continue;
+                  if (ch == 13)
+                     break;
+                  gROME->Print(ch);
+                  number += ch;
+               }
+               gROME->Printfl("                                  \r");
+               int inumber = strtol(number.Data(),&cstop,10);
+               if (inumber!=0)
+                  fStopAtRun = inumber;
+               else
+                  fStopAtRun = gROME->GetCurrentRunNumber();
+               // event number
+               number.Resize(0);
+               gROME->Printfl("                                  \r");
+               gROME->Print("Event number :");
+               while (true) {
+                  ch = gROME->ss_getchar(0);
+                  if (ch == 0)
+                     continue;
+                  if (ch == 13)
+                     break;
+                  gROME->Print(ch);
+                  number += ch;
+               }
+               gROME->Printfl("                                  \r");
+               inumber = strtol(number.Data(),&cstop,10);
+               if (inumber!=0)
+                  fStopAtEvent = inumber;
+               else
+                  fStopAtEvent = -1;
             }
-            gROME->Printfl("                                  \r");
-            inumber = strtol(number.Data(),&cstop,10);
-            if (inumber!=0)
-               fStopAtEvent = inumber;
-            else
-               fStopAtEvent = -1;
             wait = false;
          }
-         if (ch == 'i') {
+         if (ch == 'i' || gROME->IsUserEventI()) {
             interpreter = true;
             wait = false;
          }
+         gROME->DeleteUserEvent();
       }
       if (interpreter) {
          text.SetFormatted("\nEnd of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
