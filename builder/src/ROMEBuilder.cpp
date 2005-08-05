@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.222  2005/08/05 10:16:47  sawada
+  modified prototype of folders.
+
   Revision 1.221  2005/08/02 14:44:51  schneebeli_m
   correct taskHierarchy handling
 
@@ -2914,7 +2917,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title):%sT%s_Base(name,title) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,histoSuffix,histoFolder) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
