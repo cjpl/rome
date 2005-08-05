@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.223  2005/08/05 13:18:15  schneebeli_m
+  added ifdef R__BYTESWAP to ByteSwapStruct
+
   Revision 1.222  2005/08/05 10:16:47  sawada
   modified prototype of folders.
 
@@ -6745,6 +6748,7 @@ bool ROMEBuilder::WriteMidasCpp() {
    buffer.AppendFormatted("}\n");
 
    // -- Append method for byte swapping bank structures that are defined ----------
+#ifndef R__BYTESWAP
    buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
    buffer.AppendFormatted( "void* %sMidas::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
    buffer.AppendFormatted( "{\n" );
@@ -6802,6 +6806,7 @@ bool ROMEBuilder::WriteMidasCpp() {
 
    buffer.AppendFormatted( "    return( pData );\n" );
    buffer.AppendFormatted( "}\n" );
+#endif // R__BYTESWAP
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
