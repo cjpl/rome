@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.63  2005/08/07 23:25:21  sawada
+  small change.
+
   Revision 1.62  2005/08/07 23:11:07  sawada
   style sheet for documentation.
 
@@ -431,6 +434,7 @@ public:
    char* EqualSign();
    void WriteMakefile();
    void WriteHTMLDoku();
+   void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
    void WriteDictionaryBat(ROMEString& buffer);
    bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);

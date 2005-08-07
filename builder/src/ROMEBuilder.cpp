@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.227  2005/08/07 23:25:21  sawada
+  small change.
+
   Revision 1.226  2005/08/07 23:14:12  sawada
   small change.
 
@@ -9815,15 +9818,7 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
    }
    else{
-      buffer.AppendFormatted("<style>\n");
-      buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff }\n");
-      buffer.AppendFormatted("   h1 { color: blue }\n");
-      buffer.AppendFormatted("   h2 { color: green }\n");
-      buffer.AppendFormatted("   tr.cont { background-color: #d8c64c; }\n");
-      buffer.AppendFormatted("   tr.group { background-color: #f2f6c1; }\n");
-      buffer.AppendFormatted("   tr.even { background-color: #4cf3bf; }\n");
-      buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
-      buffer.AppendFormatted("</style>\n");
+      WriteHTMLStyle(buffer);
    }
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
@@ -10120,6 +10115,9 @@ void ROMEBuilder::WriteHTMLDoku() {
       if(styleSheet.Length()){
          buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
       }
+      else{
+         WriteHTMLStyle(buffer);
+      }
       buffer.AppendFormatted("</head>\n");
       buffer.AppendFormatted("<body>\n");
       buffer.AppendFormatted("  <h1>Additional Info</h1>\n");
@@ -10168,6 +10166,18 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
       buffer.AppendFormatted("<tr class=\"group\"><td colspan=\"3\">&nbsp;%s&nbsp;</td></tr>\n",groupName.Data());
       WriteHTMLSteering(buffer,steerChildren[numTask][numSteer][k],numTask,groupName.Data());
    }
+}
+
+void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer){
+      buffer.AppendFormatted("<style>\n");
+      buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff }\n");
+      buffer.AppendFormatted("   h1 { color: blue }\n");
+      buffer.AppendFormatted("   h2 { color: green }\n");
+      buffer.AppendFormatted("   tr.cont { background-color: #d8c64c; }\n");
+      buffer.AppendFormatted("   tr.group { background-color: #f2f6c1; }\n");
+      buffer.AppendFormatted("   tr.even { background-color: #4cf3bf; }\n");
+      buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
+      buffer.AppendFormatted("</style>\n");
 }
 
 void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
