@@ -110,6 +110,11 @@
 					<xs:documentation>Description of the framework. It will be displayed in the automatically created html documentation of the framework. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="DocumentStyleSheet" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Style sheet file to be used for documentation. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="IncludeDesc">

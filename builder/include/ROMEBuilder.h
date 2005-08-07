@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.62  2005/08/07 23:11:07  sawada
+  style sheet for documentation.
+
   Revision 1.61  2005/08/07 14:45:40  sawada
   added steering parameter desctiption in HTML output file.
 
@@ -369,6 +372,7 @@ protected:
    ROMEString mainEmail;
    ROMEString mainProgName;
    ROMEString mainDescription;
+   ROMEString styleSheet;
 
 // Compile Dependencies
    ROMEString analyzerDep;

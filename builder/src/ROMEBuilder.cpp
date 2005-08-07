@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.225  2005/08/07 23:11:07  sawada
+  style sheet for documentation.
+
   Revision 1.224  2005/08/07 14:45:40  sawada
   added steering parameter desctiption in HTML output file.
 
@@ -8793,6 +8796,7 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
    int i,j;
 
    experimentName = "";
+   styleSheet = "";
    shortCut = "";
    mainProgName = "";
    mainDescription = "";
@@ -8850,6 +8854,8 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
                         xml->GetValue(mainProgName,mainProgName);
                      if (type == 1 && !strcmp((const char*)name,"FrameworkDescription"))
                         xml->GetValue(mainDescription,mainDescription);
+                     if (type == 1 && !strcmp((const char*)name,"DocumentStyleSheet"))
+                        xml->GetValue(styleSheet,styleSheet);
                      if (type == 15 && !strcmp((const char*)name,"Experiment")) {
                         if (shortCut=="") {
                            cout << "Experiment must have a shortcut!" << endl;
@@ -9795,11 +9801,26 @@ void ROMEBuilder::WriteHTMLDoku() {
    ROMEString format;
    int depthold=0;
    int depth=0;
+   bool trodd = true;
 
    // Header
    buffer.Resize(0);
    buffer.AppendFormatted("<HTML>\n");
    buffer.AppendFormatted("<HEAD>\n");
+   if(styleSheet.Length()){
+      buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
+   }
+   else{
+      buffer.AppendFormatted("<style>\n");
+      buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff }\n");
+      buffer.AppendFormatted("   h1 { color: blue }\n");
+      buffer.AppendFormatted("   h2 { color: green }\n");
+      buffer.AppendFormatted("   tr.cont { background-color: #d8c64c; }\n");
+      buffer.AppendFormatted("   tr.group { background-color: #f2f6c1; }\n");
+      buffer.AppendFormatted("   tr.even { background-color: #4cf3bf; }\n");
+      buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
+      buffer.AppendFormatted("</style>\n");
+   }
    buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
@@ -9843,7 +9864,8 @@ void ROMEBuilder::WriteHTMLDoku() {
       else
          buffer.AppendFormatted("<u>Global Steering Parameters</u>\n");
       buffer.AppendFormatted("<table border=\"1\">\n");
-      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      trodd = !trodd;
       WriteHTMLSteering(buffer,0,i,"");
       buffer.AppendFormatted("</table><br>\n");
    }
@@ -9982,7 +10004,7 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
       buffer.AppendFormatted("<table border=\"1\">\n");
-      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
          ROMEString comment = valueComment[i][j];
          if (valueComment[i][j].Length()>3) {
@@ -9990,7 +10012,8 @@ void ROMEBuilder::WriteHTMLDoku() {
                comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
             }
          }
-         buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         trodd = !trodd;
       }
       buffer.AppendFormatted("</table>\n");
 
@@ -10119,6 +10142,7 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
    int k;
    ROMEString comment;
    ROMEString groupName;
+   bool trodd = true;
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       comment = steerFieldComment[numTask][numSteer][k];
       if (steerFieldComment[numTask][numSteer][k].Length()>3) {
@@ -10126,7 +10150,8 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
             comment = steerFieldComment[numTask][numSteer][k](3,steerFieldComment[numTask][numSteer][k].Length()-3);
          }
       }
-      buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),comment.Data());
+      buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),comment.Data());
+      trodd = !trodd;
    }
    // Groups
    for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
@@ -10134,7 +10159,7 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
       if(groupName.Length())
          groupName.AppendFormatted("/");
       groupName.AppendFormatted("%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-      buffer.AppendFormatted("<tr><td colspan=\"3\">&nbsp;%s&nbsp;</td></tr>\n",groupName.Data());
+      buffer.AppendFormatted("<tr class=\"group\"><td colspan=\"3\">&nbsp;%s&nbsp;</td></tr>\n",groupName.Data());
       WriteHTMLSteering(buffer,steerChildren[numTask][numSteer][k],numTask,groupName.Data());
    }
 }
