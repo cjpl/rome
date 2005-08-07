@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.224  2005/08/07 14:45:40  sawada
+  added steering parameter desctiption in HTML output file.
+
   Revision 1.223  2005/08/05 13:18:15  schneebeli_m
   added ifdef R__BYTESWAP to ByteSwapStruct
 
@@ -948,7 +951,7 @@ bool ROMEBuilder::ReadXMLFolder() {
             cout << "Terminating program." << endl;
             return false;
          }
-         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 && 
+         if (valueDimension[numOfFolder][numOfValue[numOfFolder]]>1 &&
              (valueDBName[numOfFolder][numOfValue[numOfFolder]].Length()
               || valueDBPath[numOfFolder][numOfValue[numOfFolder]].Length())
             ) {
@@ -8515,7 +8518,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
             buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%ss()->GetEntriesFast();i++) {\n",folderName[i].Data());
             buffer.AppendFormatted("      ((%s%s*)gAnalyzer->Get%sAt(i))->ResetModified();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data());
             buffer.AppendFormatted("   }\n");
-         }         
+         }
       }
       else {
          if (folderArray[i]=="1") {
@@ -9808,6 +9811,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<H2>Table of Contents</H2>\n");
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#introduction\">Introduction</a></li>\n");
+   buffer.AppendFormatted("<li><a href=\"#steers\">Steering Parameters</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#taskobjects\">Tasks</a></li>\n");
@@ -9828,6 +9832,22 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%s\n",mainDescription.Data());
    buffer.AppendFormatted("<p>\n");
+   // Steering parameters
+   buffer.AppendFormatted("<H2><a name=steers>Steering Parameters</a> </H2>\n");
+   buffer.AppendFormatted("\n");
+   for(i=0;i<=numOfTask;i++){
+      if(numOfSteering[i] < 1)
+         continue;
+      if(i<numOfTask)
+         buffer.AppendFormatted("<u>%s</u>\n",taskName[i].Data());
+      else
+         buffer.AppendFormatted("<u>Global Steering Parameters</u>\n");
+      buffer.AppendFormatted("<table border=\"1\">\n");
+      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      WriteHTMLSteering(buffer,0,i,"");
+      buffer.AppendFormatted("</table><br>\n");
+   }
+   buffer.AppendFormatted("\n");
    // Objects
    buffer.AppendFormatted("<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a>, <a href=\"#treeobjects\">Trees</a> and <a href=\"#midasbankobjects\">Midas Banks</a> are described here.\n");
@@ -10094,6 +10114,31 @@ void ROMEBuilder::WriteHTMLDoku() {
    }
 }
 
+void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group)
+{
+   int k;
+   ROMEString comment;
+   ROMEString groupName;
+   for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
+      comment = steerFieldComment[numTask][numSteer][k];
+      if (steerFieldComment[numTask][numSteer][k].Length()>3) {
+         if (steerFieldComment[numTask][numSteer][k][0]=='/') {
+            comment = steerFieldComment[numTask][numSteer][k](3,steerFieldComment[numTask][numSteer][k].Length()-3);
+         }
+      }
+      buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),comment.Data());
+   }
+   // Groups
+   for (k=0;k<numOfSteerChildren[numTask][numSteer];k++) {
+      groupName = group;
+      if(groupName.Length())
+         groupName.AppendFormatted("/");
+      groupName.AppendFormatted("%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+      buffer.AppendFormatted("<tr><td colspan=\"3\">&nbsp;%s&nbsp;</td></tr>\n",groupName.Data());
+      WriteHTMLSteering(buffer,steerChildren[numTask][numSteer][k],numTask,groupName.Data());
+   }
+}
+
 void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
 {
    buf->Resize(0);
@@ -10356,7 +10401,7 @@ bool ROMEBuilder::isTArrayType(const char *type) {
          ,"TArrayF"
          ,"TArrayS"
       };
-   
+
    for (j=0;j<6;j++) {
       if (!strcmp(type,arrayTypes[j]))
          return true;
@@ -10377,7 +10422,7 @@ const char* ROMEBuilder::TArray2StandardType(const char *type) {
          ,{"TArrayF","Float_t "}
          ,{"TArrayS","Short_t "}
       };
-   
+
    for (j=0;j<6;j++) {
       if (!strcmp(type,arrayTypes[j][0]))
          return arrayTypes[j][1];
@@ -10461,7 +10506,7 @@ bool ROMEBuilder::accessFolder(ROMEString &fileBuffer, int numFolder) {
    str += "(";
    if (fileBuffer.Contains(str))
       return true;
-   
+
    // Get copy
    str = "Set";
    str += folderName[numFolder];

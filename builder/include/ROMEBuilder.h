@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.61  2005/08/07 14:45:40  sawada
+  added steering parameter desctiption in HTML output file.
+
   Revision 1.60  2005/07/13 14:11:31  sawada
   implemented FolderNoReset.
 
@@ -424,6 +427,7 @@ public:
    char* EqualSign();
    void WriteMakefile();
    void WriteHTMLDoku();
+   void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
    void WriteDictionaryBat(ROMEString& buffer);
    bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    bool WriteFile(const char* filename,const char* content,int nspace = 0);
