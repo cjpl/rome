@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.226  2005/08/07 23:14:12  sawada
+  small change.
+
   Revision 1.225  2005/08/07 23:11:07  sawada
   style sheet for documentation.
 
@@ -9807,6 +9810,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.Resize(0);
    buffer.AppendFormatted("<HTML>\n");
    buffer.AppendFormatted("<HEAD>\n");
+   buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
    if(styleSheet.Length()){
       buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
    }
@@ -9821,7 +9825,6 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
       buffer.AppendFormatted("</style>\n");
    }
-   buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n");
@@ -10114,6 +10117,9 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("<html>\n");
       buffer.AppendFormatted("<head>\n");
       buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n",shortCut.Data(),mainProgName.Data());
+      if(styleSheet.Length()){
+         buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
+      }
       buffer.AppendFormatted("</head>\n");
       buffer.AppendFormatted("<body>\n");
       buffer.AppendFormatted("  <h1>Additional Info</h1>\n");
