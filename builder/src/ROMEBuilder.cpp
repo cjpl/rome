@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.229  2005/08/08 09:15:28  schneebeli_m
+  almost no change
+
   Revision 1.228  2005/08/08 06:31:56  sawada
   write css, if it does not exist.
 
@@ -10111,11 +10114,13 @@ void ROMEBuilder::WriteHTMLDoku() {
    struct stat buf;
    // Write style sheet
    ROMEString css;
-   css.SetFormatted("%s/%s",outDir.Data(),styleSheet.Data());
-   if( stat( css.Data(), &buf )) {
-      buffer.Resize(0);
-      WriteHTMLStyle(buffer);
-      WriteFile(css.Data(),buffer.Data(),0);
+   if(styleSheet.Length()) {
+      css.SetFormatted("%s/%s",outDir.Data(),styleSheet.Data());
+      if( stat( css.Data(), &buf )) {
+         buffer.Resize(0);
+         WriteHTMLStyle(buffer);
+         WriteFile(css.Data(),buffer.Data(),0);
+      }
    }
 
    // Write UserHTML
