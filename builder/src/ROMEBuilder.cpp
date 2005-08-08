@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.228  2005/08/08 06:31:56  sawada
+  write css, if it does not exist.
+
   Revision 1.227  2005/08/07 23:25:21  sawada
   small change.
 
@@ -9815,10 +9818,12 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<HEAD>\n");
    buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
    if(styleSheet.Length()){
-      buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
+      buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n",outDir.Data(),styleSheet.Data());
    }
    else{
+      buffer.AppendFormatted("<STYLE>\n");
       WriteHTMLStyle(buffer);
+      buffer.AppendFormatted("</STYLE>\n");
    }
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
@@ -10100,23 +10105,34 @@ void ROMEBuilder::WriteHTMLDoku() {
 
    // Write documentation
    ROMEString htmlFile;
-   htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   htmlFile.SetFormatted("%s/%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
    WriteFile(htmlFile.Data(),buffer.Data(),0);
 
-   // Write UserHTML
    struct stat buf;
+   // Write style sheet
+   ROMEString css;
+   css.SetFormatted("%s/%s",outDir.Data(),styleSheet.Data());
+   if( stat( css.Data(), &buf )) {
+      buffer.Resize(0);
+      WriteHTMLStyle(buffer);
+      WriteFile(css.Data(),buffer.Data(),0);
+   }
+
+   // Write UserHTML
    ROMEString userHtmlFile;
-   userHtmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data());
+   userHtmlFile.SetFormatted("%s/%sUserHTML.html",outDir.Data(),shortCut.Data());
    if( stat( userHtmlFile.Data(), &buf )) {
       buffer.Resize(0);
       buffer.AppendFormatted("<html>\n");
       buffer.AppendFormatted("<head>\n");
       buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n",shortCut.Data(),mainProgName.Data());
       if(styleSheet.Length()){
-         buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s\">\n",styleSheet.Data());
+         buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n",outDir.Data(),styleSheet.Data());
       }
       else{
+         buffer.AppendFormatted("<STYLE>\n");
          WriteHTMLStyle(buffer);
+         buffer.AppendFormatted("</STYLE>\n");
       }
       buffer.AppendFormatted("</head>\n");
       buffer.AppendFormatted("<body>\n");
@@ -10169,7 +10185,6 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
 }
 
 void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer){
-      buffer.AppendFormatted("<style>\n");
       buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff }\n");
       buffer.AppendFormatted("   h1 { color: blue }\n");
       buffer.AppendFormatted("   h2 { color: green }\n");
@@ -10177,7 +10192,6 @@ void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer){
       buffer.AppendFormatted("   tr.group { background-color: #f2f6c1; }\n");
       buffer.AppendFormatted("   tr.even { background-color: #4cf3bf; }\n");
       buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
-      buffer.AppendFormatted("</style>\n");
 }
 
 void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
