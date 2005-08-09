@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.231  2005/08/09 07:18:57  sawada
+  accessed folder check in html document.
+
   Revision 1.230  2005/08/09 07:12:49  sawada
   Improved html coloring.
 
@@ -9943,15 +9946,8 @@ void ROMEBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("%s accesses data from the following folders :\n",taskName[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j=0;j<numOfFolder;j++) {
-         str = "Get";
-         str.Append(folderName[j]);
-         if (folderArray[j]=="1")
-            str += "(";
-         else
-            str += "At(";
-         if (fileBuffer.Contains(str)) {
+         if (accessFolder(fileBuffer,j))
             buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
-         }
       }
       buffer.AppendFormatted("</ul>\n");
       buffer.AppendFormatted("<p>\n");
