@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.232  2005/08/09 07:21:57  sawada
+  almost no change.
+
   Revision 1.231  2005/08/09 07:18:57  sawada
   accessed folder check in html document.
 
@@ -10026,7 +10029,7 @@ void ROMEBuilder::WriteHTMLDoku() {
          buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
          trodd = !trodd;
       }
-      buffer.AppendFormatted("</table>\n");
+      buffer.AppendFormatted("</table><br>\n");
 
    }
    buffer.AppendFormatted("<p>\n");
