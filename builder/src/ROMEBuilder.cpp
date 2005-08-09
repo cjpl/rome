@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.230  2005/08/09 07:12:49  sawada
+  Improved html coloring.
+
   Revision 1.229  2005/08/08 09:15:28  schneebeli_m
   almost no change
 
@@ -9866,10 +9869,10 @@ void ROMEBuilder::WriteHTMLDoku() {
       if(numOfSteering[i] < 1)
          continue;
       if(i<numOfTask)
-         buffer.AppendFormatted("<u>%s</u>\n",taskName[i].Data());
+         buffer.AppendFormatted("<a class=\"object\">%s</a><br>\n",taskName[i].Data());
       else
-         buffer.AppendFormatted("<u>Global Steering Parameters</u>\n");
-      buffer.AppendFormatted("<table border=\"1\">\n");
+         buffer.AppendFormatted("<a class=\"object\">Global Steering Parameters</a><br>\n");
+      buffer.AppendFormatted("<table>\n");
       buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       trodd = !trodd;
       WriteHTMLSteering(buffer,0,i,"");
@@ -9886,6 +9889,8 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("\n");
 
    int index;
+   int ddelta;
+   buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       index = i;
       depth=0;
@@ -9893,8 +9898,10 @@ void ROMEBuilder::WriteHTMLDoku() {
          depth++;
          index = taskHierarchyParentIndex[index];
       }
-      if (depth<depthold) buffer.AppendFormatted("</ul>\n");
-      if (depth>depthold) buffer.AppendFormatted("<ul>\n");
+      depth--;
+      ddelta = depth-depthold;
+      if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
+      if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
       buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskHierarchyName[i].Data(),shortCut.Data(),taskHierarchyName[i].Data());
       depthold = depth;
    }
@@ -9911,7 +9918,7 @@ void ROMEBuilder::WriteHTMLDoku() {
    fstream *fileStream;
    ROMEString fileBuffer;
    for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",taskName[i].Data(),taskName[i].Data());
+      buffer.AppendFormatted("<a name=%s class=\"object\">%s</a><br>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("%s<p>\n",taskDescription[i].Data());
       if (numOfHistos[i]>0) {
          buffer.AppendFormatted("This task containes the following histograms :\n");
@@ -9964,12 +9971,13 @@ void ROMEBuilder::WriteHTMLDoku() {
 
    depthold=0;
    depth=0;
+
    for (i=0;i<numOfFolder;i++) {
       depth=0;
       if (folderParentName[i]!="GetMainFolder()") {
          depth++;
          parentt = folderParentName[i];
-         for (j=0;j<100;j++) {
+         for (j=0;j<maxNumberOfFolders;j++) {
             for (k=0;k<numOfFolder;k++) {
                if (parentt==folderName[k]) {
                   parentt = folderParentName[k];
@@ -9985,8 +9993,9 @@ void ROMEBuilder::WriteHTMLDoku() {
             depth++;
          }
       }
-      if (depth<depthold) buffer.AppendFormatted("</ul>\n");
-      if (depth>depthold) buffer.AppendFormatted("<ul>\n");
+      ddelta = depth-depthold;
+      if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
+      if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted("<b>\n");
          buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n",folderName[i].Data(),folderName[i].Data());
@@ -10005,11 +10014,11 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<p>\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] <= 0) continue;
-      buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",folderName[i].Data(),folderName[i].Data());
+      buffer.AppendFormatted("<a name=%s class=\"object\">%s</a><br>\n",folderName[i].Data(),folderName[i].Data());
       buffer.AppendFormatted("%s\n",folderDescription[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
-      buffer.AppendFormatted("<table border=\"1\">\n");
+      buffer.AppendFormatted("<table>\n");
       buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
          ROMEString comment = valueComment[i][j];
@@ -10190,13 +10199,15 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,
 }
 
 void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer){
-      buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff }\n");
-      buffer.AppendFormatted("   h1 { color: blue }\n");
-      buffer.AppendFormatted("   h2 { color: green }\n");
-      buffer.AppendFormatted("   tr.cont { background-color: #d8c64c; }\n");
-      buffer.AppendFormatted("   tr.group { background-color: #f2f6c1; }\n");
-      buffer.AppendFormatted("   tr.even { background-color: #4cf3bf; }\n");
-      buffer.AppendFormatted("   tr.odd { background-color: #EEEEEE; }\n");
+      buffer.AppendFormatted("   body { color: #000000; background-color: #ffffff; }\n");
+      buffer.AppendFormatted("   h1 { color: blue; }\n");
+      buffer.AppendFormatted("   h2 { color: green; }\n");
+      buffer.AppendFormatted("   table { border: 1; }\n");
+      buffer.AppendFormatted("   a.object { text-decoration: underline; font-weight: bold; }\n");
+      buffer.AppendFormatted("   tr.cont { color: #ffffff; background-color: #819cc8; font-weight: bold; }\n");
+      buffer.AppendFormatted("   tr.group { background-color: #d0d0ee; }\n");
+      buffer.AppendFormatted("   tr.even { background-color: #e0e0e0; }\n");
+      buffer.AppendFormatted("   tr.odd { background-color: #f0f0f0; }\n");
 }
 
 void ROMEBuilder::GetFormat(ROMEString* buf,const char *type)
