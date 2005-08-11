@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.29  2005/08/11 15:36:54  schneebeli_m
+  maxNumberOfMenuItems=40
+
   Revision 1.28  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -118,7 +121,7 @@
 
 const Int_t maxNumberOfTabs                    =    200;
 const Int_t maxNumberOfMenus                   =     10;
-const Int_t maxNumberOfMenuItems               =     20;
+const Int_t maxNumberOfMenuItems               =     40;
 const Int_t maxNumberOfThreadFunctions         =     10;
 const Int_t maxNumberOfThreadFunctionArguments =     10;
 const Int_t maxNumberOfNetFolders              =     10;
