@@ -2,6 +2,9 @@
   ROMEConfig.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/08/12 15:37:02  schneebeli_m
+  added input file based IO
+
   Revision 1.4  2005/04/01 14:56:23  schneebeli_m
   Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
 
@@ -32,6 +35,7 @@ public:
    virtual bool WriteConfigurationFile(const char *file) = 0;
    virtual bool ReadConfigurationFile(const char *file) = 0;
    virtual bool CheckConfiguration(int runNumber) = 0;
+   virtual bool CheckConfiguration(ROMEString& fileName) = 0;
 };
 
 #endif   // ROMEConfig_H

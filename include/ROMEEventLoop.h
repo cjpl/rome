@@ -2,6 +2,9 @@
   ROMEEventLoop.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2005/08/12 15:37:02  schneebeli_m
+  added input file based IO
+
   Revision 1.17  2005/06/13 15:49:04  schneebeli_m
   changed name of DAQ user functions
 
@@ -66,9 +69,9 @@ protected:
    bool          fContinuous;                      //! Continuous Mode
 
    // Output Tree Files
-   TFile**       fTreeFiles;                       //! File Handles for Tree Objects
    ROMETreeInfo* fTreeInfo;                        //! Tree Info Object
    int           fSequentialNumber;                //! Sequential Number
+   int           fTreeUpdateIndex;                 //! Index of the tree (for trees in the same file)
 
    // Histo File
    TFile*        fHistoFile;                       //! Histo file
@@ -134,6 +137,7 @@ protected:
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;
+   virtual void GetTreeFileName(ROMEString& buffer,int treeIndex,const char* runNumber="") = 0;
 };
 
 #endif   // ROMEEventLoop_H

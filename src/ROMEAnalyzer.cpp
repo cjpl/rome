@@ -8,6 +8,9 @@
 //  Folders, Trees and Task definitions.
 //
 //  $Log$
+//  Revision 1.72  2005/08/12 15:37:02  schneebeli_m
+//  added input file based IO
+//
 //  Revision 1.71  2005/08/05 07:45:00  schneebeli_m
 //  added UserEvents
 //
@@ -471,7 +474,7 @@ int ROMEAnalyzer::CheckEventNumber(int eventNumber)
    return -1;
 }
 
-TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
+void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayI& arr)
 {
    char cminus='-';
    char ccomma=',';
@@ -482,8 +485,8 @@ TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
    int i;
    int na=0;
    int nat=1;
-   int arraySize = 1000;
-   TArrayI arr(arraySize);
+   arr.Set(10);
+   int arraySize = arr.GetSize();
    while (pstr<str.Data()+str.Length()) {
       if (na>=arraySize*nat) {
          nat++;
@@ -515,11 +518,24 @@ TArrayI ROMEAnalyzer::decodeRunNumbers(ROMEString& str)
       else {
          arr.AddAt(num,na);
          arr.Set(na+1);
-         return arr;
+         return;
       }
    }
    arr.Set(na);
-   return arr;
+}
+
+void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
+{
+   int ind,num=0;
+   TString temp;
+   ROMEString string = str;
+   while ((ind=string.Index(","))!=-1) {
+      temp = string(0,ind);
+      arr.AddAtAndExpand(temp,num);
+      num++;
+      string = string(ind+1,string.Length()-ind-1);
+   }
+   arr.AddAtAndExpand(str,num);
 }
 
 bool ROMEAnalyzer::toBool(int value) {

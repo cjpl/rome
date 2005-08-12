@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.233  2005/08/12 15:37:01  schneebeli_m
+  added input file based IO
+
   Revision 1.232  2005/08/09 07:21:57  sawada
   almost no change.
 
@@ -2989,6 +2992,7 @@ bool ROMEBuilder::ReadXMLTree() {
          numOfBranch[numOfTree] = 0;
          treeName[numOfTree] = "";
          treeTitle[numOfTree] = "";
+         treeFileName[numOfTree] = "";
 
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -3002,6 +3006,9 @@ bool ROMEBuilder::ReadXMLTree() {
             // tree title
             if (type == 1 && !strcmp((const char*)name,"TreeTitle"))
                xml->GetValue(treeTitle[numOfTree],treeTitle[numOfTree]);
+            // tree file name
+            if (type == 1 && !strcmp((const char*)name,"TreeOutputFileName"))
+               xml->GetValue(treeFileName[numOfTree],treeFileName[numOfTree]);
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
                // branch initialisation
                branchName[numOfTree][numOfBranch[numOfTree]] = "";
@@ -4961,6 +4968,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      path.SetFormatted(\"/Configuration/RunConfiguration[%%d]\",i+1);\n");
    buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[0]->fRunNumbersModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(fConfigData[0]->fRunNumbers);\n");
+   buffer.AppendFormatted("   if (fConfigData[0]->fInputFileNamesModified)\n");
+   buffer.AppendFormatted("      gAnalyzer->SetInputFileNames(fConfigData[0]->fInputFileNames);\n");
+
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -4977,14 +4989,24 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   else {\n");
    buffer.AppendFormatted("      fConfigData[index]->fRunNumbersModified = true;\n");
    buffer.AppendFormatted("      fConfigData[index]->fLastRunNumberIndex = 0;\n");
-   buffer.AppendFormatted("      fConfigData[index]->fRunNumberArray = gAnalyzer->decodeRunNumbers(fConfigData[index]->fRunNumbers);\n");
+   buffer.AppendFormatted("      gAnalyzer->DecodeRunNumbers(fConfigData[index]->fRunNumbers,fConfigData[index]->fRunNumberArray);\n");
    buffer.AppendFormatted("   }\n");
+
    // EventNumbers
    buffer.AppendFormatted("   xml->GetPathValue(path+\"/EventNumbers\",fConfigData[index]->fEventNumbers,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fEventNumbers==\"\")\n");
    buffer.AppendFormatted("      fConfigData[index]->fEventNumbersModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fEventNumbersModified = true;\n");
+   // InputFileNames
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/InputFileNames\",fConfigData[index]->fInputFileNames,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fInputFileNames==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fInputFileNamesModified = false;\n");
+   buffer.AppendFormatted("   else {\n");
+   buffer.AppendFormatted("      fConfigData[index]->fInputFileNamesModified = true;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fLastInputFileNameIndex = 0;\n");
+   buffer.AppendFormatted("      gAnalyzer->DecodeInputFileNames(fConfigData[index]->fInputFileNames,fConfigData[index]->fInputFileNameArray);\n");
+   buffer.AppendFormatted("   }\n");
    // modes
    buffer.AppendFormatted("   // modes\n");
    // AnalyzingMode
@@ -5399,12 +5421,19 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified = false;\n",treeName[i].Data());
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified = true;\n",treeName[i].Data());
+      // FileName
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Trees/Tree[TreeName='%s']/TreeOutputFileName\",fConfigData[index]->f%sTree->fFileName,\"\");\n",treeName[i].Data(),treeName[i].Data());
+      buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fFileName==\"\")\n",treeName[i].Data());
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fFileNameModified = false;\n",treeName[i].Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]->f%sTree->fFileNameModified = true;\n",treeName[i].Data());
       // Check Modified
       buffer.AppendFormatted("   if (fConfigData[index]->f%sTree->fReadModified ||\n",treeName[i].Data());
       buffer.AppendFormatted("       fConfigData[index]->f%sTree->fWriteModified ||\n",treeName[i].Data());
       buffer.AppendFormatted("       fConfigData[index]->f%sTree->fFillModified ||\n",treeName[i].Data());
       buffer.AppendFormatted("       fConfigData[index]->f%sTree->fCompressionLevelModified ||\n",treeName[i].Data());
-      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified ||\n",treeName[i].Data());
+      buffer.AppendFormatted("       fConfigData[index]->f%sTree->fFileNameModified) {\n",treeName[i].Data());
       buffer.AppendFormatted("      fConfigData[index]->fTreesModified = true;\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sTreeModified = true;\n",treeName[i].Data());
       buffer.AppendFormatted("   }\n");
@@ -5483,11 +5512,41 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("                     return false;\n");
    buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
    buffer.AppendFormatted("               }\n");
-   buffer.AppendFormatted("               else if (fConfigData[i]->fRunNumberArray.At(i)<runNumber) {\n");
+   buffer.AppendFormatted("               else if (fConfigData[i]->fRunNumberArray.At(j)<runNumber) {\n");
    buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = -1;\n");
    buffer.AppendFormatted("               }\n");
    buffer.AppendFormatted("               else {\n");
    buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Check Configuration
+   buffer.AppendFormatted("\n// Check Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(ROMEString& fileName) {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i,j;\n");
+   buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
+   buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
+   buffer.AppendFormatted("         return false;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   for (i=1;i<=fNumberOfRunConfigs;i++) {\n");
+   buffer.AppendFormatted("      if (fConfigData[i]->fInputFileNamesModified) {\n");
+   buffer.AppendFormatted("         if (fConfigData[i]->fLastInputFileNameIndex!=-1) {\n");
+   buffer.AppendFormatted("            for (j=fConfigData[i]->fLastInputFileNameIndex;j<fConfigData[i]->fInputFileNameArray.GetEntriesFast();j++) {\n");
+   buffer.AppendFormatted("               if (fConfigData[i]->fInputFileNameArray.At(j)==fileName) {\n");
+   buffer.AppendFormatted("                  if (!SetConfiguration(i,i))\n");
+   buffer.AppendFormatted("                     return false;\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastInputFileNameIndex = j;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("               else if (fConfigData[i]->fInputFileNameArray.At(j)<fileName) {\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastInputFileNameIndex = -1;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("               else {\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastInputFileNameIndex = j;\n");
    buffer.AppendFormatted("               }\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("         }\n");
@@ -5503,10 +5562,6 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   char* cstop;\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   fActiveConfiguration = index;\n");
-   // Run Numbers
-   buffer.AppendFormatted("   // run numbers\n");
-   buffer.AppendFormatted("   if (fConfigData[modIndex]->fRunNumbersModified)\n");
-   buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(fConfigData[index]->fRunNumbers);\n");
    // Event Numbers
    buffer.AppendFormatted("   // event numbers\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fEventNumbersModified)\n");
@@ -5571,62 +5626,66 @@ bool ROMEBuilder::WriteConfigCpp() {
    // DataBase
    buffer.AppendFormatted("   // database\n");
    buffer.AppendFormatted("   if (index==0) {\n");
-   buffer.AppendFormatted("      for (i=0;i<gAnalyzer->GetNumberOfDataBases();i++) {\n");
-   buffer.AppendFormatted("         if (fConfigData[modIndex]->fDataBase[i]->fConnectionModified) {\n");
-   buffer.AppendFormatted("            gAnalyzer->SetDataBaseConnection(i,fConfigData[index]->fDataBase[i]->fConnection.Data());\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         if (fConfigData[modIndex]->fDataBase[i]->fTypeModified) {\n");
-   buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"sql\") {\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("#else\n");
-   buffer.AppendFormatted("                  cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
-   buffer.AppendFormatted("                     fConfigData[index]->fDataBase[i]->fType==\"\") {\n");
-   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMENoDataBase());\n");
-   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"xml\") {\n");
-   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());\n");
-   buffer.AppendFormatted("               ROMEString str = gAnalyzer->GetDataBaseConnection(i);\n");
-   buffer.AppendFormatted("               int ind;\n");
-   buffer.AppendFormatted("               if ((ind=str.Index(\";\",1,0,TString::kExact))==-1) {\n");
-   buffer.AppendFormatted("                  gAnalyzer->Println(\"Invalid database connection\");\n");
-   buffer.AppendFormatted("                  return false;\n");
+   buffer.AppendFormatted("      if (fConfigData[modIndex]->fDataBasesModified) {\n");
+   buffer.AppendFormatted("         for (i=0;i<gAnalyzer->GetNumberOfDataBases();i++) {\n");
+   buffer.AppendFormatted("            if (fConfigData[modIndex]->fDataBaseModified[i]) {\n");
+   buffer.AppendFormatted("               if (fConfigData[modIndex]->fDataBase[i]->fConnectionModified) {\n");
+   buffer.AppendFormatted("                  gAnalyzer->SetDataBaseConnection(i,fConfigData[index]->fDataBase[i]->fConnection.Data());\n");
    buffer.AppendFormatted("               }\n");
-   buffer.AppendFormatted("               ROMEString path = str(0,ind);\n");
-   buffer.AppendFormatted("               if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')\n");
-   buffer.AppendFormatted("                  path += \"/\";\n");
-   buffer.AppendFormatted("               gAnalyzer->SetDataBaseDir(i,path.Data());\n");
-   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"text\") {\n");
-   buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new ROMETextDataBase());\n");
-   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseConnection(i),\"\"))\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("            }\n");
-   buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"odb\") {\n");
-   buffer.AppendFormatted("               if (gAnalyzer->isOffline())\n");
-   buffer.AppendFormatted("                  gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());\n");
-   buffer.AppendFormatted("               else\n");
-   buffer.AppendFormatted("                  gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());\n");
-   buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
-   buffer.AppendFormatted("                  return false;\n");
-   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("               if (fConfigData[modIndex]->fDataBase[i]->fTypeModified) {\n");
+   buffer.AppendFormatted("                  if (fConfigData[index]->fDataBase[i]->fType==\"sql\") {\n");
+   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMESQLDataBase());\n");
+   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("#else\n");
+   buffer.AppendFormatted("                        cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
+   buffer.AppendFormatted("                           fConfigData[index]->fDataBase[i]->fType==\"\") {\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMENoDataBase());\n");
+   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  else if (fConfigData[index]->fDataBase[i]->fType==\"xml\") {\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMEXMLDataBase());\n");
+   buffer.AppendFormatted("                     ROMEString str = gAnalyzer->GetDataBaseConnection(i);\n");
+   buffer.AppendFormatted("                     int ind;\n");
+   buffer.AppendFormatted("                     if ((ind=str.Index(\";\",1,0,TString::kExact))==-1) {\n");
+   buffer.AppendFormatted("                        gAnalyzer->Println(\"Invalid database connection\");\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("                     }\n");
+   buffer.AppendFormatted("                     ROMEString path = str(0,ind);\n");
+   buffer.AppendFormatted("                     if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')\n");
+   buffer.AppendFormatted("                        path += \"/\";\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetDataBaseDir(i,path.Data());\n");
+   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  else if (fConfigData[index]->fDataBase[i]->fType==\"text\") {\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMETextDataBase());\n");
+   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseConnection(i),\"\"))\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("                  }\n");
+   buffer.AppendFormatted("                  if (fConfigData[index]->fDataBase[i]->fType==\"odb\") {\n");
+   buffer.AppendFormatted("                     if (gAnalyzer->isOffline())\n");
+   buffer.AppendFormatted("                        gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());\n");
+   buffer.AppendFormatted("                     else\n");
+   buffer.AppendFormatted("                        gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());\n");
+   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))\n");
+   buffer.AppendFormatted("                        return false;\n");
+   buffer.AppendFormatted("                  }\n");
    for (i=0;i<numOfDB;i++) {
-      buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"%s\") {\n",dbName[i].Data());
-      buffer.AppendFormatted("               gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
-      buffer.AppendFormatted("               if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
-      buffer.AppendFormatted("                  return false;\n");
-      buffer.AppendFormatted("            }\n");
+      buffer.AppendFormatted("                  else if (fConfigData[index]->fDataBase[i]->fType==\"%s\") {\n",dbName[i].Data());
+      buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
+      buffer.AppendFormatted("                        return false;\n");
+      buffer.AppendFormatted("                  }\n");
    }
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
@@ -5801,12 +5860,19 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   }\n");
       // CompressionLevel
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fCompressionLevelModified) {\n",treeName[i].Data());
-      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(strtol(fConfigData[modIndex]->f%sTree->fCompressionLevel.Data(),&cstop,10));\n",i,treeName[i].Data());
+      buffer.AppendFormatted("      gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(strtol(fConfigData[modIndex]->f%sTree->fCompressionLevel.Data(),&cstop,10));\n",i,treeName[i].Data());
       buffer.AppendFormatted("   }\n");
       // MaxNumberOfEntries
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fMaxNumberOfEntriesModified) {\n",treeName[i].Data());
       buffer.AppendFormatted("      int maxNumOfEntries = strtol(fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data(),&cstop,10);\n",treeName[i].Data());
       buffer.AppendFormatted("      gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);\n",i);
+      buffer.AppendFormatted("   }\n");
+      // FileName
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sTree->fFileNameModified) {\n",treeName[i].Data());
+      buffer.AppendFormatted("      gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(fConfigData[index]->f%sTree->fFileName);\n",i,treeName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else {\n");
+      buffer.AppendFormatted("      gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(fConfigData[0]->f%sTree->fFileName);\n",i,treeName[i].Data());
       buffer.AppendFormatted("   }\n");
    }
    // Global Steering Parameter
@@ -5895,6 +5961,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      xml->WriteElement(\"EventNumbers\",gAnalyzer->GetEventNumberStringOriginal());\n");
    buffer.AppendFormatted("   else if (fConfigData[index]->fRunNumbersModified)\n");
    buffer.AppendFormatted("      xml->WriteElement(\"EventNumbers\",fConfigData[index]->fEventNumbers.Data());\n");
+   // input file names
+   buffer.AppendFormatted("   if (index==0)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"InputFileNames\",gAnalyzer->GetInputFileNamesStringOriginal());\n");
+   buffer.AppendFormatted("   else if (fConfigData[index]->fInputFileNamesModified)\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"InputFileNames\",fConfigData[index]->fInputFileNames.Data());\n");
    // modes
    buffer.AppendFormatted("   // modes\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fModesModified || index==0) {\n");
@@ -6109,6 +6180,12 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified)\n",treeName[i].Data());
          buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",fConfigData[index]->f%sTree->fMaxNumberOfEntries.Data());\n",treeName[i].Data());
+         // FileName
+         buffer.AppendFormatted("         if (index==0)\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"TreeOutputFileName\",gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data());\n",i);
+         buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fFileNameModified)\n",treeName[i].Data());
+         buffer.AppendFormatted("            xml->WriteElement(\"TreeOutputFileName\",fConfigData[index]->f%sTree->fFileName.Data());\n",treeName[i].Data());
+
          buffer.AppendFormatted("         xml->EndElement();\n");
          buffer.AppendFormatted("      }\n");
       }
@@ -6236,12 +6313,16 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   class ConfigData\n");
    buffer.AppendFormatted("   {\n");
    buffer.AppendFormatted("   public:\n");
-   buffer.AppendFormatted("      ROMEString  fRunNumbers;\n");
-   buffer.AppendFormatted("      bool        fRunNumbersModified;\n");
-   buffer.AppendFormatted("      int         fLastRunNumberIndex;\n");
-   buffer.AppendFormatted("      TArrayI     fRunNumberArray;\n");
-   buffer.AppendFormatted("      ROMEString  fEventNumbers;\n");
-   buffer.AppendFormatted("      bool        fEventNumbersModified;\n");
+   buffer.AppendFormatted("      ROMEString    fRunNumbers;\n");
+   buffer.AppendFormatted("      bool          fRunNumbersModified;\n");
+   buffer.AppendFormatted("      int           fLastRunNumberIndex;\n");
+   buffer.AppendFormatted("      TArrayI       fRunNumberArray;\n");
+   buffer.AppendFormatted("      ROMEString    fEventNumbers;\n");
+   buffer.AppendFormatted("      bool          fEventNumbersModified;\n");
+   buffer.AppendFormatted("      ROMEString    fInputFileNames;\n");
+   buffer.AppendFormatted("      bool          fInputFileNamesModified;\n");
+   buffer.AppendFormatted("      int           fLastInputFileNameIndex;\n");
+   buffer.AppendFormatted("      ROMEStrArray  fInputFileNameArray;\n");
    // modes
    buffer.AppendFormatted("      // modes;\n");
    buffer.AppendFormatted("      class Modes {\n");
@@ -6360,6 +6441,8 @@ bool ROMEBuilder::WriteConfigH() {
       buffer.AppendFormatted("         bool        fCompressionLevelModified;\n");
       buffer.AppendFormatted("         ROMEString  fMaxNumberOfEntries;\n");
       buffer.AppendFormatted("         bool        fMaxNumberOfEntriesModified;\n");
+      buffer.AppendFormatted("         ROMEString  fFileName;\n");
+      buffer.AppendFormatted("         bool        fFileNameModified;\n");
       buffer.AppendFormatted("      };\n");
       buffer.AppendFormatted("      %sTree *f%sTree;\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("      bool   f%sTreeModified;\n",treeName[i].Data());
@@ -6412,6 +6495,7 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      ConfigData() {\n");
    buffer.AppendFormatted("         fRunNumbersModified = false;\n");
    buffer.AppendFormatted("         fEventNumbersModified = false;\n");
+   buffer.AppendFormatted("         fInputFileNamesModified = false;\n");
    buffer.AppendFormatted("         fModesModified = false;\n");
    buffer.AppendFormatted("         fModes = new Modes();\n");
    buffer.AppendFormatted("         fDataBasesModified = false;\n");
@@ -6469,6 +6553,7 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   bool WriteConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   bool ReadConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   bool CheckConfiguration(int runNumber);\n");
+   buffer.AppendFormatted("   bool CheckConfiguration(ROMEString& fileName);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool ReadConfiguration(ROMEXML *xml,ROMEString& path,int index);\n");
@@ -8482,7 +8567,8 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
    buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
-   buffer.AppendFormatted("   TTree *tree;\n\n");
+   buffer.AppendFormatted("   TTree *tree;\n");
+   buffer.AppendFormatted("   ROMEString fileName;\n\n");
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
       buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
@@ -8635,6 +8721,28 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
+   // get tree file names
+   buffer.AppendFormatted("// Get Tree File Names\n");
+   buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer,int treeIndex,const char* runNumber) {\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMETree *romeTree;\n");
+   buffer.AppendFormatted("   switch (treeIndex) {\n");
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("      case %d:\n",i);
+      buffer.AppendFormatted("         romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
+      buffer.AppendFormatted("         buffer = romeTree->GetConfigFileName();\n");
+      buffer.AppendFormatted("         if (buffer.Length()==0) {\n");
+      if (treeFileName[i].Length()==0)
+         buffer.AppendFormatted("            buffer.SetFormatted(\"%s#.root\");\n",treeName[i].Data());
+      else
+         buffer.AppendFormatted("            buffer.SetFormatted(%s);\n",treeFileName[i].Data());
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         buffer.ReplaceAll(\"#\",runNumber);\n");
+      buffer.AppendFormatted("         break;\n");
+   }
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Initialize Task Switches
    ROMEString taskNameT;
    int parentInd;
@@ -8728,6 +8836,7 @@ bool ROMEBuilder::WriteEventLoopH() {
    buffer.AppendFormatted("   // Tree Methodes\n");
    buffer.AppendFormatted("   void InitTrees();\n");
    buffer.AppendFormatted("   void FillTrees();\n");
+   buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,int treeIndex,const char* runNumber=\"\");\n");
    buffer.AppendFormatted("\n");
 
    // Task Switches

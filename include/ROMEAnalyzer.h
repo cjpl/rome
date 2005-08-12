@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.58  2005/08/12 15:37:02  schneebeli_m
+  added input file based IO
+
   Revision 1.57  2005/08/05 07:45:00  schneebeli_m
   added UserEvents
 
@@ -158,6 +161,14 @@ private:
       kAnalyzeOnline
    };
 
+public:
+   // IO type
+   enum {
+      kRunNumberBased,
+      kRunNumberAndFileNameBased,
+      kFileNameBased
+   };
+
 protected:
 
    // Application
@@ -180,14 +191,24 @@ protected:
    ROMEString *fDataBaseDir;                    //! Data Base File Directories
    ROMEString fConfigDir;                       //! Configuration File Directory
 
-   // Run & Event Numbers
+   // Run Numbers
    Int_t      fCurrentRunNumber;                //! Currently Analyzed Run Number
    TArrayI    fRunNumber;                       //! Run Numbers to Analyze
    ROMEString fRunNumberString;                 //! Run Numbers in Input String Format
+
+   // Event Numbers
    Int_t      fCurrentEventNumber;              //! Currently Analyzed Event Number
    TArrayI    fEventNumber;                     //! Event Numbers to Analyze
    ROMEString fEventNumberString;               //! Event Numbers in Input String Format
    Int_t      fLastEventNumberIndex;            //! Index of the last Analyzed Event Number
+
+   // Input File Names
+   ROMEString   fCurrentInputFileName;            //! Name of Currently Analyzed Input File
+   ROMEStrArray fInputFileNames;                  //! Input File Names to Analyze
+   ROMEString   fInputFileNamesString;            //! Original Input File Names in Input String Format
+
+   // IO type
+   int          fIOType;                          //! IO type
 
    // User Events
    bool       fUserEvent;                       //! General User Event Flag
@@ -356,7 +377,7 @@ public:
    void       SetTreeAccumulation(bool flag = true) { fTreeAccumulation = flag;  };
 
    // Trees
-   void       AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree,0,0)); };
+   void       AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); };
    ROMETree*  GetTreeObjectAt(int index) { return (ROMETree*)fTreeObjects->At(index); };
    int        GetTreeObjectEntries() { return fTreeObjects->GetEntries(); };
 
@@ -375,24 +396,46 @@ public:
    void       SetCurrentRunNumber(int runNumber) { fCurrentRunNumber = runNumber; }
    void       SetRunNumbers(ROMEString& numbers) {
                   fRunNumberString = numbers;
-                  fRunNumber = decodeRunNumbers(numbers); }
+                  DecodeRunNumbers(numbers,fRunNumber); }
    void       SetRunNumbers(const char* numbers) {
                   fRunNumberString = numbers;
-                  fRunNumber = decodeRunNumbers(fRunNumberString); }
+                  DecodeRunNumbers(fRunNumberString,fRunNumber); }
 
+   // Event Number
    int        GetCurrentEventNumber() { return fCurrentEventNumber; }
    const char* GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
    void       SetCurrentEventNumber(int eventNumber) { fCurrentEventNumber = eventNumber; }
    void       SetEventNumbers(ROMEString& numbers) {
                   fEventNumberString = numbers;
-                  fEventNumber = decodeRunNumbers(numbers); }
+                  DecodeRunNumbers(numbers,fEventNumber); }
    void       SetEventNumbers(const char* numbers) {
                   fEventNumberString = numbers;
-                  fEventNumber = decodeRunNumbers(fEventNumberString); }
+                  DecodeRunNumbers(fEventNumberString,fEventNumber); }
 
    int        CheckEventNumber(int eventNumber);
    void       InitCheckEventNumber() { fLastEventNumberIndex = 0; };
+
+   // Input File Names
+   ROMEString GetInputFileNameAt(int i) { return fInputFileNames.At(i); }
+   ROMEString GetCurrentInputFileName() { return fCurrentInputFileName; }
+   int        GetNumberOfInputFileNames() { return fInputFileNames.GetEntriesFast(); }
+   const char* GetInputFileNamesStringOriginal() { return fInputFileNamesString.Data(); }
+
+   void       SetCurrentInputFileName(ROMEString& inputFileName) { fCurrentInputFileName = inputFileName; }
+   void       SetInputFileNames(ROMEString& names) {
+                  fInputFileNamesString = names;
+                  DecodeInputFileNames(names,fInputFileNames); }
+   void       SetInputFileNames(const char* numbers) {
+                  fInputFileNamesString = numbers;
+                  DecodeInputFileNames(fInputFileNamesString,fInputFileNames); }
+
+   // IO type
+   bool       IsRunNumberBasedIO() { return (fIOType==kRunNumberBased); };
+   bool       IsRunNumberAndFileNameBasedIO() { return (fIOType==kRunNumberAndFileNameBased); };
+   bool       IsFileNameBasedIO() { return (fIOType==kFileNameBased); };
+
+   void       SetIOType(int type) { fIOType = type; };
 
    // User Events
    void       SetUserEventQ() { fUserEvent = true; fUserEventQ = true; };
@@ -462,9 +505,11 @@ public:
    Statistics* GetScalerStatistics() { return &fScalerStatistics; };
 
    // Start Method
-   bool       Start(int argc=0, char **argv=NULL);
+   bool        Start(int argc=0, char **argv=NULL);
 
-   static TArrayI decodeRunNumbers(ROMEString& str);
+   // Decode Methods
+   void        DecodeRunNumbers(ROMEString& str,TArrayI& arr);
+   void        DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr);
 
 
    virtual bool ReadSingleDataBaseFolders() = 0;

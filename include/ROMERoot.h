@@ -2,6 +2,9 @@
   ROMERoot.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.5  2005/08/12 15:37:02  schneebeli_m
+  added input file based IO
+
   Revision 1.4  2005/06/16 02:52:54  sawada
   added virtual destructer.
 
@@ -23,8 +26,10 @@
 #include <ROMEDAQSystem.h>
 
 class ROMERoot : public ROMEDAQSystem {
-protected:
+public:
    TFile**       fRootFiles;                       //! Input Root files
+   int           fTreeIndex;                       //! Index of tree in current file
+   int           fInputFileNameIndex;              //! Index of current input file name
 
    // Tree Info
    ROMETreeInfo* fTreeInfo;                        //! Tree Info Object

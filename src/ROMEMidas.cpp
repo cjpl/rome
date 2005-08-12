@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.25  2005/08/12 15:37:02  schneebeli_m
+//  added input file based IO
+//
 //  Revision 1.24  2005/08/02 10:44:19  sawada
 //  cm_disconnect_experiment is called when program is terminated.
 //  NULL pointer handling in TNetFolderServer.
@@ -254,37 +257,67 @@ bool ROMEMidas::Init() {
 }
 bool ROMEMidas::BeginOfRun() {
    if (gROME->isOffline()) {
-      this->SetAnalyze();
-      this->SetRunning();
-      // Open Midas File
-      ROMEString runNumberString;
-      gROME->GetCurrentRunNumberString(runNumberString);
-      fGZippedMidasFile = false;
       ROMEString filename;
       ROMEString gzfilename;
       ROMEString fileExtension = ".mid";
       ROMEString gzfileExtension = ".mid.gz";
-      filename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),fileExtension.Data());
-      gzfilename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),gzfileExtension.Data());
-      fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
-      if (fMidasFileHandle == -1) {
-         fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
-         if (fMidasGzFileHandle==NULL) {
-            gROME->Print("Failed to open input file '");
-            gROME->Print(filename.Data());
-            gROME->Println("[.gz]'.");
-            return false;
+      ROMEString runNumberString;
+
+      this->SetAnalyze();
+      this->SetRunning();
+      // Open Midas File
+      if (gROME->IsRunNumberBasedIO()) {
+         gROME->GetCurrentRunNumberString(runNumberString);
+         fGZippedMidasFile = false;
+         filename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),fileExtension.Data());
+         gzfilename.SetFormatted("%srun%s%s",gROME->GetInputDir(),runNumberString.Data(),gzfileExtension.Data());
+         fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
+         if (fMidasFileHandle == -1) {
+            fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
+            if (fMidasGzFileHandle==NULL) {
+               gROME->Print("Failed to open input file '");
+               gROME->Print(filename.Data());
+               gROME->Println("[.gz]'.");
+               return false;
+            }
+            fGZippedMidasFile = true;
          }
-         fGZippedMidasFile = true;
       }
+      else {
+         filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
+         if (filename.Index(".gz")!=-1) {
+            gzfilename = filename;
+            fGZippedMidasFile = true;
+            fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
+            if (fMidasGzFileHandle==NULL) {
+               gROME->Print("Failed to open input file '");
+               gROME->Print(gzfilename.Data());
+               gROME->Println("'.");
+               return false;
+            }
+         }
+         else {
+            fGZippedMidasFile = false;
+            fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
+            if (fMidasFileHandle == -1) {
+               gROME->Print("Failed to open input file '");
+               gROME->Print(filename.Data());
+               gROME->Println("'.");
+               return false;
+            }
+         }
+      }
+
       gROME->Print("Reading Midas-File ");
       if(!fGZippedMidasFile){
          gROME->Println(filename.Data());
       }
       else
          gROME->Println(gzfilename.Data());
+
       while (!isBeginOfRun())
-         Event(0);
+         if (!Event(0))
+            return false;
       SetAnalyze();
    }
    return true;
@@ -389,6 +422,9 @@ bool ROMEMidas::Event(int event) {
          if (gROME->isDataBaseActive("odb"))
             ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
          this->SetBeginOfRun();
+         if (!gROME->IsRunNumberBasedIO()) {
+            gROME->SetCurrentRunNumber(pevent->serial_number);
+         }
          return true;
       }
       if (pevent->event_id < 0) {

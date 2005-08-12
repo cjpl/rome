@@ -542,6 +542,11 @@
 					<xs:documentation>The title of the tree. Displayed in the ROOT browser. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="TreeOutputFileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the trees output file. If not specified the name will be generated like "[TreeName][RunNumber].root". (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes the branches of the tree. (optional)</xs:documentation>

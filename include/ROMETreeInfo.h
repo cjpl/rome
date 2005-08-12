@@ -2,6 +2,9 @@
   ROMETreeInfo.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/08/12 15:37:02  schneebeli_m
+  added input file based IO
+
   Revision 1.5  2005/07/12 06:42:21  sawada
   Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 
@@ -33,6 +36,9 @@ public:
    ROMETreeInfo() { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); };
 
    Int_t GetSequentialNumber() { return number; };
+   Int_t GetRunNumber() { return run; };
+   Int_t GetEventNumber() { return event; };
+   Int_t GetTimeStamp() { return time; };
 
    void  SetSequentialNumber(Int_t   SequentialNumber) { number    = SequentialNumber; };
    void  SetRunNumber       (Int_t   RunNumber       ) { run       = RunNumber;        };

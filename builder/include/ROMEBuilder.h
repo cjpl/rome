@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.64  2005/08/12 15:37:01  schneebeli_m
+  added input file based IO
+
   Revision 1.63  2005/08/07 23:25:21  sawada
   small change.
 
@@ -330,6 +333,7 @@ protected:
    int numOfBranch[maxNumberOfTrees];
    ROMEString treeName[maxNumberOfTrees];
    ROMEString treeTitle[maxNumberOfTrees];
+   ROMEString treeFileName[maxNumberOfTrees];
    ROMEString branchName[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchBufferSize[maxNumberOfTrees][maxNumberOfBranches];

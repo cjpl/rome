@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.14  2005/08/12 15:37:02  schneebeli_m
+//  added input file based IO
+//
 //  Revision 1.13  2005/07/12 06:42:23  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -47,6 +50,8 @@
 
 ROMEString& ROMEString::AppendFormatted(const char* format,...)
 {
+   if (format==NULL)
+      return *this;
    bool res;
    va_list ap;
    va_start(ap,format);
@@ -56,6 +61,8 @@ ROMEString& ROMEString::AppendFormatted(const char* format,...)
 }
 ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
 {
+   if (format==NULL)
+      return *this;
    bool res;
    va_list ap;
    va_start(ap,format);
@@ -68,6 +75,8 @@ ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
 }
 ROMEString& ROMEString::SetFormatted(const char* format,...)
 {
+   if (format==NULL)
+      return *this;
    bool res;
    va_list ap;
    va_start(ap,format);
