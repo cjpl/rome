@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.64  2005/08/15 13:25:57  schneebeli_m
+//  improved input file based IO
+//
 //  Revision 1.63  2005/08/15 09:48:45  schneebeli_m
 //  improved input file based IO
 //
@@ -246,6 +249,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->Println("\n\nTerminating Program !");
          return;
       }
+      if (this->isEndOfRun()) {
+         eventLoopIndex++;
+         continue;
+      }
       if (this->isTerminate()) {
          break;
       }
@@ -432,18 +439,25 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
          this->SetTerminate();
          return true;
       }
+      // Check Configuration
       gROME->SetCurrentRunNumber(gROME->GetRunNumberAt(eventLoopIndex));
       gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentRunNumber());
    }
 
+   // Begin Of Run Of Active DAQ
    if (!gROME->GetActiveDAQ()->BeginOfRun())
       return false;
+   if (this->isEndOfRun())
+      return true;
 
+
+   // Check Configuration
    if (gROME->isOffline() && gROME->IsFileNameBasedIO()) {
       // file name based IO
       gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentInputFileName());
    }
 
+   // Set Run Number
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
    gROME->GetCurrentRunNumberString(runNumberString);
 

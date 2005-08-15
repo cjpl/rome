@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.7  2005/08/15 13:25:57  schneebeli_m
+//  improved input file based IO
+//
 //  Revision 1.6  2005/08/15 09:48:46  schneebeli_m
 //  improved input file based IO
 //
@@ -27,6 +30,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include <TBranchElement.h>
 #include <ROMERoot.h>
 
 ROMERoot::ROMERoot() {
@@ -64,7 +68,8 @@ bool ROMERoot::BeginOfRun() {
    if (gROME->isOffline()) {
       this->SetRunning();
       // Read Trees
-      int j;
+      int i,j,k;
+      TObject *obj;
       ROMEString filename;
       ROMEString treename;
       if (gROME->IsRunNumberBasedIO())
@@ -82,18 +87,6 @@ bool ROMERoot::BeginOfRun() {
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             treeRead = true;
-            if (fTreeIndex>0 && (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
-               treename.SetFormatted("%s_%d",tree->GetName(),fTreeIndex);
-               fRootFiles[fInputFileNameIndex]->cd();
-               tree->Read(treename.Data());
-               if (tree==NULL)
-                  fTreeIndex = 0;
-               else {
-                  fTreeIndex++;
-                  tree->SetName(romeTree->GetTree()->GetName());
-                  tree->SetDirectory(romeTree->GetFile());
-               }
-            }
             if (gROME->IsRunNumberBasedIO()) {
                filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),tree->GetName(),runNumberString.Data());
                fRootFiles[j] = new TFile(filename.Data(),"READ");
@@ -103,9 +96,23 @@ bool ROMERoot::BeginOfRun() {
                   gROME->Println("' not found.");
                   return false;
                }
+               gROME->Print("Reading ");
+               gROME->Print(filename.Data());
                tree->Read(tree->GetName());
             }
-            else if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO()) {
+            else if (gROME->IsFileNameBasedIO()) {
+               if (fTreeIndex>0) {
+                  if (fTreeIndex>=fRootFiles[fInputFileNameIndex]->GetNkeys())
+                     fTreeIndex = 0;
+                  else {
+                     treename.SetFormatted("%s_%d",fCurrentTreeName.Data(),fTreeIndex);
+                     fRootFiles[fInputFileNameIndex]->cd();
+                     tree->Read(treename.Data());
+                     fTreeIndex++;
+                     tree->SetName(fCurrentTreeName.Data());
+                     tree->SetDirectory(romeTree->GetFile());
+                  }
+               }
                if (fTreeIndex==0) {
                   fInputFileNameIndex++;
                   if (gROME->GetNumberOfInputFileNames()<=fInputFileNameIndex) {
@@ -114,9 +121,46 @@ bool ROMERoot::BeginOfRun() {
                   }
                   gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex));
                   fRootFiles[fInputFileNameIndex]->cd();
+                  gROME->Print("Reading ");
+                  gROME->Print(gROME->GetInputDir());
+                  gROME->Println(gROME->GetCurrentInputFileName().Data());
                   tree->Read(tree->GetName());
+                  fCurrentTreeName = tree->GetName();
+                  fTreeIndex++;
                }
-               fTreeIndex++;
+            }
+            else if (gROME->IsRunNumberAndFileNameBasedIO()) {
+               fInputFileNameIndex = -1;
+               fCurrentTreeName = tree->GetName();
+               for (i=0;i<gROME->GetNumberOfInputFileNames();i++) {
+                  for (k=0;k<fRootFiles[i]->GetNkeys();k++) {
+                     treename.SetFormatted("%s",fCurrentTreeName.Data());
+                     if (k>0)
+                        treename.AppendFormatted("_%d",k);
+                     fRootFiles[i]->cd();
+                     tree->Read(treename.Data());
+                     ((TBranchElement*)tree->FindBranch("Info"))->SetAddress(&fTreeInfo);
+                     tree->GetBranch("Info")->GetEntry(0);
+                     if (fTreeInfo->GetRunNumber()==gROME->GetCurrentRunNumber()) {
+                        gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
+                        gROME->Print("Reading ");
+                        gROME->Print(gROME->GetInputDir());
+                        gROME->Println(gROME->GetCurrentInputFileName().Data());
+                        tree->SetName(fCurrentTreeName.Data());
+                        fInputFileNameIndex = i;
+                        break;
+                     }
+                  }
+               }
+               if (fInputFileNameIndex==-1) {
+                  ROMEString buf;
+                  buf.SetFormatted("Run %d not found in the specified input files !",gROME->GetCurrentRunNumber());
+                  gROME->Println(buf);
+                  buf.SetFormatted("Skipping run %d.",gROME->GetCurrentRunNumber());
+                  gROME->Println(buf);
+                  this->SetEndOfRun();
+                  return true;
+               }
             }
             romeTree->SetTree(tree);
             fTreePosition[j] = 0;
@@ -127,10 +171,6 @@ bool ROMERoot::BeginOfRun() {
          return false;
       }
       this->ConnectTrees();
-   TFile* outputFile = new TFile("xxx.root","RECREATE");
-   gROME->GetTreeObjectAt(0)->GetTree()->Write(0,TObject::kOverwrite);
-   outputFile->Close();
-   outputFile->Delete();
 
       // Get sequential number
       for (j=0;j<gROME->GetTreeObjectEntries();j++) {

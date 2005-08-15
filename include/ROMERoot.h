@@ -2,6 +2,9 @@
   ROMERoot.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/08/15 13:25:57  schneebeli_m
+  improved input file based IO
+
   Revision 1.5  2005/08/12 15:37:02  schneebeli_m
   added input file based IO
 
@@ -26,10 +29,11 @@
 #include <ROMEDAQSystem.h>
 
 class ROMERoot : public ROMEDAQSystem {
-public:
+protected:
    TFile**       fRootFiles;                       //! Input Root files
    int           fTreeIndex;                       //! Index of tree in current file
    int           fInputFileNameIndex;              //! Index of current input file name
+   ROMEString    fCurrentTreeName;                 //! Name of the current tree
 
    // Tree Info
    ROMETreeInfo* fTreeInfo;                        //! Tree Info Object
