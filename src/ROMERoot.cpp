@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.6  2005/08/15 09:48:46  schneebeli_m
+//  improved input file based IO
+//
 //  Revision 1.5  2005/08/12 15:37:02  schneebeli_m
 //  added input file based IO
 //
@@ -124,6 +127,10 @@ bool ROMERoot::BeginOfRun() {
          return false;
       }
       this->ConnectTrees();
+   TFile* outputFile = new TFile("xxx.root","RECREATE");
+   gROME->GetTreeObjectAt(0)->GetTree()->Write(0,TObject::kOverwrite);
+   outputFile->Close();
+   outputFile->Delete();
 
       // Get sequential number
       for (j=0;j<gROME->GetTreeObjectEntries();j++) {
