@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.26  2005/08/17 11:54:07  schneebeli_m
+//  root interpreter runs correctly
+//
 //  Revision 1.25  2005/08/02 14:44:52  schneebeli_m
 //  correct taskHierarchy handling
 //
@@ -50,6 +53,7 @@
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <TSystem.h> 
 #include <ROMETask.h>
 #include "Riostream.h"
 
@@ -120,6 +124,8 @@ void ROMETask::StartRootInterpreter(const char* message) {
    if (message)
       gROME->Println(message);
    gROME->GetApplication()->Run(true);
+   gSystem->Init();
+   gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
 }
 
 // Time methods

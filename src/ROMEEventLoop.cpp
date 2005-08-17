@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.65  2005/08/17 11:54:07  schneebeli_m
+//  root interpreter runs correctly
+//
 //  Revision 1.64  2005/08/15 13:25:57  schneebeli_m
 //  improved input file based IO
 //
@@ -161,6 +164,7 @@
 //
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <TSystem.h> 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <io.h>
@@ -380,6 +384,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Root Interpreter
    if (!gROME->isBatchMode()) {
       gROME->GetApplication()->Run(true);
+      gSystem->Init();
+      gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
       gROME->Println();
    }
 
@@ -682,9 +688,11 @@ bool ROMEEventLoop::UserInput()
          gROME->DeleteUserEvent();
       }
       if (interpreter) {
-         text.SetFormatted("\nEnd of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
-         gROME->Printfl(text.Data());
+         text.SetFormatted("\nStart root session at the end of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+         gROME->Println(text.Data());
          gROME->GetApplication()->Run(true);
+         gSystem->Init();
+         gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
       }
    }
    if (hit)
