@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.66  2005/08/22 08:07:50  schneebeli_m
+//  root interpreter error at termination
+//
 //  Revision 1.65  2005/08/17 11:54:07  schneebeli_m
 //  root interpreter runs correctly
 //
@@ -384,8 +387,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    // Root Interpreter
    if (!gROME->isBatchMode()) {
       gROME->GetApplication()->Run(true);
-      gSystem->Init();
-      gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
       gROME->Println();
    }
 
