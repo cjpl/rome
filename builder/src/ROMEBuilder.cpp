@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.235  2005/08/23 16:01:09  sawada
+  Makefile for Macintosh.
+
   Revision 1.234  2005/08/23 15:49:20  sawada
   bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
 
@@ -9403,9 +9406,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("MACOSX_MAJOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 1)\n");
    buffer.AppendFormatted("MACOSX_MINOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 2)\n");
    buffer.AppendFormatted("MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
+   buffer.AppendFormatted("MACOSXTARGET := MACOSX_DEPLOYMENT_TARGET=$(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
-/*
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
    buffer.AppendFormatted("endif\n");
@@ -9414,8 +9417,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined dynamic_lookup\n");
    buffer.AppendFormatted("endif\n");
-*/
-   buffer.AppendFormatted("soflags := -dynamiclib -single_module\n");
 #elif defined ( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
@@ -9637,7 +9638,10 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__UNIX )
    buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("	g++ $(Flags) $(soflags) -o %s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
+#if defined ( R__MACOSX )
+   buffer.AppendFormatted("	$(MACOSXTARGET) ");
+#endif
+   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o %s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
 #endif
 
