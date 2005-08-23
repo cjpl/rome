@@ -2,6 +2,9 @@
   ROMEAnalyzer.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.59  2005/08/23 15:49:23  sawada
+  bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
+
   Revision 1.58  2005/08/12 15:37:02  schneebeli_m
   added input file based IO
 
@@ -423,6 +426,7 @@ public:
    const char* GetInputFileNamesStringOriginal() { return fInputFileNamesString.Data(); }
 
    void       SetCurrentInputFileName(ROMEString& inputFileName) { fCurrentInputFileName = inputFileName; }
+   void       SetCurrentInputFileName(const char *inputFileName) { fCurrentInputFileName = inputFileName; }
    void       SetInputFileNames(ROMEString& names) {
                   fInputFileNamesString = names;
                   DecodeInputFileNames(names,fInputFileNames); }

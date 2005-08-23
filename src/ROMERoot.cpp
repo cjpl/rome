@@ -6,6 +6,9 @@
 //  Interface to the Root Output of ROME.
 //
 //  $Log$
+//  Revision 1.8  2005/08/23 15:49:23  sawada
+//  bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
+//
 //  Revision 1.7  2005/08/15 13:25:57  schneebeli_m
 //  improved input file based IO
 //
@@ -119,7 +122,7 @@ bool ROMERoot::BeginOfRun() {
                      this->SetTerminate();
                      return true;
                   }
-                  gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex));
+                  gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex).Data());
                   fRootFiles[fInputFileNameIndex]->cd();
                   gROME->Print("Reading ");
                   gROME->Print(gROME->GetInputDir());

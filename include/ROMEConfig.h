@@ -2,6 +2,9 @@
   ROMEConfig.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.6  2005/08/23 15:49:23  sawada
+  bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
+
   Revision 1.5  2005/08/12 15:37:02  schneebeli_m
   added input file based IO
 
@@ -35,7 +38,8 @@ public:
    virtual bool WriteConfigurationFile(const char *file) = 0;
    virtual bool ReadConfigurationFile(const char *file) = 0;
    virtual bool CheckConfiguration(int runNumber) = 0;
-   virtual bool CheckConfiguration(ROMEString& fileName) = 0;
+   virtual bool CheckConfiguration(const char *file) = 0;
+//   bool CheckConfiguration(ROMEString& file) { return CheckConfiguration(file.Data()); }
 };
 
 #endif   // ROMEConfig_H

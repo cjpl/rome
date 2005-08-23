@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.234  2005/08/23 15:49:20  sawada
+  bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
+
   Revision 1.233  2005/08/12 15:37:01  schneebeli_m
   added input file based IO
 
@@ -5527,7 +5530,8 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    // Check Configuration
    buffer.AppendFormatted("\n// Check Configuration\n");
-   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(ROMEString& fileName) {\n",shortCut.Data());
+   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(const char *file) {\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEString fileName = file;\n");
    buffer.AppendFormatted("   int i,j;\n");
    buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
    buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
@@ -6553,7 +6557,7 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   bool WriteConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   bool ReadConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   bool CheckConfiguration(int runNumber);\n");
-   buffer.AppendFormatted("   bool CheckConfiguration(ROMEString& fileName);\n");
+   buffer.AppendFormatted("   bool CheckConfiguration(const char *file);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   bool ReadConfiguration(ROMEXML *xml,ROMEString& path,int index);\n");
