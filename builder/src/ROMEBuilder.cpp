@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.236  2005/08/23 17:00:55  sawada
+  bug fix of Makefile.
+
   Revision 1.235  2005/08/23 16:01:09  sawada
   Makefile for Macintosh.
 
@@ -9638,8 +9641,9 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__UNIX )
    buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("	");
 #if defined ( R__MACOSX )
-   buffer.AppendFormatted("	$(MACOSXTARGET) ");
+   buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o %s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
