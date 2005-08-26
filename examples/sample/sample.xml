@@ -45,9 +45,17 @@
 		</Task>
 	</Tasks>
 	<MidasBanks>
-		<Bank>
-			<BankName>ADC0</BankName>
-			<BankType>unsigned short</BankType>
-		</Bank>
+		<EventDefinition>
+			<EventName>Trigger</EventName>
+			<EventID>1</EventID>
+			<EventTriggerMask>1</EventTriggerMask>
+			<EventSamplingRate>2</EventSamplingRate>
+			<Banks>
+				<Bank>
+					<BankName>ADC0</BankName>
+					<BankType>unsigned short</BankType>
+				</Bank>
+			</Banks>
+		</EventDefinition>
 	</MidasBanks>
 </ROMEFrameworkDefinition>

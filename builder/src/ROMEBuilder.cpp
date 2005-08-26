@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.237  2005/08/26 11:58:40  schneebeli_m
+  update of the Sample
+
   Revision 1.236  2005/08/23 17:00:55  sawada
   bug fix of Makefile.
 
@@ -9899,7 +9902,7 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
    buffer.AppendFormatted("-I%%ROMESYS%%/include ");
    buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("%%DictionaryIncludes%% ");
+//   buffer.AppendFormatted("%%DictionaryIncludes%% ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());

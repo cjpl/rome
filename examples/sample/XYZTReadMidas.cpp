@@ -33,7 +33,7 @@ void XYZTReadMidas::BeginOfRun()
 void XYZTReadMidas::Event()
 {
    for (int i=0;i<228;i++) {
-	   Float_t adcValue = gAnalyzer->GetADC0BankAt(i);
+	   Float_t adcValue = gAnalyzer->GetMidas()->GetADC0BankAt(i);
       gAnalyzer->GetPMTDataAt(i)->SetADC(adcValue);
    }
 }
