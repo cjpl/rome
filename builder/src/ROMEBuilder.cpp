@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.238  2005/08/26 12:43:12  sawada
+  changed .so name from xxx.so to libxxx.so.
+
   Revision 1.237  2005/08/26 11:58:40  schneebeli_m
   update of the Sample
 
@@ -9613,7 +9616,7 @@ void ROMEBuilder::WriteMakefile() {
 // all
    buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted(" %s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -9643,12 +9646,12 @@ void ROMEBuilder::WriteMakefile() {
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
-   buffer.AppendFormatted("%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("	");
 #if defined ( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif
-   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o %s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\n");
 #endif
 
