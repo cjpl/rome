@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.240  2005/08/29 15:36:43  schneebeli_m
+  fixed histo reset error
+
   Revision 1.239  2005/08/29 12:46:33  sawada
   Stop builder when EventDefinitionName is not defined.
   Changed EventTriggerMask of example projects to -1.
@@ -2777,16 +2780,15 @@ bool ROMEBuilder::WriteTaskH() {
             array = true;
       }
       if (array) {
-         buffer.AppendFormatted("   int j,arraySize;\n");
+         buffer.AppendFormatted("   int j;\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]=="1") {
             buffer.AppendFormatted("   if (!is%sAccumulation()) f%s->Reset();\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
-            buffer.AppendFormatted("   arraySize = GetObjectInterpreterIntValue(f%sArraySizeCode,f%sArraySize);\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   if (!is%sAccumulation()) {\n",histoName[iTask][i].Data());
-            buffer.AppendFormatted("       for (j=0;j<arraySize;j++) ((%s*)f%ss->At(j))->Reset();\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("       for (j=0;j<f%ss->GetEntries();j++) ((%s*)f%ss->At(j))->Reset();\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   }\n");
          }
       }
