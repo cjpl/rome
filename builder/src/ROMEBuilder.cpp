@@ -3,6 +3,10 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.239  2005/08/29 12:46:33  sawada
+  Stop builder when EventDefinitionName is not defined.
+  Changed EventTriggerMask of example projects to -1.
+
   Revision 1.238  2005/08/26 12:43:12  sawada
   changed .so name from xxx.so to libxxx.so.
 
@@ -3586,6 +3590,11 @@ bool ROMEBuilder::ReadXMLMidasBanks() {
             // event end
             if (type == 15 && !strcmp((const char*)name,"EventDefinition")) {
                numOfBank[numOfEvent]++;
+               if (eventName[numOfEvent]=="") {
+                  cout << "Midas event definition without a name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
                break;
             }
          }

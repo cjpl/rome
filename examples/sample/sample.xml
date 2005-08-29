@@ -48,7 +48,7 @@
 		<EventDefinition>
 			<EventName>Trigger</EventName>
 			<EventID>1</EventID>
-			<EventTriggerMask>1</EventTriggerMask>
+			<EventTriggerMask>-1</EventTriggerMask>
 			<EventSamplingRate>2</EventSamplingRate>
 			<Banks>
 				<Bank>

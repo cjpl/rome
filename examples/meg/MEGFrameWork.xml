@@ -543,7 +543,7 @@
 		<EventDefinition>
 			<EventName>Trigger</EventName>
 			<EventID>1</EventID>
-			<EventTriggerMask>1</EventTriggerMask>
+			<EventTriggerMask>-1</EventTriggerMask>
 			<EventSamplingRate>2</EventSamplingRate>
 			<Banks>
 				<Bank>
@@ -650,7 +650,7 @@
 		<EventDefinition>
 			<EventName>Scaler</EventName>
 			<EventID>2</EventID>
-			<EventTriggerMask>1</EventTriggerMask>
+			<EventTriggerMask>-1</EventTriggerMask>
 			<EventSamplingRate>1</EventSamplingRate>
 			<Banks>
 				<Bank>
