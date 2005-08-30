@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.67  2005/08/30 08:52:41  schneebeli_m
+//  creating file in init and bor
+//
 //  Revision 1.66  2005/08/22 08:07:50  schneebeli_m
 //  root interpreter error at termination
 //
@@ -425,6 +428,22 @@ bool ROMEEventLoop::DAQInit() {
    if (!gROME->GetActiveDAQ()->Init())
       return false;
 
+   // Open Output Files
+   ROMEString filename;
+   ROMETree *romeTree;
+   TTree *tree;
+   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      romeTree = gROME->GetTreeObjectAt(j);
+      if (romeTree->isWrite() && romeTree->isFill()) {
+         if (gROME->isTreeAccumulation()) {
+            tree = romeTree->GetTree();
+            GetTreeFileName(filename,j);
+            filename.Insert(0,gROME->GetOutputDir());
+            romeTree->SetFileName(filename);
+            romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+         }
+      }
+   }
    return true;
 }
 bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
@@ -490,6 +509,35 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
    fProgressLastEvent = 0;
    fProgressWrite = false;
 
+   // Open Output Files
+   ROMEString filename;
+   ROMEString treename;
+   ROMETree *romeTree;
+   TTree *tree;
+   gROME->GetCurrentRunNumberString(runNumberString);
+   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      romeTree = gROME->GetTreeObjectAt(j);
+      if (romeTree->isFill()) {
+         tree = romeTree->GetTree();
+         if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
+            GetTreeFileName(filename,j,runNumberString.Data());
+            filename.Insert(0,gROME->GetOutputDir());
+            if (filename==romeTree->GetFileName()) {
+               romeTree->SetFile(new TFile(filename.Data(),"UPDATE"));
+               romeTree->SetFileUpdate();
+               fTreeUpdateIndex++;
+               treename.SetFormatted("%s_%d",tree->GetName(),fTreeUpdateIndex);
+               tree->SetName(treename.Data());
+            }
+            else {
+               romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+               romeTree->SetFileOverWrite();
+               fTreeUpdateIndex = 0;
+            }
+            romeTree->SetFileName(filename);
+         }
+      }
+   }
    return true;
 }
 
@@ -706,34 +754,20 @@ bool ROMEEventLoop::DAQEndOfRun() {
    // Disconnects the current run. Called after the EndOfRun tasks.
 
    // Write non accumulative output tree files
-   ROMEString filename;
    ROMEString treename;
    ROMETree *romeTree;
    TTree *tree;
-   ROMEString runNumberString;
-   gROME->GetCurrentRunNumberString(runNumberString);
    for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
          if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
-            GetTreeFileName(filename,j,runNumberString.Data());
-            filename.Insert(0,gROME->GetOutputDir());
-            if (filename==romeTree->GetFileName()) {
-               romeTree->SetFile(new TFile(filename.Data(),"UPDATE"));
-               romeTree->SetFileUpdate();
-               fTreeUpdateIndex++;
-               treename.SetFormatted("%s_%d",tree->GetName(),fTreeUpdateIndex);
-               tree->SetName(treename.Data());
+            if (fTreeUpdateIndex>0) {
                gROME->Print("Updating Root-File ");
             }
             else {
-               romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
-               romeTree->SetFileOverWrite();
-               fTreeUpdateIndex = 0;
                gROME->Print("Writing Root-File ");
             }
-            romeTree->SetFileName(filename);
             gROME->Println(romeTree->GetFileName());
             tree->Write(0,TObject::kOverwrite);
             tree->SetDirectory(0);
@@ -746,6 +780,9 @@ bool ROMEEventLoop::DAQEndOfRun() {
    gROME->Println();
 
    // Write Histos
+   ROMEString filename;
+   ROMEString runNumberString;
+   gROME->GetCurrentRunNumberString(runNumberString);
    filename.SetFormatted("%s%s%s.root",gROME->GetOutputDir(),"histos",runNumberString.Data());
    fHistoFile = new TFile(filename.Data(),"RECREATE");
    TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
@@ -772,10 +809,6 @@ bool ROMEEventLoop::DAQTerminate() {
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
             tree = romeTree->GetTree();
-            GetTreeFileName(filename,j);
-            filename.Insert(0,gROME->GetOutputDir());
-            romeTree->SetFileName(filename);
-            romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
             tree->Write(0,TObject::kOverwrite);
             gROME->Print("\nWriting Root-File ");
             gROME->Println(romeTree->GetFileName());
