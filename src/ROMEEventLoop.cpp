@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.69  2005/08/30 14:01:43  sawada
+//  not reset trees when TreeAccumulation is true.
+//
 //  Revision 1.68  2005/08/30 09:40:14  sawada
 //  change directory before handling trees.
 //
@@ -778,7 +781,8 @@ bool ROMEEventLoop::DAQEndOfRun() {
             romeTree->GetFile()->Close();
             romeTree->GetFile()->Delete();
          }
-         tree->Reset();
+         if (!gROME->isTreeAccumulation())
+            tree->Reset();
       }
    }
    gROME->Println();
