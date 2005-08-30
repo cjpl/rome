@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.242  2005/08/30 20:09:00  sawada
+  negligible change
+
   Revision 1.241  2005/08/30 16:26:03  sawada
   make .dylib on Macintosh.
 
@@ -9667,7 +9670,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
 #if defined ( R__MACOSX )
-   buffer.AppendFormatted("	ln -s lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("	ln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif
    buffer.AppendFormatted("\n");
 #endif
