@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.17  2005/08/30 09:40:13  sawada
+  change directory before handling trees.
+
   Revision 1.16  2005/08/12 15:37:02  schneebeli_m
   added input file based IO
 
@@ -99,7 +102,7 @@ public:
    void SetTree(TTree *tree) { fTree = tree; };
    void SetFileName(ROMEString &fileName) { fFileName = fileName; };
    void SetConfigFileName(ROMEString &configFileName) { fConfigFileName = configFileName; };
-   void SetFile(TFile *file) { fFile = file; };
+   void SetFile(TFile *file) { fFile = file; fTree->SetDirectory(fFile); };
    void SetFileOverWrite() { fFileOption = kOverWrite; };
    void SetFileUpdate() { fFileOption = kUpdate; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };

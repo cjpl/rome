@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.68  2005/08/30 09:40:14  sawada
+//  change directory before handling trees.
+//
 //  Revision 1.67  2005/08/30 08:52:41  schneebeli_m
 //  creating file in init and bor
 //
@@ -769,6 +772,7 @@ bool ROMEEventLoop::DAQEndOfRun() {
                gROME->Print("Writing Root-File ");
             }
             gROME->Println(romeTree->GetFileName());
+            romeTree->GetFile()->cd();
             tree->Write(0,TObject::kOverwrite);
             tree->SetDirectory(0);
             romeTree->GetFile()->Close();
@@ -808,6 +812,7 @@ bool ROMEEventLoop::DAQTerminate() {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
+            romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             tree->Write(0,TObject::kOverwrite);
             gROME->Print("\nWriting Root-File ");
