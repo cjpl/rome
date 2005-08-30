@@ -6,6 +6,9 @@
 //  Interface to the Midas System.
 //
 //  $Log$
+//  Revision 1.26  2005/08/30 15:43:09  sawada
+//  small bug fix concerning byte swapping.
+//
 //  Revision 1.25  2005/08/12 15:37:02  schneebeli_m
 //  added input file based IO
 //
@@ -373,7 +376,7 @@ bool ROMEMidas::Event(int event) {
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
          ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
          ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-         if(IsActiveEventID( pevent->event_id ))
+         if(IsActiveEventID(((EVENT_HEADER*)mEvent)->event_id ))
             bk_swap((EVENT_HEADER*)mEvent + 1, 0);
 #endif
       this->InitMidasBanks();
