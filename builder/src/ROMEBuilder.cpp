@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.241  2005/08/30 16:26:03  sawada
+  make .dylib on Macintosh.
+
   Revision 1.240  2005/08/29 15:36:43  schneebeli_m
   fixed histo reset error
 
@@ -9663,6 +9666,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
+#if defined ( R__MACOSX )
+   buffer.AppendFormatted("	ln -s lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+#endif
    buffer.AppendFormatted("\n");
 #endif
 
