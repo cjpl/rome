@@ -6,6 +6,9 @@
 //  Text format non-relational database.
 //
 //  $Log$
+//  Revision 1.6  2005/08/31 14:27:23  sawada
+//  use StripSpaces instead of Strip.
+//
 //  Revision 1.5  2005/07/27 08:37:23  sawada
 //  modified comparison between sign and unsigned integer.
 //
@@ -61,7 +64,6 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
    ROMEString fileName;
    ROMEString valueName;
    ROMEString tmp;
-   ROMEString tmp2;
 
    // initialize
    RemoveComment(lineBuffer,true);
@@ -123,14 +125,14 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
 
          while((ps=lineBuffer.Index(",",1,pe,TString::kExact))!=-1){
             tmp = lineBuffer(pe,ps-pe);
-            tmp2 = tmp.Strip(TString::kBoth);
-            values->SetAt(tmp2,iRow,iCol);
+            tmp.StripSpaces();
+            values->SetAt(tmp,iRow,iCol);
             pe = ps+1;
             iCol++;
          }
          tmp = lineBuffer(pe,lineBuffer.Length()-pe);
-         tmp2 = tmp.Strip(TString::kBoth);
-         values->SetAt(tmp2,iRow,iCol);
+         tmp.StripSpaces();
+         values->SetAt(tmp,iRow,iCol);
          iRow++;
       }
    }
