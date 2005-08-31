@@ -2,6 +2,9 @@
   ROMEString.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.10  2005/08/31 14:11:04  sawada
+  added StripSpaces method to ROMEString
+
   Revision 1.9  2005/07/04 16:41:21  schneebeli_m
   added SPGroup Arrays
 
@@ -47,6 +50,7 @@ public:
    void Write();
    void WriteLine();
    istream& ReadFile(istream& str);
+   ROMEString& StripSpaces();
 
 private:
    bool FormatString(ROMEString* string,const char* format,va_list parameters);

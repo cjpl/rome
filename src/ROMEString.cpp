@@ -7,6 +7,9 @@
 //  Derived from TString.
 //                                                                      //
 //  $Log$
+//  Revision 1.15  2005/08/31 14:11:04  sawada
+//  added StripSpaces method to ROMEString
+//
 //  Revision 1.14  2005/08/12 15:37:02  schneebeli_m
 //  added input file based IO
 //
@@ -259,4 +262,21 @@ istream& ROMEString::ReadFile(istream& str) {
       delete buffer;
    }
    return str;
+}
+
+// Strip space,tab and new line at both sides
+ROMEString& ROMEString::StripSpaces(){
+   Ssiz_t start = 0;             // Index of first character
+   Ssiz_t end = Length();        // One beyond last character
+   const char *direct = Data();  // Avoid a dereference w dumb compiler
+
+   while (start < end && direct[start] <= ' ')
+      ++start;
+
+   while (start < end && direct[end] <= ' ')
+      --end;
+
+   this->Remove(end+1,Length()-end-1);
+   this->Remove(0,start);
+   return *this;
 }

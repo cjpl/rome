@@ -6,6 +6,9 @@
 //  SQLDataBase access.
 //
 //  $Log$
+//  Revision 1.35  2005/08/31 14:11:04  sawada
+//  added StripSpaces method to ROMEString
+//
 //  Revision 1.34  2005/07/12 06:42:23  sawada
 //  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
 //
@@ -414,6 +417,8 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
 
    fName = name;
 
+   path.StripSpaces();
+
    //decode dataBasePath
    if ((istart=path.Index("://",3,0,TString::kIgnoreCase))==-1) {
       cout << "Wrong path for SQL database : " << path << endl
@@ -426,7 +431,6 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    }
    fDBMSType = path(0,istart);
    fDBMSType.ToLower();
-   fDBMSType.ReplaceAll(" ","");
 
    istart += 3;
    //search for user
