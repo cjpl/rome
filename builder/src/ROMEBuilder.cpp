@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.243  2005/09/14 17:27:23  sawada
+  modification for old ROOT versions.
+
   Revision 1.242  2005/08/30 20:09:00  sawada
   negligible change
 
@@ -9484,7 +9487,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("midaslibs := \n");
       buffer.AppendFormatted("midascflags := \n");
    }
-   buffer.AppendFormatted("clibs := -lHtml $(SYSLIBS)");
+   buffer.AppendFormatted("clibs := -lHtml -lz $(SYSLIBS)");
    if (haveFortranTask)
       buffer.AppendFormatted(" -lg2c");
    buffer.AppendFormatted("\n");

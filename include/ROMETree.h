@@ -2,6 +2,9 @@
   ROMETree.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.18  2005/09/14 17:27:24  sawada
+  modification for old ROOT versions.
+
   Revision 1.17  2005/08/30 09:40:13  sawada
   change directory before handling trees.
 
@@ -102,7 +105,7 @@ public:
    void SetTree(TTree *tree) { fTree = tree; };
    void SetFileName(ROMEString &fileName) { fFileName = fileName; };
    void SetConfigFileName(ROMEString &configFileName) { fConfigFileName = configFileName; };
-   void SetFile(TFile *file) { fFile = file; fTree->SetDirectory(fFile); };
+   void SetFile(TFile *file) { fFile = file; fTree->SetDirectory((TDirectory*)file); };
    void SetFileOverWrite() { fFileOption = kOverWrite; };
    void SetFileUpdate() { fFileOption = kUpdate; };
    void SetRead(Bool_t read) { fSwitches.fRead = read; };
