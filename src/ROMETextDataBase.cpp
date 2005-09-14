@@ -6,6 +6,9 @@
 //  Text format non-relational database.
 //
 //  $Log$
+//  Revision 1.7  2005/09/14 16:23:53  sawada
+//  added #if statement for TTimeStamp::Set.
+//
 //  Revision 1.6  2005/08/31 14:27:23  sawada
 //  use StripSpaces instead of Strip.
 //
@@ -154,7 +157,9 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
    int        ps,pe;
    TArrayI    fieldLen;
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,0,0))
    fTime->Set();
+#endif
 
    // extract value name and file name
    fileName = dataBasePath;
