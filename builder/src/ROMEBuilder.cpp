@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.245  2005/09/15 19:15:35  sawada
+  improved Makefile for UNIX.
+
   Revision 1.244  2005/09/15 16:19:26  sawada
   improved Makefile for UNIX.
 
@@ -9867,7 +9870,12 @@ void ROMEBuilder::WriteMakefile() {
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
    buffer.AppendFormatted("build:\n");
-   buffer.AppendFormatted("	$(ROMESYS)/bin/romebuilder.exe");
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+#else
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+#endif
+   buffer.AppendFormatted(" $(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
