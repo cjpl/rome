@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.246  2005/09/16 15:36:45  sawada
+  improved Makefile for UNIX.
+
   Revision 1.245  2005/09/15 19:15:35  sawada
   improved Makefile for UNIX.
 
@@ -9398,9 +9401,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("rootlibs := $(shell root-config --libs)\n");
-   buffer.AppendFormatted("rootglibs := $(shell root-config --glibs)\n");
-   buffer.AppendFormatted("rootcflags := $(shell root-config --cflags)\n");
+   buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
+   buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
+   buffer.AppendFormatted("rootcflags := $(shell  $(ROOTSYS)/bin/root-config --cflags)\n");
    buffer.AppendFormatted("rootthreadlibs := -lThread\n");
    buffer.AppendFormatted("sqllibs :=");
    if (this->mysql)
@@ -9840,9 +9843,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
-   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
-   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
-   dictionarybat.ReplaceAll("$DictionaryIncludes","$(DictionaryIncludes)");
    buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
@@ -9851,9 +9851,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #endif
    buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
@@ -9871,9 +9871,9 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
    buffer.AppendFormatted("build:\n");
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(ROOTSYS)/lib ");
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #endif
    buffer.AppendFormatted(" $(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
@@ -9937,15 +9937,15 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.Resize(0);
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
-   buffer.AppendFormatted("-I%%ROMESYS%%/include ");
-   buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
+   buffer.AppendFormatted("-I%%$(ROMESYS)%%/include ");
+   buffer.AppendFormatted("-I%%$(ROOTSYS)%%/include ");
 //   buffer.AppendFormatted("%%DictionaryIncludes%% ");
 #endif
 #if defined( R__UNIX )
    buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
-   buffer.AppendFormatted("-I$ROMESYS/include ");
-   buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("$DictionaryIncludes ");
+   buffer.AppendFormatted("-I$(ROMESYS)/include ");
+   buffer.AppendFormatted("-I$(shell $(ROOTSYS)/bin/root-config --incdir) ");
+   buffer.AppendFormatted("$(DictionaryIncludes) ");
 #endif
    buffer.AppendFormatted("-I. -Iinclude -Iinclude/tasks -Iinclude/framework ");
    for (i=0;i<numOfFolder;i++) {
