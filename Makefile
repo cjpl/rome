@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.22  2005/09/16 15:44:16  sawada
+#  improved Makefile for UNIX.
+#
 #  Revision 1.21  2005/05/30 18:21:13  sawada
 #  small change for Macintosh
 #
@@ -50,8 +53,8 @@
 #
 #####################################################################
 #
-INCLUDE :=  -I. -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell root-config --cflags)
-LIBRARY := $(shell root-config --libs)
+INCLUDE :=  -I. -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
+LIBRARY := $(shell $(ROOTSYS)/bin/root-config --libs)
 
 
 OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')

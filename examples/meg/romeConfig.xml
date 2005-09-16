@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Mon Apr 25 15:30:48 2005 -->
+<!-- created by MXML on Fri Sep 16 17:42:59 2005 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <MainConfiguration>
     <RunNumbers>6625</RunNumbers>
     <EventNumbers></EventNumbers>
+    <InputFileNames></InputFileNames>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>midas</DAQSystem>
@@ -47,21 +48,6 @@
           <DataBaseName>myXML</DataBaseName>
           <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/name;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
         </Field>
-        <Field>
-          <FieldName>X</FieldName>
-          <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/x;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
-        </Field>
-        <Field>
-          <FieldName>Y</FieldName>
-          <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/y;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
-        </Field>
-        <Field>
-          <FieldName>Z</FieldName>
-          <DataBaseName>myXML</DataBaseName>
-          <DataBasePath>"/RunCatalog[id=#]/XEConf/XEParam{,}[@XEAssign_definition]/XEGeometry/z;XEGeometry/idx(0,%s)",/GSP/PMT/Numbers/NumberOfLXePMT</DataBasePath>
-        </Field>
       </Folder>
     </Folders>
     <Tasks>
@@ -102,11 +88,11 @@
         </Histogram>
         <SteeringParameterField>
           <SPName>PedestalThreshold</SPName>
-          <SPValue>500.000000</SPValue>
+          <SPValue>500</SPValue>
         </SteeringParameterField>
         <SteeringParameterField>
           <SPName>PedestalSpreadThreshold</SPName>
-          <SPValue>1.000000</SPValue>
+          <SPValue>1</SPValue>
         </SteeringParameterField>
       </Task>
       <Task>
@@ -211,6 +197,7 @@
         <Fill>true</Fill>
         <CompressionLevel>1</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
+        <TreeOutputFileName></TreeOutputFileName>
       </Tree>
       <Tree>
         <TreeName>CMHit</TreeName>
@@ -219,6 +206,7 @@
         <Fill>false</Fill>
         <CompressionLevel>0</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
+        <TreeOutputFileName></TreeOutputFileName>
       </Tree>
       <Tree>
         <TreeName>Trigger</TreeName>
@@ -227,6 +215,7 @@
         <Fill>false</Fill>
         <CompressionLevel>0</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
+        <TreeOutputFileName></TreeOutputFileName>
       </Tree>
     </Trees>
     <GlobalSteeringParameters>
@@ -236,7 +225,7 @@
       </SteeringParameterField>
       <SteeringParameterField>
         <SPName>InvalidValue</SPName>
-        <SPValue>-1000.000000</SPValue>
+        <SPValue>-1000</SPValue>
       </SteeringParameterField>
       <SteeringParameterGroup>
         <SPGroupName>PMT</SPGroupName>
