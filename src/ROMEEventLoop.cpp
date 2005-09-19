@@ -7,6 +7,9 @@
 //  the Application.
 //                                                                      //
 //  $Log$
+//  Revision 1.70  2005/09/19 08:54:53  schneebeli_m
+//  sleep in user input loop
+//
 //  Revision 1.69  2005/08/30 14:01:43  sawada
 //  not reset trees when TreeAccumulation is true.
 //
@@ -749,6 +752,7 @@ bool ROMEEventLoop::UserInput()
          gSystem->Init();
          gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
       }
+      gROME->ss_sleep(10);
    }
    if (hit)
       time(&fProgressTimeOfLastEvent);
