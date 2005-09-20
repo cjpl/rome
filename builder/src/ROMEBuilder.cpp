@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.247  2005/09/20 19:20:00  sawada
+  stop builder when arrayed SP group has command line option.
+
   Revision 1.246  2005/09/16 15:36:45  sawada
   improved Makefile for UNIX.
 
@@ -3787,8 +3790,14 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                xml->GetValue(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field end
-            if (type == 15 && !strcmp((const char*)name,"SteeringParameterField"))
+            if (type == 15 && !strcmp((const char*)name,"SteeringParameterField")){
+               if(steerArraySize[iTask][actualSteerIndex]!="1" && steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()){
+                  cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
                break;
+            }
          }
          // check input
          if (steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]=="") {
