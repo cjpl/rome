@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.248  2005/09/22 09:35:30  sawada
+  bug fix when SP has arrayed fiedls and arrayed children.
+
   Revision 1.247  2005/09/20 19:20:00  sawada
   stop builder when arrayed SP group has command line option.
 
@@ -7584,7 +7587,7 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
    buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (steerFieldArraySize[numTask][numSteer][j]!="1") {
-         buffer.AppendFormatted("int i; ");
+         buffer.AppendFormatted("int j; ");
          break;
       }
    }
@@ -7593,7 +7596,7 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
          buffer.AppendFormatted("f%s = %s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
       else {
-         buffer.AppendFormatted("for (i=0;i<%s;i++) f%s[i] = %s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+         buffer.AppendFormatted("for (j=0;j<%s;j++) f%s[j] = %s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
