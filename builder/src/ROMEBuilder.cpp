@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.249  2005/09/28 17:52:50  sawada
+  bug fix on command line option check.
+
   Revision 1.248  2005/09/22 09:35:30  sawada
   bug fix when SP has arrayed fiedls and arrayed children.
 
@@ -3794,7 +3797,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
             }
             // steering parameter field end
             if (type == 15 && !strcmp((const char*)name,"SteeringParameterField")){
-               if(steerArraySize[iTask][actualSteerIndex]!="1" && steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()){
+               if(steerArraySize[iTask][actualSteerIndex].Length() && steerArraySize[iTask][actualSteerIndex]!="1" && steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()){
                   cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
