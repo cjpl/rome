@@ -4,6 +4,9 @@
 #  Created by:   Ryu Sawada
 #
 #  $Log$
+#  Revision 1.12  2005/10/01 22:16:24  sawada
+#  clean up.
+#
 #  Revision 1.11  2005/07/04 14:39:38  sawada
 #  error message when compilation is failed.
 #
@@ -46,7 +49,6 @@
 #
 #
 #####################################################################
-#
 INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -Ibuilder/include/ $(shell root-config --cflags)
 LIBRARY = $(shell root-config --libs)
 SRC = BuilderConfig.cpp BuilderMonitor.cpp BuilderTab.cpp \
