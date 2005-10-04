@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.250  2005/10/04 08:20:28  sawada
+  any ROOT object as fields.
+
   Revision 1.249  2005/09/28 17:52:50  sawada
   bug fix on command line option check.
 
@@ -963,6 +966,9 @@ bool ROMEBuilder::ReadXMLFolder() {
                   valueDimension[numOfFolder][numOfValue[numOfFolder]] = 1;
                   valueArray[numOfFolder][numOfValue[numOfFolder]][0] = "0";
                }
+               else if (isPointerType(valueType[numOfFolder][numOfValue[numOfFolder]])) {
+                  valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
+               }
                else
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "0";
             }
@@ -1239,6 +1245,13 @@ bool ROMEBuilder::WriteFolderH() {
          }
       }
 
+      for (i=0;i<numOfValue[iFold];i++) {
+         if (isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+             && valueDimension[iFold][i]==0 && valueArray[iFold][i][0]=="1"
+             && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+            valueType[iFold][i] += "*";
+      }
+
       // Class
       if (folderUserCode[iFold])
          buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
@@ -1324,7 +1337,10 @@ bool ROMEBuilder::WriteFolderH() {
          buffer.AppendFormatted("      %s%s::Class()->IgnoreTObjectStreamer();\n",shortCut.Data(),folderName[iFold].Data());
       ROMEString tmp;
       for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data())){
+         if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+            continue;
+         else if (isFolder(valueType[iFold][i].Data())){
             tmp = valueType[iFold][i];
             tmp.ReplaceAll("*","");
             if (valueDimension[iFold][i]==0){
@@ -1424,6 +1440,20 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      memcpy(array,%s,n*sizeof(%s));\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
+            }
+            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   %%-%ds* Get%%sAt(",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("int %s, ",valueCounter[iDm]);
+               buffer.Resize(buffer.Length()-2);
+               format.SetFormatted(")%%%ds { return &%%s",lb);
+               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("[%s]",valueCounter[iDm]);
+               format.SetFormatted(";%%%ds };\n",lb);
+               buffer.AppendFormatted(format.Data(),"");
             }
             else {
                format.SetFormatted("   %%-%ds  Get%%sAt(",typeLen);
@@ -1594,6 +1624,9 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
+            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+               continue;
             else {
                format.SetFormatted("   void Set%%sAt%%%ds(",lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
@@ -1619,6 +1652,11 @@ bool ROMEBuilder::WriteFolderH() {
       // Add
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
+            continue;
+         if (isPointerType(valueType[iFold][i].Data()))
+            continue;
+         if(isRootClassType(valueType[iFold][i].Data())
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
             continue;
          int lb = nameLen-valueName[iFold][i].Length();
          if (valueDimension[iFold][i]==0) {
@@ -1734,6 +1772,9 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("      if( !isModified() ) return;\n");
       buffer.AppendFormatted("      int i=0;\n");
       for (i=0;i<numOfValue[iFold];i++) {
+         if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+            continue;
          if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i]==0)
                buffer.AppendFormatted("      %s->Reset();\n",valueName[iFold][i].Data());

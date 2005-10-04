@@ -2,6 +2,9 @@
   ROMEBuilder.h, M. Schneebeli PSI
 
   $Log$
+  Revision 1.65  2005/10/04 08:20:28  sawada
+  any ROOT object as fields.
+
   Revision 1.64  2005/08/12 15:37:01  schneebeli_m
   added input file based IO
 
@@ -455,6 +458,10 @@ public:
    bool isTArrayType(TString &type) { return isTArrayType(type.Data()); };
    const char* TArray2StandardType(const char *type);
    const char* TArray2StandardType(TString &type) { return TArray2StandardType(type.Data()); };
+   bool isRootClassType(const char *type) { TString tmp=type; return isRootClassType(tmp); };
+   bool isRootClassType(TString &type) { ROMEString tmp=type; tmp.StripSpaces(); return tmp(0)=='T'; };
+   bool isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
+   bool isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
    bool accessFolder(ROMEString &fileBuffer, int numFolder);
    void usage();
 
