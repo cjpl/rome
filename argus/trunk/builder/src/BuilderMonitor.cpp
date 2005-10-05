@@ -3,6 +3,9 @@
   BuilderMonitor.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.32  2005/10/05 19:32:18  sawada
+  changed function name to allocate memory of folders.
+
   Revision 1.31  2005/08/02 12:39:04  sawada
   Removed netfolder title config.
   Added netfolder reconnect config.
@@ -537,7 +540,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp() {
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderArray[i]!="1" && folderArray[i]!="variable")
-            buffer.AppendFormatted("   gMonitor->Allocate%s(%s);\n",folderName[i].Data(),folderArray[i].Data());
+            buffer.AppendFormatted("   gMonitor->Set%sSize(%s);\n",folderName[i].Data(),folderArray[i].Data());
       }
    }
    buffer.AppendFormatted("};\n\n");
@@ -827,10 +830,12 @@ Bool_t ArgusBuilder::WriteMonitorH() {
       WriteFolderGetter(buffer,i,scl,nameLen,typeLen);
    buffer.AppendFormatted("\n");
 
-   // Allocate
+   // Set size
    for (i=0;i<numOfFolder;i++) {
-      if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]=="variable"){
-         buffer.AppendFormatted("   void Allocate%s(int number) {\n",folderName[i].Data());
+      if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]!="1"){
+         if(folderArray[i]!="variable")
+            buffer.AppendFormatted("private:\n");
+         buffer.AppendFormatted("   void Set%sSize(int number) {\n",folderName[i].Data());
          buffer.AppendFormatted("      int i;\n");
          buffer.AppendFormatted("      if(f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
          buffer.AppendFormatted("      for (i=0;i<number;i++) {\n");
@@ -845,6 +850,9 @@ Bool_t ArgusBuilder::WriteMonitorH() {
          buffer.AppendFormatted(" );\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
+         if(folderArray[i]!="variable")
+            buffer.AppendFormatted("public:\n");
+         buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
@@ -927,10 +935,10 @@ Bool_t ArgusBuilder::WriteMonitorH() {
    buffer.AppendFormatted("   void           CleanUpFolders();\n");
    buffer.AppendFormatted("   Bool_t         ReadUserParameter(const char* opt, const char* value, int& i);\n");
    buffer.AppendFormatted("   void           UserParameterUsage();\n");
-   // Allocate
+   // Set size
    for (i=0;i<numOfFolder;i++) {
       if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]!="1" && folderArray[i]!="variable"){
-         buffer.AppendFormatted("   void Allocate%s(int number) {\n",folderName[i].Data());
+         buffer.AppendFormatted("   void SetSize%s(int number) {\n",folderName[i].Data());
          buffer.AppendFormatted("      int i;\n");
          buffer.AppendFormatted("      if(f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
          buffer.AppendFormatted("      for (i=0;i<number;i++) {\n");
@@ -948,7 +956,6 @@ Bool_t ArgusBuilder::WriteMonitorH() {
       }
    }
    buffer.AppendFormatted("\n");
-   
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sMonitor,0);\n",shortCut.Data());
 
