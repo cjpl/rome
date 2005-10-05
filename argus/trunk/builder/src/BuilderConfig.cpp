@@ -3,6 +3,14 @@
   BuilderConfig.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.23  2005/10/05 19:13:24  sawada
+  better color of documents.
+  steering parameters in documents.
+  CSS suport.
+  ROMETextDataBase support.
+  userclean in Makefile.
+  removed unused variables.
+
   Revision 1.22  2005/08/02 12:39:04  sawada
   Removed netfolder title config.
   Added netfolder reconnect config.
@@ -133,6 +141,7 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
 
    // Header
    buffer.AppendFormatted("#include <ROMEXMLDataBase.h>\n");
+   buffer.AppendFormatted("#include <ROMETextDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMENoDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
@@ -497,6 +506,11 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("                  path += \"/\";\n");
    buffer.AppendFormatted("               gMonitor->SetDataBaseDir(i,path.Data());\n");
    buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gMonitor->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
+   buffer.AppendFormatted("                  return false;\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"text\") {\n");
+   buffer.AppendFormatted("               gMonitor->SetDataBase(i,new ROMETextDataBase());\n");
+   buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gMonitor->GetDataBaseConnection(i),\"\"))\n");
    buffer.AppendFormatted("                  return false;\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"odb\") {\n");

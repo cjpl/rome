@@ -3,6 +3,14 @@
   BuilderNetFolder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.2  2005/10/05 19:13:24  sawada
+  better color of documents.
+  steering parameters in documents.
+  CSS suport.
+  ROMETextDataBase support.
+  userclean in Makefile.
+  removed unused variables.
+
   Revision 1.1  2005/05/26 14:26:54  sawada
   Lots of changes.
   Made ArgusBuilder an inheriting class of ROMEBuilder.
@@ -17,8 +25,8 @@
 
 Bool_t ArgusBuilder::ReadXMLNetFolder() {
    // read the net folder definitions out of the xml file
+   Int_t   type;
    Char_t* name;
-   Int_t type,i;
    ROMEString currentNetFolderName = "";
 
    // count netFolders
