@@ -3,6 +3,14 @@
   BuilderWindow.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.32  2005/10/05 19:13:24  sawada
+  better color of documents.
+  steering parameters in documents.
+  CSS suport.
+  ROMETextDataBase support.
+  userclean in Makefile.
+  removed unused variables.
+
   Revision 1.31  2005/07/03 18:42:01  sawada
   get enumerations back into window class.
 
@@ -122,7 +130,7 @@
 #include "ArgusBuilder.h"
 
 Bool_t ArgusBuilder::WriteWindowCpp() {
-   Int_t i,j,k,kk;
+   Int_t i,j;
    ROMEString cppFile;
    ROMEString buffer;
    ROMEString bufferTemp;

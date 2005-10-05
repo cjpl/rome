@@ -3,6 +3,14 @@
   Builder.cpp, Ryu Sawada
 
   $Log$
+  Revision 1.52  2005/10/05 19:13:24  sawada
+  better color of documents.
+  steering parameters in documents.
+  CSS suport.
+  ROMETextDataBase support.
+  userclean in Makefile.
+  removed unused variables.
+
   Revision 1.51  2005/07/03 17:31:34  sawada
   Support folder.
   Multiple dimension fields in folders.
@@ -250,6 +258,7 @@ void ArgusBuilder::startBuilder(Char_t* xmlfile)
    Int_t type;
    Int_t i,j;
    experimentName = "";
+   styleSheet = "";
    shortCut = "";
    mainProgName = "";
    mainDescription = "";
@@ -304,6 +313,8 @@ void ArgusBuilder::startBuilder(Char_t* xmlfile)
                         xml->GetValue(mainProgName,mainProgName);
                      if (type == 1 && !strcmp((const Char_t*)name,"MonitorDescription"))
                         xml->GetValue(mainDescription,mainDescription);
+                     if (type == 1 && !strcmp((const char*)name,"DocumentStyleSheet"))
+                        xml->GetValue(styleSheet,styleSheet);
                      if (type == 15 && !strcmp((const Char_t*)name,"Experiment")) {
                         if (shortCut=="") {
                            cout << "Experiment must have a shortcut!" << endl;
@@ -722,7 +733,7 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    if (this->sql)
       buffer.AppendFormatted(" obj/ROMESQL.obj obj/ROMESQLDataBase.obj");
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMEODBOnlineDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMETextDataBase.obj obj/ROMEODBOnlineDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
 
    // all
    buffer.AppendFormatted("all:obj %s%s",shortcut.Data(),mainprogname.Data());
@@ -835,6 +846,8 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"Path","Path");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"XMLDataBase","XMLDataBase");
+   buffer.AppendFormatted("obj/ROMETextDataBase.obj: $(ROMESYS)/src/ROMETextDataBase.cpp $(ROMESYS)/include/ROMETextDataBase.h\n");
+   buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"TextDataBase","TextDataBase");
    buffer.AppendFormatted("obj/ROMEODBOnlineDataBase.obj: $(ROMESYS)/src/ROMEODBOnlineDataBase.cpp $(ROMESYS)/include/ROMEODBOnlineDataBase.h\n");
    buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"ODBOnlineDataBase","ODBOnlineDataBase");
    if (this->mysql) {
@@ -886,9 +899,13 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
-// Clean and build
-   buffer.AppendFormatted("clean:\n");
+   // Clean and build
+   buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("	rm -f obj/*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data());
+   ROMEString tmp = shortCut;
+   tmp.ToLower();
+   buffer.AppendFormatted("%sclean:\n",tmp.Data());
+   buffer.AppendFormatted("	rm -f obj/%s*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;
@@ -939,10 +956,15 @@ void ArgusBuilder::WriteMakefile() {
       usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects += mySource.obj\n");
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
-      usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#	g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
+      usrBuffer.AppendFormatted("#       userclean:\n");
+      usrBuffer.AppendFormatted("#	rm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
+      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 }
@@ -1001,12 +1023,21 @@ void ArgusBuilder::WriteHTMLDoku() {
    ROMEString parentt;
    Int_t depthold=0;
    Int_t depth=0;
+   bool trodd = true;
 
    // Header
    buffer.Resize(0);
    buffer.AppendFormatted("<HTML>\n");
    buffer.AppendFormatted("<HEAD>\n");
    buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n",shortCut.Data(),mainProgName.Data());
+   if(styleSheet.Length()){
+      buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n",outDir.Data(),styleSheet.Data());
+   }
+   else{
+      buffer.AppendFormatted("<STYLE>\n");
+      WriteHTMLStyle(buffer);
+      buffer.AppendFormatted("</STYLE>\n");
+   }
    buffer.AppendFormatted("</HEAD>\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("<BODY BGCOLOR=\"#FFFFFF\" TEXT=\"#000000\">\n");
@@ -1018,6 +1049,7 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<H2>Table of Contents</H2>\n");
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#introduction\">Introduction</a></li>\n");
+   buffer.AppendFormatted("<li><a href=\"#steers\">Steering Parameters</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#objects\">Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<ul>\n");
    buffer.AppendFormatted("<li><a href=\"#tabobjects\">Tabs</a></li>\n");
@@ -1037,6 +1069,23 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%s\n",mainDescription.Data());
    buffer.AppendFormatted("<p>\n");
+   // Steering parameters
+   buffer.AppendFormatted("<H2><a name=steers>Steering Parameters</a> </H2>\n");
+   buffer.AppendFormatted("\n");
+   for(i=0;i<=numOfTab;i++){
+      if(numOfSteering[i] < 1)
+         continue;
+      if(i<numOfTab)
+         buffer.AppendFormatted("<a class=\"object\">%s</a><br>\n",tabName[i].Data());
+      else
+         buffer.AppendFormatted("<a class=\"object\">Global Steering Parameters</a><br>\n");
+      buffer.AppendFormatted("<table>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      trodd = !trodd;
+      WriteHTMLSteering(buffer,0,i,"");
+      buffer.AppendFormatted("</table><br>\n");
+   }
+   buffer.AppendFormatted("\n");
    // Objects
    buffer.AppendFormatted("<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("All <a href=\"#tabobjects\">Tabs</a>, <a href=\"#folderobjects\">Folders</a> are described here.\n");
@@ -1047,6 +1096,8 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("The %s%s has the following tab hierarchy :\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
    Int_t index;
+   Int_t ddelta;
+   buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTab;i++) {
       index = i;
       depth=0;
@@ -1054,9 +1105,11 @@ void ArgusBuilder::WriteHTMLDoku() {
          depth++;
          index = tabParentIndex[index];
       }
-      if (depth<depthold) buffer.AppendFormatted("</ul>\n");
-      if (depth>depthold) buffer.AppendFormatted("<ul>\n");
-      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",tabName[i].Data(),shortCut.Data(),tabName[i].Data());
+      depth--;
+      ddelta = depth-depthold;
+      if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
+      if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
+      buffer.AppendFormatted("<li><a href=\"#%s\">%sT%s</a></li>\n",tabName[i].Data(),shortCut.Data(),tabName[i].Data());
       depthold = depth;
    }
    for (i=0;i<depth;i++) buffer.AppendFormatted("</ul>\n");
@@ -1082,15 +1135,8 @@ void ArgusBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("%s accesses data from the following folders :\n",tabName[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j=0;j<numOfFolder;j++) {
-         str = "Get";
-         str.Append(folderName[j]);
-         if (folderArray[j]=="1")
-            str += "(";
-         else
-            str += "At(";
-         if (fileBuffer.Contains(str)) {
+         if (accessFolder(fileBuffer,j))
             buffer.AppendFormatted("<li type=\"circle\">%s</li>\n",folderName[j].Data());
-         }
       }
       buffer.AppendFormatted("</ul>\n");
       buffer.AppendFormatted("<p>\n");
@@ -1114,7 +1160,7 @@ void ArgusBuilder::WriteHTMLDoku() {
       if (folderParentName[i]!="GetMainFolder()") {
          depth++;
          parentt = folderParentName[i];
-         for (j=0;j<100;j++) {
+         for (j=0;j<maxNumberOfFolders;j++) {
             for (k=0;k<numOfFolder;k++) {
                if (parentt==folderName[k]) {
                   parentt = folderParentName[k];
@@ -1130,8 +1176,9 @@ void ArgusBuilder::WriteHTMLDoku() {
             depth++;
          }
       }
-      if (depth<depthold) buffer.AppendFormatted("</ul>\n");
-      if (depth>depthold) buffer.AppendFormatted("<ul>\n");
+      ddelta = depth-depthold;
+      if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
+      if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted("<b>\n");
          buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n",folderName[i].Data(),folderName[i].Data());
@@ -1150,12 +1197,12 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<p>\n");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] <= 0) continue;
-      buffer.AppendFormatted("<h4><a name=%s><u>%s</u></a></h4>\n",folderName[i].Data(),folderName[i].Data());
+      buffer.AppendFormatted("<a name=%s class=\"object\">%s</a><br>\n",folderName[i].Data(),folderName[i].Data());
       buffer.AppendFormatted("%s\n",folderDescription[i].Data());
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
-      buffer.AppendFormatted("<table border=\"1\">\n");
-      buffer.AppendFormatted("<tr><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      buffer.AppendFormatted("<table>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
          ROMEString comment = valueComment[i][j];
          if (valueComment[i][j].Length()>3) {
@@ -1163,7 +1210,7 @@ void ArgusBuilder::WriteHTMLDoku() {
                comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
             }
          }
-         buffer.AppendFormatted("<tr><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
       }
       buffer.AppendFormatted("</table>\n");
    }
@@ -1197,19 +1244,39 @@ void ArgusBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("</BODY>\n");
    buffer.AppendFormatted("</HTML>\n");
 
-   // Write documentation
+   // Write HTML
    ROMEString htmlFile;
-   htmlFile.SetFormatted("%s%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   htmlFile.SetFormatted("%s/%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
    WriteFile(htmlFile.Data(),buffer.Data(),0);
 
-   // Write UserHTML
    struct stat buf;
-   htmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data());
-   if( stat( htmlFile.Data(), &buf )) {
+   // Write style sheet
+   ROMEString css;
+   if(styleSheet.Length()) {
+      css.SetFormatted("%s/%s",outDir.Data(),styleSheet.Data());
+      if( stat( css.Data(), &buf )) {
+         buffer.Resize(0);
+         WriteHTMLStyle(buffer);
+         WriteFile(css.Data(),buffer.Data(),0);
+      }
+   }
+
+   // Write UserHTML
+   ROMEString userHtmlFile;
+   userHtmlFile.SetFormatted("%s%sUserHTML.html",outDir.Data(),shortCut.Data());
+   if( stat( userHtmlFile.Data(), &buf )) {
       buffer.Resize(0);
       buffer.AppendFormatted("<html>\n");
       buffer.AppendFormatted("<head>\n");
       buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n",shortCut.Data(),mainProgName.Data());
+      if(styleSheet.Length()){
+         buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n",outDir.Data(),styleSheet.Data());
+      }
+      else{
+         buffer.AppendFormatted("<STYLE>\n");
+         WriteHTMLStyle(buffer);
+         buffer.AppendFormatted("</STYLE>\n");
+      }
       buffer.AppendFormatted("</head>\n");
       buffer.AppendFormatted("<body>\n");
       buffer.AppendFormatted("  <h1>Additional Info</h1>\n");
@@ -1229,10 +1296,9 @@ void ArgusBuilder::WriteHTMLDoku() {
       buffer.AppendFormatted("</address>\n");
       buffer.AppendFormatted("</body>\n");
       buffer.AppendFormatted("</html>");
-      WriteFile(htmlFile.Data(),buffer.Data(),0);
+      WriteFile(userHtmlFile.Data(),buffer.Data(),0);
    }
 }
-
 
 void ArgusBuilder::GetMidasTID(ROMEString* buf,Char_t *type)
 {
