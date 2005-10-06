@@ -41,7 +41,7 @@ void TTTTab1::Init()
    fHorz->AddFrame(fBStartHorizontal, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
    fHorz->AddFrame(fBStopHorizontal, new TGLayoutHints(kLHintsCenterY, 10, 10, 4, 4));
    
-   fText = new TLatex(0.5,0.5,"Thrad test.");
+   fText = new TLatex(0.5,0.5,"thread test.");
    fText->SetTextAlign(22);
 
    fVert->AddFrame(fCanvas, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4, 4, 4, 4));
@@ -85,11 +85,10 @@ bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 
 void TTTTab1::func_1_1()
 {
-   Float_t y = TMath::Abs(TMath::Sin(fText->GetX()*10));
 #if defined (ROOT_TThread)
    TThread::Lock();
 #endif
-   fText->SetY(fText->GetY()+0.01);
+   fText->SetY(fText->GetY()<1 ? fText->GetY()+0.01 : 0);
 #if defined (ROOT_TThread)
    TThread::UnLock();
 #endif
@@ -101,11 +100,10 @@ void TTTTab1::func_1_1()
 
 void TTTTab1::func_1_2()
 {
-   Float_t x = TMath::Abs(TMath::Sin(fText->GetY()*10));
 #if defined (ROOT_TThread)
    TThread::Lock();
 #endif
-   fText->SetX(x);
+   fText->SetX(fText->GetX()<1 ? fText->GetX()+0.01 : 0); 
 #if defined (ROOT_TThread)
    TThread::UnLock();
 #endif
