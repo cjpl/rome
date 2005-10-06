@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Ryu Sawada -->
+<ArgusMonitorDefinition>
+	<Experiment>
+		<ExperimentName>Timer Test</ExperimentName>
+		<ExperimentShortCut>TT</ExperimentShortCut>
+		<ProgramName>monitor</ProgramName>
+		<MonitorDescription>The example of timer.</MonitorDescription>
+	</Experiment>
+	<Author>
+		<AuthorName>Ryu Sawada</AuthorName>
+		<AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+		<AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+		<AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
+	</Author>
+	<Tabs>
+		<Tab>
+			<TabName>Tab1</TabName>
+			<TabTitle>1</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+		</Tab>
+		<Tab>
+			<TabName>Tab2</TabName>
+			<TabTitle>2</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+		</Tab>
+	</Tabs>
+</ArgusMonitorDefinition>
