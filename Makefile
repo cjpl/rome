@@ -4,6 +4,9 @@
 #  Created by:   Matthias Schneebeli
 #
 #  $Log$
+#  Revision 1.23  2005/10/06 21:46:13  sawada
+#  improved Makefile for builder.
+#
 #  Revision 1.22  2005/09/16 15:44:16  sawada
 #  improved Makefile for UNIX.
 #
@@ -81,9 +84,33 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-$(ROMESYS)/bin/romebuilder.exe: builder/src/ROMEBuilder.cpp builder/src/main.cpp builder/include/ROMEBuilder.h src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
-	g++ $(CFLAGS) -g -o $@ builder/src/ROMEBuilder.cpp builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c \
-	src/ROMEString.cpp $(INCLUDE) $(LIBRARY)
+objects :=  obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEXML.o obj/ROMEBuilder.o
+
+all: obj $(ROMESYS)/bin/romebuilder.exe
+
+obj:
+	@if [ ! -d  obj ] ; then \
+		echo "Making directory obj" ; \
+		mkdir obj; \
+	fi;
+$(ROMESYS)/bin/romebuilder.exe: builder/src/main.cpp $(objects)
+	g++ $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(objects) $(LIBRARY)
+
+obj/ROMEBuilder.o: builder/src/ROMEBuilder.cpp builder/include/ROMEBuilder.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEXML.o: src/ROMEXML.cpp include/ROMEXML.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEString.o: src/ROMEString.cpp include/ROMEString.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/mxml.o: src/mxml.c include/mxml.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
 
 clean:
-	rm -f $(ROMESYS)/bin/romebuilder.exe
+	rm -f $(objects)
