@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.9  2005/10/07 13:16:26  sawada
+   parse ENTITY
+
    Revision 1.8  2005/05/11 12:50:02  schneebeli_m
    added strlcpy
 
@@ -1209,6 +1212,30 @@ PMXML_NODE mxml_parse_buffer(char *buf, char *error, int error_size)
 
             p += 2;
 
+         } else if (strncmp(p, "!ENTITY", 7) == 0) {
+
+            /* found !ENTITY element */
+            pnew = mxml_add_special_node(ptree, ENTITY_NODE, "ENTYTY", NULL);
+            pv = p + 1;
+
+            p++;
+            if (strstr(p, ">") == NULL)
+               return read_error(HERE, "Unterminated !ENTITY element");
+
+            while (*p != '>') {
+               if (*p == '\n')
+                  line_number++;
+               p++;
+            }
+
+            len = (size_t)p - (size_t)pv;
+            pnew->value = (char *)malloc(len+1);
+            memcpy(pnew->value, pv, len);
+            pnew->value[len] = 0;
+            mxml_decode(pnew->value);
+
+            p ++;
+
          } else {
             
             /* found normal element */
@@ -1407,6 +1434,422 @@ PMXML_NODE mxml_parse_buffer(char *buf, char *error, int error_size)
 
 /*------------------------------------------------------------------*/
 
+PMXML_NODE mxml_parse_entity(char **buf, char *error, int error_size)
+/* parse !ENTYTY entries of XML files and replace with references. Return NULL
+   in case of error, return error description. Optional file_name is used
+   for error reporting if called from mxml_parse_file() */
+{
+   char *p;
+   char *pv;
+   char delimiter;
+   int i, j, k, line_number;
+   char *replacement;
+   char entity_name[MXML_MAX_ENTITY][256];
+   char entity_reference_name[MXML_MAX_ENTITY][256];
+   char *entity_value[MXML_MAX_ENTITY];
+   int entity_type[MXML_MAX_ENTITY];    /* internal or external */
+   int nentity;
+   int fh, length, len;
+   char *buffer;
+   PMXML_NODE root = mxml_create_root_node();   /* dummy for 'HERE' */
+   char *file_name = NULL;      /* dummy for 'HERE' */
+   int ip;                      /* counter for entity value */
+
+   for (ip = 0; ip < MXML_MAX_ENTITY; ip++)
+      entity_value[ip] = NULL;
+
+   line_number = 1;
+   nentity = -1;
+
+   /* copy string to temporary space */
+   buffer = (char *) malloc(strlen(*buf) + 1);
+   if (buffer == NULL) {
+      return read_error(HERE, "Cannot allocate memory.");
+   }
+
+   p = buffer;
+
+   strcpy(buffer, *buf);
+   free(*buf);
+
+   /* search !ENTITY */
+   do {
+      if (*p == '<') {
+
+         /* found new entity */
+         p++;
+         while (*p && isspace(*p)) {
+            if (*p == '\n')
+               line_number++;
+            p++;
+         }
+         if (!*p) {
+/*
+            free(buffer);
+            for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+               free(entity_value[ip]);
+*/
+            return read_error(HERE, "Unexpected end of file");
+         }
+
+         if (strncmp(p, "!ENTITY", 7) == 0) {
+
+            /* found entity */
+            nentity++;
+            if (nentity >= MXML_MAX_ENTITY) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Too much entities");
+            }
+
+            pv = p + 7;
+            while (*pv == ' ')
+               pv++;
+
+            /* extract entity name */
+            p = pv;
+
+            while (*p && isspace(*p) && *p != '<' && *p != '>') {
+               if (*p == '\n')
+                  line_number++;
+               p++;
+            }
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*p == '<' || *p == '>') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'%c\' inside !ENTITY", *p);
+            }
+
+            pv = p;
+            while (*pv && !isspace(*pv) && *pv != '<' && *pv != '>')
+               pv++;
+
+            if (!*pv) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*pv == '<' || *pv == '>') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'%c\' inside entity \"%s\"", *pv,
+                                 &entity_name[nentity][1]);
+            }
+
+            len = (size_t) pv - (size_t) p;
+
+            entity_name[nentity][0] = '&';
+            i = 1;
+            entity_name[nentity][i] = 0;
+            while (*p && !isspace(*p) && *p != '/' && *p != '>' && *p != '<' && i < 253)
+               entity_name[nentity][i++] = *p++;
+            entity_name[nentity][i++] = ';';
+            entity_name[nentity][i] = 0;
+
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*p == '<') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'<\' inside entity \"%s\"", &entity_name[nentity][1]);
+            }
+
+            /* extract replacement or SYSTEM */
+            while (*p && isspace(*p)) {
+               if (*p == '\n')
+                  line_number++;
+               p++;
+            }
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*p == '>') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'>\' inside entity \"%s\"", &entity_name[nentity][1]);
+            }
+
+            /* check if SYSTEM */
+            if (strncmp(p, "SYSTEM", 6) == 0) {
+               entity_type[nentity] = EXTERNAL_ENTITY;
+               p += 6;
+            } else {
+               entity_type[nentity] = INTERNAL_ENTITY;
+            }
+
+            /* extract replacement */
+            while (*p && isspace(*p)) {
+               if (*p == '\n')
+                  line_number++;
+               p++;
+            }
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*p == '>') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'>\' inside entity \"%s\"", &entity_name[nentity][1]);
+            }
+
+            if (*p != '\"' && *p != '\'') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Replacement was not found for entity \"%s\"",
+                                 &entity_name[nentity][1]);
+            }
+            delimiter = *p;
+            p++;
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            pv = p;
+            while (*pv && *pv != delimiter)
+               pv++;
+
+            if (!*pv) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+            if (*pv == '<') {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected \'%c\' inside entity \"%s\"", *pv,
+                                 &entity_name[nentity][1]);
+            }
+
+            len = (size_t) pv - (size_t) p;
+            replacement = (char *) malloc(len + 1);
+            if (replacement == NULL) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Cannot allocate memory.");
+            }
+
+            memcpy(replacement, p, len);
+            replacement[len] = 0;
+            mxml_decode(replacement);
+
+            if (entity_type[nentity] == EXTERNAL_ENTITY) {
+               strcpy(entity_reference_name[nentity], replacement);
+            } else {
+               entity_value[nentity] = (char *) malloc(strlen(replacement));
+               if (entity_value[nentity] == NULL) {
+/*
+                  free(buffer);
+                  for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                     free(entity_value[ip]);
+*/
+                  return read_error(HERE, "Cannot allocate memory.");
+               }
+               strcpy(entity_value[nentity], replacement);
+            }
+            free(replacement);
+
+            p = pv;
+            while (*p && isspace(*p)) {
+               if (*p == '\n')
+                  line_number++;
+               p++;
+            }
+            if (!*p) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Unexpected end of file");
+            }
+         }
+      }
+
+      /* go to next element */
+      while (*p && *p != '<') {
+         if (*p == '\n')
+            line_number++;
+         p++;
+      }
+   } while (*p);
+   nentity++;
+
+   /* read external file */
+   for (i = 0; i < nentity; i++) {
+      if (entity_type[i] == EXTERNAL_ENTITY) {
+         fh = open(entity_reference_name[i], O_RDONLY | O_TEXT, 0644);
+
+         if (fh == -1) {
+            entity_value[i] =
+                (char *) malloc(strlen(entity_reference_name[i]) + strlen("<!--  is missing -->") + 1);
+            if (entity_value[i] == NULL) {
+/*
+               free(buffer);
+               for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                  free(entity_value[ip]);
+*/
+               return read_error(HERE, "Cannot allocate memory.");
+            }
+            sprintf(entity_value[i], "<!-- %s is missing -->", entity_reference_name[i]);
+         } else {
+            length = lseek(fh, 0, SEEK_END);
+            lseek(fh, 0, SEEK_SET);
+            if (length == 0) {
+               entity_value[i] = (char *) malloc(1);
+               if (entity_value[i] == NULL) {
+/*
+                  free(buffer);
+                  for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                     free(entity_value[ip]);
+*/
+                  return read_error(HERE, "Cannot allocate memory.");
+               }
+               entity_value[i][0] = 0;
+            } else {
+               entity_value[i] = (char *) malloc(length);
+               if (entity_value[i] == NULL) {
+/*
+                  free(buffer);
+                  for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                     free(entity_value[ip]);
+*/
+                  return read_error(HERE, "Cannot allocate memory.");
+               }
+
+               /* read complete file at once */
+               length = read(fh, entity_value[i], length);
+               entity_value[i][length - 1] = 0;
+               close(fh);
+
+               /* recursive parse */
+               root = mxml_parse_entity(&entity_value[i], error, error_size);
+               if (root == NULL) {
+/*
+                  free(buffer);
+                  for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+                     free(entity_value[ip]);
+*/
+                  return root;
+               }
+            }
+         }
+      }
+   }
+
+   /* count length of output string */
+   length = strlen(buffer);
+   for (i = 0; i < nentity; i++) {
+      p = buffer;
+      while (1) {
+         pv = strstr(entity_name[i], p);
+         if (pv) {
+            length += -strlen(entity_name[i]) + strlen(entity_value[i]);
+            p = pv + 1;
+         } else {
+            break;
+         }
+      }
+   }
+
+   /* allocate memory */
+   *buf = (char *) malloc(length + 1);
+   if (*buf == NULL) {
+/*
+      free(buffer);
+      for(ip=0;ip<MXML_MAX_ENTITY;ip++)
+         free(entity_value[ip]);
+*/
+      return read_error(HERE, "Cannot allocate memory.");
+   }
+
+   /* replace entities */
+   p = buffer;
+   pv = *buf;
+   do {
+      if (*p == '&') {
+         /* found entity */
+         for (j = 0; j < nentity; j++) {
+            if (strncmp(p, entity_name[j], strlen(entity_name[j])) == 0) {
+               for (k = 0; k < (int) strlen(entity_value[j]); k++)
+                  *pv++ = entity_value[j][k];
+               p += strlen(entity_name[j]);
+               break;
+            }
+         }
+      }
+      *pv++ = *p++;
+   } while (*p);
+
+   free(buffer);
+   for (ip = 0; ip < MXML_MAX_ENTITY; ip++)
+      free(entity_value[ip]);
+
+   return root;
+}
+
+/*------------------------------------------------------------------*/
+
 PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
 /* parse a XML file and convert it into a tree of MXML_NODE's. Return NULL
    in case of an error, return error description */
@@ -1442,6 +1885,12 @@ PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size)
    length = read(fh, buf, length);
    buf[length] = 0;
    close(fh);
+
+   root = mxml_parse_entity(&buf, error, error_size);
+   if (root == NULL) {
+      free(buf);
+      return root;
+   }
 
    root = mxml_parse_buffer(buf, error, error_size);
 
