@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.11  2005/10/07 19:03:50  sawada
+   bug fix.
+
    Revision 1.10  2005/10/07 16:38:29  sawada
    bug fix.
 
@@ -1805,7 +1808,7 @@ PMXML_NODE mxml_parse_entity(char **buf, char *error, int error_size)
    for (i = 0; i < nentity; i++) {
       p = buffer;
       while (1) {
-         pv = strstr(entity_name[i], p);
+         pv = strstr(p, entity_name[i]);
          if (pv) {
             length += -strlen(entity_name[i]) + strlen(entity_value[i]);
             p = pv + 1;
