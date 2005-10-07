@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.10  2005/10/07 16:38:29  sawada
+   bug fix.
+
    Revision 1.9  2005/10/07 13:16:26  sawada
    parse ENTITY
 
@@ -1466,11 +1469,11 @@ PMXML_NODE mxml_parse_entity(char **buf, char *error, int error_size)
    if (buffer == NULL) {
       return read_error(HERE, "Cannot allocate memory.");
    }
+   strcpy(buffer, *buf);
+   free(*buf);
 
    p = buffer;
 
-   strcpy(buffer, *buf);
-   free(*buf);
 
    /* search !ENTITY */
    do {
@@ -1840,6 +1843,7 @@ PMXML_NODE mxml_parse_entity(char **buf, char *error, int error_size)
       }
       *pv++ = *p++;
    } while (*p);
+   *pv = 0;
 
    free(buffer);
    for (ip = 0; ip < MXML_MAX_ENTITY; ip++)
