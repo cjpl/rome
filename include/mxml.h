@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.9  2005/10/07 19:53:12  sawada
+   ENTITY is always inside DOCTYPE.
+
    Revision 1.8  2005/10/07 13:16:26  sawada
    parse ENTITY
 
@@ -46,7 +49,6 @@
 #define PROCESSING_INSTRUCTION_NODE   3
 #define COMMENT_NODE                  4
 #define DOCUMENT_NODE                 5
-#define ENTITY_NODE                   6
 
 #define INTERNAL_ENTITY               0
 #define EXTERNAL_ENTITY               1
