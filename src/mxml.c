@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.15  2005/10/08 09:38:14  sawada
+   bug fix.
+
    Revision 1.14  2005/10/08 09:30:56  sawada
    added mxml_dirname,mxml_basename
 
@@ -2140,7 +2143,7 @@ char* mxml_dirname(char* path)
    pv = strrchr (path, ':');
    if( pv > p )
       p = pv;
-   p = strrchr (path, '\\');
+   pv = strrchr (path, '\\');
    if( pv > p )
       p = pv;
 #endif
@@ -2157,7 +2160,7 @@ char* mxml_dirname(char* path)
       newpath = (char *) malloc(2);
       if (newpath == 0)
          return NULL;
-      newpath[0] = '/';
+      newpath[0] = *p;
       newpath[1] = 0;
    }
    else
