@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.16  2005/10/08 09:39:12  sawada
+   bug fix.
+
    Revision 1.15  2005/10/08 09:38:14  sawada
    bug fix.
 
@@ -1170,7 +1173,7 @@ PMXML_NODE mxml_parse_buffer(char *buf, char *error, int error_size)
          end_element = FALSE;
 
          /* found new element */
-         *p++;
+         p++;
          while (*p && isspace(*p)) {
             if (*p == '\n')
                line_number++;
