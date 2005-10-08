@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.14  2005/10/08 09:30:56  sawada
+   added mxml_dirname,mxml_basename
+
    Revision 1.13  2005/10/07 22:32:49  sawada
    relative path to follow external entity.
 
@@ -91,7 +94,6 @@
 #include <fcntl.h>
 #include <string.h>
 #include <assert.h>
-#include <libgen.h>
 
 #ifdef _MSC_VER
 
@@ -1473,7 +1475,7 @@ PMXML_NODE mxml_parse_entity(char **buf, char *file_name, char *error, int error
    line_number = 1;
    nentity = -1;
 
-   strcpy(directoryname, dirname(file_name));
+   strcpy(directoryname, mxml_dirname(file_name));
 
    /* copy string to temporary space */
    buffer = (char *) malloc(strlen(*buf) + 1);
@@ -2097,3 +2099,78 @@ void mxml_test()
    mxml_free_tree(tree);
 }
 */
+
+/*------------------------------------------------------------------*/
+
+char* mxml_basename(char *path)
+{
+   char *p    = path;
+   char *name = path;
+
+   if (path){
+      while(1){
+         switch(*p) {
+            case 0: return name;
+            case '/':
+#ifdef _MSC_VER
+            case ':':
+            case '\\':
+#endif
+               name = p + 1;
+         }
+         p++;
+      }
+   }
+   return name;
+}
+
+/*------------------------------------------------------------------*/
+
+char* mxml_dirname(char* path)
+{
+   char *newpath;
+   char *p;
+#ifdef _MSC_VER
+   char *pv;
+#endif
+   int   length;
+
+   p = strrchr (path, '/');
+#ifdef _MSC_VER
+   pv = strrchr (path, ':');
+   if( pv > p )
+      p = pv;
+   p = strrchr (path, '\\');
+   if( pv > p )
+      p = pv;
+#endif
+
+   if (p == 0)
+   {
+      newpath = (char *) malloc(2);
+      if (newpath == 0)
+         return NULL;
+      newpath[0] = '.';
+      newpath[1] = 0;
+   }
+   else if(p == path){ /* root directory */
+      newpath = (char *) malloc(2);
+      if (newpath == 0)
+         return NULL;
+      newpath[0] = '/';
+      newpath[1] = 0;
+   }
+   else
+   {
+      p--;
+      length = p - path + 1;
+      newpath = (char *) malloc(length + 1);
+      if (newpath == 0)
+         return NULL;
+      strncpy (newpath, path, length);
+      newpath[length] = 0;
+   }
+   return newpath;
+}
+
+/*------------------------------------------------------------------*/

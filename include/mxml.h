@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.11  2005/10/08 09:30:56  sawada
+   added mxml_dirname,mxml_basename
+
    Revision 1.10  2005/10/07 22:32:49  sawada
    relative path to follow external entity.
 
@@ -133,4 +136,6 @@ int mxml_write_tree(char *file_name, PMXML_NODE tree);
 void mxml_debug_tree(PMXML_NODE tree, int level);
 void mxml_free_tree(PMXML_NODE tree);
 
+char* mxml_dirname(char* path);
+char* mxml_basename(char *path);
 /*------------------------------------------------------------------*/
