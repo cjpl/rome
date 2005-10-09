@@ -6,6 +6,9 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.13  2005/10/09 15:57:15  sawada
+   directory separator for windows.
+
    Revision 1.12  2005/10/09 14:35:36  sawada
    fixed memory leaks.
    comments in !DOCTYPE
@@ -63,6 +66,12 @@
 #define INTERNAL_ENTITY               0
 #define EXTERNAL_ENTITY               1
 #define MXML_MAX_ENTITY            1000
+
+#ifdef _MSC_VER
+#define DIR_SEPARATOR              '\\'
+#else
+#define DIR_SEPARATOR               '/'
+#endif
 
 typedef struct {
    int  fh;
