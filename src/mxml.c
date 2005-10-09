@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.19  2005/10/09 15:41:12  sawada
+   bug fix.
+
    Revision 1.18  2005/10/09 15:23:22  sawada
    fixed another memory leak.
 
@@ -1248,7 +1251,7 @@ PMXML_NODE mxml_parse_buffer(char *buf, char *error, int error_size)
                return read_error(HERE, "Unterminated !DOCTYPE element");
 
             j = 0;
-            while (*p && *p != '>' || j > 0) {
+            while (*p && (*p != '>' || j > 0)) {
                if (*p == '\n')
                   line_number++;
                else if (*p == '<')
