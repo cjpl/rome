@@ -3,6 +3,9 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.251  2005/10/09 23:26:50  sawada
+  bug fix when single TObject is a field.
+
   Revision 1.250  2005/10/04 08:20:28  sawada
   any ROOT object as fields.
 
@@ -1247,7 +1250,7 @@ bool ROMEBuilder::WriteFolderH() {
 
       for (i=0;i<numOfValue[iFold];i++) {
          if (isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
-             && valueDimension[iFold][i]==0 && valueArray[iFold][i][0]=="1"
+             && !(valueDimension[iFold][i]==0 && valueArray[iFold][i][0]=="1")
              && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
             valueType[iFold][i] += "*";
       }
@@ -1319,6 +1322,9 @@ bool ROMEBuilder::WriteFolderH() {
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueDimension[iFold][i]==0) {
             if (isFolder(valueType[iFold][i].Data()))
+               continue;
+            if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+               && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
                continue;
             if (valueType[iFold][i]=="TRef") {
                buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
@@ -1486,7 +1492,17 @@ bool ROMEBuilder::WriteFolderH() {
             }
          }
          else {
-            if (valueType[iFold][i]=="TRef") {
+            if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+               && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   %%-%ds* Get%%s()%%%ds { return &%%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+            else if (valueType[iFold][i]=="TRef") {
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return &%%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TRef*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
@@ -1745,6 +1761,9 @@ bool ROMEBuilder::WriteFolderH() {
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
             continue;
+         if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+            continue;
          if (valueDimension[iFold][i]==0) {
             if (valueType[iFold][i]=="TRef") {
                buffer.AppendFormatted("TObject* %s_value=%s,",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
@@ -1759,6 +1778,9 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("   { ");
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
+            continue;
+         if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
             continue;
          if (valueDimension[iFold][i]==0) {
             buffer.AppendFormatted("%s = %s_value; ",valueName[iFold][i].Data(),valueName[iFold][i].Data());
@@ -4673,6 +4695,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
          for (j=0;j<numOfValue[i];j++) {
             if (isFolder(valueType[i][j].Data()))
                continue;
+            if(isRootClassType(valueType[i][j].Data()) && !isPointerType(valueType[i][j].Data())
+               && !valueType[i][j].Contains("TRef") && !valueType[i][j].Contains("TString"))
+            continue;
             if (valueDimension[i][j]==0)
                buffer.AppendFormatted("%s,",valueInit[i][j].Data());
          }
@@ -4847,6 +4872,9 @@ bool ROMEBuilder::WriteAnalyzerH() {
          buffer.AppendFormatted("         new((*f%sFolders)[i]) %s%s( ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
             if (isFolder(valueType[i][j].Data()))
+               continue;
+            if(isRootClassType(valueType[i][j].Data()) && !isPointerType(valueType[i][j].Data())
+               && !valueType[i][j].Contains("TRef") && !valueType[i][j].Contains("TString"))
                continue;
             if (valueDimension[i][j]==0)
                buffer.AppendFormatted("%s,",valueInit[i][j].Data());

@@ -37,6 +37,9 @@
    deleting nodes.
 
    $Log$
+   Revision 1.21  2005/10/09 23:26:51  sawada
+   bug fix when single TObject is a field.
+
    Revision 1.20  2005/10/09 15:57:15  sawada
    directory separator for windows.
 
@@ -1796,7 +1799,10 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
    /* read external file */
    for (i = 0; i < nentity; i++) {
       if (entity_type[i] == EXTERNAL_ENTITY) {
-         sprintf(filename, "%s%c%s", directoryname, DIR_SEPARATOR, entity_reference_name[i]);
+         if ( entity_reference_name[i][0] == DIR_SEPARATOR ) /* absolute path */
+            strcpy(filename, entity_reference_name[i]);
+         else /* relative path */
+            sprintf(filename, "%s%c%s", directoryname, DIR_SEPARATOR, entity_reference_name[i]);
          fh = open(filename, O_RDONLY | O_TEXT, 0644);
 
          if (fh == -1) {
