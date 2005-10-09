@@ -6,6 +6,10 @@
    Contents:     Header file for mxml.c
 
    $Log$
+   Revision 1.12  2005/10/09 14:35:36  sawada
+   fixed memory leaks.
+   comments in !DOCTYPE
+
    Revision 1.11  2005/10/08 09:30:56  sawada
    added mxml_dirname,mxml_basename
 
@@ -131,11 +135,11 @@ int mxml_delete_attribute(PMXML_NODE, char *attrib_name);
 PMXML_NODE mxml_create_root_node();
 PMXML_NODE mxml_parse_file(char *file_name, char *error, int error_size);
 PMXML_NODE mxml_parse_buffer(char *buffer, char *error, int error_size);
-PMXML_NODE mxml_parse_entity(char **buf, char* file_name, char *error, int error_size);
+int mxml_parse_entity(char **buf, char* file_name, char *error, int error_size);
 int mxml_write_tree(char *file_name, PMXML_NODE tree);
 void mxml_debug_tree(PMXML_NODE tree, int level);
 void mxml_free_tree(PMXML_NODE tree);
 
-char* mxml_dirname(char* path);
-char* mxml_basename(char *path);
+void mxml_dirname(char* path);
+void mxml_basename(char *path);
 /*------------------------------------------------------------------*/
