@@ -39,7 +39,7 @@
           <FieldComment>Run number</FieldComment>
           <FieldInitialization>0</FieldInitialization>
           <DataBaseName>myodb</DataBaseName>
-          <DataBasePath>""/Runinfo/Run number""</DataBasePath>
+          <DataBasePath>&quot;/Runinfo/Run number&quot;</DataBasePath>
         </Field>
       </Folder>
       <Folder>

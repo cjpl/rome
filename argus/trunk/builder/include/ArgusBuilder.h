@@ -2,6 +2,9 @@
   ArgusBuilder.h, R. Sawada
 
   $Log$
+  Revision 1.30  2005/10/10 16:24:37  sawada
+  added WriteSteering method.
+
   Revision 1.29  2005/08/11 15:36:54  schneebeli_m
   maxNumberOfMenuItems=40
 
@@ -179,6 +182,7 @@ public:
    Bool_t WriteWindowH();
    Bool_t ReadXMLTab();
    Bool_t ReadXMLMenu(Int_t currentNumberOfTabs);
+   Bool_t WriteSteering(int iTab);
    Bool_t WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
    Bool_t WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
    Bool_t WriteTabCpp();

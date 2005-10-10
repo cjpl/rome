@@ -30,7 +30,7 @@
 	<FieldName>Comment</FieldName>
 	<FieldType>TString</FieldType>
 	<FieldComment>Comment written by mlogger</FieldComment>
-	<FieldInitialization>""none""</FieldInitialization>
+	<FieldInitialization>&quot;none&quot;</FieldInitialization>
       </Field>
       <Field>
 	<FieldName>StartTime</FieldName>
