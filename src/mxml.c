@@ -37,6 +37,12 @@
    deleting nodes.
 
    $Log$
+   Revision 1.22  2005/10/10 16:23:47  sawada
+   Fixed compiler warning related to %08X and (size_t)
+   emoved stripping of \" in mxml_decode.
+   Fixed compiler warning under Windows
+   Better handling of ROOT objects in folders.
+
    Revision 1.21  2005/10/09 23:26:51  sawada
    bug fix when single TObject is a field.
 
@@ -341,11 +347,6 @@ void mxml_decode(char *str)
          *(p++) = '\'';
          strcpy(p, p+5);
       }
-   }
-
-   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
-      strcpy(str, str+1);
-      str[strlen(str)-1] = 0;
    }
 }
 
@@ -1864,7 +1865,7 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
       while (1) {
          pv = strstr(p, entity_name[i]);
          if (pv) {
-            length += -strlen(entity_name[i]) + strlen(entity_value[i]);
+            length += strlen(entity_value[i]) - strlen(entity_name[i]);
             p = pv + 1;
          } else {
             break;
@@ -2061,10 +2062,10 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
 
    for (i=0 ; i<level ; i++)
       printf("  ");
-   printf("Addr: %08X\n", (size_t)tree);
+   printf("Addr: %08X\n", (unsigned int)tree);
    for (i=0 ; i<level ; i++)
       printf("  ");
-   printf("Prnt: %08X\n", (size_t)tree->parent);
+   printf("Prnt: %08X\n", (unsigned int)tree->parent);
    for (i=0 ; i<level ; i++)
       printf("  ");
    printf("NCld: %d\n", tree->n_children);

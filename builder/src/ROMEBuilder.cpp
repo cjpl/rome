@@ -3,6 +3,12 @@
   ROMEBuilder.cpp, M. Schneebeli PSI
 
   $Log$
+  Revision 1.252  2005/10/10 16:23:47  sawada
+  Fixed compiler warning related to %08X and (size_t)
+  emoved stripping of \" in mxml_decode.
+  Fixed compiler warning under Windows
+  Better handling of ROOT objects in folders.
+
   Revision 1.251  2005/10/09 23:26:50  sawada
   bug fix when single TObject is a field.
 
@@ -1248,13 +1254,6 @@ bool ROMEBuilder::WriteFolderH() {
          }
       }
 
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
-             && !(valueDimension[iFold][i]==0 && valueArray[iFold][i][0]=="1")
-             && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-            valueType[iFold][i] += "*";
-      }
-
       // Class
       if (folderUserCode[iFold])
          buffer.AppendFormatted("\nclass %s%s_Base : public TObject\n",shortCut.Data(),folderName[iFold].Data());
@@ -1432,6 +1431,25 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
+            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   %%-%ds* Get%%sAt(",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("int %s, ",valueCounter[iDm]);
+               buffer.Resize(buffer.Length()-2);
+               format.SetFormatted(")%%%ds { return &%%s",lb);
+               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("[%s]",valueCounter[iDm]);
+               format.SetFormatted(";%%%ds };\n",lb);
+               buffer.AppendFormatted(format.Data(),"");
+            }
+            else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
             else if(valueArray[iFold][i][0]=="variable"){
                format.SetFormatted("   %%-%ds  Get%%sAt(int index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
@@ -1446,20 +1464,6 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      memcpy(array,%s,n*sizeof(%s));\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
-            }
-            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
-                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
-               format.SetFormatted("   %%-%ds* Get%%sAt(",typeLen);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
-               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
-                  buffer.AppendFormatted("int %s, ",valueCounter[iDm]);
-               buffer.Resize(buffer.Length()-2);
-               format.SetFormatted(")%%%ds { return &%%s",lb);
-               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
-               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
-                  buffer.AppendFormatted("[%s]",valueCounter[iDm]);
-               format.SetFormatted(";%%%ds };\n",lb);
-               buffer.AppendFormatted(format.Data(),"");
             }
             else {
                format.SetFormatted("   %%-%ds  Get%%sAt(",typeLen);
@@ -1617,6 +1621,14 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
+            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+               continue;
+            else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
+                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+               format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index] = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
+            }
             else if(valueArray[iFold][i][0]=="variable") {
                format.SetFormatted("   void Set%%sAt%%%ds(int index,%%-%ds %%s_value%%%ds) { %%s[index] = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
@@ -1640,9 +1652,6 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
-            else if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
-                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-               continue;
             else {
                format.SetFormatted("   void Set%%sAt%%%ds(",lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
@@ -1795,9 +1804,43 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("      int i=0;\n");
       for (i=0;i<numOfValue[iFold];i++) {
          if(isRootClassType(valueType[iFold][i].Data()) && !isPointerType(valueType[iFold][i].Data())
-            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-            continue;
-         if (isFolder(valueType[iFold][i].Data())) {
+            && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
+               format.SetFormatted("%%%ds      for (int %%s%%d=0;%%s%%d<%%s;%%s%%d++){\n",iDm*3);
+               buffer.AppendFormatted(format.Data(),"",valueCounter[iDm],i,valueCounter[iDm],i,valueArray[iFold][i][iDm].Data(),valueCounter[iDm],i);
+            }
+            format.SetFormatted("%%%ds      %%s",valueDimension[iFold][i]*3);
+            buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+               buffer.AppendFormatted("[%s%d]",valueCounter[iDm],i);
+            buffer.AppendFormatted(".Clear();\n");
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
+               format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm-1)*3);
+               buffer.AppendFormatted(format.Data(),"");
+            }
+         }
+         else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
+                 && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
+               format.SetFormatted("%%%ds      for (int %%s%%d=0;%%s%%d<%%s;%%s%%d++){\n",iDm*3);
+               buffer.AppendFormatted(format.Data(),"",valueCounter[iDm],i,valueCounter[iDm],i,valueArray[iFold][i][iDm].Data(),valueCounter[iDm],i);
+            }
+            format.SetFormatted("%%%ds      if(%%s",valueDimension[iFold][i]*3);
+            buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+               buffer.AppendFormatted("[%s%d]",valueCounter[iDm],i);
+            buffer.AppendFormatted(")\n");
+            format.SetFormatted("%%%ds         %%s",valueDimension[iFold][i]*3);
+            buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+               buffer.AppendFormatted("[%s%d]",valueCounter[iDm],i);
+            buffer.AppendFormatted("->Clear();\n",valueInit[iFold][i].Data());
+            for(iDm=0;iDm<valueDimension[iFold][i];iDm++){
+               format.SetFormatted("%%%ds      }\n",(valueDimension[iFold][i]-iDm-1)*3);
+               buffer.AppendFormatted(format.Data(),"");
+            }
+         }
+         else if (isFolder(valueType[iFold][i].Data())) {
             if (valueDimension[iFold][i]==0)
                buffer.AppendFormatted("      %s->Reset();\n",valueName[iFold][i].Data());
             else
