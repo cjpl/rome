@@ -12,6 +12,9 @@
 //    Terminate
 //                                                                      //
 //  $Log$
+//  Revision 1.27  2005/10/14 10:33:36  sawada
+//  temporaly solution to make root mode works.
+//
 //  Revision 1.26  2005/08/17 11:54:07  schneebeli_m
 //  root interpreter runs correctly
 //
@@ -108,7 +111,9 @@ void ROMETask::Exec(Option_t *option)
       gROME->Print("' : run time = ");
       gROME->Println(GetTime());
    }
-   else if (!strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1)) {
+   else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
+             ( !strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1) )
+      ) {
       fCurrentEventMethod = "Event";
       TimeStart();
       if (gROME->isFillEvent())
