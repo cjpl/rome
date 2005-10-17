@@ -1,15 +1,7 @@
 /********************************************************************
   ROMEUtilities.h, J. Wouters LANL
 
-  $Log$
-  Revision 1.2  2005/07/01 08:25:18  sawada
-  small bug fix.
-
-  Revision 1.1  2005/07/01 07:14:31  schneebeli_m
-  added to cvs
-
-  Revision 1.0  2005/06/27 16:30:00  wouters
-  Original.
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEUtilities_H

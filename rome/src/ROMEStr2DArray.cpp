@@ -5,22 +5,7 @@
 //                                                                      //
 //  Handles character string array of array.
 //                                                                      //
-//  $Log$
-//  Revision 1.5  2005/07/12 06:42:23  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
-//  fast xml database
-//
-//  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
-//  ROMEStrArray and ROMEStr2DArray change
-//
-//  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
-//  detail
-//
-//  Revision 1.1  2004/11/11 12:56:50  schneebeli_m
-//  Implemented XML database with new path rules
-//
+//  $Id:$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEStr2DArray.h>

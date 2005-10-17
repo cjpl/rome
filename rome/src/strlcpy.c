@@ -6,12 +6,7 @@
    Contents:     Contains strlcpy and strlcat which are versions of
                  strcpy and strcat, but which avoid buffer overflows
 
-   $Log$
-   Revision 1.1  2005/05/11 12:50:02  schneebeli_m
-   added strlcpy
-
-   Revision 1.1  2005/05/09 09:12:03  ritt
-   Initial revision
+  $Id:$
 
 \********************************************************************/
 

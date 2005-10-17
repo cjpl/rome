@@ -5,52 +5,7 @@
 
    Contents:     Header file for mxml.c
 
-   $Log$
-   Revision 1.13  2005/10/09 15:57:15  sawada
-   directory separator for windows.
-
-   Revision 1.12  2005/10/09 14:35:36  sawada
-   fixed memory leaks.
-   comments in !DOCTYPE
-
-   Revision 1.11  2005/10/08 09:30:56  sawada
-   added mxml_dirname,mxml_basename
-
-   Revision 1.10  2005/10/07 22:32:49  sawada
-   relative path to follow external entity.
-
-   Revision 1.9  2005/10/07 19:53:12  sawada
-   ENTITY is always inside DOCTYPE.
-
-   Revision 1.8  2005/10/07 13:16:26  sawada
-   parse ENTITY
-
-   Revision 1.7  2005/07/12 09:04:15  schneebeli_m
-   ifndef mxml_H removed
-
-   Revision 1.6  2005/07/12 08:43:28  schneebeli_m
-   ifndef mxml_H added
-
-   Revision 1.5  2005/07/12 06:42:21  sawada
-   Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-
-   Revision 1.4  2005/05/11 12:50:01  schneebeli_m
-   added strlcpy
-
-   Revision 1.5  2005/04/19 21:43:33  ritt
-   Implemented tree cloning and adding
-
-   Revision 1.4  2005/04/06 11:17:02  ritt
-   Nodes can now have values AND subnodes
-
-   Revision 1.3  2005/03/29 14:48:54  ritt
-   Implemented mxml_write_comment()
-
-   Revision 1.2  2005/03/29 14:14:38  ritt
-   Implemented mxml_set_translate
-
-   Revision 1.1.1.1  2005/03/29 08:19:45  ritt
-   Imported sources
+  $Id:$
 
 \********************************************************************/
 

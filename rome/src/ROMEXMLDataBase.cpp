@@ -5,76 +5,7 @@
 //
 //  XMLDataBase access.
 //
-//  $Log$
-//  Revision 1.22  2005/07/12 06:42:23  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.21  2005/05/06 14:34:20  schneebeli_m
-//  .
-//
-//  Revision 1.20  2005/05/02 09:32:01  sawada
-//  small bug fix.
-//
-//  Revision 1.19  2005/04/14 07:56:46  schneebeli_m
-//  Implemented odb database (offline)
-//
-//  Revision 1.18  2005/04/07 08:27:36  schneebeli_m
-//  config bug, db bug
-//
-//  Revision 1.17  2005/04/05 15:03:05  schneebeli_m
-//  linux
-//
-//  Revision 1.16  2005/04/05 14:54:52  schneebeli_m
-//  Database write & _exit on linux
-//
-//  Revision 1.15  2005/04/01 14:56:24  schneebeli_m
-//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-//
-//  Revision 1.14  2005/03/23 09:06:11  schneebeli_m
-//  libxml replaced by mxml, Bool SP error
-//
-//  Revision 1.13  2005/03/21 17:29:47  schneebeli_m
-//  minor changes
-//
-//  Revision 1.12  2005/03/17 15:44:52  schneebeli_m
-//  GetAbsolutePath error removed
-//
-//  Revision 1.11  2005/03/13 08:43:14  sawada
-//  removed or comment out unused variables.
-//  made virtual destructor of ROMEConfig and ROMEDataBase.
-//
-//  Revision 1.10  2005/03/03 19:24:32  sawada
-//  compatibility with SQL and XML database.
-//
-//  Revision 1.9  2005/03/01 14:34:23  sawada
-//  compatibility of SQL and XML database of @constraint.
-//  bug fix of loop counter.
-//  field separator of field array was changed from $ to __.
-//
-//  Revision 1.8  2005/01/27 16:21:06  schneebeli_m
-//  print method & no gROME in path
-//
-//  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
-//  implemented task hierarchy
-//
-//  Revision 1.6  2004/11/12 17:35:18  schneebeli_m
-//  fast xml database
-//
-//  Revision 1.5  2004/11/11 13:17:37  schneebeli_m
-//  detail
-//
-//  Revision 1.4  2004/11/11 12:55:28  schneebeli_m
-//  Implemented XML database with new path rules
-//
-//  Revision 1.3  2004/10/05 07:52:44  schneebeli_m
-//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
-//
-//  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
-//  ...
-//
-//  Revision 1.1  2004/09/27 18:26:05  schneebeli_m
-//  new database classes
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>

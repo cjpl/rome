@@ -5,62 +5,7 @@
 //
 //  XML file access.
 //
-//  $Log$
-//  Revision 1.25  2005/07/21 18:00:52  schneebeli_m
-//  added getNodeIntValue
-//
-//  Revision 1.24  2005/07/12 06:42:23  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.23  2005/05/02 08:43:16  schneebeli_m
-//  link error
-//
-//  Revision 1.22  2005/04/29 13:24:04  schneebeli_m
-//  Added node functions
-//
-//  Revision 1.21  2005/04/14 07:56:46  schneebeli_m
-//  Implemented odb database (offline)
-//
-//  Revision 1.20  2005/04/01 14:56:23  schneebeli_m
-//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-//
-//  Revision 1.19  2005/03/23 09:06:11  schneebeli_m
-//  libxml replaced by mxml, Bool SP error
-//
-//  Revision 1.18  2005/02/21 21:29:07  sawada
-//
-//  Changed OS specifying macros
-//  Support for DEC,Ultrix,FreeBSD,Solaris
-//
-//  Revision 1.17  2004/12/06 16:03:02  sawada
-//  code cleanup (tab -> space)
-//
-//  Revision 1.16  2004/12/02 17:46:43  sawada
-//  Macintosh port
-//
-//  Revision 1.15  2004/11/12 17:35:18  schneebeli_m
-//  fast xml database
-//
-//  Revision 1.14  2004/11/11 12:55:28  schneebeli_m
-//  Implemented XML database with new path rules
-//
-//  Revision 1.13  2004/10/14 09:53:41  schneebeli_m
-//  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
-//
-//  Revision 1.12  2004/09/17 16:21:45  schneebeli_m
-//  example updated
-//
-//  Revision 1.11  2004/09/17 16:16:18  schneebeli_m
-//  runing on linux
-//
-//  Revision 1.10  2004/09/17 15:59:16  schneebeli_m
-//  xml write not from libxml2
-//
-//  Revision 1.9  2004/09/16 23:50:47  midas
-//  Indent five spaces per level in XML file
-//
-//  Revision 1.8  2004/09/16 23:48:25  midas
-//  Added Log in header
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>

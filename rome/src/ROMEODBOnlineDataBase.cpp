@@ -5,14 +5,7 @@
 //
 //  Access to the Midas ODB parameters online.
 //
-//  $Log$
-//  Revision 1.2  2005/07/12 06:42:22  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.1  2005/04/14 07:58:26  schneebeli_m
-//  Implemented odb database (offline)
-//
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 

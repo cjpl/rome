@@ -5,47 +5,7 @@
 //                                                                      //
 //  Provides MySQL data base access.
 //                                                                      //
-//  $Log$
-//  Revision 1.3  2005/04/28 20:26:39  sawada
-//  Added transaction during writing database.
-//  This is disabled by default because it is not well tested.
-//  These codes are in "#ifdef USE_TRANSACTION #endif".
-//  Probably, database access will be accelerated with transaction.
-//
-//  Revision 1.2  2005/04/27 17:34:45  sawada
-//  Added PostgreSQL class. This is not yet available in ROME since it is not tested.
-//
-//  Revision 1.1  2005/04/27 10:30:45  sawada
-//  Added SQLite,SQLite3 support.
-//
-//  Revision 1.14  2005/03/13 08:43:14  sawada
-//  removed or comment out unused variables.
-//  made virtual destructor of ROMEConfig and ROMEDataBase.
-//
-//  Revision 1.13  2004/11/19 16:26:24  sawada
-//  speed up with reading order array at once.
-//
-//  Revision 1.12  2004/11/18 15:23:23  sawada
-//
-//  Modify handling the order of array.
-//  Enable inverse order.
-//  Enable to send sql query from user tasks.
-//
-//  Revision 1.11  2004/11/16 18:53:44  sawada
-//  SQL Write
-//
-//  Revision 1.10  2004/11/16 12:11:06  sawada
-//  SQL Init,Read
-//
-//  Revision 1.9  2004/10/05 07:52:44  schneebeli_m
-//  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
-//
-//  Revision 1.8  2004/09/30 13:08:21  schneebeli_m
-//  ...
-//
-//  Revision 1.7  2004/09/25 01:34:48  schneebeli_m
-//  implemented FW dependent EventLoop and DataBase classes
-//
+//  $Id:$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEMySQL.h>

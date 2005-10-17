@@ -5,31 +5,7 @@
 //
 //  Interface to the Root Output of ROME.
 //
-//  $Log$
-//  Revision 1.8  2005/08/23 15:49:23  sawada
-//  bug fix of ROMEAnalyzer::SetCurrentInputFileName and ROMEConfig::CheckConfiguration.
-//
-//  Revision 1.7  2005/08/15 13:25:57  schneebeli_m
-//  improved input file based IO
-//
-//  Revision 1.6  2005/08/15 09:48:46  schneebeli_m
-//  improved input file based IO
-//
-//  Revision 1.5  2005/08/12 15:37:02  schneebeli_m
-//  added input file based IO
-//
-//  Revision 1.4  2005/07/12 06:42:23  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.3  2005/06/13 15:49:04  schneebeli_m
-//  changed name of DAQ user functions
-//
-//  Revision 1.2  2005/01/27 16:21:06  schneebeli_m
-//  print method & no gROME in path
-//
-//  Revision 1.1  2005/01/24 15:25:09  schneebeli_m
-//  Seperated DAQ classes
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 

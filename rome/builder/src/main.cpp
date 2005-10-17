@@ -2,17 +2,7 @@
 
   main.cpp, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.3  2005/06/13 12:33:06  schneebeli_m
-  added Orca DAQ System
-
-  Revision 1.2  2005/05/31 06:47:49  sawada
-  added unistd.h
-
-  Revision 1.1  2005/05/17 18:45:38  sawada
-  Separated main from ROMEBuilder.
-  Reading function for every database folders.
-
+  $Id:$
 
 ********************************************************************/
 #include <RConfig.h>

@@ -4,32 +4,7 @@
 // TNetFolderServer
 //
 //
-//  $Log$
-//  Revision 1.8  2005/08/02 14:44:52  schneebeli_m
-//  correct taskHierarchy handling
-//
-//  Revision 1.7  2005/08/02 10:44:19  sawada
-//  cm_disconnect_experiment is called when program is terminated.
-//  NULL pointer handling in TNetFolderServer.
-//
-//  Revision 1.6  2005/08/02 09:35:24  schneebeli_m
-//  root version handling
-//
-//  Revision 1.5  2005/07/12 06:42:24  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.4  2005/05/06 08:39:16  schneebeli_m
-//  ported windows threads to TThread
-//
-//  Revision 1.3  2005/04/23 15:32:18  sawada
-//  small modification.
-//
-//  Revision 1.2  2005/04/08 17:08:09  schneebeli_m
-//  TNetFolderServer changes
-//
-//  Revision 1.1  2005/04/08 14:54:55  schneebeli_m
-//  new
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <TMessage.h>

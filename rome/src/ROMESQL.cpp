@@ -5,10 +5,7 @@
 //                                                                      //
 //  Provides SQL data base access.
 //                                                                      //
-//  $Log$
-//  Revision 1.15  2005/04/27 10:30:45  sawada
-//  Added SQLite,SQLite3 support.
-//
+//  $Id:$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQL.h>

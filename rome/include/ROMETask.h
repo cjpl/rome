@@ -1,27 +1,7 @@
 /********************************************************************
   ROMETask.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.16  2005/08/02 14:44:51  schneebeli_m
-  correct taskHierarchy handling
-
-  Revision 1.15  2005/04/04 07:23:59  schneebeli_m
-  Time report
-
-  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.13  2004/11/23 09:22:21  schneebeli_m
-  User called Root Interpreter
-
-  Revision 1.12  2004/11/17 16:13:00  schneebeli_m
-  remove executetask
-
-  Revision 1.11  2004/11/16 16:14:00  schneebeli_m
-  implemented task hierarchy
-
-  Revision 1.10  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMETask_H
