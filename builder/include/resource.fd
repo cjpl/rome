@@ -1,0 +1,6 @@
+!MS$FREEFORM
+! Microsoft Developer Studio generated include file.
+! Used by ROME.rc
+!
+      integer, parameter :: IDI_ROME                        = 101
+      integer, parameter :: IDI_ICON1                       = 103
