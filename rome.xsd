@@ -1,0 +1,915 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 3 U (http://www.xmlspy.com) by Matthias Schneebeli (Paul Scherrer Institut) -->
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation>Schema for a ROME framework definition file.</xs:documentation>
+	</xs:annotation>
+	<xs:simpleType name="IncludeTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="global"/>
+			<xs:enumeration value="local"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="HistTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TH1C"/>
+			<xs:enumeration value="TH1D"/>
+			<xs:enumeration value="TH1F"/>
+			<xs:enumeration value="TH1I"/>
+			<xs:enumeration value="TH1S"/>
+			<xs:enumeration value="TH2C"/>
+			<xs:enumeration value="TH2D"/>
+			<xs:enumeration value="TH2F"/>
+			<xs:enumeration value="TH2I"/>
+			<xs:enumeration value="TH2S"/>
+			<xs:enumeration value="TH3C"/>
+			<xs:enumeration value="TH3D"/>
+			<xs:enumeration value="TH3F"/>
+			<xs:enumeration value="TH3I"/>
+			<xs:enumeration value="TH3S"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:simpleType name="ValueTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="Short_t"/>
+			<xs:enumeration value="UShort_t"/>
+			<xs:enumeration value="Int_t"/>
+			<xs:enumeration value="UInt_t"/>
+			<xs:enumeration value="Long_t"/>
+			<xs:enumeration value="ULong_t"/>
+			<xs:enumeration value="Long64_t"/>
+			<xs:enumeration value="ULong64_t"/>
+			<xs:enumeration value="Float_t"/>
+			<xs:enumeration value="Double_t"/>
+			<xs:enumeration value="Double32_t"/>
+			<xs:enumeration value="Bool_t"/>
+			<xs:enumeration value="TString"/>
+			<xs:enumeration value="short"/>
+			<xs:enumeration value="unsigned short"/>
+			<xs:enumeration value="int"/>
+			<xs:enumeration value="unsigned int"/>
+			<xs:enumeration value="long"/>
+			<xs:enumeration value="unsigned long"/>
+			<xs:enumeration value="long long"/>
+			<xs:enumeration value="unsigned long long"/>
+			<xs:enumeration value="float"/>
+			<xs:enumeration value="double"/>
+			<xs:enumeration value="bool"/>
+			<xs:enumeration value="std::string"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="AuthorDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the author.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="AuthorName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the author. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AuthorInstitute" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The authors institute. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AuthorCollaboration" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The authors collaboration. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AuthorEmail" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The e-mail of the author. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ExperimentDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the experiment and the framework.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ExperimentName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the experiment. Not used at the moment. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ExperimentShortCut" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Shortcut for the experiment. The shortcut is used for all class names (like [Shortcut][MyFolder].h for the class file of folder [MyFolder]). (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ProgramName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the executable. The executable will be named as  [Shortcut][ProgramName].exe. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FrameworkDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Description of the framework. It will be displayed in the automatically created html documentation of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DocumentStyleSheet" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Style sheet file to be used for documentation. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="IncludeDesc">
+		<xs:annotation>
+			<xs:documentation>Description of includes.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="IncludeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The file name of the include e.g. TString.h. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IncludeType" type="IncludeTypeDesc" default="global" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The type of the include can be global or local. Local means that the include file is expected to be on the working directory (#include"TString.h"). Global means that the include is searched in the directories specified in the path environment variable (#include&lt;TString.h&gt;). Default is global</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterFieldDesc">
+		<xs:annotation>
+			<xs:documentation>Description of steering parameter fields. A steering parameter field represents one steer value.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPFieldName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the steering parameter field. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldInitialization" type="xs:string" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The initialisation value of the steering parameter field. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldComment" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A comment about the steering parameter field. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldCommandLineOption" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The string to be used as command line option. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldCommandLineDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The Description which will be shown in command line help. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterGroupDesc">
+		<xs:annotation>
+			<xs:documentation>Description of steering parameter groups.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPGroupName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of a steering parameter group.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPGroupArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the steering parameter group. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The fields of this steering parameter group. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>The sub groups of this steering parameter group. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FieldDesc">
+		<xs:annotation>
+			<xs:documentation>Description of folder fields.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FieldName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the field. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FieldType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FieldComment" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>A comment about the field. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FieldInitialization" type="xs:string" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The initialisation value of the field. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the field. If this value is 1 or not present, then the field is a single value. Default is 1. You can have up to three dimensional array using ':' as the field separator.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the database from which to read the field value. This value will be ignored if 'DataBaseAccess' is not true in the this folder. This value can be overwritten in the configuration file. (required if 'DataBaseAccess' is true in the this folder)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The path to the value in the database. This value will be ignored if 'DataBaseAccess' is not true in the this folder. This value can be overwritten in the configuration file. (required if 'DataBaseAccess' is true in the this folder)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="FolderDesc">
+		<xs:annotation>
+			<xs:documentation>Description of folders.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FolderName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the folder. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FolderTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the folder. Displayed in the ROOT browser. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the folder. If this value is 1 or not present, then the framework creates a single object. If the value is greater than 1 the framework creates a fixed array of objects. If the value equals 'variable' the folder array is dynamical, whitch means that only used folders are written to the root files. Folders with data base access can not be 'variable'. Folders containing only values, which are not altered every event (like scaler) should also not be 'variable'. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBaseAccess" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is 'true', the fields of this folder are read from the data base at the beginning of each run. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NoResetByFramework" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is 'true', the fields of this folder are not reset by framework, otherwise they are reset before every events. If the folder has database access, this flag is always true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ChangeableClassFile" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is 'true', the folder will have a class file (.h), that can be modified by the user. Therefore the romebuilder will not overwrite the class file. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Author" type="AuthorDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the auther of this folder. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FolderVersion" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The version of the folder. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FolderDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The description of the folder. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines an include, which is added to the folder. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines the fields of this folder. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Folder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines the sub folders of this folder. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HistogramDesc">
+		<xs:annotation>
+			<xs:documentation>Description of histograms.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HistName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the histogram. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the histogram. Displayed in the ROOT browser. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistFolderName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The ROOT folder, where the histogram is stored in (this folder has nothing to do with a data folder of ROME). The histograms are stored under //root/[Shortcut]/[TaskName]/[HistFolderName]. Default is the value of HistName.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistFolderTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the ROOT folder in which the histogram is stored. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistType" type="HistTypeDesc">
+				<xs:annotation>
+					<xs:documentation>The type of the histogram. Can be any ROOT histogram type. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the histogram. If the value is 1 the histogram is a single histogram. If the histogram is an array they are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistArrayStartIndex" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation> Start index of histogram array name enumeration. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the x axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the y axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in x. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmin" type="xs:double" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in x. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistXmax" type="xs:double" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in x. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in y. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmin" type="xs:double" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in y. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistYmax" type="xs:double" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in y. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The number of bins in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmin" type="xs:double" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The minimum value in z. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="HistZmax" type="xs:double" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParametersDesc">
+		<xs:annotation>
+			<xs:documentation>Description of steering parameters.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines a steering parameter field. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines a steering parameter group. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaskDesc">
+		<xs:annotation>
+			<xs:documentation>Description of tasks.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TaskName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the task. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TaskEventId" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is set to a midas event id, the task gets only executed for the events with that id. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ChangeableClassFile" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is 'true', the task will have a class file (.h), that can be modified by the user. Therefore the romebuilder will not overwrite the class file. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Author" type="AuthorDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Defines the auther of the task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TaskVersion" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The version of the task. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TaskDescription" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The description of the task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines an include, which is added to the task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Histogram" type="HistogramDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines the histograms of the task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines the steering parameters of the task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TaskHierarchyDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a task in the task hierarchy of the framework.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TaskName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the task. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Task" type="TaskHierarchyDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a task in the task hierarchy of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BranchDesc">
+		<xs:annotation>
+			<xs:documentation>Description of branches.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BranchName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the branch. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RelatedFolder" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the folder, whose data is stored to the branch. This folder has to be defined in the folder definition section of the xml file. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BufferSize" type="xs:integer" default="32000" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The buffer size of the branch. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SplitLevel" type="xs:integer" default="99" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The split level of the branch. If you have support folder fields in related folder, large split level might not safe. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TreeDesc">
+		<xs:annotation>
+			<xs:documentation>Description of trees.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TreeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the tree. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TreeTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the tree. Displayed in the ROOT browser. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TreeOutputFileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the trees output file. If not specified the name will be generated like "[TreeName][RunNumber].root". (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes the branches of the tree. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UserDAQSystemDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a DAQ system written by the user.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DAQSystemName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the DAQ system. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UserDatabaseDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a database interface written by the user.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DatabaseName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the database interface. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DatabaseDescription" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The description of the database interface. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EventHeaderDesc">
+		<xs:annotation>
+			<xs:documentation>Description of event header data.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Folder" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the folder, whose fields are filled with event header data. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventID" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the field of folder [Folder], which is filled with the event id. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TriggerMask" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the field of folder [Folder], which is filled with the trigger mask. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SerialNumber" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the field of folder [Folder], which is filled with the serial number. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TimeStamp" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the field of folder [Folder], which is filled with the time stamp. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankArrayDesc">
+		<xs:annotation>
+			<xs:documentation>Description of  a bank array. Bank arrays are used for banks that are numbered. For example, if there are banks EV01 to EV04 which all contain the same kind of data, one can specifie the bank name as 'EV' and define an array of size 4 with start index 1 and with 2 digits.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BASize" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The size of the bank array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BAStartIndex" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The starting index of the bank array. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BANumberOfDigits" type="xs:integer" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Number of digits to add to the bank name. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankDesc">
+		<xs:annotation>
+			<xs:documentation>Description of banks.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BankName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the bank. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of the bank. This is the  type of the values stored in the bank in the midas file. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes a bank array. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BankFieldDesc">
+		<xs:annotation>
+			<xs:documentation>Description of structured bank fields.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BankFieldName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the field of the structured bank. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankFieldType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of the field of the structured bank. This is the  type of the values in the structure stored in the bank in the midas file. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankFieldSize" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The pack size of the field of the structured bank. E.g. the field length in bits. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankFieldArraySize" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the bank field. If this value is 1 or not present, then the field is a single value. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="StructuredBankDesc">
+		<xs:annotation>
+			<xs:documentation>Description of structured banks.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BankName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the strucured bank. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankField" type="BankFieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes the fields of the structured bank. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes a bank array. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="BanksDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the banks in a midas event.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a bank of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StructuredBank" type="StructuredBankDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes structured bank of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="EventDefinitionDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a midas event.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="EventName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the event. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventID" type="xs:integer" default="-1">
+				<xs:annotation>
+					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.  Default is -1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventTriggerMask" type="xs:integer" default="-1">
+				<xs:annotation>
+					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask. This value has no effect in offline mode. Default is -1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EventSamplingRate" type="xs:integer" default="1">
+				<xs:annotation>
+					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer. This value has no effect in offline mode. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Banks" type="BanksDesc">
+				<xs:annotation>
+					<xs:documentation>Describes the banks in a midas event. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:element name="ROMEFrameworkDefinition">
+		<xs:annotation>
+			<xs:documentation>Description of a ROME framework.</xs:documentation>
+		</xs:annotation>
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="Experiment" type="ExperimentDesc">
+					<xs:annotation>
+						<xs:documentation>Describes the experiment and the framework. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Author" type="AuthorDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Describes the author of the framework. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Folders">
+					<xs:annotation>
+						<xs:documentation>Description of all folders of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Folder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a folder of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="SupportFolders" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of all support folders of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SupportFolder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a support folder of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Tasks">
+					<xs:annotation>
+						<xs:documentation>Description of all tasks of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a task of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="TaskHierarchy" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of the task hierarchy of the framework. (optional)</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Task" type="TaskHierarchyDesc" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a task in the task hierarchy of the framework. (required)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="Trees" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of all trees of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="Tree" type="TreeDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a tree of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="GlobalSteeringParameters" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a global steering parameter field of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a global steering parameter group of the framework. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserDAQSystems" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of DAQ systems written by the user.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UserDAQSystem" type="UserDAQSystemDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes  a DAQ system written by the user. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserDatabases" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of database interface written by the user.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="UserDatabase" type="UserDatabaseDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes  a database interface written by the user. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="MidasBanks" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of all midas banks of the framework.</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="EventHeader" type="EventHeaderDesc" minOccurs="0">
+								<xs:annotation>
+									<xs:documentation>Describes event header data. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+							<xs:element name="EventDefinition" type="EventDefinitionDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes a midas event. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>
