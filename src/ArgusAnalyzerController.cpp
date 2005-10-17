@@ -1,19 +1,7 @@
 /********************************************************************
   ArgusAnalyzerController.cpp, R.Sawada
 
-  $Log$
-  Revision 1.3  2005/06/20 12:30:56  sawada
-  code clan up.
-
-  Revision 1.2  2005/06/10 19:21:27  sawada
-  replaced error and warning message output with ROOT error handler.
-
-  Revision 1.1  2005/06/02 20:40:12  sawada
-  renamed TGROMEController as ArgusAnalyzerController
-
-  Revision 1.1  2005/06/01 22:33:00  sawada
-  added ArgusAnalyzerController for development.
-
+  $Id:$
 
 ********************************************************************/
 #include "ArgusAnalyzerController.h"

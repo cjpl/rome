@@ -1,22 +1,7 @@
 /********************************************************************
   TNetFolder.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.4  2005/08/02 12:39:04  sawada
-  Removed netfolder title config.
-  Added netfolder reconnect config.
-  Check if the root folder is found when netfolder connects server.
-
-  Revision 1.3  2005/07/01 12:43:37  schneebeli_m
-  Update of TNetFolder : reconnect
-
-  Revision 1.2  2005/04/25 14:40:31  sawada
-  new TNerFolder
-
-  Revision 1.3  2005/04/11 07:05:12  schneebeli
-  inserted header
-
-
+  $Id:$
 
 ********************************************************************/
 

@@ -1,21 +1,7 @@
 /********************************************************************
   ArgusTextDialog.h, R.Sawada
 
-  $Log$
-  Revision 1.3  2005/05/05 20:08:05  sawada
-  code clean up.
-
-  Revision 1.2  2005/02/24 15:04:03  sawada
-  Reduced number of configuration to 1.
-  Replaced ss_getchar to getchar().
-  Removed LineToProcess.
-  Removed bk_is32,bk_find.
-  Improved help.
-  Handling of midas host and experiment.
-
-  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
-  Advanced Root based GUi monitoring System
-
+  $Id:$
 
 ********************************************************************/
 
