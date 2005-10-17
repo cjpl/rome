@@ -1,18 +1,7 @@
 /********************************************************************
   ROMENoDataBase.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.4  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.3  2005/01/27 16:21:06  schneebeli_m
-  print method & no gROME in path
-
-  Revision 1.2  2004/11/11 12:55:27  schneebeli_m
-  Implemented XML database with new path rules
-
-  Revision 1.1  2004/09/27 18:25:25  schneebeli_m
-  new database classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMENoDataBase_H

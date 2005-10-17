@@ -1,45 +1,7 @@
 /********************************************************************
   ROMEEventLoop.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.18  2005/08/12 15:37:02  schneebeli_m
-  added input file based IO
-
-  Revision 1.17  2005/06/13 15:49:04  schneebeli_m
-  changed name of DAQ user functions
-
-  Revision 1.16  2005/05/02 16:09:22  schneebeli_m
-  -o commandline parameter
-
-  Revision 1.15  2005/04/08 17:08:07  schneebeli_m
-  TNetFolderServer changes
-
-  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.13  2005/02/06 01:26:55  sawada
-  moved byte swapping functions to ROMEMidas
-
-  Revision 1.12  2005/01/24 15:25:06  schneebeli_m
-  Seperated DAQ classes
-
-  Revision 1.11  2004/12/03 14:42:08  schneebeli_m
-  some minor changes
-
-  Revision 1.10  2004/12/02 17:46:43  sawada
-  Macintosh port
-
-  Revision 1.9  2004/10/15 12:30:49  schneebeli_m
-  online eventloop logic
-
-  Revision 1.8  2004/10/01 14:33:29  schneebeli_m
-  Fixed some tree file problems
-
-  Revision 1.7  2004/10/01 13:11:33  schneebeli_m
-  Tree write error removed, Database Number Problem solved, Trees in Folder for TSocket
-
-  Revision 1.6  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEEventLoop_H

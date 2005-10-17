@@ -1,22 +1,7 @@
 /********************************************************************
   ROMEStr2DArray.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.5  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
-  fast xml database
-
-  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
-  ROMEStrArray and ROMEStr2DArray change
-
-  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
-  detail
-
-  Revision 1.1  2004/11/11 12:57:58  schneebeli_m
-  Implemented XML database with new path rules
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEStr2DArray_H

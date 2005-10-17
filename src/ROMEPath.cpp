@@ -5,50 +5,7 @@
 //
 //  Data base path decoding.
 //
-//  $Log$
-//  Revision 1.14  2005/07/12 06:42:22  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.13  2005/06/03 09:49:05  schneebeli_m
-//  taskhierarchy error
-//
-//  Revision 1.12  2005/04/14 07:56:46  schneebeli_m
-//  Implemented odb database (offline)
-//
-//  Revision 1.11  2005/04/01 14:56:23  schneebeli_m
-//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-//
-//  Revision 1.10  2005/03/17 15:44:51  schneebeli_m
-//  GetAbsolutePath error removed
-//
-//  Revision 1.9  2005/03/13 08:43:14  sawada
-//  removed or comment out unused variables.
-//  made virtual destructor of ROMEConfig and ROMEDataBase.
-//
-//  Revision 1.8  2005/03/03 19:24:32  sawada
-//  compatibility with SQL and XML database.
-//
-//  Revision 1.7  2005/01/27 16:21:06  schneebeli_m
-//  print method & no gROME in path
-//
-//  Revision 1.6  2004/11/19 13:29:55  schneebeli_m
-//  added stuff for sample
-//
-//  Revision 1.5  2004/11/16 18:53:44  sawada
-//  SQL Write
-//
-//  Revision 1.4  2004/11/16 12:11:06  sawada
-//  SQL Init,Read
-//
-//  Revision 1.3  2004/11/12 17:35:18  schneebeli_m
-//  fast xml database
-//
-//  Revision 1.2  2004/11/11 14:07:15  schneebeli_m
-//  ROMEStrArray and ROMEStr2DArray change
-//
-//  Revision 1.1  2004/11/11 12:56:58  schneebeli_m
-//  Implemented XML database with new path rules
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 

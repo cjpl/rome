@@ -1,10 +1,7 @@
 /********************************************************************
   ROMEODBOfflineDataBase.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.1  2005/04/14 07:58:10  schneebeli_m
-  Implemented odb database (offline)
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEODBOfflineDataBase_H

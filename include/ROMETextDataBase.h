@@ -28,13 +28,7 @@
 
    In text files, C like comment is available.
 
-  $Log$
-  Revision 1.2  2005/07/24 19:02:20  sawada
-  small modification.
-
-  Revision 1.1  2005/07/24 16:52:47  sawada
-  added ROMETextDataBase.
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMETextDataBase_H

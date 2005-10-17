@@ -6,41 +6,7 @@
 //  Handles character strings.
 //  Derived from TString.
 //                                                                      //
-//  $Log$
-//  Revision 1.15  2005/08/31 14:11:04  sawada
-//  added StripSpaces method to ROMEString
-//
-//  Revision 1.14  2005/08/12 15:37:02  schneebeli_m
-//  added input file based IO
-//
-//  Revision 1.13  2005/07/12 06:42:23  sawada
-//  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-//
-//  Revision 1.12  2005/07/07 18:35:24  sawada
-//  write float and double with %g instead of %f.
-//
-//  Revision 1.11  2005/05/18 09:49:32  schneebeli_m
-//  removed run & event number error, implemented FileRead in ROMEString
-//
-//  Revision 1.10  2005/04/01 14:56:23  schneebeli_m
-//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-//
-//  Revision 1.9  2005/03/21 17:29:47  schneebeli_m
-//  minor changes
-//
-//  Revision 1.8  2005/03/13 08:43:14  sawada
-//  removed or comment out unused variables.
-//  made virtual destructor of ROMEConfig and ROMEDataBase.
-//
-//  Revision 1.7  2004/11/16 16:14:01  schneebeli_m
-//  implemented task hierarchy
-//
-//  Revision 1.6  2004/09/30 13:08:21  schneebeli_m
-//  ...
-//
-//  Revision 1.5  2004/09/25 01:34:48  schneebeli_m
-//  implemented FW dependent EventLoop and DataBase classes
-//
+//  $Id:$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <stdio.h>

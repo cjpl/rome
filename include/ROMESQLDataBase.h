@@ -1,69 +1,7 @@
 /********************************************************************
   ROMESQLDataBase.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.20  2005/05/13 23:51:14  sawada
-  code cleanup.
-
-  Revision 1.19  2005/04/28 16:11:10  sawada
-  small bug fix.
-
-  Revision 1.18  2005/04/28 16:02:22  sawada
-  replaced MySQL dialect with standard SQL.
-
-  Revision 1.17  2005/04/28 10:01:45  sawada
-  PostgreSQL support.
-
-  Revision 1.16  2005/04/27 18:26:47  sawada
-  small bug fix.
-
-  Revision 1.15  2005/04/27 10:30:45  sawada
-  Added SQLite,SQLite3 support.
-
-  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.13  2005/03/03 19:24:32  sawada
-  compatibility with SQL and XML database.
-
-  Revision 1.12  2005/01/27 16:21:06  schneebeli_m
-  print method & no gROME in path
-
-  Revision 1.11  2004/12/03 14:42:08  schneebeli_m
-  some minor changes
-
-  Revision 1.10  2004/11/21 00:10:41  sawada
-  error handling
-
-  Revision 1.9  2004/11/19 16:26:24  sawada
-  speed up with reading order array at once.
-
-  Revision 1.8  2004/11/18 15:23:23  sawada
-
-  Modify handling the order of array.
-  Enable inverse order.
-  Enable to send sql query from user tasks.
-
-  Revision 1.7  2004/11/17 10:36:27  sawada
-  argument for Init
-
-  Revision 1.6  2004/11/16 21:59:45  sawada
-  read/write field array at once.
-
-  Revision 1.5  2004/11/16 12:11:06  sawada
-  SQL Init,Read
-
-  Revision 1.4  2004/11/11 12:55:27  schneebeli_m
-  Implemented XML database with new path rules
-
-  Revision 1.3  2004/10/05 07:52:44  schneebeli_m
-  dyn. Folders, TRef Objects, XML format changed, ROMEStatic removed
-
-  Revision 1.2  2004/09/30 13:08:21  schneebeli_m
-  ...
-
-  Revision 1.1  2004/09/27 18:25:25  schneebeli_m
-  new database classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMESQLDataBase_H

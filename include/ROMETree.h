@@ -1,48 +1,7 @@
 /********************************************************************
   ROMETree.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.18  2005/09/14 17:27:24  sawada
-  modification for old ROOT versions.
-
-  Revision 1.17  2005/08/30 09:40:13  sawada
-  change directory before handling trees.
-
-  Revision 1.16  2005/08/12 15:37:02  schneebeli_m
-  added input file based IO
-
-  Revision 1.15  2005/08/02 14:44:51  schneebeli_m
-  correct taskHierarchy handling
-
-  Revision 1.14  2005/08/02 09:35:23  schneebeli_m
-  root version handling
-
-  Revision 1.13  2005/07/12 06:42:21  sawada
-  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-
-  Revision 1.12  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.11  2005/01/07 11:37:32  schneebeli_m
-  Bank Arrays, Folder Array Getter
-
-  Revision 1.10  2004/10/25 08:03:41  schneebeli_m
-  html docu and tree switches
-
-  Revision 1.9  2004/10/21 08:05:08  schneebeli_m
-  switches size
-
-  Revision 1.8  2004/10/20 09:22:16  schneebeli_m
-  bugs removed
-
-  Revision 1.7  2004/10/14 09:53:41  schneebeli_m
-  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
-
-  Revision 1.6  2004/10/05 14:01:16  schneebeli_m
-  Circular Trees
-
-  Revision 1.5  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMETree_H

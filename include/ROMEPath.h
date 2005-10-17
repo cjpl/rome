@@ -1,34 +1,7 @@
 /********************************************************************
   ROMEPath.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.9  2005/07/12 06:42:21  sawada
-  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-
-  Revision 1.8  2005/04/14 07:56:46  schneebeli_m
-  Implemented odb database (offline)
-
-  Revision 1.7  2005/03/17 15:44:51  schneebeli_m
-  GetAbsolutePath error removed
-
-  Revision 1.6  2005/03/03 19:24:32  sawada
-  compatibility with SQL and XML database.
-
-  Revision 1.5  2005/01/27 16:21:06  schneebeli_m
-  print method & no gROME in path
-
-  Revision 1.4  2004/11/12 17:35:18  schneebeli_m
-  fast xml database
-
-  Revision 1.3  2004/11/11 14:07:15  schneebeli_m
-  ROMEStrArray and ROMEStr2DArray change
-
-  Revision 1.2  2004/11/11 13:17:37  schneebeli_m
-  detail
-
-  Revision 1.1  2004/11/11 12:58:07  schneebeli_m
-  Implemented XML database with new path rules
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEPath_H

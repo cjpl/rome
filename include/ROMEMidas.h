@@ -1,55 +1,7 @@
 /********************************************************************
   ROMEMidas.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.17  2005/07/12 06:42:21  sawada
-  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-
-  Revision 1.16  2005/07/01 21:56:29  sawada
-  Multiple dimensional array fields in folders.
-  Small bug fix in Midas classes.
-
-  Revision 1.15  2005/07/01 07:15:23  schneebeli_m
-  added byte swapping of TID_STRUCTS
-
-  Revision 1.12  2005/06/14 14:43:08  sawada
-  bk_swap only when the event is active.
-
-  Revision 1.11  2005/06/13 15:49:04  schneebeli_m
-  changed name of DAQ user functions
-
-  Revision 1.10  2005/05/13 23:51:14  sawada
-  code cleanup.
-
-  Revision 1.9  2005/05/13 10:47:18  sawada
-  GZipped midas files on linux.
-
-  Revision 1.8  2005/04/15 16:44:26  schneebeli_m
-  odb, zlib
-
-  Revision 1.7  2005/04/15 14:44:40  schneebeli_m
-  gzopen implemented
-
-  Revision 1.6  2005/04/14 07:56:46  schneebeli_m
-  Implemented odb database (offline)
-
-  Revision 1.5  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.4  2005/03/21 17:29:47  schneebeli_m
-  minor changes
-
-  Revision 1.3  2005/02/21 21:29:07  sawada
-
-  Changed OS specifying macros
-  Support for DEC,Ultrix,FreeBSD,Solaris
-
-  Revision 1.2  2005/02/06 01:26:55  sawada
-  moved byte swapping functions to ROMEMidas
-
-  Revision 1.1  2005/01/24 15:25:06  schneebeli_m
-  Seperated DAQ classes
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEMidas_H

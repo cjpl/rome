@@ -1,21 +1,7 @@
 /********************************************************************
   ROMETreeInfo.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.6  2005/08/12 15:37:02  schneebeli_m
-  added input file based IO
-
-  Revision 1.5  2005/07/12 06:42:21  sawada
-  Bug fix. Matched the name of method (IsActiveID and IsActiveEventID)
-
-  Revision 1.4  2005/06/28 14:53:30  sawada
-  renamed members of ROMETreeInfo.
-
-  Revision 1.3  2005/06/27 07:41:06  schneebeli_m
-  added IgnoreTObjectStreamer
-
-  Revision 1.2  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMETreeInfo_H

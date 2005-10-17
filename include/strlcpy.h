@@ -5,12 +5,7 @@
 
    Contents:     Header file for strlcpy.c
 
-   $Log$
-   Revision 1.1  2005/05/11 12:50:02  schneebeli_m
-   added strlcpy
-
-   Revision 1.1  2005/05/09 09:12:06  ritt
-   Initial revision
+  $Id:$
 
 \********************************************************************/
 

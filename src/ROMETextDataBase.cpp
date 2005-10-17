@@ -5,28 +5,7 @@
 //
 //  Text format non-relational database.
 //
-//  $Log$
-//  Revision 1.7  2005/09/14 16:23:53  sawada
-//  added #if statement for TTimeStamp::Set.
-//
-//  Revision 1.6  2005/08/31 14:27:23  sawada
-//  use StripSpaces instead of Strip.
-//
-//  Revision 1.5  2005/07/27 08:37:23  sawada
-//  modified comparison between sign and unsigned integer.
-//
-//  Revision 1.4  2005/07/24 19:28:46  sawada
-//  strip spaces when reading.
-//
-//  Revision 1.3  2005/07/24 19:02:20  sawada
-//  small modification.
-//
-//  Revision 1.2  2005/07/24 17:37:54  sawada
-//  added row number comment.
-//
-//  Revision 1.1  2005/07/24 16:52:47  sawada
-//  added ROMETextDataBase.
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETextDataBase.h>

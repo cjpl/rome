@@ -5,13 +5,7 @@
 //
 //  General purpose utilities.
 //
-//  $Log$
-//  Revision 1.1  2005/07/01 07:14:10  schneebeli_m
-//  added to cvs
-//
-//  Revision 1.0  2005/06/28 16:30:00  Jan
-//  Original
-//
+//  $Id:$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEUtilities.h>

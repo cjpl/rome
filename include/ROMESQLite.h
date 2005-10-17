@@ -1,16 +1,7 @@
 /********************************************************************
   ROMESQLite.h, R. Sawada
 
-  $Log$
-  Revision 1.2  2005/04/28 20:26:39  sawada
-  Added transaction during writing database.
-  This is disabled by default because it is not well tested.
-  These codes are in "#ifdef USE_TRANSACTION #endif".
-  Probably, database access will be accelerated with transaction.
-
-  Revision 1.1  2005/04/27 10:30:45  sawada
-  Added SQLite,SQLite3 support.
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMESQLITE_H

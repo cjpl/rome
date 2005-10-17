@@ -1,39 +1,7 @@
 /********************************************************************
   ROMEXML.h, M. Schneebeli PSI
 
-  $Log$
-  Revision 1.18  2005/07/21 18:00:52  schneebeli_m
-  added getNodeIntValue
-
-  Revision 1.17  2005/05/02 08:43:16  schneebeli_m
-  link error
-
-  Revision 1.16  2005/04/29 13:24:04  schneebeli_m
-  Added node functions
-
-  Revision 1.15  2005/04/14 07:56:46  schneebeli_m
-  Implemented odb database (offline)
-
-  Revision 1.14  2005/04/01 14:56:23  schneebeli_m
-  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-
-  Revision 1.13  2005/03/23 11:48:47  schneebeli_m
-  link error on linux
-
-  Revision 1.12  2005/03/23 09:06:11  schneebeli_m
-  libxml replaced by mxml, Bool SP error
-
-  Revision 1.11  2004/11/12 17:35:18  schneebeli_m
-  fast xml database
-
-  Revision 1.10  2004/11/11 12:55:27  schneebeli_m
-  Implemented XML database with new path rules
-
-  Revision 1.9  2004/10/14 09:53:41  schneebeli_m
-  ROME configuration file format changed and extended, Folder Getter changed : GetXYZObject -> GetXYZ, tree compression level and fill flag
-
-  Revision 1.8  2004/09/25 01:34:48  schneebeli_m
-  implemented FW dependent EventLoop and DataBase classes
+  $Id:$
 
 ********************************************************************/
 #ifndef ROMEXML_H

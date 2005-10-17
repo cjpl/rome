@@ -5,18 +5,7 @@
 //                                                                      //
 //  Displays a splash screen.
 //                                                                      //
-//  $Log$
-//  Revision 1.6  2005/04/01 14:56:23  schneebeli_m
-//  Histo moved, multiple databases, db-paths moved, InputDataFormat->DAQSystem, GetMidas() to access banks, User DAQ
-//
-//  Revision 1.5  2005/02/21 21:29:07  sawada
-//
-//  Changed OS specifying macros
-//  Support for DEC,Ultrix,FreeBSD,Solaris
-//
-//  Revision 1.4  2004/09/25 01:34:48  schneebeli_m
-//  implemented FW dependent EventLoop and DataBase classes
-//
+//  $Id:$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
