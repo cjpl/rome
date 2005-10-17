@@ -1,0 +1,6 @@
+ROOTINC = /I$(ROOTSYS)/include/
+LIBRARY = $(ROOTSYS)/lib/libCore.lib
+
+ROMEBuilder.exe:  Builder/src/ROMEBuilder.cpp Builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp
+	cl /GX /I%ROMESYS%/Builder/include/ /I%ROMESYS%/include/ $(ROOTINC) /Fo%ROMESYS%/bin/ /Fe%ROMESYS%/bin/ROMEBuilder.exe Builder/src/ROMEBuilder.cpp Builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp $(LIBRARY)
+
