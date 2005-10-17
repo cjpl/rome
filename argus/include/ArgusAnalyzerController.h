@@ -1,13 +1,7 @@
 /********************************************************************
   ArgusAnalyzerController.h, R.Sawada
 
-  $Log$
-  Revision 1.1  2005/06/02 20:40:12  sawada
-  renamed TGROMEController as ArgusAnalyzerController
-
-  Revision 1.1  2005/06/01 22:41:22  sawada
-  added ArgusAnalyzerController for development.
-
+  $Id:$
 
 ********************************************************************/
 #ifndef ArgusAnalyzerController_H

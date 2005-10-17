@@ -2,18 +2,7 @@
 
   main.cpp, Ryu Sawada
 
-  $Log$
-  Revision 1.2  2005/07/03 17:31:34  sawada
-  Support folder.
-  Multiple dimension fields in folders.
-
-  Revision 1.1  2005/05/26 14:26:55  sawada
-  Lots of changes.
-  Made ArgusBuilder an inheriting class of ROMEBuilder.
-  Remove ROMEFolder and added NetFolers.
-  Added ArgusWindow class.
-  and so on.
-
+  $Id:$
 
 *******************************************************************/
 #include "ArgusBuilder.h"

@@ -1,59 +1,7 @@
 /********************************************************************
   ArgusMonitor.h, R.Sawada
 
-  $Log$
-  Revision 1.13  2005/08/02 12:39:04  sawada
-  Removed netfolder title config.
-  Added netfolder reconnect config.
-  Check if the root folder is found when netfolder connects server.
-
-  Revision 1.12  2005/05/26 14:26:55  sawada
-  Lots of changes.
-  Made ArgusBuilder an inheriting class of ROMEBuilder.
-  Remove ROMEFolder and added NetFolers.
-  Added ArgusWindow class.
-  and so on.
-
-  Revision 1.11  2005/05/06 14:37:41  schneebeli_m
-  small change
-
-  Revision 1.10  2005/05/05 20:13:30  sawada
-  code clean up.
-
-  Revision 1.9  2005/05/05 20:08:05  sawada
-  code clean up.
-
-  Revision 1.8  2005/04/12 17:51:04  sawada
-  changes for mxml
-
-  Revision 1.7  2005/02/24 15:04:03  sawada
-  Reduced number of configuration to 1.
-  Replaced ss_getchar to getchar().
-  Removed LineToProcess.
-  Removed bk_is32,bk_find.
-  Improved help.
-  Handling of midas host and experiment.
-
-  Revision 1.6  2005/02/21 23:07:50  sawada
-  several UNIX support
-
-  Revision 1.5  2005/02/06 00:39:35  sawada
-   Changed TRint to TApplication
-   Stop method of thread function
-   Name of method for start/stop
-
-  Revision 1.4  2005/02/02 23:54:30  sawada
-  link with midas library.
-
-  Revision 1.3  2005/02/02 18:58:02  sawada
-  small change.
-
-  Revision 1.2  2005/02/01 14:44:33  sawada
-  Resize frames in window.
-
-  Revision 1.1.1.1  2005/01/29 22:45:08  sawada
-  Advanced Root based GUi monitoring System
-
+  $Id:$
 
 ********************************************************************/
 //#define USE_TRINT
