@@ -36,7 +36,7 @@
    in the tree and for manipulating nodes, like replacing, adding and
    deleting nodes.
 
-   $Id:$
+   $Id$
 
 \********************************************************************/
 
@@ -1712,6 +1712,8 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
 
       /* go to next element */
       while (*p && *p != '<') {
+         if (*p == ']')
+            break;
          if (*p == '\n')
             line_number++;
          p++;

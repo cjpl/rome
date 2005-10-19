@@ -5,7 +5,7 @@
 
    Contents:     Header file for mxml.c
 
-  $Id:$
+  $Id$
 
 \********************************************************************/
 
@@ -20,7 +20,7 @@
 
 #define INTERNAL_ENTITY               0
 #define EXTERNAL_ENTITY               1
-#define MXML_MAX_ENTITY            1000
+#define MXML_MAX_ENTITY             500
 
 #ifdef _MSC_VER
 #define DIR_SEPARATOR              '\\'
