@@ -6,7 +6,7 @@
 //  Implements the event loop. This Class must be the root Task of
 //  the Application.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <TSystem.h> 
@@ -609,6 +609,7 @@ bool ROMEEventLoop::DAQEndOfRun() {
                gROME->Print("Writing Root-File ");
             }
             gROME->Println(romeTree->GetFileName());
+            romeTree->UpdateFilePointer();
             romeTree->GetFile()->cd();
             tree->Write(0,TObject::kOverwrite);
             tree->SetDirectory(0);
