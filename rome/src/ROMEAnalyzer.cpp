@@ -7,7 +7,7 @@
 //  for the analysis dependent main class, which should implement the
 //  Folders, Trees and Task definitions.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -216,12 +216,8 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
-   const int workDirLen = 1000;
-   char workDir[workDirLen];
-   getcwd(workDir,workDirLen);
-   strcat(workDir,"/");
-   this->SetInputDir(workDir);
-   this->SetOutputDir(workDir);
+   this->SetInputDir("./");
+   this->SetOutputDir("./");
 
    ROMEString configFile("romeConfig.xml");
 
