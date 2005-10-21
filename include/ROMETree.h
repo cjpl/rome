@@ -1,7 +1,7 @@
 /********************************************************************
   ROMETree.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMETree_H
@@ -49,6 +49,7 @@ public:
    TTree *GetTree() { return fTree; };
    ROMEString &GetFileName() { return fFileName; };
    ROMEString &GetConfigFileName() { return fConfigFileName; };
+   void UpdateFilePointer() { fFile = fTree->GetCurrentFile(); };
    TFile *GetFile() { return fFile; };
    Bool_t IsFileOverWrite() { return fFileOption==kOverWrite; };
    Bool_t IsFileUpdate() { return fFileOption==kUpdate; };
