@@ -2,7 +2,7 @@
 
   ROMEBuilder.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 
@@ -9308,8 +9308,8 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
    buffer.Resize(0);
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
-   buffer.AppendFormatted("-I%%$(ROMESYS)%%/include ");
-   buffer.AppendFormatted("-I%%$(ROOTSYS)%%/include ");
+   buffer.AppendFormatted("-I%%ROMESYS%%/include ");
+   buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
 //   buffer.AppendFormatted("%%DictionaryIncludes%% ");
 #endif
 #if defined( R__UNIX )
