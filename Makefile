@@ -3,56 +3,7 @@
 #  Name:         Makefile
 #  Created by:   Matthias Schneebeli
 #
-#  $Log$
-#  Revision 1.23  2005/10/06 21:46:13  sawada
-#  improved Makefile for builder.
-#
-#  Revision 1.22  2005/09/16 15:44:16  sawada
-#  improved Makefile for UNIX.
-#
-#  Revision 1.21  2005/05/30 18:21:13  sawada
-#  small change for Macintosh
-#
-#  Revision 1.20  2005/05/17 18:45:38  sawada
-#  Separated main from ROMEBuilder.
-#  Reading function for every database folders.
-#
-#  Revision 1.19  2005/05/14 16:07:27  sawada
-#  Improved performance with changing TString::ResizeIncrement to 4096.
-#
-#  Revision 1.18  2005/05/13 20:20:54  sawada
-#  separated writing function of files.
-#  placeholder of user html.
-#
-#  Revision 1.17  2005/05/11 12:50:01  schneebeli_m
-#  added strlcpy
-#
-#  Revision 1.16  2005/03/23 09:12:21  schneebeli_m
-#  libxml replaced by mxml
-#
-#  Revision 1.15  2005/02/21 23:07:28  sawada
-#  not compile when builder is up to data.
-#
-#  Revision 1.14  2005/02/21 22:47:31  sawada
-#  Support for DEC,Ultrix,FreeBSD,Solaris
-#
-#  Revision 1.13  2004/12/09 08:18:00  schneebeli_m
-#  -lg2c removed
-#
-#  Revision 1.12  2004/12/02 17:46:43  sawada
-#  Macintosh port
-#
-#  Revision 1.11  2004/10/25 08:34:06  schneebeli_m
-#  *** empty log message ***
-#
-#  Revision 1.10  2004/10/21 13:03:51  schneebeli_m
-#  *** empty log message ***
-#
-#  Revision 1.9  2004/10/20 00:18:32  pierre
-#  correct Midas support and romebuilder image name
-#
-#  Revision 1.8  2004/10/19 22:08:27  pierre
-#  add MIDAS support
+# $Id:$
 #
 #####################################################################
 #
