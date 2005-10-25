@@ -8643,7 +8643,18 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
-   if (!noLink) {
+   if (noLink) {
+#if defined( R__UNIX )
+      system("make -e rootcint");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   const int workDirLen = 1000;
+   char workDir[workDirLen];
+   getcwd(workDir,workDirLen);
+      system("nmake -f Makefile.win rootcint");
+#endif
+   }
+   else {
 #if defined( R__UNIX )
       system("make -e");
 #endif
@@ -8651,7 +8662,6 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
    const int workDirLen = 1000;
    char workDir[workDirLen];
    getcwd(workDir,workDirLen);
-   cout << "working dir = " << workDir << endl;
       system("nmake -f Makefile.win");
 #endif
    }
