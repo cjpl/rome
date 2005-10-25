@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEAnalyzer.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEAnalyzer_H
@@ -327,7 +327,7 @@ public:
    void       SetUserEventR() { fUserEvent = true; fUserEventR = true; };
    void       SetUserEventO() { fUserEvent = true; fUserEventO = true; };
    void       SetUserEventC() { fUserEvent = true; fUserEventC = true; };
-   void       SetUserEventG() { fUserEvent = true; fUserEventG = true; };
+   void       SetUserEventG(int runNumber,int eventNumber) { fUserEvent = true; fUserEventG = true; fUserEventGRunNumber = runNumber; fUserEventGEventNumber = eventNumber; };
    void       SetUserEventI() { fUserEvent = true; fUserEventI = true; };
 
    bool       HasUserEvent() { return fUserEvent; };

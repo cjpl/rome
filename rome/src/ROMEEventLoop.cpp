@@ -246,6 +246,7 @@ bool ROMEEventLoop::DAQInit() {
    int j;
    this->SetRunning();
    this->SetAnalyze();
+   gROME->SetCurrentEventNumber(0);
 
    this->InitTaskSwitches();
    this->InitSingleFolders();
