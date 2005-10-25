@@ -2,7 +2,7 @@
 
   Builder.cpp, Ryu Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "ArgusBuilder.h"
@@ -549,7 +549,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEXMLDataBase.obj obj/ROMETextDataBase.obj obj/ROMEODBOnlineDataBase.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n",shortCut.Data());
 
    // all
-   buffer.AppendFormatted("all:obj %s%s",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("all:obj rootcint %s%s",shortcut.Data(),mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe\n");
 #endif
@@ -557,7 +557,7 @@ void ArgusBuilder::WriteMakefile() {
 
    // user makefile
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("!INCLUDE Makefile.usr\n");
+   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
 #else
    buffer.AppendFormatted("-include Makefile.usr\n");
 #endif
@@ -565,10 +565,35 @@ void ArgusBuilder::WriteMakefile() {
 
    // make obj
    buffer.AppendFormatted("obj:\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\t@mkdir obj\n\n");
+#else
    buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
    buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
    buffer.AppendFormatted("\tfi;\n");
+#endif
+
+// Dictionary
+   ROMEString dictionarybat;
+   WriteDictionaryBat(dictionarybat);
+   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
+   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
+   dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#else
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#endif
+   buffer.AppendFormatted("rootcint:");
+   buffer.AppendFormatted(" $(TabIncludes)");
+   buffer.AppendFormatted(" $(BaseTabIncludes)");
+   buffer.AppendFormatted(" $(FolderIncludes)");
+   buffer.AppendFormatted(" $(BaseFolderIncludes)");
+   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n",shortCut.Data(),shortCut.Data());
+   dictionarybat.Remove(dictionarybat.Length()-1);
+   buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("\n");
 
 // Link Statement
 // --------------
@@ -685,31 +710,10 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h\n");
       buffer.AppendFormatted((Char_t*)compileFormatROME.Data(),"SQL","SQL");
    }
-
-// Dictionary
    buffer.AppendFormatted("obj/%sDict.obj: src/framework/%sDict.h src/framework/%sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("src/framework/%sDict",shortCut.Data());
    tempBuffer[1].SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted((Char_t*)compileFormatBlank.Data(),tempBuffer[0].Data(),tempBuffer[1].Data());
-   buffer.AppendFormatted("\n");
-   ROMEString dictionarybat;
-   WriteDictionaryBat(dictionarybat);
-   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
-   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
-   dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#else
-   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif
-   buffer.AppendFormatted("src/framework/%sDict.h src/framework/%sDict.cpp:",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted(" $(TabIncludes)");
-   buffer.AppendFormatted(" $(BaseTabIncludes)");
-   buffer.AppendFormatted(" $(FolderIncludes)");
-   buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n",shortCut.Data(),shortCut.Data());
-   dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
    // Clean and build
@@ -759,6 +763,7 @@ void ArgusBuilder::WriteMakefile() {
 
 // Write Makefile.usr
    struct stat buf;
+#if defined( R__UNIX )
    makeFile = "Makefile.usr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {
@@ -780,6 +785,30 @@ void ArgusBuilder::WriteMakefile() {
       usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
+#endif
+#if defined ( R__VISUAL_CPLUSPLUS )
+   makeFile = "Makefile.winusr";
+   ROMEString usrBuffer;
+   if( stat( makeFile.Data(), &buf )) {
+      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
+      usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("# Description:\n");
+      usrBuffer.AppendFormatted("# 1) Add compile(link) options to Flags(Libraries), e.g. Flags = $(Flags) /GX /GR\n");
+      usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects = $(objects) mySource.obj\n");
+      usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
+      usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
+      usrBuffer.AppendFormatted("#	cl /c $(Flags) $(Includes) mySource.cpp /Foobj/mySource.obj\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes = $(DictionaryIncludes) -ImyPath\n");
+      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders = $(DictionaryHeaders) myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
+      usrBuffer.AppendFormatted("#       userclean:\n");
+      usrBuffer.AppendFormatted("#	rm your_file.h\n");
+      usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
+      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      WriteFile(makeFile.Data(),usrBuffer.Data(),0);
+   }
+#endif
 }
 
 
