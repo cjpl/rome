@@ -9041,14 +9041,12 @@ void ROMEBuilder::WriteMakefile() {
 // Dictionary
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
-   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
-   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #endif
-   buffer.AppendFormatted("rootcint:");
+   buffer.AppendFormatted("rootcint:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
@@ -9248,6 +9246,7 @@ void ROMEBuilder::WriteMakefile() {
    while((pdnameend = xmlfilename.Index("/",1,pbnamestart,TString::kExact))!=-1)
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
+#ifndef R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("build:\n");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
@@ -9273,6 +9272,7 @@ void ROMEBuilder::WriteMakefile() {
    if(sqlite3)
       buffer.AppendFormatted(" -sqlite3");
    buffer.AppendFormatted("\n");
+#endif
 
    ROMEString makeFile;
 #if defined( R__UNIX )
