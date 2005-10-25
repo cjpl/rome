@@ -2,7 +2,7 @@
 
   main.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include <RConfig.h>
@@ -21,7 +21,8 @@
 #   endif
 #endif
 #include <sys/stat.h>
-#include "ROMEBuilder.h"
+#include <ROMEBuilder.h>
+#include <ROMEStrArray.h>
 #include <Riostream.h>
 
 int main(int argc, char *argv[])
@@ -142,6 +143,16 @@ int main(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-orca")) {
          romeb->orca = true;
+      }
+      else if (!strcmp(argv[i],"-flags")&&i<argc-1) {
+         i++;
+         int j=0;
+         while (argv[i][0]!='-') {
+            romeb->flags.AddAtAndExpand((const char*)argv[i],j);
+            i++;j++;
+            if (i>argc-1)
+               break;
+         }
       }
       else if (!strcmp(argv[i],"-i")&&i<argc-1) {
          xmlFile = argv[i+1];

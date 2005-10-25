@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEBuilder.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 
@@ -53,6 +53,7 @@ public:
    bool  pgsql;
    bool  sqlite;
    bool  sqlite3;
+   ROMEStrArray flags;
 
 protected:
    ROMEXML* xml;

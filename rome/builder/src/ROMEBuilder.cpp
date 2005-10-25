@@ -8329,6 +8329,7 @@ void ROMEBuilder::usage() {
    cout << "  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)" << endl;
    cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
    cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
+   cout << "  -flags    Compile flags added to the Makefile" << endl;
 }
 
 void ROMEBuilder::startBuilder(const char* xmlfile)
@@ -8765,6 +8766,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /DHAVE_SQLITE");
    if (this->sqlite3)
       buffer.AppendFormatted(" /DHAVE_SQLITE3");
+   for (i=0;i<this->flags.GetEntriesFast();i++)
+      buffer.AppendFormatted(" /D%s",this->flags.At(i).Data());
    buffer.AppendFormatted("\n");
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortcut.Data());
