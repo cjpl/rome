@@ -272,7 +272,7 @@ bool ROMEEventLoop::DAQInit() {
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
-   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+   for (j=0;j<gROME->GetTreeObjectEntries();j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
