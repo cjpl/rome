@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusMonitor.h, R.Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 //#define USE_TRINT
@@ -132,6 +132,7 @@ public:
    void            SetOnlineExperiment(ROMEString& experiment) { fOnlineExperiment = experiment; }
    
    // NetFolder
+   Bool_t          IsNetFolderActive(const Char_t *name);
    TNetFolder*     GetNetFolder(const Char_t* name);
    Char_t*         GetNetFolderName(Int_t i) { return (Char_t*)fNetFolderName[i].Data(); }
    Char_t*         GetNetFolderHost(Int_t i) { return (Char_t*)fNetFolderHost[i].Data(); }

@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusMonitor.cpp, R.Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include <RConfig.h>
@@ -284,6 +284,17 @@ void ArgusMonitor::InitDataBases(Int_t number) {
    fDataBaseConnection = new ROMEString[number];
    fDataBaseDir        = new ROMEString[number];
    fNumberOfDataBases  = number;
+};
+
+Bool_t ArgusMonitor::IsNetFolderActive(const Char_t *name) { 
+   for (Int_t i=0;i<fNumberOfNetFolders;i++) {
+      if (!stricmp(fNetFolderName[i].Data(),name)){
+         if(!fNetFolderActive[i])
+            return false;
+         return true;
+      }
+   }
+   return false;
 };
 
 TNetFolder* ArgusMonitor::GetNetFolder(const Char_t *name) { 
