@@ -377,6 +377,8 @@ void ArgusBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /DHAVE_SQLITE");
    if (this->sqlite3)
       buffer.AppendFormatted(" /DHAVE_SQLITE3");
+   for (i=0;i<this->flags.GetEntriesFast();i++)
+      buffer.AppendFormatted(" /D%s",this->flags.At(i).Data());
    buffer.AppendFormatted("\n");
    // includes
    buffer.AppendFormatted("Includes = /I$(ARGUSSYS)/include/ /I$(ROMESYS)/include/ /I$(ROOTSYS)/include/ /I. /Iinclude/ /Iinclude/tabs/ /Iinclude/framework/ ");

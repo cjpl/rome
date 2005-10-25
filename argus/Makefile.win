@@ -31,7 +31,7 @@ ROMEINCLUDES = /I%ROMESYS%/include/ /I%ROMESYS%/include/ /I%ROMESYS%/builder/inc
 ROOTINCLUDES = /I%ROOTSYS%/include/ 
 INCLUDES = $(ARGUSINCLUDES) $(ROMEINCLUDES) $(ROOTINCLUDES)
 ARGUSSRC = builder/src/main.cpp builder/src/Builder.cpp builder/src/BuilderConfig.cpp builder/src/BuilderTab.cpp builder/src/BuilderNetFolder.cpp builder/src/BuilderWindow.cpp builder/src/BuilderMonitor.cpp 
-ROMESRC = $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/builder/src/ROMEBuilder.cpp
+ROMESRC = $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/builder/src/ROMEBuilder.cpp
 SRC = $(ARGUSSRC) $(ROMESRC)
 LIBRARY = $(ROOTSYS)/lib/libCore.lib
 
