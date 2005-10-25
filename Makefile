@@ -3,7 +3,7 @@
 #  Name:         Makefile
 #  Created by:   Matthias Schneebeli
 #
-# $Id:$
+# $Id$
 #
 #####################################################################
 #
@@ -35,7 +35,7 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-objects :=  obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEXML.o obj/ROMEBuilder.o
+objects :=  obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEXML.o obj/ROMEBuilder.o
 
 all: obj $(ROMESYS)/bin/romebuilder.exe
 
@@ -54,6 +54,9 @@ obj/ROMEXML.o: src/ROMEXML.cpp include/ROMEXML.h
 	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/ROMEString.o: src/ROMEString.cpp include/ROMEString.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEStrArray.o: src/ROMEStrArray.cpp include/ROMEStrArray.h
 	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/mxml.o: src/mxml.c include/mxml.h
