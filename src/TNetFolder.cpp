@@ -3,7 +3,7 @@
 //
 //  TNetFolder
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -227,10 +227,14 @@ Int_t TNetFolder::Occurence(const TObject *obj)
 void TNetFolder::Execute(const char *line)
 {
   // The line is executed by the CINT of the server
-  if (!Send("Execute"))
-     return Execute(line);
-  if (!Send(line))
-     return Execute(line);
+   if (!Send("Execute")) {
+      Execute(line);
+      return;
+   }
+   if (!Send(line)) {
+      Execute(line);
+      return; 
+   }
 }
 
 void TNetFolder::ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments)
@@ -238,15 +242,25 @@ void TNetFolder::ExecuteMethod(const char *objectName,const char *objectType,con
   // A method of an object is executed by the CINT of the server. 
   // The statment on the server side is the following :
   //   ((objectType)objectName)->methodName(methodArguments);
-  if (!Send("ExecuteMethod"))
-     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
-  if (!Send(objectName))
-     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
-  if (!Send(objectType))
-     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
-  if (!Send(methodName))
-     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
-  if (!Send(methodArguments))
-     return ExecuteMethod(objectName,objectType,methodName,methodArguments);
+   if (!Send("ExecuteMethod")) {
+      ExecuteMethod(objectName,objectType,methodName,methodArguments);
+      return;
+   }
+   if (!Send(objectName)) {
+      ExecuteMethod(objectName,objectType,methodName,methodArguments);
+      return;
+   }
+   if (!Send(objectType)) {
+      ExecuteMethod(objectName,objectType,methodName,methodArguments);
+      return;
+   }
+   if (!Send(methodName)) {
+      ExecuteMethod(objectName,objectType,methodName,methodArguments);
+      return;
+   }
+   if (!Send(methodArguments)) {
+      ExecuteMethod(objectName,objectType,methodName,methodArguments);
+      return;
+   }
 }
 
