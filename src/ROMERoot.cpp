@@ -5,7 +5,7 @@
 //
 //  Interface to the Root Output of ROME.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -146,7 +146,7 @@ bool ROMERoot::BeginOfRun() {
          }
       }
       if (!treeRead) {
-         gROME->Println("No input root file specified for running in root mode.\n");
+         gROME->Println("No input tree specified for running in root mode.\n");
          return false;
       }
       this->ConnectTrees();
@@ -188,6 +188,7 @@ bool ROMERoot::Event(int event) {
                else {
                   fTreeNextSeqNumber[j] = -1;
                }
+               gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
                if (gROME->IsRunNumberBasedIO())
                   tree->SetDirectory(fRootFiles[j]);
                else if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())

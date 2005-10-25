@@ -9014,7 +9014,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
    buffer.AppendFormatted("\n\n");
 // all
-   buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("all:obj rootcint %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
    buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif
@@ -9022,18 +9022,41 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 // user makefile
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("!INCLUDE Makefile.usr\n");
-#endif
-#if defined( R__UNIX )
+   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
+#else
    buffer.AppendFormatted("-include Makefile.usr\n");
 #endif
    buffer.AppendFormatted("\n");
 // make obj
    buffer.AppendFormatted("obj:\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\t@mkdir obj\n\n");
+#else
    buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
    buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
    buffer.AppendFormatted("\tfi;\n");
+#endif
+
+// Dictionary
+   ROMEString dictionarybat;
+   WriteDictionaryBat(dictionarybat);
+   dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
+   dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#else
+   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#endif
+   buffer.AppendFormatted("rootcint:");
+   buffer.AppendFormatted(" $(TaskIncludes)");
+   buffer.AppendFormatted(" $(BaseTaskIncludes)");
+   buffer.AppendFormatted(" $(FolderIncludes)");
+   buffer.AppendFormatted(" $(BaseFolderIncludes)");
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
+   dictionarybat.Remove(dictionarybat.Length()-1);
+   buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("\n");
 
 // Link Statement
 // --------------
@@ -9212,22 +9235,7 @@ void ROMEBuilder::WriteMakefile() {
    tempBuffer.SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
    buffer.AppendFormatted("\n");
-   ROMEString dictionarybat;
-   WriteDictionaryBat(dictionarybat);
-   buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted(" $(TaskIncludes)");
-   buffer.AppendFormatted(" $(BaseTaskIncludes)");
-   buffer.AppendFormatted(" $(FolderIncludes)");
-   buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
-   dictionarybat.Remove(dictionarybat.Length()-1);
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif
-   buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
-   buffer.AppendFormatted("\n");
+
    buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("	rm -f obj/*.obj %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
    tmp = shortCut;
@@ -9278,6 +9286,7 @@ void ROMEBuilder::WriteMakefile() {
 
    // Write Makefile.usr
    struct stat buf;
+#if defined( R__UNIX )
    makeFile = "Makefile.usr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {
@@ -9288,17 +9297,41 @@ void ROMEBuilder::WriteMakefile() {
       usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects += mySource.obj\n");
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
-      usrBuffer.AppendFormatted("#          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#	g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
       usrBuffer.AppendFormatted("#       userclean:\n");
-      usrBuffer.AppendFormatted("#          rm your_file.h\n");
+      usrBuffer.AppendFormatted("#	rm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
       usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
-      WriteFile(makeFile.Data(),usrBuffer.Data(),6);
+      WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
+#endif
+#if defined ( R__VISUAL_CPLUSPLUS )
+   makeFile = "Makefile.winusr";
+   ROMEString usrBuffer;
+   if( stat( makeFile.Data(), &buf )) {
+      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
+      usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("# Description:\n");
+      usrBuffer.AppendFormatted("# 1) Add compile(link) options to Flags(Libraries), e.g. Flags = $(Flags) /GX /GR\n");
+      usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects = $(objects) mySource.obj\n");
+      usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
+      usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
+      usrBuffer.AppendFormatted("#	cl /c $(Flags) $(Includes) mySource.cpp /Foobj/mySource.obj\n");
+      usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes = $(DictionaryIncludes) -ImyPath\n");
+      usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders = $(DictionaryHeaders) myHeader.h/\n");
+      usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
+      usrBuffer.AppendFormatted("#       userclean:\n");
+      usrBuffer.AppendFormatted("#	rm your_file.h\n");
+      usrBuffer.AppendFormatted("#\n");
+      usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
+      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      WriteFile(makeFile.Data(),usrBuffer.Data(),0);
+   }
+#endif
 }
 void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
 {
