@@ -2,7 +2,7 @@
 
   BuilderConfig.cpp, Ryu Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "ArgusBuilder.h"
@@ -612,8 +612,6 @@ Bool_t ArgusBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      return kFALSE;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/Argus/ArgusConfig.xsd\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
    buffer.AppendFormatted("   xml->EndDocument();\n");
