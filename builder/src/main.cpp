@@ -2,7 +2,7 @@
 
   main.cpp, Ryu Sawada
 
-  $Id:$
+  $Id$
 
 *******************************************************************/
 #include "ArgusBuilder.h"
@@ -75,6 +75,16 @@ int main(int argc, char *argv[])
          if( stat( midasFile, &buf )) {
             cout << "Midas library not found. Have you set the MIDASSYS environment variable ?" << endl;
             return 1;
+         }
+      }
+      else if (!strcmp(argv[i],"-flags")&&i<argc-1) {
+         i++;
+         int j=0;
+         while (argv[i][0]!='-') {
+            argusb->flags.AddAtAndExpand((const char*)argv[i],j);
+            i++;j++;
+            if (i>argc-1)
+               break;
          }
       }
       else if (!strcmp(argv[i],"-i")&&i<argc-1) {
