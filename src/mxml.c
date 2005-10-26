@@ -1400,8 +1400,10 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
    char *p;
    char *pv;
    char delimiter;
-   int i, j, k, line_number;
+   int i, j, k, line_number,i0,i1,i2;
    char *replacement;
+   char env_name[256];
+   char temp_entity_name[256];
    char entity_name[MXML_MAX_ENTITY][256];
    char entity_reference_name[MXML_MAX_ENTITY][256];
    char *entity_value[MXML_MAX_ENTITY];
@@ -1724,7 +1726,30 @@ int mxml_parse_entity(char **buf, char *file_name, char *error, int error_size)
    /* read external file */
    for (i = 0; i < nentity; i++) {
       if (entity_type[i] == EXTERNAL_ENTITY) {
-         if ( entity_reference_name[i][0] == DIR_SEPARATOR ) /* absolute path */
+         /* replace environment variables */
+         strcpy(temp_entity_name,"");
+         i0 = 0;
+         while ((p=strstr(&entity_reference_name[i][i0],"$("))!=NULL) {
+            i1 = p-&entity_reference_name[i][i0];
+            strncat(temp_entity_name,&entity_reference_name[i][i0],i1);
+            if ((pv=strstr(&entity_reference_name[i][i0],")"))==NULL)
+               break;
+            i2 = pv-&entity_reference_name[i][i0];
+            if (i2<i1+3)
+               break;
+            strncpy(env_name,&entity_reference_name[i][i1+2+i0],i2-i1-2);
+            env_name[i2-i1-2] = '\0';
+            p = getenv(env_name);
+            if (p==0)
+               break;
+            strncpy(env_name,p,strlen(env_name));
+            strncat(temp_entity_name,env_name,strlen(env_name));
+            i0 += i2+1;
+         }
+         strncat(temp_entity_name,&entity_reference_name[i][i0],strlen(entity_reference_name[i])-i0);
+         strncpy(entity_reference_name[i],temp_entity_name,strlen(entity_reference_name[i]));
+         /* open file */
+         if ( entity_reference_name[i][0] == DIR_SEPARATOR || strstr(entity_reference_name[i],":")!=NULL) /* absolute path */
             strcpy(filename, entity_reference_name[i]);
          else /* relative path */
             sprintf(filename, "%s%c%s", directoryname, DIR_SEPARATOR, entity_reference_name[i]);

@@ -3176,7 +3176,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
 
 bool ROMEBuilder::ReadXMLUserMakefile() {
    char *name;
-   int type,i,j,i1,i2;
+   int type;
    ROMEString temp;
 
    numOfMFDictHeaders = 0;
