@@ -9057,7 +9057,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    // libs
    buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)");
-   for (i=0;i<maxNumberOfMFLinuxLibs;i++)
+   for (i=0;i<numOfMFLinuxLibs;i++)
       buffer.AppendFormatted(" -l%s",mfLinuxLibName[i].Data());
    buffer.AppendFormatted("\n");
    // flags
@@ -9248,7 +9248,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
 // Link Statement
@@ -9496,7 +9496,7 @@ void ROMEBuilder::WriteUserMakeFile()
    makeFile = "Makefile.usr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {
-      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
+      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortCut.Data(),mainProgName.Data());
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("# Description:\n");
       usrBuffer.AppendFormatted("# 1) Add compile(link) options to Flags(Libraries), e.g. Flags += -g -O2 -Wall\n");
