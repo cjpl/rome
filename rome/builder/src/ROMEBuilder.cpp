@@ -2537,7 +2537,7 @@ bool ROMEBuilder::ReadXMLDAQ() {
                // output
                if (makeOutput) cout << "   " << daqName[numOfDAQ].Data() << endl;
             }
-            if (type == 15 && !strcmp((const char*)name,"DAQSystemName")) {
+            if (type == 15 && !strcmp((const char*)name,"UserDAQSystem")) {
                // input check
                if (daqName[numOfDAQ]=="") {
                   cout << "User DAQ system without a name !" << endl;
@@ -2599,7 +2599,7 @@ bool ROMEBuilder::ReadXMLDB() {
             // database description
             if (type == 1 && !strcmp((const char*)name,"DatabaseDescription"))
                xml->GetValue(dbDescription[numOfDB],dbDescription[numOfDB]);
-            if (type == 15 && !strcmp((const char*)name,"DatabaseName")) {
+            if (type == 15 && !strcmp((const char*)name,"UserDatabase")) {
                // input check
                if (dbName[numOfDB]=="") {
                   cout << "User database interface without a name !" << endl;
@@ -3174,6 +3174,166 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
    return true;
 }
 
+bool ROMEBuilder::ReadXMLUserMakefile() {
+   char *name;
+   int type,i,j,i1,i2;
+   ROMEString temp;
+
+   numOfMFDictHeaders = 0;
+   numOfMFDictIncDirs = 0;
+   numOfMFWinLibs = 0;
+   numOfMFLinuxLibs = 0;
+   numOfMFIncDirs = 0;
+   numOfMFPreDefs = 0;
+   numOfMFSources = 0;
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      if (type == 1 && !strcmp((const char*)name,"DictionaryHeaders")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // header name
+            if (type == 1 && !strcmp((const char*)name,"HeaderName")) {
+               xml->GetValue(mfDictHeaderName[numOfMFDictHeaders],mfDictHeaderName[numOfMFDictHeaders]);
+               if (mfDictHeaderName[numOfMFDictHeaders].Length()>0) {
+                  if (mfDictHeaderName[numOfMFDictHeaders].Index(".")==-1)
+                     mfDictHeaderName[numOfMFDictHeaders].Append(".h");
+                  numOfMFDictHeaders++;
+               }
+            }
+            if (type == 15 && !strcmp((const char*)name,"DictionaryHeaders"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"DictionaryIncludesDirectories")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // include directory
+            if (type == 1 && !strcmp((const char*)name,"IncludeDirectory")) {
+               xml->GetValue(mfDictIncDir[numOfMFDictIncDirs],mfDictIncDir[numOfMFDictIncDirs]);
+               if (mfDictIncDir[numOfMFDictIncDirs].Length()>0) {
+                  if (mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='/' &&
+                     mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='\\')
+                     mfDictIncDir[numOfMFDictIncDirs].Append("/");
+                  mfDictIncDir[numOfMFDictIncDirs].ReplaceAll("$(","%");
+                  mfDictIncDir[numOfMFDictIncDirs].ReplaceAll(")","%");
+                  numOfMFDictIncDirs++;
+               }
+            }
+            if (type == 15 && !strcmp((const char*)name,"DictionaryIncludesDirectories"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"WindowsLibraries")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // library name
+            if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+               xml->GetValue(mfWinLibName[numOfMFWinLibs],mfWinLibName[numOfMFWinLibs]);
+               if (mfWinLibName[numOfMFWinLibs].Length()>0) {
+                  if (mfWinLibName[numOfMFWinLibs].Index(".")==-1)
+                     mfWinLibName[numOfMFWinLibs].Append(".lib");
+                  numOfMFWinLibs++;
+               }
+            }
+            if (type == 15 && !strcmp((const char*)name,"WindowsLibraries"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"LinuxLibraries")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // library name
+            if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+               xml->GetValue(mfLinuxLibName[numOfMFLinuxLibs],mfLinuxLibName[numOfMFLinuxLibs]);
+               if (mfLinuxLibName[numOfMFLinuxLibs].Length()>0)
+                  numOfMFLinuxLibs++;
+            }
+            if (type == 15 && !strcmp((const char*)name,"LinuxLibraries"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"IncludeDirectories")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // include directory
+            if (type == 1 && !strcmp((const char*)name,"IncludeDirectory")) {
+               xml->GetValue(mfIncDir[numOfMFIncDirs],mfIncDir[numOfMFIncDirs]);
+               if (mfIncDir[numOfMFIncDirs].Length()>0) {
+                  if (mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1]!='/' &&
+                     mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1]!='\\')
+                     mfIncDir[numOfMFIncDirs].Append("/");
+                  numOfMFIncDirs++;
+               }
+            }
+            if (type == 15 && !strcmp((const char*)name,"IncludeDirectories"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"PreprocessorDefinition")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // name
+            if (type == 1 && !strcmp((const char*)name,"Name")) {
+               xml->GetValue(mfPreDefName[numOfMFPreDefs],mfPreDefName[numOfMFPreDefs]);
+               if (mfPreDefName[numOfMFPreDefs].Length()>0)
+                  numOfMFPreDefs++;
+            }
+            if (type == 15 && !strcmp((const char*)name,"PreprocessorDefinition"))
+               break;
+         }
+      }
+      if (type == 1 && !strcmp((const char*)name,"AdditionalSourceFiles")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // source file
+            if (type == 1 && !strcmp((const char*)name,"SourceFile")) {
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // file name
+                  if (type == 1 && !strcmp((const char*)name,"FileName")) {
+                     xml->GetValue(mfSourceFileName[numOfMFSources],mfSourceFileName[numOfMFSources]);
+                     if (mfSourceFileName[numOfMFSources].Index(".")!=-1)
+                        mfSourceFileName[numOfMFSources] = mfSourceFileName[numOfMFSources](0,mfSourceFileName[numOfMFSources].Index("."));
+                  }
+                  // file path
+                  if (type == 1 && !strcmp((const char*)name,"FilePath")) {
+                     xml->GetValue(mfSourceFilePath[numOfMFSources],mfSourceFilePath[numOfMFSources]);
+                     if (mfSourceFilePath[numOfMFSources].Length()>0) {
+                        if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='/' ||
+                           mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='\\')
+                           mfSourceFilePath[numOfMFSources].Append("/");
+                     }
+                  }
+                  // dependencies
+                  if (type == 1 && !strcmp((const char*)name,"Dependencies"))
+                     xml->GetValue(mfSourceFileDep[numOfMFSources],mfSourceFileDep[numOfMFSources]);
+                  if (type == 15 && !strcmp((const char*)name,"SourceFile")) {
+                     numOfMFSources++;
+                     break;
+                  }
+               }
+            }
+            if (type == 15 && !strcmp((const char*)name,"AdditionalSourceFiles"))
+               break;
+         }
+      }
+
+      if (type == 15 && !strcmp((const char*)name,"UserMakeFile")) {
+         break;
+      }
+   }
+   return true;
+}
 bool ROMEBuilder::WriteSteering(int iTask) {
    ROMEString hFile;
    ROMEString buffer;
@@ -8602,6 +8762,9 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
                   if (!ReadXMLSteering(numOfTaskHierarchy)) return;
                   numOfSteering[numOfTaskHierarchy]++;
                }
+               if (!strcmp((const char*)name,"UserMakeFile")) {
+                  if (!ReadXMLUserMakefile()) return;
+               }
             }
          }
       }
@@ -8748,7 +8911,10 @@ void ROMEBuilder::WriteMakefile() {
    else
       buffer.AppendFormatted("midaslibs = \n");
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
-   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)");
+   for (i=0;i<numOfMFWinLibs;i++)
+      buffer.AppendFormatted(" %s",mfWinLibName[i].Data());
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortcut.Data());
@@ -8768,6 +8934,8 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /DHAVE_SQLITE3");
    for (i=0;i<this->flags.GetEntriesFast();i++)
       buffer.AppendFormatted(" /D%s",this->flags.At(i).Data());
+   for (i=0;i<numOfMFPreDefs;i++)
+      buffer.AppendFormatted(" /D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortcut.Data());
@@ -8781,9 +8949,11 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite/");
    if (this->sqlite3)
       buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite3/");
+   for (i=0;i<numOfMFIncDirs;i++)
+      buffer.AppendFormatted(" /I%s",mfIncDir[i].Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
-#endif
+#endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
@@ -8886,13 +9056,21 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
-   // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)\n",shortcut.Data());
-   // includes
-   buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/\n");
+   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)");
+   for (i=0;i<maxNumberOfMFLinuxLibs;i++)
+      buffer.AppendFormatted(" -l%s",mfLinuxLibName[i].Data());
    buffer.AppendFormatted("\n");
-#endif
+   // flags
+   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortcut.Data());
+   for (i=0;i<numOfMFPreDefs;i++)
+      buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
+   buffer.AppendFormatted("\n");
+   // includes
+   buffer.AppendFormatted("Includes := -I$(ROMESYS)/include/ -I. -Iinclude/ -Iinclude/tasks/ -Iinclude/framework/");
+   for (i=0;i<numOfMFIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfIncDir[i].Data());
+   buffer.AppendFormatted("\n");
+#endif // R__UNIX
 // Dependencies
 // ------------
 // folders
@@ -8972,10 +9150,12 @@ void ROMEBuilder::WriteMakefile() {
    // root cint headers
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DictionaryHeaders %s",EqualSign());
+   buffer.AppendFormatted("\n");
 
    // root cint includes
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DictionaryIncludes %s",EqualSign());
+   buffer.AppendFormatted("\n");
 
 // task dependences
    buffer.AppendFormatted("\n");
@@ -9025,12 +9205,14 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
+   for (i=0;i<numOfMFSources;i++)
+      buffer.AppendFormatted(" obj/%s.obj",mfSourceFileName[i].Data());
    buffer.AppendFormatted("\n\n");
 // all
    buffer.AppendFormatted("all:obj rootcint %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
    buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
-#endif
+#endif // R__UNIX
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 // user makefile
@@ -9038,7 +9220,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
 #else
    buffer.AppendFormatted("-include Makefile.usr\n");
-#endif
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
 // make obj
    buffer.AppendFormatted("obj:\n");
@@ -9049,7 +9231,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
    buffer.AppendFormatted("\tfi;\n");
-#endif
+#endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
    ROMEString dictionarybat;
@@ -9058,7 +9240,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #else
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif
+#endif // R__MACOSX
    buffer.AppendFormatted("rootcint:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
@@ -9077,20 +9259,20 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries) /link /nodefaultlib:\"libcmtd.lib\" /FORCE:MULTIPLE\n\n",shortCut.Data(),mainProgName.Data());
    else
       buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
-#endif
+#endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("	");
 #if defined ( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
-#endif
+#endif // R__MACOSX
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
 #if defined ( R__MACOSX )
    buffer.AppendFormatted("	ln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
-#endif
+#endif // R__MACOSX
    buffer.AppendFormatted("\n");
-#endif
+#endif // R__UNIX
 
 // Compile Statements
 // ------------------
@@ -9102,7 +9284,7 @@ void ROMEBuilder::WriteMakefile() {
    compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
    compileFormatRANY.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s -o obj/%%s.obj\n");
-#endif
+#endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
    compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
    compileFormatFramF.SetFormatted("	df $(FortranFlags) /compile_only src\\framework\\%sF%%s.f /object:obj\\%sF%%s.obj\n",shortCut.Data(),shortCut.Data());
@@ -9111,7 +9293,7 @@ void ROMEBuilder::WriteMakefile() {
    compileFormatBlank.SetFormatted("	cl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
    compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
    compileFormatRANY.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s /Foobj/%%s.obj\n");
-#endif
+#endif // R__VISUAL_CPLUSPLUS
    // Folders
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
@@ -9245,6 +9427,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/%sDict.obj: %sDict.h %sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer.SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+   for (i=0;i<numOfMFSources;i++) {
+      buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
+      tempBuffer.SetFormatted("%s%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
+      buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
+   }
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("clean: userclean\n");
@@ -9265,7 +9452,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #else
    buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif
+#endif // R__MACOSX
    buffer.AppendFormatted(" $(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
    if (makeOutput)
@@ -9285,20 +9472,26 @@ void ROMEBuilder::WriteMakefile() {
    if(sqlite3)
       buffer.AppendFormatted(" -sqlite3");
    buffer.AppendFormatted("\n");
-#endif
+#endif // NOT R__VISUAL_CPLUSPLUS
 
    ROMEString makeFile;
 #if defined( R__UNIX )
    makeFile = "Makefile";
-#endif
+#endif // R__UNIX
 #if defined ( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
-#endif
+#endif // R__VISUAL_CPLUSPLUS
    // Write File
    WriteFile(makeFile.Data(),buffer.Data(),6);
 
    // Write Makefile.usr
+   WriteUserMakeFile();
+}
+void ROMEBuilder::WriteUserMakeFile()
+{
+   // Write Makefile.usr
    struct stat buf;
+   ROMEString makeFile;
 #if defined( R__UNIX )
    makeFile = "Makefile.usr";
    ROMEString usrBuffer;
@@ -9326,7 +9519,7 @@ void ROMEBuilder::WriteMakefile() {
    makeFile = "Makefile.winusr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {
-      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortcut.Data(),mainprogname.Data());
+      usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortCut.Data(),mainProgName.Data());
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("# Description:\n");
       usrBuffer.AppendFormatted("# 1) Add compile(link) options to Flags(Libraries), e.g. Flags = $(Flags) /GX /GR\n");
@@ -9353,32 +9546,36 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
 
    buffer.Resize(0);
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p ",shortCut.Data());
-   buffer.AppendFormatted("-I%%ROMESYS%%/include ");
-   buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-//   buffer.AppendFormatted("%%DictionaryIncludes%% ");
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+//   buffer.AppendFormatted(" %%DictionaryIncludes%%");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p ",shortCut.Data());
-   buffer.AppendFormatted("-I$(ROMESYS)/include ");
-   buffer.AppendFormatted("-I$(shell $(ROOTSYS)/bin/root-config --incdir) ");
-   buffer.AppendFormatted("$(DictionaryIncludes) ");
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
 #endif
-   buffer.AppendFormatted("-I. -Iinclude -Iinclude/tasks -Iinclude/framework ");
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/tasks -Iinclude/framework");
+   for (i=0;i<numOfMFDictIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
-         buffer.AppendFormatted("include/framework/%s%s.h ",shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),folderName[i].Data());
          if (folderUserCode[i])
-            buffer.AppendFormatted("include/framework/%s%s_Base.h ",shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
       }
    }
    for (i=0;i<numOfTask;i++) {
-      buffer.AppendFormatted("include/tasks/%sT%s.h ",shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("  include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
       if (taskUserCode[i])
-         buffer.AppendFormatted("include/tasks/%sT%s_Base.h ",shortCut.Data(),taskName[i].Data());
+         buffer.AppendFormatted(" include/tasks/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted("ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h\n",shortCut.Data());
-   buffer.Append("\0");
+   buffer.AppendFormatted(" ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h",shortCut.Data());
+   for (i=0;i<numOfMFDictHeaders;i++)
+      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   buffer.Append("\n\0");
 
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEString batFile;
