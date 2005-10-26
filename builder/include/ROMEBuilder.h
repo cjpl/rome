@@ -27,6 +27,14 @@ const int maxNumberOfValueDimension = 3;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 50;
 const int maxNumberOfStructFields = 50;
+const int maxNumberOfMFDictHeaders = 100;
+const int maxNumberOfMFDictIncDirs = 100;
+const int maxNumberOfMFWinLibs = 100;
+const int maxNumberOfMFLinuxLibs = 100;
+const int maxNumberOfMFIncDirs = 100;
+const int maxNumberOfMFPreDefs = 100;
+const int maxNumberOfMFSources = 100;
+
 const char valueCounter[][maxNumberOfValueDimension] = {"i","j","k"};
 
 const int maxNumberOfEventRequests = 5;
@@ -210,6 +218,24 @@ protected:
    ROMEString bankHeaderSerialNumber;
    ROMEString bankHeaderTimeStamp;
 
+// user makefile
+   int numOfMFDictHeaders;
+   ROMEString mfDictHeaderName[maxNumberOfMFDictHeaders];
+   int numOfMFDictIncDirs;
+   ROMEString mfDictIncDir[maxNumberOfMFDictIncDirs];
+   int numOfMFWinLibs;
+   ROMEString mfWinLibName[maxNumberOfMFWinLibs];
+   int numOfMFLinuxLibs;
+   ROMEString mfLinuxLibName[maxNumberOfMFLinuxLibs];
+   int numOfMFIncDirs;
+   ROMEString mfIncDir[maxNumberOfMFIncDirs];
+   int numOfMFPreDefs;
+   ROMEString mfPreDefName[maxNumberOfMFPreDefs];
+   int numOfMFSources;
+   ROMEString mfSourceFileName[maxNumberOfMFSources];
+   ROMEString mfSourceFilePath[maxNumberOfMFSources];
+   ROMEString mfSourceFileDep[maxNumberOfMFSources];
+
 // main
    ROMEString mainAuthor;
    ROMEString mainInstitute;
@@ -256,6 +282,7 @@ public:
    bool ReadXMLDB();
    bool ReadXMLMidasBanks();
    bool ReadXMLSteering(int iTask);
+   bool ReadXMLUserMakefile();
    bool WriteSteering(int iTask);
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
@@ -275,6 +302,7 @@ public:
    bool WriteMain();
    char* EqualSign();
    void WriteMakefile();
+   void WriteUserMakeFile();
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
