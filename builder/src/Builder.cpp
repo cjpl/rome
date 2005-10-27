@@ -485,7 +485,7 @@ void ArgusBuilder::WriteMakefile() {
 
    // libs
    buffer.AppendFormatted("Libraries := $(oslibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)");
-   for (i=0;i<maxNumberOfMFUnixLibs;i++)
+   for (i=0;i<numOfMFUnixLibs;i++)
       buffer.AppendFormatted(" -l%s",mfUnixLibName[i].Data());
    buffer.AppendFormatted("\n");
    // flags
