@@ -95,16 +95,17 @@ TObjArray* TNetFolder::GetListOfFolders()
   if (!Send("GetListOfFolders"))
      return GetListOfFolders();
   
-  TMessage *m = new TMessage(kMESS_ANY);
-  m->Reset();
-  *m<<fFolder;
-  if (!Send(*m))
+  TMessage m(kMESS_ANY);
+  m.Reset();
+  m<<fFolder;
+  if (!Send(m))
      return GetListOfFolders();
-  if (!Recv(m))
+  TMessage *mr = 0;
+  if (!Recv(mr))
      return GetListOfFolders();
-  if (m) {
-    TObjArray *list = (TObjArray*) m->ReadObject(m->GetClass());
-    delete m;
+  if (mr) {
+    TObjArray *list = (TObjArray*) mr->ReadObject(mr->GetClass());
+    delete mr;
     return list;
   }
   return 0;
@@ -117,23 +118,24 @@ TObject* TNetFolder::FindObject(const char *name)
   if (!Send(str.Data()))
      return FindObject(name);
   
-  TMessage *m = new TMessage(kMESS_ANY);
-  m->Reset();
-  *m<<fFolder;
-  if (!Send(*m))
+  TMessage m(kMESS_ANY);
+  m.Reset();
+  m<<fFolder;
+  if (!Send(m))
      return FindObject(name);
   
-  if (!Recv(m))
+  TMessage *mr = 0;
+  if (!Recv(mr))
      return FindObject(name);
   
-  if( m == NULL )
+  if( mr == NULL )
   {
-    delete m;
+    delete mr;
     return NULL;
   }
-  TObject *obj = (TObject*) m->ReadObject(m->GetClass());
+  TObject *obj = (TObject*) mr->ReadObject(mr->GetClass());
   
-  delete m;
+  delete mr;
   return obj;
 }
 
@@ -144,23 +146,24 @@ TObject* TNetFolder::FindObjectAny(const char *name)
   if (!Send(str.Data()))
      return FindObjectAny(name);
   
-  TMessage *m = new TMessage(kMESS_ANY);
-  m->Reset();
-  *m<<fFolder;
-  if (!Send(*m))
+  TMessage m(kMESS_ANY);
+  m.Reset();
+  m<<fFolder;
+  if (!Send(m))
      return FindObjectAny(name);
 
-  if (!Recv(m))
+  TMessage *mr = 0;
+  if (!Recv(mr))
      return FindObjectAny(name);
 
-  if( m == NULL )
+  if( mr == NULL )
   {
-    delete m;
+    delete mr;
     return NULL;
   }
-  TObject *obj = (TObject*) m->ReadObject(m->GetClass());
+  TObject *obj = (TObject*) mr->ReadObject(mr->GetClass());
   
-  delete m;
+  delete mr;
   return obj;
 }
 
@@ -171,23 +174,24 @@ const char *TNetFolder::FindFullPathName(const char *name)
   if (!Send(str.Data()))
      return FindFullPathName(name);
   
-  TMessage *m = new TMessage(kMESS_ANY);
-  m->Reset();
-  *m<<fFolder;
-  if (!Send(*m))
+  TMessage m(kMESS_ANY);
+  m.Reset();
+  m<<fFolder;
+  if (!Send(m))
      return FindFullPathName(name);
-  if (!Recv(m))
+  TMessage *mr = 0;
+  if (!Recv(mr))
      return FindFullPathName(name);
   
-  if( m == NULL )
+  if( mr == NULL )
   {
-    delete m;
+    delete mr;
     return NULL;
   }
   
-  const char *path = ((TObjString*) m->ReadObject(m->GetClass()))->String().Data();
+  const char *path = ((TObjString*) mr->ReadObject(mr->GetClass()))->String().Data();
   
-  delete m;
+  delete mr;
   return path;
 }
 
@@ -196,31 +200,30 @@ Int_t TNetFolder::Occurence(const TObject *obj)
   if (!Send("Occurence"))
      return Occurence(obj);
   
-  TMessage *m = new TMessage(kMESS_ANY);
-  m->Reset();
-  *m<<fFolder;
-  if (!Send(*m))
-     return Occurence(obj);
-  delete m;
-  
-  m = new TMessage(kMESS_OBJECT);
-  m->Reset();
-  m->WriteObject(obj);
-  if (!Send(*m))
-     return Occurence(obj);
-  if (!Recv(m))
+  TMessage m(kMESS_ANY);
+  m.Reset();
+  m<<fFolder;
+  if (!Send(m))
      return Occurence(obj);
   
-  if( m == NULL )
+  m.Reset();
+  m.WriteObject(obj);
+  if (!Send(m))
+     return Occurence(obj);
+  TMessage *mr = 0;
+  if (!Recv(mr))
+     return Occurence(obj);
+  
+  if( mr == NULL )
   {
-    delete m;
+    delete mr;
     return -1;
   }
   
   Int_t retValue;
-  *m>>retValue;
+  *mr>>retValue;
   
-  delete m;
+  delete mr;
   return retValue;
 }
 
