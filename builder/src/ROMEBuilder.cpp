@@ -3196,7 +3196,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
    numOfMFDictHeaders = 0;
    numOfMFDictIncDirs = 0;
    numOfMFWinLibs = 0;
-   numOfMFLinuxLibs = 0;
+   numOfMFUnixLibs = 0;
    numOfMFIncDirs = 0;
    numOfMFPreDefs = 0;
    numOfMFSources = 0;
@@ -3258,17 +3258,17 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                break;
          }
       }
-      if (type == 1 && !strcmp((const char*)name,"LinuxLibraries")) {
+      if (type == 1 && !strcmp((const char*)name,"UnixLibraries")) {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // library name
             if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
-               xml->GetValue(mfLinuxLibName[numOfMFLinuxLibs],mfLinuxLibName[numOfMFLinuxLibs]);
-               if (mfLinuxLibName[numOfMFLinuxLibs].Length()>0)
-                  numOfMFLinuxLibs++;
+               xml->GetValue(mfUnixLibName[numOfMFUnixLibs],mfUnixLibName[numOfMFUnixLibs]);
+               if (mfUnixLibName[numOfMFUnixLibs].Length()>0)
+                  numOfMFUnixLibs++;
             }
-            if (type == 15 && !strcmp((const char*)name,"LinuxLibraries"))
+            if (type == 15 && !strcmp((const char*)name,"UnixLibraries"))
                break;
          }
       }
@@ -9074,8 +9074,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    // libs
    buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)");
-   for (i=0;i<numOfMFLinuxLibs;i++)
-      buffer.AppendFormatted(" -l%s",mfLinuxLibName[i].Data());
+   for (i=0;i<numOfMFUnixLibs;i++)
+      buffer.AppendFormatted(" -l%s",mfUnixLibName[i].Data());
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortcut.Data());
