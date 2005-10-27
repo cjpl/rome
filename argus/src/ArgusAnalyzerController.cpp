@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusAnalyzerController.cpp, R.Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "ArgusAnalyzerController.h"
@@ -136,18 +136,21 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if(fPlayButton->IsDown()){
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
+               fNetFolder->Execute("gAnalyzer->SetUserEventC();");
+               fNetFolder->Execute("gAnalyzer->SetUserEventR();");
             }
             else{
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
+               fNetFolder->Execute("gAnalyzer->SetUserEventS();");
             }
-            // to be implemented something
             break;
          case B_Next:
-            // to be implemented something
+            fNetFolder->Execute("gAnalyzer->SetUserEventO();");
+            fNetFolder->Execute("gAnalyzer->SetUserEventR();");
             break;
          case B_Stop:
-            // to be implemented something
+            fNetFolder->Execute("gAnalyzer->SetUserEventS();");
             break;
          case B_Frwd:
             // to be implemented something
