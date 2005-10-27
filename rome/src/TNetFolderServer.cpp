@@ -38,7 +38,7 @@ TFolder *ReadFolderPointer(TSocket *socket)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    //read pointer to current folder
-   TMessage *message = new TMessage(kMESS_OBJECT);
+   TMessage *message = 0;
    socket->Recv(message);
    Int_t p;
    *message>>p;
@@ -59,13 +59,12 @@ int ResponseFunction(TSocket *socket) {
       return 0;
    }
    if (strcmp(str, "GetListOfFolders") == 0) {
-      TMessage *message = new TMessage(kMESS_OBJECT);
+      TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(NULL);
-         socket->Send(*message);
-         delete message;
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(NULL);
+         socket->Send(message);
          return 1;
       }
 
@@ -82,26 +81,23 @@ int ResponseFunction(TSocket *socket) {
       }
 
       //write folder names
-      message->Reset(kMESS_OBJECT);
-      message->WriteObject(names);
-      socket->Send(*message);
+      message.Reset(kMESS_OBJECT);
+      message.WriteObject(names);
+      socket->Send(message);
 
       for (int i = 0; i < names->GetLast() + 1; i++)
          delete(TObjString *) names->At(i);
 
       delete names;
-
-      delete message;
       return 1;
    }
    else if (strncmp(str, "FindObject", 10) == 0) {
-      TMessage *message = new TMessage(kMESS_OBJECT);
+      TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(NULL);
-         socket->Send(*message);
-         delete message;
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(NULL);
+         socket->Send(message);
          return 1;
       }
 
@@ -118,22 +114,20 @@ int ResponseFunction(TSocket *socket) {
       if (!obj) {
          socket->Send("Error");
       } else {
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(obj);
-         socket->Send(*message);
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(obj);
+         socket->Send(message);
       }
-      delete message;
       return 1;
    }
 
    else if (strncmp(str, "FindFullPathName", 16) == 0) {
-      TMessage *message = new TMessage(kMESS_OBJECT);
+      TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(NULL);
-         socket->Send(*message);
-         delete message;
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(NULL);
+         socket->Send(message);
          return 1;
       }
 
@@ -145,55 +139,53 @@ int ResponseFunction(TSocket *socket) {
          socket->Send("Error");
       } else {
          TObjString *obj = new TObjString(path);
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(obj);
-         socket->Send(*message);
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(obj);
+         socket->Send(message);
          delete obj;
       }
-      delete message;
       return 1;
    }
 
    else if (strncmp(str, "Occurence", 9) == 0) {
-      TMessage *message = new TMessage(kMESS_OBJECT);
+      TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
       if (folder==NULL) {
-         message->Reset(kMESS_OBJECT);
-         message->WriteObject(NULL);
-         socket->Send(*message);
-         delete message;
+         message.Reset(kMESS_OBJECT);
+         message.WriteObject(NULL);
+         socket->Send(message);
          return 1;
       }
 
       //read object
-      message->Reset(kMESS_OBJECT);
-      socket->Recv(message);
-      TObject *obj = ((TObject*) message->ReadObject(message->GetClass()));
+      message.Reset(kMESS_OBJECT);
+      TMessage *answer;
+      socket->Recv(answer);
+      TObject *obj = ((TObject*) answer->ReadObject(answer->GetClass()));
+      delete answer;
 
       //get occurence
       Int_t retValue = folder->Occurence(obj);
 
       //write occurence
-      message->Reset(kMESS_OBJECT);
-      *message<<retValue;
-      socket->Send(*message);
+      message.Reset(kMESS_OBJECT);
+      message<<retValue;
+      socket->Send(message);
 
-      delete message;
       return 1;
    }
 
    else if (strncmp(str, "GetPointer", 10) == 0) {
       //find object
-      TMessage *message = new TMessage(kMESS_OBJECT);
+      TMessage message(kMESS_OBJECT);
       TObject *obj = gROOT->FindObjectAny(str+11);
 
       //write pointer
-      message->Reset(kMESS_ANY);
+      message.Reset(kMESS_ANY);
       int p = (PTYPE)obj;
-      *message<<p;
-      socket->Send(*message);
+      message<<p;
+      socket->Send(message);
 
-      delete message;
       return 1;
    }
    else if (strncmp(str, "ExecuteMethod", 13) == 0) {
