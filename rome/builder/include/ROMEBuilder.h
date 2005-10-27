@@ -125,6 +125,9 @@ protected:
    bool taskFortran[maxNumberOfTasks];
    bool taskUserCode[maxNumberOfTasks];
    ROMEString taskAuthor[maxNumberOfTasks];
+   ROMEString taskAuthorInstitute[maxNumberOfTasks];
+   ROMEString taskAuthorCollaboration[maxNumberOfTasks];
+   ROMEString taskAuthorEmail[maxNumberOfTasks];
    ROMEString taskVersion[maxNumberOfTasks];
    ROMEString taskInclude[maxNumberOfTasks][maxNumberOfInclude];
    bool  taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];

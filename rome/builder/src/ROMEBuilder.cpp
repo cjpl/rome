@@ -1256,8 +1256,22 @@ bool ROMEBuilder::ReadXMLTask() {
             taskUserCode[numOfTask] = true;
       }
       // task author
-      if (type == 1 && !strcmp((const char*)name,"Author"))
-         xml->GetValue(taskAuthor[numOfTask],taskAuthor[numOfTask]);
+      if (type == 1 && !strcmp((const char*)name,"Author")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+               xml->GetValue(taskAuthor[numOfTask],taskAuthor[numOfTask]);
+            if (type == 1 && !strcmp((const char*)name,"AuthorInstitute"))
+               xml->GetValue(mainInstitute,mainInstitute);
+            if (type == 1 && !strcmp((const char*)name,"AuthorCollaboration"))
+               xml->GetValue(mainCollaboration,mainCollaboration);
+            if (type == 1 && !strcmp((const char*)name,"AuthorEmail"))
+               xml->GetValue(mainEmail,mainEmail);
+            if (type == 15 && !strcmp((const char*)name,"Author"))
+               break;
+         }
+      }
       // task version
       if (type == 1 && !strcmp((const char*)name,"TaskVersion"))
          xml->GetValue(taskVersion[numOfTask],taskVersion[numOfTask]);
@@ -8808,14 +8822,17 @@ void ROMEBuilder::startBuilder(const char* xmlfile)
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
    if (noLink) {
+      ROMEString tempStr;
 #if defined( R__UNIX )
-      system("make -e rootcint");
+      tempStr.SetFormatted("make -e %sDict.h %sDict.cpp",shortCut.Data(),shortCut.Data());
+      system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   const int workDirLen = 1000;
-   char workDir[workDirLen];
-   getcwd(workDir,workDirLen);
-      system("nmake -f Makefile.win rootcint");
+      const int workDirLen = 1000;
+      char workDir[workDirLen];
+      getcwd(workDir,workDirLen);
+      tempStr.SetFormatted("nmake -f Makefile.win %sDict.h %sDict.cpp",shortCut.Data(),shortCut.Data());
+      system(tempStr.Data());
 #endif
    }
    else {
