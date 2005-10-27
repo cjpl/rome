@@ -575,7 +575,7 @@ void ArgusBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n\n");
 
    // all
-   buffer.AppendFormatted("all:obj rootcint %s%s",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("all:obj %s%s",shortcut.Data(),mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe\n");
 #endif
@@ -606,20 +606,29 @@ void ArgusBuilder::WriteMakefile() {
    dictionarybat.ReplaceAll("$ROOTSYS","$(ROOTSYS)");
    dictionarybat.ReplaceAll("$ROMESYS","$(ROMESYS)");
    dictionarybat.ReplaceAll("$ARGUSSYS","$(ARGUSSYS)");
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#else
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif
-   buffer.AppendFormatted("rootcint:");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n",shortCut.Data(),shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("	%s $(DictionaryHeaders)\n",dictionarybat.Data());
+#if defined( R__UNIX )
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#endif
+#endif // R__UNIX
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\t");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
+
 
 // Link Statement
 // --------------
