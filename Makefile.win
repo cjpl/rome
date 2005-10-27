@@ -36,6 +36,7 @@ SRC = $(ARGUSSRC) $(ROMESRC)
 LIBRARY = $(ROOTSYS)/lib/libCore.lib
 
 ARGUSBuilder.exe: $(SRC)
+	@mkdir bin
 	cl /GX $(INCLUDES) /Fo%ARGUSSYS%/bin/ /Fe%ARGUSSYS%/bin/ARGUSBuilder.exe $(SRC) $(LIBRARY)
 
 
