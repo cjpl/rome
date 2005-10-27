@@ -9209,7 +9209,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/%s.obj",mfSourceFileName[i].Data());
    buffer.AppendFormatted("\n\n");
 // all
-   buffer.AppendFormatted("all:obj rootcint %s%s.exe",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
    buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif // R__UNIX
@@ -9233,7 +9233,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\tfi;\n");
 #endif // R__VISUAL_CPLUSPLUS
 
-<<<<<<< .mine
 // Dictionary
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
@@ -9261,26 +9260,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 
-=======
-// Dictionary
-   ROMEString dictionarybat;
-   WriteDictionaryBat(dictionarybat);
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("DYLD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#else
-   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif // R__MACOSX
-   buffer.AppendFormatted("rootcint:",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted(" $(TaskIncludes)");
-   buffer.AppendFormatted(" $(BaseTaskIncludes)");
-   buffer.AppendFormatted(" $(FolderIncludes)");
-   buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
-   dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n",dictionarybat.Data());
-   buffer.AppendFormatted("\n");
-
->>>>>>> .r657
 // Link Statement
 // --------------
    buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortcut.Data(),mainprogname.Data());
