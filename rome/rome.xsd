@@ -757,6 +757,154 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="DictionaryHeadersDesc">
+		<xs:annotation>
+			<xs:documentation>Additional header files to be added to the rootcint command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HeaderName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Name of the header file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DictionaryIncludesDirectoriesDesc">
+		<xs:annotation>
+			<xs:documentation>Additional include directories to be added to the rootcint command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="IncludeDirectory" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Path to the include directory. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="WindowsLibrariesDesc">
+		<xs:annotation>
+			<xs:documentation>Additional windows library files to be added to the link command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LibraryName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Name of the library. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UnixLibrariesDesc">
+		<xs:annotation>
+			<xs:documentation>Additional unix library files to be added to the link command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="LibraryName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Name of the library. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="IncludeDirectoriesDesc">
+		<xs:annotation>
+			<xs:documentation>Additional include directories to be added to the compile command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="IncludeDirectory" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Path to the include directory. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PreprocessorDefinitionDesc">
+		<xs:annotation>
+			<xs:documentation>Additional preprocessor definitions to be added to the compile command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Name" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Name of the preprocessor definition. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SourceFileDesc">
+		<xs:annotation>
+			<xs:documentation>Additional source file to be compiled.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="FileName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name of the file.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="FilePath" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Path to the file.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Dependencies" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Dependencies.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AdditionalSourceFilesDesc">
+		<xs:annotation>
+			<xs:documentation>Additional source files to be compiled.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SourceFile" type="SourceFileDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Additional source file to be compiled. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="UserMakeFileDesc">
+		<xs:annotation>
+			<xs:documentation>User defined additions to the makefile.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DictionaryHeaders" type="DictionaryHeadersDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional header files to be added to the rootcint command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DictionaryIncludesDirectories" type="DictionaryIncludesDirectoriesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional include directories to be added to the rootcint command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="WindowsLibraries" type="WindowsLibrariesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional windows library files to be added to the link command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UnixLibraries" type="UnixLibrariesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional unix library files to be added to the link command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="IncludeDirectories" type="IncludeDirectoriesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional include directories to be added to the compile command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="PreprocessorDefinition" type="PreprocessorDefinitionDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional preprocessor definitions to be added to the compile command. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AdditionalSourceFiles" type="AdditionalSourceFilesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Additional source files to be compiled. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:element name="ROMEFrameworkDefinition">
 		<xs:annotation>
 			<xs:documentation>Description of a ROME framework.</xs:documentation>
@@ -775,7 +923,7 @@
 				</xs:element>
 				<xs:element name="Folders">
 					<xs:annotation>
-						<xs:documentation>Description of all folders of the framework.</xs:documentation>
+						<xs:documentation>Description of all folders of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -789,7 +937,7 @@
 				</xs:element>
 				<xs:element name="SupportFolders" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of all support folders of the framework.</xs:documentation>
+						<xs:documentation>Description of all support folders of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -803,7 +951,7 @@
 				</xs:element>
 				<xs:element name="Tasks">
 					<xs:annotation>
-						<xs:documentation>Description of all tasks of the framework.</xs:documentation>
+						<xs:documentation>Description of all tasks of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -831,7 +979,7 @@
 				</xs:element>
 				<xs:element name="Trees" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of all trees of the framework.</xs:documentation>
+						<xs:documentation>Description of all trees of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -845,7 +993,7 @@
 				</xs:element>
 				<xs:element name="GlobalSteeringParameters" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
+						<xs:documentation>Description of the global steering parameters of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -864,7 +1012,7 @@
 				</xs:element>
 				<xs:element name="UserDAQSystems" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of DAQ systems written by the user.</xs:documentation>
+						<xs:documentation>Description of DAQ systems written by the user. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -878,7 +1026,7 @@
 				</xs:element>
 				<xs:element name="UserDatabases" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of database interface written by the user.</xs:documentation>
+						<xs:documentation>Description of database interface written by the user. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -892,7 +1040,7 @@
 				</xs:element>
 				<xs:element name="MidasBanks" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Description of all midas banks of the framework.</xs:documentation>
+						<xs:documentation>Description of all midas banks of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
@@ -908,6 +1056,11 @@
 							</xs:element>
 						</xs:sequence>
 					</xs:complexType>
+				</xs:element>
+				<xs:element name="UserMakeFile" type="UserMakeFileDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>User defined additions to the makefile. (optional)</xs:documentation>
+					</xs:annotation>
 				</xs:element>
 			</xs:sequence>
 		</xs:complexType>
