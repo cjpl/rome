@@ -638,31 +638,31 @@ void ArgusBuilder::WriteMakefile() {
 #endif
    buffer.AppendFormatted(": $(objects)\n");
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("\tcl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n\n");
+   buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n\n");
 #endif
 
 // Compile Statements
 // ------------------
 #if defined( R__UNIX )
-   compileFormatFrame.SetFormatted("	g++ -c $(Flags) $(Includes) src/framework/%s%%s.cpp -o obj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTabs.SetFormatted("	g++ -c $(Flags) $(Includes) src/tabs/%sT%%s.cpp -o obj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
-   compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
-   compileFormatARGUS.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp -o obj/Argus%%s.obj\n");
-   compileFormatMXML.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c -o obj/%%s.obj\n");
-   compileFormatAny.SetFormatted  ("   g++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
+   compileFormatFrame.SetFormatted("\tg++ -c $(Flags) $(Includes) src/framework/%s%%s.cpp -o obj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatTabs.SetFormatted("\tg++ -c $(Flags) $(Includes) src/tabs/%sT%%s.cpp -o obj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatBlank.SetFormatted("\tg++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
+   compileFormatROME.SetFormatted ("\tg++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
+   compileFormatARGUS.SetFormatted ("\tg++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp -o obj/Argus%%s.obj\n");
+   compileFormatMXML.SetFormatted ("\tg++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c -o obj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("\tg++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTabs.SetFormatted("	cl /c $(Flags) $(Includes) src/tabs/%sT%%s.cpp /Foobj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatBlank.SetFormatted("	cl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
-   compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
-   compileFormatARGUS.SetFormatted ("	cl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
-   compileFormatMXML.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
-   compileFormatAny.SetFormatted  ("   cl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
+   compileFormatFrame.SetFormatted("\tcl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatTabs.SetFormatted("\tcl /c $(Flags) $(Includes) src/tabs/%sT%%s.cpp /Foobj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatBlank.SetFormatted("\tcl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
+   compileFormatROME.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
+   compileFormatARGUS.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
+   compileFormatMXML.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
 #endif
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
@@ -761,11 +761,11 @@ void ArgusBuilder::WriteMakefile() {
 
    // Clean and build
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("	rm -f obj/*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\trm -f obj/*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data());
    ROMEString tmp = shortCut;
    tmp.ToLower();
    buffer.AppendFormatted("%sclean:\n",tmp.Data());
-   buffer.AppendFormatted("	rm -f obj/%s*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\trm -f obj/%s*.obj src/framework/%sDict.cpp src/framework/%sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;
@@ -774,7 +774,7 @@ void ArgusBuilder::WriteMakefile() {
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
    buffer.AppendFormatted("build:\n");
-   buffer.AppendFormatted("	$(ARGUSSYS)/bin/argusbuilder");
+   buffer.AppendFormatted("\t$(ARGUSSYS)/bin/argusbuilder");
 #if defined ( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe");
 #endif
