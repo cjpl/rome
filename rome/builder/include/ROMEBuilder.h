@@ -237,6 +237,7 @@ protected:
    int numOfMFSources;
    ROMEString mfSourceFileName[maxNumberOfMFSources];
    ROMEString mfSourceFilePath[maxNumberOfMFSources];
+   ROMEString mfSourceFileType[maxNumberOfMFSources];
    ROMEString mfSourceFileDep[maxNumberOfMFSources];
 
 // main

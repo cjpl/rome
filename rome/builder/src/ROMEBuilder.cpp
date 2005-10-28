@@ -3190,7 +3190,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
 
 bool ROMEBuilder::ReadXMLUserMakefile() {
    char *name;
-   int type;
+   int type,ind;
    ROMEString temp;
 
    numOfMFDictHeaders = 0;
@@ -3318,8 +3318,13 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                   // file name
                   if (type == 1 && !strcmp((const char*)name,"FileName")) {
                      xml->GetValue(mfSourceFileName[numOfMFSources],mfSourceFileName[numOfMFSources]);
-                     if (mfSourceFileName[numOfMFSources].Index(".")!=-1)
-                        mfSourceFileName[numOfMFSources] = mfSourceFileName[numOfMFSources](0,mfSourceFileName[numOfMFSources].Index("."));
+                     if ((ind=mfSourceFileName[numOfMFSources].Index("."))!=-1) {
+                        mfSourceFileType[numOfMFSources] = mfSourceFileName[numOfMFSources](ind+1,mfSourceFileName[numOfMFSources].Length());
+                        mfSourceFileName[numOfMFSources] = mfSourceFileName[numOfMFSources](0,ind);
+                     }
+                     else
+                        mfSourceFileType[numOfMFSources] = "cpp";
+                     mfSourceFileType[numOfMFSources].ToLower();
                   }
                   // file path
                   if (type == 1 && !strcmp((const char*)name,"FilePath")) {
@@ -8884,7 +8889,7 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString buffer;
    ROMEString tempBuffer;
    ROMEString tmp;
-   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatRANY;
+   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatRANY,compileFormatAny;
    int i;
    bool haveFortranTask = false;
    for (i=0;i<numOfTask;i++) {
@@ -9305,22 +9310,24 @@ void ROMEBuilder::WriteMakefile() {
 // Compile Statements
 // ------------------
 #if defined( R__UNIX )
-   compileFormatFrame.SetFormatted("	g++ -c $(Flags) $(Includes) src/framework/%s%%s.cpp -o obj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatFramF.SetFormatted("	@echo fortran tasks not implemented on unix\n");
-   compileFormatTasks.SetFormatted("	g++ -c $(Flags) $(Includes) src/tasks/%sT%%s.cpp -o obj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTaskF.SetFormatted("	@echo fortran tasks not implemented on unix\n");
-   compileFormatBlank.SetFormatted("	g++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
-   compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
-   compileFormatRANY.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s -o obj/%%s.obj\n");
+   compileFormatFrame.SetFormatted("\tg++ -c $(Flags) $(Includes) src/framework/%s%%s.cpp -o obj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatFramF.SetFormatted("\t@echo fortran tasks not implemented on unix\n");
+   compileFormatTasks.SetFormatted("\tg++ -c $(Flags) $(Includes) src/tasks/%sT%%s.cpp -o obj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatTaskF.SetFormatted("\t@echo fortran tasks not implemented on unix\n");
+   compileFormatBlank.SetFormatted("\tg++ -c $(Flags) $(Includes) %%s.cpp -o obj/%%s.obj\n");
+   compileFormatROME.SetFormatted ("\tg++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
+   compileFormatRANY.SetFormatted ("\tg++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s -o obj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("\tg++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
-   compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatFramF.SetFormatted("	df $(FortranFlags) /compile_only src\\framework\\%sF%%s.f /object:obj\\%sF%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTasks.SetFormatted("	cl /c $(Flags) $(Includes) src/tasks/%sT%%s.cpp /Foobj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatTaskF.SetFormatted("	df $(FortranFlags) /compile_only src\\tasks\\%sTF%%s.f /object:obj\\%sTF%%s.obj\n",shortCut.Data(),shortCut.Data());
-   compileFormatBlank.SetFormatted("	cl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
-   compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
-   compileFormatRANY.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s /Foobj/%%s.obj\n");
+   compileFormatFrame.SetFormatted("\tcl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatFramF.SetFormatted("\tdf $(FortranFlags) /compile_only src\\framework\\%sF%%s.f /object:obj\\%sF%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatTasks.SetFormatted("\tcl /c $(Flags) $(Includes) src/tasks/%sT%%s.cpp /Foobj/%sT%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatTaskF.SetFormatted("\tdf $(FortranFlags) /compile_only src\\tasks\\%sTF%%s.f /object:obj\\%sTF%%s.obj\n",shortCut.Data(),shortCut.Data());
+   compileFormatBlank.SetFormatted("\tcl /c $(Flags) $(Includes) %%s.cpp /Foobj/%%s.obj\n");
+   compileFormatROME.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
+   compileFormatRANY.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s /Foobj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
 #endif // R__VISUAL_CPLUSPLUS
    // Folders
    for (i=0;i<numOfFolder;i++) {
@@ -9457,8 +9464,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
    for (i=0;i<numOfMFSources;i++) {
       buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
-      tempBuffer.SetFormatted("%s%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
-      buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
+      tempBuffer.SetFormatted("%s%s.%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data(),mfSourceFileType[i].Data());
+      buffer.AppendFormatted(compileFormatAny.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
    }
    buffer.AppendFormatted("\n");
 
