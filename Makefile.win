@@ -35,8 +35,12 @@ ROMESRC = $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcp
 SRC = $(ARGUSSRC) $(ROMESRC)
 LIBRARY = $(ROOTSYS)/lib/libCore.lib
 
-ARGUSBuilder.exe: $(SRC)
+all:bin ARGUSBuilder.exe
+
+bin:
 	@mkdir bin
+
+ARGUSBuilder.exe: $(SRC)
 	cl /GX $(INCLUDES) /Fo%ARGUSSYS%/bin/ /Fe%ARGUSSYS%/bin/ARGUSBuilder.exe $(SRC) $(LIBRARY)
 
 
