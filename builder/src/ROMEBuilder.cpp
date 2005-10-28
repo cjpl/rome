@@ -3232,8 +3232,10 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                   if (mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='/' &&
                      mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='\\')
                      mfDictIncDir[numOfMFDictIncDirs].Append("/");
+#if defined( R__VISUAL_CPLUSPLUS )
                   mfDictIncDir[numOfMFDictIncDirs].ReplaceAll("$(","%");
                   mfDictIncDir[numOfMFDictIncDirs].ReplaceAll(")","%");
+#endif
                   numOfMFDictIncDirs++;
                }
             }
