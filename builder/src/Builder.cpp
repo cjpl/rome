@@ -336,7 +336,7 @@ void ArgusBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tempBuffer[2];
-   ROMEString compileFormatFrame,compileFormatTabs,compileFormatBlank,compileFormatROME,compileFormatARGUS,compileFormatMXML;
+   ROMEString compileFormatFrame,compileFormatTabs,compileFormatBlank,compileFormatROME,compileFormatARGUS,compileFormatMXML,compileFormatAny;
    Int_t i;
    ROMEString shortcut(shortCut);
    shortcut.ToLower();
@@ -653,6 +653,7 @@ void ArgusBuilder::WriteMakefile() {
    compileFormatROME.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp -o obj/ROME%%s.obj\n");
    compileFormatARGUS.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp -o obj/Argus%%s.obj\n");
    compileFormatMXML.SetFormatted ("	g++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c -o obj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("   g++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
    compileFormatFrame.SetFormatted("	cl /c $(Flags) $(Includes) src/framework/%s%%s.cpp /Foobj/%s%%s.obj\n",shortCut.Data(),shortCut.Data());
@@ -661,6 +662,7 @@ void ArgusBuilder::WriteMakefile() {
    compileFormatROME.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
    compileFormatARGUS.SetFormatted ("	cl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
    compileFormatMXML.SetFormatted ("	cl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
+   compileFormatAny.SetFormatted  ("   cl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
 #endif
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
@@ -752,8 +754,8 @@ void ArgusBuilder::WriteMakefile() {
 
    for (i=0;i<numOfMFSources;i++) {
       buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
-      tempBuffer[0].SetFormatted("%s%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
-      buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer[0].Data(),mfSourceFileName[i].Data());
+      tempBuffer[0].SetFormatted("%s%s.%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data(),mfSourceFileType[i].Data());
+      buffer.AppendFormatted(compileFormatAny.Data(),tempBuffer[0].Data(),mfSourceFileName[i].Data());
    }
    buffer.AppendFormatted("\n");
 
