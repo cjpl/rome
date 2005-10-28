@@ -609,7 +609,7 @@ void ArgusBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("src/framework/%sDict.h src/framework/%sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
