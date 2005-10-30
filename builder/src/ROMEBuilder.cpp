@@ -6274,6 +6274,7 @@ bool ROMEBuilder::WriteMidasCpp() {
    // Initialize ODB
    buffer.AppendFormatted("// InitODB\n");
    buffer.AppendFormatted("bool %sMidas::InitODB() {\n",shortCut.Data());
+#if !defined( __ARGUS__ )  // Argus does not make switches in ODB.
    buffer.AppendFormatted("#if defined( HAVE_MIDAS )\n");
    buffer.AppendFormatted("   HNDLE hKey;\n");
    buffer.AppendFormatted("   ROMEString str;\n");
@@ -6302,6 +6303,7 @@ bool ROMEBuilder::WriteMidasCpp() {
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("#endif\n");
+#endif // __ARGUS__
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
