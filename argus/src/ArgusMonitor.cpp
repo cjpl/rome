@@ -36,6 +36,9 @@
 #include <ROMENoDataBase.h>
 #include <ArgusMonitor.h>
 #include <ArgusWindow.h>
+#if defined( HAVE_MIDAS )	 
+#   include <midas.h>	 
+#endif
 
 ClassImp(ArgusMonitor)
 
