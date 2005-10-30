@@ -715,7 +715,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(DataBaseObjects)");
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
 
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj\n\n", shortCut.Data());
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj", shortCut.Data());
    for (i = 0; i < numOfMFSources; i++)
       buffer.AppendFormatted(" obj/%s.obj", mfSourceFileName[i].Data());
    buffer.AppendFormatted("\n\n");
