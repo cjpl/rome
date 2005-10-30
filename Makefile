@@ -6,7 +6,7 @@
 #  $Id$
 #
 #####################################################################
-INCLUDE = -g -Iinclude -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -Ibuilder/include/ $(shell root-config --cflags)
+INCLUDE = -g -D__ARGUS__ -Iinclude -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -Ibuilder/include/ $(shell root-config --cflags)
 LIBRARY = $(shell root-config --libs)
 objects = obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEXML.o \
           obj/ROMEBuilder.o obj/Builder.o obj/BuilderConfig.o \
