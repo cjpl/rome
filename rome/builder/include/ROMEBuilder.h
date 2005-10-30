@@ -259,6 +259,7 @@ protected:
 
 public:
    ROMEBuilder() {};
+   virtual ~ROMEBuilder() {};
 
    bool ReadXMLFolder();
    bool WriteFolderCpp();
@@ -311,8 +312,8 @@ public:
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
    void WriteDictionaryBat(ROMEString& buffer);
-   bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
-   bool WriteFile(const char* filename,const char* content,int nspace = 0);
+   virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
+   virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
    void startBuilder(const char* xmlfile);
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);

@@ -6,7 +6,7 @@
 //  Handles character strings.
 //  Derived from TString.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <stdio.h>

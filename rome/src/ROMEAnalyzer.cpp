@@ -77,7 +77,7 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 
    int i=0;
    fLastEventNumberIndex = 0;
-   fApplication = app;
+   fRint = app;
    fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
    fSplashScreen = true;
@@ -298,10 +298,10 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if(!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)){
-         gROME->Print("Inputlineparameter '");
+         gROME->Print("Input line parameter '");
          gROME->Print(argv[i]);
          gROME->Println("' not available.");
-         gROME->Println("Available inputlineparameter are : ");
+         gROME->Println("Available input line parameters are : ");
          gROME->Println();
          ParameterUsage();
          return false;
