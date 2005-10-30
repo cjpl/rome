@@ -1,7 +1,7 @@
 /********************************************************************
   TNetFolder.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 
@@ -78,7 +78,7 @@ protected:
 
   void Reconnect();
   Bool_t Send(const TMessage& mess);
-  Bool_t Send(const char* mess, Int_t kind = kMESS_STRING);
+  Bool_t Send(const Char_t* mess, Int_t kind = kMESS_STRING);
   Bool_t Recv(TMessage*& mess);
 
 

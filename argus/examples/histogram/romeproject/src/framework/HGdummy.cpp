@@ -5,7 +5,6 @@ HGdummy::HGdummy()
 {
 }
 
-
 bool HGdummy::Initialize()
 {
    return true;
@@ -19,8 +18,8 @@ bool HGdummy::Connect()
 
 bool HGdummy::ReadEvent(int event)
 {
-   gAnalyzer->SetCurrentEventNumber(gAnalyzer->GetCurrentEventNumber()+1);
-   if(gAnalyzer->GetCurrentEventNumber() > 10000)
+   gAnalyzer->SetCurrentEventNumber(gAnalyzer->GetCurrentEventNumber() + 1);
+   if (gAnalyzer->GetCurrentEventNumber() > 10000)
       SetEndOfRun();
    return true;
 }
@@ -34,4 +33,3 @@ bool HGdummy::Termination()
 {
    return true;
 }
-

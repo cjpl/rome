@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusBuilder.h, R. Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ArgusBuilder_H
@@ -75,6 +75,7 @@ protected:
 
 public:
    ArgusBuilder() {};
+   virtual ~ArgusBuilder() {};
 
    Bool_t ReadXMLNetFolder();
 
@@ -82,7 +83,7 @@ public:
    Bool_t WriteWindowH();
    Bool_t ReadXMLTab();
    Bool_t ReadXMLMenu(Int_t currentNumberOfTabs);
-   Bool_t WriteSteering(int iTab);
+   Bool_t WriteSteering(Int_t iTab);
    Bool_t WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
    Bool_t WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
    Bool_t WriteTabCpp();
@@ -99,8 +100,8 @@ public:
    void   WriteDictionaryBat(ROMEString& buffer);
    void   startBuilder(Char_t* xmlFile);
    void   GetMidasTID(ROMEString *buf,Char_t *type);
-   Bool_t ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
-   Bool_t WriteFile(const char* filename,const char* content,int nspace = 0);
+   Bool_t ReplaceHeader(const Char_t* filename,const Char_t* header,const Char_t* content,Int_t nspace = 0);
+   Bool_t WriteFile(const Char_t* filename,const Char_t* content,Int_t nspace = 0);
    void   ROME2Argus(ROMEString &buffer);
 };
 #endif   // ArgusBuilder_H

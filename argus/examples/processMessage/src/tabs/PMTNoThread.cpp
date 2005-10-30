@@ -16,7 +16,7 @@ ClassImp(PMTNoThread)
 
 void PMTNoThread::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(700*gMonitor->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gMonitor->GetWindowScale()), (UInt_t) (700 * gMonitor->GetWindowScale()));
 
    fButton = new TGTextButton(fHorz, "w/o Thread", 0);
    fButton->Associate(this);
@@ -29,31 +29,32 @@ void PMTNoThread::MenuClicked(Long_t param)
 {
 }
 
-Bool_t  PMTNoThread::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
+Bool_t PMTNoThread::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
 {
    switch (GET_MSG(msg)) {
-   case kC_COMMAND:    
+   case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
       case kCM_BUTTON:
-	 switch (param1){
+         switch (param1) {
          case 0:
             withOutMakingThread();
             break;
          }
          break;
       }
-      break;    
-   }  
+      break;
+   }
    return true;
 }
 
-void PMTNoThread::withOutMakingThread(){
-   cout<<"This function is executed without making new thread"<<endl;
+void PMTNoThread::withOutMakingThread()
+{
+   cout << "This function is executed without making new thread" << endl;
    int i;
-   for(i=10;i>0;i--){
-      cout<<i<<endl;
+   for (i = 10; i > 0; i--) {
+      cout << i << endl;
       gSystem->Sleep(1000);
    }
-   cout<<"PMTNoThread::withOutMakingThread is finished"<<endl;
-   cout<<endl;
+   cout << "PMTNoThread::withOutMakingThread is finished" << endl;
+   cout << endl;
 }
