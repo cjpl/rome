@@ -18,28 +18,27 @@ ClassImp(SBTTab1)
 
 void SBTTab1::Init()
 {
-   fLine = new TGHorizontal3DLine(this,500);
+   fLine = new TGHorizontal3DLine(this, 500);
    AddFrame(fLine, new TGLayoutHints(kLHintsTop));
 }
 
 void SBTTab1::TabSelected()
 {
-   Int_t parts[]={15, 15, 23, 47};
-   gWindow->GetStatusBar()->SetParts(parts,sizeof(parts)/sizeof(Int_t));
+   Int_t parts[] = { 15, 15, 23, 47 };
+   gWindow->GetStatusBar()->SetParts(parts, sizeof(parts) / sizeof(Int_t));
    //Fixed text
-   gWindow->GetStatusBar()->SetText("Fixed Text",0);
+   gWindow->GetStatusBar()->SetText("Fixed Text", 0);
    //Program name
-   gWindow->GetStatusBar()->SetText(gMonitor->GetProgramName(),1);
+   gWindow->GetStatusBar()->SetText(gMonitor->GetProgramName(), 1);
    //Steering parameter
-   gWindow->GetStatusBar()->SetText(GetSP()->Gettext(),2);
+   gWindow->GetStatusBar()->SetText(GetSP()->Gettext(), 2);
    // Time
    TTimeStamp ts;
    ts.Set();
-   gWindow->GetStatusBar()->SetText(ts.AsString("s"),3);
+   gWindow->GetStatusBar()->SetText(ts.AsString("s"), 3);
 }
 
 void SBTTab1::TabUnSelected()
 {
    gWindow->ClearStatusBar();
 }
-

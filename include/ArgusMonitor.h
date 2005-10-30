@@ -8,55 +8,18 @@
 
 #ifndef ArgusMonitor_H
 #define ArgusMonitor_H
-#if defined ( USE_TRINT )
-#include <TRint.h>
-#else
-#include <TApplication.h>
-#endif
-#include <ROMEString.h>
-#include <ROMEDataBase.h>
-#include <ArgusConfig.h>
-#if defined( HAVE_MIDAS )
-#include <midas.h>
-#endif
-#include <TSocket.h>
+#include <ROMEAnalyzer.h>
+#include <ROMEConfig.h>
 #include <TNetFolder.h>
 
-class ArgusMonitor : public TObject
+class ArgusMonitor : public ROMEAnalyzer
 {
 protected:
-   // Application
-#if defined( USE_TRINT )
-   TRint*           fApplication;                 //! Application Handle
-#else
-   TApplication*    fApplication;                 //! Application Handle
-#endif
-   
-   // Directories
-   ROMEString*      fDataBaseDir;                 //! Data Base File Directory
-   ROMEString       fConfigDir;                   //! Configuration File Directory
-   
-   // Data base
-   ROMEDataBase**   fDataBaseHandle;               //! DataBase Handle
-   ROMEString*      fDataBaseConnection;           //! DataBase connection string
-   Int_t            fNumberOfDataBases;            //! Number of DataBases available
+   TApplication*    fApplication;                  //! Application Handle
 
-   // Object Handles
-   TFolder*         fMainFolder;                   //! Handle to Main Folder
-   
-   // Program name
-   ROMEString       fProgramName;                  //! Name of this Program
-   
-   // Midas
-   int              fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
-   
-   // Online
-   ROMEString       fOnlineHost;                   //! Name of the Online Host
-   ROMEString       fOnlineExperiment;             //! Name of the Online Experiment
-   
+   ROMETreeInfo*    fTreeInfo;                     //! Tree Info Object
+
    Int_t            fNumberOfNetFolders;           //! Number of net folders
-   Int_t            fRunNumber;                    //! Run number for ROMEDataBase
-
    // Window
    Float_t          fWindowScale;                  //! Window scale
    
@@ -69,68 +32,20 @@ protected:
    ROMEString*      fNetFolderName;                //! name
    ROMEString*      fNetFolderHost;                //! server host name
    ROMEString*      fNetFolderRoot;                //! root directory name
-
-   // Configuration
-   ArgusConfig*     fConfiguration;                //! Configuration Handle
    
    // virtual methods
    virtual Bool_t   StartWindow() = 0;
-   virtual void     InitSingleFolders() = 0;
-   virtual void     InitArrayFolders() = 0;
-   virtual void     CleanUpFolders() = 0;
-   virtual void     ResetFolders() = 0;
    
 public:
-   ArgusMonitor() {}
-#if defined( USE_TRINT )
-   ArgusMonitor(TRint *app);
-#else
+   ArgusMonitor(){};
    ArgusMonitor(TApplication *app);
-#endif
    ~ArgusMonitor();
 
-   // Output
-   void            Print(Char_t text);
-   void            Print(const Char_t* text="");
-   void            Println(const Char_t* text="");
-   void            Printfl(const Char_t* text="");
+   void            startSplashScreen(){;}
+   void            consoleStartScreen(){;}
+   void            redirectOutput(){;}
+   TApplication*   GetApplication() { return fApplication; };
 
-   
-   // Application Handle
-#if defined( USE_TRINT )
-   TRint*          GetApplication() { return fApplication; }
-#else
-   TApplication*   GetApplication() { return fApplication; }
-#endif
-   Int_t           GetCurrentRunNumber() { return fRunNumber; }
-   void            SetCurrentRunNumber(Int_t run) { fRunNumber = run; }
-
-   // Data Base Handle
-   const Char_t*   GetDataBaseConnection(Int_t i) { return fDataBaseConnection[i].Data(); }
-   void            SetDataBaseConnection(Int_t i,const Char_t* connection) { fDataBaseConnection[i] = connection; }
-   ROMEDataBase*   GetDataBase(Int_t i);
-   ROMEDataBase*   GetDataBase(const Char_t *name);
-   Bool_t          isDataBaseActive(const Char_t *name);
-   void            SetDataBase(Int_t i,ROMEDataBase* dataBase) { fDataBaseHandle[i] = dataBase; }
-   Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; }
-   void            InitDataBases(Int_t number);
-   
-   // Directories
-   Char_t*         GetDataBaseDir(Int_t i) { return (Char_t*) fDataBaseDir[i].Data(); }
-   void            SetDataBaseDir(Int_t i,const Char_t* dir) { fDataBaseDir[i] = dir; }
-   void            SetDataBaseDir(Int_t i,ROMEString& dir) { fDataBaseDir[i] = dir; }
-   Char_t*         GetConfigDir() { return (Char_t*)fConfigDir.Data(); }
-   void            SetConfigDir(Char_t* dir) { fConfigDir = dir; }
-   void            SetConfigDir(ROMEString& dir) { fConfigDir = dir; }
-   
-   // Online
-   Char_t*         GetOnlineHost() { return (Char_t*)fOnlineHost.Data(); }
-   Char_t*         GetOnlineExperiment() { return (Char_t*)fOnlineExperiment.Data(); }
-   void            SetOnlineHost(Char_t* host) { fOnlineHost = host; }
-   void            SetOnlineHost(ROMEString& host) { fOnlineHost = host; }
-   void            SetOnlineExperiment(Char_t* experiment) { fOnlineExperiment = experiment; }
-   void            SetOnlineExperiment(ROMEString& experiment) { fOnlineExperiment = experiment; }
-   
    // NetFolder
    Bool_t          IsNetFolderActive(const Char_t *name);
    TNetFolder*     GetNetFolder(const Char_t* name);
@@ -153,32 +68,28 @@ public:
    void            SetNetFolderReconnect(Int_t i,Bool_t reconnect) { fNetFolderReconnect[i] = reconnect; }
    Int_t           GetNumberOfNetFolders() { return fNumberOfNetFolders; }
 
+   virtual void InitSingleFolders() = 0;
+   virtual void InitArrayFolders() = 0;
+   virtual void CleanUpFolders() = 0;
+   virtual void ResetFolders() = 0;
+
+   Bool_t DAQInit();
+   Bool_t DAQBeginOfRun();
+   Bool_t DAQEvent(Int_t event);
+   Bool_t DAQEndOfRun();
+   Bool_t DAQTerminate();
+
    // Window
    Float_t         GetWindowScale() { return fWindowScale; }
    void            SetWindowScale(Float_t scale) { fWindowScale = scale; }
    void            SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = (Float_t)strtod(scale,&cstop); }
    void            SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); }
    
-   // Midas
-   Int_t           GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
-   Int_t*          GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
-   
-   // Configuration
-   ArgusConfig*    GetConfiguration() { return fConfiguration; }
-
-   // Program name
-   Char_t*         GetProgramName() { return (Char_t*)fProgramName.Data(); }
-   
-   // main objects
-   TFolder*        GetMainFolder() { return fMainFolder; }
-   
    // Start Method
    Bool_t          Start(int argc=0, char **argv=NULL);
    
    // Start Monitor
    Bool_t          StartMonitor();
-   virtual Bool_t  ReadSingleDataBaseFolders() = 0;
-   virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
    // NetFolder connection
    Bool_t          ConnectNetFolder(const Char_t* name);
@@ -188,16 +99,13 @@ public:
    Bool_t          ConnectNetFolders();
    Bool_t          DisconnectNetFolders();
    void            InitNetFolders(Int_t number);
-
-   Int_t           stricmp(const Char_t*,const Char_t*);
-   Bool_t          strtobool(const Char_t* str);
-   Bool_t          toBool(Int_t value){ return value!=0; }
    
 protected:      
    Bool_t          ReadParameters(Int_t argc, Char_t *argv[]);
    virtual Bool_t  ReadUserParameter(const Char_t* opt, const Char_t* value, Int_t& i) { return false; }
    void            ParameterUsage();
    virtual void    UserParameterUsage(){}
+   virtual void    InitTrees(){}
    
    ClassDef(ArgusMonitor,0)
 };

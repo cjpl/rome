@@ -17,21 +17,20 @@ ClassImp(TMTT2)
 void TMTT2::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(fParent, (UInt_t)(700*gMonitor->GetWindowScale()), (UInt_t)(700*gMonitor->GetWindowScale()));
-   
+   fVert = new TGVerticalFrame(fParent, (UInt_t) (700 * gMonitor->GetWindowScale()), (UInt_t) (700 * gMonitor->GetWindowScale()));
+
    // Create an embedded canvas and add to the main frame, centered in x and y 
-   fCanvas = new TRootEmbeddedCanvas("Tab2", fVert, (UInt_t)(600*gMonitor->GetWindowScale()), (UInt_t)(600*gMonitor->GetWindowScale()));
-   
+   fCanvas = new TRootEmbeddedCanvas("Tab2", fVert, (UInt_t) (600 * gMonitor->GetWindowScale()), (UInt_t) (600 * gMonitor->GetWindowScale()));
+
    // Create a text
-   fText = new TLatex(0.5,0.5,"Menu Tab 2.");
+   fText = new TLatex(0.5, 0.5, "Menu Tab 2.");
    fText->SetTextAlign(22);
-   
-   fVert->AddFrame(fCanvas,
-                   new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4, 4, 4, 4));
-   AddFrame(fVert, new TGLayoutHints( kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
-   
+
+   fVert->AddFrame(fCanvas, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 4, 4, 4, 4));
+   AddFrame(fVert, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
+
    fCanvas->GetCanvas()->cd();
    fText->Draw();
    fCanvas->GetCanvas()->Modified();
-   fCanvas->GetCanvas()->Update(); 
+   fCanvas->GetCanvas()->Update();
 }
