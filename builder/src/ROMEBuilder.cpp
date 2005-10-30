@@ -4291,7 +4291,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sMidas* GetMidas() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fMidas==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the midas DAQ system over a gAnalyzer->GetMidas()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         fApplication->Terminate(1);\n");
+   buffer.AppendFormatted("         fRint->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fMidas;\n");
@@ -4300,7 +4300,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sRoot*  GetRoot() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fRoot==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gAnalyzer->GetRoot()\\nhandle but the current DAQ system is not 'Root'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         fApplication->Terminate(1);\n");
+   buffer.AppendFormatted("         fRint->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fRoot;\n");
@@ -4310,7 +4310,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
       buffer.AppendFormatted("   ROMEOrca*  GetOrca() {\n");
       buffer.AppendFormatted("      if (fOrca==NULL) {\n");
       buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the orca DAQ system over a gAnalyzer->GetOrca()\\nhandle but the current DAQ system is not 'Orca'.\\n\\nShutting down the program.\\n\");\n");
-      buffer.AppendFormatted("         fApplication->Terminate(1);\n");
+      buffer.AppendFormatted("         fRint->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("      return fOrca;\n");
@@ -9156,7 +9156,15 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    if (this->sql)
-      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQL.h");
+   if (this->mysql)
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMEMySQL.h");
+   if (this->pgsql)
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMEPgSQL.h");
+   if (this->sqlite)
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLite.h");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLite3.h");
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted(" include/framework/%s%sDataBase.h",shortCut.Data(),dbName[i].Data());
    buffer.AppendFormatted("\n");
@@ -9166,7 +9174,15 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
    if (this->sql)
-      buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
+      buffer.AppendFormatted(" obj/ROMESQL.obj");
+   if (this->mysql)
+      buffer.AppendFormatted(" obj/ROMEMySQL.obj");
+   if (this->pgsql)
+      buffer.AppendFormatted(" obj/ROMEPgSQL.obj");
+   if (this->sqlite)
+      buffer.AppendFormatted(" obj/ROMESQLite.obj");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" obj/ROMESQLite3.obj");
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted(" obj/%s%sDataBase.obj",shortCut.Data(),dbName[i].Data());
    buffer.AppendFormatted("\n");
@@ -9180,6 +9196,17 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DictionaryIncludes %s",EqualSign());
    buffer.AppendFormatted("\n");
+
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
+#endif
+#if defined( R__UNIX )
+#if defined( R__MACOSX )
+   buffer.AppendFormatted("DYLD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#else
+   buffer.AppendFormatted("LD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#endif
+#endif
 
 // task dependences
    buffer.AppendFormatted("\n");
@@ -9260,9 +9287,6 @@ void ROMEBuilder::WriteMakefile() {
 // Dictionary
    ROMEString dictionarybat;
    WriteDictionaryBat(dictionarybat);
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TaskIncludes)");
    buffer.AppendFormatted(" $(BaseTaskIncludes)");
@@ -9270,17 +9294,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-#if defined( R__UNIX )
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#else
-   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif
-#endif // R__UNIX
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("\t");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted(" %s $(DictionaryHeaders)\n",dictionarybat.Data());
+   buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
 
@@ -9483,12 +9497,7 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
 #ifndef R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("build:\n");
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("	DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#else
-   buffer.AppendFormatted("	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif // R__MACOSX
-   buffer.AppendFormatted(" $(ROMESYS)/bin/romebuilder.exe");
+   buffer.AppendFormatted("\t$(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
