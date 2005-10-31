@@ -355,7 +355,6 @@ void ArgusMonitor::InitNetFolders(Int_t number)
 Bool_t ArgusMonitor::DAQInit()
 {
    // Initialize the analyzer. Called before the init tasks.
-   Int_t j;
 
    // Check IO System
    if (gArgus->GetNumberOfRunNumbers() > 0 && gArgus->GetNumberOfInputFileNames() > 0)
