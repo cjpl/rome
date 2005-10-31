@@ -8192,7 +8192,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sEventLoop::CleanUpFolders() {\n",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i]>0 && !folderNoReset[i]) {
+      if (numOfValue[i]>0 && !folderNoReset[i] && !folderSupport[i]) {
          if (folderArray[i]=="variable") {
             buffer.AppendFormatted("   int i;\n");
             break;
@@ -8215,7 +8215,12 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // reset folders
    buffer.AppendFormatted("// Reset Folders\n");
    buffer.AppendFormatted("void %sEventLoop::ResetFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if(numOfValue[i]>0 && !folderSupport[i] && folderArray[i]!="1") {
+         buffer.AppendFormatted("   int i;\n");
+         break;
+      }
+   }
    for (i=0;i<numOfFolder;i++) {
       if(numOfValue[i]<=0 || folderSupport[i])
          continue;
