@@ -1,0 +1,10 @@
+all:gotorome makerome gotoargus makeargus
+
+gotorome:
+	@cd rome
+makerome:
+	@nmake /C -f Makefile.win
+gotoargus:
+	@cd ../argus
+makeargus:
+	@nmake /C -f Makefile.win

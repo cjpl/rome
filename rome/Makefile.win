@@ -1,6 +1,49 @@
-ROOTINC = /I$(ROOTSYS)/include/
-LIBRARY = $(ROOTSYS)/lib/libCore.lib
+#####################################################################
+#
+#  Name:         Makefile.win
+#  Created by:   Matthias Schneebeli
+#
+#  Makefile for the ROMEBuilder
+#
+#  $Id:$
+#
+#####################################################################
+#
+Includes = /I$(ROOTSYS)/include/ /I$(ROMESYS)/include/ /I$(ROMESYS)/builder/include/
+Libraries = $(ROOTSYS)/lib/libCore.lib
+Flags = /GX /GR 
 
-ROMEBuilder.exe:  Builder/src/ROMEBuilder.cpp Builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp src/ROMEStrArray.cpp
-	cl /GX /I%ROMESYS%/Builder/include/ /I%ROMESYS%/include/ $(ROOTINC) /Fo%ROMESYS%/bin/ /Fe%ROMESYS%/bin/ROMEBuilder.exe Builder/src/ROMEBuilder.cpp Builder/src/main.cpp src/ROMEXML.cpp src/mxml.c src/strlcpy.c src/ROMEString.cpp src/ROMEStrArray.cpp $(LIBRARY)
+Objects = obj/ROMEBuilder.obj obj/main.obj obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj
+
+
+all:obj ROMEBuilder.exe
+	@echo building ROME
+	@echo -------------
+
+obj:
+	@mkdir obj
+
+ROMEBuilder.exe: $(Objects)
+	cl /Fo%ROMESYS%/bin/ /FeROMEBuilder.exe $(Objects) $(Libraries)
+
+obj/ROMEBuilder.obj: Builder/src/ROMEBuilder.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
+	cl /c $(Flags) $(Includes) Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
+
+obj/main.obj: Builder/src/main.cpp Builder/include/ROMEBuilder.h include/ROMEStrArray.h
+	cl /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
+
+obj/ROMEXML.obj: src/ROMEXML.cpp include/ROMEXML.h include/ROMEString.h include/ROMEStrArray.h include/mxml.h
+	cl /c $(Flags) $(Includes) src/ROMEXML.cpp /Foobj/ROMEXML.obj
+
+obj/mxml.obj: src/mxml.c include/mxml.h
+	cl /c $(Flags) $(Includes) src/mxml.c /Foobj/mxml.obj
+
+obj/strlcpy.obj: src/strlcpy.c include/strlcpy.h
+	cl /c $(Flags) $(Includes) src/strlcpy.c /Foobj/strlcpy.obj
+
+obj/ROMEString.obj: src/ROMEString.cpp include/ROMEString.h
+	cl /c $(Flags) $(Includes) src/ROMEString.cpp /Foobj/ROMEString.obj
+
+obj/ROMEStrArray.obj: src/ROMEStrArray.cpp include/ROMEStrArray.h
+	cl /c $(Flags) $(Includes) src/ROMEStrArray.cpp /Foobj/ROMEStrArray.obj
 

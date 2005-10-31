@@ -3,44 +3,71 @@
 #  Name:         Makefile.win
 #  Created by:   Ryu Sawada
 #
-#  $Log$
-#  Revision 1.5  2005/05/26 16:34:03  schneebeli_m
-#  windows specific stuff
-#
-#  Revision 1.4  2005/05/26 14:26:54  sawada
-#  Lots of changes.
-#  Made ArgusBuilder an inheriting class of ROMEBuilder.
-#  Remove ROMEFolder and added NetFolers.
-#  Added ArgusWindow class.
-#  and so on.
-#
-#  Revision 1.3  2005/04/28 13:54:10  schneebeli_m
-#  small bug
-#
-#  Revision 1.2  2005/04/22 10:06:00  schneebeli_m
-#  libxml2 replaced by mxml
-#
-#  Revision 1.1  2005/03/18 16:40:28  sawada
-#  added Makefile.win
-#
+#  $Id:$
 #
 #####################################################################
 #
 ARGUSINCLUDES = /I%ARGUSSYS%/builder/include/ /I%ARGUSSYS%/include/ 
 ROMEINCLUDES = /I%ROMESYS%/include/ /I%ROMESYS%/include/ /I%ROMESYS%/builder/include/ 
 ROOTINCLUDES = /I%ROOTSYS%/include/ 
-INCLUDES = /D__ARGUS__ $(ARGUSINCLUDES) $(ROMEINCLUDES) $(ROOTINCLUDES)
-ARGUSSRC = builder/src/main.cpp builder/src/Builder.cpp builder/src/BuilderConfig.cpp builder/src/BuilderTab.cpp builder/src/BuilderNetFolder.cpp builder/src/BuilderWindow.cpp builder/src/BuilderMonitor.cpp 
-ROMESRC = $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/src/mxml.c $(ROMESYS)/src/strlcpy.c $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/builder/src/ROMEBuilder.cpp
-SRC = $(ARGUSSRC) $(ROMESRC)
-LIBRARY = $(ROOTSYS)/lib/libCore.lib
+Includes = /D__ARGUS__ $(ARGUSINCLUDES) $(ROMEINCLUDES) $(ROOTINCLUDES)
+Libraries = $(ROOTSYS)/lib/libCore.lib
+Flags = /GX /GR 
 
-all:bin ARGUSBuilder.exe
+ARGUSObjects = obj/main.obj obj/Builder.obj obj/BuilderConfig.obj obj/BuilderTab.obj obj/BuilderNetFolder.obj obj/BuilderWindow.obj obj/BuilderMonitor.obj
+ROMEObjects = obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEBuilder.obj
+Objects = $(ARGUSObjects) $(ROMEObjects)
+
+
+all:bin obj ARGUSBuilder.exe
+	@echo building ARGUS
+	@echo --------------
 
 bin:
 	@mkdir bin
+obj:
+	@mkdir obj
 
-ARGUSBuilder.exe: $(SRC)
-	cl /GX $(INCLUDES) /Fo%ARGUSSYS%/bin/ /Fe%ARGUSSYS%/bin/ARGUSBuilder.exe $(SRC) $(LIBRARY)
+ARGUSBuilder.exe: $(Objects)
+	cl /Fo%ARGUSSYS%/bin/ /FeARGUSBuilder.exe $(Objects) $(Libraries)
 
+
+obj/main.obj: Builder/src/main.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
+
+obj/Builder.obj: Builder/src/Builder.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/Builder.cpp /Foobj/Builder.obj
+
+obj/BuilderConfig.obj: Builder/src/BuilderConfig.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/BuilderConfig.cpp /Foobj/BuilderConfig.obj
+
+obj/BuilderTab.obj: Builder/src/BuilderTab.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/BuilderTab.cpp /Foobj/BuilderTab.obj
+
+obj/BuilderNetFolder.obj: Builder/src/BuilderNetFolder.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/BuilderNetFolder.cpp /Foobj/BuilderNetFolder.obj
+
+obj/BuilderWindow.obj: Builder/src/BuilderWindow.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/BuilderWindow.cpp /Foobj/BuilderWindow.obj
+
+obj/BuilderMonitor.obj: Builder/src/BuilderMonitor.cpp Builder/include/ArgusBuilder.h
+	cl /c $(Flags) $(Includes) Builder/src/BuilderMonitor.cpp /Foobj/BuilderMonitor.obj
+
+obj/ROMEBuilder.obj: $(ROMESYS)/Builder/src/ROMEBuilder.cpp $(ROMESYS)/Builder/include/ROMEBuilder.h $(ROMESYS)/include/ROMEXML.h $(ROMESYS)/include/ROMEString.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
+
+obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h $(ROMESYS)/include/ROMEString.h $(ROMESYS)/include/ROMEStrArray.h $(ROMESYS)/include/mxml.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROMEXML.cpp /Foobj/ROMEXML.obj
+
+obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/src/mxml.c /Foobj/mxml.obj
+
+obj/strlcpy.obj: $(ROMESYS)/src/strlcpy.c $(ROMESYS)/include/strlcpy.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/src/strlcpy.c /Foobj/strlcpy.obj
+
+obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROMEString.cpp /Foobj/ROMEString.obj
+
+obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h
+	cl /c $(Flags) $(Includes) $(ROMESYS)/src/ROMEStrArray.cpp /Foobj/ROMEStrArray.obj
 
