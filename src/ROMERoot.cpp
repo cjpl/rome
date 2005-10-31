@@ -48,7 +48,6 @@ bool ROMERoot::BeginOfRun() {
       this->SetRunning();
       // Read Trees
       int i,j,k;
-      TObject *obj;
       ROMEString filename;
       ROMEString treename;
       if (gROME->IsRunNumberBasedIO())
