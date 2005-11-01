@@ -166,7 +166,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
    Char_t *name;
    Int_t type, i, j;
    ROMEString currentTabName = "";
-   Int_t currentNumberOfTabs;
+   Int_t currentNumberOfTabs = 0;
 
    // count tabs
    numOfTab++;

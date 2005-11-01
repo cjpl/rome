@@ -58,9 +58,8 @@ Bool_t ArgusBuilder::WriteMain()
    return kTRUE;
 }
 
-void ArgusBuilder::startBuilder(Char_t * xmlfile)
+void ArgusBuilder::StartBuilder()
 {
-   xmlFile = xmlfile;
    xml = new ROMEXML();
    Char_t *name;
    Bool_t finished = kFALSE;
@@ -172,6 +171,7 @@ void ArgusBuilder::startBuilder(Char_t * xmlfile)
                      name = xml->GetName();
                      // folder
                      if (type == 1 && !strcmp((const Char_t *) name, "Folder")) {
+                        folderSupport[numOfFolder+1] = false;
                         recursiveDepth = 0;
                         if (!ReadXMLFolder())
                            return;
@@ -716,9 +716,9 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
 
    buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj", shortCut.Data());
-   for (i = 0; i < numOfMFSources; i++)
-      buffer.AppendFormatted(" obj/%s.obj", mfSourceFileName[i].Data());
-   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n");
+   WriteAdditionalSourceFilesObjects(buffer);
+   buffer.AppendFormatted("\n");
 
    // all
    buffer.AppendFormatted("all:obj %s%s", shortcut.Data(), mainprogname.Data());
@@ -917,11 +917,7 @@ void ArgusBuilder::WriteMakefile()
    tempBuffer[1].SetFormatted("%sDict", shortCut.Data());
    buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
 
-   for (i = 0; i < numOfMFSources; i++) {
-      buffer.AppendFormatted("obj/%s.obj: %s\n", mfSourceFileName[i].Data(), mfSourceFileDep[i].Data());
-      tempBuffer[0].SetFormatted("%s%s.%s", mfSourceFilePath[i].Data(), mfSourceFileName[i].Data(), mfSourceFileType[i].Data());
-      buffer.AppendFormatted(compileFormatAny.Data(), tempBuffer[0].Data(), mfSourceFileName[i].Data());
-   }
+   WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");
 
    // Clean and build

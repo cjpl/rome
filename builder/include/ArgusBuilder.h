@@ -23,8 +23,8 @@
 #include "ArgusVersion.h"
 
 const Int_t maxNumberOfTabs                    =    200;
-const Int_t maxNumberOfMenus                   =     10;
-const Int_t maxNumberOfMenuItems               =     40;
+const Int_t maxNumberOfMenus                   =     20;
+const Int_t maxNumberOfMenuItems               =     50;
 const Int_t maxNumberOfThreadFunctions         =     10;
 const Int_t maxNumberOfThreadFunctionArguments =     10;
 const Int_t maxNumberOfNetFolders              =     10;
@@ -98,7 +98,7 @@ public:
    void   WriteMakefile();
    void   WriteHTMLDoku();
    void   WriteDictionaryBat(ROMEString& buffer);
-   void   startBuilder(Char_t* xmlFile);
+   void   StartBuilder();
    void   GetMidasTID(ROMEString *buf,Char_t *type);
    Bool_t ReplaceHeader(const Char_t* filename,const Char_t* header,const Char_t* content,Int_t nspace = 0);
    Bool_t WriteFile(const Char_t* filename,const Char_t* content,Int_t nspace = 0);
