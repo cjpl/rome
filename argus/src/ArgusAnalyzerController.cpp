@@ -9,13 +9,15 @@
 
 ClassImp(ArgusAnalyzerController)
 #define DEBUG
+
 // Constructor
-    ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p, const TGWindow * main, UInt_t w, UInt_t h, TNetFolder * nf, UInt_t options)
+ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p, const TGWindow * main, UInt_t w, UInt_t h, TNetFolder * nf, UInt_t options)
 :TGTransientFrame(p, main, w, h, options)
 {
    fNetFolder = nf;
-   fRunNumber = 0;
-   fEventNumber = 0;
+   fRunNumber = gArgus->GetCurrentRunNumber();
+   fLastRunNumber = fRunNumber;
+   fEventNumber = gArgus->GetCurrentEventNumber();
    fEventStep = 1;
    fEventInterval = 5;
 
@@ -132,23 +134,69 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (fPlayButton->IsDown()) {
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
-               fNetFolder->Execute("gAnalyzer->SetUserEventC();");
-               fNetFolder->Execute("gAnalyzer->SetUserEventR();");
-            } else {
+               if(fNetFolder){ // control analyzer
+                  fNetFolder->Execute("gAnalyzer->SetUserEventC();");
+                  fNetFolder->Execute("gAnalyzer->SetUserEventR();");
+               }
+               else{ // control active DAQ
+                  // to be implemented something
+               }
+            }
+            else {
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
-               fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+               if(fNetFolder){ // control analyzer
+                  fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+               }
+               else{ // control active DAQ
+                  // to be implemented something
+               }
             }
             break;
          case B_Next:
-            fNetFolder->Execute("gAnalyzer->SetUserEventO();");
-            fNetFolder->Execute("gAnalyzer->SetUserEventR();");
+            if(fNetFolder){ // control analyzer
+               fNetFolder->Execute("gAnalyzer->SetUserEventO();");
+               fNetFolder->Execute("gAnalyzer->SetUserEventR();");
+            }
+            else{ // control active DAQ
+               if (fRunNumber != fLastRunNumber) {
+                  fLastRunNumber = fRunNumber;
+                  gArgus->GetActiveDAQ()->EndOfRun();
+                  gArgus->SetCurrentRunNumber(fRunNumber);
+                  if (!gArgus->GetActiveDAQ()->BeginOfRun()) {
+                     // currently, only sequensial read from event-0 is supported. Random access will be supported soon.
+                     fEventNumber = 0;
+                     gArgus->SetCurrentEventNumber(fEventNumber);
+                     return false;
+                  }
+                  // currently, only sequensial read from event-0 is supported. Random access will be supported soon.
+                  fEventNumber = 0;
+                  gArgus->SetCurrentEventNumber(fEventNumber);
+                  gArgus->SetCurrentRunNumber(fRunNumber);
+               }
+               // read data from file
+               gArgus->GetActiveDAQ()->Event(fEventNumber);
+  
+               // increment event number
+               fEventNumber++;
+               gArgus->SetCurrentEventNumber(fEventNumber);
+            }
             break;
          case B_Stop:
-            fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+            if(fNetFolder){ // control analyzer
+               fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+            }
+            else{ // control active DAQ
+               // to be implemented something
+            }
             break;
          case B_Frwd:
-            // to be implemented something
+            if(fNetFolder){ // control analyzer
+               // to be implemented something
+            }
+            else{ // control active DAQ
+               gArgus->GetActiveDAQ()->EndOfRun();
+            }
             break;
          default:
             break;

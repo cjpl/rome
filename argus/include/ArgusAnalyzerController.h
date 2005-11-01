@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusAnalyzerController.h, R.Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ArgusAnalyzerController_H
@@ -17,6 +17,7 @@ class ArgusAnalyzerController : public TGTransientFrame
 protected:
    TNetFolder*         fNetFolder;
    Int_t               fRunNumber;
+   Int_t               fLastRunNumber;
    Int_t               fEventNumber;
    Int_t               fEventStep;
    Int_t               fEventInterval;
