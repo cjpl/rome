@@ -363,7 +363,7 @@ Bool_t ArgusMonitor::DAQInit()
       gArgus->SetIOType(gArgus->kRunNumberBased);
    else if (gArgus->GetNumberOfInputFileNames() > 0)
       gArgus->SetIOType(gArgus->kFileNameBased);
-   else if (gArgus->isOffline()) {
+   else if (gArgus->isOffline() && strcmp(gArgus->GetActiveDAQ()->GetName(), "none")) {
       gArgus->Println("No run numbers or input file names specified.\n");
       return kFALSE;
    }
