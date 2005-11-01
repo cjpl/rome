@@ -5,7 +5,7 @@
 #
 #  Makefile for the ROMEBuilder
 #
-#  $Id:$
+#  $Id$
 #
 #####################################################################
 #
@@ -16,34 +16,41 @@ Flags = /GX /GR
 Objects = obj/ROMEBuilder.obj obj/main.obj obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj
 
 
-all:obj ROMEBuilder.exe
-	@echo building ROME
-	@echo -------------
+all:startecho obj ROMEBuilder.exe endecho
 
+startecho:
+	@echo -------------
+	@echo building ROME
+
+endecho:
+	@echo done
+	
 obj:
+	@echo making directory bin ...
 	@mkdir obj
 
 ROMEBuilder.exe: $(Objects)
-	cl /Fo%ROMESYS%/bin/ /FeROMEBuilder.exe $(Objects) $(Libraries)
+	@echo linking ROMEBuilder ...
+	@cl /nologo /Febin/ROMEBuilder.exe $(Objects) $(Libraries)
 
 obj/ROMEBuilder.obj: Builder/src/ROMEBuilder.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
-	cl /c $(Flags) $(Includes) Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
 
 obj/main.obj: Builder/src/main.cpp Builder/include/ROMEBuilder.h include/ROMEStrArray.h
-	cl /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
 
 obj/ROMEXML.obj: src/ROMEXML.cpp include/ROMEXML.h include/ROMEString.h include/ROMEStrArray.h include/mxml.h
-	cl /c $(Flags) $(Includes) src/ROMEXML.cpp /Foobj/ROMEXML.obj
+	@cl /nologo /c $(Flags) $(Includes) src/ROMEXML.cpp /Foobj/ROMEXML.obj
 
 obj/mxml.obj: src/mxml.c include/mxml.h
-	cl /c $(Flags) $(Includes) src/mxml.c /Foobj/mxml.obj
+	@cl /nologo /c $(Flags) $(Includes) src/mxml.c /Foobj/mxml.obj
 
 obj/strlcpy.obj: src/strlcpy.c include/strlcpy.h
-	cl /c $(Flags) $(Includes) src/strlcpy.c /Foobj/strlcpy.obj
+	@cl /nologo /c $(Flags) $(Includes) src/strlcpy.c /Foobj/strlcpy.obj
 
 obj/ROMEString.obj: src/ROMEString.cpp include/ROMEString.h
-	cl /c $(Flags) $(Includes) src/ROMEString.cpp /Foobj/ROMEString.obj
+	@cl /nologo /c $(Flags) $(Includes) src/ROMEString.cpp /Foobj/ROMEString.obj
 
 obj/ROMEStrArray.obj: src/ROMEStrArray.cpp include/ROMEStrArray.h
-	cl /c $(Flags) $(Includes) src/ROMEStrArray.cpp /Foobj/ROMEStrArray.obj
+	@cl /nologo /c $(Flags) $(Includes) src/ROMEStrArray.cpp /Foobj/ROMEStrArray.obj
 

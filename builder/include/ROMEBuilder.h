@@ -28,12 +28,13 @@ const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 50;
 const int maxNumberOfStructFields = 50;
 const int maxNumberOfMFDictHeaders = 100;
-const int maxNumberOfMFDictIncDirs = 100;
-const int maxNumberOfMFWinLibs = 100;
-const int maxNumberOfMFUnixLibs = 100;
-const int maxNumberOfMFIncDirs = 100;
-const int maxNumberOfMFPreDefs = 100;
+const int maxNumberOfMFDictIncDirs = 20;
+const int maxNumberOfMFWinLibs = 20;
+const int maxNumberOfMFUnixLibs = 20;
+const int maxNumberOfMFIncDirs = 20;
+const int maxNumberOfMFPreDefs = 20;
 const int maxNumberOfMFSources = 100;
+const int maxNumberOfMFSourceFlags = 5;
 
 const char valueCounter[][maxNumberOfValueDimension] = {"i","j","k"};
 
@@ -239,6 +240,8 @@ protected:
    ROMEString mfSourceFilePath[maxNumberOfMFSources];
    ROMEString mfSourceFileType[maxNumberOfMFSources];
    ROMEString mfSourceFileDep[maxNumberOfMFSources];
+   int numOfMFSourceFlags[maxNumberOfMFSources];
+   ROMEString mfSourceFileFlag[maxNumberOfMFSources][maxNumberOfMFSourceFlags];
 
 // main
    ROMEString mainAuthor;
@@ -307,6 +310,8 @@ public:
    bool WriteMain();
    char* EqualSign();
    void WriteMakefile();
+   void WriteAdditionalSourceFilesObjects(ROMEString& buffer);
+   void WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer);
    void WriteUserMakeFile();
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
@@ -314,7 +319,7 @@ public:
    void WriteDictionaryBat(ROMEString& buffer);
    virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
-   void startBuilder(const char* xmlfile);
+   void StartBuilder();
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
    bool isFloatingType(const char *type);
@@ -331,7 +336,10 @@ public:
    bool isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
    bool isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
    bool accessFolder(ROMEString &fileBuffer, int numFolder);
-   void usage();
+   bool ReadCommandLineParameters(int argc, char *argv[]);
+   void Usage();
+   bool CheckFileAndPath();
+   void MakeDir(ROMEString &path);
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
 };

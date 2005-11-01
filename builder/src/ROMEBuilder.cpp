@@ -3210,6 +3210,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // header name
             if (type == 1 && !strcmp((const char*)name,"HeaderName")) {
+               mfDictHeaderName[numOfMFDictHeaders] = "";
                xml->GetValue(mfDictHeaderName[numOfMFDictHeaders],mfDictHeaderName[numOfMFDictHeaders]);
                if (mfDictHeaderName[numOfMFDictHeaders].Length()>0) {
                   if (mfDictHeaderName[numOfMFDictHeaders].Index(".")==-1)
@@ -3227,6 +3228,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // include directory
             if (type == 1 && !strcmp((const char*)name,"IncludeDirectory")) {
+               mfDictIncDir[numOfMFDictIncDirs] = "";
                xml->GetValue(mfDictIncDir[numOfMFDictIncDirs],mfDictIncDir[numOfMFDictIncDirs]);
                if (mfDictIncDir[numOfMFDictIncDirs].Length()>0) {
                   if (mfDictIncDir[numOfMFDictIncDirs][mfDictIncDir[numOfMFDictIncDirs].Length()-1]!='/' &&
@@ -3249,6 +3251,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // library name
             if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+               mfWinLibName[numOfMFWinLibs] = "";
                xml->GetValue(mfWinLibName[numOfMFWinLibs],mfWinLibName[numOfMFWinLibs]);
                if (mfWinLibName[numOfMFWinLibs].Length()>0) {
                   if (mfWinLibName[numOfMFWinLibs].Index(".")==-1)
@@ -3266,6 +3269,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // library name
             if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+               mfUnixLibName[numOfMFUnixLibs] = "";
                xml->GetValue(mfUnixLibName[numOfMFUnixLibs],mfUnixLibName[numOfMFUnixLibs]);
                if (mfUnixLibName[numOfMFUnixLibs].Length()>0)
                   numOfMFUnixLibs++;
@@ -3280,6 +3284,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // include directory
             if (type == 1 && !strcmp((const char*)name,"IncludeDirectory")) {
+               mfIncDir[numOfMFIncDirs] = "";
                xml->GetValue(mfIncDir[numOfMFIncDirs],mfIncDir[numOfMFIncDirs]);
                if (mfIncDir[numOfMFIncDirs].Length()>0) {
                   if (mfIncDir[numOfMFIncDirs][mfIncDir[numOfMFIncDirs].Length()-1]!='/' &&
@@ -3298,6 +3303,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // name
             if (type == 1 && !strcmp((const char*)name,"Name")) {
+               mfPreDefName[numOfMFPreDefs] = "";
                xml->GetValue(mfPreDefName[numOfMFPreDefs],mfPreDefName[numOfMFPreDefs]);
                if (mfPreDefName[numOfMFPreDefs].Length()>0)
                   numOfMFPreDefs++;
@@ -3312,6 +3318,10 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
             name = xml->GetName();
             // source file
             if (type == 1 && !strcmp((const char*)name,"SourceFile")) {
+               numOfMFSourceFlags[numOfMFSources] = 0;
+               mfSourceFileName[numOfMFSources] = "";
+               mfSourceFilePath[numOfMFSources] = "";
+               mfSourceFileDep[numOfMFSources] = "";
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
@@ -3338,6 +3348,12 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                   // dependencies
                   if (type == 1 && !strcmp((const char*)name,"Dependencies"))
                      xml->GetValue(mfSourceFileDep[numOfMFSources],mfSourceFileDep[numOfMFSources]);
+                  // flags
+                  if (type == 1 && !strcmp((const char*)name,"NeededFlag")) {
+                     mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]] = "";
+                     xml->GetValue(mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]],mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]]);
+                     numOfMFSourceFlags[numOfMFSources]++;
+                  }   
                   if (type == 15 && !strcmp((const char*)name,"SourceFile")) {
                      numOfMFSources++;
                      break;
@@ -7751,7 +7767,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    for (j=0;j<numOfValue[numFolder];j++) {
       if( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
          continue;
-      if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[j]) {
+      if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[numFolder]) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
          buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBName())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("      name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
@@ -8506,7 +8522,7 @@ bool ROMEBuilder::WriteMain() {
    return true;
 }
 
-void ROMEBuilder::usage() {
+void ROMEBuilder::Usage() {
    cout << "  -i        Inputfile" << endl;
    cout << "  -o        Outputfile path" << endl;
    cout << "  -v        Verbose Mode (no Argument)" << endl;
@@ -8517,13 +8533,176 @@ void ROMEBuilder::usage() {
    cout << "  -pgsql    Generated program can be connected to a PostgreSQL server (no Argument)" << endl;
    cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
    cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
-   cout << "  -flags    Compile flags added to the Makefile" << endl;
+   cout << "  -f        Compile flags added to the Makefile" << endl;
+}
+bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
+   struct stat buf;
+   makeOutput = false;
+   noLink = false;
+   midas = false;
+   orca = false;
+   sql = false;
+   mysql = false;
+   pgsql = false;
+   sqlite = false;
+   sqlite3 = false;
+
+   const int workDirLen = 1000;
+   char workDir[workDirLen];
+   getcwd(workDir,workDirLen);
+
+   outDir = workDir;
+   outDir.Append("/");
+
+   if (argc==1) {
+      Usage();
+      return false;
+   }
+   for (int i=1;i<argc;i++) {
+      // -- only for testing (start) --
+      if (!strcmp(argv[i],"-dc")) {
+         makeOutput = true;
+         noLink = true;
+         midas = true;
+         outDir = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/";
+         xmlFile = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/dc.xml";
+      }
+      else if (!strcmp(argv[i],"-meg")) {
+         makeOutput = true;
+         midas = true;
+         orca = true;
+         noLink = true;
+         sql = true;
+         mysql = true;
+         sqlite = false;
+//         sqlite3 = true;
+         outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
+         xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
+      }
+      else if (!strcmp(argv[i],"-lp")) {
+         makeOutput = true;
+         midas = true;
+         noLink = true;
+         outDir = "C:/lpframework/";
+         xmlFile = "C:/lpframework/lpframework.xml";
+      }
+      else if (!strcmp(argv[i],"-sample")) {
+         makeOutput = true;
+         midas = false;
+         noLink = false;
+         outDir = "C:/rome/examples/sample/";
+         xmlFile = "C:/rome/examples/sample/sample.xml";
+      }
+      else if (!strcmp(argv[i],"-dance")) {
+         makeOutput = true;
+         midas = false;
+         noLink = true;
+         outDir = "C:/Data/Testprojects/dance2/test/";
+         xmlFile = "C:/Data/Testprojects/dance2/test/dance.xml";
+      }
+      // -- only for testing (end) --
+      else if (!strcmp(argv[i],"-v")) {
+         makeOutput = true;
+      }
+      else if (!strcmp(argv[i],"-nl")) {
+         noLink = true;
+      }
+      else if (!strcmp(argv[i],"-nosql")) {
+         cout<<"-nosql is obsolete. SQL support is off by default."<<endl;
+      }
+      else if (!strcmp(argv[i],"-mysql")) {
+         mysql = true;
+      }
+      else if (!strcmp(argv[i],"-pgsql")) {
+         pgsql = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite")) {
+         sqlite = true;
+      }
+      else if (!strcmp(argv[i],"-sqlite3")) {
+         sqlite3 = true;
+      }
+      else if (!strcmp(argv[i],"-midas")) {
+         midas = true;
+         ROMEString midasFile;
+         midasFile = getenv("MIDASSYS");
+         midasFile.Append("/include/midas.h");
+         if( stat( midasFile, &buf )) {
+            cout << "Midas library not found. Have you set the MIDASSYS environment variable ?" << endl;
+            return false;
+         }
+      }
+      else if (!strcmp(argv[i],"-orca")) {
+         orca = true;
+      }
+      else if (!strcmp(argv[i],"-f")&&i<argc-1) {
+         i++;
+         int j=0;
+         while (argv[i][0]!='-') {
+            flags.AddAtAndExpand((const char*)argv[i],j);
+            if (flags[j][0]=='-' || flags[j][0]=='/')
+               flags[j] = flags[j](2,flags[j].Length());
+            i++;j++;
+            if (i>argc-1)
+               break;
+         }
+         i--;
+      }
+      else if (!strcmp(argv[i],"-i")&&i<argc-1) {
+         xmlFile = argv[i+1];
+         i++;
+      }
+      else if (!strcmp(argv[i],"-o")&&i<argc-1) {
+         outDir = argv[i+1];
+         if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\') 
+            outDir.Append("/");
+         i++;
+      }
+      else if (argv[i][0]=='-') {
+         Usage();
+         return false;
+      }
+      else {
+         xmlFile = argv[i];
+      }
+   }
+
+   sql = (mysql || pgsql || sqlite || sqlite3 );
+
+   return true;
 }
 
-void ROMEBuilder::startBuilder(const char* xmlfile)
+bool ROMEBuilder::CheckFileAndPath() 
+{
+   struct stat buf;
+   if( stat( xmlFile.Data(), &buf )) {
+      if ( xmlFile == "")
+         cout << "No inputfile specified." << endl;
+      else
+         cout << "Inputfile '" << xmlFile.Data() << "' not found." << endl;
+      return false;
+   }
+   ROMEString path;
+   path = outDir;
+   path.Remove(path.Length()-1);
+   if (stat( path, &buf )) {
+      cout << "Outputpath '" << outDir.Data() << "' not found." << endl;
+      return false;
+   }
+   return true;
+}
+void ROMEBuilder::MakeDir(ROMEString &path)
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   mkdir(path.Data());
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__UNIX )
+   mkdir(path.Data(),0711);
+#endif // R__UNIX
+}
+void ROMEBuilder::StartBuilder()
 {
    xml = new ROMEXML();
-   xmlFile = xmlfile;
 
    char* name;
    bool finished = false;
@@ -9263,9 +9442,9 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
    buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
-   for (i=0;i<numOfMFSources;i++)
-      buffer.AppendFormatted(" obj/%s.obj",mfSourceFileName[i].Data());
-   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n");
+   WriteAdditionalSourceFilesObjects(buffer);
+   buffer.AppendFormatted("\n");
 // all
    buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
@@ -9483,11 +9662,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/%sDict.obj: %sDict.h %sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer.SetFormatted("%sDict",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
-   for (i=0;i<numOfMFSources;i++) {
-      buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
-      tempBuffer.SetFormatted("%s%s.%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data(),mfSourceFileType[i].Data());
-      buffer.AppendFormatted(compileFormatAny.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
-   }
+   WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("clean: userclean\n");
@@ -9537,6 +9712,75 @@ void ROMEBuilder::WriteMakefile() {
 
    // Write Makefile.usr
    WriteUserMakeFile();
+}
+
+void ROMEBuilder::WriteAdditionalSourceFilesObjects(ROMEString& buffer) {
+   // Write Additional Source Files Objects
+   int i,j,k;
+   for (i=0;i<numOfMFSources;i++) {
+      bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
+      for (j=0;j<numOfMFSourceFlags[i];j++) {
+         commandLineFlag[j] = false;
+         for (k=0;k<flags.GetEntriesFast();k++) {
+            if (mfSourceFileFlag[i][j]==flags[k])
+               commandLineFlag[j] = true;
+         }
+      }
+      for (j=0;j<numOfMFSourceFlags[i];j++) {
+         if (commandLineFlag[j])
+            continue;
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("!IFDEF %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__UNIX )
+         buffer.AppendFormatted("ifdef %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__UNIX
+      }
+      buffer.AppendFormatted("objects %s $(objects) obj/%s.obj\n",EqualSign(),mfSourceFileName[i].Data());
+      for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
+         if (commandLineFlag[j])
+            continue;
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("!ENDIF # %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__UNIX )
+         buffer.AppendFormatted("endif # %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__UNIX
+      }
+      delete [] commandLineFlag;
+   }
+}
+void ROMEBuilder::WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer) {
+   // Write Additional Source Files Compile Commands
+   int i,j;
+   ROMEString compileFormatAny;
+   ROMEString tempBuffer;
+#if defined( R__UNIX )
+   compileFormatAny.SetFormatted  ("\tg++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
+#endif // R__UNIX
+#if defined( R__VISUAL_CPLUSPLUS )
+   compileFormatAny.SetFormatted  ("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
+#endif // R__VISUAL_CPLUSPLUS
+
+   for (i=0;i<numOfMFSources;i++) {
+      for (j=0;j<numOfMFSourceFlags[i];j++)
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("!IFDEF %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__UNIX )
+         buffer.AppendFormatted("ifdef %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__UNIX
+      buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
+      tempBuffer.SetFormatted("%s%s.%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data(),mfSourceFileType[i].Data());
+      buffer.AppendFormatted(compileFormatAny.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
+      for (j=numOfMFSourceFlags[i]-1;j>=0;j--)
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("!ENDIF # %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__VISUAL_CPLUSPLUS
+#if defined( R__UNIX )
+         buffer.AppendFormatted("endif # %s\n",mfSourceFileFlag[i][j].Data());
+#endif // R__UNIX
+   }
 }
 void ROMEBuilder::WriteUserMakeFile()
 {
