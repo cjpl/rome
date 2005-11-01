@@ -1,5 +1,4 @@
 all:gotorome makerome gotoargus makeargus
-
 gotorome:
 	@cd rome
 makerome:
