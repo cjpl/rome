@@ -9752,7 +9752,7 @@ void ROMEBuilder::WriteAdditionalSourceFilesObjects(ROMEString& buffer) {
 }
 void ROMEBuilder::WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer) {
    // Write Additional Source Files Compile Commands
-   int i,j;
+   int i,j,k;
    ROMEString compileFormatAny;
    ROMEString tempBuffer;
 #if defined( R__UNIX )
@@ -9763,23 +9763,38 @@ void ROMEBuilder::WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer) 
 #endif // R__VISUAL_CPLUSPLUS
 
    for (i=0;i<numOfMFSources;i++) {
-      for (j=0;j<numOfMFSourceFlags[i];j++)
+      bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
+      for (j=0;j<numOfMFSourceFlags[i];j++) {
+         commandLineFlag[j] = false;
+         for (k=0;k<flags.GetEntriesFast();k++) {
+            if (mfSourceFileFlag[i][j]==flags[k])
+               commandLineFlag[j] = true;
+         }
+      }
+      for (j=0;j<numOfMFSourceFlags[i];j++) {
+         if (commandLineFlag[j])
+            continue;
 #if defined( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("!IFDEF %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
          buffer.AppendFormatted("ifdef %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__UNIX
+      }
       buffer.AppendFormatted("obj/%s.obj: %s\n",mfSourceFileName[i].Data(),mfSourceFileDep[i].Data());
       tempBuffer.SetFormatted("%s%s.%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data(),mfSourceFileType[i].Data());
       buffer.AppendFormatted(compileFormatAny.Data(),tempBuffer.Data(),mfSourceFileName[i].Data());
-      for (j=numOfMFSourceFlags[i]-1;j>=0;j--)
+      for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
+         if (commandLineFlag[j])
+            continue;
 #if defined( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("!ENDIF # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
          buffer.AppendFormatted("endif # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__UNIX
+      }
+      delete [] commandLineFlag;
    }
 }
 void ROMEBuilder::WriteUserMakeFile()

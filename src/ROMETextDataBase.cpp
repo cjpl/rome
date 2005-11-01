@@ -5,7 +5,7 @@
 //
 //  Text format non-relational database.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMETextDataBase.h>
@@ -39,14 +39,12 @@ bool ROMETextDataBase::Init(const char* name,const char* path,const char* connec
 }
 
 bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber) {
-   fstream*   fileStream;
    int        ps,pe;
    int        iRow,iCol;
    ROMEString lineBuffer = "";
    ROMEString fileName;
    ROMEString valueName;
    ROMEString tmp;
-
    // initialize
    RemoveComment(lineBuffer,true);
 
@@ -73,7 +71,8 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
    fileName.Prepend(fDirectoryPath);
 
    // open file
-   if(!(fileStream = new fstream(fileName.Data(),ios::in)))
+   fstream    fileStream(fileName.Data(),ios::in);
+   if(!fileStream)
       return true;
 
    // read data
@@ -81,7 +80,7 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
    bool end = false;
 
    iRow = 0;
-   while(lineBuffer.ReadLine(*fileStream)){
+   while(lineBuffer.ReadLine(fileStream)){
       if(end)
          break;
 
@@ -105,7 +104,7 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
          if(!ContainsData(lineBuffer.Data()))
             continue;
 
-         while((ps=lineBuffer.Index(",",1,pe,TString::kExact))!=-1){
+        while((ps=lineBuffer.Index(",",1,pe,TString::kExact))!=-1){
             tmp = lineBuffer(pe,ps-pe);
             tmp.StripSpaces();
             values->SetAt(tmp,iRow,iCol);
@@ -119,7 +118,6 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
       }
    }
 
-   delete fileStream;
    return true;
 }
 

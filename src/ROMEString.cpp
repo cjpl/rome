@@ -229,6 +229,21 @@ istream& ROMEString::ReadFile(istream& str) {
    }
    return str;
 }
+istream& ROMEString::ReadLine(istream& str) {
+   this->Resize(0);
+   char *buffer = "";
+   int bufferSize = 2000;
+   int bufferLength = bufferSize-1;
+   while (bufferLength==bufferSize-1) {
+      bufferSize*=2;
+      buffer = new char[bufferSize];
+      str.getline(buffer,bufferSize);
+      bufferLength = strlen(buffer);
+      this->Append(buffer);
+      delete buffer;
+   }
+   return str;
+}
 
 // Strip space,tab and new line at both sides
 ROMEString& ROMEString::StripSpaces(){

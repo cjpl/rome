@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEString.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEString_H
@@ -27,6 +27,7 @@ public:
    void Write();
    void WriteLine();
    istream& ReadFile(istream& str);
+   istream& ReadLine(istream& str);
    ROMEString& StripSpaces();
 
 private:
