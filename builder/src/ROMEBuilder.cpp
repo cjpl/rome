@@ -5545,7 +5545,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->SetTranslate(0);\n");
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/rome/romeConfig.xsd\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/rome/rome/romeConfig.xsd\");\n");
    buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
