@@ -268,8 +268,8 @@ public:
    TFolder*  GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); };
 
    // Run Number
-   void       GetRunNumberStringAt(ROMEString& buffer,int i) { buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
-   int        GetRunNumberAt(int i) { return fRunNumber.At(i); }
+   void       GetRunNumberStringAt(ROMEString& buffer,int i) { if (i>=fRunNumber.GetSize()) buffer.SetFormatted("%0*d",5,0); buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
+   int        GetRunNumberAt(int i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
    void       GetCurrentRunNumberString(ROMEString& buffer) { buffer.SetFormatted("%0*d",5,fCurrentRunNumber); }
    int        GetCurrentRunNumber() { return fCurrentRunNumber; }
    int        GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
