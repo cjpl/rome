@@ -760,7 +760,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted(" $(FolderIncludes)");
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusAnalyzerController.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n", shortCut.Data(), shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length() - 1);
    buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n", dictionarybat.Data());
    buffer.AppendFormatted("\n");

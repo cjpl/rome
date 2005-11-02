@@ -110,7 +110,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow * p, const TGWin
    Move(ax, ay);
    SetWMPosition(ax, ay);
 
-   TString window_name = "Connected to ";
+   TString window_name = "Control Panel";
 #ifndef DEBUG
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
