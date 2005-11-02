@@ -13,7 +13,6 @@ ClassImp(ArgusWindow)
 
 Bool_t ArgusWindow::Start()
 {
-
    // Initialize DAQ
    if (!gArgus->DAQInit()) {
       gArgus->SetTerminationFlag();
