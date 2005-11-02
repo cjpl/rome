@@ -1,7 +1,7 @@
 /********************************************************************
   ArgusWindow.h, R.Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ArgusWindow_H
@@ -40,6 +40,7 @@ public:
    TGStatusBar*   GetStatusBar() { return fStatusBar; };
    
    // Menu
+   TGMenuBar*     GetMenuBar() { return fMenuBar; };
    void           CloseWindow();
    void           ClearStatusBar();
    
