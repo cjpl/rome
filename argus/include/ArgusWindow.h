@@ -7,9 +7,16 @@
 #ifndef ArgusWindow_H
 #define ArgusWindow_H
 
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TGMenu.h>
 #include <TGTab.h>
 #include <TGStatusBar.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 
 class ArgusWindow : public TGMainFrame 
 {

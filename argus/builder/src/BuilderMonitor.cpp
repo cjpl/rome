@@ -479,12 +479,6 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    buffer.AppendFormatted("\nvoid %sMonitor::InitArrayFolders() {\n", shortCut.Data());
    for (i = 0; i < numOfFolder; i++) {
       if (numOfValue[i] > 0 && !folderSupport[i]) {
-         buffer.AppendFormatted("   Int_t i;\n");
-         break;
-      }
-   }
-   for (i = 0; i < numOfFolder; i++) {
-      if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderArray[i] != "1" && folderArray[i] != "variable")
             buffer.AppendFormatted("   gMonitor->Set%sSize(%s);\n", folderName[i].Data(), folderArray[i].Data());
       }

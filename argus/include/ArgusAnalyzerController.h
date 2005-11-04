@@ -7,9 +7,17 @@
 #ifndef ArgusAnalyzerController_H
 #define ArgusAnalyzerController_H
 
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TGNumberEntry.h>
 #include <TGButton.h>
 #include <TGLabel.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include "TNetFolder.h"
 
 class ArgusAnalyzerController : public TGTransientFrame

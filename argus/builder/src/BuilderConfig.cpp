@@ -596,7 +596,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
 
    // Window
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified) {\n");
-   buffer.AppendFormatted("      gMonitor->SetWindowScale(atof(fConfigData[index]->fWindow->fScale.Data()));\n");
+   buffer.AppendFormatted("      gMonitor->SetWindowScale((float)atof(fConfigData[index]->fWindow->fScale.Data()));\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStatusBarModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fWindow->fStatusBar==\"false\")\n");

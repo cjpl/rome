@@ -14,10 +14,15 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h> 
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include <ROMETask.h>
 #include "Riostream.h"
 
