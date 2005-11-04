@@ -679,14 +679,6 @@ void ArgusBuilder::WriteMakefile()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #endif
-#if defined( R__UNIX )
-#   if defined( R__MACOSX )
-   buffer.AppendFormatted("DYLD_LIBRARY_PATH");
-#   else
-   buffer.AppendFormatted("LD_LIBRARY_PATH");
-#   endif
-   buffer.AppendFormatted(" += :$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif
 
    // tab dependences
    buffer.AppendFormatted("\n");
@@ -762,7 +754,16 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusAnalyzerController.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n", shortCut.Data(), shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length() - 1);
-   buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n", dictionarybat.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+   buffer.AppendFormatted("%s $(DictionaryHeaders)\n", dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
 // Link Statement
@@ -935,7 +936,16 @@ void ArgusBuilder::WriteMakefile()
       pbnamestart = pdnameend + 1;
    ROMEString xmlbasename = xmlfilename(pbnamestart, xmlfilename.Length());
    buffer.AppendFormatted("build:\n");
-   buffer.AppendFormatted("\t$(ARGUSSYS)/bin/argusbuilder");
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+   buffer.AppendFormatted("$(ARGUSSYS)/bin/argusbuilder");
 #if defined ( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe");
 #endif
