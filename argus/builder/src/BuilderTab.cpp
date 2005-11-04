@@ -205,6 +205,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
             return kFALSE;
          continue;
       }
+
       // end tab
       if (type == 15 && !strcmp((const Char_t *) name, "Tab")) {
          // check input

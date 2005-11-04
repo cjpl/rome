@@ -513,7 +513,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
          ROMEString pointerT;
          ROMEString steerPointerT;
          pointerT.SetFormatted("%s->fSteering", pointer.Data());
-         steerPointerT.SetFormatted("((%sT%s*)gMonitor->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         steerPointerT.SetFormatted("((%sT%s*)gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
          WriteSteeringReadParameters(buffer, 0, i, pointerT, steerPointerT);
       }
    }
