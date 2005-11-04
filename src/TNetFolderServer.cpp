@@ -7,8 +7,11 @@
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -20,7 +23,9 @@
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #include <TThread.h>
 #endif // ROOT_VERSION
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TNetFolderServer.h>
 #include <Riostream.h>
 

@@ -48,8 +48,10 @@
 #   include <midas.h>
 #endif
 
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -62,7 +64,9 @@
 #include <TObjString.h>
 #include <TROOT.h>
 #include <TBrowser.h>
+#if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TNetFolderServer.h>
 #include <ROMETask.h>
 #include <ROMEAnalyzer.h>
