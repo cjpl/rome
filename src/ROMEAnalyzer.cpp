@@ -48,6 +48,8 @@
 #   include <midas.h>
 #endif
 
+#pragma warning( push )
+#pragma warning( disable : 4800 )
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -60,6 +62,7 @@
 #include <TObjString.h>
 #include <TROOT.h>
 #include <TBrowser.h>
+#pragma warning( pop )
 #include <TNetFolderServer.h>
 #include <ROMETask.h>
 #include <ROMEAnalyzer.h>
