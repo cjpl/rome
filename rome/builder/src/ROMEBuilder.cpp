@@ -9386,13 +9386,6 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
 #endif
-#if defined( R__UNIX )
-#if defined( R__MACOSX )
-   buffer.AppendFormatted("DYLD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#else
-   buffer.AppendFormatted("LD_LIBRARY_PATH += :$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#endif
-#endif
 
 // task dependences
    buffer.AppendFormatted("\n");
@@ -9480,7 +9473,16 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(BaseFolderIncludes)");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
    dictionarybat.Remove(dictionarybat.Length()-1);
-   buffer.AppendFormatted("\t%s $(DictionaryHeaders)\n",dictionarybat.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+   buffer.AppendFormatted("%s $(DictionaryHeaders)\n",dictionarybat.Data());
    buffer.AppendFormatted("\n");
 
 
@@ -9679,7 +9681,16 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
 #ifndef R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("build:\n");
-   buffer.AppendFormatted("\t$(ROMESYS)/bin/romebuilder.exe");
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+   buffer.AppendFormatted("$(ROMESYS)/bin/romebuilder.exe");
    buffer.AppendFormatted(" -i %s -o .",xmlbasename.Data());
    if (makeOutput)
       buffer.AppendFormatted(" -v");
