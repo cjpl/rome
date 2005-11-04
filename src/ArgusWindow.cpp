@@ -4,7 +4,15 @@
   $Id$
 
 ********************************************************************/
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TGMsgBox.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include "ArgusWindow.h"
 #include "ArgusTextDialog.h"
 #include "ArgusMonitor.h"

@@ -29,9 +29,16 @@
 #endif
 #include <sys/stat.h>
 #include <fcntl.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <Riostream.h>
 #include <THtml.h>
 #include <TSystem.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include <ROMEDataBase.h>
 #include <ROMENoDataBase.h>
 #include <ArgusMonitor.h>

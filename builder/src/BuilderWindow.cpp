@@ -57,7 +57,15 @@ Bool_t ArgusBuilder::WriteWindowCpp()
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
+   buffer.AppendFormatted("#include <RConfig.h>\n");
+   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
    buffer.AppendFormatted("#include <TGMsgBox.h>\n");
+   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
    buffer.AppendFormatted("#include <ArgusTextDialog.h>\n");
    buffer.AppendFormatted("#include \"include/framework/%sWindow.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());

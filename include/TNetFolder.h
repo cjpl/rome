@@ -8,6 +8,11 @@
 #ifndef TNetFolder_H
 #define TNetFolder_H
 
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include "TNamed.h"
 #include "TObjArray.h"
 #include "TUrl.h"
@@ -19,6 +24,9 @@
 #include "TMessage.h"
 #include "TSystem.h"
 #include "Riostream.h"
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 
 class TNetFolder : public TNamed
 {
