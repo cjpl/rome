@@ -11,10 +11,13 @@
 //    EndOfRun
 //    Terminate
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#pragma warning( push )
+#pragma warning( disable : 4800 )
 #include <TSystem.h> 
+#pragma warning( pop )
 #include <ROMETask.h>
 #include "Riostream.h"
 

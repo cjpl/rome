@@ -7,6 +7,8 @@
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+#pragma warning( push )
+#pragma warning( disable : 4800 )
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
@@ -15,12 +17,12 @@
 #include <TFolder.h>
 #include <TObjArray.h>
 #include <TApplication.h>
-#include <TNetFolderServer.h>
-#include <Riostream.h>
-
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #include <TThread.h>
 #endif // ROOT_VERSION
+#pragma warning( pop )
+#include <TNetFolderServer.h>
+#include <Riostream.h>
 
 #define PTYPE int
 
