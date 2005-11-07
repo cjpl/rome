@@ -18,7 +18,7 @@ TNetFolder::TNetFolder():TNamed()
    fReconnect = kTRUE;
 }
 
-TNetFolder::TNetFolder(const Char_t * name, const Char_t * title, TSocket * socket, bool reconnect):TNamed(name, title)
+TNetFolder::TNetFolder(const Char_t *name, const Char_t *title, TSocket *socket, bool reconnect):TNamed(name, title)
 {
    fSocket = socket;
    fFolder = GetPointer();
@@ -36,10 +36,10 @@ void TNetFolder::Reconnect()
    Warning("Reconnect", "program sleeps for 5s and tries again.");
    gSystem->Sleep(5000);
    delete fSocket;
-   fSocket = new TSocket(fHost.Data(), fPort);
+   fSocket = new TSocket (fHost.Data(), fPort);
 }
 
-Bool_t TNetFolder::Send(const TMessage & mess)
+Bool_t TNetFolder::Send(const TMessage &mess)
 {
    if (fSocket->Send(mess) == -1) {
       while (!fSocket->IsValid()) {
@@ -51,7 +51,7 @@ Bool_t TNetFolder::Send(const TMessage & mess)
    return kTRUE;
 }
 
-Bool_t TNetFolder::Send(const Char_t * mess, Int_t kind)
+Bool_t TNetFolder::Send(const Char_t *mess, Int_t kind)
 {
    if (fSocket->Send(mess, kind) == -1) {
       do {
@@ -63,7 +63,7 @@ Bool_t TNetFolder::Send(const Char_t * mess, Int_t kind)
    return kTRUE;
 }
 
-Bool_t TNetFolder::Recv(TMessage * &mess)
+Bool_t TNetFolder::Recv(TMessage *&mess)
 {
    if (fSocket->Recv(mess) == -1) {
       while (!fSocket->IsValid()) {
@@ -116,7 +116,7 @@ TObjArray *TNetFolder::GetListOfFolders()
    return 0;
 }
 
-TObject *TNetFolder::FindObject(const Char_t * name)
+TObject *TNetFolder::FindObject(const Char_t *name)
 {
    TString str = "FindObject ";
    str.Append(name);
@@ -143,7 +143,7 @@ TObject *TNetFolder::FindObject(const Char_t * name)
    return obj;
 }
 
-TObject *TNetFolder::FindObjectAny(const Char_t * name)
+TObject *TNetFolder::FindObjectAny(const Char_t *name)
 {
    TString str = "FindObjectAny ";
    str.Append(name);
@@ -170,7 +170,7 @@ TObject *TNetFolder::FindObjectAny(const Char_t * name)
    return obj;
 }
 
-const Char_t *TNetFolder::FindFullPathName(const Char_t * name)
+const Char_t *TNetFolder::FindFullPathName(const Char_t *name)
 {
    TString str = "FindFullPathName ";
    str.Append(name);
@@ -197,7 +197,7 @@ const Char_t *TNetFolder::FindFullPathName(const Char_t * name)
    return path;
 }
 
-Int_t TNetFolder::Occurence(const TObject * obj)
+Int_t TNetFolder::Occurence(const TObject *obj)
 {
    if (!Send("Occurence"))
       return Occurence(obj);
@@ -228,7 +228,7 @@ Int_t TNetFolder::Occurence(const TObject * obj)
    return retValue;
 }
 
-void TNetFolder::Execute(const Char_t * line)
+void TNetFolder::Execute(const Char_t *line)
 {
    // The line is executed by the CINT of the server
    if (!Send("Execute")) {
@@ -241,7 +241,7 @@ void TNetFolder::Execute(const Char_t * line)
    }
 }
 
-void TNetFolder::ExecuteMethod(const Char_t * objectName, const Char_t * objectType, const Char_t * methodName, const Char_t * methodArguments)
+void TNetFolder::ExecuteMethod(const Char_t *objectName, const Char_t *objectType, const Char_t *methodName, const Char_t *methodArguments)
 {
    // A method of an object is executed by the CINT of the server. 
    // The statment on the server side is the following :

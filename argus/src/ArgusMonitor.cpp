@@ -32,19 +32,19 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
-#endif // R__VISUAL_CPLUSPLUS
+#endif                          // R__VISUAL_CPLUSPLUS
 #include <Riostream.h>
 #include <THtml.h>
 #include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+#endif                          // R__VISUAL_CPLUSPLUS
 #include <ROMEDataBase.h>
 #include <ROMENoDataBase.h>
 #include <ArgusMonitor.h>
 #include <ArgusWindow.h>
-#if defined( HAVE_MIDAS )	 
-#   include <midas.h>	 
+#if defined( HAVE_MIDAS )
+#   include <midas.h>
 #endif
 
 ClassImp(ArgusMonitor)
@@ -64,7 +64,7 @@ ArgusMonitor::~ArgusMonitor()
 {
 }
 
-Bool_t ArgusMonitor::Start(Int_t argc, Char_t ** argv)
+Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
 {
    gArgus = (ArgusMonitor *) gPassToArgus;
    gROME = (ROMEAnalyzer *) gArgus;
@@ -145,7 +145,7 @@ void ArgusMonitor::ParameterUsage()
    return;
 }
 
-Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t * argv[])
+Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
 {
    // Reads the Inputlineparameters
    Int_t i;
@@ -188,7 +188,8 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t * argv[])
          }
          cout << "\nThe framework generated a new configuration file." << endl;
          cout << "Please edit this file and restart the program.\n" << endl;
-      } else {
+      }
+      else {
          cout << "\nTerminate program.\n" << endl;
       }
       return kFALSE;
@@ -210,12 +211,15 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t * argv[])
          else
             this->SetOffline();
          i++;
-      } else if (!strcmp(argv[i], "-r") && i < argc - 1) {
+      }
+      else if (!strcmp(argv[i], "-r") && i < argc - 1) {
          this->SetRunNumbers(argv[i + 1]);
          i++;
-      } else if (!strcmp(argv[i], "-i")) {
+      }
+      else if (!strcmp(argv[i], "-i")) {
          i++;
-      } else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
+      }
+      else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
          gArgus->Print("Input line parameter '");
          gArgus->Print(argv[i]);
          gArgus->Println("' not available.");
@@ -235,7 +239,7 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t * argv[])
    return kTRUE;
 }
 
-Bool_t ArgusMonitor::IsNetFolderActive(const Char_t * name)
+Bool_t ArgusMonitor::IsNetFolderActive(const Char_t *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -247,7 +251,7 @@ Bool_t ArgusMonitor::IsNetFolderActive(const Char_t * name)
    return false;
 };
 
-TNetFolder *ArgusMonitor::GetNetFolder(const Char_t * name)
+TNetFolder *ArgusMonitor::GetNetFolder(const Char_t *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -262,7 +266,7 @@ TNetFolder *ArgusMonitor::GetNetFolder(const Char_t * name)
    return NULL;
 };
 
-Bool_t ArgusMonitor::ConnectNetFolder(const Char_t * name)
+Bool_t ArgusMonitor::ConnectNetFolder(const Char_t *name)
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -281,7 +285,7 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i)
       return kTRUE;
 
    DisconnectNetFolder(i);
-   fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
+   fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    while (!fNetFolderSocket[i]->IsValid()) {
       delete fNetFolderSocket[i];
       Print("can not make socket connection for ");
@@ -289,7 +293,7 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i)
       Println(".");
       Println("program sleeps for 5s and tries again.");
       gSystem->Sleep(5000);
-      fNetFolderSocket[i] = new TSocket(fNetFolderHost[i].Data(), fNetFolderPort[i]);
+      fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
    fNetFolder[i] = new TNetFolder(fNetFolderRoot[i].Data(), fNetFolderName[i].Data(), fNetFolderSocket[i], fNetFolderReconnect[i]);
    ROMEString errMessage;
@@ -301,7 +305,7 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i)
    return kTRUE;
 }
 
-Bool_t ArgusMonitor::DisconnectNetFolder(const Char_t * name)
+Bool_t ArgusMonitor::DisconnectNetFolder(const Char_t *name)
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {

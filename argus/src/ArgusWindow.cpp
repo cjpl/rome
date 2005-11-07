@@ -8,11 +8,11 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
-#endif // R__VISUAL_CPLUSPLUS
+#endif                          // R__VISUAL_CPLUSPLUS
 #include <TGMsgBox.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+#endif                          // R__VISUAL_CPLUSPLUS
 #include "ArgusWindow.h"
 #include "ArgusTextDialog.h"
 #include "ArgusMonitor.h"
@@ -41,8 +41,8 @@ Bool_t ArgusWindow::Start()
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
 
    // Create menu
-   fMenuNetFolder = new TGPopupMenu(fClient->GetRoot());
-   fMenuFile = new TGPopupMenu(fClient->GetRoot());
+   fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
+   fMenuFile = new TGPopupMenu (fClient->GetRoot());
    fMenuFile->Associate(this);
    if (AddMenuNetFolder(fMenuNetFolder))
       fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);

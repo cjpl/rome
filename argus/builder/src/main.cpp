@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
    ArgusBuilder *argusb = new ArgusBuilder();
    argusb->argusVersion = ARGUS_RELEASE;
 
-   if (!argusb->ReadCommandLineParameters(argc,argv))
+   if (!argusb->ReadCommandLineParameters(argc, argv))
       return 0;
 
    if (!argusb->CheckFileAndPath())

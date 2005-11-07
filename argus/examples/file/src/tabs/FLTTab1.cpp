@@ -59,7 +59,7 @@ void FLTTab1::Init()
    AddFrame(fBUpdate, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
 }
 
-void FLTTab1::MenuClicked(TGPopupMenu * menu, Long_t param)
+void FLTTab1::MenuClicked(TGPopupMenu *menu, Long_t param)
 {
 }
 
