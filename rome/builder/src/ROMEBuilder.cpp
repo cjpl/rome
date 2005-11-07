@@ -9245,8 +9245,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETextDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
-   if (this->sql)
+   if (this->sql){
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQL.h");
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+   }
    if (this->mysql)
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMEMySQL.h");
    if (this->pgsql)
@@ -9263,8 +9265,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/ROMETextDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
-   if (this->sql)
+   if (this->sql){
       buffer.AppendFormatted(" obj/ROMESQL.obj");
+      buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
+   }
    if (this->mysql)
       buffer.AppendFormatted(" obj/ROMEMySQL.obj");
    if (this->pgsql)
@@ -9325,16 +9329,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted(" obj/%sAnalyzer.obj obj/%sEventLoop.obj obj/%sConfig.obj obj/main.obj",shortCut.Data(),shortCut.Data(),shortCut.Data());
    if (haveFortranTask)
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
-   if (this->mysql)
-      buffer.AppendFormatted(" obj/ROMEMySQL.obj");
-   if (this->pgsql)
-      buffer.AppendFormatted(" obj/ROMEPgSQL.obj");
-   if (this->sqlite)
-      buffer.AppendFormatted(" obj/ROMESQLite.obj");
-   if (this->sqlite3)
-      buffer.AppendFormatted(" obj/ROMESQLite3.obj");
-   if (this->sql)
-      buffer.AppendFormatted(" obj/ROMESQL.obj");
    if (this->orca)
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
