@@ -632,8 +632,10 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETextDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
-   if (this->sql)
+   if (this->sql){
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQL.h");
+      buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
+   }
    if (this->mysql)
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMEMySQL.h");
    if (this->pgsql)
@@ -650,8 +652,10 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" obj/ROMETextDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
-   if (this->sql)
+   if (this->sql){
       buffer.AppendFormatted(" obj/ROMESQL.obj");
+      buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
+   }
    if (this->mysql)
       buffer.AppendFormatted(" obj/ROMEMySQL.obj");
    if (this->pgsql)
