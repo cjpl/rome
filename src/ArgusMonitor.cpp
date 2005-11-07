@@ -152,10 +152,9 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
    this->SetConfigDir("./");
    ROMEString configFile("argusConfig.xml");
 
+#if defined( HAVE_MIDAS )
    Char_t host_name[256] = "";
    Char_t exp_name[32] = "";
-
-#if defined( HAVE_MIDAS )
    cm_get_environment(host_name, sizeof(host_name), exp_name, sizeof(exp_name));
 #endif
 
