@@ -304,7 +304,6 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    ROMEString tmp;
    ROMEStrArray valueNames;
 
-   int pBuffer=-1;
    int ps,pe;
 
    ps = pe = 0;

@@ -82,7 +82,6 @@ ROMEAnalyzer::ROMEAnalyzer(TRint *app)
 {
 // Initialisations
 
-   int i=0;
    fLastEventNumberIndex = 0;
    fRint = app;
    fAnalysisMode = kAnalyzeOffline;
