@@ -8,7 +8,7 @@
 
 ClassImp(ArgusTextDialog)
 
-ArgusTextDialog::ArgusTextDialog(const TGWindow * p, const TGWindow * main, UInt_t w, UInt_t h, Char_t * label, Char_t * ret_str, UInt_t options):TGTransientFrame(p, main, w, h, options)
+ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, Char_t *label, Char_t *ret_str, UInt_t options):TGTransientFrame(p, main, w, h, options)
 {
    // Create a dialog to enter a single line text entry
    fRetStr = ret_str;
@@ -61,7 +61,8 @@ ArgusTextDialog::ArgusTextDialog(const TGWindow * p, const TGWindow * main, UInt
       Window_t wdum;
       gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId()
                                       , (Int_t) (((TGFrame *) main)->GetWidth() - fWidth) >> 1, (Int_t) (((TGFrame *) main)->GetHeight() - fHeight) >> 1, ax, ay, wdum);
-   } else {
+   }
+   else {
       UInt_t root_w, root_h;
       gVirtualX->GetWindowSize(fClient->GetRoot()->GetId(), ax, ay, root_w, root_h);
       ax = (root_w - fWidth) >> 1;

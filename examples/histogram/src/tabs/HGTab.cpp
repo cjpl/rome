@@ -43,7 +43,8 @@ void HGTTab::Update()
    fHisto = (TH1F *) gMonitor->GetNetFolder("mynetfolder")->FindObjectAny("hAdc0");
    if (!fHisto) {
       cout << "Histo hAdc0 not available." << endl;
-   } else {
+   }
+   else {
       fHisto->Draw();
    }
 

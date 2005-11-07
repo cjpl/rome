@@ -36,7 +36,7 @@ void TMTT1::Init()
    fCanvas->GetCanvas()->Update();
 }
 
-void TMTT1::MenuClicked(TGPopupMenu * menu, Long_t param)
+void TMTT1::MenuClicked(TGPopupMenu *menu, Long_t param)
 {
    switch (param) {
    case TMWindow::M_T1_Color_Black:

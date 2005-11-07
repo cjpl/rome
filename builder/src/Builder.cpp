@@ -171,7 +171,7 @@ void ArgusBuilder::StartBuilder()
                      name = xml->GetName();
                      // folder
                      if (type == 1 && !strcmp((const Char_t *) name, "Folder")) {
-                        folderSupport[numOfFolder+1] = false;
+                        folderSupport[numOfFolder + 1] = false;
                         recursiveDepth = 0;
                         if (!ReadXMLFolder())
                            return;
@@ -549,7 +549,8 @@ void ArgusBuilder::WriteMakefile()
       buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -lmidas\n");
 #endif
-   } else {
+   }
+   else {
       buffer.AppendFormatted("midaslibs := \n");
       buffer.AppendFormatted("midascflags := \n");
    }
@@ -632,7 +633,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMETextDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMEODBOnlineDataBase.h");
-   if (this->sql){
+   if (this->sql) {
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQL.h");
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMESQLDataBase.h");
    }
@@ -652,7 +653,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" obj/ROMETextDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOfflineDataBase.obj");
    buffer.AppendFormatted(" obj/ROMEODBOnlineDataBase.obj");
-   if (this->sql){
+   if (this->sql) {
       buffer.AppendFormatted(" obj/ROMESQL.obj");
       buffer.AppendFormatted(" obj/ROMESQLDataBase.obj");
    }
@@ -983,7 +984,7 @@ void ArgusBuilder::WriteMakefile()
    WriteUserMakeFile();
 }
 
-void ArgusBuilder::WriteDictionaryBat(ROMEString & buffer)
+void ArgusBuilder::WriteDictionaryBat(ROMEString &buffer)
 {
    // writes a script file that executes rootcint
    ROMEString noInclude;
@@ -1050,7 +1051,8 @@ void ArgusBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n", shortCut.Data(), mainProgName.Data());
    if (styleSheet.Length()) {
       buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n", outDir.Data(), styleSheet.Data());
-   } else {
+   }
+   else {
       buffer.AppendFormatted("<STYLE>\n");
       WriteHTMLStyle(buffer);
       buffer.AppendFormatted("</STYLE>\n");
@@ -1210,7 +1212,8 @@ void ArgusBuilder::WriteHTMLDoku()
          buffer.AppendFormatted("<b>\n");
          buffer.AppendFormatted("<li type=\"circle\"><a href=\"#%s\">%s</a></li>\n", folderName[i].Data(), folderName[i].Data());
          buffer.AppendFormatted("</b>\n");
-      } else {
+      }
+      else {
          buffer.AppendFormatted("<li type=\"circle\">%s</li>\n", folderName[i].Data());
       }
       depthold = depth;
@@ -1299,7 +1302,8 @@ void ArgusBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("  <title>%s%s Additional Info</title>\n", shortCut.Data(), mainProgName.Data());
       if (styleSheet.Length()) {
          buffer.AppendFormatted("<LINK rel=\"stylesheet\" type=\"text/css\" href=\"%s/%s\">\n", outDir.Data(), styleSheet.Data());
-      } else {
+      }
+      else {
          buffer.AppendFormatted("<STYLE>\n");
          WriteHTMLStyle(buffer);
          buffer.AppendFormatted("</STYLE>\n");
@@ -1327,7 +1331,7 @@ void ArgusBuilder::WriteHTMLDoku()
    }
 }
 
-void ArgusBuilder::GetMidasTID(ROMEString * buf, Char_t * type)
+void ArgusBuilder::GetMidasTID(ROMEString *buf, Char_t *type)
 {
    buf->Resize(0);
    if (!strcmp(type, "Byte_t") || !strcmp(type, "BYTE"))
@@ -1365,7 +1369,7 @@ void ArgusBuilder::GetMidasTID(ROMEString * buf, Char_t * type)
       buf->Append("TID_STRING");        //< zero terminated string
 }
 
-Bool_t ArgusBuilder::ReplaceHeader(const Char_t * filename, const Char_t * header, const Char_t * content, Int_t nspace)
+Bool_t ArgusBuilder::ReplaceHeader(const Char_t *filename, const Char_t *header, const Char_t *content, Int_t nspace)
 {
    ROMEString hd = header;
    ROMEString ct = content;
@@ -1376,7 +1380,7 @@ Bool_t ArgusBuilder::ReplaceHeader(const Char_t * filename, const Char_t * heade
    return ROMEBuilder::ReplaceHeader(filename, hd.Data(), ct.Data(), nspace);
 }
 
-Bool_t ArgusBuilder::WriteFile(const Char_t * filename, const Char_t * content, Int_t nspace)
+Bool_t ArgusBuilder::WriteFile(const Char_t *filename, const Char_t *content, Int_t nspace)
 {
    ROMEString ct = content;
 
@@ -1385,7 +1389,7 @@ Bool_t ArgusBuilder::WriteFile(const Char_t * filename, const Char_t * content, 
    return ROMEBuilder::WriteFile(filename, ct.Data(), nspace);
 }
 
-void ArgusBuilder::ROME2Argus(ROMEString & buffer)
+void ArgusBuilder::ROME2Argus(ROMEString &buffer)
 {
    ROMEString rome;
    ROMEString argus;

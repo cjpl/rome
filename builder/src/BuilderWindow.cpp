@@ -398,7 +398,7 @@ Bool_t ArgusBuilder::WriteWindowH()
 
    // Method
    buffer.AppendFormatted("public:\n");
-   buffer.AppendFormatted("   %sWindow(const TGWindow * p, Char_t *title);\n", shortCut.Data());
+   buffer.AppendFormatted("   %sWindow(const TGWindow *p, Char_t *title);\n", shortCut.Data());
    buffer.AppendFormatted("   ~%sWindow(){}\n", shortCut.Data());
    buffer.AppendFormatted("   Bool_t CreateTabs();\n");
    buffer.AppendFormatted("   Bool_t AddMenuNetFolder(TGPopupMenu* menu);\n");
@@ -428,7 +428,7 @@ Bool_t ArgusBuilder::WriteWindowH()
    return kTRUE;
 }
 
-Bool_t ArgusBuilder::AddTab(ROMEString & buffer, Int_t & i)
+Bool_t ArgusBuilder::AddTab(ROMEString &buffer, Int_t &i)
 {
    Int_t j;
    ROMEString parentt;
@@ -503,19 +503,21 @@ Bool_t ArgusBuilder::AddTab(ROMEString & buffer, Int_t & i)
    return kTRUE;
 }
 
-Bool_t ArgusBuilder::AddMenuItems(ROMEString & buffer, Int_t i, Int_t j)
+Bool_t ArgusBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j)
 {
    Int_t k;
 
    for (k = 0; k < numOfMenuItem[i][j]; k++) {
       if (menuItemTitle[i][j][k] == LINE_TITLE) {
          buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[i].Data(), j);
-      } else if (menuItemChildMenuIndex[i][j][k]) {
+      }
+      else if (menuItemChildMenuIndex[i][j][k]) {
          if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k]))
             return kFALSE;
          buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[i].Data(), j, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
                                 , tabName[i].Data(), menuItemChildMenuIndex[i][j][k]);
-      } else {
+      }
+      else {
          buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[i].Data(), j, menuItemTitle[i][j][k].Data()
                                 , menuItemEnumName[i][j][k].Data());
       }

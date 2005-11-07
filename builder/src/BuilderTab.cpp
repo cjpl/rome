@@ -205,7 +205,6 @@ Bool_t ArgusBuilder::ReadXMLTab()
             return kFALSE;
          continue;
       }
-
       // end tab
       if (type == 15 && !strcmp((const Char_t *) name, "Tab")) {
          // check input
@@ -733,7 +732,7 @@ Bool_t ArgusBuilder::WriteTabH()
    return kTRUE;
 }
 
-Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString & buffer, Int_t parentIndex, ROMEString & pointer, Int_t tab)
+Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer, Int_t parentIndex, ROMEString &pointer, Int_t tab)
 {
    Int_t i;
 
@@ -804,7 +803,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString & buffer, Int_t parentIndex,
    return kTRUE;
 }
 
-Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString & buffer, Int_t parentIndex, Int_t tab)
+Bool_t ArgusBuilder::WriteTabConfigClass(ROMEString &buffer, Int_t parentIndex, Int_t tab)
 {
    Int_t j, i;
 
