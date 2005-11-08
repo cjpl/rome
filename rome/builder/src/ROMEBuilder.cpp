@@ -7689,7 +7689,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
          for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
             buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
          buffer.AppendFormatted(");\n");
-         buffer.AppendFormatted("   if (name.Length() && path.Length()){\n");
+         buffer.AppendFormatted("   if (name.Length() && path.Length() && isDataBaseActive(name.Data())){\n");
          buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
          buffer.AppendFormatted("         gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         return false;\n");
