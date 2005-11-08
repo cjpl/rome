@@ -373,28 +373,34 @@ void ArgusBuilder::StartBuilder()
    delete xml;
    ROMEString buffer;
 
-   // Dictionary
    chdir(outDir.Data());
-#if defined( R__VISUAL_CPLUSPLUS )
-   if (makeOutput)
-      cout << "\nExecuting 'rootcint' for Root-Dictionary generation." << endl;
-   WriteDictionaryBat(buffer);
-//   system(buffer);
-#endif
 
    // Linking
    if (makeOutput && !noLink)
       cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
-   if (!noLink) {
+   if (noLink) {
+      ROMEString tempStr;
+#if defined( R__UNIX )
+      tempStr.SetFormatted("make -e %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+      system(tempStr.Data());
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+      const int workDirLen = 1000;
+      char workDir[workDirLen];
+      getcwd(workDir,workDirLen);
+      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+      system(tempStr.Data());
+#endif
+   }
+   else {
 #if defined( R__UNIX )
       system("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      const Int_t workDirLen = 1000;
-      Char_t workDir[workDirLen];
-      getcwd(workDir, workDirLen);
-      cout << "working dir = " << workDir << endl;
+      const int workDirLen = 1000;
+      char workDir[workDirLen];
+      getcwd(workDir,workDirLen);
       system("nmake -f Makefile.win");
 #endif
    }
@@ -711,8 +717,8 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(DAQObjects)");
    buffer.AppendFormatted(" $(DataBaseObjects)");
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
-
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/%sDict.obj obj/mxml.obj obj/strlcpy.obj", shortCut.Data());
+   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sARGUSDict.obj obj/%sFrameworkDict.obj obj/%sFolderDict.obj obj/%sTabDict.obj obj/%sUserDict.obj", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj");
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
@@ -744,32 +750,13 @@ void ArgusBuilder::WriteMakefile()
 #endif
 
 // Dictionary
-   ROMEString dictionarybat;
-   WriteDictionaryBat(dictionarybat);
-   dictionarybat.ReplaceAll("$ROOTSYS", "$(ROOTSYS)");
-   dictionarybat.ReplaceAll("$ROMESYS", "$(ROMESYS)");
-   dictionarybat.ReplaceAll("$ARGUSSYS", "$(ARGUSSYS)");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("LD_LIBRARY_PATH=$(ROOTSYS)/lib\n");
-#endif                          // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("src/framework/%sDict.h src/framework/%sDict.cpp:", shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(" $(TabIncludes)");
-   buffer.AppendFormatted(" $(BaseTabIncludes)");
-   buffer.AppendFormatted(" $(FolderIncludes)");
-   buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusAnalyzerController.h include/framework/%sMonitor.h  include/framework/%sWindow.h $(DictionaryHeaders)\n", shortCut.Data(), shortCut.Data());
-   dictionarybat.Remove(dictionarybat.Length() - 1);
-#if defined( R__UNIX )
-#   if defined( R__MACOSX )
-   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   else
-   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   endif
-#else
-   buffer.AppendFormatted("\t");
-#endif
-   buffer.AppendFormatted("%s $(DictionaryHeaders)\n", dictionarybat.Data());
-   buffer.AppendFormatted("\n");
+   WriteROMEDictionary(buffer);
+   WriteARGUSDictionary(buffer);
+   WriteFrameworkDictionary(buffer);
+   WriteFolderDictionary(buffer);
+   WriteTabDictionary(buffer);
+   WriteUserDictionary(buffer);
+
 
 // Link Statement
 // --------------
@@ -918,9 +905,30 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "EventLoop", "EventLoop");
    buffer.AppendFormatted("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp $(ROMESYS)/include/ROMETask.h\n");
    buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Task", "Task");
-   buffer.AppendFormatted("obj/%sDict.obj: src/framework/%sDict.h src/framework/%sDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
-   tempBuffer[0].SetFormatted("src/framework/%sDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sDict", shortCut.Data());
+
+   buffer.AppendFormatted("obj/%sROMEDict.obj: %sROMEDict.h %sROMEDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sROMEDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sROMEDict",shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted("obj/%sARGUSDict.obj: %sARGUSDict.h %sARGUSDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sARGUSDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sARGUSDict",shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted("obj/%sFrameworkDict.obj: %sFrameworkDict.h %sFrameworkDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sFrameworkDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sFrameworkDict",shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted("obj/%sTabDict.obj: %sTabDict.h %sTabDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sTabDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sTabDict",shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted("obj/%sFolderDict.obj: %sFolderDict.h %sFolderDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sFolderDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sFolderDict",shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted("obj/%sUserDict.obj: %sUserDict.h %sUserDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer[0].SetFormatted("%sUserDict", shortCut.Data());
+   tempBuffer[1].SetFormatted("%sUserDict",shortCut.Data());
    buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
 
    WriteAdditionalSourceFilesCompileCommands(buffer);
@@ -984,55 +992,104 @@ void ArgusBuilder::WriteMakefile()
    WriteUserMakeFile();
 }
 
-void ArgusBuilder::WriteDictionaryBat(ROMEString &buffer)
+void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
 {
-   // writes a script file that executes rootcint
-   ROMEString noInclude;
-   Int_t i;
-   buffer.Resize(0);
-
+   // writes a script file that executes rootcint for the ARGUS headers
+   buffer.AppendFormatted("%sARGUSDict.h %sARGUSDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/ArgusAnalyzerController.h $(ARGUSSYS)/include/TNetFolder.h\n");
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("rootcint -f src/framework/%sDict.cpp -c -p ", shortCut.Data());
-   buffer.AppendFormatted("-I%%ARGUSSYS%%/include ");
-   buffer.AppendFormatted("-I%%ROMESYS%%/include ");
-   buffer.AppendFormatted("-I%%ROOTSYS%%/include ");
-   buffer.AppendFormatted("$(DictionaryIncludes) ");
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+   buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f src/framework/%sDict.cpp -c -p ", shortCut.Data());
-   buffer.AppendFormatted("-I$ARGUSSYS/include ");
-   buffer.AppendFormatted("-I$ROMESYS/include ");
-   buffer.AppendFormatted("-I$ROOTSYS/include ");
-   buffer.AppendFormatted("$(DictionaryIncludes) ");
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+   buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
 #endif
-   buffer.AppendFormatted("-Iinclude -Iinclude/tabs -Iinclude/framework");
-   for (i = 0; i < numOfMFDictIncDirs; i++)
-      buffer.AppendFormatted(" -I%s", mfDictIncDir[i].Data());
-   buffer.AppendFormatted(" ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h ArgusAnalyzerController.h TNetFolder.h include/framework/%sMonitor.h include/framework/%sWindow.h ", shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(" ROMETreeInfo.h ROMETask.h ROMEAnalyzer.h");
-   for (i = 0; i < numOfMFDictHeaders; i++)
-      buffer.AppendFormatted(" %s", mfDictHeaderName[i].Data());
-
-   for (i = 0; i < numOfFolder; i++) {
-      if (numOfValue[i] > 0) {
-         if (folderUserCode[i])
-            buffer.AppendFormatted(" include/framework/%s%s_Base.h", shortCut.Data(), folderName[i].Data());
-         else
-            buffer.AppendFormatted(" include/framework/%s%s.h", shortCut.Data(), folderName[i].Data());
-      }
-   }
-
+   buffer.AppendFormatted(" ArgusMonitor.h ArgusWindow.h ArgusTextDialog.h ArgusAnalyzerController.h TNetFolder.h");
+   buffer.Append("\n\n");
+}
+void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the framework headers
+   buffer.AppendFormatted("%sFrameworkDict.h %sFrameworkDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" include/framework/%sMonitor.h  include/framework/%sWindow.h\n", shortCut.Data(), shortCut.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+   buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+   buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
+   buffer.AppendFormatted(" include/framework/%sMonitor.h include/framework/%sWindow.h", shortCut.Data(), shortCut.Data());
+   buffer.Append("\n\n");
+}
+void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the tab headers
+   int i;
+   buffer.AppendFormatted("%sTabDict.h %sTabDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(TabIncludes)");
+   buffer.AppendFormatted(" $(BaseTabIncludes)");
+   for (i=0;i<numOfMFDictHeaders;i++)
+      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   buffer.AppendFormatted(" $(DictionaryHeaders)\n",shortCut.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+   buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+   buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
+   for (i=0;i<numOfMFDictIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted(" include/tabs/%sT%s_Base.h", shortCut.Data(), tabName[i].Data());
       buffer.AppendFormatted(" include/tabs/%sT%s.h", shortCut.Data(), tabName[i].Data());
    }
-   buffer.Append("\n\0");
-
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEString batFile;
-   batFile.SetFormatted("%smakeDictionary.bat", outDir.Data());
-   WriteFile(batFile.Data(), buffer.Data(), 0);
-#endif
+   buffer.Append("\n\n");
 }
 
 void ArgusBuilder::WriteHTMLDoku()

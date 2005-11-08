@@ -97,7 +97,9 @@ public:
    Bool_t WriteMain();
    void   WriteMakefile();
    void   WriteHTMLDoku();
-   void   WriteDictionaryBat(ROMEString& buffer);
+   void   WriteARGUSDictionary(ROMEString& buffer);
+   void   WriteFrameworkDictionary(ROMEString& buffer);
+   void   WriteTabDictionary(ROMEString& buffer);
    void   StartBuilder();
    void   GetMidasTID(ROMEString *buf,Char_t *type);
    Bool_t ReplaceHeader(const Char_t* filename,const Char_t* header,const Char_t* content,Int_t nspace = 0);
