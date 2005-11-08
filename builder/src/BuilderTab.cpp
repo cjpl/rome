@@ -473,10 +473,18 @@ Bool_t ArgusBuilder::WriteTabH()
       // Header
       buffer.AppendFormatted("#ifndef %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("#include <RConfig.h>\n");
+      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+      buffer.AppendFormatted("#pragma warning( push )\n");
+      buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
       buffer.AppendFormatted("#include <TGFrame.h>\n");
       buffer.AppendFormatted("#include <TGMenu.h>\n");
       buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include <TThread.h>\n");
+      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+      buffer.AppendFormatted("#pragma warning( pop )\n");
+      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
       buffer.AppendFormatted("   void*  inst;\n");
