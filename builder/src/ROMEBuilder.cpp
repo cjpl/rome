@@ -8921,14 +8921,14 @@ void ROMEBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e %sDict.h %sDict.cpp",shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("make -e %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTaskDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       const int workDirLen = 1000;
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
-      tempStr.SetFormatted("nmake -f Makefile.win %sDict.h %sDict.cpp",shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTaskDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
       system(tempStr.Data());
 #endif
    }
@@ -8937,9 +8937,9 @@ void ROMEBuilder::StartBuilder()
       system("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   const int workDirLen = 1000;
-   char workDir[workDirLen];
-   getcwd(workDir,workDirLen);
+      const int workDirLen = 1000;
+      char workDir[workDirLen];
+      getcwd(workDir,workDirLen);
       system("nmake -f Makefile.win");
 #endif
    }
@@ -9332,7 +9332,7 @@ void ROMEBuilder::WriteMakefile() {
    if (this->orca)
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
-   buffer.AppendFormatted(" obj/%sDict.obj",shortCut.Data());
+   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sFrameworkDict.obj obj/%sFolderDict.obj obj/%sTaskDict.obj obj/%sUserDict.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
@@ -9362,27 +9362,11 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
-   ROMEString dictionarybat;
-   WriteDictionaryBat(dictionarybat);
-   buffer.AppendFormatted("%sDict.h %sDict.cpp:",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted(" $(TaskIncludes)");
-   buffer.AppendFormatted(" $(BaseTaskIncludes)");
-   buffer.AppendFormatted(" $(FolderIncludes)");
-   buffer.AppendFormatted(" $(BaseFolderIncludes)");
-   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h include/framework/%sAnalyzer.h $(DictionaryHeaders)\n",shortCut.Data());
-   dictionarybat.Remove(dictionarybat.Length()-1);
-#if defined( R__UNIX )
-#   if defined( R__MACOSX )
-   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   else
-   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   endif
-#else
-   buffer.AppendFormatted("\t");
-#endif
-   buffer.AppendFormatted("%s $(DictionaryHeaders)\n",dictionarybat.Data());
-   buffer.AppendFormatted("\n");
-
+   WriteROMEDictionary(buffer);
+   WriteFrameworkDictionary(buffer);
+   WriteFolderDictionary(buffer);
+   WriteTaskDictionary(buffer);
+   WriteUserDictionary(buffer);
 
 // Link Statement
 // --------------
@@ -9559,9 +9543,23 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h\n");
       buffer.AppendFormatted(compileFormatROME.Data(),"SQL","SQL");
    }
-   buffer.AppendFormatted("obj/%sDict.obj: %sDict.h %sDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
-   tempBuffer.SetFormatted("%sDict",shortCut.Data());
+
+   buffer.AppendFormatted("obj/%sROMEDict.obj: %sROMEDict.h %sROMEDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer.SetFormatted("%sROMEDict",shortCut.Data());
    buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+   buffer.AppendFormatted("obj/%sFrameworkDict.obj: %sFrameworkDict.h %sFrameworkDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer.SetFormatted("%sFrameworkDict",shortCut.Data());
+   buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+   buffer.AppendFormatted("obj/%sTaskDict.obj: %sTaskDict.h %sTaskDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer.SetFormatted("%sTaskDict",shortCut.Data());
+   buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+   buffer.AppendFormatted("obj/%sFolderDict.obj: %sFolderDict.h %sFolderDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer.SetFormatted("%sFolderDict",shortCut.Data());
+   buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+   buffer.AppendFormatted("obj/%sUserDict.obj: %sUserDict.h %sUserDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   tempBuffer.SetFormatted("%sUserDict",shortCut.Data());
+   buffer.AppendFormatted(compileFormatBlank.Data(),tempBuffer.Data(),tempBuffer.Data());
+
    WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");
 
@@ -9758,27 +9756,62 @@ void ROMEBuilder::WriteUserMakeFile()
    }
 #endif
 }
-void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
+void ROMEBuilder::WriteROMEDictionary(ROMEString& buffer)
 {
-   // writes a script file that executes rootcint
-   int i;
-
-   buffer.Resize(0);
+   // writes a script file that executes rootcint for the ROME headers
+   buffer.AppendFormatted("%sROMEDict.h %sROMEDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(ROMESYS)/include/ROMETask.h $(ROMESYS)/include/ROMETreeInfo.h $(ROMESYS)/include/ROMEAnalyzer.h\n");
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sROMEDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
-//   buffer.AppendFormatted(" %%DictionaryIncludes%%");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sROMEDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
-   buffer.AppendFormatted(" $(DictionaryIncludes)");
 #endif
-   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/tasks -Iinclude/framework");
-   for (i=0;i<numOfMFDictIncDirs;i++)
-      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
+   buffer.AppendFormatted(" ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h");
+   buffer.Append("\n\n");
+}
+
+void ROMEBuilder::WriteFolderDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the folder headers
+   int i;
+   buffer.AppendFormatted("%sFolderDict.h %sFolderDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(FolderIncludes)");
+   buffer.AppendFormatted(" $(BaseFolderIncludes)");
+   buffer.Append("\n");
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted(" include/framework/%s%s.h",shortCut.Data(),folderName[i].Data());
@@ -9786,26 +9819,109 @@ void ROMEBuilder::WriteDictionaryBat(ROMEString& buffer)
             buffer.AppendFormatted(" include/framework/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
       }
    }
+   buffer.Append("\n\n");
+}
+void ROMEBuilder::WriteFrameworkDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the framework headers
+   buffer.AppendFormatted("%sFrameworkDict.h %sFrameworkDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" include/framework/%sAnalyzer.h\n",shortCut.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
+   buffer.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
+   buffer.Append("\n\n");
+}
+void ROMEBuilder::WriteTaskDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the task headers
+   int i;
+   buffer.AppendFormatted("%sTaskDict.h %sTaskDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" $(TaskIncludes)");
+   buffer.AppendFormatted(" $(BaseTaskIncludes)");
+   for (i=0;i<numOfMFDictHeaders;i++)
+      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   buffer.AppendFormatted(" $(DictionaryHeaders)\n",shortCut.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
+   for (i=0;i<numOfMFDictIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    for (i=0;i<numOfTask;i++) {
       buffer.AppendFormatted("  include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
       if (taskUserCode[i])
          buffer.AppendFormatted(" include/tasks/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
    }
-   buffer.AppendFormatted(" ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h include/framework/%sAnalyzer.h",shortCut.Data());
+   buffer.Append("\n\n");
+}
+void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
+{
+   // writes a script file that executes rootcint for the user headers
+   int i;
+   buffer.AppendFormatted("%sUserDict.h %sUserDict.cpp:",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfMFDictHeaders;i++)
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
-   buffer.Append("\n\0");
-
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEString batFile;
-   ROMEString batBuffer = buffer(buffer.Index("rootcint"),buffer.Length()-buffer.Index("rootcint"));
-   batFile.SetFormatted("%smakeDictionary.bat",outDir.Data());
-   int fileHandle = open(batFile.Data(),O_TRUNC  | O_CREAT,S_IREAD | S_IWRITE  );
-   close(fileHandle);
-   fileHandle = open(batFile.Data(),O_RDWR  | O_CREAT,S_IREAD | S_IWRITE  );
-   write(fileHandle,batBuffer.Data(), batBuffer.Length());
-   close(fileHandle);
+   buffer.AppendFormatted(" $(DictionaryHeaders)\n",shortCut.Data());
+#if defined( R__UNIX )
+#   if defined( R__MACOSX )
+   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   else
+   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+#   endif
+#else
+   buffer.AppendFormatted("\t");
 #endif
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("$(ROOTSYS)\\bin\\rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I%%ROMESYS%%/include");
+   buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
+#endif
+#if defined( R__UNIX )
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted(" -I$(ROMESYS)/include");
+   buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
+#endif
+   buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
+   for (i=0;i<numOfMFDictIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
+   buffer.AppendFormatted(" $(DictionaryHeaders)");
+   for (i=0;i<numOfMFDictHeaders;i++)
+      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   buffer.Append("\n\n");
 }
 
 void ROMEBuilder::WriteHTMLDoku() {

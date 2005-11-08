@@ -316,7 +316,11 @@ public:
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
-   void WriteDictionaryBat(ROMEString& buffer);
+   void WriteROMEDictionary(ROMEString& buffer);
+   void WriteFrameworkDictionary(ROMEString& buffer);
+   void WriteFolderDictionary(ROMEString& buffer);
+   void WriteTaskDictionary(ROMEString& buffer);
+   void WriteUserDictionary(ROMEString& buffer);
    virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
    void StartBuilder();
