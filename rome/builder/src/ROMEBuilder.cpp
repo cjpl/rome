@@ -9780,6 +9780,7 @@ void ROMEBuilder::WriteROMEDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" ROMETask.h ROMETreeInfo.h ROMEAnalyzer.h");
    buffer.Append("\n\n");
 }
@@ -9811,6 +9812,7 @@ void ROMEBuilder::WriteFolderDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
@@ -9845,6 +9847,7 @@ void ROMEBuilder::WriteFrameworkDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
    buffer.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
    buffer.Append("\n\n");
@@ -9878,6 +9881,7 @@ void ROMEBuilder::WriteTaskDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
    for (i=0;i<numOfMFDictIncDirs;i++)
       buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
@@ -9915,6 +9919,7 @@ void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
    for (i=0;i<numOfMFDictIncDirs;i++)
       buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
