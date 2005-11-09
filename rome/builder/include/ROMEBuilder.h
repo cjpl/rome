@@ -36,7 +36,7 @@ const int maxNumberOfMFPreDefs = 20;
 const int maxNumberOfMFSources = 100;
 const int maxNumberOfMFSourceFlags = 5;
 
-const char valueCounter[][maxNumberOfValueDimension] = {"i","j","k"};
+const char valueCounter[maxNumberOfValueDimension] = {'i','j','k'};
 
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;

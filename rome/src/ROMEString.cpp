@@ -67,6 +67,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
    int     numberOfDigits=0;
    int     precision;
    char*   stringValue;
+   char    characterValue;
    int     integerValue;
    double  doubleValue;
    int ind=0;
@@ -115,6 +116,10 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
          precision = strtol(pp+1,&cstop,10);
       }
       switch (pstart[ind]) {
+         case 'c' :
+            characterValue = va_arg(parameters,int);
+            string->Append(characterValue);
+            break;
          case 's' :
             if (asterisk)
                numberOfDigits = va_arg(parameters,int);
