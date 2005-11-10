@@ -9342,6 +9342,20 @@ void ROMEBuilder::WriteMakefile() {
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
 
+// all
+   buffer.AppendFormatted("all:obj blank.d %s%s.exe",shortcut.Data(),mainprogname.Data());
+#if defined( R__UNIX )
+   buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+#endif // R__UNIX
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+// user makefile
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
+#else
+   buffer.AppendFormatted("-include Makefile.usr\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("\n");
 #if defined( R__UNIX )
    if (numOfMFDictHeaders==0) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
@@ -9363,20 +9377,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("objects = $(objects) obj/%sTaskDict.obj\n",shortCut.Data());
 #endif // R__UNIX
 
-// all
-   buffer.AppendFormatted("all:obj blank.d %s%s.exe",shortcut.Data(),mainprogname.Data());
-#if defined( R__UNIX )
-   buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
-#endif // R__UNIX
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("\n");
-// user makefile
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
-#else
-   buffer.AppendFormatted("-include Makefile.usr\n");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("\n");
 // make obj
    buffer.AppendFormatted("obj:\n");
 #if defined( R__VISUAL_CPLUSPLUS )
