@@ -731,6 +731,21 @@ void ArgusBuilder::WriteMakefile()
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
 
+   // all
+   buffer.AppendFormatted("all:obj blank.d %s%s", shortcut.Data(), mainprogname.Data());
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted(".exe\n");
+#endif
+   buffer.AppendFormatted("\n");
+
+   // user makefile
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
+#else
+   buffer.AppendFormatted("-include Makefile.usr\n");
+#endif
+   buffer.AppendFormatted("\n");
+
 #if defined( R__UNIX )
    if (numOfMFDictHeaders==0) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
@@ -751,21 +766,6 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("objects = $(objects) obj/%sFolderDict.obj\n",shortCut.Data());
    buffer.AppendFormatted("objects = $(objects) obj/%sTabDict.obj\n",shortCut.Data());
 #endif // R__UNIX
-
-   // all
-   buffer.AppendFormatted("all:obj blank.d %s%s", shortcut.Data(), mainprogname.Data());
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted(".exe\n");
-#endif
-   buffer.AppendFormatted("\n");
-
-   // user makefile
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
-#else
-   buffer.AppendFormatted("-include Makefile.usr\n");
-#endif
-   buffer.AppendFormatted("\n");
 
    // make obj
    buffer.AppendFormatted("obj:\n");
