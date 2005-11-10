@@ -1111,7 +1111,7 @@ void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
@@ -1140,7 +1140,7 @@ void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
@@ -1175,7 +1175,7 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
