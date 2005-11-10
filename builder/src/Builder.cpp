@@ -732,7 +732,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\n");
 
    // all
-   buffer.AppendFormatted("all:obj %s%s", shortcut.Data(), mainprogname.Data());
+   buffer.AppendFormatted("all:obj blank.d %s%s", shortcut.Data(), mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe\n");
 #endif
@@ -756,6 +756,12 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
    buffer.AppendFormatted("\tfi;\n");
 #endif
+
+// make blank
+   buffer.AppendFormatted("blank.d:\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\tcopy nul blank.d\n\n");
+#endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
    WriteROMEDictionary(buffer);
@@ -813,13 +819,13 @@ void ArgusBuilder::WriteMakefile()
    compileFormatARGUS.SetFormatted("\tcl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
    compileFormatRANY.SetFormatted("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
    compileFormatAny.SetFormatted("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
-   dependFormatFrame.AppendFormatted("\tcopy nul obj/%s%%s.obj\n",shortCut.Data());
-   dependFormatTabs.AppendFormatted("\tcopy nul obj/%sT%%s.obj\n",shortCut.Data());
-   dependFormatBlank.AppendFormatted("\tcopy nul obj/%%s.obj\n");
-   dependFormatROME.AppendFormatted ("\tcopy nul obj/ROME%%s.obj\n");
-   dependFormatARGUS.AppendFormatted ("\tcopy nul obj/Argus%%s.obj\n");
-   dependFormatRANY.AppendFormatted ("\tcopy nul obj/%%s.obj\n");
-   dependFormatAny.AppendFormatted  ("\tcopy nul obj/%%s.obj\n");
+   dependFormatFrame.AppendFormatted("\tcopy blank.d obj\\%s%%s.d\n",shortCut.Data());
+   dependFormatTabs.AppendFormatted("\tcopy blank.d obj\\%sT%%s.d\n",shortCut.Data());
+   dependFormatBlank.AppendFormatted("\tcopy blank.d obj\\%%s.d\n");
+   dependFormatROME.AppendFormatted ("\tcopy blank.d obj\\ROME%%s.d\n");
+   dependFormatARGUS.AppendFormatted ("\tcopy blank.d obj\\Argus%%s.d\n");
+   dependFormatRANY.AppendFormatted ("\tcopy blank.d obj\\%%s.d\n");
+   dependFormatAny.AppendFormatted  ("\tcopy blank.d obj\\%%s.d\n");
 #endif
 
    for (i = 0; i < numOfFolder; i++) {
@@ -1036,7 +1042,11 @@ void ArgusBuilder::WriteMakefile()
    WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");
 
+#if defined( R__VISUAL_CPLUSPLUS )
+//   buffer.AppendFormatted("!INCLUDE obj/*.d\n");
+#else
    buffer.AppendFormatted("-include obj/*.d\n");
+#endif
 
    // Clean and build
    buffer.AppendFormatted("clean: userclean\n");
