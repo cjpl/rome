@@ -3146,8 +3146,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
                   cout << "Terminating program." << endl;
                   return false;
                }
-               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] != "std::string")
-                  xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+               xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
@@ -7058,7 +7057,7 @@ bool ROMEBuilder::WriteSteeringClass(ROMEString &buffer,int numSteer,int numTask
          buffer.AppendFormatted("f%s = (%s)%s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
       else {
-         buffer.AppendFormatted("for (j=0;j<%s;j++) f%s[j] = (%s)%s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+         buffer.AppendFormatted("for (j=0;j<%s;j++) f%s[j] = (%s)%s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
@@ -8474,7 +8473,7 @@ bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
          makeOutput = true;
          midas = true;
          orca = true;
-         noLink = true;
+         noLink = false;
          sql = true;
          mysql = true;
          sqlite = false;
@@ -9312,7 +9311,7 @@ void ROMEBuilder::WriteMakefile() {
 // database dependences
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfDB;i++) {
-      buffer.AppendFormatted("%s%sDataBaseDep %s include/framework/%sAnalyzer.h obj/%s%s.d\n",shortCut.Data(),dbName[i].Data(),EqualSign(),shortCut.Data(),shortCut.Data(),dbName[i].Data());
+      buffer.AppendFormatted("%s%sDataBaseDep %s include/framework/%sAnalyzer.h obj/%s%sDataBase.d\n",shortCut.Data(),dbName[i].Data(),EqualSign(),shortCut.Data(),shortCut.Data(),dbName[i].Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -9337,7 +9336,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
 // all
-   buffer.AppendFormatted("all:obj %s%s.exe",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("all:obj blank.d %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
    buffer.AppendFormatted(" lib%s%s.so",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif // R__UNIX
@@ -9359,6 +9358,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
    buffer.AppendFormatted("\tfi;\n");
+#endif // R__VISUAL_CPLUSPLUS
+
+// make blank
+   buffer.AppendFormatted("blank.d:\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\tcopy nul blank.d\n\n");
 #endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
@@ -9426,14 +9431,14 @@ void ROMEBuilder::WriteMakefile() {
    compileFormatROME.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/ROME%%s.cpp /Foobj/ROME%%s.obj\n");
    compileFormatRANY.SetFormatted ("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s /Foobj/%%s.obj\n");
    compileFormatAny.SetFormatted  ("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
-   dependFormatFrame.AppendFormatted("\tcopy nul obj/%s%%s.obj\n",shortCut.Data());
-   dependFormatTasks.AppendFormatted("\tcopy nul obj/%sT%%s.obj\n",shortCut.Data());
-   dependFormatBlank.AppendFormatted("\tcopy nul obj/%%s.obj\n");
-   dependFormatROME.AppendFormatted ("\tcopy nul obj/ROME%%s.obj\n");
-   dependFormatRANY.AppendFormatted ("\tcopy nul obj/%%s.obj\n");
-   dependFormatAny.AppendFormatted  ("\tcopy nul obj/%%s.obj\n");
-   dependFormatFramF.SetFormatted("\n");
-   dependFormatTaskF.SetFormatted("\n");
+   dependFormatFrame.AppendFormatted("\tcopy blank.d obj\\%s%%s.d\n",shortCut.Data());
+   dependFormatTasks.AppendFormatted("\tcopy blank.d obj\\%sT%%s.d\n",shortCut.Data());
+   dependFormatBlank.AppendFormatted("\tcopy blank.d obj\\%%s.d\n");
+   dependFormatROME.AppendFormatted ("\tcopy blank.d obj\\ROME%%s.d\n");
+   dependFormatRANY.AppendFormatted ("\tcopy blank.d obj\\%%s.d\n");
+   dependFormatAny.AppendFormatted  ("\tcopy blank.d obj\\%%s.d\n");
+   dependFormatFramF.SetFormatted("");
+   dependFormatTaskF.SetFormatted("");
 #endif // R__VISUAL_CPLUSPLUS
    // Folders
    for (i=0;i<numOfFolder;i++) {
@@ -9639,7 +9644,11 @@ void ROMEBuilder::WriteMakefile() {
    WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");
 
+#if defined( R__VISUAL_CPLUSPLUS )
+//   buffer.AppendFormatted("!INCLUDE obj/*.d\n");
+#else
    buffer.AppendFormatted("-include obj/*.d\n");
+#endif // R__VISUAL_CPLUSPLUS
 
    buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("	rm -f obj/*.obj obj/*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
@@ -9849,7 +9858,7 @@ void ROMEBuilder::WriteROMEDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sROMEDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sROMEDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9881,7 +9890,7 @@ void ROMEBuilder::WriteFolderDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9916,7 +9925,7 @@ void ROMEBuilder::WriteFrameworkDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9950,7 +9959,7 @@ void ROMEBuilder::WriteTaskDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9988,7 +9997,7 @@ void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%ROOTSYS%\\bin\\rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
