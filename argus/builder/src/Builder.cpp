@@ -732,9 +732,14 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\n");
 
 #if defined( R__UNIX )
-   buffer.AppendFormatted("ifdef DictionaryHeaders\n");
-   buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
-   buffer.AppendFormatted("endif\n");
+   if (numOfMFDictHeaders==0) {
+      buffer.AppendFormatted("ifdef DictionaryHeaders\n");
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("endif\n");
+   }
+   else{
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+   }
    if (numOfFolder > 0) {
       buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n",shortCut.Data());
    }
@@ -1188,9 +1193,7 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
    buffer.AppendFormatted("%sTabDict.h %sTabDict.cpp:",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
-   for (i=0;i<numOfMFDictHeaders;i++)
-      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
-   buffer.AppendFormatted(" $(DictionaryHeaders)\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
    buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
@@ -1213,8 +1216,6 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
 #endif
    buffer.AppendFormatted(" -I. -Iinclude -Iinclude/framework");
-   for (i=0;i<numOfMFDictIncDirs;i++)
-      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted(" include/tabs/%sT%s_Base.h", shortCut.Data(), tabName[i].Data());
       buffer.AppendFormatted(" include/tabs/%sT%s.h", shortCut.Data(), tabName[i].Data());
