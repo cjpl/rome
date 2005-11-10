@@ -732,11 +732,9 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\n");
 
 #if defined( R__UNIX )
-   if (numOfMFDictHeaders == 0) {
-      buffer.AppendFormatted("ifdef DictionaryHeaders\n");
-      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
-      buffer.AppendFormatted("endif\n");
-   }
+   buffer.AppendFormatted("ifdef DictionaryHeaders\n");
+   buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("endif\n");
    if (numOfFolder > 0) {
       buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n",shortCut.Data());
    }
