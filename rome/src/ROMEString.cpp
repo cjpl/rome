@@ -249,6 +249,16 @@ istream& ROMEString::ReadLine(istream& str) {
    }
    return str;
 }
+int ROMEString::ToInteger()
+{
+   char *cstop;
+   return strtol(this->Data(),&cstop,10);
+}
+double ROMEString::ToDouble()
+{
+   char *cstop;
+   return strtod(this->Data(),&cstop);
+}
 
 // Strip space,tab and new line at both sides
 ROMEString& ROMEString::StripSpaces(){

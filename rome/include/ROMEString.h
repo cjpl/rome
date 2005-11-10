@@ -26,6 +26,8 @@ public:
    int  NumberOfOccurrence(const char* subString);
    void Write();
    void WriteLine();
+   int ToInteger();
+   double ToDouble();
    istream& ReadFile(istream& str);
    istream& ReadLine(istream& str);
    ROMEString& StripSpaces();

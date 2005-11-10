@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEXML.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEXML_H
@@ -31,6 +31,8 @@ protected:
    int nodeType;
    int nodeDepth;
    bool endTag;
+   ROMEString fFileName;
+   ROMEString fPath;
 
    // write
    MXML_WRITER *writer;
@@ -39,6 +41,9 @@ protected:
 public:
    ROMEXML();
    ~ROMEXML();
+
+   const char* GetFileName() { return fFileName.Data(); };
+   const char* GetPath() { return fPath.Data(); };
 
    bool  isReaderOpen() { return rootNode!=NULL; };
    bool  isWriterOpen() { return writer!=NULL; };

@@ -5,7 +5,7 @@
 //
 //  XML file access.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
@@ -48,6 +48,13 @@ bool ROMEXML::OpenFileForRead(const char* file) {
       cout << error << endl;
       return false;
    }
+   fFileName = file;
+   fFileName.ReplaceAll('\\','/');
+   if (fFileName.Last('/')==-1)
+      fPath = "";
+   else
+      fPath = fFileName(0,fFileName.Last('/'));
+   fFileName = fFileName(fFileName.Last('/')+1,fFileName.Length());
    currentNode = rootNode;
    lastNode = NULL;
    nodeType = 0;
@@ -117,6 +124,13 @@ bool ROMEXML::OpenFileForWrite(const char* file) {
    writer = mxml_open_file(file);
    if (writer==NULL)
       return false;
+   fFileName = file;
+   fFileName.ReplaceAll('\\','/');
+   if (fFileName.Last('/')==-1)
+      fPath = "";
+   else
+      fPath = fFileName(0,fFileName.Last('/'));
+   fFileName = fFileName(fFileName.Last('/')+1,fFileName.Length());
    return true;
 }
 
@@ -177,6 +191,13 @@ bool ROMEXML::OpenFileForPath(const char* file) {
       cout << error << endl;
       return false;
    }
+   fFileName = file;
+   fFileName.ReplaceAll('\\','/');
+   if (fFileName.Last('/')==-1)
+      fPath = "";
+   else
+      fPath = fFileName(0,fFileName.Last('/'));
+   fFileName = fFileName(fFileName.Last('/')+1,fFileName.Length());
    return true;
 }
 
