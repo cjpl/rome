@@ -725,11 +725,29 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(DAQObjects)");
    buffer.AppendFormatted(" $(DataBaseObjects)");
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sARGUSDict.obj obj/%sFrameworkDict.obj obj/%sFolderDict.obj obj/%sTabDict.obj obj/%sUserDict.obj", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sARGUSDict.obj obj/%sFrameworkDict.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj");
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
+
+#if defined( R__UNIX )
+   if (numOfMFDictHeaders==0) {
+      buffer.AppendFormatted("ifdef DictionaryHeaders\n");
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("endif\n");
+   }
+   if (numOfFolder!=0) {
+      buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n",shortCut.Data());
+   }
+   if (numOfTab!=0) {
+      buffer.AppendFormatted("objects += obj/%sTabDict.obj\n",shortCut.Data());
+   }
+#else
+   buffer.AppendFormatted("objects = $(objects) obj/%sUserDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sFolderDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sTabDict.obj\n",shortCut.Data());
+#endif // R__UNIX
 
    // all
    buffer.AppendFormatted("all:obj blank.d %s%s", shortcut.Data(), mainprogname.Data());

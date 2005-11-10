@@ -9337,10 +9337,29 @@ void ROMEBuilder::WriteMakefile() {
    if (this->orca)
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
    buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
-   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sFrameworkDict.obj obj/%sFolderDict.obj obj/%sTaskDict.obj obj/%sUserDict.obj",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sFrameworkDict.obj",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
+
+#if defined( R__UNIX )
+   if (numOfMFDictHeaders==0) {
+      buffer.AppendFormatted("ifdef DictionaryHeaders\n");
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("endif\n");
+   }
+   if (numOfFolder!=0) {
+      buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n",shortCut.Data());
+   }
+   if (numOfTask!=0) {
+      buffer.AppendFormatted("objects += obj/%sTaskDict.obj\n",shortCut.Data());
+   }
+#else
+   buffer.AppendFormatted("objects = $(objects) obj/%sUserDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sFolderDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sTaskDict.obj\n",shortCut.Data());
+#endif // R__UNIX
+
 // all
    buffer.AppendFormatted("all:obj blank.d %s%s.exe",shortcut.Data(),mainprogname.Data());
 #if defined( R__UNIX )
@@ -9896,7 +9915,7 @@ void ROMEBuilder::WriteFolderDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9965,7 +9984,7 @@ void ROMEBuilder::WriteTaskDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -10008,7 +10027,7 @@ void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("-$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
