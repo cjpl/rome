@@ -9918,7 +9918,7 @@ void ROMEBuilder::WriteFolderDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFolderDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -9985,7 +9985,7 @@ void ROMEBuilder::WriteTaskDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTaskDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
@@ -10026,7 +10026,7 @@ void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("-$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
