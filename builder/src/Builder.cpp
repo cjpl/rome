@@ -363,9 +363,9 @@ void ArgusBuilder::StartBuilder()
       return;
    if (!WriteMidasH())
       return;
-   if (!WriteRootCpp())
+   if (!WriteRomeCpp())
       return;
-   if (!WriteRootH())
+   if (!WriteRomeH())
       return;
    if (!WriteMain())
       return;
@@ -620,7 +620,7 @@ void ArgusBuilder::WriteMakefile()
    // daq
    buffer.AppendFormatted("DAQIncludes %s", EqualSign());
    buffer.AppendFormatted(" include/framework/%sMidas.h", shortCut.Data());
-   buffer.AppendFormatted(" include/framework/%sRoot.h", shortCut.Data());
+   buffer.AppendFormatted(" include/framework/%sRome.h", shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMEOrca.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMENoDAQSystem.h");
@@ -629,7 +629,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DAQObjects %s", EqualSign());
    buffer.AppendFormatted(" obj/%sMidas.obj", shortCut.Data());
-   buffer.AppendFormatted(" obj/%sRoot.obj", shortCut.Data());
+   buffer.AppendFormatted(" obj/%sRome.obj", shortCut.Data());
    for (i = 0; i < numOfDAQ; i++)
       buffer.AppendFormatted(" obj/%s%s.obj", shortCut.Data(), daqName[i].Data());
    buffer.AppendFormatted("\n");
@@ -726,7 +726,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted(" $(DataBaseObjects)");
    buffer.AppendFormatted(" obj/%sMonitor.obj obj/%sWindow.obj obj/%sConfig.obj obj/main.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sARGUSDict.obj obj/%sFrameworkDict.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERoot.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj");
+   buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj  obj/TNetFolderServer.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj obj/ROMERome.obj obj/ROMEMidas.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj");
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
@@ -899,9 +899,9 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("obj/%sMidas.obj: src/framework/%sMidas.cpp include/framework/%sMidas.h obj/%sMidas.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Midas", "Midas");
 
-   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(), "Root", "Root", "Root", "Root", "Root");
-   buffer.AppendFormatted("obj/%sRoot.obj: src/framework/%sRoot.cpp include/framework/%sRoot.h obj/%sRoot.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Root", "Root");
+   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(), "Rome", "Rome", "Rome", "Rome", "Rome");
+   buffer.AppendFormatted("obj/%sRome.obj: src/framework/%sRome.cpp include/framework/%sRome.h obj/%sRome.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Rome", "Rome");
 
    buffer.AppendFormatted((Char_t *) dependFormatBlank.Data(), "main", "src/framework/main", "main", "main", "main");
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp include/framework/%sMonitor.h include/framework/%sWindow.h obj/main.d\n", shortCut.Data(), shortCut.Data());
@@ -971,9 +971,9 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("obj/ROMEUtilities.obj: $(ROMESYS)/src/ROMEUtilities.cpp $(ROMESYS)/include/ROMEUtilities.h obj/ROMEUtilities.d\n");
    buffer.AppendFormatted(compileFormatBlank.Data(), "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Root", "Root", "Root", "Root", "Root");
-   buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h obj/ROMERoot.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Root", "Root");
+   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Rome", "Rome", "Rome", "Rome", "Rome");
+   buffer.AppendFormatted("obj/ROMERome.obj: $(ROMESYS)/src/ROMERome.cpp $(ROMESYS)/include/ROMERome.h obj/ROMERome.d\n");
+   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Rome", "Rome");
 
    buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Midas", "Midas", "Midas", "Midas", "Midas");
    buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h obj/ROMEMidas.d\n");
