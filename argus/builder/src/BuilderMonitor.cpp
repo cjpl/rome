@@ -672,7 +672,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    }
    // DAQ includes
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n", shortCut.Data());
-   buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n", shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sRome.h>\n", shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted("#include <ROMEOrca.h>\n", shortCut.Data());
    for (i = 0; i < numOfDAQ; i++)
@@ -737,7 +737,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    // DAQ Handle
    buffer.AppendFormatted("   // DAQ Handle\n");
    buffer.AppendFormatted("   %sMidas* fMidas; // Handle to the Midas DAQ Class\n", shortCut.Data());
-   buffer.AppendFormatted("   %sRoot*  fRoot; // Handle to the Root DAQ Class\n", shortCut.Data());
+   buffer.AppendFormatted("   %sRome*  fRome; // Handle to the Rome DAQ Class\n", shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted("   ROMEOrca* fOrca; // Handle to the Orca DAQ Class\n", shortCut.Data());
    for (i = 0; i < numOfDAQ; i++)
@@ -880,15 +880,15 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("      return fMidas;\n");
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("   void     SetMidas(%sMidas* handle) { fMidas = handle; };\n", shortCut.Data());
-   buffer.AppendFormatted("   %sRoot*  GetRoot() {\n", shortCut.Data());
-   buffer.AppendFormatted("      if (fRoot==NULL) {\n");
-   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gMonitor->GetRoot()\\nhandle but the current DAQ system is not 'Root'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("   %sRome*  GetRome() {\n", shortCut.Data());
+   buffer.AppendFormatted("      if (fRome==NULL) {\n");
+   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gMonitor->GetRome()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
    buffer.AppendFormatted("         fApplication->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      return fRoot;\n");
+   buffer.AppendFormatted("      return fRome;\n");
    buffer.AppendFormatted("   };\n");
-   buffer.AppendFormatted("   void     SetRoot (%sRoot*  handle) { fRoot  = handle; };\n", shortCut.Data());
+   buffer.AppendFormatted("   void     SetRome (%sRome*  handle) { fRome  = handle; };\n", shortCut.Data());
    if (this->orca) {
       buffer.AppendFormatted("   ROMEOrca*  GetOrca() {\n");
       buffer.AppendFormatted("      if (fOrca==NULL) {\n");

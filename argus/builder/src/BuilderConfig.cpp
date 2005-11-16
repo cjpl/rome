@@ -64,7 +64,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/framework/%sWindow.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n", shortCut.Data());
-   buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n", shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sRome.h>\n", shortCut.Data());
    buffer.AppendFormatted("#if defined( HAVE_ORCA )\n");
    buffer.AppendFormatted("#include <ROMEOrca.h>\n");
    buffer.AppendFormatted("#endif\n");
@@ -565,9 +565,9 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("         gMonitor->SetMidas(new %sMidas());\n", shortCut.Data());
    buffer.AppendFormatted("         gMonitor->SetActiveDAQ(gMonitor->GetMidas());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"root\",TString::kIgnoreCase)) {\n");
-   buffer.AppendFormatted("         gMonitor->SetRoot(new %sRoot());\n", shortCut.Data());
-   buffer.AppendFormatted("         gMonitor->SetActiveDAQ(gMonitor->GetRoot());\n");
+   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"rome\",TString::kIgnoreCase)) {\n");
+   buffer.AppendFormatted("         gMonitor->SetRome(new %sRome());\n", shortCut.Data());
+   buffer.AppendFormatted("         gMonitor->SetActiveDAQ(gMonitor->GetRome());\n");
    buffer.AppendFormatted("      }\n");
    if (this->orca) {
       buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"orca\",TString::kIgnoreCase)) {\n");
