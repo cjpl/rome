@@ -3548,7 +3548,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fMidas = NULL;\n");
-   buffer.AppendFormatted("   fRoot = NULL;\n");
+   buffer.AppendFormatted("   fRome = NULL;\n");
    for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted("   f%s = NULL;\n",daqName[i].Data());
    buffer.AppendFormatted("\n");
@@ -4044,7 +4044,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // DAQ includes
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
-   buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n",shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sRome.h>\n",shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted("#include <ROMEOrca.h>\n",shortCut.Data());
    for (i=0;i<numOfDAQ;i++)
@@ -4138,7 +4138,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // DAQ Handle
    buffer.AppendFormatted("   // DAQ Handle\n");
    buffer.AppendFormatted("   %sMidas* fMidas; // Handle to the Midas DAQ Class\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRoot*  fRoot; // Handle to the Root DAQ Class\n",shortCut.Data());
+   buffer.AppendFormatted("   %sRome*  fRome; // Handle to the Rome DAQ Class\n",shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted("   ROMEOrca* fOrca; // Handle to the Orca DAQ Class\n",shortCut.Data());
    for (i=0;i<numOfDAQ;i++)
@@ -4306,15 +4306,15 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("      return fMidas;\n");
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("   void     SetMidas(%sMidas* handle) { fMidas = handle; };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRoot*  GetRoot() {\n",shortCut.Data());
-   buffer.AppendFormatted("      if (fRoot==NULL) {\n");
-   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gAnalyzer->GetRoot()\\nhandle but the current DAQ system is not 'Root'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("   %sRome*  GetRome() {\n",shortCut.Data());
+   buffer.AppendFormatted("      if (fRome==NULL) {\n");
+   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the rome DAQ system over a gAnalyzer->GetRome()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
    buffer.AppendFormatted("         fRint->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      return fRoot;\n");
+   buffer.AppendFormatted("      return fRome;\n");
    buffer.AppendFormatted("   };\n");
-   buffer.AppendFormatted("   void     SetRoot (%sRoot*  handle) { fRoot  = handle; };\n",shortCut.Data());
+   buffer.AppendFormatted("   void     SetRome (%sRome*  handle) { fRome  = handle; };\n",shortCut.Data());
    if (this->orca) {
       buffer.AppendFormatted("   ROMEOrca*  GetOrca() {\n");
       buffer.AppendFormatted("      if (fOrca==NULL) {\n");
@@ -4482,7 +4482,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    configDep.AppendFormatted(" $(DataBaseIncludes)");
 
    buffer.AppendFormatted("#include <include/framework/%sMidas.h>\n",shortCut.Data());
-   buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n",shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sRome.h>\n",shortCut.Data());
    buffer.AppendFormatted("#if defined( HAVE_ORCA )\n");
    buffer.AppendFormatted("#include <ROMEOrca.h>\n");
    buffer.AppendFormatted("#endif\n");
@@ -5151,9 +5151,9 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         gAnalyzer->SetMidas(new %sMidas());\n",shortCut.Data());
    buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetMidas());\n");
    buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"root\",TString::kIgnoreCase)) {\n");
-   buffer.AppendFormatted("         gAnalyzer->SetRoot(new %sRoot());\n",shortCut.Data());
-   buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetRoot());\n");
+   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"rome\",TString::kIgnoreCase)) {\n");
+   buffer.AppendFormatted("         gAnalyzer->SetRome(new %sRome());\n",shortCut.Data());
+   buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetRome());\n");
    buffer.AppendFormatted("      }\n");
    if (this->orca) {
       buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"orca\",TString::kIgnoreCase)) {\n");
@@ -6661,7 +6661,7 @@ bool ROMEBuilder::WriteMidasH() {
 
    return true;
 }
-bool ROMEBuilder::WriteRootCpp() {
+bool ROMEBuilder::WriteRomeCpp() {
    int i;
 
    ROMEString cppFile;
@@ -6669,11 +6669,8 @@ bool ROMEBuilder::WriteRootCpp() {
 
    ROMEString format;
 
-   ROMEString classDescription;
-   classDescription.SetFormatted("This class implements rome's root input file access.");
-
    // File name
-   cppFile.SetFormatted("%s/src/framework/%sRoot.cpp",outDir.Data(),shortCut.Data());
+   cppFile.SetFormatted("%s/src/framework/%sRome.cpp",outDir.Data(),shortCut.Data());
    // Description
    buffer.Resize(0);
    buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n");
@@ -6693,19 +6690,19 @@ bool ROMEBuilder::WriteRootCpp() {
    buffer.AppendFormatted("#pragma warning( pop )\n");
    buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
    buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
-   rootDep.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
-   buffer.AppendFormatted("#include <include/framework/%sRoot.h>\n",shortCut.Data());
-   rootDep.AppendFormatted(" include/framework/%sRoot.h",shortCut.Data());
+   romeDep.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
+   buffer.AppendFormatted("#include <include/framework/%sRome.h>\n",shortCut.Data());
+   romeDep.AppendFormatted(" include/framework/%sRome.h",shortCut.Data());
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
-   buffer.AppendFormatted("%sRoot::%sRoot() { }\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sRome::%sRome() { }\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
 
    // Connect Trees
    int iFold=0,j,k;
    buffer.AppendFormatted("// Connect Trees\n");
-   buffer.AppendFormatted("void %sRoot::ConnectTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("void %sRome::ConnectTrees()\n{\n",shortCut.Data());
    buffer.AppendFormatted("   TBranchElement *bb;\n");
    for (i=0;i<numOfTree;i++) {
       for (j=0;j<numOfBranch[i];j++) {
@@ -6731,12 +6728,12 @@ bool ROMEBuilder::WriteRootCpp() {
 
    return true;
 }
-bool ROMEBuilder::WriteRootH() {
+bool ROMEBuilder::WriteRomeH() {
    ROMEString hFile;
    ROMEString buffer;
 
    // File name
-   hFile.SetFormatted("%s/include/framework/%sRoot.h",outDir.Data(),shortCut.Data());
+   hFile.SetFormatted("%s/include/framework/%sRome.h",outDir.Data(),shortCut.Data());
 
    // Description
    buffer.Resize(0);
@@ -6746,19 +6743,19 @@ bool ROMEBuilder::WriteRootH() {
    buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   buffer.AppendFormatted("#ifndef %sRoot_H\n",shortCut.Data());
-   buffer.AppendFormatted("#define %sRoot_H\n\n",shortCut.Data());
+   buffer.AppendFormatted("#ifndef %sRome_H\n",shortCut.Data());
+   buffer.AppendFormatted("#define %sRome_H\n\n",shortCut.Data());
 
-   buffer.AppendFormatted("#include <ROMERoot.h>\n");
+   buffer.AppendFormatted("#include <ROMERome.h>\n");
 
    // Class
-   buffer.AppendFormatted("\nclass %sRoot : public ROMERoot\n",shortCut.Data());
+   buffer.AppendFormatted("\nclass %sRome : public ROMERome\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
 
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-   buffer.AppendFormatted("   %sRoot();\n",shortCut.Data());
+   buffer.AppendFormatted("   %sRome();\n",shortCut.Data());
 
    // methods
    buffer.AppendFormatted("protected:\n");
@@ -6769,7 +6766,7 @@ bool ROMEBuilder::WriteRootH() {
 
    buffer.AppendFormatted("};\n\n");
 
-   buffer.AppendFormatted("#endif   // %sRoot_H\n",shortCut.Data());
+   buffer.AppendFormatted("#endif   // %sRome_H\n",shortCut.Data());
 
    // Write File
    WriteFile(hFile.Data(),buffer.Data(),6);
@@ -8479,7 +8476,7 @@ bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
          makeOutput = true;
          midas = true;
          orca = true;
-         noLink = false;
+         noLink = true;
          sql = true;
          mysql = true;
          sqlite = false;
@@ -8909,8 +8906,8 @@ void ROMEBuilder::StartBuilder()
    if (!WriteConfigH()) return;
    if (!WriteMidasCpp()) return;
    if (!WriteMidasH()) return;
-   if (!WriteRootCpp()) return;
-   if (!WriteRootH()) return;
+   if (!WriteRomeCpp()) return;
+   if (!WriteRomeH()) return;
    if (!WriteEventLoopCpp()) return;
    if (!WriteEventLoopH()) return;
    if (!WriteMain()) return;
@@ -9003,7 +9000,7 @@ void ROMEBuilder::WriteMakefile() {
    eventLoopDep += " obj/ROMEEventLoop.obj";
    daqDep += " $(ROMESYS)/include/ROMEDAQSystem.h";
    midasDep += daqDep;
-   rootDep += daqDep;
+   romeDep += daqDep;
 
    buffer.Resize(0);
 // Libraries, Flags and Includes
@@ -9230,7 +9227,7 @@ void ROMEBuilder::WriteMakefile() {
 // daq
    buffer.AppendFormatted("DAQIncludes %s",EqualSign());
    buffer.AppendFormatted(" include/framework/%sMidas.h",shortCut.Data());
-   buffer.AppendFormatted(" include/framework/%sRoot.h",shortCut.Data());
+   buffer.AppendFormatted(" include/framework/%sRome.h",shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted(" $(ROMESYS)/include/ROMEOrca.h");
    buffer.AppendFormatted(" $(ROMESYS)/include/ROMENoDAQSystem.h");
@@ -9239,7 +9236,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("DAQObjects %s",EqualSign());
    buffer.AppendFormatted(" obj/%sMidas.obj",shortCut.Data());
-   buffer.AppendFormatted(" obj/%sRoot.obj",shortCut.Data());
+   buffer.AppendFormatted(" obj/%sRome.obj",shortCut.Data());
    for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted(" obj/%s%s.obj",shortCut.Data(),daqName[i].Data());
    buffer.AppendFormatted("\n");
@@ -9336,7 +9333,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted(" obj/%sFAnalyzer.obj",shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted(" obj/ROMEOrca.obj");
-   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERoot.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
+   buffer.AppendFormatted(" obj/ROMEAnalyzer.obj obj/ROMEEventLoop.obj obj/ROMETask.obj  obj/ROMESplashScreen.obj obj/ROMEXML.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEStr2DArray.obj obj/ROMEPath.obj obj/ROMEMidas.obj obj/ROMERome.obj obj/ROMEUtilities.obj obj/mxml.obj obj/strlcpy.obj obj/TNetFolderServer.obj");
    buffer.AppendFormatted(" obj/%sROMEDict.obj obj/%sFrameworkDict.obj",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
@@ -9532,12 +9529,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("%s",midasDep.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted(compileFormatFrame.Data(),"Midas","Midas");
-   // Root
-   buffer.AppendFormatted(dependFormatFrame.Data(),"Root","Root","Root","Root","Root");
-   buffer.AppendFormatted("obj/%sRoot.obj: src/framework/%sRoot.cpp obj/%sRoot.d",shortCut.Data(),shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("%s",rootDep.Data());
+   // Rome
+   buffer.AppendFormatted(dependFormatFrame.Data(),"Rome","Rome","Rome","Rome","Rome");
+   buffer.AppendFormatted("obj/%sRome.obj: src/framework/%sRome.cpp obj/%sRome.d",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%s",romeDep.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted(compileFormatFrame.Data(),"Root","Root");
+   buffer.AppendFormatted(compileFormatFrame.Data(),"Rome","Rome");
    // main
    buffer.AppendFormatted(dependFormatBlank.Data(),"main","src/framework/main","main","main");
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp include/framework/%sAnalyzer.h obj/main.d\n",shortCut.Data());
@@ -9603,9 +9600,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("obj/ROMEUtilities.obj: $(ROMESYS)/src/ROMEUtilities.cpp $(ROMESYS)/include/ROMEUtilities.h obj/ROMEUtilities.d\n" );
    buffer.AppendFormatted(compileFormatBlank.Data(), "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities" );
 
-   buffer.AppendFormatted(dependFormatROME.Data(),"Root","Root","Root","Root","Root");
-   buffer.AppendFormatted("obj/ROMERoot.obj: $(ROMESYS)/src/ROMERoot.cpp $(ROMESYS)/include/ROMERoot.h obj/ROMERoot.d\n");
-   buffer.AppendFormatted(compileFormatROME.Data(),"Root","Root");
+   buffer.AppendFormatted(dependFormatROME.Data(),"Rome","Rome","Rome","Rome","Rome");
+   buffer.AppendFormatted("obj/ROMERome.obj: $(ROMESYS)/src/ROMERome.cpp $(ROMESYS)/include/ROMERome.h obj/ROMERome.d\n");
+   buffer.AppendFormatted(compileFormatROME.Data(),"Rome","Rome");
 
    buffer.AppendFormatted(dependFormatROME.Data(),"Midas","Midas","Midas","Midas","Midas");
    buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h obj/ROMEMidas.d\n");

@@ -921,7 +921,7 @@
 						<xs:documentation>Describes the author of the framework. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Folders">
+				<xs:element name="Folders" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Description of all folders of the framework. (optional)</xs:documentation>
 					</xs:annotation>
@@ -949,7 +949,7 @@
 						</xs:sequence>
 					</xs:complexType>
 				</xs:element>
-				<xs:element name="Tasks">
+				<xs:element name="Tasks" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Description of all tasks of the framework. (optional)</xs:documentation>
 					</xs:annotation>
