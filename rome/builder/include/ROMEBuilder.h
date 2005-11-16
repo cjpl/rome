@@ -257,7 +257,7 @@ protected:
    ROMEString eventLoopDep;
    ROMEString configDep;
    ROMEString midasDep;
-   ROMEString rootDep;
+   ROMEString romeDep;
    ROMEString daqDep;
 
 public:
@@ -299,8 +299,8 @@ public:
    bool WriteConfigH();
    bool WriteMidasCpp();
    bool WriteMidasH();
-   bool WriteRootCpp();
-   bool WriteRootH();
+   bool WriteRomeCpp();
+   bool WriteRomeH();
    bool WriteDAQCpp();
    bool WriteDAQH();
    bool WriteDBCpp();

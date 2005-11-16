@@ -268,8 +268,12 @@ bool ROMEEventLoop::DAQInit() {
    else if (gROME->GetNumberOfInputFileNames()>0)
       gROME->SetIOType(gROME->kFileNameBased);
    else if (gROME->isOffline()) {
-      gROME->Println("No run numbers or input file names specified.\n");
-      return false;
+      if (gROME->isActiveDAQSet()) {
+         if (strcmp(gROME->GetActiveDAQ()->GetName(),"none")) {
+            gROME->Println("No run numbers or input file names specified.\n");
+            return false;
+         }
+      }
    }
 
 
