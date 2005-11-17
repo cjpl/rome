@@ -785,7 +785,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
          ROMEString blankT;
          Int_t indexCounter = 0;
          pointerT.SetFormatted("%s->fSteering", pointer.Data());
-         steerPointerT.SetFormatted("static_cast<%sT%s*>(gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
          WriteSteeringConfigSet(buffer, 0, i, pointerT, steerPointerT, blankT, &indexCounter);
       }
    }
