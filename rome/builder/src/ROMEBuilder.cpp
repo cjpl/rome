@@ -10010,20 +10010,20 @@ void ROMEBuilder::WriteUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" $(DictionaryHeaders)\n",shortCut.Data());
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
-   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+   buffer.AppendFormatted("\t-DYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #   else
-   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
+   buffer.AppendFormatted("\t-LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
 #   endif
 #else
-   buffer.AppendFormatted("\t");
+   buffer.AppendFormatted("\t-");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("-%%ROOTSYS%%\\bin\\rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("-$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sUserDict.cpp -c -p",shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
 #endif
