@@ -236,6 +236,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    CleanTasks();
 
    // Root Interpreter
+   TString prompt = gROME->GetProgramName();
+   prompt.ToLower();
+   prompt += " [%d]";
+   gROME->GetApplication()->SetPrompt(prompt.Data());
    if (!gROME->isBatchMode()) {
       gROME->GetApplication()->Run(true);
       gROME->Println();
