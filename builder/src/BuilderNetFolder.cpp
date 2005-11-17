@@ -32,7 +32,7 @@ Bool_t ArgusBuilder::ReadXMLNetFolder()
       type = xml->GetType();
       name = xml->GetName();
       // end net object
-      if (type == 15 && !strcmp((const Char_t *) name, "NetFolder")) {
+      if (type == 15 && !strcmp(name, "NetFolder")) {
          // check input
          if (netFolderName[numOfNetFolder] == "") {
             cout << "The " << (numOfNetFolder + 1) << ". NetFolder has no name !" << endl;
@@ -42,26 +42,26 @@ Bool_t ArgusBuilder::ReadXMLNetFolder()
          return kTRUE;
       }
       // net object name
-      if (type == 1 && !strcmp((const Char_t *) name, "NetFolderName")) {
+      if (type == 1 && !strcmp(name, "NetFolderName")) {
          xml->GetValue(netFolderName[numOfNetFolder], netFolderName[numOfNetFolder]);
          // output
          if (makeOutput)
             netFolderName[numOfNetFolder].WriteLine();
       }
       // net object title
-      if (type == 1 && !strcmp((const Char_t *) name, "NetFolderTitle"))
+      if (type == 1 && !strcmp(name, "NetFolderTitle"))
          xml->GetValue(netFolderTitle[numOfNetFolder], netFolderTitle[numOfNetFolder]);
 
       // net object host
-      if (type == 1 && !strcmp((const Char_t *) name, "NetFolderHost"))
+      if (type == 1 && !strcmp(name, "NetFolderHost"))
          xml->GetValue(netFolderHost[numOfNetFolder], netFolderHost[numOfNetFolder]);
 
       // net object port
-      if (type == 1 && !strcmp((const Char_t *) name, "NetFolderPort"))
+      if (type == 1 && !strcmp(name, "NetFolderPort"))
          xml->GetValue(netFolderPort[numOfNetFolder], netFolderPort[numOfNetFolder]);
 
       // net object Root
-      if (type == 1 && !strcmp((const Char_t *) name, "NetFolderRoot"))
+      if (type == 1 && !strcmp(name, "NetFolderRoot"))
          xml->GetValue(netFolderRoot[numOfNetFolder], netFolderRoot[numOfNetFolder]);
    }
    return kTRUE;

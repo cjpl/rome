@@ -97,8 +97,10 @@ ClassImp(ArgusAnalyzerController)
    Int_t ax, ay;
    if (main) {
       Window_t wdum;
-      gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId()
-                                      , (Int_t) (((TGFrame *) main)->GetWidth() - fWidth) >> 1, (Int_t) (((TGFrame *) main)->GetHeight() - fHeight) >> 1, ax, ay, wdum);
+      Int_t mx, my; // geometry of main
+      UInt_t mw, mh; // geometry of main
+      gVirtualX->GetGeometry(main->GetId(), mx, my, mw, mh);
+      gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId(), mw >> 1, mh >> 1, ax, ay, wdum);
    }
    else {
       UInt_t root_w, root_h;
