@@ -4,8 +4,6 @@
   $Id$
 
 ********************************************************************/
-//#define USE_TRINT
-
 #ifndef ArgusMonitor_H
 #define ArgusMonitor_H
 #include <ROMEAnalyzer.h>

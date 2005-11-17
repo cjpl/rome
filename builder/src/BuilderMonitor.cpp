@@ -77,7 +77,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sMonitor::%sMonitor(TApplication *app):ArgusMonitor(app) {\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("%sMonitor::%sMonitor(TApplication *app) : ArgusMonitor(app) {\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("   Int_t i;\n");
    buffer.AppendFormatted("   gPassToArgus = static_cast<void*>(this); // Pass the handle to the monitor\n");
    buffer.AppendFormatted("\n");
@@ -748,7 +748,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("public:\n");
 
    // Constructor
-   buffer.AppendFormatted("   %sMonitor(TApplication *app);\n", shortCut.Data());
+   buffer.AppendFormatted("   %sMonitor(TApplication *app = 0);\n", shortCut.Data());
 
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
