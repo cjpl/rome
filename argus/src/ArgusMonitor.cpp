@@ -52,12 +52,12 @@ ClassImp(ArgusMonitor)
 ArgusMonitor *gArgus;           // global ArgusMonitor Handle
 void *gPassToArgus;             // void ArgusMonitor Handle
 
-ArgusMonitor::ArgusMonitor(TApplication * app):ROMEAnalyzer(dynamic_cast<TRint*>(app))
+ArgusMonitor::ArgusMonitor(TApplication *app):ROMEAnalyzer(0)
 {
 // Initialisations
    fWindowScale = 1;
    fTreeInfo = new ROMETreeInfo();
-   fApplication = dynamic_cast<TApplication*>(fRint);
+   fApplication = app;
 }
 
 ArgusMonitor::~ArgusMonitor()

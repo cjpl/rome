@@ -61,7 +61,7 @@ ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t
       Window_t wdum;
       Int_t mx, my; // geometry of main
       UInt_t mw, mh; // geometry of main
-      gVirtualX->GetGeometry(main->GetId(), mx, my, mw, mh);
+      gVirtualX->GetWindowSize(main->GetId(), mx, my, mw, mh);
       gVirtualX->TranslateCoordinates(main->GetId(), GetParent()->GetId(), mw >> 1, mh >> 1, ax, ay, wdum);
    }
    else {
