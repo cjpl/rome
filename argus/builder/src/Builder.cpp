@@ -382,14 +382,14 @@ void ArgusBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("make -e %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       const int workDirLen = 1000;
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
-      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
    }
@@ -749,22 +749,22 @@ void ArgusBuilder::WriteMakefile()
 #if defined( R__UNIX )
    if (numOfMFDictHeaders==0) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
-      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n", shortCut.Data());
       buffer.AppendFormatted("endif\n");
    }
    else{
-      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("objects += obj/%sUserDict.obj\n", shortCut.Data());
    }
    if (numOfFolder > 0) {
-      buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("objects += obj/%sFolderDict.obj\n", shortCut.Data());
    }
    if (numOfTab > 0) {
-      buffer.AppendFormatted("objects += obj/%sTabDict.obj\n",shortCut.Data());
+      buffer.AppendFormatted("objects += obj/%sTabDict.obj\n", shortCut.Data());
    }
 #else
-   buffer.AppendFormatted("objects = $(objects) obj/%sUserDict.obj\n",shortCut.Data());
-   buffer.AppendFormatted("objects = $(objects) obj/%sFolderDict.obj\n",shortCut.Data());
-   buffer.AppendFormatted("objects = $(objects) obj/%sTabDict.obj\n",shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sUserDict.obj\n", shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sFolderDict.obj\n", shortCut.Data());
+   buffer.AppendFormatted("objects = $(objects) obj/%sTabDict.obj\n", shortCut.Data());
 #endif // R__UNIX
 
    // make obj
@@ -809,8 +809,8 @@ void ArgusBuilder::WriteMakefile()
 
 // Compile Statements
 // ------------------
-   dependFormatFrame.SetFormatted("obj/%s%%s.d: src/framework/%s%%s.cpp include/framework/%s%%s.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
-   dependFormatTabs.SetFormatted("obj/%sT%%s.d: src/tabs/%sT%%s.cpp include/tabs/%sT%%s.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   dependFormatFrame.SetFormatted("obj/%s%%s.d: src/framework/%s%%s.cpp include/framework/%s%%s.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
+   dependFormatTabs.SetFormatted("obj/%sT%%s.d: src/tabs/%sT%%s.cpp include/tabs/%sT%%s.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    dependFormatBlank.SetFormatted("obj/%%s.d: %%s.cpp\n");
    dependFormatROME.SetFormatted ("obj/ROME%%s.d: $(ROMESYS)/src/ROME%%s.cpp $(ROMESYS)/include/ROME%%s.h\n");
    dependFormatARGUS.AppendFormatted ("obj/Argus%%s.d: $(ARGUSSYS)/src/Argus%%s.cpp $(ARGUSSYS)/include/Argus%%s.h\n");
@@ -824,8 +824,8 @@ void ArgusBuilder::WriteMakefile()
    compileFormatARGUS.SetFormatted("\tg++ -c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp -o obj/Argus%%s.obj\n");
    compileFormatRANY.SetFormatted("\tg++ -c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c -o obj/%%s.obj\n");
    compileFormatAny.SetFormatted("\tg++ -c $(Flags) $(Includes) %%s -o obj/%%s.obj\n");
-   dependFormatFrame.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s%%s.obj $<\n",shortCut.Data());
-   dependFormatTabs.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%sT%%s.obj $<\n",shortCut.Data());
+   dependFormatFrame.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s%%s.obj $<\n", shortCut.Data());
+   dependFormatTabs.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%sT%%s.obj $<\n", shortCut.Data());
    dependFormatBlank.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%%s.obj $<\n");
    dependFormatROME.AppendFormatted ("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/ROME%%s.obj $<\n");
    dependFormatARGUS.AppendFormatted ("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/ARGUS%%s.obj $<\n");
@@ -840,8 +840,8 @@ void ArgusBuilder::WriteMakefile()
    compileFormatARGUS.SetFormatted("\tcl /c $(Flags) $(Includes) $(ARGUSSYS)/src/Argus%%s.cpp /Foobj/Argus%%s.obj\n");
    compileFormatRANY.SetFormatted("\tcl /c $(Flags) $(Includes) $(ROMESYS)/src/%%s.c /Foobj/%%s.obj\n");
    compileFormatAny.SetFormatted("\tcl /c $(Flags) $(Includes) %%s /Foobj/%%s.obj\n");
-   dependFormatFrame.AppendFormatted("\tcopy blank.d obj\\%s%%s.d\n",shortCut.Data());
-   dependFormatTabs.AppendFormatted("\tcopy blank.d obj\\%sT%%s.d\n",shortCut.Data());
+   dependFormatFrame.AppendFormatted("\tcopy blank.d obj\\%s%%s.d\n", shortCut.Data());
+   dependFormatTabs.AppendFormatted("\tcopy blank.d obj\\%sT%%s.d\n", shortCut.Data());
    dependFormatBlank.AppendFormatted("\tcopy blank.d obj\\%%s.d\n");
    dependFormatROME.AppendFormatted ("\tcopy blank.d obj\\ROME%%s.d\n");
    dependFormatARGUS.AppendFormatted ("\tcopy blank.d obj\\Argus%%s.d\n");
@@ -1035,29 +1035,29 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp $(ROMESYS)/include/ROMETask.h obj/ROMETask.d\n");
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Task", "Task");
 
-   buffer.AppendFormatted("obj/%sROMEDict.obj: %sROMEDict.h %sROMEDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sROMEDict.obj: %sROMEDict.h %sROMEDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sROMEDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sROMEDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sROMEDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sARGUSDict.obj: %sARGUSDict.h %sARGUSDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sARGUSDict.obj: %sARGUSDict.h %sARGUSDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sARGUSDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sARGUSDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sARGUSDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sFrameworkDict.obj: %sFrameworkDict.h %sFrameworkDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sFrameworkDict.obj: %sFrameworkDict.h %sFrameworkDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sFrameworkDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sFrameworkDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sFrameworkDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sTabDict.obj: %sTabDict.h %sTabDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sTabDict.obj: %sTabDict.h %sTabDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sTabDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sTabDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sTabDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sFolderDict.obj: %sFolderDict.h %sFolderDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sFolderDict.obj: %sFolderDict.h %sFolderDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sFolderDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sFolderDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sFolderDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sUserDict.obj: %sUserDict.h %sUserDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("obj/%sUserDict.obj: %sUserDict.h %sUserDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sUserDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sUserDict",shortCut.Data());
+   tempBuffer[1].SetFormatted("%sUserDict", shortCut.Data());
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
 
    WriteAdditionalSourceFilesCompileCommands(buffer);
@@ -1130,7 +1130,7 @@ void ArgusBuilder::WriteMakefile()
 void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the ARGUS headers
-   buffer.AppendFormatted("%sARGUSDict.h %sARGUSDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sARGUSDict.h %sARGUSDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/ArgusAnalyzerController.h $(ARGUSSYS)/include/TNetFolder.h\n");
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
@@ -1142,13 +1142,13 @@ void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sARGUSDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sARGUSDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sARGUSDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
@@ -1159,7 +1159,7 @@ void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
 void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the framework headers
-   buffer.AppendFormatted("%sFrameworkDict.h %sFrameworkDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sFrameworkDict.h %sFrameworkDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" include/framework/%sMonitor.h  include/framework/%sWindow.h\n", shortCut.Data(), shortCut.Data());
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
@@ -1171,13 +1171,13 @@ void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFrameworkDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFrameworkDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
@@ -1190,7 +1190,7 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the tab headers
    int i;
-   buffer.AppendFormatted("%sTabDict.h %sTabDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sTabDict.h %sTabDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted("\n");
@@ -1204,13 +1204,13 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTabDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sTabDict.cpp -c -p",shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sTabDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
