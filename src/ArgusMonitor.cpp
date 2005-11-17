@@ -67,7 +67,7 @@ ArgusMonitor::~ArgusMonitor()
 Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
 {
    gArgus = static_cast<ArgusMonitor*>(gPassToArgus);
-   gROME = dynamic_cast<ROMEAnalyzer*>(gArgus);
+   gROME = static_cast<ROMEAnalyzer*>(gArgus);
 
    if (gROOT->IsBatch()) {
       printf("%s: cannot run in batch mode\n", GetProgramName());

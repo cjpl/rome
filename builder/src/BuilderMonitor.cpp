@@ -235,7 +235,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
       if (numOfValue[i] > 0 && !folderDataBase[i] && !folderSupport[i]) {
          if (folderArray[i] == "variable") {
             buffer.AppendFormatted("   for (i=gMonitor->Get%ss()->GetEntriesFast()-1;i>=0;i--) {\n", folderName[i].Data());
-            buffer.AppendFormatted("      if (dynamic_cast<%s%s*>(gMonitor->Get%sAt(i))->isModified())\n", shortCut.Data(), folderName[i].Data(), folderName[i].Data());
+            buffer.AppendFormatted("      if (static_cast<%s%s*>(gMonitor->Get%sAt(i))->isModified())\n", shortCut.Data(), folderName[i].Data(), folderName[i].Data());
             buffer.AppendFormatted("         break;\n");
             buffer.AppendFormatted("      gMonitor->Get%ss()->RemoveAt(i);\n", folderName[i].Data());
             buffer.AppendFormatted("   }\n");
@@ -260,7 +260,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
          }
          else if (folderArray[i] == "variable") {
             buffer.AppendFormatted("   for (i=0;i<gMonitor->Get%ss()->GetEntriesFast();i++) {\n", folderName[i].Data());
-            buffer.AppendFormatted("      dynamic_cast<%s%s*>(gMonitor->Get%sAt(i))->Reset();\n", shortCut.Data(), folderName[i].Data(), folderName[i].Data());
+            buffer.AppendFormatted("      static_cast<%s%s*>(gMonitor->Get%sAt(i))->Reset();\n", shortCut.Data(), folderName[i].Data(), folderName[i].Data());
             buffer.AppendFormatted("   }\n");
          }
          else {
@@ -517,7 +517,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
          ROMEString pointerT;
          ROMEString steerPointerT;
          pointerT.SetFormatted("%s->fSteering", pointer.Data());
-         steerPointerT.SetFormatted("dynamic_cast<%sT%s*>(gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         steerPointerT.SetFormatted("static_cast<%sT%s*>(gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
          WriteSteeringReadParameters(buffer, 0, i, pointerT, steerPointerT);
       }
    }
