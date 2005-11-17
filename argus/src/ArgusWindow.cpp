@@ -53,7 +53,7 @@ Bool_t ArgusWindow::Start()
    AddFrame(fMenuBar, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX, 0, 0, 1, 1));
 
    // Create tab widget
-   fTab = new TGTab(this, (UInt_t) (600 * gArgus->GetWindowScale()), (UInt_t) (400 * gArgus->GetWindowScale()));
+   fTab = new TGTab(this, static_cast<UInt_t>(600 * gArgus->GetWindowScale()), static_cast<UInt_t>(400 * gArgus->GetWindowScale()));
 
    if (!CreateTabs())
       return kFALSE;

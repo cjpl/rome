@@ -28,9 +28,9 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("//                                                                            //\n");
    ll = 74 - shortCut.Length();
    format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
    buffer.AppendFormatted("//                                                                            //\n");
-   pos = (Char_t *) classDescription.Data();
+   pos = const_cast<Char_t*>(classDescription.Data());
    lenTot = classDescription.Length();
    while (pos - classDescription.Data() < lenTot) {
       if (lenTot + (classDescription.Data() - pos) < 74)
@@ -596,7 +596,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
 
    // Window
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified) {\n");
-   buffer.AppendFormatted("      gMonitor->SetWindowScale((float)atof(fConfigData[index]->fWindow->fScale.Data()));\n");
+   buffer.AppendFormatted("      gMonitor->SetWindowScale(static_cast<Float_t>(atof(fConfigData[index]->fWindow->fScale.Data())));\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStatusBarModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fWindow->fStatusBar==\"false\")\n");
@@ -641,7 +641,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("               if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')\n");
    buffer.AppendFormatted("                  path += \"/\";\n");
    buffer.AppendFormatted("               gMonitor->SetDataBaseDir(i,path.Data());\n");
-   buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gMonitor->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))\n");
+   buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gMonitor->GetDataBaseDir(i),static_cast<TString>(str(ind+1,str.Length()-ind-1)).Data()))\n");
    buffer.AppendFormatted("                  return kFALSE;\n");
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"text\") {\n");
@@ -673,9 +673,9 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    // Online
    buffer.AppendFormatted("   // online\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fHostModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetOnlineHost((Char_t*)fConfigData[index]->fOnline->fHost.Data());\n");
+   buffer.AppendFormatted("      gMonitor->SetOnlineHost(const_cast<Char_t*>(fConfigData[index]->fOnline->fHost.Data()));\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fOnline->fExperimentModified)\n");
-   buffer.AppendFormatted("      gMonitor->SetOnlineExperiment((Char_t*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   buffer.AppendFormatted("      gMonitor->SetOnlineExperiment(const_cast<Char_t*>(fConfigData[index]->fOnline->fExperiment.Data()));\n");
 
    // NetFolder
    buffer.AppendFormatted("   // net folders\n");
@@ -699,11 +699,11 @@ Bool_t ArgusBuilder::WriteConfigCpp()
       buffer.AppendFormatted("               gMonitor->SetNetFolderReconnect(i,kFALSE);\n");
       buffer.AppendFormatted("         }\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fHostModified)\n");
-      buffer.AppendFormatted("            gMonitor->SetNetFolderHost(i,(Char_t*)fConfigData[index]->fNetFolder[i]->fHost.Data());\n");
+      buffer.AppendFormatted("            gMonitor->SetNetFolderHost(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fHost.Data()));\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fPortModified)\n");
-      buffer.AppendFormatted("            gMonitor->SetNetFolderPort(i,(Char_t*)fConfigData[index]->fNetFolder[i]->fPort.Data());\n");
+      buffer.AppendFormatted("            gMonitor->SetNetFolderPort(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fPort.Data()));\n");
       buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fRootModified)\n");
-      buffer.AppendFormatted("            gMonitor->SetNetFolderRoot(i,(Char_t*)fConfigData[index]->fNetFolder[i]->fRoot.Data());\n");
+      buffer.AppendFormatted("            gMonitor->SetNetFolderRoot(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fRoot.Data()));\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
@@ -785,7 +785,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
          ROMEString blankT;
          Int_t indexCounter = 0;
          pointerT.SetFormatted("%s->fSteering", pointer.Data());
-         steerPointerT.SetFormatted("((%sT%s*) gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         steerPointerT.SetFormatted("dynamic_cast<%sT%s*>(gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
          WriteSteeringConfigSet(buffer, 0, i, pointerT, steerPointerT, blankT, &indexCounter);
       }
    }
@@ -957,24 +957,24 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    // Window/Scale
    buffer.AppendFormatted("      if (index==0){\n");
    buffer.AppendFormatted("         str.SetFormatted(\"%%2.1f\",gMonitor->GetWindowScale());\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(Char_t*)str.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",const_cast<Char_t*>(str.Data()));\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fScaleModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",(Char_t*)fConfigData[index]->fWindow->fScale.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",const_cast<Char_t*>(fConfigData[index]->fWindow->fScale.Data()));\n");
    // Window/StatusBar
    buffer.AppendFormatted("      if (index==0){\n");
    buffer.AppendFormatted("         if(gWindow->GetStatusBarSwitch())\n");
    buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",(Char_t*)str.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",const_cast<Char_t*>(str.Data()));\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fStatusBarModified){\n");
    buffer.AppendFormatted("         if(gWindow->GetStatusBarSwitch())\n");
    buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",(Char_t*)str.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",const_cast<Char_t*>(str.Data()));\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
@@ -1006,12 +1006,12 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Host\",gMonitor->GetOnlineHost());\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fHostModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Host\",(Char_t*)fConfigData[index]->fOnline->fHost.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Host\",const_cast<Char_t*>(fConfigData[index]->fOnline->fHost.Data()));\n");
    // Online/Experiment
    buffer.AppendFormatted("      if (index==0)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",gMonitor->GetOnlineExperiment());\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fOnline->fExperimentModified)\n");
-   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",(Char_t*)fConfigData[index]->fOnline->fExperiment.Data());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Experiment\",const_cast<Char_t*>(fConfigData[index]->fOnline->fExperiment.Data()));\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
 
@@ -1031,7 +1031,7 @@ Bool_t ArgusBuilder::WriteConfigCpp()
          buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"false\");\n");
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fActiveModified)\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Active\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fActive.Data());\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Active\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fActive.Data()));\n", i);
          // NetFolder/Reconnect
          buffer.AppendFormatted("         if (index==0){\n");
          buffer.AppendFormatted("            if(gMonitor->GetNetFolderReconnect(%d))\n", i);
@@ -1040,24 +1040,24 @@ Bool_t ArgusBuilder::WriteConfigCpp()
          buffer.AppendFormatted("               xml->WriteElement(\"Reconnect\",\"false\");\n");
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fReconnectModified)\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Reconnect\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fReconnect.Data());\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Reconnect\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fReconnect.Data()));\n", i);
          // NetFolder/Host
          buffer.AppendFormatted("         if (index==0)\n");
          buffer.AppendFormatted("            xml->WriteElement(\"Host\",gMonitor->GetNetFolderHost(%d));\n", i);
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fHostModified)\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Host\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fHost.Data());\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Host\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fHost.Data()));\n", i);
          // NetFolder/Port
          buffer.AppendFormatted("         if (index==0){\n");
          buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gMonitor->GetNetFolderPort(%d));\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Port\",(Char_t*)str.Data());\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"Port\",const_cast<Char_t*>(str.Data()));\n");
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fPortModified)\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Port\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fPort.Data());\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Port\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fPort.Data()));\n", i);
          // NetFolder/Root
          buffer.AppendFormatted("         if (index==0)\n");
          buffer.AppendFormatted("            xml->WriteElement(\"Root\",gMonitor->GetNetFolderRoot(%d));\n", i);
          buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fRootModified)\n", i);
-         buffer.AppendFormatted("            xml->WriteElement(\"Root\",(Char_t*)fConfigData[index]->fNetFolder[%d]->fRoot.Data());\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Root\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fRoot.Data()));\n", i);
          buffer.AppendFormatted("         xml->EndElement();\n");
          buffer.AppendFormatted("      }\n");
       }

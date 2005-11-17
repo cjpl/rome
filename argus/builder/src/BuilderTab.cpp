@@ -29,7 +29,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
       name = xml->GetName();
 
       // end
-      if (type == 15 && !strcmp((const Char_t *) name, "Menu")) {
+      if (type == 15 && !strcmp(name, "Menu")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 2; i++)
                cout << "   ";
@@ -47,21 +47,21 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
          }
          break;
       }
-      if (type == 1 && !strcmp((const Char_t *) name, "MenuTitle"))
+      if (type == 1 && !strcmp(name, "MenuTitle"))
          xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus], menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
 
       // tab menu items
-      if (type == 1 && !strcmp((const Char_t *) name, "MenuItems")) {
+      if (type == 1 && !strcmp(name, "MenuItems")) {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
 
             // end
-            if (type == 15 && !strcmp((const Char_t *) name, "MenuItems"))
+            if (type == 15 && !strcmp(name, "MenuItems"))
                break;
 
             // menu
-            if (type == 1 && !strcmp((const Char_t *) name, "Menu")) {
+            if (type == 1 && !strcmp(name, "Menu")) {
                recursiveMenuDepth++;
                numOfMenu[currentNumberOfTabs]++;
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
@@ -76,7 +76,7 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                recursiveMenuDepth--;
             }
             // Splitter
-            if (type == 1 && !strcmp((const Char_t *) name, "Line")) {
+            if (type == 1 && !strcmp(name, "Line")) {
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
                if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
@@ -90,12 +90,12 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                   type = xml->GetType();
                   name = xml->GetName();
                   // end
-                  if (type == 15 && !strcmp((const Char_t *) name, "Line"))
+                  if (type == 15 && !strcmp(name, "Line"))
                      break;
                }
             }
             // menu item
-            if (type == 1 && !strcmp((const Char_t *) name, "MenuItem")) {
+            if (type == 1 && !strcmp(name, "MenuItem")) {
                // count menu items
                numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
                if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
@@ -111,11 +111,11 @@ Bool_t ArgusBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
                   name = xml->GetName();
 
                   // end
-                  if (type == 15 && !strcmp((const Char_t *) name, "MenuItem"))
+                  if (type == 15 && !strcmp(name, "MenuItem"))
                      break;
-                  if (type == 1 && !strcmp((const Char_t *) name, "MenuItemTitle"))
+                  if (type == 1 && !strcmp(name, "MenuItemTitle"))
                      xml->GetValue(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
-                  if (type == 1 && !strcmp((const Char_t *) name, "MenuItemEnumName")) {
+                  if (type == 1 && !strcmp(name, "MenuItemEnumName")) {
                      xml->GetValue(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
                   }
                }
@@ -194,7 +194,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
       name = xml->GetName();
 
       // subtab
-      if (type == 1 && !strcmp((const Char_t *) name, "Tab")) {
+      if (type == 1 && !strcmp(name, "Tab")) {
          // set tab as parent for subsequent tabs
          recursiveTabDepth++;
          tabParentIndex[numOfTab + 1] = taskHierarchyParentIndex[numOfTab + 1] = currentNumberOfTabs;
@@ -206,7 +206,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
          continue;
       }
       // end tab
-      if (type == 15 && !strcmp((const Char_t *) name, "Tab")) {
+      if (type == 15 && !strcmp(name, "Tab")) {
          // check input
          if (currentTabName == "") {
             cout << "The " << (currentNumberOfTabs + 1) << ". Tab has no name !" << endl;
@@ -217,7 +217,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
          return kTRUE;
       }
       // tab name
-      if (type == 1 && !strcmp((const Char_t *) name, "TabName")) {
+      if (type == 1 && !strcmp(name, "TabName")) {
          xml->GetValue(tabName[currentNumberOfTabs], tabName[currentNumberOfTabs]);
          currentTabName = tabName[currentNumberOfTabs];
          // output
@@ -228,23 +228,23 @@ Bool_t ArgusBuilder::ReadXMLTab()
             tabName[currentNumberOfTabs].WriteLine();
       }
       // tab title
-      if (type == 1 && !strcmp((const Char_t *) name, "TabTitle"))
+      if (type == 1 && !strcmp(name, "TabTitle"))
          xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
 
       // tab author
-      if (type == 1 && !strcmp((const Char_t *) name, "Author"))
+      if (type == 1 && !strcmp(name, "Author"))
          xml->GetValue(tabAuthor[currentNumberOfTabs], tabAuthor[currentNumberOfTabs]);
 
       // tab version
-      if (type == 1 && !strcmp((const Char_t *) name, "TabVersion"))
+      if (type == 1 && !strcmp(name, "TabVersion"))
          xml->GetValue(tabVersion[currentNumberOfTabs], tabVersion[currentNumberOfTabs]);
 
       // tab description
-      if (type == 1 && !strcmp((const Char_t *) name, "TabDescription"))
+      if (type == 1 && !strcmp(name, "TabDescription"))
          xml->GetValue(tabDescription[currentNumberOfTabs], tabDescription[currentNumberOfTabs]);
 
       // tab steering parameters
-      if (type == 1 && !strcmp((const Char_t *) name, "SteeringParameters")) {
+      if (type == 1 && !strcmp(name, "SteeringParameters")) {
          // read steering parameter
          steerName[currentNumberOfTabs][0] = "Steering";
          steerParent[currentNumberOfTabs][0] = -1;
@@ -255,7 +255,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
          numOfSteering[currentNumberOfTabs]++;
       }
       // tab threadFunctions
-      if (type == 1 && !strcmp((const Char_t *) name, "ThreadFunctions")) {
+      if (type == 1 && !strcmp(name, "ThreadFunctions")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
                cout << "   ";
@@ -265,11 +265,11 @@ Bool_t ArgusBuilder::ReadXMLTab()
             type = xml->GetType();
             name = xml->GetName();
             // end
-            if (type == 15 && !strcmp((const Char_t *) name, "ThreadFunctions"))
+            if (type == 15 && !strcmp(name, "ThreadFunctions"))
                break;
 
             // thread function
-            if (type == 1 && !strcmp((const Char_t *) name, "ThreadFunction")) {
+            if (type == 1 && !strcmp(name, "ThreadFunction")) {
                // count thread functions
                numOfThreadFunctions[currentNumberOfTabs]++;
                if (numOfThreadFunctions[currentNumberOfTabs] >= maxNumberOfThreadFunctions) {
@@ -284,7 +284,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
                   name = xml->GetName();
 
                   // end
-                  if (type == 15 && !strcmp((const Char_t *) name, "ThreadFunction")) {
+                  if (type == 15 && !strcmp(name, "ThreadFunction")) {
                      // output
                      if (makeOutput)
                         for (i = 0; i < recursiveTabDepth + 2; i++)
@@ -293,9 +293,9 @@ Bool_t ArgusBuilder::ReadXMLTab()
                         threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]].WriteLine();
                      break;
                   }
-                  if (type == 1 && !strcmp((const Char_t *) name, "FunctionName"))
+                  if (type == 1 && !strcmp(name, "FunctionName"))
                      xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]], threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
-                  if (type == 1 && !strcmp((const Char_t *) name, "FunctionArgument")) {
+                  if (type == 1 && !strcmp(name, "FunctionArgument")) {
                      xml->GetValue(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]], threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]);
                      numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]++;
                   }
@@ -318,7 +318,7 @@ Bool_t ArgusBuilder::ReadXMLTab()
          }
       }
       // tab menu
-      if (type == 1 && !strcmp((const Char_t *) name, "Menus")) {
+      if (type == 1 && !strcmp(name, "Menus")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
                cout << "   ";
@@ -330,12 +330,12 @@ Bool_t ArgusBuilder::ReadXMLTab()
             name = xml->GetName();
 
             // end
-            if (type == 15 && !strcmp((const Char_t *) name, "Menus")) {
+            if (type == 15 && !strcmp(name, "Menus")) {
                numOfMenu[currentNumberOfTabs]++;
                break;
             }
             // menu
-            if (type == 1 && !strcmp((const Char_t *) name, "Menu")) {
+            if (type == 1 && !strcmp(name, "Menu")) {
                recursiveMenuDepth++;
                numOfMenu[currentNumberOfTabs]++;
                if (!ReadXMLMenu(currentNumberOfTabs))
@@ -375,10 +375,10 @@ Bool_t ArgusBuilder::WriteTabCpp()
       header.AppendFormatted("//                                                                            //\n");
       ll = 73 - shortCut.Length();
       format.SetFormatted("// %%sT%%-%d.%ds //\n", ll, ll);
-      header.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), tabName[iTab].Data());
+      header.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), tabName[iTab].Data());
       header.AppendFormatted("//                                                                            //\n");
       discript = tabDescription[iTab].Data();
-      pos = (Char_t *) discript.Data();
+      pos = const_cast<Char_t*>(discript.Data());
       lenTot = discript.Length();
       while (pos - discript.Data() < lenTot) {
          if (lenTot + (discript.Data() - pos) < 74)
@@ -402,7 +402,7 @@ Bool_t ArgusBuilder::WriteTabCpp()
          header.AppendFormatted("// This tab has following thread functions.                                   //\n");
          for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
             format.SetFormatted("//    %%s%%%ds//\n", 72 - threadFunctionName[iTab][i].Length());
-            header.AppendFormatted((Char_t *) format.Data(), threadFunctionName[iTab][i].Data(), "");
+            header.AppendFormatted(const_cast<Char_t*>(format.Data()), threadFunctionName[iTab][i].Data(), "");
          }
          header.AppendFormatted("//                                                                            //\n");
       }
@@ -755,7 +755,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer, Int_t parentIndex, 
          switchString.Insert(0, tabName[index].Data());
          index = tabParentIndex[index];
       }
-      if (switchLen < (Int_t) switchString.Length())
+      if (switchLen < static_cast<Int_t>(switchString.Length()))
          switchLen = switchString.Length();
    }
 
@@ -787,7 +787,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer, Int_t parentIndex, 
       buffer.AppendFormatted("%s               xml->WriteElement(\"Active\",\"false\");\n", blank.Data());
       buffer.AppendFormatted("%s         }\n", blank.Data());
       buffer.AppendFormatted("%s         else if (fConfigData[index]%s->fActiveModified)\n", blank.Data(), pointerI.Data());
-      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",(Char_t*)fConfigData[index]%s->fActive.Data());\n", blank.Data(), pointerI.Data());
+      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",const_cast<Char_t*>(fConfigData[index]%s->fActive.Data()));\n", blank.Data(), pointerI.Data());
 
       // Steering parameter
       if (numOfSteering[i] > 0) {
@@ -798,7 +798,7 @@ Bool_t ArgusBuilder::WriteTabConfigWrite(ROMEString &buffer, Int_t parentIndex, 
          ROMEString steerPointerT;
          Int_t indexCounter = 0;
          pointerT.SetFormatted("fConfigData[index]%s->fSteering", pointerI.Data());
-         steerPointerT.SetFormatted("((%sT%s*)gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         steerPointerT.SetFormatted("dynamic_cast<%sT%s*>(gWindow->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
          WriteSteeringConfigWrite(buffer, 0, i, pointerT, steerPointerT, 3 + tab, &indexCounter);
       }
       if (numOfSteering[i] > 0)

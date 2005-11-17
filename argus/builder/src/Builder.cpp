@@ -98,11 +98,11 @@ void ArgusBuilder::StartBuilder()
    while (xml->NextLine() && !finished) {
       type = xml->GetType();
       name = xml->GetName();
-      if (type == 1 && !strcmp((const Char_t *) name, "ArgusMonitorDefinition")) {
+      if (type == 1 && !strcmp(name, "ArgusMonitorDefinition")) {
          while (xml->NextLine() && !finished) {
             type = xml->GetType();
             name = xml->GetName();
-            if (type == 15 && !strcmp((const Char_t *) name, "ArgusMonitorDefinition")) {
+            if (type == 15 && !strcmp(name, "ArgusMonitorDefinition")) {
                if (!readExperiment) {
                   cout << "Experiment tree missing!" << endl;
                   cout << "Terminating program." << endl;
@@ -113,22 +113,22 @@ void ArgusBuilder::StartBuilder()
             }
 
             if (type == 1) {
-               if (!strcmp((const Char_t *) name, "Experiment")) {
+               if (!strcmp(name, "Experiment")) {
                   readExperiment = kTRUE;
                   while (xml->NextLine() && !finished) {
                      type = xml->GetType();
                      name = xml->GetName();
-                     if (type == 1 && !strcmp((const Char_t *) name, "ExperimentName"))
+                     if (type == 1 && !strcmp(name, "ExperimentName"))
                         xml->GetValue(experimentName, experimentName);
-                     if (type == 1 && !strcmp((const Char_t *) name, "ExperimentShortCut"))
+                     if (type == 1 && !strcmp(name, "ExperimentShortCut"))
                         xml->GetValue(shortCut, shortCut);
-                     if (type == 1 && !strcmp((const Char_t *) name, "ProgramName"))
+                     if (type == 1 && !strcmp(name, "ProgramName"))
                         xml->GetValue(mainProgName, mainProgName);
-                     if (type == 1 && !strcmp((const Char_t *) name, "MonitorDescription"))
+                     if (type == 1 && !strcmp(name, "MonitorDescription"))
                         xml->GetValue(mainDescription, mainDescription);
-                     if (type == 1 && !strcmp((const Char_t *) name, "DocumentStyleSheet"))
+                     if (type == 1 && !strcmp(name, "DocumentStyleSheet"))
                         xml->GetValue(styleSheet, styleSheet);
-                     if (type == 15 && !strcmp((const Char_t *) name, "Experiment")) {
+                     if (type == 15 && !strcmp(name, "Experiment")) {
                         if (shortCut == "") {
                            cout << "Experiment must have a shortcut!" << endl;
                            cout << "Terminating program." << endl;
@@ -140,26 +140,26 @@ void ArgusBuilder::StartBuilder()
                   continue;
                }
 
-               if (!strcmp((const Char_t *) name, "Author")) {
+               if (!strcmp(name, "Author")) {
                   readAuthor = kTRUE;
                   while (xml->NextLine() && !finished) {
                      type = xml->GetType();
                      name = xml->GetName();
-                     if (type == 1 && !strcmp((const Char_t *) name, "AuthorName"))
+                     if (type == 1 && !strcmp(name, "AuthorName"))
                         xml->GetValue(mainAuthor, mainAuthor);
-                     if (type == 1 && !strcmp((const Char_t *) name, "AuthorInstitute"))
+                     if (type == 1 && !strcmp(name, "AuthorInstitute"))
                         xml->GetValue(mainInstitute, mainInstitute);
-                     if (type == 1 && !strcmp((const Char_t *) name, "AuthorCollaboration"))
+                     if (type == 1 && !strcmp(name, "AuthorCollaboration"))
                         xml->GetValue(mainCollaboration, mainCollaboration);
-                     if (type == 1 && !strcmp((const Char_t *) name, "AuthorEmail"))
+                     if (type == 1 && !strcmp(name, "AuthorEmail"))
                         xml->GetValue(mainEmail, mainEmail);
-                     if (type == 15 && !strcmp((const Char_t *) name, "Author"))
+                     if (type == 15 && !strcmp(name, "Author"))
                         break;
                   }
                   continue;
                }
 
-               if (!strcmp((const Char_t *) name, "Folders")) {
+               if (!strcmp(name, "Folders")) {
                   // initialization
                   numOfFolder = -1;
                   parent[0] = "GetMainFolder()";
@@ -170,14 +170,14 @@ void ArgusBuilder::StartBuilder()
                      type = xml->GetType();
                      name = xml->GetName();
                      // folder
-                     if (type == 1 && !strcmp((const Char_t *) name, "Folder")) {
+                     if (type == 1 && !strcmp(name, "Folder")) {
                         folderSupport[numOfFolder + 1] = false;
                         recursiveDepth = 0;
                         if (!ReadXMLFolder())
                            return;
                      }
                      // folders end
-                     if (type == 15 && !strcmp((const Char_t *) name, "Folders")) {
+                     if (type == 15 && !strcmp(name, "Folders")) {
                         break;
                      }
                   }
@@ -195,7 +195,7 @@ void ArgusBuilder::StartBuilder()
                   numOfFolder++;
                }
 
-               if (!strcmp((const Char_t *) name, "Tabs")) {
+               if (!strcmp(name, "Tabs")) {
                   // initialization
                   numOfTab = numOfTask = numOfTaskHierarchy = -1;
                   // output
@@ -205,14 +205,14 @@ void ArgusBuilder::StartBuilder()
                      type = xml->GetType();
                      name = xml->GetName();
                      // tab
-                     if (type == 1 && !strcmp((const Char_t *) name, "Tab")) {
+                     if (type == 1 && !strcmp(name, "Tab")) {
                         tabParentIndex[numOfTab + 1] = taskHierarchyParentIndex[numOfTab + 1] = -1;
                         recursiveTabDepth = 0;
                         if (!ReadXMLTab())
                            return;
                      }
                      // tabs end
-                     if (type == 15 && !strcmp((const Char_t *) name, "Tabs")) {
+                     if (type == 15 && !strcmp(name, "Tabs")) {
                         break;
                      }
                   }
@@ -234,7 +234,7 @@ void ArgusBuilder::StartBuilder()
                      numOfThreadFunctions[i]++;
                }
 
-               if (!strcmp((const Char_t *) name, "NetFolders")) {
+               if (!strcmp(name, "NetFolders")) {
                   // initialization
                   numOfNetFolder = -1;
                   // output
@@ -244,12 +244,12 @@ void ArgusBuilder::StartBuilder()
                      type = xml->GetType();
                      name = xml->GetName();
                      // net object
-                     if (type == 1 && !strcmp((const Char_t *) name, "NetFolder")) {
+                     if (type == 1 && !strcmp(name, "NetFolder")) {
                         if (!ReadXMLNetFolder())
                            return;
                      }
                      // net folders end
-                     if (type == 15 && !strcmp((const Char_t *) name, "NetFolders")) {
+                     if (type == 15 && !strcmp(name, "NetFolders")) {
                         break;
                      }
                   }
@@ -267,7 +267,7 @@ void ArgusBuilder::StartBuilder()
                   numOfNetFolder++;
                }
 
-               if (!strcmp((const Char_t *) name, "GlobalSteeringParameters")) {
+               if (!strcmp(name, "GlobalSteeringParameters")) {
                   // output
                   if (makeOutput)
                      cout << "\n\nGlobal Steering Parameters:" << endl;
@@ -282,31 +282,31 @@ void ArgusBuilder::StartBuilder()
                   numOfSteering[numOfTab]++;
                }
 
-               if (!strcmp((const Char_t *) name, "Trees")) {
+               if (!strcmp(name, "Trees")) {
                   numOfTree = -1;
                   if (!ReadXMLTree())
                      return;
                }
 
-               if (!strcmp((const Char_t *) name, "UserDAQSystems")) {
+               if (!strcmp(name, "UserDAQSystems")) {
                   numOfDAQ = -1;
                   if (!ReadXMLDAQ())
                      return;
                }
 
-               if (!strcmp((const Char_t *) name, "UserDatabases")) {
+               if (!strcmp(name, "UserDatabases")) {
                   numOfDB = -1;
                   if (!ReadXMLDB())
                      return;
                }
 
-               if (!strcmp((const Char_t *) name, "MidasBanks")) {
+               if (!strcmp(name, "MidasBanks")) {
                   numOfEvent = -1;
                   if (!ReadXMLMidasBanks())
                      return;
                }
 
-               if (!strcmp((const Char_t *) name, "UserMakeFile")) {
+               if (!strcmp(name, "UserMakeFile")) {
                   if (!ReadXMLUserMakefile())
                      return;
                }
@@ -851,33 +851,33 @@ void ArgusBuilder::WriteMakefile()
 
    for (i = 0; i < numOfFolder; i++) {
       if (folderUserCode[i]) {
-         buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+         buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()),folderName[i].Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
          buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h include/framework/%s%s_Base.h obj/%s%s.d\n", shortCut.Data(), folderName[i].Data(), shortCut.Data(), folderName[i].Data(), shortCut.Data(), folderName[i].Data(), shortCut.Data(), folderName[i].Data(), shortCut.Data(), folderName[i].Data());
-         buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), folderName[i].Data(), folderName[i].Data());
+         buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), folderName[i].Data(), folderName[i].Data());
       }
    }
 
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted(dependFormatTabs.Data(),tabName[i].Data(),tabName[i].Data(),tabName[i].Data(),tabName[i].Data(),tabName[i].Data());
       buffer.AppendFormatted("obj/%sT%s.obj: src/tabs/%sT%s.cpp include/tabs/%sT%s.h include/tabs/%sT%s_Base.h $(%sT%sDep)\n", shortCut.Data(), tabName[i].Data(), shortCut.Data(), tabName[i].Data(), shortCut.Data(), tabName[i].Data(), shortCut.Data(), tabName[i].Data(), shortCut.Data(), tabName[i].Data());
-      buffer.AppendFormatted((Char_t *) compileFormatTabs.Data(), tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(compileFormatTabs.Data()), tabName[i].Data(), tabName[i].Data());
    }
 
    // DAQs
    for (i = 0; i < numOfDAQ; i++) {
-      buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()),daqName[i].Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
       buffer.AppendFormatted("obj/%s%s.obj: src/framework/%s%s.cpp include/framework/%s%s.h $(%s%sDep)\n", shortCut.Data(), daqName[i].Data(), shortCut.Data(), daqName[i].Data(), shortCut.Data(), daqName[i].Data(), shortCut.Data(), daqName[i].Data());
-      buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), daqName[i].Data(), daqName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), daqName[i].Data(), daqName[i].Data());
    }
 
-   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(),"Window","Window","Window","Window","Window");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()),"Window","Window","Window","Window","Window");
    buffer.AppendFormatted("obj/%sWindow.obj: src/framework/%sWindow.cpp include/framework/%sWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/ArgusAnalyzerController.h include/framework/%sMonitor.h obj/ArgusWindow.obj obj/%sWindow.d", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Window", "Window");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), "Window", "Window");
 
-   buffer.AppendFormatted((Char_t*) dependFormatFrame.Data(),"Monitor","Monitor","Monitor","Monitor","Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()),"Monitor","Monitor","Monitor","Monitor","Monitor");
    buffer.AppendFormatted("obj/%sMonitor.obj: src/framework/%sMonitor.cpp include/framework/%sMonitor.h include/framework/%sWindow.h include/framework/%sConfig.h $(ROMESYS)/include/ROME.h obj/%sMonitor.d", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
@@ -889,95 +889,95 @@ void ArgusBuilder::WriteMakefile()
       buffer.AppendFormatted(" include/framework/%sGlobalSteering.h", shortCut.Data());
    }
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Monitor", "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), "Monitor", "Monitor");
 
-   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(), "Config", "Config", "Config", "Config", "Config");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()), "Config", "Config", "Config", "Config", "Config");
    buffer.AppendFormatted("obj/%sConfig.obj: src/framework/%sConfig.cpp include/framework/%sConfig.h include/framework/%sMonitor.h include/framework/%sWindow.h obj/%sConfig.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Config", "Config");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), "Config", "Config");
 
-   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(), "Midas", "Midas", "Midas", "Midas", "Midas");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()), "Midas", "Midas", "Midas", "Midas", "Midas");
    buffer.AppendFormatted("obj/%sMidas.obj: src/framework/%sMidas.cpp include/framework/%sMidas.h obj/%sMidas.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Midas", "Midas");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), "Midas", "Midas");
 
-   buffer.AppendFormatted((Char_t *) dependFormatFrame.Data(), "Rome", "Rome", "Rome", "Rome", "Rome");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatFrame.Data()), "Rome", "Rome", "Rome", "Rome", "Rome");
    buffer.AppendFormatted("obj/%sRome.obj: src/framework/%sRome.cpp include/framework/%sRome.h obj/%sRome.d\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatFrame.Data(), "Rome", "Rome");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatFrame.Data()), "Rome", "Rome");
 
-   buffer.AppendFormatted((Char_t *) dependFormatBlank.Data(), "main", "src/framework/main", "main", "main", "main");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatBlank.Data()), "main", "src/framework/main", "main", "main", "main");
    buffer.AppendFormatted("obj/main.obj: src/framework/main.cpp include/framework/%sMonitor.h include/framework/%sWindow.h obj/main.d\n", shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), "src/framework/main", "main");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), "src/framework/main", "main");
 
-   buffer.AppendFormatted((Char_t *) dependFormatARGUS.Data(), "Monitor", "Monitor", "Monitor", "Monitor", "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatARGUS.Data()), "Monitor", "Monitor", "Monitor", "Monitor", "Monitor");
    buffer.AppendFormatted("obj/ArgusMonitor.obj: $(ARGUSSYS)/src/ArgusMonitor.cpp $(ARGUSSYS)/include/ArgusMonitor.h obj/ArgusMonitor.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatARGUS.Data(), "Monitor", "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatARGUS.Data()), "Monitor", "Monitor");
 
-   buffer.AppendFormatted((Char_t *) dependFormatARGUS.Data(), "Window", "Window", "Window", "Window");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatARGUS.Data()), "Window", "Window", "Window", "Window");
    buffer.AppendFormatted("obj/ArgusWindow.obj: $(ARGUSSYS)/src/ArgusWindow.cpp $(ARGUSSYS)/include/ArgusWindow.h obj/ArgusWindow.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatARGUS.Data(), "Window", "Window");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatARGUS.Data()), "Window", "Window");
 
-   buffer.AppendFormatted((Char_t *) dependFormatARGUS.Data(), "TextDialog", "TextDialog", "TextDialog", "TextDialog", "TextDialog");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatARGUS.Data()), "TextDialog", "TextDialog", "TextDialog", "TextDialog", "TextDialog");
    buffer.AppendFormatted("obj/ArgusTextDialog.obj: $(ARGUSSYS)/src/ArgusTextDialog.cpp $(ARGUSSYS)/include/ArgusTextDialog.h obj/ArgusTextDialog.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatARGUS.Data(), "TextDialog", "TextDialog");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatARGUS.Data()), "TextDialog", "TextDialog");
 
-   buffer.AppendFormatted((Char_t *) dependFormatARGUS.Data(), "AnalyzerController", "AnalyzerController", "AnalyzerController", "AnalyzerController", "AnalyzerController");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatARGUS.Data()), "AnalyzerController", "AnalyzerController", "AnalyzerController", "AnalyzerController", "AnalyzerController");
    buffer.AppendFormatted("obj/ArgusAnalyzerController.obj: $(ARGUSSYS)/src/ArgusAnalyzerController.cpp $(ARGUSSYS)/include/ArgusAnalyzerController.h obj/ArgusAnalyzerController.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatARGUS.Data(), "AnalyzerController", "AnalyzerController");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatARGUS.Data()), "AnalyzerController", "AnalyzerController");
 
-   buffer.AppendFormatted((Char_t *) dependFormatBlank.Data(), "TNetFolder", "$(ARGUSSYS)/src/TNetFolder", "TNetFolder", "TNetFolder");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatBlank.Data()), "TNetFolder", "$(ARGUSSYS)/src/TNetFolder", "TNetFolder", "TNetFolder");
    buffer.AppendFormatted("obj/TNetFolder.obj: $(ARGUSSYS)/src/TNetFolder.cpp $(ARGUSSYS)/include/TNetFolder.h obj/TNetFolder.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), "$(ARGUSSYS)/src/TNetFolder", "TNetFolder");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), "$(ARGUSSYS)/src/TNetFolder", "TNetFolder");
 
-   buffer.AppendFormatted((Char_t *) dependFormatBlank.Data(), "TNetFolderServer", "$(ROMESYS)/src/TNetFolderServer", "TNetFolderServer", "TNetFolderServer");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatBlank.Data()), "TNetFolderServer", "$(ROMESYS)/src/TNetFolderServer", "TNetFolderServer", "TNetFolderServer");
    buffer.AppendFormatted("obj/TNetFolderServer.obj: $(ROMESYS)/src/TNetFolderServer.cpp $(ROMESYS)/include/TNetFolderServer.h obj/TNetFolderServer.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), "$(ROMESYS)/src/TNetFolderServer", "TNetFolderServer");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), "$(ROMESYS)/src/TNetFolderServer", "TNetFolderServer");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "XML", "XML", "XML", "XML", "XML");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "XML", "XML", "XML", "XML", "XML");
    buffer.AppendFormatted("obj/ROMEXML.obj: $(ROMESYS)/src/ROMEXML.cpp $(ROMESYS)/include/ROMEXML.h obj/ROMEXML.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "XML", "XML");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "XML", "XML");
 
-   buffer.AppendFormatted((Char_t *) dependFormatRANY.Data(), "mxml", "mxml.c", "mxml", "mxml");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatRANY.Data()), "mxml", "mxml.c", "mxml", "mxml");
    buffer.AppendFormatted("obj/mxml.obj: $(ROMESYS)/src/mxml.c $(ROMESYS)/include/mxml.h obj/mxml.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatRANY.Data(), "mxml", "mxml");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatRANY.Data()), "mxml", "mxml");
 
-   buffer.AppendFormatted((Char_t *) dependFormatRANY.Data(), "strlcpy", "strlcpy.c", "strlcpy", "strlcpy");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatRANY.Data()), "strlcpy", "strlcpy.c", "strlcpy", "strlcpy");
    buffer.AppendFormatted("obj/strlcpy.obj: $(ROMESYS)/src/strlcpy.c $(ROMESYS)/include/strlcpy.h obj/strlcpy.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatRANY.Data(), "strlcpy", "strlcpy");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatRANY.Data()), "strlcpy", "strlcpy");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "String", "String", "String", "String", "String");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "String", "String", "String", "String", "String");
    buffer.AppendFormatted("obj/ROMEString.obj: $(ROMESYS)/src/ROMEString.cpp $(ROMESYS)/include/ROMEString.h obj/ROMEString.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "String", "String");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "String", "String");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "StrArray", "StrArray", "StrArray", "StrArray", "StrArray");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "StrArray", "StrArray", "StrArray", "StrArray", "StrArray");
    buffer.AppendFormatted("obj/ROMEStrArray.obj: $(ROMESYS)/src/ROMEStrArray.cpp $(ROMESYS)/include/ROMEStrArray.h obj/ROMEStrArray.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "StrArray", "StrArray");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "StrArray", "StrArray");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Str2DArray", "Str2DArray", "Str2DArray", "Str2DArray", "Str2DArray");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Str2DArray", "Str2DArray", "Str2DArray", "Str2DArray", "Str2DArray");
    buffer.AppendFormatted("obj/ROMEStr2DArray.obj: $(ROMESYS)/src/ROMEStr2DArray.cpp $(ROMESYS)/include/ROMEStr2DArray.h obj/ROMEStr2DArray.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Str2DArray", "Str2DArray");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Str2DArray", "Str2DArray");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Path", "Path", "Path", "Path", "Path");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Path", "Path", "Path", "Path", "Path");
    buffer.AppendFormatted("obj/ROMEPath.obj: $(ROMESYS)/src/ROMEPath.cpp $(ROMESYS)/include/ROMEPath.h obj/ROMEPath.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Path", "Path");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Path", "Path");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "XMLDataBase", "XMLDataBase", "XMLDataBase", "XMLDataBase", "XMLDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "XMLDataBase", "XMLDataBase", "XMLDataBase", "XMLDataBase", "XMLDataBase");
    buffer.AppendFormatted("obj/ROMEXMLDataBase.obj: $(ROMESYS)/src/ROMEXMLDataBase.cpp $(ROMESYS)/include/ROMEXMLDataBase.h obj/ROMEXMLDataBase.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "XMLDataBase", "XMLDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "XMLDataBase", "XMLDataBase");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "TextDataBase", "TextDataBase", "TextDataBase", "TextDataBase", "TextDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "TextDataBase", "TextDataBase", "TextDataBase", "TextDataBase", "TextDataBase");
    buffer.AppendFormatted("obj/ROMETextDataBase.obj: $(ROMESYS)/src/ROMETextDataBase.cpp $(ROMESYS)/include/ROMETextDataBase.h obj/ROMETextDataBase.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "TextDataBase", "TextDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "TextDataBase", "TextDataBase");
 
    buffer.AppendFormatted(dependFormatBlank.Data(), "ROMEUtilities", "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities", "ROMEUtilities", "ROMEUtilities");
    buffer.AppendFormatted("obj/ROMEUtilities.obj: $(ROMESYS)/src/ROMEUtilities.cpp $(ROMESYS)/include/ROMEUtilities.h obj/ROMEUtilities.d\n");
    buffer.AppendFormatted(compileFormatBlank.Data(), "$(ROMESYS)/src/ROMEUtilities", "ROMEUtilities");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Rome", "Rome", "Rome", "Rome", "Rome");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Rome", "Rome", "Rome", "Rome", "Rome");
    buffer.AppendFormatted("obj/ROMERome.obj: $(ROMESYS)/src/ROMERome.cpp $(ROMESYS)/include/ROMERome.h obj/ROMERome.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Rome", "Rome");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Rome", "Rome");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Midas", "Midas", "Midas", "Midas", "Midas");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Midas", "Midas", "Midas", "Midas", "Midas");
    buffer.AppendFormatted("obj/ROMEMidas.obj: $(ROMESYS)/src/ROMEMidas.cpp $(ROMESYS)/include/ROMEMidas.h obj/ROMEMidas.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Midas", "Midas");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Midas", "Midas");
 
    if (this->orca) {
       buffer.AppendFormatted(dependFormatROME.Data(), "Orca", "Orca", "Orca", "Orca", "Orca");
@@ -985,13 +985,13 @@ void ArgusBuilder::WriteMakefile()
       buffer.AppendFormatted(compileFormatROME.Data(), "Orca", "Orca");
    }
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase", "ODBOfflineDataBase");
    buffer.AppendFormatted("obj/ROMEODBOfflineDataBase.obj: $(ROMESYS)/src/ROMEODBOfflineDataBase.cpp $(ROMESYS)/include/ROMEODBOfflineDataBase.h obj/ROMEODBOfflineDataBase.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "ODBOfflineDataBase", "ODBOfflineDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "ODBOfflineDataBase", "ODBOfflineDataBase");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase", "ODBOnlineDataBase");
    buffer.AppendFormatted("obj/ROMEODBOnlineDataBase.obj: $(ROMESYS)/src/ROMEODBOnlineDataBase.cpp $(ROMESYS)/include/ROMEODBOnlineDataBase.h obj/ROMEODBOnlineDataBase.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "ODBOnlineDataBase", "ODBOnlineDataBase");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "ODBOnlineDataBase", "ODBOnlineDataBase");
 
    if (this->mysql) {
       buffer.AppendFormatted(dependFormatROME.Data(), "MySQL", "MySQL", "MySQL", "MySQL", "MySQL");
@@ -1014,51 +1014,51 @@ void ArgusBuilder::WriteMakefile()
       buffer.AppendFormatted(compileFormatROME.Data(), "SQLite3", "SQLite3");
    }
    if (this->sql) {
-      buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "SQLDataBase", "SQLDataBase", "SQLDataBase", "SQLDataBase", "SQLDataBase");
+      buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "SQLDataBase", "SQLDataBase", "SQLDataBase", "SQLDataBase", "SQLDataBase");
       buffer.AppendFormatted("obj/ROMESQLDataBase.obj: $(ROMESYS)/src/ROMESQLDataBase.cpp $(ROMESYS)/include/ROMESQLDataBase.h obj/ROMESQLDataBase.d\n");
-      buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "SQLDataBase", "SQLDataBase");
+      buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "SQLDataBase", "SQLDataBase");
 
-      buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "SQL", "SQL", "SQL", "SQL", "SQL");
+      buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "SQL", "SQL", "SQL", "SQL", "SQL");
       buffer.AppendFormatted("obj/ROMESQL.obj: $(ROMESYS)/src/ROMESQL.cpp $(ROMESYS)/include/ROMESQL.h obj/ROMESQL.d\n");
-      buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "SQL", "SQL");
+      buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "SQL", "SQL");
    }
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Analyzer", "Analyzer", "Analyzer", "Analyzer", "Analyzer");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Analyzer", "Analyzer", "Analyzer", "Analyzer", "Analyzer");
    buffer.AppendFormatted("obj/ROMEAnalyzer.obj: $(ROMESYS)/src/ROMEAnalyzer.cpp $(ROMESYS)/include/ROMEAnalyzer.h obj/ROMEAnalyzer.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Analyzer", "Analyzer");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Analyzer", "Analyzer");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "EventLoop", "EventLoop", "EventLoop", "EventLoop", "EventLoop");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "EventLoop", "EventLoop", "EventLoop", "EventLoop", "EventLoop");
    buffer.AppendFormatted("obj/ROMEEventLoop.obj: $(ROMESYS)/src/ROMEEventLoop.cpp $(ROMESYS)/include/ROMEEventLoop.h obj/ROMEEventLoop.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "EventLoop", "EventLoop");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "EventLoop", "EventLoop");
 
-   buffer.AppendFormatted((Char_t *) dependFormatROME.Data(), "Task", "Task", "Task", "Task", "Task");
+   buffer.AppendFormatted(const_cast<Char_t*>(dependFormatROME.Data()), "Task", "Task", "Task", "Task", "Task");
    buffer.AppendFormatted("obj/ROMETask.obj: $(ROMESYS)/src/ROMETask.cpp $(ROMESYS)/include/ROMETask.h obj/ROMETask.d\n");
-   buffer.AppendFormatted((Char_t *) compileFormatROME.Data(), "Task", "Task");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatROME.Data()), "Task", "Task");
 
    buffer.AppendFormatted("obj/%sROMEDict.obj: %sROMEDict.h %sROMEDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sROMEDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sROMEDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
    buffer.AppendFormatted("obj/%sARGUSDict.obj: %sARGUSDict.h %sARGUSDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sARGUSDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sARGUSDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
    buffer.AppendFormatted("obj/%sFrameworkDict.obj: %sFrameworkDict.h %sFrameworkDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sFrameworkDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sFrameworkDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
    buffer.AppendFormatted("obj/%sTabDict.obj: %sTabDict.h %sTabDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sTabDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sTabDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
    buffer.AppendFormatted("obj/%sFolderDict.obj: %sFolderDict.h %sFolderDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sFolderDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sFolderDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
    buffer.AppendFormatted("obj/%sUserDict.obj: %sUserDict.h %sUserDict.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
    tempBuffer[0].SetFormatted("%sUserDict", shortCut.Data());
    tempBuffer[1].SetFormatted("%sUserDict",shortCut.Data());
-   buffer.AppendFormatted((Char_t *) compileFormatBlank.Data(), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
 
    WriteAdditionalSourceFilesCompileCommands(buffer);
    buffer.AppendFormatted("\n");

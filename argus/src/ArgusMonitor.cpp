@@ -52,12 +52,12 @@ ClassImp(ArgusMonitor)
 ArgusMonitor *gArgus;           // global ArgusMonitor Handle
 void *gPassToArgus;             // void ArgusMonitor Handle
 
-ArgusMonitor::ArgusMonitor(TApplication * app):ROMEAnalyzer((TRint *) app)
+ArgusMonitor::ArgusMonitor(TApplication * app):ROMEAnalyzer(dynamic_cast<TRint*>(app))
 {
 // Initialisations
    fWindowScale = 1;
    fTreeInfo = new ROMETreeInfo();
-   fApplication = (TApplication *) fRint;
+   fApplication = dynamic_cast<TApplication*>(fRint);
 }
 
 ArgusMonitor::~ArgusMonitor()
@@ -66,8 +66,8 @@ ArgusMonitor::~ArgusMonitor()
 
 Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
 {
-   gArgus = (ArgusMonitor *) gPassToArgus;
-   gROME = (ROMEAnalyzer *) gArgus;
+   gArgus = static_cast<ArgusMonitor*>(gPassToArgus);
+   gROME = dynamic_cast<ROMEAnalyzer*>(gArgus);
 
    if (gROOT->IsBatch()) {
       printf("%s: cannot run in batch mode\n", GetProgramName());
@@ -181,7 +181,7 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
       cout << "Do you like the framework to generate a new configuration file ([y]/n) ? " << flush;
       answer = getchar();
       if (answer != 'n') {
-         if (!this->GetConfiguration()->WriteConfigurationFile((Char_t *) configFile.Data())) {
+         if (!this->GetConfiguration()->WriteConfigurationFile(const_cast<Char_t*>(configFile.Data()))) {
             cout << "\nTerminate program.\n" << endl;
             return kFALSE;
          }
@@ -194,11 +194,11 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
       return kFALSE;
    }
 
-   if (!this->GetConfiguration()->ReadConfigurationFile((Char_t *) configFile.Data())) {
+   if (!this->GetConfiguration()->ReadConfigurationFile(const_cast<Char_t*>(configFile.Data()))) {
       cout << "\nTerminate program.\n" << endl;
       return kFALSE;
    }
-   if (!this->GetConfiguration()->WriteConfigurationFile((Char_t *) configFile.Data())) {
+   if (!this->GetConfiguration()->WriteConfigurationFile(const_cast<Char_t*>(configFile.Data()))) {
       cout << "\nTerminate program.\n" << endl;
       return kFALSE;
    }

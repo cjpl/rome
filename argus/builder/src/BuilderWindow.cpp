@@ -32,10 +32,10 @@ Bool_t ArgusBuilder::WriteWindowCpp()
    buffer.AppendFormatted("//                                                                            //\n");
    ll = 74 - shortCut.Length();
    format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
    format.Resize(0);
    buffer.AppendFormatted("//                                                                            //\n");
-   pos = (Char_t *) classDescription.Data();
+   pos = const_cast<Char_t*>(classDescription.Data());
    lenTot = classDescription.Length();
    while (pos - classDescription.Data() < lenTot) {
       if (lenTot + (classDescription.Data() - pos) < 74)
@@ -97,7 +97,7 @@ Bool_t ArgusBuilder::WriteWindowCpp()
 
    for (i = 0; i < numOfTab; i++) {
       format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n");
-      buffer.AppendFormatted((Char_t *) format.Data(), tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
@@ -260,12 +260,12 @@ Bool_t ArgusBuilder::WriteWindowH()
    Int_t typeLen = -1;
    Int_t scl = shortCut.Length();
    for (i = 0; i < numOfTab; i++) {
-      nameLen = TMath::Max(nameLen, (Int_t) (tabName[i].Length() + strlen("f000Tab")));
-      nameLen = TMath::Max(nameLen, (Int_t) (tabName[i].Length() + scl + strlen("tT")));
-      nameLen = TMath::Max(nameLen, (Int_t) (tabName[i].Length() + strlen("Get000Tab()")));
-      typeLen = TMath::Max(typeLen, (Int_t) (tabName[i].Length() + scl + strlen("T*")));
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("f000Tab")));
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("tT")));
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("Get000Tab()")));
+      typeLen = TMath::Max(typeLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("T*")));
    }
-   typeLen = TMath::Max(typeLen, (Int_t) strlen("TGCompositeFrame*"));
+   typeLen = TMath::Max(typeLen, static_cast<Int_t>(strlen("TGCompositeFrame*")));
 
    // max tab switch name length
    Int_t switchLen = -1;
@@ -278,7 +278,7 @@ Bool_t ArgusBuilder::WriteWindowH()
          switchString.Insert(0, tabName[index].Data());
          index = tabParentIndex[index];
       }
-      if (switchLen < (Int_t) switchString.Length())
+      if (switchLen < static_cast<Int_t>(switchString.Length()))
          switchLen = switchString.Length();
    }
 
@@ -291,10 +291,10 @@ Bool_t ArgusBuilder::WriteWindowH()
    buffer.AppendFormatted("//                                                                            //\n");
    ll = 74 - shortCut.Length();
    format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), "Monitor");
+   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
    format.Resize(0);
    buffer.AppendFormatted("//                                                                            //\n");
-   pos = (Char_t *) classDescription.Data();
+   pos = const_cast<Char_t*>(classDescription.Data());
    lenTot = classDescription.Length();
    while (pos - classDescription.Data() < lenTot) {
       if (lenTot + (classDescription.Data() - pos) < 74)
@@ -338,7 +338,7 @@ Bool_t ArgusBuilder::WriteWindowH()
          index = tabParentIndex[index];
       }
       format.SetFormatted("   Bool_t %%s;%%%ds  //! %%s Tab\n", switchLen - switchString.Length());
-      buffer.AppendFormatted((Char_t *) format.Data(), switchString.Data(), "", switchString.Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), switchString.Data(), "", switchString.Data());
 //      buffer.AppendFormatted("   Int_t %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
    }
    buffer.AppendFormatted("} TabSwitches;\n");
@@ -390,9 +390,9 @@ Bool_t ArgusBuilder::WriteWindowH()
    buffer.AppendFormatted("   // Tab Fields\n");
    for (i = 0; i < numOfTab; i++) {
       format.SetFormatted("   %%sT%%s*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n", typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*"), nameLen - tabName[i].Length() - strlen("f000Tab"));
-      buffer.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data());
       format.SetFormatted("   TGCompositeFrame*%%%ds t%%sT%%s;%%%ds  // Container of %%s Tab\n", typeLen - strlen("TGCompositeFrame*"), nameLen - tabName[i].Length() - scl - strlen("tT"));
-      buffer.AppendFormatted((Char_t *) format.Data(), "", shortCut.Data(), tabName[i].Data(), "", tabName[i].Data());
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), "", shortCut.Data(), tabName[i].Data(), "", tabName[i].Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -411,7 +411,7 @@ Bool_t ArgusBuilder::WriteWindowH()
    buffer.AppendFormatted("   // Tabs\n");
    for (i = 0; i < numOfTab; i++) {
       format.SetFormatted("   %%sT%%s*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds }\n", typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*"), nameLen - tabName[i].Length() - strlen("Get000Tab()"), nameLen - tabName[i].Length() - strlen("f000Tab"));
-      buffer.AppendFormatted((Char_t *) format.Data(), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data(), i, "");
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data(), i, "");
    }
    buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
    buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const Char_t* menuName);\n");
