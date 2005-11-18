@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<RDBDataBase>
+	<GGG>
+		<id>0</id>
+		<ggg>ggg-0</ggg>
+	</GGG>
+	<GGG>
+		<id>1</id>
+		<ggg>ggg-1</ggg>
+	</GGG>
+</RDBDataBase>

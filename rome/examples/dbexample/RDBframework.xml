@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Ryu Sawada -->
+<ROMEFrameworkDefinition>
+	<Experiment>
+		<ExperimentName>Sample</ExperimentName>
+		<ExperimentShortCut>RDB</ExperimentShortCut>
+		<ProgramName>framework</ProgramName>
+		<FrameworkDescription>Sample framework for ROMEDataBase.</FrameworkDescription>
+	</Experiment>
+	<Author>
+		<AuthorName>Ryu Sawada</AuthorName>
+		<AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+		<AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+	</Author>
+	<Folders>
+		<Folder>
+			<FolderName>RDBFolder</FolderName>
+			<FolderTitle>Top folder.</FolderTitle>
+			<Author>Ryu Sawada</Author>
+			<Folder>
+				<FolderName>SingleFolder</FolderName>
+				<FolderTitle>This folder reads ROME database. Array size is 1.</FolderTitle>
+				<DataBaseAccess>true</DataBaseAccess>
+				<Author>Ryu Sawada</Author>
+				<ConnectionType>ROMEDataBase</ConnectionType>
+				<Field>
+					<FieldName>bbb</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>bbb</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/BBB/bbb"</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>ggg</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>ggg</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/BBB[@XXX]/GGG/ggg"</DataBasePath>
+				</Field>
+			</Folder>
+			<Folder>
+				<FolderName>ArrayFolder</FolderName>
+				<FolderTitle>This folder reads ROME database. Array size is greater than 1.</FolderTitle>
+				<DataBaseAccess>true</DataBaseAccess>
+				<Author>Ryu Sawada</Author>
+				<ConnectionType>ROMEDataBase</ConnectionType>
+				<ArraySize>3</ArraySize>
+				<ArraySize>gAnalyzer->GetSingleFolder()->Getbbb()</ArraySize>
+				<Field>
+					<FieldName>ccc1</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>ccc1</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/CCC(0,%d)/ccc",gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>ccc2</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>ccc2</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/CCC(0,%d)/ccc;CCC/inverseOrder(0,%d)",gAnalyzer->GetSingleFolder()->Getbbb()-1,gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>ccc3</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>ccc3</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/CCC(0,%d,2)/ccc;",2*gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>ddd</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>ddd</FieldComment>
+					<ArraySize>4</ArraySize>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/BBB/DDD(0,%d)/ddd(0,3)",gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>jjj1</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>jjj</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/BBB/HHH(0,%d){,idx}[id=BBB.HHH_id]/III{,idx}[id=BBB.III_id]/JJJ[id=BBB.JJJ_id]/jjj",gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>jjj2</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>jjj</FieldComment>
+					<DataBaseName>mydatabase</DataBaseName>
+					<DataBasePath>"/AAA[id=#]/BBB[@XXX]/JJJ[id=BBB.JJJ_id]/jjj;HHH/idx(0,%d)",gAnalyzer->GetSingleFolder()->Getbbb()-1</DataBasePath>
+				</Field>
+			</Folder>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>PrintFolders</TaskName>
+			<Author>Ryu Sawada</Author>
+			<TaskVersion>1</TaskVersion>
+			<TaskDescription>This task shows containts of folders.</TaskDescription>
+		</Task>
+	</Tasks>
+	<UserDAQSystems>
+		<UserDAQSystem>
+			<DAQSystemName>dummy</DAQSystemName>
+		</UserDAQSystem>
+	</UserDAQSystems>
+</ROMEFrameworkDefinition>

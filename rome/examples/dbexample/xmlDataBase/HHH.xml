@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<RDBDataBase>
+	<HHH>
+		<id>0</id>
+		<idx>0</idx>
+		<III_idx>2</III_idx>
+	</HHH>
+	<HHH>
+		<id>0</id>
+		<idx>1</idx>
+		<III_idx>1</III_idx>
+	</HHH>
+	<HHH>
+		<id>0</id>
+		<idx>2</idx>
+		<III_idx>0</III_idx>
+	</HHH>
+	<HHH>
+		<id>0</id>
+		<idx>0</idx>
+		<III_idx>2</III_idx>
+	</HHH>
+	<HHH>
+		<id>1</id>
+		<idx>1</idx>
+		<III_idx>1</III_idx>
+	</HHH>
+	<HHH>
+		<id>1</id>
+		<idx>2</idx>
+		<III_idx>0</III_idx>
+	</HHH>
+</RDBDataBase>

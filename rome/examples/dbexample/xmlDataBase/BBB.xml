@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<RDBDataBase>
+	<BBB>
+		<id>0</id>
+		<bbb>3</bbb>
+		<DDD_id>0</DDD_id>
+		<EEE_id>0</EEE_id>
+		<HHH_id>0</HHH_id>
+		<III_id>0</III_id>
+		<JJJ_id>0</JJJ_id>
+		<XXX>GGG="/EEE/FFF"\nJJJ="/HHH{,idx}/III{,idx}[id=(@@III_id)]"</XXX>
+	</BBB>
+	<BBB>
+		<id>1</id>
+		<bbb>3</bbb>
+		<DDD_id>1</DDD_id>
+		<EEE_id>1</EEE_id>
+		<HHH_id>1</HHH_id>
+		<III_id>1</III_id>
+		<JJJ_id>1</JJJ_id>
+		<XXX>GGG="/EEE/FFF"\nJJJ="/HHH{,idx}/III{,idx}[id=(@@III_id)]"</XXX>
+	</BBB>
+</RDBDataBase>

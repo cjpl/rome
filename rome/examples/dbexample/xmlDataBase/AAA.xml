@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<RDBDataBase>
+	<AAA>
+		<id>0</id>
+		<BBB_id>0</BBB_id>
+		<CCC_id>0</CCC_id>
+	</AAA>
+	<AAA>
+		<id>1</id>
+		<BBB_id>1</BBB_id>
+		<CCC_id>1</CCC_id>
+	</AAA>
+</RDBDataBase>
