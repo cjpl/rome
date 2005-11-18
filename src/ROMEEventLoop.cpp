@@ -316,20 +316,16 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
    // Event Number Check
    gROME->InitCheckEventNumber();
 
-   cout << "14 : " << gROME->isOffline() << " " << gROME->IsRunNumberBasedIO() << " " << gROME->IsRunNumberAndFileNameBasedIO() << " " << endl;
    if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
       // run number based IO
-   cout << "15 "<<gROME->GetNumberOfRunNumbers() << " cc"<< endl;
       if (gROME->GetNumberOfRunNumbers()<=eventLoopIndex) {
          this->SetTerminate();
          return true;
       }
-   cout << "16" << endl;
       // Check Configuration
       gROME->SetCurrentRunNumber(gROME->GetRunNumberAt(eventLoopIndex));
       gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentRunNumber());
    }
-   cout << "17" << endl;
 
    // Begin Of Run Of Active DAQ
    if (!gROME->GetActiveDAQ()->BeginOfRun())
