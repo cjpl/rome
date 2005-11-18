@@ -5161,7 +5161,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(gAnalyzer->GetOrca());\n");
       buffer.AppendFormatted("      }\n");
    }
-   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"none\",TString::kIgnoreCase)) {\n");
+   buffer.AppendFormatted("      else if (!fConfigData[index]->fModes->fDAQSystem.CompareTo(\"none\",TString::kIgnoreCase) || fConfigData[index]->fModes->fDAQSystem.Length()==0) {\n");
    buffer.AppendFormatted("         gAnalyzer->SetActiveDAQ(new ROMENoDAQSystem());\n");
    buffer.AppendFormatted("      }\n");
    for (i=0;i<numOfDAQ;i++) {
@@ -5570,7 +5570,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   }\n");
    // DataBase
    buffer.AppendFormatted("   // database\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fDataBasesModified && index==0) {\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fDataBasesModified || index==0) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"DataBases\");\n");
    buffer.AppendFormatted("      for (i=0;i<gAnalyzer->GetNumberOfDataBases();i++) {\n");
    buffer.AppendFormatted("         if (fConfigData[index]->fDataBaseModified[i]) {\n");

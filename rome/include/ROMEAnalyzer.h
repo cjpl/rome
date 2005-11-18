@@ -46,6 +46,7 @@ private:
 public:
    // IO type
    enum {
+      kNotBased,
       kRunNumberBased,
       kRunNumberAndFileNameBased,
       kFileNameBased
