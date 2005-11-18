@@ -642,6 +642,23 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("   };\n");
       buffer.AppendFormatted("\n");
 
+      // Destructor
+      if (folderUserCode[iFold])
+         buffer.AppendFormatted("   virtual ~%s%s_Base()\n",shortCut.Data(),folderName[iFold].Data());
+      else
+         buffer.AppendFormatted("   virtual ~%s%s()\n",shortCut.Data(),folderName[iFold].Data());
+      buffer.AppendFormatted("   {\n");
+      for (i=0;i<numOfValue[iFold];i++) {
+         if (isFolder(valueType[iFold][i].Data()))
+            buffer.AppendFormatted("      delete %s;\n",valueName[iFold][i].Data());
+         else if(isTArrayType(valueType[iFold][i])) 
+            buffer.AppendFormatted("      delete %s;\n",valueName[iFold][i].Data());
+         else if(valueDimension[iFold][i]!=0 && valueArray[iFold][i][0]=="variable")
+            buffer.AppendFormatted("      delete [] %s;\n",valueName[iFold][i].Data());
+      }
+      buffer.AppendFormatted("   };\n");
+      buffer.AppendFormatted("\n");
+
       // Getters
       for (i=0;i<numOfValue[iFold];i++) {
          int lb = nameLen-valueName[iFold][i].Length();
