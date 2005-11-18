@@ -52,12 +52,11 @@ ClassImp(ArgusMonitor)
 ArgusMonitor *gArgus;           // global ArgusMonitor Handle
 void *gPassToArgus;             // void ArgusMonitor Handle
 
-ArgusMonitor::ArgusMonitor(TApplication *app):ROMEAnalyzer(0)
+ArgusMonitor::ArgusMonitor(TApplication *app) : ROMEAnalyzer(app)
 {
 // Initialisations
    fWindowScale = 1;
    fTreeInfo = new ROMETreeInfo();
-   fApplication = app;
 }
 
 ArgusMonitor::~ArgusMonitor()
