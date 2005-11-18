@@ -129,8 +129,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Output
          TimeStart();
-         text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
-         gROME->Println(text.Data());
+         if (gROME->IsShowRunStat()) {
+            text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
+            gROME->Println(text.Data());
+         }
       }
 
       // Loop over Events
@@ -208,14 +210,16 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          TimeEnd();
 
          // Show number of processed events
-         text.SetFormatted("Run %d stopped                                             \n",gROME->GetCurrentRunNumber());
-         gROME->Println(text.Data());
-         text.SetFormatted("%d events processed\n",(int)gROME->GetProcessedEvents());
-         gROME->Println(text.Data());
+         if (gROME->IsShowRunStat()) {
+            text.SetFormatted("Run %d stopped                                             \n",gROME->GetCurrentRunNumber());
+            gROME->Println(text.Data());
+            text.SetFormatted("%d events processed\n",(int)gROME->GetProcessedEvents());
+            gROME->Println(text.Data());
 
-         gROME->Print("run time = ");
-         gROME->Println(GetTime());
-         gROME->Println();
+            gROME->Print("run time = ");
+            gROME->Println(GetTime());
+            gROME->Println();
+         }
 
          // End of Run Tasks
          ExecuteTasks("e");

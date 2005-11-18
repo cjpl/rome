@@ -152,6 +152,9 @@ protected:
    // Configuration
    ROMEConfig   *fConfiguration;                   //! Configuration Handle
 
+   // Run Stat
+   bool          fShowRunStat;                     //! Show Run Statistics 
+
 public:
    ROMEAnalyzer() {};
    ROMEAnalyzer(TApplication *app);
@@ -395,6 +398,9 @@ public:
    void        DecodeRunNumbers(ROMEString& str,TArrayI& arr);
    void        DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr);
 
+   // Run Stat
+   void        ShowRunStat(bool flag) { fShowRunStat = flag; };
+   bool        IsShowRunStat() { return fShowRunStat; };
 
    virtual bool ReadSingleDataBaseFolders() = 0;
    virtual bool ReadArrayDataBaseFolders() = 0;

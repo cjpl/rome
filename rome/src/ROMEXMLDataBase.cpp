@@ -5,7 +5,7 @@
 //
 //  XMLDataBase access.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>
@@ -347,6 +347,11 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
          xmlPath = fXMLBase;
          xmlPath += path->GetFieldName();
          if (!xml->GetPathValues(xmlPath,&valueArr)) {
+            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            delete path;
+            return false;
+         }
+         if (valueArr.GetEntriesFast()<=0) {
             cout << "\nWrong data base path : " << xmlPath.Data() << endl;
             delete path;
             return false;
