@@ -170,13 +170,13 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
             break;
             break;
          default :
-            delete form;
+            delete [] form;
             return false;
             break;
       }
       pactual = pstart+ind+1;
       pstart = strstr(pactual,"%");
-      delete form;
+      delete [] form;
    }
    string->Append(pactual);
    return true;
