@@ -3539,7 +3539,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TRint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TApplication *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("\n");
@@ -4153,7 +4153,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-   buffer.AppendFormatted("   %sAnalyzer(TRint *app);\n",shortCut.Data());
+   buffer.AppendFormatted("   %sAnalyzer(TApplication *app);\n",shortCut.Data());
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
    for(i=0;i<numOfFolder;i++)
@@ -4300,7 +4300,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sMidas* GetMidas() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fMidas==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the midas DAQ system over a gAnalyzer->GetMidas()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         fRint->Terminate(1);\n");
+   buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fMidas;\n");
@@ -4309,7 +4309,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   %sRome*  GetRome() {\n",shortCut.Data());
    buffer.AppendFormatted("      if (fRome==NULL) {\n");
    buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the rome DAQ system over a gAnalyzer->GetRome()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         fRint->Terminate(1);\n");
+   buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      return fRome;\n");
@@ -4319,7 +4319,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
       buffer.AppendFormatted("   ROMEOrca*  GetOrca() {\n");
       buffer.AppendFormatted("      if (fOrca==NULL) {\n");
       buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the orca DAQ system over a gAnalyzer->GetOrca()\\nhandle but the current DAQ system is not 'Orca'.\\n\\nShutting down the program.\\n\");\n");
-      buffer.AppendFormatted("         fRint->Terminate(1);\n");
+      buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("      return fOrca;\n");
@@ -9403,20 +9403,20 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortcut.Data(),mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    if (haveFortranTask)
-      buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries) /link /nodefaultlib:\"libcmtd.lib\" /FORCE:MULTIPLE\n\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("\tcl /Fe%s%s.exe $(objects) $(Libraries) /link /nodefaultlib:\"libcmtd.lib\" /FORCE:MULTIPLE\n\n",shortCut.Data(),mainProgName.Data());
    else
-      buffer.AppendFormatted("	cl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("\tcl /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("	g++ $(Flags) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("	");
+   buffer.AppendFormatted("\t");
 #if defined ( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
 #if defined ( R__MACOSX )
-   buffer.AppendFormatted("	ln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif // R__MACOSX
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
@@ -9676,11 +9676,11 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("	rm -f obj/*.obj obj/*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\trm -f obj/*.obj obj/*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
    tmp = shortCut;
    tmp.ToLower();
    buffer.AppendFormatted("%sclean:\n",tmp.Data());
-   buffer.AppendFormatted("	rm -f obj/%s*.obj obj/%s*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\trm -f obj/%s*.obj obj/%s*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;
    ROMEString xmlfilename = xmlFile;
@@ -9832,15 +9832,15 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects += mySource.obj\n");
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
-      usrBuffer.AppendFormatted("#	g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#\tg++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
       usrBuffer.AppendFormatted("#       userclean:\n");
-      usrBuffer.AppendFormatted("#	rm your_file.h\n");
+      usrBuffer.AppendFormatted("#\trm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
-      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      usrBuffer.AppendFormatted("\t@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 #endif
@@ -9855,15 +9855,15 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects = $(objects) mySource.obj\n");
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
-      usrBuffer.AppendFormatted("#	cl /c $(Flags) $(Includes) mySource.cpp /Foobj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#\tcl /c $(Flags) $(Includes) mySource.cpp /Foobj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes = $(DictionaryIncludes) -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders = $(DictionaryHeaders) myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
       usrBuffer.AppendFormatted("#       userclean:\n");
-      usrBuffer.AppendFormatted("#	rm your_file.h\n");
+      usrBuffer.AppendFormatted("#\trm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
-      usrBuffer.AppendFormatted("	@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      usrBuffer.AppendFormatted("\t@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 #endif

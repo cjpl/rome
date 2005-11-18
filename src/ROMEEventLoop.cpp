@@ -239,9 +239,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    TString prompt = gROME->GetProgramName();
    prompt.ToLower();
    prompt += " [%d]";
-   gROME->GetApplication()->SetPrompt(prompt.Data());
+   ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
    if (!gROME->isBatchMode()) {
-      gROME->GetApplication()->Run(true);
+      ((TRint*)gROME->GetApplication())->Run(true);
       gROME->Println();
    }
 
@@ -596,9 +596,9 @@ bool ROMEEventLoop::UserInput()
       if (interpreter) {
          text.SetFormatted("\nStart root session at the end of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
          gROME->Println(text.Data());
-         gROME->GetApplication()->Run(true);
+         ((TRint*)gROME->GetApplication())->Run(true);
          gSystem->Init();
-         gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
+         ((TRint*)gROME->GetApplication())->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
       }
       gROME->ss_sleep(10);
    }
