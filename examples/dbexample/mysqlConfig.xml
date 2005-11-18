@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Wed Jun 15 13:04:10 2005 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <MainConfiguration>
+    <RunNumbers>1</RunNumbers>
+    <EventNumbers></EventNumbers>
+    <Modes>
+      <AnalyzingMode>offline</AnalyzingMode>
+      <DAQSystem>dummy</DAQSystem>
+      <BatchMode>false</BatchMode>
+      <ShowSplashScreen>true</ShowSplashScreen>
+    </Modes>
+    <DataBases>
+      <DataBase>
+        <Name>mydatabase</Name>
+        <Type>sql</Type>
+        <Connection>mysql://username:password@hostname/dbname</Connection>
+      </DataBase>
+    </DataBases>
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+    </Online>
+    <SocketInterface>
+      <PortNumber>9090</PortNumber>
+      <AvailableOffline>false</AvailableOffline>
+    </SocketInterface>
+    <Paths>
+      <InputFilePath>./</InputFilePath>
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+    <Tasks>
+      <Task>
+        <TaskName>PrintFolders</TaskName>
+        <Active>true</Active>
+      </Task>
+    </Tasks>
+    <Midas/>
+  </MainConfiguration>
+</Configuration>

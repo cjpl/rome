@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<RDBDataBase>
+	<JJJ>
+		<id>0</id>
+		<idx>0</idx>
+		<jjj>jjj-0-0</jjj>
+	</JJJ>
+	<JJJ>
+		<id>0</id>
+		<idx>1</idx>
+		<jjj>jjj-0-1</jjj>
+	</JJJ>
+	<JJJ>
+		<id>0</id>
+		<idx>2</idx>
+		<jjj>jjj-0-2</jjj>
+	</JJJ>
+	<JJJ>
+		<id>1</id>
+		<idx>0</idx>
+		<jjj>jjj-1-0</jjj>
+	</JJJ>
+	<JJJ>
+		<id>1</id>
+		<idx>1</idx>
+		<jjj>jjj-1-1</jjj>
+	</JJJ>
+	<JJJ>
+		<id>1</id>
+		<idx>2</idx>
+		<jjj>jjj-1-2</jjj>
+	</JJJ>
+</RDBDataBase>

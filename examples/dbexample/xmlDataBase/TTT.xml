@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Wed Jun 15 13:05:28 2005 -->
+<RDBDataBase>
+  <TTT>
+    <id>0</id>
+    <ttt>0</ttt>
+  </TTT>
+  <TTT>
+    <id>1</id>
+    <ttt>0</ttt>
+  </TTT>
+  <TTT>
+    <ttt>1118833528</ttt>
+    <id>3</id>
+  </TTT>
+</RDBDataBase>
