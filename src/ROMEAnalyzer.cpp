@@ -111,6 +111,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fUserEventC = false;
    fUserEventG = false;
    fUserEventI = false;
+   fShowRunStat = true;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
