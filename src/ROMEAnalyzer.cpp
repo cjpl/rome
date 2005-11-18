@@ -82,6 +82,8 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
 // Initialisations
 
+   fIOType = kNotBased;
+   fRunNumber.Reset();
    fLastEventNumberIndex = 0;
    fApplication = app;
    fAnalysisMode = kAnalyzeOffline;
