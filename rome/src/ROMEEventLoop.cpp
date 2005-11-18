@@ -429,6 +429,16 @@ bool ROMEEventLoop::DAQEvent(Int_t event) {
    if (!gROME->GetActiveDAQ()->Event(event))
       return false;
 
+   if (gROME->IsEventBasedDataBase()) {
+      if (!gROME->ReadSingleDataBaseFolders()) {
+         gROME->Println("\nError while reading the data base !");
+         return false;
+      }
+      if (!gROME->ReadArrayDataBaseFolders()) {
+         gROME->Println("\nError while reading the data base !");
+         return false;
+      }
+   }
 
    // Update Statistics
    stat->processedEvents++;

@@ -4651,10 +4651,18 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("            fConfigData[index]->fDataBase[i]->fConnectionModified = false;\n");
    buffer.AppendFormatted("         else\n");
    buffer.AppendFormatted("            fConfigData[index]->fDataBase[i]->fConnectionModified = true;\n");
+   // EventBased
+   buffer.AppendFormatted("         dataBasePath.SetFormatted(\"/DataBases/DataBase[%%d]/EventBased\",i+1);\n");
+   buffer.AppendFormatted("         xml->GetPathValue(path+dataBasePath,fConfigData[index]->fDataBase[i]->fEventBased,\"\");\n");
+   buffer.AppendFormatted("         if (fConfigData[index]->fDataBase[i]->fEventBased==\"\")\n");
+   buffer.AppendFormatted("            fConfigData[index]->fDataBase[i]->fEventBasedModified = false;\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            fConfigData[index]->fDataBase[i]->fEventBasedModified = true;\n");
    // Check Modified
    buffer.AppendFormatted("         if (fConfigData[index]->fDataBase[i]->fNameModified ||\n");
    buffer.AppendFormatted("             fConfigData[index]->fDataBase[i]->fTypeModified ||\n");
-   buffer.AppendFormatted("             fConfigData[index]->fDataBase[i]->fConnectionModified) {\n");
+   buffer.AppendFormatted("             fConfigData[index]->fDataBase[i]->fConnectionModified ||\n");
+   buffer.AppendFormatted("             fConfigData[index]->fDataBase[i]->fEventBasedModified) {\n");
    buffer.AppendFormatted("            fConfigData[index]->fDataBaseModified[i] = true;\n");
    buffer.AppendFormatted("            fConfigData[index]->fDataBasesModified = true;\n");
    buffer.AppendFormatted("         }\n");
@@ -5206,6 +5214,12 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      if (fConfigData[modIndex]->fDataBasesModified) {\n");
    buffer.AppendFormatted("         for (i=0;i<gAnalyzer->GetNumberOfDataBases();i++) {\n");
    buffer.AppendFormatted("            if (fConfigData[modIndex]->fDataBaseModified[i]) {\n");
+   buffer.AppendFormatted("               if (fConfigData[modIndex]->fDataBase[i]->fEventBasedModified) {\n");
+   buffer.AppendFormatted("                  if (fConfigData[index]->fDataBase[i]->fEventBased==\"true\")\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetEventBasedDataBase(true);\n");
+   buffer.AppendFormatted("                  else\n");
+   buffer.AppendFormatted("                     gAnalyzer->SetEventBasedDataBase(false);\n");
+   buffer.AppendFormatted("               }\n");
    buffer.AppendFormatted("               if (fConfigData[modIndex]->fDataBase[i]->fConnectionModified) {\n");
    buffer.AppendFormatted("                  gAnalyzer->SetDataBaseConnection(i,fConfigData[index]->fDataBase[i]->fConnection.Data());\n");
    buffer.AppendFormatted("               }\n");
@@ -5598,6 +5612,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("            xml->WriteElement(\"Type\",gAnalyzer->GetDataBase(i)->GetType());\n");
    // Connection
    buffer.AppendFormatted("            xml->WriteElement(\"Connection\",gAnalyzer->GetDataBaseConnection(i));\n");
+   // EventBased
+   buffer.AppendFormatted("            if (gAnalyzer->IsEventBasedDataBase())\n");
+   buffer.AppendFormatted("               xml->WriteElement(\"EventBased\",\"true\");\n");
+   buffer.AppendFormatted("            else\n");
+   buffer.AppendFormatted("               xml->WriteElement(\"EventBased\",\"false\");\n");
    buffer.AppendFormatted("            xml->EndElement();\n");
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("      }\n");
@@ -5923,6 +5942,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fTypeModified;\n");
    buffer.AppendFormatted("         ROMEString  fConnection;\n");
    buffer.AppendFormatted("         bool        fConnectionModified;\n");
+   buffer.AppendFormatted("         ROMEString  fEventBased;\n");
+   buffer.AppendFormatted("         bool        fEventBasedModified;\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      DataBase **fDataBase;\n");
    buffer.AppendFormatted("      bool      *fDataBaseModified;\n");
@@ -7687,6 +7708,11 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
    buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   int number;\n");
+   buffer.AppendFormatted("   if (IsEventBasedDataBase())\n");
+   buffer.AppendFormatted("      number = gAnalyzer->GetCurrentEventNumber();\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      number = gAnalyzer->GetCurrentRunNumber();\n");
    for (j=0;j<numOfValue[numFolder];j++) {
       if( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
          continue;
@@ -7708,7 +7734,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
             buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
          buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("   if (name.Length() && path.Length() && isDataBaseActive(name.Data())){\n");
-         buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber())) {\n");
+         buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,number)) {\n");
          buffer.AppendFormatted("         gAnalyzer->Println(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         return false;\n");
          buffer.AppendFormatted("      }\n");

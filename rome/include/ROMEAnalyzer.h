@@ -155,6 +155,9 @@ protected:
    // Run Stat
    bool          fShowRunStat;                     //! Show Run Statistics 
 
+   // Event Based Data Base
+   bool          fEventBasedDataBase;              //! Flag for Event Based Data Base
+
 public:
    ROMEAnalyzer() {};
    ROMEAnalyzer(TApplication *app);
@@ -399,8 +402,12 @@ public:
    void        DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr);
 
    // Run Stat
-   void        ShowRunStat(bool flag) { fShowRunStat = flag; };
+   void        ShowRunStat(bool flag=true) { fShowRunStat = flag; };
    bool        IsShowRunStat() { return fShowRunStat; };
+
+   // Event Based Data Base
+   void        SetEventBasedDataBase(bool flag=true) { fEventBasedDataBase = flag; };
+   bool        IsEventBasedDataBase() { return fEventBasedDataBase; };
 
    virtual bool ReadSingleDataBaseFolders() = 0;
    virtual bool ReadArrayDataBaseFolders() = 0;
