@@ -540,7 +540,9 @@ bool ROMEBuilder::WriteFolderH() {
          else if(valueArray[iFold][i][0]=="variable"){
             format.SetFormatted("   %%-%ds* %%s;%%%ds %%s\n",typeLen-1,nameLen-valueName[iFold][i].Length());
             buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
-            format.SetFormatted("   %%-%ds %%sSize;%%%ds // ! array size of %%s\n",typeLen,nameLen-valueName[iFold][i].Length()-4);
+            format.SetFormatted("   %%-%ds %%sSize;%%%ds // ! number of elements of %%s\n",typeLen,nameLen-valueName[iFold][i].Length()-4);
+            buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
+            format.SetFormatted("   %%-%ds %%sActualSize;%%%ds // ! actual size of %%s allocated in memory\n",typeLen,nameLen-valueName[iFold][i].Length()-10);
             buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
          }
          else {
@@ -619,6 +621,7 @@ bool ROMEBuilder::WriteFolderH() {
                buffer.AppendFormatted("      %s = %s_value;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             else if(valueArray[iFold][i][0]=="variable"){
                buffer.AppendFormatted("      %s = NULL;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %sActualSize = 0;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %sSize = 0;\n",valueName[iFold][i].Data());
             }
             else{
@@ -903,18 +906,22 @@ bool ROMEBuilder::WriteFolderH() {
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds* %%s_value%%%ds) { %%s = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen-1,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(int number) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      if(%s) delete [] %s;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-               buffer.AppendFormatted("      if(number>0)\n");
-               buffer.AppendFormatted("         %s = new %s[number];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("      else\n");
-               buffer.AppendFormatted("         %s = 0;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if(number==%sSize) return;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if(number<0) return;\n");
+               buffer.AppendFormatted("      if(number>%sActualSize){\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         %s *tmp = new %s[number];\n",valueType[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("         memcpy(tmp,%s,%sSize*sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("         delete [] %s;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         %s = tmp;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         %sActualSize = number;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      }\n");
                buffer.AppendFormatted("      %sSize = number;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("   }\n");
                format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n,%%s* array)%%%ds {\n",typeLen,lb);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),valueType[iFold][i].Data(),"");
-               buffer.AppendFormatted("      if(!array || !n) return;\n");
-               buffer.AppendFormatted("      if(!%s || %sSize<n) Set%sSize(n);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if(!array || n<=0) return;\n");
+               buffer.AppendFormatted("      if(%sActualSize<n) Set%sSize(n);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("      memcpy(%s,array,n*sizeof(%s));\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
                buffer.AppendFormatted("      SetModified(true);\n");
                buffer.AppendFormatted("      return;\n");
