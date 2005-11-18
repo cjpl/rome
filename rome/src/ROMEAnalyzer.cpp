@@ -78,12 +78,12 @@ ClassImp(ROMEAnalyzer)
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 void *gPassToROME;  // void ROMEAnalyzer Handle
 
-ROMEAnalyzer::ROMEAnalyzer(TRint *app)
+ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
 // Initialisations
 
    fLastEventNumberIndex = 0;
-   fRint = app;
+   fApplication = app;
    fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
    fSplashScreen = true;

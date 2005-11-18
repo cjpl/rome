@@ -13,8 +13,6 @@
 class ArgusMonitor : public ROMEAnalyzer
 {
 protected:
-   TApplication*    fApplication;                  //! Application Handle
-
    ROMETreeInfo*    fTreeInfo;                     //! Tree Info Object
 
    Int_t            fNumberOfNetFolders;           //! Number of net folders
@@ -42,7 +40,6 @@ public:
    void            startSplashScreen(){;}
    void            consoleStartScreen(){;}
    void            redirectOutput(){;}
-   TApplication*   GetApplication() { return fApplication; };
 
    // NetFolder
    Bool_t          IsNetFolderActive(const Char_t *name);

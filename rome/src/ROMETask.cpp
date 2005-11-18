@@ -94,7 +94,7 @@ void ROMETask::StartRootInterpreter(const char* message) {
    gROME->Println(text.Data());
    if (message)
       gROME->Println(message);
-   gROME->GetApplication()->Run(true);
+   ((TRint*)gROME->GetApplication())->Run(true);
    gSystem->Init();
    gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
 }

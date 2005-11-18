@@ -288,11 +288,11 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
       buffer.AppendFormatted("\nBool_t %sMonitor::Read%s() {\n",shortCut.Data(),folderName[i].Data());
       // ROMEFolder
       if(folderDefinedInROME[i]){
-	 buffer.AppendFormatted("   if(!fNetFolder){\n");
-	 buffer.AppendFormatted("      cout<<\"Warning: \"<<gMonitor->GetProgramName()<<\" is not connected to ROOT server.\"<<endl;\n");
-	 buffer.AppendFormatted("      cout<<\"%s is not updated.\"<<endl;\n",folderName[i].Data());
-	 buffer.AppendFormatted("      return kTRUE;\n");
-	 buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if(!fNetFolder){\n");
+         buffer.AppendFormatted("      cout<<\"Warning: \"<<gMonitor->GetProgramName()<<\" is not connected to ROOT server.\"<<endl;\n");
+         buffer.AppendFormatted("      cout<<\"%s is not updated.\"<<endl;\n",folderName[i].Data());
+         buffer.AppendFormatted("      return kTRUE;\n");
+         buffer.AppendFormatted("   }\n");
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("   if(f%sFolder)\n",folderName[i].Data());
             buffer.AppendFormatted("      delete f%sFolder;\n",folderName[i].Data());
@@ -409,7 +409,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
                   buffer.AppendFormatted("            ((%s%s*)f%sFolders->At(i))->Set%sAt(j,%s);\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueInit[i][j].Data());
                   buffer.AppendFormatted("      }\n");
                }
-	       buffer.AppendFormatted("   }\n");
+               buffer.AppendFormatted("   }\n");
             }
          }
          buffer.AppendFormatted("   values->RemoveAll();\n");
