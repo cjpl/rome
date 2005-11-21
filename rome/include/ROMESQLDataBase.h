@@ -1,7 +1,7 @@
 /********************************************************************
   ROMESQLDataBase.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMESQLDataBase_H
@@ -50,8 +50,8 @@ public:
    }
 
    bool   Init(const char* name,const char* dataBase,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber);
-   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber);
+   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber);
+   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber);
    char*  GetType() { return "sql"; }
    char*  GetDescription() { return "SQL data base using the file system to store tables"; }
    void   Print();
@@ -79,8 +79,8 @@ public:
 //   bool   DataSeek(my_ulonglong offset);
 
 protected:
-   bool   MakePhrase(ROMEPath *dataBasePath,int runNumber);
-   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName);
+   bool   MakePhrase(ROMEPath *dataBasePath,int runNumber,int eventNumber);
+   bool   DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,int eventNumber,const char* currentIdName,const char* currentIdxName);
    void   ResetPhrase();
    bool   InRange(int value,int b1,int b2){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
 };

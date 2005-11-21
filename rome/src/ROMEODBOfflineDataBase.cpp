@@ -5,7 +5,7 @@
 //
 //  Access to the Midas ODB parameters in the header of a midas file.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -27,7 +27,7 @@ bool ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
    return xml->OpenBufferForPath(buffer);
 }
 
-bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
+bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    ROMEString value;
    if (!xml->isPathOpen())
@@ -37,7 +37,7 @@ bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePat
    return true;
 }
 
-bool ROMEODBOfflineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
+bool ROMEODBOfflineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    return true;
 }

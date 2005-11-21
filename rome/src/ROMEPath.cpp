@@ -82,20 +82,23 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
    return true;
 }
 
-bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
+bool ROMEPath::Decode(const char* dataBasePath,int runNumber,int eventNumber)
 {
    this->SetOrderTableName("");
    this->SetOrderFieldName("idx");
    char* cstop;
    int value;
    int abspathposition = 0;
+   ROMEString tmpString;
    ROMEString originalPath;
    ROMEString orderPath;
    ROMEString path = dataBasePath;
    // replace # with the current run number
-   ROMEString runNumberString;
-   runNumberString.SetFormatted("%d",runNumber);
-   path.ReplaceAll("#",runNumberString);
+   tmpString.SetFormatted("%d",runNumber);
+   path.ReplaceAll("#",tmpString);
+   // replace ## with the current run number
+   tmpString.SetFormatted("%d",eventNumber);
+   path.ReplaceAll("##",tmpString);
    originalPath = path;
    // check path
    if (path.Length()<=0) {
@@ -219,7 +222,7 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber)
    if (orderPath.Length()>0) {
       ROMEPath *order = new ROMEPath();
       orderPath.Insert(0,"/");
-      order->Decode(orderPath.Data(),runNumber);
+      order->Decode(orderPath.Data(),runNumber,eventNumber);
       if (order->GetNumberOfTables()!=1) {
          cout << "\nOrder statment has to look like this : 'Table'/'Field'['start','end','step']." << endl;
          delete order;

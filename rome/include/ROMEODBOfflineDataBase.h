@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEODBOfflineDataBase.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEODBOfflineDataBase_H
@@ -25,8 +25,8 @@ public:
    ~ROMEODBOfflineDataBase();
 
    bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber);
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber);
+   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber);
+   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber);
    char*  GetType() { return "odb"; };
    char*  GetDescription() { return "Midas ODB database for offline use"; };
    bool   SetBuffer(char *buffer);

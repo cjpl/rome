@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEPath.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEPath_H
@@ -42,7 +42,7 @@ public:
    ~ROMEPath();
 
    void Print();
-   bool Decode(const char* path,int runNumber);
+   bool Decode(const char* path,int runNumber,int eventNumber);
    bool DecodeConstraint(const char* constraint);
 
    // getters for decode

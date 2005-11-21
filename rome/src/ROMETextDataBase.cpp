@@ -38,7 +38,7 @@ bool ROMETextDataBase::Init(const char* name,const char* path,const char* connec
    return true;
 }
 
-bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber) {
+bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber) {
    int        ps,pe;
    int        iRow,iCol;
    ROMEString lineBuffer = "";
@@ -121,7 +121,7 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
    return true;
 }
 
-bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber) {
+bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber) {
    fstream*   fileStream;
    ROMEString fileBuffer;
    ROMEString buffer;

@@ -28,7 +28,7 @@
 
    In text files, C like comment is available.
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMETextDataBase_H
@@ -49,8 +49,8 @@ public:
    ~ROMETextDataBase();
 
    bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber);
-   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber);
+   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber);
+   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber);
    char*  GetType() { return "text"; }
    char*  GetDescription() { return "Text data base using the file system to store tables"; }
 

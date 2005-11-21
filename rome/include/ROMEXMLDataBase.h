@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEXMLDataBase.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEXMLDataBase_H
@@ -30,14 +30,14 @@ protected:
 
 
    bool   WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,int arrayIndex);
-   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,bool write);
+   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,int eventNumber,bool write);
 public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();
 
    bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber);
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber);
+   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber);
+   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber);
    char*  GetType() { return "xml"; }
    char*  GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
 };
