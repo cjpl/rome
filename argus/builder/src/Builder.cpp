@@ -1071,11 +1071,11 @@ void ArgusBuilder::WriteMakefile()
 
    // Clean and build
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\trm -f obj/*.obj obj/*.d src/framework/%sDict.cpp src/framework/%sDict.h\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d %sARGUSDict.cpp %sARGUSDict.h %sFolderDict.cpp %sFolderDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sROMEDict.cpp %sROMEDict.h %sTabDict.cpp %sTabDict.h %sUserDict.cpp %sUserDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    ROMEString tmp = shortCut;
    tmp.ToLower();
    buffer.AppendFormatted("%sclean:\n", tmp.Data());
-   buffer.AppendFormatted("\trm -f obj/%s*.obj obj/%s*.d src/framework/%sDict.cpp src/framework/%sDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d %sFolderDict.cpp %sFolderDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sTabDict.cpp %sTabDict.h %sUserDict.cpp %sUserDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("\n");
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;

@@ -9726,11 +9726,11 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\trm -f obj/*.obj obj/*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d %sFolderDict.cpp %sFolderDict.h %sROMEDict.cpp %sROMEDict.h %sUserDict.cpp %sUserDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sTaskDict.cpp %sTaskDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    tmp = shortCut;
    tmp.ToLower();
    buffer.AppendFormatted("%sclean:\n",tmp.Data());
-   buffer.AppendFormatted("\trm -f obj/%s*.obj obj/%s*.d %sDict.cpp %sDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d  %sFolderDict.cpp %sFolderDict.h %sUserDict.cpp %sUserDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sTaskDict.cpp %sTaskDict.h\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    Int_t pdnameend = 0;
    Int_t pbnamestart = 0;
    ROMEString xmlfilename = xmlFile;
