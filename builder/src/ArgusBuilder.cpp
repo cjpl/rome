@@ -1,6 +1,6 @@
 /********************************************************************************
 
-  Builder.cpp, Ryu Sawada
+  ArgusBuilder.cpp, Ryu Sawada
 
   $Id$
 
