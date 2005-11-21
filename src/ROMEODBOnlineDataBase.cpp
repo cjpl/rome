@@ -5,7 +5,7 @@
 //
 //  Access to the Midas ODB parameters online.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
@@ -22,12 +22,12 @@ bool ROMEODBOnlineDataBase::Init(const char* name,const char* path,const char* c
    return true;
 }
 
-bool ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
+bool ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    return true;
 }
 
-bool ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
+bool ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    return true;
 }

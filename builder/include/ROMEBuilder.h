@@ -262,6 +262,7 @@ protected:
    ROMEString configDep;
    ROMEString midasDep;
    ROMEString romeDep;
+   ROMEString databaseDep;
    ROMEString daqDep;
 
 public:
@@ -305,6 +306,8 @@ public:
    bool WriteMidasDAQH();
    bool WriteRomeDAQCpp();
    bool WriteRomeDAQH();
+   bool WriteDataBaseDAQCpp();
+   bool WriteDataBaseDAQH();
    bool WriteDAQCpp();
    bool WriteDAQH();
    bool WriteDBCpp();

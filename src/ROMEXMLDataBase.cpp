@@ -29,7 +29,7 @@ bool ROMEXMLDataBase::Init(const char* name,const char* path,const char* connect
 }
 
 
-int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,bool write) {
+int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,int eventNumber,bool write) {
    int i,j;
    ROMEString value;
    ROMEString val;
@@ -49,7 +49,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
    fPointerArray.RemoveAll();
 
    // decode path
-   if (!path->Decode(dataBasePath,runNumber)) {
+   if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
       cout << "\nPath decode error : " << dataBasePath << endl;
       return 0;
    }
@@ -91,7 +91,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
                path->GetAbsolutePath(ConstraintPath,ConstraintTable);
                ConstraintPath += "/";
                ConstraintPath += ConstraintField(1,ConstraintField.Length());
-               Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
+               Read(&ConstraintValue,ConstraintPath.Data(),runNumber,eventNumber);
                xmlPath += "=";
                xmlPath += ConstraintValue.At(0,0).Data();
             }
@@ -153,18 +153,18 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
                   path->GetAbsolutePath(ConstraintPath,path->GetTableNameAt(i));
                   ConstraintPath += "/";
                   ConstraintPath += val;
-                  Read(&ConstraintValue,ConstraintPath.Data(),runNumber);
+                  Read(&ConstraintValue,ConstraintPath.Data(),runNumber,eventNumber);
                   value.Remove(is,ie-is+1);
                   value.Insert(is,ConstraintValue.At(0,0));
                }
                newDataBasePath.InsertFormatted(istart,(char*)value.Data());
                // decode new path
                if (write) {
-                  if (Write(values,newDataBasePath.Data(),runNumber))
+                  if (Write(values,newDataBasePath.Data(),runNumber,eventNumber))
                      return -1;
                }
                else {
-                  if (Read(values,newDataBasePath.Data(),runNumber))
+                  if (Read(values,newDataBasePath.Data(),runNumber,eventNumber))
                      return -1;
                }
                return 0;
@@ -242,7 +242,7 @@ int  ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const ch
    return 2;
 }
 
-bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber)
+bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    int i,ii,j,k,index;
    char *cstop;
@@ -252,7 +252,7 @@ bool ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    ROMEString xmlPath;
    ROMEPath *path = new ROMEPath();
 
-   int retValue = SearchTable(path,values,dataBasePath,runNumber,false);
+   int retValue = SearchTable(path,values,dataBasePath,runNumber,eventNumber,false);
 
    if (retValue==0) {
       delete path;
@@ -416,7 +416,7 @@ bool ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePat
    }
    return true;
 }
-bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber)
+bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber)
 {
    int i,j;
    char *cstop;
@@ -427,7 +427,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    ROMEPath *path = new ROMEPath();
    ROMEString vTemp;
 
-   int retValue = SearchTable(path,values,dataBasePath,runNumber,true);
+   int retValue = SearchTable(path,values,dataBasePath,runNumber,eventNumber,true);
 
    if (retValue==0) {
       delete path;
@@ -468,7 +468,7 @@ bool ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
             xmlPath = fXMLBase;
             xmlPath.InsertFormatted(xmlPath.Length()-1,"[idx=%d]",strtol(fIDX.At(i).Data(),&cstop,10));
             xmlPath += path->GetFieldName();
-            path->Decode(xmlPath.Data(),0);
+            path->Decode(xmlPath.Data(),0,eventNumber);
             vTemp = values->At(i,0);
             if (!WriteValue(xml,path,fXMLBase,vTemp,-1)) {
                delete path;

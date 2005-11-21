@@ -1,7 +1,7 @@
 /********************************************************************
   ROMENoDataBase.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMENoDataBase_H
@@ -14,8 +14,8 @@ public:
    ROMENoDataBase() {};
    ~ROMENoDataBase() {};
    bool   Init(const char* name,const char* path,const char* connection) { fName = name; return true; };
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber) { return true; };
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber) { return true; };
+   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber) { return true; };
+   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber) { return true; };
    char*  GetType() { return "none"; }
    char*  GetDescription() { return "No data base connected"; }
 };

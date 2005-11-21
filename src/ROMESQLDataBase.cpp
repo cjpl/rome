@@ -5,7 +5,7 @@
 //
 //  SQLDataBase access.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
@@ -38,7 +38,7 @@ void ROMESQLDataBase:: ResetPhrase(){
    fAdInsertValues.Resize(0);
 }
 
-bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,const char* currentIdName,const char* currentIdxName){
+bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,int eventNumber,const char* currentIdName,const char* currentIdxName){
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -98,11 +98,11 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
                value.Insert(is1,newpathString);
             }
          }
-         if(!dbpath->Decode(value,runNumber)){
+         if(!dbpath->Decode(value,runNumber,eventNumber)){
             delete dbpath;
             return false;
          }
-         if(!MakePhrase(dbpath,runNumber)){
+         if(!MakePhrase(dbpath,runNumber,eventNumber)){
             delete dbpath;
             return false;
          }
@@ -165,7 +165,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
    return true;
 }
 
-bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
+bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber,int eventNumber){
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
@@ -252,7 +252,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber){
             return false;
          }
          temp = fSQL->GetField(0);
-         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data(),runNumber
+         if(!DecodeDBConstraint(path->GetTableNameAt(iTable),path->GetTableNameAt(iTable+1),temp.Data(),runNumber,eventNumber
                                 ,path->GetTableIDNameAt(iTable),path->GetTableIDXNameAt(iTable))){
             fSQL->FreeResult();
             return false;
@@ -419,7 +419,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    return true;
 }
 
-bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber){
+bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber){
    int iField,iOrder;
    int iLastOrder=0;
    int iArray,jArray;
@@ -430,14 +430,14 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    ROMEString sqlQuery;
    ROMEString orderField;
 
-   if (!path->Decode(dataBasePath,runNumber)) {
+   if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
    }
 
    this->ResetPhrase();
-   if(!MakePhrase(path,runNumber)){
+   if(!MakePhrase(path,runNumber,eventNumber)){
       cout<<"Invalid input for database read."<<endl;
       delete path;
       return false;
@@ -553,7 +553,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    return true;
 }
 
-bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber) {
+bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber) {
    int iField;
    int iOrder;
    ROMEPath *path = new ROMEPath();
@@ -565,7 +565,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    int istart;
    bool exist;
 
-   if (!path->Decode(dataBasePath,runNumber)) {
+   if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
       cout << "Path decode error : " << dataBasePath << endl;
       delete path;
       return false;
@@ -583,7 +583,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    }
 
    this->ResetPhrase();
-   if(!MakePhrase(path,runNumber)){
+   if(!MakePhrase(path,runNumber,eventNumber)){
       cout<<"Invalid input for database write."<<endl;
       delete path;
       return false;
