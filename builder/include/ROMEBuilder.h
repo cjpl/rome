@@ -43,8 +43,8 @@ const int maxNumberOfPathObjectInterpreterCodes = 10;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 
-const ROMEString ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
-const ROMEString cloSeparator = ":";
+const char* const ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
+const char* const cloSeparator = ":";
 
 class ROMEBuilder
 {
