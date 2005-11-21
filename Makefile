@@ -9,9 +9,7 @@
 INCLUDE = -g -D__ARGUS__ -Iinclude -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ -Ibuilder/include/ $(shell root-config --cflags)
 LIBRARY = $(shell root-config --libs)
 objects = obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEXML.o \
-          obj/ROMEBuilder.o obj/Builder.o obj/BuilderConfig.o \
-          obj/BuilderMonitor.o obj/BuilderTab.o obj/BuilderWindow.o \
-          obj/BuilderNetFolder.o
+          obj/ROMEBuilder.o obj/ArgusBuilder.o
 
 OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
 
@@ -72,33 +70,8 @@ obj/ROMEXML.o: $(ROMESYS)/src/ROMEXML.cpp  $(ROMESYS)/include/ROMEXML.h
 obj/ROMEBuilder.o: $(ROMESYS)/builder/src/ROMEBuilder.cpp $(ROMESYS)/builder/include/ROMEBuilder.h
 	g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $<
 
-obj/Builder.o: builder/src/Builder.cpp
-	@echo 'compiling obj/Builder.o...'
-	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
-	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
-
-obj/BuilderConfig.o: builder/src/BuilderConfig.cpp
-	@echo 'compiling obj/BuilderConfig.o...'
-	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
-	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
-
-obj/BuilderMonitor.o: builder/src/BuilderMonitor.cpp
-	@echo 'compiling obj/BuilderMonitor.o...'
-	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
-	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
-
-obj/BuilderTab.o: builder/src/BuilderTab.cpp
-	@echo 'compiling obj/BuilderTab.o...'
-	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
-	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
-
-obj/BuilderWindow.o: builder/src/BuilderWindow.cpp
-	@echo 'compiling obj/BuilderWindow.o...'
-	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
-	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
-
-obj/BuilderNetFolder.o: builder/src/BuilderNetFolder.cpp
-	@echo 'compiling obj/BuilderNetFolder.o...'
+obj/ArgusBuilder.o: builder/src/ArgusBuilder.cpp
+	@echo 'compiling obj/ArgusBuilder.o...'
 	@g++ $(CFLAGS)  $(INCLUDE) -c -g -o $@ $< \
 	|| (echo 'Sorry, compilation was failed. It might be fixed by updating ROME.' ; exit -1;)
 

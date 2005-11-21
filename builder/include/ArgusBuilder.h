@@ -28,7 +28,7 @@ const Int_t maxNumberOfMenuItems               =     50;
 const Int_t maxNumberOfThreadFunctions         =     10;
 const Int_t maxNumberOfThreadFunctionArguments =     10;
 const Int_t maxNumberOfNetFolders              =     10;
-const TString LINE_TITLE = "NoDayWithoutItsLine";
+const Char_t* const LINE_TITLE = "NoDayWithoutItsLine";
 
 class ArgusBuilder : public ROMEBuilder
 {
