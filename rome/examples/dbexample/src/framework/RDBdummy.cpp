@@ -13,12 +13,15 @@ bool RDBdummy::Init()
 
 bool RDBdummy::BeginOfRun()
 {
+   gAnalyzer->SetCurrentEventNumber(0);
+   this->SetAnalyze();
+   this->SetRunning();
    return true;
 }
 
 bool RDBdummy::Event(int event)
 {
-   SetEndOfRun();
+   gAnalyzer->SetCurrentEventNumber(event);
    return true;
 }
 

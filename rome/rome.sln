@@ -1,0 +1,21 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rome", "rome.vcproj", "{8F1D5CE5-5D3F-4B9C-852A-81A129EBF793}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{8F1D5CE5-5D3F-4B9C-852A-81A129EBF793}.Debug.ActiveCfg = Debug|Win32
+		{8F1D5CE5-5D3F-4B9C-852A-81A129EBF793}.Debug.Build.0 = Debug|Win32
+		{8F1D5CE5-5D3F-4B9C-852A-81A129EBF793}.Release.ActiveCfg = Release|Win32
+		{8F1D5CE5-5D3F-4B9C-852A-81A129EBF793}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

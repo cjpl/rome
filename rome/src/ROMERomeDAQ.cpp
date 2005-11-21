@@ -1,24 +1,24 @@
 // Author: Matthias Schneebeli
 //////////////////////////////////////////////////////////////////////////
 //
-//  ROMERome
+//  ROMERomeDAQ
 //
 //  Interface to the output of ROME.
 //
-//  $Id: ROMERome.cpp 680 2005-10-31 11:32:46Z ritt $
+//  $Id: ROMERomeDAQ.cpp 680 2005-10-31 11:32:46Z ritt $
 //
 //////////////////////////////////////////////////////////////////////////
 
 #include <TBranchElement.h>
-#include <ROMERome.h>
+#include <ROMERomeDAQ.h>
 
-ROMERome::ROMERome() {
+ROMERomeDAQ::ROMERomeDAQ() {
    fTreeInfo = new ROMETreeInfo();
    fTreeIndex = 0;
    fInputFileNameIndex = -1;
 }
 
-bool ROMERome::Init() {
+bool ROMERomeDAQ::Init() {
    if (gROME->isOnline()) {
       gROME->Println("Rome mode is not supported for online analysis.\n");
       return false;
@@ -43,7 +43,7 @@ bool ROMERome::Init() {
    }
    return true;
 }
-bool ROMERome::BeginOfRun() {
+bool ROMERomeDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       this->SetRunning();
       // Read Trees
@@ -168,7 +168,7 @@ bool ROMERome::BeginOfRun() {
    }
    return true;
 }
-bool ROMERome::Event(int event) {
+bool ROMERomeDAQ::Event(int event) {
    if (gROME->isOffline()) {
       ROMETree *romeTree;
       TTree *tree;
@@ -206,7 +206,7 @@ bool ROMERome::Event(int event) {
 
    return true;
 }
-bool ROMERome::EndOfRun() {
+bool ROMERomeDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       if (gROME->IsRunNumberBasedIO()) {
          for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
@@ -217,7 +217,7 @@ bool ROMERome::EndOfRun() {
    }
    return true;
 }
-bool ROMERome::Terminate() {
+bool ROMERomeDAQ::Terminate() {
    if (gROME->isOffline()) {
    }
    return true;

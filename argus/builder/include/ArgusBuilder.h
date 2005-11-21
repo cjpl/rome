@@ -32,6 +32,9 @@ const Char_t* const LINE_TITLE = "NoDayWithoutItsLine";
 
 class ArgusBuilder : public ROMEBuilder
 {
+protected:
+   ROMEString compileFormatTabs,compileFormatARGUS;
+   ROMEString dependFormatTabs,dependFormatARGUS;
 public:
    ROMEString   argusVersion;
    
