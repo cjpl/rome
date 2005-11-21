@@ -1,16 +1,16 @@
 /********************************************************************
-  ROMERome.h, M. Schneebeli PSI
+  ROMERomeDAQ.h, M. Schneebeli PSI
 
-  $Id: ROMERome.h 480 2005-10-17 12:12:54Z schneebeli_m $
+  $Id: ROMERomeDAQ.h 480 2005-10-17 12:12:54Z schneebeli_m $
 
 ********************************************************************/
-#ifndef ROMERome_H
-#define ROMERome_H
+#ifndef ROMERomeDAQ_H
+#define ROMERomeDAQ_H
 
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
 
-class ROMERome : public ROMEDAQSystem {
+class ROMERomeDAQ : public ROMEDAQSystem {
 protected:
    TFile**       fRootFiles;                       //! Input Root files
    int           fTreeIndex;                       //! Index of tree in current file
@@ -25,8 +25,8 @@ protected:
    int           fTimeStamp;                       //! Current time stamp
 
 public:
-   ROMERome();
-   virtual ~ROMERome() {};
+   ROMERomeDAQ();
+   virtual ~ROMERomeDAQ() {};
 
    int   GetTimeStamp() { return fTimeStamp; };
    const char* GetName() { return "rome"; };
@@ -41,4 +41,4 @@ public:
 
 };
 
-#endif   // ROMERome_H
+#endif   // ROMERomeDAQ_H

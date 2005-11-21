@@ -48,6 +48,10 @@ const char* const cloSeparator = ":";
 
 class ROMEBuilder
 {
+protected:
+   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatRANY,compileFormatAny;
+   ROMEString dependFormatFrame,dependFormatFramF,dependFormatTasks,dependFormatTaskF,dependFormatBlank,dependFormatROME,dependFormatRANY,dependFormatAny;
+   bool haveFortranTask;
 public:
    ROMEString romeVersion;
 
@@ -261,7 +265,7 @@ protected:
    ROMEString daqDep;
 
 public:
-   ROMEBuilder() {};
+   ROMEBuilder() { haveFortranTask = false; };
    virtual ~ROMEBuilder() {};
 
    bool ReadXMLFolder();
@@ -297,10 +301,10 @@ public:
    bool WriteAnalyzerF();
    bool WriteConfigCpp();
    bool WriteConfigH();
-   bool WriteMidasCpp();
-   bool WriteMidasH();
-   bool WriteRomeCpp();
-   bool WriteRomeH();
+   bool WriteMidasDAQCpp();
+   bool WriteMidasDAQH();
+   bool WriteRomeDAQCpp();
+   bool WriteRomeDAQH();
    bool WriteDAQCpp();
    bool WriteDAQH();
    bool WriteDBCpp();
@@ -316,6 +320,19 @@ public:
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
+   void WriteROMEBaseObjects(ROMEString& buffer);
+   void WriteROMEAdditionalObjects(ROMEString& buffer);
+   void WriteFolderObjects(ROMEString& buffer);
+   void WriteTaskObjects(ROMEString& buffer);
+   void WriteFrameWorkBaseObjects(ROMEString& buffer);
+   void WriteFrameWorkAdditionalObjects(ROMEString& buffer);
+   void WriteDefineFormats(ROMEString& buffer);
+   void WriteROMEBaseCompileStatements(ROMEString& buffer);
+   void WriteROMEAdditionalCompileStatements(ROMEString& buffer);
+   void WriteFolderCompileStatements(ROMEString& buffer);
+   void WriteTaskCompileStatements(ROMEString& buffer);
+   void WriteFrameWorkBaseCompileStatements(ROMEString& buffer);
+   void WriteFrameWorkAdditionalCompileStatements(ROMEString& buffer);
    void WriteROMEDictionary(ROMEString& buffer);
    void WriteFrameworkDictionary(ROMEString& buffer);
    void WriteFolderDictionary(ROMEString& buffer);

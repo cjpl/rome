@@ -31,15 +31,22 @@ void RDBTPrintFolders::Init()
 
 void RDBTPrintFolders::BeginOfRun()
 {
+}
+
+void RDBTPrintFolders::Event()
+{
    cout<<" --------------- SingleFolder  ---------------"<<endl;
    cout<<"RunNumber :"<<gAnalyzer->GetCurrentRunNumber()<<endl;
    cout<<"bbb       :"<<gAnalyzer->GetSingleFolder()->Getbbb()<<endl<<endl;
    cout<<"ggg       :"<<gAnalyzer->GetSingleFolder()->Getggg()<<endl<<endl;
    Int_t i,j;
+   cout << "1" << endl;
    for(i=0;i<gAnalyzer->GetSingleFolder()->Getbbb();i++){
       cout<<" -------------- ArrayFolder("<<i<<")  --------------"<<endl;
+   cout << i<<" "<<gAnalyzer->GetArrayFolderAt(i) << endl;
       cout<<"ccc1      :"<<gAnalyzer->GetArrayFolderAt(i)->Getccc1()<<endl;
       cout<<"ccc2      :"<<gAnalyzer->GetArrayFolderAt(i)->Getccc2()<<endl;
+   cout << "13" << endl;
       cout<<"ccc3      :"<<gAnalyzer->GetArrayFolderAt(i)->Getccc3()<<endl;
       for(j=0;j<4;j++)
          cout<<"ddd("<<j<<")    :"<<gAnalyzer->GetArrayFolderAt(i)->GetdddAt(j)<<endl;
@@ -47,35 +54,6 @@ void RDBTPrintFolders::BeginOfRun()
       cout<<"jjj2      :"<<gAnalyzer->GetArrayFolderAt(i)->Getjjj2()<<endl;
    }
 
-//Writing test
-   TTimeStamp now;
-   now.Set();
-   ROMEString value;
-   value.SetFormatted("%d",now.GetSec());
-   Int_t iDB;
-   ROMEStr2DArray* values = new ROMEStr2DArray(1,1);
-   ROMEString path;
-   path.SetFormatted("/TTT[id=%d]/ttt",gAnalyzer->GetCurrentRunNumber()+2);
-   for(iDB=0;iDB<gAnalyzer->GetNumberOfDataBases();iDB++){
-      if(!strcmp(gAnalyzer->GetDataBase(iDB)->GetName(),"mydatabase")){
-         values->SetAt(value,0,0);
-         gAnalyzer->GetDataBase(iDB)->Write(values,path.Data(),gAnalyzer->GetCurrentRunNumber());
-         break;
-      }
-   }
-   now.Set(0,0,0,0);
-   for(iDB=0;iDB<gAnalyzer->GetNumberOfDataBases();iDB++){
-      if(!strcmp(gAnalyzer->GetDataBase(iDB)->GetName(),"mydatabase")){
-         gAnalyzer->GetDataBase(iDB)->Read(values,path.Data(),gAnalyzer->GetCurrentRunNumber());
-         break;
-      }
-   }
-   now.Set(atoi(values->At(0,0).Data()),0,0,0);
-   now.Print();
-}
-
-void RDBTPrintFolders::Event()
-{
 }
 
 void RDBTPrintFolders::EndOfRun()
