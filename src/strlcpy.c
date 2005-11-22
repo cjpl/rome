@@ -6,7 +6,7 @@
    Contents:     Contains strlcpy and strlcat which are versions of
                  strcpy and strcat, but which avoid buffer overflows
 
-  $Id:$
+   $Id$
 
 \********************************************************************/
 

@@ -5,11 +5,12 @@
 
    Contents:     Header file for mxml.c
 
-  $Id$
+   $Id$
 
 \********************************************************************/
 
 /*------------------------------------------------------------------*/
+
 #define MXML_NAME_LENGTH 64
 
 #define ELEMENT_NODE                  1
@@ -21,6 +22,8 @@
 #define INTERNAL_ENTITY               0
 #define EXTERNAL_ENTITY               1
 #define MXML_MAX_ENTITY             500
+
+#define MXML_MAX_CONDITION           10
 
 #ifdef _MSC_VER
 #define DIR_SEPARATOR              '\\'
@@ -34,8 +37,8 @@ typedef struct {
    int  buffer_size;
    int  buffer_len;
    int  level;
-   int element_is_open;
-   int data_was_written;
+   int  element_is_open;
+   int  data_was_written;
    char **stack;
    int  translate;
 } MXML_WRITER;
@@ -57,12 +60,25 @@ typedef struct mxml_struct {
 
 /*------------------------------------------------------------------*/
 
+/* make functions callable from a C++ program */
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifndef EXPRT
+#if defined(EXPORT_DLL)
+#define EXPRT __declspec(dllexport)
+#else
+#define EXPRT
+#endif
+#endif
+
 MXML_WRITER *mxml_open_file(const char *file_name);
-MXML_WRITER *mxml_open_buffer(void);
+MXML_WRITER *mxml_open_buffer(void); 
 int mxml_set_translate(MXML_WRITER *writer, int flag);
 int mxml_start_element(MXML_WRITER *writer, const char *name);
 int mxml_start_element_noindent(MXML_WRITER *writer, const char *name);
-int mxml_end_element(MXML_WRITER *writer);
+int mxml_end_element(MXML_WRITER *writer); 
 int mxml_write_comment(MXML_WRITER *writer, const char *string);
 int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *value);
 int mxml_write_value(MXML_WRITER *writer, const char *value);
@@ -106,4 +122,9 @@ void mxml_free_tree(PMXML_NODE tree);
 
 void mxml_dirname(char* path);
 void mxml_basename(char *path);
+
+#ifdef __cplusplus
+}
+#endif
+
 /*------------------------------------------------------------------*/

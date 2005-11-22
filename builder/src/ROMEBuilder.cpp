@@ -7793,7 +7793,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,int numFolder,int t
    }
    if (type==2)
       buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   int j;\n");
+   buffer.AppendFormatted("   int j=0;\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);

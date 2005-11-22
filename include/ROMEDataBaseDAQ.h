@@ -20,7 +20,7 @@ public:
    virtual ~ROMEDataBaseDAQ() {};
 
    int   GetTimeStamp() { return fTimeStamp; };
-   const char* GetName() { return "rome"; };
+   const char* GetName() { return "database"; };
 
    bool Init();
    bool BeginOfRun();

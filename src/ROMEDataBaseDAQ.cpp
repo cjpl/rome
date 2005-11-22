@@ -21,12 +21,13 @@ bool ROMEDataBaseDAQ::Init() {
       return false;
    }
    if (gROME->isOffline()) {
+      gROME->SetEventBasedDataBase();
    }
    return true;
 }
 bool ROMEDataBaseDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
-      gROME->SetCurrentEventNumber(0);
+      gROME->SetCurrentEventNumber(1);
       this->SetAnalyze();
       this->SetRunning();
    }
