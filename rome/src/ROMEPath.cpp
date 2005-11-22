@@ -93,13 +93,13 @@ bool ROMEPath::Decode(const char* dataBasePath,int runNumber,int eventNumber)
    ROMEString originalPath;
    ROMEString orderPath;
    ROMEString path = dataBasePath;
-   // replace # with the current run number
-   tmpString.SetFormatted("%d",runNumber);
-   path.ReplaceAll("#",tmpString);
    // replace ## with the current run number
    tmpString.SetFormatted("%d",eventNumber);
    path.ReplaceAll("##",tmpString);
    originalPath = path;
+   // replace # with the current run number
+   tmpString.SetFormatted("%d",runNumber);
+   path.ReplaceAll("#",tmpString);
    // check path
    if (path.Length()<=0) {
       cout << "\nInvalid path." << endl;
