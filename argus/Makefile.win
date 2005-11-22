@@ -45,7 +45,7 @@ obj/main.obj: Builder/src/main.cpp Builder/include/ArgusBuilder.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
 
 obj/ArgusBuilder.obj: Builder/src/ArgusBuilder.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/ArgusBuilder.cpp /Foobj/Builder.obj
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ArgusBuilder.cpp /Foobj/ArgusBuilder.obj
 
 obj/ROMEBuilder.obj: $(ROMESYS)/Builder/src/ROMEBuilder.cpp $(ROMESYS)/Builder/include/ROMEBuilder.h $(ROMESYS)/include/ROMEXML.h $(ROMESYS)/include/ROMEString.h
 	@cl /nologo /c $(Flags) $(Includes) $(ROMESYS)/Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
