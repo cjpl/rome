@@ -329,6 +329,7 @@ public:
    void WriteTaskObjects(ROMEString& buffer);
    void WriteFrameWorkBaseObjects(ROMEString& buffer);
    void WriteFrameWorkAdditionalObjects(ROMEString& buffer);
+   void WriteUserDictObject(ROMEString& buffer);
    void WriteDefineFormats(ROMEString& buffer);
    void WriteROMEBaseCompileStatements(ROMEString& buffer);
    void WriteROMEAdditionalCompileStatements(ROMEString& buffer);

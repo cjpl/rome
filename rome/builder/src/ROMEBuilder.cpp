@@ -9475,6 +9475,8 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
 
+   WriteUserDictObject(buffer);
+
 // make obj
    buffer.AppendFormatted("obj:\n");
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -9648,6 +9650,13 @@ void ROMEBuilder::WriteFrameWorkBaseObjects(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
    WriteAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n");
+}
+void ROMEBuilder::WriteFrameWorkAdditionalObjects(ROMEString& buffer) {
+   buffer.AppendFormatted("objects %s $(objects)",EqualSign());
+   buffer.AppendFormatted(" obj/%sEventLoop.obj",shortCut.Data());
+   buffer.AppendFormatted("\n");
+}
+void ROMEBuilder::WriteUserDictObject(ROMEString& buffer) {
 #if defined( R__UNIX )
    if (numOfMFDictHeaders==0) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
@@ -9660,11 +9669,6 @@ void ROMEBuilder::WriteFrameWorkBaseObjects(ROMEString& buffer) {
 #else
    buffer.AppendFormatted("objects = $(objects) obj/%sUserDict.obj\n",shortCut.Data());
 #endif // R__UNIX
-   buffer.AppendFormatted("\n");
-}
-void ROMEBuilder::WriteFrameWorkAdditionalObjects(ROMEString& buffer) {
-   buffer.AppendFormatted("objects %s $(objects)",EqualSign());
-   buffer.AppendFormatted(" obj/%sEventLoop.obj",shortCut.Data());
    buffer.AppendFormatted("\n");
 }
 void ROMEBuilder::WriteDefineFormats(ROMEString& buffer) {

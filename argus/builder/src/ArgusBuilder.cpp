@@ -757,6 +757,8 @@ void ArgusBuilder::WriteMakefile()
 #endif
    buffer.AppendFormatted("\n");
 
+   WriteUserDictObject(buffer);
+
    // make obj
    buffer.AppendFormatted("obj:\n");
 #if defined( R__VISUAL_CPLUSPLUS )
