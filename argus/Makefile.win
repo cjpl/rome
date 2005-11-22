@@ -16,7 +16,7 @@ Includes = /D__ARGUS__ $(ARGUSINCLUDES) $(ROMEINCLUDES) $(ROOTINCLUDES)
 Libraries = $(ROOTSYS)/lib/libCore.lib
 Flags = /GX /GR 
 
-ARGUSObjects = obj/main.obj obj/Builder.obj obj/BuilderConfig.obj obj/BuilderTab.obj obj/BuilderNetFolder.obj obj/BuilderWindow.obj obj/BuilderMonitor.obj
+ARGUSObjects = obj/main.obj obj/ArgusBuilder.obj
 ROMEObjects = obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj obj/ROMEBuilder.obj
 Objects = $(ARGUSObjects) $(ROMEObjects)
 
@@ -44,23 +44,8 @@ ARGUSBuilder.exe: $(Objects)
 obj/main.obj: Builder/src/main.cpp Builder/include/ArgusBuilder.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
 
-obj/Builder.obj: Builder/src/Builder.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/Builder.cpp /Foobj/Builder.obj
-
-obj/BuilderConfig.obj: Builder/src/BuilderConfig.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/BuilderConfig.cpp /Foobj/BuilderConfig.obj
-
-obj/BuilderTab.obj: Builder/src/BuilderTab.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/BuilderTab.cpp /Foobj/BuilderTab.obj
-
-obj/BuilderNetFolder.obj: Builder/src/BuilderNetFolder.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/BuilderNetFolder.cpp /Foobj/BuilderNetFolder.obj
-
-obj/BuilderWindow.obj: Builder/src/BuilderWindow.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/BuilderWindow.cpp /Foobj/BuilderWindow.obj
-
-obj/BuilderMonitor.obj: Builder/src/BuilderMonitor.cpp Builder/include/ArgusBuilder.h
-	@cl /nologo /c $(Flags) $(Includes) Builder/src/BuilderMonitor.cpp /Foobj/BuilderMonitor.obj
+obj/ArgusBuilder.obj: Builder/src/ArgusBuilder.cpp Builder/include/ArgusBuilder.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ArgusBuilder.cpp /Foobj/Builder.obj
 
 obj/ROMEBuilder.obj: $(ROMESYS)/Builder/src/ROMEBuilder.cpp $(ROMESYS)/Builder/include/ROMEBuilder.h $(ROMESYS)/include/ROMEXML.h $(ROMESYS)/include/ROMEString.h
 	@cl /nologo /c $(Flags) $(Includes) $(ROMESYS)/Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
