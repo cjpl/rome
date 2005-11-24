@@ -8740,6 +8740,7 @@ void ROMEBuilder::StartBuilder()
 
    char* name;
    bool finished = false;
+   bool inputok = false;
    int type;
    int i,j;
 
@@ -8776,6 +8777,7 @@ void ROMEBuilder::StartBuilder()
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp((const char*)name,"ROMEFrameworkDefinition")) {
+         inputok = true;
          while (xml->NextLine()&&!finished) {
             type = xml->GetType();
             name = xml->GetName();
@@ -9009,6 +9011,11 @@ void ROMEBuilder::StartBuilder()
             }
          }
       }
+   }
+   if (!inputok) {
+      cout << "\nCould not find the <ROMEFrameworkDefinition> tag in the inputfile '"<< xmlFile.Data() << "'." << endl;
+      cout << "Terminating ROMEBuilder." << endl;
+      return;
    }
    // test for fortran
    for (i=0;i<numOfTask;i++) {
