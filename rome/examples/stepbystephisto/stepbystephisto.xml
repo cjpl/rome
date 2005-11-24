@@ -1,0 +1,46 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>XYZ</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>PMTData</FolderName>
+			<Field>
+				<FieldName>ADC</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>ADC Value of a PMT</FieldComment>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>PrintADCValues</TaskName>
+			<Histogram>
+				<HistName>ADC</HistName>
+				<HistFolderName>adc</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistXLabel>ADC []</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>0</HistXmin>
+				<HistXmax>100</HistXmax>
+			</Histogram>
+		</Task>
+	</Tasks>
+	<Trees>
+		<Tree>
+			<TreeName>DataTree</TreeName>
+			<Branch>
+				<BranchName>PMTDataBranch</BranchName>
+				<RelatedFolder>PMTData</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
+	<GlobalSteeringParameters>
+		<SteeringParameterField>
+			<SPFieldName>OutputOnOff</SPFieldName>
+			<SPFieldType>bool</SPFieldType>
+		</SteeringParameterField>
+	</GlobalSteeringParameters>
+</ROMEFrameworkDefinition>
