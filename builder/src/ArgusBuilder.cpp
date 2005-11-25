@@ -67,6 +67,8 @@ Bool_t ArgusBuilder::WriteMain()
 //______________________________________________________________________________
 void ArgusBuilder::StartBuilder()
 {
+   bool inputok = false;
+
    xml = new ROMEXML();
    Char_t *name;
    Bool_t finished = kFALSE;
@@ -106,6 +108,7 @@ void ArgusBuilder::StartBuilder()
       type = xml->GetType();
       name = xml->GetName();
       if (type == 1 && !strcmp(name, "ArgusMonitorDefinition")) {
+         inputok = true;
          while (xml->NextLine() && !finished) {
             type = xml->GetType();
             name = xml->GetName();
@@ -322,6 +325,11 @@ void ArgusBuilder::StartBuilder()
       }
    }
 
+   if (!inputok) {
+      cout << "\nCould not find the <ArgusMonitorDefinition> tag in the inputfile '"<< xmlFile.Data() << "'." << endl;
+      cout << "Terminating the ArgusBuilder." << endl;
+      return;
+   }
    if (makeOutput)
       cout << "\n\nFramework:" << endl;
    if (makeOutput)
