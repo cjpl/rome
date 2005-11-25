@@ -9014,7 +9014,7 @@ void ROMEBuilder::StartBuilder()
    }
    if (!inputok) {
       cout << "\nCould not find the <ROMEFrameworkDefinition> tag in the inputfile '"<< xmlFile.Data() << "'." << endl;
-      cout << "Terminating ROMEBuilder." << endl;
+      cout << "Terminating the ROMEBuilder." << endl;
       return;
    }
    // test for fortran
