@@ -173,11 +173,22 @@ bool ROMERomeDAQ::Event(int event) {
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
+      bool endfound = true;
       // read event
       for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
+            while (fTreeNextSeqNumber[j]<event) {
+               fTreePosition[j]++;
+               if (tree->GetEntriesFast()>fTreePosition[j]) {
+                  tree->GetBranch("Info")->GetEntry(fTreePosition[j]);
+                  fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
+               }
+               else {
+                  fTreeNextSeqNumber[j] = -1;
+               }
+            }
             if (fTreeNextSeqNumber[j]==event) {
                found = true;
                if (tree->GetEntriesFast()>fTreePosition[j]+1) {
@@ -198,8 +209,19 @@ bool ROMERomeDAQ::Event(int event) {
             }
          }
       }
-      if (!found) {
+      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+         romeTree = gROME->GetTreeObjectAt(j);
+         tree = romeTree->GetTree();
+         if (romeTree->isRead())
+            if (fTreeNextSeqNumber[j] != -1)
+               endfound = false;
+      }
+      if (endfound) {
          this->SetEndOfRun();
+         return true;
+      }
+      if (!found) {
+         this->SetContinue();
          return true;
       }
    }

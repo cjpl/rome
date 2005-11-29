@@ -57,6 +57,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
 #include <TBrowser.h>
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
+   bool firstUserInput = true;
    ROMEString text;
    if (!strcmp(option,"init")) {
       this->InitTrees();
@@ -137,17 +138,33 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       // Loop over Events
       //------------------
+      firstUserInput = true;
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
+         if (gROME->isOffline()) {
+            // check event numbers
+            int status = gROME->CheckEventNumber(i);
+            if (status==0) {
+               continue;
+            }
+            if (status==-1) {
+               this->SetStopped();
+               break;
+            }
+         }
+
          // User Input
-         if (!this->UserInput()) {
-            this->DAQTerminate();
-            gROME->SetTerminationFlag();
-            gROME->Println("\n\nTerminating Program !");
-            return;
+         if (!firstUserInput) {
+            if (!this->UserInput()) {
+               this->DAQTerminate();
+               gROME->SetTerminationFlag();
+               gROME->Println("\n\nTerminating Program !");
+               return;
+            }
+            if (this->isTerminate()) {
+               break;
+            }
          }
-         if (this->isTerminate()) {
-            break;
-         }
+         firstUserInput = false;
 
          // Set Fill Event equal true
          gROME->SetFillEvent();
@@ -413,18 +430,6 @@ bool ROMEEventLoop::DAQEvent(Int_t event) {
       gROME->SetDontReadNextEvent(false);
       return true;
    }
-   if (gROME->isOffline()) {
-      // check event numbers
-      int status = gROME->CheckEventNumber(event);
-      if (status==0) {
-         this->SetContinue();
-         return true;
-      }
-      if (status==-1) {
-         this->SetEndOfRun();
-         return true;
-      }
-   }
 
    if (!gROME->GetActiveDAQ()->Event(event))
       return false;
@@ -603,7 +608,6 @@ bool ROMEEventLoop::UserInput()
          }
          if (ch == 'i' || gROME->IsUserEventI()) {
             interpreter = true;
-            wait = false;
          }
          gROME->DeleteUserEvent();
       }
