@@ -82,7 +82,7 @@ bool ROMEMidasDAQ::Init() {
       cm_msg_register(ProcessMessage);
 
       // turn off watchdog if in debug mode
-#ifdef MIDAS_DEBUG
+#if defined( MIDAS_DEBUG )
       cm_set_watchdog_params(TRUE, 0);
 #endif
 
@@ -289,7 +289,7 @@ bool ROMEMidasDAQ::Event(int event) {
       gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
       gROME->SetEventID(((EVENT_HEADER*)mEvent)->event_id);
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
-#ifndef R__BYTESWAP
+#if !defined( R__BYTESWAP )
       //byte swapping
       if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
          ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
@@ -313,7 +313,7 @@ bool ROMEMidasDAQ::Event(int event) {
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
       if (n < (int)sizeof(EVENT_HEADER)) readError = true;
       else {
-#ifndef R__BYTESWAP
+#if !defined( R__BYTESWAP )
          //byte swapping
          ByteSwap((UShort_t *)&pevent->event_id);
          ByteSwap((UShort_t *)&pevent->trigger_mask);
@@ -356,7 +356,7 @@ bool ROMEMidasDAQ::Event(int event) {
          this->SetEndOfRun();
          return true;
       }
-#ifndef R__BYTESWAP
+#if !defined( R__BYTESWAP )
       //byte swapping
       if(pevent->event_id != EVENTID_BOR &&
          pevent->event_id != EVENTID_EOR &&
@@ -398,8 +398,8 @@ bool ROMEMidasDAQ::Terminate() {
 }
 
 
-#ifndef R__BYTESWAP
-#   ifndef HAVE_MIDAS
+#if !defined( R__BYTESWAP )
+#   if !defined( HAVE_MIDAS )
 /**
 Swaps bytes from little endian to big endian or vice versa for a whole event.
 
@@ -542,7 +542,7 @@ void ROMEMidasDAQ::ByteSwap(ULong64_t *x) {
 }
 */
 #endif
-#ifndef HAVE_MIDAS
+#if !defined( HAVE_MIDAS )
 bool ROMEMidasDAQ::bk_is32(void *event)
 {
    return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);

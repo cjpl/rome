@@ -158,6 +158,9 @@ protected:
    // Event Based Data Base
    bool          fEventBasedDataBase;              //! Flag for Event Based Data Base
 
+   // stream
+   streambuf    *fOldbuf;                          //! original buffer of stdout
+
 public:
    ROMEAnalyzer() {};
    ROMEAnalyzer(TApplication *app);
@@ -420,6 +423,8 @@ public:
 
    int  stricmp(const char*,const char*);
    bool toBool(int value);
+   void redirectOutput();
+   void restoreOutput();
 protected:
 
    bool CreateHistoFolders(TList *,TFolder *);
@@ -431,7 +436,6 @@ protected:
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
-   virtual void redirectOutput() = 0;
 
    ClassDef(ROMEAnalyzer,0)
 };

@@ -527,20 +527,20 @@ void ArgusBuilder::WriteMakefile()
 #if defined( R__ALPHA )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lc -lbsd\n");
-#elif defined ( R__SGI )
+#elif defined( R__SGI )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs :=\n");
-#elif defined ( R__FBSD )
+#elif defined( R__FBSD )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lbsd -lcompat\n");
-#elif defined ( R__MACOSX )
+#elif defined( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
-#elif defined ( R__LINUX )
+#elif defined( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
-#elif defined ( R__SOLARIS )
+#elif defined( R__SOLARIS )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lsocket -lnsl\n");
 #else
@@ -552,19 +552,19 @@ void ArgusBuilder::WriteMakefile()
 #if defined( R__ALPHA )
       buffer.AppendFormatted("midascflags := -DOSF1 -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/osf1/lib -lmidas\n");
-#elif defined ( R__SGI )
+#elif defined( R__SGI )
       buffer.AppendFormatted("midascflags := -DOS_ULTRIX -DNO_PTY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/ultrix/lib -lmidas\n");
-#elif defined ( R__FBSD )
+#elif defined( R__FBSD )
       buffer.AppendFormatted("midascflags := -DOS_FREEBSD -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/freeBSD/lib -lmidas\n");
-#elif defined ( R__MACOSX )
+#elif defined( R__MACOSX )
       buffer.AppendFormatted("midascflags := -DOS_LINUX -DOS_DARWIN -DHAVE_STRLCPY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib -lmidas\n");
-#elif defined ( R__LINUX )
+#elif defined( R__LINUX )
       buffer.AppendFormatted("midascflags := -DOS_LINUX -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib -lmidas\n");
-#elif defined ( R__SOLARIS )
+#elif defined( R__SOLARIS )
       buffer.AppendFormatted("midascflags := -DOS_SOLARIS -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/solaris/lib -lmidas\n");
 #else
@@ -904,7 +904,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\t");
 #endif
    buffer.AppendFormatted("$(ARGUSSYS)/bin/argusbuilder");
-#if defined ( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe");
 #endif
    buffer.AppendFormatted(" -i %s -o .", xmlbasename.Data());
@@ -928,7 +928,7 @@ void ArgusBuilder::WriteMakefile()
 #if defined( R__UNIX )
    makeFile = "Makefile";
 #endif
-#if defined ( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
 #endif
    WriteFile(makeFile.Data(), buffer.Data(), 0);
@@ -1364,7 +1364,7 @@ void ArgusBuilder::GetMidasTID(ROMEString *buf, Char_t *type)
       buf->Append("TID_FLOAT"); //< 4 Byte float format
    else if (!strcmp(type, "Double_t") || !strcmp(type, "Double32_t") || !strcmp(type, "double"))
       buf->Append("TID_DOUBLE");        //< 8 Byte float format
-#if defined ( R__B64 )          // Note: Long_t and ULong_t are currently not portable types
+#if defined( R__B64 )          // Note: Long_t and ULong_t are currently not portable types
    else if (!strcmp(type, "Long_t") || !strcmp(type, "ULong_t")) {
       cout << "WARNING: Long_t and ULong_t is not supported on this architecture." << endl;
       buf->Append("TID_DOUBLE");        //< 8 Byte float format
@@ -1530,9 +1530,9 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sMonitor *gMonitor;  // global Monitor Handle\n", shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <windows.h>\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("\n");
 
    // Constructor
@@ -2257,9 +2257,8 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("   ROMEDataBase* GetXMLDataBase() { return GetDataBase(\"XML\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetTextDataBase() { return GetDataBase(\"TEXT\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetODBDataBase() { return GetDataBase(\"ODB\"); };\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql)
+      buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
    for (i = 0; i < numOfDB; i++) {
       buffer.AppendFormatted("   ROMEDataBase* Get%sDataBase() { return GetDataBase(\"%s\"); };\n", dbName[i].Data(), dbName[i].Data());
    }
@@ -2464,15 +2463,14 @@ Bool_t ArgusBuilder::WriteWindowCpp()
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TGMsgBox.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <ArgusTextDialog.h>\n");
    buffer.AppendFormatted("#include \"include/framework/%sWindow.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());
@@ -3413,18 +3411,17 @@ Bool_t ArgusBuilder::WriteTabH()
       // Header
       buffer.AppendFormatted("#ifndef %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("#include <RConfig.h>\n");
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TGFrame.h>\n");
       buffer.AppendFormatted("#include <TGMenu.h>\n");
       buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include <TThread.h>\n");
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
       buffer.AppendFormatted("   void*  inst;\n");
@@ -3855,17 +3852,15 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("#include <ROMENoDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
-   buffer.AppendFormatted("#ifdef HAVE_SQL\n");
-   buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql)
+      buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    buffer.AppendFormatted("#include \"include/framework/%sConfig.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/framework/%sMonitor.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/framework/%sWindow.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sMidasDAQ.h>\n", shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRomeDAQ.h>\n", shortCut.Data());
-   buffer.AppendFormatted("#if defined( HAVE_ORCA )\n");
-   buffer.AppendFormatted("#include <ROMEOrcaDAQ.h>\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->orca)
+      buffer.AppendFormatted("#include <ROMEOrcaDAQ.h>\n");
    buffer.AppendFormatted("#include <ROMENoDAQSystem.h>\n");
    for (i = 0; i < numOfDAQ; i++)
       buffer.AppendFormatted("#include <include/framework/%s%s.h>\n", shortCut.Data(), daqName[i].Data());
@@ -4412,14 +4407,15 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    buffer.AppendFormatted("         }\n");
    buffer.AppendFormatted("         if (fConfigData[modIndex]->fDataBase[i]->fTypeModified) {\n");
    buffer.AppendFormatted("            if (fConfigData[index]->fDataBase[i]->fType==\"sql\") {\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("               gMonitor->SetDataBase(i,new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gMonitor->GetDataBaseConnection(i)))\n");
-   buffer.AppendFormatted("                  return kFALSE;\n");
-   buffer.AppendFormatted("#else\n");
-   buffer.AppendFormatted("                  cout<<gMonitor->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
-   buffer.AppendFormatted("                  return kFALSE;\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql) {
+      buffer.AppendFormatted("               gMonitor->SetDataBase(i,new ROMESQLDataBase());\n");
+      buffer.AppendFormatted("               if (!gMonitor->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gMonitor->GetDataBaseConnection(i)))\n");
+      buffer.AppendFormatted("                  return kFALSE;\n");
+   }
+   else {
+      buffer.AppendFormatted("                  cout<<gMonitor->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
+      buffer.AppendFormatted("                  return kFALSE;\n");
+   }
    buffer.AppendFormatted("            }\n");
    buffer.AppendFormatted("            else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
    buffer.AppendFormatted("                     fConfigData[index]->fDataBase[i]->fType==\"\") {\n");

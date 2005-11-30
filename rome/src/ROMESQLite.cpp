@@ -5,7 +5,7 @@
 //                                                                      //
 //  Provides SQL data base access.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQLite.h>
@@ -51,7 +51,7 @@ bool ROMESQLite::DisConnect()
 
 bool ROMESQLite::MakeQuery(const char* query, bool store)
 {
-#ifdef SQLDEBUG
+#if defined( SQLDEBUG )
    cout<<endl<<"ROMESQLite::MakeQuery : "<<query<<endl;
 #endif
    if(store){

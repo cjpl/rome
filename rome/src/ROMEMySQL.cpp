@@ -5,7 +5,7 @@
 //                                                                      //
 //  Provides MySQL data base access.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEMySQL.h>
@@ -35,7 +35,7 @@ bool ROMEMySQL::DisConnect()
 
 bool ROMEMySQL::MakeQuery(const char* query, bool store)
 {
-#ifdef SQLDEBUG
+#if defined( SQLDEBUG )
    cout<<endl<<"ROMEMySQL::MakeQuery : "<<query<<endl;
 #endif
    if (mysql_query(&mysql,query)) {

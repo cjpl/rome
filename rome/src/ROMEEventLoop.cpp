@@ -31,7 +31,7 @@
 #include <fcntl.h>
 #include <time.h>
 
-#ifdef HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 #   include <midas.h>
 #endif
 

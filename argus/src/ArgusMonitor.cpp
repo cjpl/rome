@@ -6,7 +6,7 @@
 ********************************************************************/
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#ifndef __CINT__
+#if !defined( __CINT__ )
 #include <Windows4Root.h>
 #include <conio.h>
 #endif
@@ -23,7 +23,7 @@
 #include <sys/select.h>
 #include <sys/socket.h>
 #include <TThread.h>
-#ifndef R__MACOSX
+#if !defined( R__MACOSX )
 #include <sys/io.h>
 #endif
 #endif
@@ -85,7 +85,7 @@ Bool_t ArgusMonitor::Start(Int_t argc, Char_t **argv)
       cout << "\nCannot connect to experiment" << endl;
       return kFALSE;
    }
-#ifdef MIDAS_DEBUG
+#if defined( MIDAS_DEBUG )
    cm_set_watchdog_params(TRUE, 0);
 #endif
    // Connect to the online database
