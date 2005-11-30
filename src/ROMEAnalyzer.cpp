@@ -112,6 +112,8 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fUserEventG = false;
    fUserEventI = false;
    fShowRunStat = true;
+   fInputDir = "./";
+   fOutputDir = "./";
    fOldbuf = 0;
 }
 
@@ -123,8 +125,6 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
-   int i;
-   bool batch = false;
    ROMEString text;
 
 #if defined( HAVE_MIDAS )
@@ -133,23 +133,14 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    gROME = (ROMEAnalyzer*)gPassToROME;
 
-   for (i=1;i<argc;i++) {
-      if (!strcmp(argv[i],"-b")){
-         batch = true;
-         break;
-      }
-   }
-   if(!batch)
-      gROME->ss_getchar(0);
-
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
 
-   if (this->isBatchMode()){
+   if (this->isBatchMode())
       redirectOutput();
-      gROME->ss_getchar(1);
-   }
+   else
+      gROME->ss_getchar(0);
 
    consoleStartScreen();
 
@@ -238,8 +229,6 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
-   this->SetInputDir("./");
-   this->SetOutputDir("./");
 
    ROMEString configFile("romeConfig.xml");
 
@@ -265,11 +254,13 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       gROME->Print(configFile.Data());
       gROME->Println("' not found.");
       gROME->Printfl("Do you like the framework to generate a new configuration file ([y]/n) ? ");
+      gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
             answer = this->ss_getchar(0);
          }
       }
+      gROME->ss_getchar(1);
       if (answer!='n') {
          if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
             gROME->Println("\nTerminate program.\n");
