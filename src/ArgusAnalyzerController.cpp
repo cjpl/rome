@@ -20,7 +20,7 @@ ClassImp(ArgusAnalyzerController)
    fEventStep = 1;
    fEventInterval = 5;
 
-#ifndef DEBUG
+#if !defined( DEBUG )
    if (!fNetFolder->fSocket || !fNetFolder->fSocket->IsValid())
       Error("ArgusAnalyzerController", "NetFolder is not connected to server.");
    return;
@@ -113,7 +113,7 @@ ClassImp(ArgusAnalyzerController)
    SetWMPosition(ax, ay);
 
    TString window_name = "Control Panel";
-#ifndef DEBUG
+#if !defined( DEBUG )
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
    window_name += ".";
