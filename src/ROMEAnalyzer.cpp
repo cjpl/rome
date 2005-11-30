@@ -13,7 +13,7 @@
 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#   ifndef __CINT__
+#   if !defined( __CINT__ )
 #      include <Windows4Root.h>
 #      include <conio.h>
 #   endif
@@ -23,7 +23,6 @@
 
 #if defined( R__UNIX )
 #   include <unistd.h>
-#   include <stdlib.h>
 #   include <sys/ioctl.h>
 #   include <termios.h>
 #   include <sys/types.h>
@@ -32,7 +31,7 @@
 #   include <sys/time.h>
 #endif
 
-#ifndef R__MACOSX
+#if !defined( R__MACOSX )
 #   if defined( R__VISUAL_CPLUSPLUS )
 #      include <io.h>
 #   endif
@@ -40,11 +39,12 @@
 #      include <sys/io.h>
 #   endif
 #endif // R__MACOSX
+#include <stdlib.h>
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <time.h>
 
-#ifdef HAVE_MIDAS
+#if defined( HAVE_MIDAS )
 #   include <midas.h>
 #endif
 
@@ -112,16 +112,19 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fUserEventG = false;
    fUserEventI = false;
    fShowRunStat = true;
+   fOldbuf = 0;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
+   restoreOutput();
 }
 
 
 bool ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
-
+   int i;
+   bool batch = false;
    ROMEString text;
 
 #if defined( HAVE_MIDAS )
@@ -130,14 +133,22 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    gROME = (ROMEAnalyzer*)gPassToROME;
 
-   gROME->ss_getchar(0);
+   for (i=1;i<argc;i++) {
+      if (!strcmp(argv[i],"-b")){
+         batch = true;
+         break;
+      }
+   }
+   if(!batch)
+      gROME->ss_getchar(0);
 
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
 
-   if (this->isBatchMode()) {
+   if (this->isBatchMode()){
       redirectOutput();
+      gROME->ss_getchar(1);
    }
 
    consoleStartScreen();
@@ -165,7 +176,9 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask("start");
 
-   gROME->ss_getchar(1);
+   if (!this->isBatchMode())
+      gROME->ss_getchar(1);
+
    if (fTerminate) return false;
 
    return true;
@@ -702,4 +715,17 @@ bool ROMEAnalyzer::strtobool(const char* str)
    if (!strcmp(str,"false"))
       return false;
    return strtol(str,&cstop,10)!=0;
+}
+
+void ROMEAnalyzer::redirectOutput() {
+   ofstream *romeOutputFile;
+   if (!fOldbuf)
+      fOldbuf = cout.rdbuf();
+   romeOutputFile = new ofstream("romeOutput.txt");
+   cout.rdbuf(romeOutputFile->rdbuf());
+}
+
+void ROMEAnalyzer::restoreOutput() {
+   if(fOldbuf)
+      cout.rdbuf(fOldbuf);
 }

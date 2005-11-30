@@ -15,7 +15,7 @@
 #   include <string.h>
 #   include <ctype.h>
 #endif
-#ifndef R__MACOSX
+#if !defined( R__MACOSX )
 #   if defined( R__VISUAL_CPLUSPLUS )
 #      include <io.h>
 #   endif
@@ -460,12 +460,11 @@ bool ROMEBuilder::WriteFolderH() {
       }
 
       // Includes
-      buffer.AppendFormatted("#include <RConfig.h>\n");
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4244 )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TObject.h>\n");
       buffer.AppendFormatted("#include <TClass.h>\n");
       buffer.AppendFormatted("#include <TClonesArray.h>\n");
@@ -477,9 +476,9 @@ bool ROMEBuilder::WriteFolderH() {
             buffer.AppendFormatted("#include <%s>\n",folderInclude[iFold][i].Data());
          }
       }
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i]=="TString") {
             buffer.AppendFormatted("#include <%s.h>\n",valueType[iFold][i].Data());
@@ -1738,17 +1737,16 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
       }
 
-      buffer.AppendFormatted("#include <RConfig.h>\n");
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include<TH1.h>\n");
       buffer.AppendFormatted("#include<TH2.h>\n");
       buffer.AppendFormatted("#include<TH3.h>\n");
-      buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-      buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include<ROMETask.h>\n");
 
       for (i=0;i<numOfTaskInclude[iTask];i++) {
@@ -3478,25 +3476,23 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <direct.h>\n");
-   buffer.AppendFormatted("#endif\n");
-
+#endif
    buffer.AppendFormatted("#include <sys/stat.h>\n");
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TObjArray.h>\n");
    buffer.AppendFormatted("#include <TObjString.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <ROMEStr2DArray.h>\n");
    analyzerDep.AppendFormatted(" $(ROMESYS)/include/ROMEStr2DArray.h");
    for (i=0;i<numOfTask;i++) {
@@ -3518,7 +3514,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("%sAnalyzer *gAnalyzer;  // global Analyzer Handle\n",shortCut.Data());
 
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <windows.h>\n");
    buffer.AppendFormatted("void CreateSplash(unsigned long time,char*,char*,ROMEString*,int);\n");
    buffer.AppendFormatted("DWORD WINAPI SplashThread ( LPVOID lpvoid) {\n");
@@ -3559,7 +3555,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   CreateSplash(3,\"%s%s\",\"%s\",authors,%d);\n",shortCut.Data(),mainProgName.Data(),romeVersion.Data(),numAuthors);
    buffer.AppendFormatted("   return 0;\n");
    buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("\n");
 
    // Constructor
@@ -3882,18 +3878,18 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    WriteObjectInterpreterValue(buffer,"ROMEString&","Char");
 
    // Splash Screen
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LPDWORD lpThreadId;\n");
    buffer.AppendFormatted("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
    buffer.AppendFormatted("   CloseHandle(CreateThread(NULL,1024,&SplashThread,0,0,lpThreadId));\n");
    buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#if defined( R__UNIX )\n");
+#if defined( R__UNIX )
    buffer.AppendFormatted("void %sAnalyzer::startSplashScreen() {\n",shortCut.Data());
    buffer.AppendFormatted("   \n");
    buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
    buffer.AppendFormatted("\n");
 
    // Console Screen
@@ -3921,14 +3917,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("   gAnalyzer->Println(\"*****************************************\\n\");\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("   \n");
-
-   // Redirect Output
-   buffer.AppendFormatted("void %sAnalyzer::redirectOutput() {\n",shortCut.Data());
-   buffer.AppendFormatted("   ofstream *romeOutputFile;\n");
-   buffer.AppendFormatted("   romeOutputFile = new ofstream(\"romeOutput.txt\");\n");
-   buffer.AppendFormatted("   cout.rdbuf(romeOutputFile->rdbuf());\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
 
    if (haveFortranTask) {
       buffer.AppendFormatted("// Interface to Fortran Tasks\n");
@@ -4040,22 +4028,21 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("#define %sAnalyzer_H\n\n",shortCut.Data());
 
    // includes
-   buffer.AppendFormatted("#if defined( R__UNIX )\n");
+#if defined( R__UNIX )
    buffer.AppendFormatted("#include <unistd.h>\n");
-   buffer.AppendFormatted("#endif\n");
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TClonesArray.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <ROMETask.h>\n");
    buffer.AppendFormatted("#include <ROMEAnalyzer.h>\n");
 
@@ -4220,9 +4207,8 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   ROMEDataBase* GetXMLDataBase() { return GetDataBase(\"XML\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetTextDataBase() { return GetDataBase(\"TEXT\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetODBDataBase() { return GetDataBase(\"ODB\"); };\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql)
+      buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
    for (i=0;i<numOfDB;i++) {
       buffer.AppendFormatted("   ROMEDataBase* Get%sDataBase() { return GetDataBase(\"%s\"); };\n",dbName[i].Data(),dbName[i].Data());
    }
@@ -4368,7 +4354,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   void UserParameterUsage();\n");
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
-   buffer.AppendFormatted("   void redirectOutput();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sAnalyzer,0);\n",shortCut.Data());
 
@@ -4504,9 +4489,8 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include <ROMENoDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOfflineDataBase.h>\n");
    buffer.AppendFormatted("#include <ROMEODBOnlineDataBase.h>\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql)
+      buffer.AppendFormatted("#include <ROMESQLDataBase.h>\n");
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted("#include <include/framework/%s%sDataBase.h>\n",shortCut.Data(),dbName[i].Data());
    configDep.AppendFormatted(" $(DataBaseIncludes)");
@@ -4514,9 +4498,8 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include <include/framework/%sMidasDAQ.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRomeDAQ.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sDataBaseDAQ.h>\n",shortCut.Data());
-   buffer.AppendFormatted("#if defined( HAVE_ORCA )\n");
-   buffer.AppendFormatted("#include <ROMEOrcaDAQ.h>\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->orca)
+      buffer.AppendFormatted("#include <ROMEOrcaDAQ.h>\n");
    buffer.AppendFormatted("#include <ROMENoDAQSystem.h>\n");
    for (i=0;i<numOfDAQ;i++)
       buffer.AppendFormatted("#include <include/framework/%s%s.h>\n",shortCut.Data(),daqName[i].Data());
@@ -5243,14 +5226,15 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("               }\n");
    buffer.AppendFormatted("               if (fConfigData[modIndex]->fDataBase[i]->fTypeModified) {\n");
    buffer.AppendFormatted("                  if (fConfigData[index]->fDataBase[i]->fType==\"sql\") {\n");
-   buffer.AppendFormatted("#if defined( HAVE_SQL )\n");
-   buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMESQLDataBase());\n");
-   buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
-   buffer.AppendFormatted("                        return false;\n");
-   buffer.AppendFormatted("#else\n");
-   buffer.AppendFormatted("                        cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
-   buffer.AppendFormatted("                        return false;\n");
-   buffer.AppendFormatted("#endif\n");
+   if (this->sql){
+      buffer.AppendFormatted("                     gAnalyzer->SetDataBase(i,new ROMESQLDataBase());\n");
+      buffer.AppendFormatted("                     if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))\n");
+      buffer.AppendFormatted("                        return false;\n");
+   }
+   else{
+      buffer.AppendFormatted("                        cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;\n");
+      buffer.AppendFormatted("                        return false;\n");
+   }
    buffer.AppendFormatted("                  }\n");
    buffer.AppendFormatted("                  else if (fConfigData[index]->fDataBase[i]->fType==\"none\" ||\n");
    buffer.AppendFormatted("                           fConfigData[index]->fDataBase[i]->fType==\"\") {\n");
@@ -6269,34 +6253,34 @@ bool ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("// InitODB\n");
    buffer.AppendFormatted("bool %sMidasDAQ::InitODB() {\n",shortCut.Data());
 #if !defined( __ARGUS__ )  // Argus does not make switches in ODB.
-   buffer.AppendFormatted("#if defined( HAVE_MIDAS )\n");
-   buffer.AppendFormatted("   HNDLE hKey;\n");
-   buffer.AppendFormatted("   ROMEString str;\n");
-   buffer.AppendFormatted("   str = \"/%s%s/Task switches\";\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("   ROMEString taskSwitchesString =  \"");
-   ROMEString switchString;
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      int index = taskHierarchyParentIndex[i];
-      switchString = taskHierarchyName[i].Data();
-      while (index!=-1) {
-         switchString.Insert(0,"_");
-         switchString.Insert(0,taskHierarchyName[index].Data());
-         index = taskHierarchyParentIndex[index];
+   if (this->midas){
+      buffer.AppendFormatted("   HNDLE hKey;\n");
+      buffer.AppendFormatted("   ROMEString str;\n");
+      buffer.AppendFormatted("   str = \"/%s%s/Task switches\";\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("   ROMEString taskSwitchesString =  \"");
+      ROMEString switchString;
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         int index = taskHierarchyParentIndex[i];
+         switchString = taskHierarchyName[i].Data();
+         while (index!=-1) {
+            switchString.Insert(0,"_");
+            switchString.Insert(0,taskHierarchyName[index].Data());
+            index = taskHierarchyParentIndex[index];
+         }
+         buffer.AppendFormatted("%s = BOOL : 0\\n",switchString.Data());
       }
-      buffer.AppendFormatted("%s = BOOL : 0\\n",switchString.Data());
+      buffer.AppendFormatted("\";\n");
+      buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)taskSwitchesString.Data(), TRUE);\n");
+      buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
+      buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetTaskSwitches(),sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
+      buffer.AppendFormatted("      gAnalyzer->Println(\"Cannot write to task switches record.\");\n");
+      buffer.AppendFormatted("      return false;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetTaskSwitches(), sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
+      buffer.AppendFormatted("      gAnalyzer->Println(\"Cannot open task switches record, probably other analyzer is using it\");\n");
+      buffer.AppendFormatted("      return false;\n");
+      buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("\";\n");
-   buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)taskSwitchesString.Data(), TRUE);\n");
-   buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
-   buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetTaskSwitches(),sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
-   buffer.AppendFormatted("      gAnalyzer->Println(\"Cannot write to task switches record.\");\n");
-   buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetTaskSwitches(), sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
-   buffer.AppendFormatted("      gAnalyzer->Println(\"Cannot open task switches record, probably other analyzer is using it\");\n");
-   buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("#endif\n");
 #endif // __ARGUS__
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -6453,7 +6437,7 @@ bool ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("}\n");
 
    // -- Append method for byte swapping bank structures that are defined ----------
-#ifndef R__BYTESWAP
+#if !defined( R__BYTESWAP )
    buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
    buffer.AppendFormatted( "void* %sMidasDAQ::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
    buffer.AppendFormatted( "{\n" );
@@ -6736,15 +6720,14 @@ bool ROMEBuilder::WriteRomeDAQCpp() {
 
    // Header
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
    romeDep.AppendFormatted(" include/framework/%sAnalyzer.h",shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRomeDAQ.h>\n",shortCut.Data());
@@ -8159,16 +8142,15 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
 
    // Header
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <direct.h>\n");
-   buffer.AppendFormatted("#endif\n");
+#endif
 
    buffer.AppendFormatted("#include <sys/stat.h>\n");
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TROOT.h>\n");
    buffer.AppendFormatted("#include <TObjArray.h>\n");
@@ -8176,9 +8158,9 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
 
    buffer.AppendFormatted("#include <ROMETree.h>\n");
    eventLoopDep.AppendFormatted(" $(ROMESYS)/include/ROMETree.h");
@@ -8440,17 +8422,16 @@ bool ROMEBuilder::WriteEventLoopH() {
    buffer.AppendFormatted("#ifndef %sEventLoop_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sEventLoop_H\n\n",shortCut.Data());
 
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TClonesArray.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <ROMEString.h>\n");
    buffer.AppendFormatted("#include <ROMEEventLoop.h>\n");
 
@@ -8512,16 +8493,15 @@ bool ROMEBuilder::WriteMain() {
    cppFile.SetFormatted("%s/src/framework/main.cpp",outDir.Data());
 
    buffer.Resize(0);
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
-   buffer.AppendFormatted("#if defined( R__VISUAL_CPLUSPLUS )\n");
+#if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#endif // R__VISUAL_CPLUSPLUS\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <include/framework/%sAnalyzer.h>\n",shortCut.Data());
    buffer.AppendFormatted("#include <Riostream.h>\n");
    buffer.AppendFormatted("\n");
@@ -9238,15 +9218,15 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lc -lbsd\n");
    buffer.AppendFormatted("soflags := -Wl,-expect_unresolved,* -shared\n");
-#elif defined ( R__SGI )
+#elif defined( R__SGI )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs :=\n");
    buffer.AppendFormatted("soflags := -shared\n");
-#elif defined ( R__FBSD )
+#elif defined( R__FBSD )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lbsd -lcompat\n");
    buffer.AppendFormatted("soflags := -shared -Wl,-x\n");
-#elif defined ( R__MACOSX )
+#elif defined( R__MACOSX )
    buffer.AppendFormatted("FINK_DIR := $(shell which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\")\n");
    buffer.AppendFormatted("MACOSX_MAJOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 1)\n");
    buffer.AppendFormatted("MACOSX_MINOR := $(shell sw_vers | sed -n 's/ProductVersion:[^0-9]*//p' | cut -d . -f 2)\n");
@@ -9262,11 +9242,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("else\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined dynamic_lookup\n");
    buffer.AppendFormatted("endif\n");
-#elif defined ( R__LINUX )
+#elif defined( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
    buffer.AppendFormatted("soflags := -shared -Wl\n");
-#elif defined ( R__SOLARIS )
+#elif defined( R__SOLARIS )
    buffer.AppendFormatted("oscflags :=\n");
    buffer.AppendFormatted("oslibs := -lsocket -lnsl\n");
    buffer.AppendFormatted("soflags := -G\n");
@@ -9279,19 +9259,19 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__ALPHA )
       buffer.AppendFormatted("midascflags := -DOSF1 -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/osf1/lib -lmidas\n");
-#elif defined ( R__SGI )
+#elif defined( R__SGI )
       buffer.AppendFormatted("midascflags := -DOS_ULTRIX -DNO_PTY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/ultrix/lib -lmidas\n");
-#elif defined ( R__FBSD )
+#elif defined( R__FBSD )
       buffer.AppendFormatted("midascflags := -DOS_FREEBSD -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/freeBSD/lib -lmidas\n");
-#elif defined ( R__MACOSX )
+#elif defined( R__MACOSX )
       buffer.AppendFormatted("midascflags := -DOS_LINUX -DOS_DARWIN -DHAVE_STRLCPY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib -lmidas\n");
-#elif defined ( R__LINUX )
+#elif defined( R__LINUX )
       buffer.AppendFormatted("midascflags := -DOS_LINUX -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib -lmidas\n");
-#elif defined ( R__SOLARIS )
+#elif defined( R__SOLARIS )
       buffer.AppendFormatted("midascflags := -DOS_SOLARIS -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
       buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/solaris/lib -lmidas\n");
 #else
@@ -9521,11 +9501,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
    buffer.AppendFormatted("\t");
-#if defined ( R__MACOSX )
+#if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
    buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
-#if defined ( R__MACOSX )
+#if defined( R__MACOSX )
    buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
 #endif // R__MACOSX
    buffer.AppendFormatted("\n");
@@ -9561,7 +9541,7 @@ void ROMEBuilder::WriteMakefile() {
    while((pdnameend = xmlfilename.Index("/",1,pbnamestart,TString::kExact))!=-1)
       pbnamestart = pdnameend+1;
    ROMEString xmlbasename = xmlfilename(pbnamestart,xmlfilename.Length());
-#ifndef R__VISUAL_CPLUSPLUS
+#if !defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("build:\n");
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
@@ -9597,7 +9577,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__UNIX )
    makeFile = "Makefile";
 #endif // R__UNIX
-#if defined ( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.win";
 #endif // R__VISUAL_CPLUSPLUS
    // Write File
@@ -10070,7 +10050,7 @@ void ROMEBuilder::WriteUserMakeFile()
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
 #endif
-#if defined ( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.winusr";
    ROMEString usrBuffer;
    if( stat( makeFile.Data(), &buf )) {

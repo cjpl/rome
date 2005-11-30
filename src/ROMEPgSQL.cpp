@@ -5,7 +5,7 @@
 //                                                                      //
 //  Provides PostgreSQL data base access.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEPgSQL.h>
@@ -40,7 +40,7 @@ bool ROMEPgSQL::DisConnect()
 
 bool ROMEPgSQL::MakeQuery(const char* query, bool store)
 {
-#ifdef SQLDEBUG
+#if defined( SQLDEBUG )
    cout<<endl<<"ROMEPgSQL::MakeQuery : "<<query<<endl;
 #endif
    result = PQexec(connection, query);
