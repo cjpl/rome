@@ -91,6 +91,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fSplashScreen = true;
    fDontReadNextEvent = false;
    fCurrentRunNumber = 0;
+   fCurrentEventNumber = 0;
    fEventID = 'a';
    fTerminate = false;
    fTreeAccumulation = false;
@@ -114,6 +115,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fShowRunStat = true;
    fInputDir = "./";
    fOutputDir = "./";
+   fEventBasedDataBase = false;
    fOldbuf = 0;
 }
 
