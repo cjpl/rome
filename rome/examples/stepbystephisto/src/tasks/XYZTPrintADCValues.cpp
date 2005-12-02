@@ -41,6 +41,11 @@
 #include <include/tasks/XYZTPrintADCValues.h>
 #include <TRandom.h>
 #include <Riostream.h>
+#include "TF1.h" 
+
+Double_t lognormal(Double_t *x, Double_t *par) { 
+    return TMath::LogNormal(x[0]-par[3],par[0],par[1],par[2]); 
+} 
 
 ClassImp(XYZTPrintADCValues)
 
@@ -54,7 +59,7 @@ void XYZTPrintADCValues::BeginOfRun()
 
 void XYZTPrintADCValues::Event()
 {
-   gAnalyzer->GetPMTData()->SetADC(gRandom->Gaus(50,10));
+   gAnalyzer->GetPMTData()->SetADC((int)gRandom->Gaus(50,10));
    GetADC()->Fill(gAnalyzer->GetPMTData()->GetADC());
 
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
@@ -65,6 +70,18 @@ void XYZTPrintADCValues::Event()
 
 void XYZTPrintADCValues::EndOfRun()
 {
+   TF1 *fitFcn = new TF1("fitFcn",lognormal,0,1,4); 
+
+   fitFcn->SetParameters(0.001, 0, 1, 0); 
+   fitFcn->SetParName(0, "sigma"); 
+   fitFcn->SetParName(1, "theta"); 
+   fitFcn->SetParName(2, "m"); 
+   fitFcn->SetParName(3, "x_offset"); 
+
+   GetADC()->Fit(fitFcn,"r"); 
+   Double_t par[4]; 
+   fitFcn->GetParameters(par); 
+
 }
 
 void XYZTPrintADCValues::Terminate()

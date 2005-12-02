@@ -129,15 +129,6 @@ public:
 #   ifndef HAVE_MIDAS
    void bk_swap(void *event, bool force);
 #   endif
-/*   void ByteSwap(UShort_t  *x);
-   void ByteSwap(Short_t   *x){ByteSwap((UShort_t* )x);};
-   void ByteSwap(UInt_t    *x);
-   void ByteSwap(Int_t     *x){ByteSwap((UInt_t*   )x);};
-   void ByteSwap(Float_t   *x){ByteSwap((UInt_t*   )x);};
-   void ByteSwap(ULong64_t *x);
-   void ByteSwap(Long64_t  *x){ByteSwap((ULong64_t*)x);};
-   void ByteSwap(Double_t  *x){ByteSwap((ULong64_t*)x);};
-*/
    virtual void* ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
 #endif
 #ifndef HAVE_MIDAS

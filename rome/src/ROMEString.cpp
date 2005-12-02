@@ -58,7 +58,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
 {
    char* cstop;
    char* tmp;
-   char* pstart;
+   const char* pstart;
    const char* pactual;
    char* form;
    char* pp;
