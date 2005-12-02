@@ -5,13 +5,14 @@
 //
 //  General purpose utilities.
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+#include <RConfig.h>
 #include <ROMEUtilities.h>
 
 // Byte swapping big endian <-> little endian
-void ByteSwap( UShort_t *aValue ) 
+void ROMEUtilities::ByteSwap( UShort_t *aValue ) 
 {
    Byte_t _tmp;
    _tmp = *( (Byte_t *)( aValue ) );
@@ -19,12 +20,12 @@ void ByteSwap( UShort_t *aValue )
    *( ( (Byte_t *)( aValue ) ) + 1 ) = _tmp;
 }
 
-void ByteSwap( Short_t *aValue )
+void ROMEUtilities::ByteSwap( Short_t *aValue )
 {
     ByteSwap( (UShort_t *)aValue );
 }
 
-void ByteSwap( UInt_t *aValue ) 
+void ROMEUtilities::ByteSwap( UInt_t *aValue ) 
 {
    Byte_t _tmp;
    _tmp = *( (Byte_t *)( aValue ) );
@@ -36,17 +37,17 @@ void ByteSwap( UInt_t *aValue )
    *( ( (Byte_t *)( aValue ) ) + 2 ) = _tmp;
 }
 
-void ByteSwap( Int_t *aValue )
+void ROMEUtilities::ByteSwap( Int_t *aValue )
 {
     ByteSwap( (UInt_t *)aValue );
 }
 
-void ByteSwap( Float_t *aValue )
+void ROMEUtilities::ByteSwap( Float_t *aValue )
 {
     ByteSwap( (UInt_t *)aValue );
 }
 
-void ByteSwap( ULong64_t *aValue ) 
+void ROMEUtilities::ByteSwap( ULong64_t *aValue ) 
 { 
    Byte_t _tmp;
    _tmp= *( (Byte_t *)( aValue ) );
@@ -66,7 +67,7 @@ void ByteSwap( ULong64_t *aValue )
    *( ( (Byte_t *)( aValue ) ) + 4 ) = _tmp;
 }
 
-void ByteSwap( Double_t *aValue )
+void ROMEUtilities::ByteSwap( Double_t *aValue )
 {
     ByteSwap( (ULong64_t *)aValue );
 }

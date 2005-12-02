@@ -315,11 +315,11 @@ bool ROMEMidasDAQ::Event(int event) {
       else {
 #if !defined( R__BYTESWAP )
          //byte swapping
-         ByteSwap((UShort_t *)&pevent->event_id);
-         ByteSwap((UShort_t *)&pevent->trigger_mask);
-         ByteSwap((UInt_t   *)&pevent->serial_number);
-         ByteSwap((UInt_t   *)&pevent->time_stamp);
-         ByteSwap((UInt_t   *)&pevent->data_size);
+         ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
+         ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
 #endif
          n = 0;
          if (pevent->data_size <= 0) readError = true;
@@ -431,8 +431,8 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
       return;
 
    // swap bank header
-   ByteSwap((UInt_t   *)&pbh->data_size);
-   ByteSwap((UInt_t   *)&pbh->flags);
+   ROMEUtilities::ByteSwap((UInt_t   *)&pbh->data_size);
+   ROMEUtilities::ByteSwap((UInt_t   *)&pbh->flags);
 
    // check for 32bit banks
    b32 = ((pbh->flags & (1<<4)) > 0);
@@ -444,15 +444,15 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
    while ((Seek_t) pbk - (Seek_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
       // swap bank header
       if (b32) {
-         ByteSwap((UInt_t *)&pbk32->type);
-         ByteSwap((UInt_t *)&pbk32->data_size);
+         ROMEUtilities::ByteSwap((UInt_t *)&pbk32->type);
+         ROMEUtilities::ByteSwap((UInt_t *)&pbk32->data_size);
          pdata = pbk32 + 1;
          type = (UShort_t) pbk32->type;
          for ( long i = 0; i < 4; i++ )
             name[ i ] = pbk32->name[ i ];
       } else {
-         ByteSwap((UShort_t *)&pbk->type);
-         ByteSwap((UShort_t *)&pbk->data_size);
+         ROMEUtilities::ByteSwap((UShort_t *)&pbk->type);
+         ROMEUtilities::ByteSwap((UShort_t *)&pbk->data_size);
          pdata = pbk + 1;
          type = pbk->type;
          for ( long i = 0; i < 4; i++ )
@@ -472,7 +472,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          case TID_WORD:
          case TID_SHORT:
             while ((Seek_t) pdata < (Seek_t) pbk) {
-               ByteSwap((UShort_t*)pdata);
+               ROMEUtilities::ByteSwap((UShort_t*)pdata);
                pdata = (void *) (((UShort_t *) pdata) + 1);
             }
             break;
@@ -482,14 +482,14 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          case TID_BOOL:
          case TID_FLOAT:
             while ((Seek_t) pdata < (Seek_t) pbk) {
-               ByteSwap((UInt_t*)pdata);
+               ROMEUtilities::ByteSwap((UInt_t*)pdata);
                pdata = (void *) (((UInt_t *) pdata) + 1);
             }
             break;
 
          case TID_DOUBLE:
             while ((Seek_t) pdata < (Seek_t) pbk) {
-               ByteSwap((ULong64_t*)pdata);
+               ROMEUtilities::ByteSwap((ULong64_t*)pdata);
                pdata = (void *) (((ULong64_t *) pdata) + 1);
             }
             break;
@@ -505,42 +505,6 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
 }
 #   endif
 
-// Byte swapping big endian <-> little endian
-/*void ROMEMidasDAQ::ByteSwap(UShort_t *x)
-{
-   Byte_t _tmp;
-   _tmp= *((Byte_t *)(x));
-   *((Byte_t *)(x)) = *(((Byte_t *)(x))+1);
-   *(((Byte_t *)(x))+1) = _tmp;
-}
-
-void ROMEMidasDAQ::ByteSwap(UInt_t *x)
-{
-   Byte_t _tmp;
-   _tmp= *((Byte_t *)(x));
-   *((Byte_t *)(x)) = *(((Byte_t *)(x))+3);
-   *(((Byte_t *)(x))+3) = _tmp;
-   _tmp= *(((Byte_t *)(x))+1);
-   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+2);
-   *(((Byte_t *)(x))+2) = _tmp;
-}
-
-void ROMEMidasDAQ::ByteSwap(ULong64_t *x) {
-   Byte_t _tmp;
-   _tmp= *((Byte_t *)(x));
-   *((Byte_t *)(x)) = *(((Byte_t *)(x))+7);
-   *(((Byte_t *)(x))+7) = _tmp;
-   _tmp= *(((Byte_t *)(x))+1);
-   *(((Byte_t *)(x))+1) = *(((Byte_t *)(x))+6);
-   *(((Byte_t *)(x))+6) = _tmp;
-   _tmp= *(((Byte_t *)(x))+2);
-   *(((Byte_t *)(x))+2) = *(((Byte_t *)(x))+5);
-   *(((Byte_t *)(x))+5) = _tmp;
-   _tmp= *(((Byte_t *)(x))+3);
-   *(((Byte_t *)(x))+3) = *(((Byte_t *)(x))+4);
-   *(((Byte_t *)(x))+4) = _tmp;
-}
-*/
 #endif
 #if !defined( HAVE_MIDAS )
 bool ROMEMidasDAQ::bk_is32(void *event)
@@ -592,4 +556,3 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const char *name, unsigned long * bklen, u
    return 0;
 }
 #endif
-
