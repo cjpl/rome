@@ -6473,7 +6473,7 @@ bool ROMEBuilder::WriteMidasDAQCpp() {
 
                else if ( bankFieldArraySize[ iEvent ][ iBank ][ iField ] == "1" )
                {
-                  buffer.AppendFormatted( "        ByteSwap( (%s *)pData ); // %s\n",
+                  buffer.AppendFormatted( "        ROMEUtilities::ByteSwap( (%s *)pData ); // %s\n",
                               structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
                   buffer.AppendFormatted( "        pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
                }
@@ -6481,7 +6481,7 @@ bool ROMEBuilder::WriteMidasDAQCpp() {
                {
                   buffer.AppendFormatted( "        for ( long i = 0; i < %s; i++ )\n", bankFieldArraySize[ iEvent ][ iBank ][ iField ].Data() );
                   buffer.AppendFormatted( "        {\n" );
-                  buffer.AppendFormatted( "            ByteSwap( (%s *)pData ); // %s\n",
+                  buffer.AppendFormatted( "            ROMEUtilities::ByteSwap( (%s *)pData ); // %s\n",
                               structFieldType[ iEvent ][ iBank ][ iField ].Data(), structFieldName[ iEvent ][ iBank ][ iField ].Data() );
                   buffer.AppendFormatted( "            pData = (void *)( ( (%s *)pData ) + 1 );\n", structFieldType[ iEvent ][ iBank ][ iField ].Data() );
                   buffer.AppendFormatted( "        }\n" );
