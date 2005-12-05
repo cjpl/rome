@@ -5,7 +5,7 @@
 //                                                                      //
 //  Handles character string array.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEStrArray.h>
@@ -67,8 +67,10 @@ void ROMEStrArray::AddFirst(TString &str)
 }
 void ROMEStrArray::AddFirst(const char* str)
 {
-   if (array->At(0)!=NULL) {
-      this->RemoveAt(0);
+   if (array->GetEntriesFast()>0) {
+      if (array->At(0)!=NULL) {
+         this->RemoveAt(0);
+      }
    }
    array->AddFirst(new TObjString(str));
 }
@@ -79,9 +81,6 @@ void ROMEStrArray::AddLast(TString &str)
 }
 void ROMEStrArray::AddLast(const char* str)
 {
-   if (array->At(array->GetLast())!=NULL) {
-      this->RemoveAt(array->GetLast());
-   }
    array->AddLast(new TObjString(str));
 }
 
