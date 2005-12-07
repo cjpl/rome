@@ -36,7 +36,14 @@
 
 #include <Riostream.h>
 #include <ROMEDataBase.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4244 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TTimeStamp.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 
 class ROMETextDataBase : public ROMEDataBase
 {
