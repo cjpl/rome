@@ -158,8 +158,10 @@ protected:
    // Event Based Data Base
    bool          fEventBasedDataBase;              //! Flag for Event Based Data Base
 
+#ifndef __CINT__
    // stream
    streambuf    *fOldbuf;                          //! original buffer of stdout
+#endif // __CINT__
 
 public:
    ROMEAnalyzer() {};
