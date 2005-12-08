@@ -397,14 +397,14 @@ void ArgusBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+      tempStr.SetFormatted("make -e %sROMEDict.cpp %sARGUSDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       const int workDirLen = 1000;
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
-      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sARGUSDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
    }
