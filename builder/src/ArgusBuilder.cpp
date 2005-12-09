@@ -887,42 +887,12 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("%sclean:\n", tmp.Data());
    buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d %sFolderDict.cpp %sFolderDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sTabDict.cpp %sTabDict.h %sUserDict.cpp %sUserDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("\n");
-   Int_t pdnameend = 0;
-   Int_t pbnamestart = 0;
-   ROMEString xmlfilename = xmlFile;
-   while ((pdnameend = xmlfilename.Index("/", 1, pbnamestart, TString::kExact)) != -1)
-      pbnamestart = pdnameend + 1;
-   ROMEString xmlbasename = xmlfilename(pbnamestart, xmlfilename.Length());
-   buffer.AppendFormatted("build:\n");
-#if defined( R__UNIX )
-#   if defined( R__MACOSX )
-   buffer.AppendFormatted("\tDYLD_LIBRARY_PATH=$(DYLD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   else
-   buffer.AppendFormatted("\tLD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) ");
-#   endif
-#else
-   buffer.AppendFormatted("\t");
-#endif
-   buffer.AppendFormatted("$(ARGUSSYS)/bin/argusbuilder");
+
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted(".exe");
-#endif
-   buffer.AppendFormatted(" -i %s -o .", xmlbasename.Data());
-   if (makeOutput)
-      buffer.AppendFormatted(" -v");
-   if (noLink)
-      buffer.AppendFormatted(" -nl");
-   if (midas)
-      buffer.AppendFormatted(" -midas");
-   if (mysql)
-      buffer.AppendFormatted(" -mysql");
-   if (pgsql)
-      buffer.AppendFormatted(" -pgsql");
-   if (sqlite)
-      buffer.AppendFormatted(" -sqlite");
-   if (sqlite3)
-      buffer.AppendFormatted(" -sqlite3");
-   buffer.AppendFormatted("\n");
+   WriteBuildRule(buffer,"$(ARGUSSYS)\\bin\\argusbuilder");
+#else
+   WriteBuildRule(buffer,"$(ARGUSSYS)/bin/argusbuilder");
+#endif // R__VISUAL_CPLUSPLUS
 
    ROMEString makeFile;
 #if defined( R__UNIX )
