@@ -317,6 +317,7 @@ public:
    bool WriteMain();
    char* EqualSign();
    void WriteMakefile();
+   void WriteBuildRule(ROMEString& buffer,const char* builder);
    void WriteAdditionalSourceFilesObjects(ROMEString& buffer);
    void WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer);
    void WriteUserMakeFile();
