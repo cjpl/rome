@@ -69,13 +69,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
       this->Terminate();
       gROME->SetTerminationFlag();
-      gROME->Println("\n\nTerminating Program !");
+      gROME->PrintLine("\n\nTerminating Program !");
       return;
    }
    if (!IsActive()) {
       this->Terminate();
       gROME->SetTerminationFlag();
-      gROME->Println("\n\nTerminating Program !");
+      gROME->PrintLine("\n\nTerminating Program !");
       return;
    }
 
@@ -89,7 +89,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (!this->DAQInit()) {
       this->Terminate();
       gROME->SetTerminationFlag();
-      gROME->Println("\n\nTerminating Program !");
+      gROME->PrintLine("\n\nTerminating Program !");
       return;
    }
 
@@ -105,7 +105,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (!this->DAQBeginOfRun(eventLoopIndex)) {
          this->DAQTerminate();
          gROME->SetTerminationFlag();
-         gROME->Println("\n\nTerminating Program !");
+         gROME->PrintLine("\n\nTerminating Program !");
          return;
       }
      if (this->isEndOfRun()) {
@@ -132,7 +132,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          TimeStart();
          if (gROME->IsShowRunStat()) {
             text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
-            gROME->Println(text.Data());
+            gROME->PrintLine(text.Data());
          }
       }
 
@@ -148,6 +148,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             }
             if (status==-1) {
                this->SetStopped();
+               this->SetEndOfRun();
                break;
             }
          }
@@ -157,7 +158,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             if (!this->UserInput()) {
                this->DAQTerminate();
                gROME->SetTerminationFlag();
-               gROME->Println("\n\nTerminating Program !");
+               gROME->PrintLine("\n\nTerminating Program !");
                return;
             }
             if (this->isTerminate()) {
@@ -173,7 +174,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!this->DAQEvent(i)) {
             this->Terminate();
             gROME->SetTerminationFlag();
-            gROME->Println("\n\nTerminating Program !");
+            gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
          if (this->isEndOfRun()) {
@@ -200,7 +201,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          ExecuteTasks(&eventID);
          CleanTasks();
          if (gROME->isTerminationFlag()) {
-            gROME->Println("\n\nTerminating Program !");
+            gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
 
@@ -208,7 +209,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!this->WriteEvent() && gROME->isFillEvent()) {
             this->Terminate();
             gROME->SetTerminationFlag();
-            gROME->Println("\n\nTerminating Program !");
+            gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
 
@@ -216,7 +217,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!this->Update()) {
             this->Terminate();
             gROME->SetTerminationFlag();
-            gROME->Println("\n\nTerminating Program !");
+            gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
       }
@@ -229,13 +230,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
             text.SetFormatted("Run %d stopped                                             \n",gROME->GetCurrentRunNumber());
-            gROME->Println(text.Data());
+            gROME->PrintLine(text.Data());
             text.SetFormatted("%d events processed\n",(int)gROME->GetProcessedEvents());
-            gROME->Println(text.Data());
+            gROME->PrintLine(text.Data());
 
-            gROME->Print("run time = ");
-            gROME->Println(GetTime());
-            gROME->Println();
+            gROME->PrintText("run time = ");
+            gROME->PrintLine(GetTime());
+            gROME->PrintLine();
          }
 
          // End of Run Tasks
@@ -246,7 +247,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!this->DAQEndOfRun()) {
             this->Terminate();
             gROME->SetTerminationFlag();
-            gROME->Println("\n\nTerminating Program !");
+            gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
       }
@@ -263,13 +264,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
    if (!gROME->isBatchMode()) {
       ((TRint*)gROME->GetApplication())->Run(true);
-      gROME->Println();
+      gROME->PrintLine();
    }
 
    // Terminate
    if (!this->DAQTerminate()) {
       gROME->SetTerminationFlag();
-      gROME->Println("\n\nTerminating Program !");
+      gROME->PrintLine("\n\nTerminating Program !");
       return;
    }
 }
@@ -295,7 +296,7 @@ bool ROMEEventLoop::DAQInit() {
    else if (gROME->isOffline()) {
       if (gROME->isActiveDAQSet()) {
          if (strcmp(gROME->GetActiveDAQ()->GetName(),"none")) {
-            gROME->Println("No run numbers or input file names specified.\n");
+            gROME->PrintLine("No run numbers or input file names specified.\n");
             return false;
          }
       }
@@ -371,13 +372,13 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
 
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {
-      gROME->Println("\nError while reading the data base !");
+      gROME->PrintLine("\nError while reading the data base !");
       return false;
    }
    if (eventLoopIndex==0)
       this->InitArrayFolders();
    if (!gROME->ReadArrayDataBaseFolders()) {
-      gROME->Println("\nError while reading the data base !");
+      gROME->PrintLine("\nError while reading the data base !");
       return false;
    }
 
@@ -436,11 +437,11 @@ bool ROMEEventLoop::DAQEvent(Int_t event) {
 
    if (gROME->IsEventBasedDataBase()) {
       if (!gROME->ReadSingleDataBaseFolders()) {
-         gROME->Println("\nError while reading the data base !");
+         gROME->PrintLine("\nError while reading the data base !");
          return false;
       }
       if (!gROME->ReadArrayDataBaseFolders()) {
-         gROME->Println("\nError while reading the data base !");
+         gROME->PrintLine("\nError while reading the data base !");
          return false;
       }
    }
@@ -488,7 +489,7 @@ bool ROMEEventLoop::Update()
 
    if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
       text.SetFormatted("%d events processed                                                    \r",(int)gROME->GetTriggerStatistics()->processedEvents);
-      gROME->Printfl(text.Data());
+      gROME->PrintFlush(text.Data());
 
       fProgressWrite = false;
    }
@@ -511,7 +512,7 @@ bool ROMEEventLoop::UserInput()
 
    if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
       text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
-      gROME->Printfl(text.Data());
+      gROME->PrintFlush(text.Data());
       wait = true;
    }
    else if (fContinuous && time(NULL) < fUserInputLastTime+0.1)
@@ -539,22 +540,22 @@ bool ROMEEventLoop::UserInput()
          }
          if (ch == 's' || gROME->IsUserEventS()) {
             text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
-            gROME->Printfl(text.Data());
+            gROME->PrintFlush(text.Data());
             wait = true;
          }
          if (ch == 'r' || gROME->IsUserEventR()) {
 
             if (fContinuous)
-               gROME->Printfl("                                  \r");
+               gROME->PrintFlush("                                  \r");
 
             wait = false;
          }
          if (ch == 'o' || gROME->IsUserEventO()) {
-            gROME->Println("Step by step mode                 ");
+            gROME->PrintLine("Step by step mode                 ");
             fContinuous = false;
          }
          if (ch == 'c' || gROME->IsUserEventC()) {
-            gROME->Println("Continues mode                    ");
+            gROME->PrintLine("Continues mode                    ");
             fContinuous = true;
             wait = false;
          }
@@ -567,18 +568,18 @@ bool ROMEEventLoop::UserInput()
                char *cstop;
                ROMEString number;
                // run number
-               gROME->Printfl("                                  \r");
-               gROME->Print("Run number :");
+               gROME->PrintFlush("                                  \r");
+               gROME->PrintText("Run number :");
                while (true) {
                   ch = gROME->ss_getchar(0);
                   if (ch == 0)
                      continue;
                   if (ch == 13)
                      break;
-                  gROME->Print(ch);
+                  gROME->PrintText(ch);
                   number += ch;
                }
-               gROME->Printfl("                                  \r");
+               gROME->PrintFlush("                                  \r");
                int inumber = strtol(number.Data(),&cstop,10);
                if (inumber!=0)
                   fStopAtRun = inumber;
@@ -586,18 +587,18 @@ bool ROMEEventLoop::UserInput()
                   fStopAtRun = gROME->GetCurrentRunNumber();
                // event number
                number.Resize(0);
-               gROME->Printfl("                                  \r");
-               gROME->Print("Event number :");
+               gROME->PrintFlush("                                  \r");
+               gROME->PrintText("Event number :");
                while (true) {
                   ch = gROME->ss_getchar(0);
                   if (ch == 0)
                      continue;
                   if (ch == 13)
                      break;
-                  gROME->Print(ch);
+                  gROME->PrintText(ch);
                   number += ch;
                }
-               gROME->Printfl("                                  \r");
+               gROME->PrintFlush("                                  \r");
                inumber = strtol(number.Data(),&cstop,10);
                if (inumber!=0)
                   fStopAtEvent = inumber;
@@ -613,7 +614,7 @@ bool ROMEEventLoop::UserInput()
       }
       if (interpreter) {
          text.SetFormatted("\nStart root session at the end of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
-         gROME->Println(text.Data());
+         gROME->PrintLine(text.Data());
          ((TRint*)gROME->GetApplication())->Run(true);
          gSystem->Init();
          ((TRint*)gROME->GetApplication())->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
@@ -639,12 +640,12 @@ bool ROMEEventLoop::DAQEndOfRun() {
          tree = romeTree->GetTree();
          if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
             if (fTreeUpdateIndex>0) {
-               gROME->Print("Updating Root-File ");
+               gROME->PrintText("Updating Root-File ");
             }
             else {
-               gROME->Print("Writing Root-File ");
+               gROME->PrintText("Writing Root-File ");
             }
-            gROME->Println(romeTree->GetFileName());
+            gROME->PrintLine(romeTree->GetFileName());
             romeTree->UpdateFilePointer();
             romeTree->GetFile()->cd();
             tree->Write(0,TObject::kOverwrite);
@@ -656,7 +657,7 @@ bool ROMEEventLoop::DAQEndOfRun() {
             tree->Reset();
       }
    }
-   gROME->Println();
+   gROME->PrintLine();
 
    // Write Histos
    ROMEString filename;
@@ -690,8 +691,8 @@ bool ROMEEventLoop::DAQTerminate() {
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             tree->Write(0,TObject::kOverwrite);
-            gROME->Print("\nWriting Root-File ");
-            gROME->Println(romeTree->GetFileName());
+            gROME->PrintText("\nWriting Root-File ");
+            gROME->PrintLine(romeTree->GetFileName());
          }
          if (romeTree->GetFile()!=NULL) {
             romeTree->GetFile()->Close();
@@ -704,3 +705,4 @@ bool ROMEEventLoop::DAQTerminate() {
 
    return true;
 }
+

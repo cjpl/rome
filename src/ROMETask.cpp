@@ -72,10 +72,10 @@ void ROMETask::Exec(Option_t *option)
       Terminate();
       TimeEnd();
 
-      gROME->Print("Task '");
-      gROME->Print(fName.Data());
-      gROME->Print("' : run time = ");
-      gROME->Println(GetTime());
+      gROME->PrintText("Task '");
+      gROME->PrintText(fName.Data());
+      gROME->PrintText("' : run time = ");
+      gROME->PrintLine(GetTime());
    }
    else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
              ( !strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1) )
@@ -91,9 +91,9 @@ void ROMETask::Exec(Option_t *option)
 void ROMETask::StartRootInterpreter(const char* message) {
    ROMEString text;
    text.SetFormatted("\nIn method %s of task %s of event number %d of run number %d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
-   gROME->Println(text.Data());
+   gROME->PrintLine(text.Data());
    if (message)
-      gROME->Println(message);
+      gROME->PrintLine(message);
    ((TRint*)gROME->GetApplication())->Run(true);
    gSystem->Init();
    gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
@@ -126,5 +126,3 @@ const char* ROMETask::GetTime()
            (int)(runTime % 10),milli);
    return fTimeString.Data();
 }
-
-
