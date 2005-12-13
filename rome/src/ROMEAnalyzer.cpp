@@ -152,20 +152,20 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
       TNetFolderServer *tnet = new TNetFolderServer();
       tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
       text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
-      gROME->Println(text.Data());
+      gROME->PrintLine(text.Data());
    }
 
-   gROME->Println("Program steering");
-   gROME->Println("----------------");
-   gROME->Println("q : Terminates the program");
-   gROME->Println("e : Ends the program");
-   gROME->Println("s : Stops the program");
-   gROME->Println("r : Restarts the program");
-   gROME->Println("c : Continuous Analysis");
-   gROME->Println("o : Step by step Analysis");
-   gROME->Println("g : Run until event #");
-   gROME->Println("i : Root interpreter");
-   gROME->Println();
+   gROME->PrintLine("Program steering");
+   gROME->PrintLine("----------------");
+   gROME->PrintLine("q : Terminates the program");
+   gROME->PrintLine("e : Ends the program");
+   gROME->PrintLine("s : Stops the program");
+   gROME->PrintLine("r : Restarts the program");
+   gROME->PrintLine("c : Continuous Analysis");
+   gROME->PrintLine("o : Step by step Analysis");
+   gROME->PrintLine("g : Run until event #");
+   gROME->PrintLine("i : Root interpreter");
+   gROME->PrintLine();
 
    fMainTask->ExecuteTask("start");
 
@@ -177,7 +177,7 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    return true;
 }
 
-void ROMEAnalyzer::Print(char text)
+void ROMEAnalyzer::PrintText(char text)
 {
    cout << text;
 #if defined( HAVE_MIDAS )
@@ -187,7 +187,7 @@ void ROMEAnalyzer::Print(char text)
    return;
 }
 
-void ROMEAnalyzer::Print(const char* text)
+void ROMEAnalyzer::PrintText(const char* text)
 {
    cout << text;
 #if defined( HAVE_MIDAS )
@@ -196,34 +196,34 @@ void ROMEAnalyzer::Print(const char* text)
    return;
 }
 
-void ROMEAnalyzer::Println(const char* text)
+void ROMEAnalyzer::PrintLine(const char* text)
 {
    cout << text << endl;
 #if defined( HAVE_MIDAS )
-//   cm_msg(MINFO, "ROMEAnalyzer::Println", text);
+//   cm_msg(MINFO, "ROMEAnalyzer::PrintLine", text);
 #endif
    return;
 }
 
-void ROMEAnalyzer::Printfl(const char* text)
+void ROMEAnalyzer::PrintFlush(const char* text)
 {
    cout << text << flush;
 #if defined( HAVE_MIDAS )
-//   cm_msg(MINFO, "ROMEAnalyzer::Printfl", text);
+//   cm_msg(MINFO, "ROMEAnalyzer::PrintFlush", text);
 #endif
    return;
 }
 
 void ROMEAnalyzer::ParameterUsage()
 {
-   gROME->Println("  -i       Configuration file (default romeConfig.xml)");
-   gROME->Println("  -b       Batch Mode (no Argument)");
-   gROME->Println("  -ns      Splash Screen is not displayed (no Argument)");
-   gROME->Println("  -m       Analysing Mode : (online/[offline])");
-   gROME->Println("  -r       Runnumbers");
-   gROME->Println("  -e       Eventnumbers");
-   gROME->Println("  -o       Start Analyzer in Step by Step Mode");
-   gROME->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
+   gROME->PrintLine("  -i       Configuration file (default romeConfig.xml)");
+   gROME->PrintLine("  -b       Batch Mode (no Argument)");
+   gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
+   gROME->PrintLine("  -m       Analysing Mode : (online/[offline])");
+   gROME->PrintLine("  -r       Runnumbers");
+   gROME->PrintLine("  -e       Eventnumbers");
+   gROME->PrintLine("  -o       Start Analyzer in Step by Step Mode");
+   gROME->PrintLine("  -docu    Generates a Root-Html-Documentation (no Argument)");
    gROME->UserParameterUsage();
    return;
 }
@@ -252,10 +252,10 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    char answer = 0;
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
-      gROME->Print("Configuration file '");
-      gROME->Print(configFile.Data());
-      gROME->Println("' not found.");
-      gROME->Printfl("Do you like the framework to generate a new configuration file ([y]/n) ? ");
+      gROME->PrintText("Configuration file '");
+      gROME->PrintText(configFile.Data());
+      gROME->PrintLine("' not found.");
+      gROME->PrintFlush("Do you like the framework to generate a new configuration file ([y]/n) ? ");
       gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
@@ -265,23 +265,23 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       gROME->ss_getchar(1);
       if (answer!='n') {
          if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-            gROME->Println("\nTerminate program.\n");
+            gROME->PrintLine("\nTerminate program.\n");
             return false;
          }
-         gROME->Println("\nThe framework generated a new configuration file.");
-         gROME->Println("Please edit this file and restart the program.\n");
+         gROME->PrintLine("\nThe framework generated a new configuration file.");
+         gROME->PrintLine("Please edit this file and restart the program.\n");
       }
       else {
-         gROME->Println("\nTerminate program.\n");
+         gROME->PrintLine("\nTerminate program.\n");
       }
       return false;
    }
    if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
-      gROME->Println("\nTerminate program.\n");
+      gROME->PrintLine("\nTerminate program.\n");
       return false;
    }
    if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-      gROME->Println("\nTerminate program.\n");
+      gROME->PrintLine("\nTerminate program.\n");
       return false;
    }
 
@@ -313,11 +313,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if(!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)){
-         gROME->Print("Input line parameter '");
-         gROME->Print(argv[i]);
-         gROME->Println("' not available.");
-         gROME->Println("Available input line parameters are : ");
-         gROME->Println();
+         gROME->PrintText("Input line parameter '");
+         gROME->PrintText(argv[i]);
+         gROME->PrintLine("' not available.");
+         gROME->PrintLine("Available input line parameters are : ");
+         gROME->PrintLine();
          ParameterUsage();
          return false;
       }

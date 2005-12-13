@@ -24,13 +24,13 @@ Bool_t ArgusWindow::Start()
    // Initialize DAQ
    if (!gArgus->DAQInit()) {
       gArgus->SetTerminationFlag();
-      gArgus->Println("\n\nTerminating Program !");
+      gArgus->PrintLine("\n\nTerminating Program !");
       return kFALSE;
    }
    // DAQ begion of run
    if (!gArgus->DAQBeginOfRun()) {
       gArgus->SetTerminationFlag();
-      gArgus->Println("\n\nTerminating Program !");
+      gArgus->PrintLine("\n\nTerminating Program !");
       return kFALSE;
    }
    // Create status bar
@@ -81,12 +81,12 @@ void ArgusWindow::CloseWindow()
    // Disconnect
    if (!gArgus->DAQEndOfRun()) {
       gArgus->SetTerminationFlag();
-      gArgus->Println("\n\nTerminating Program !");
+      gArgus->PrintLine("\n\nTerminating Program !");
    }
    // Terminate
    if (!gArgus->DAQTerminate()) {
       gArgus->SetTerminationFlag();
-      gArgus->Println("\n\nTerminating Program !");
+      gArgus->PrintLine("\n\nTerminating Program !");
    }
 
    gArgus->GetApplication()->Terminate();

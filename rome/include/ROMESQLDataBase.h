@@ -54,7 +54,7 @@ public:
    bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber);
    char*  GetType() { return "sql"; }
    char*  GetDescription() { return "SQL data base using the file system to store tables"; }
-   void   Print();
+   virtual void   Print(Option_t *);
 /*
    bool Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port){
       return fSQL->Connect(server,user,passwd,database,port);

@@ -709,7 +709,7 @@ bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int 
    return true;
 }
 
-void ROMESQLDataBase::Print() {
+void ROMESQLDataBase::Print(Option_t *) {
    ROMEString temp = fSelectFieldList;
    temp.ReplaceAll(RSQLDB_STR,"");
    cout << "******************************************************************************"<<endl

@@ -49,7 +49,7 @@ const char* const cloSeparator = ":";
 class ROMEBuilder
 {
 protected:
-   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatRANY,compileFormatAny;
+   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatDict,compileFormatRANY,compileFormatAny;
    ROMEString dependFormatFrame,dependFormatFramF,dependFormatTasks,dependFormatTaskF,dependFormatBlank,dependFormatROME,dependFormatRANY,dependFormatAny;
    bool haveFortranTask;
 public:

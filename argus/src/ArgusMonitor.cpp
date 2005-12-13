@@ -132,14 +132,14 @@ Bool_t ArgusMonitor::StartMonitor()
 
 void ArgusMonitor::ParameterUsage()
 {
-   gArgus->Println("  -i       Configuration file (default argusConfig.xml)");
-   gArgus->Println("  -m       Analysing Mode : (online/[offline])");
-   gArgus->Println("  -r       Runnumbers");
+   gArgus->PrintLine("  -i       Configuration file (default argusConfig.xml)");
+   gArgus->PrintLine("  -m       Analysing Mode : (online/[offline])");
+   gArgus->PrintLine("  -r       Runnumbers");
 /*
        <<"  -h       MIDAS server host name"<<endl
        <<"  -e       MIDAS experiment name"<<endl
 */
-   gArgus->Println("  -docu    Generates a Root-Html-Documentation (no Argument)");
+   gArgus->PrintLine("  -docu    Generates a Root-Html-Documentation (no Argument)");
    gArgus->UserParameterUsage();
    return;
 }
@@ -218,11 +218,11 @@ Bool_t ArgusMonitor::ReadParameters(Int_t argc, Char_t *argv[])
          i++;
       }
       else if (!ReadUserParameter(argv[i], i < argc - 1 ? argv[i + 1] : "", i)) {
-         gArgus->Print("Input line parameter '");
-         gArgus->Print(argv[i]);
-         gArgus->Println("' not available.");
-         gArgus->Println("Available input line parameters are : ");
-         gArgus->Println();
+         gArgus->PrintText("Input line parameter '");
+         gArgus->PrintText(argv[i]);
+         gArgus->PrintLine("' not available.");
+         gArgus->PrintLine("Available input line parameters are : ");
+         gArgus->PrintLine();
          ParameterUsage();
          return false;
       }
@@ -286,10 +286,10 @@ Bool_t ArgusMonitor::ConnectNetFolder(Int_t i)
    fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    while (!fNetFolderSocket[i]->IsValid()) {
       delete fNetFolderSocket[i];
-      Print("can not make socket connection for ");
-      Print(fNetFolderName[i].Data());
-      Println(".");
-      Println("program sleeps for 5s and tries again.");
+      PrintText("can not make socket connection for ");
+      PrintText(fNetFolderName[i].Data());
+      PrintLine(".");
+      PrintLine("program sleeps for 5s and tries again.");
       gSystem->Sleep(5000);
       fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
@@ -373,7 +373,7 @@ Bool_t ArgusMonitor::DAQInit()
    else if (gArgus->GetNumberOfInputFileNames() > 0)
       gArgus->SetIOType(gArgus->kFileNameBased);
    else if (gArgus->isOffline() && strcmp(gArgus->GetActiveDAQ()->GetName(), "none")) {
-      gArgus->Println("No run numbers or input file names specified.\n");
+      gArgus->PrintLine("No run numbers or input file names specified.\n");
       return kFALSE;
    }
    // Initialize DAQ System
@@ -407,12 +407,12 @@ Bool_t ArgusMonitor::DAQBeginOfRun()
 
    // Update Data Base
    if (!gArgus->ReadSingleDataBaseFolders()) {
-      gArgus->Println("\nError while reading the data base !");
+      gArgus->PrintLine("\nError while reading the data base !");
       return kFALSE;
    }
    this->InitArrayFolders();
    if (!gArgus->ReadArrayDataBaseFolders()) {
-      gArgus->Println("\nError while reading the data base !");
+      gArgus->PrintLine("\nError while reading the data base !");
       return kFALSE;
    }
 

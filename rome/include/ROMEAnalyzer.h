@@ -169,10 +169,10 @@ public:
    ~ROMEAnalyzer();
 
    // Output
-   void          Print(char text);
-   void          Print(const char* text="");
-   void          Println(const char* text="");
-   void          Printfl(const char* text="");
+   void          PrintText(char text);
+   void          PrintText(const char* text="");
+   void          PrintLine(const char* text="");
+   void          PrintFlush(const char* text="");
 
    // Application Handle
    TApplication* GetApplication() { return fApplication; };
@@ -182,7 +182,7 @@ public:
    ROMEDAQSystem* GetActiveDAQ() {
       if (fActiveDAQ!=NULL)
          return fActiveDAQ;
-      this->Println("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
+      this->PrintLine("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
       ((TRint*)fApplication)->Terminate(1);
       return NULL;
    };
@@ -195,7 +195,7 @@ public:
    ROMEDataBase* GetDataBase(int i) {
       if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
          return fDataBaseHandle[i];
-      this->Println("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
+      this->PrintLine("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
       ((TRint*)fApplication)->Terminate(1);
       return NULL;
    };
@@ -205,7 +205,7 @@ public:
             return fDataBaseHandle[i];
       ROMEString str;
       str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
-      this->Println(str.Data());
+      this->PrintLine(str.Data());
       ((TRint*)fApplication)->Terminate(1);
       return NULL;
    };
