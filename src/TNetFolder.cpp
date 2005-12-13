@@ -116,22 +116,23 @@ TObjArray *TNetFolder::GetListOfFolders()
    return 0;
 }
 
-TObject *TNetFolder::FindObject(const Char_t *name)
+TObject *TNetFolder::FindObject(const Char_t *name) const
 {
+   TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObject ";
    str.Append(name);
-   if (!Send(str.Data()))
-      return FindObject(name);
+   if (!localThis->Send(str.Data()))
+      return localThis->FindObject(name);
 
    TMessage m(kMESS_ANY);
    m.Reset();
    m << fFolder;
-   if (!Send(m))
-      return FindObject(name);
+   if (!localThis->Send(m))
+      return localThis-> FindObject(name);
 
    TMessage *mr = 0;
-   if (!Recv(mr))
-      return FindObject(name);
+   if (!localThis->Recv(mr))
+      return localThis->FindObject(name);
 
    if (mr == NULL) {
       delete mr;
@@ -143,22 +144,23 @@ TObject *TNetFolder::FindObject(const Char_t *name)
    return obj;
 }
 
-TObject *TNetFolder::FindObjectAny(const Char_t *name)
+TObject *TNetFolder::FindObjectAny(const Char_t *name) const
 {
+   TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObjectAny ";
    str.Append(name);
-   if (!Send(str.Data()))
-      return FindObjectAny(name);
+   if (!localThis->Send(str.Data()))
+      return localThis->FindObjectAny(name);
 
    TMessage m(kMESS_ANY);
    m.Reset();
    m << fFolder;
-   if (!Send(m))
-      return FindObjectAny(name);
+   if (!localThis->Send(m))
+      return localThis->FindObjectAny(name);
 
    TMessage *mr = 0;
-   if (!Recv(mr))
-      return FindObjectAny(name);
+   if (!localThis->Recv(mr))
+      return localThis->FindObjectAny(name);
 
    if (mr == NULL) {
       delete mr;
@@ -228,15 +230,15 @@ Int_t TNetFolder::Occurence(const TObject *obj)
    return retValue;
 }
 
-void TNetFolder::Execute(const Char_t *line)
+void TNetFolder::ExecuteCommand(const Char_t *line)
 {
    // The line is executed by the CINT of the server
    if (!Send("Execute")) {
-      Execute(line);
+      ExecuteCommand(line);
       return;
    }
    if (!Send(line)) {
-      Execute(line);
+      ExecuteCommand(line);
       return;
    }
 }

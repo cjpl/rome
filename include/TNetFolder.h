@@ -61,9 +61,10 @@ public:
 
   virtual char const *FindFullPathName( char const * );
   
-  virtual TObject *FindObject( char const * );
+  virtual TObject *FindObject( char const * ) const;
+  virtual TObject *FindObject( const TObject* obj ) const { MayNotUse("FindObject"); return NULL; };
   
-  virtual TObject *FindObjectAny( char const * );
+  virtual TObject *FindObjectAny( char const * ) const;
   
   TObjArray *GetListOfFolders();
   
@@ -79,7 +80,7 @@ public:
     { Error("Remove","Not available for TNetFolders"); }
     
   Int_t GetPointer();
-  void Execute(const char *line);
+  void ExecuteCommand(const char *line);
   void ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
 
 protected:

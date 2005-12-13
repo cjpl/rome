@@ -137,8 +137,8 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
                if (fNetFolder) {        // control analyzer
-                  fNetFolder->Execute("gAnalyzer->SetUserEventC();");
-                  fNetFolder->Execute("gAnalyzer->SetUserEventR();");
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
                }
                else {           // control active DAQ
                   // to be implemented something
@@ -148,7 +148,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
                if (fNetFolder) {        // control analyzer
-                  fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
                }
                else {           // control active DAQ
                   // to be implemented something
@@ -157,8 +157,8 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             break;
          case B_Next:
             if (fNetFolder) {   // control analyzer
-               fNetFolder->Execute("gAnalyzer->SetUserEventO();");
-               fNetFolder->Execute("gAnalyzer->SetUserEventR();");
+               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
+               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
             }
             else {              // control active DAQ
                if (fRunNumber != fLastRunNumber) {
@@ -186,7 +186,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             break;
          case B_Stop:
             if (fNetFolder) {   // control analyzer
-               fNetFolder->Execute("gAnalyzer->SetUserEventS();");
+               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
             }
             else {              // control active DAQ
                // to be implemented something

@@ -19,6 +19,10 @@ Bool_t ArgusBuilder::WriteMain()
    ROMEString mainprogname(mainProgName);
    cppFile.SetFormatted("%s/src/framework/main.cpp", outDir.Data());
    buffer.Resize(0);
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    buffer.AppendFormatted("#include <TRint.h>\n");
    buffer.AppendFormatted("#include <TFolder.h>\n");
@@ -397,14 +401,14 @@ void ArgusBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e %sROMEDict.cpp %sARGUSDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+      tempStr.SetFormatted("make -e dict/ROMEDict.cpp dict/ARGUSDict.cpp dict/%sFrameworkDict.cpp dict/%sFolderDict.cpp dict/%sTabDict.cpp dict/%sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       const int workDirLen = 1000;
       char workDir[workDirLen];
       getcwd(workDir,workDirLen);
-      tempStr.SetFormatted("nmake -f Makefile.win %sROMEDict.cpp %sARGUSDict.cpp %sFrameworkDict.cpp %sFolderDict.cpp %sTabDict.cpp %sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win dict/ROMEDict.cpp dict/ARGUSDict.cpp dict/%sFrameworkDict.cpp dict/%sFolderDict.cpp dict/%sTabDict.cpp dict/%sUserDict.cpp", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
       system(tempStr.Data());
 #endif
    }
@@ -438,6 +442,18 @@ void ArgusBuilder::WriteMakefile()
    ROMEString mainprogname(mainProgName);
    mainprogname.ToLower();
    buffer.Resize(0);
+   buffer.AppendFormatted("################################################################################\n");
+   buffer.AppendFormatted("##          *** This file will be overwritten by the ArgusBuilder ***         ##\n");
+   buffer.AppendFormatted("##          ***      Don't make manual changes to this file       ***         ##\n");
+   buffer.AppendFormatted("################################################################################\n");
+   buffer.AppendFormatted("#\n");
+   buffer.AppendFormatted("# make        : compile executable\n");
+   buffer.AppendFormatted("# make build  : execute argusbuilder\n");
+   buffer.AppendFormatted("# make clean  : remove intermediate files\n");
+   tempBuffer[0] = shortCut;
+   tempBuffer[0].ToLower();
+   buffer.AppendFormatted("# make %sclean: remove %s specific intermediate files\n", tempBuffer[0].Data(), shortCut.Data());
+   buffer.AppendFormatted("\n");
 
    // Libraries, Flags and Includes
    // -----------------------------
@@ -738,7 +754,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("objects %s $(objects)", EqualSign());
    buffer.AppendFormatted(" $(TabObjects)");
    buffer.AppendFormatted(" obj/%sWindow.obj", shortCut.Data(), shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted(" obj/%sARGUSDict.obj", shortCut.Data());
+   buffer.AppendFormatted(" obj/ARGUSDict.obj", shortCut.Data());
    buffer.AppendFormatted(" obj/ArgusMonitor.obj  obj/ArgusWindow.obj obj/ArgusTextDialog.obj obj/ArgusAnalyzerController.obj obj/TNetFolder.obj");
    buffer.AppendFormatted("\n");
 #if defined( R__UNIX )
@@ -751,7 +767,7 @@ void ArgusBuilder::WriteMakefile()
 
 
    // all
-   buffer.AppendFormatted("all:obj blank.d %s%s", shortcut.Data(), mainprogname.Data());
+   buffer.AppendFormatted("all:obj dict blank.d %s%s", shortcut.Data(), mainprogname.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(".exe\n");
 #endif
@@ -775,6 +791,17 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("\t@if [ ! -d  obj ] ; then \\\n");
    buffer.AppendFormatted("\t\techo \"Making directory obj\" ; \\\n");
    buffer.AppendFormatted("\t\tmkdir obj; \\\n");
+   buffer.AppendFormatted("\tfi;\n");
+#endif
+
+   // make dict
+   buffer.AppendFormatted("dict:\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("\t@mkdir dict\n\n");
+#else
+   buffer.AppendFormatted("\t@if [ ! -d  dict ] ; then \\\n");
+   buffer.AppendFormatted("\t\techo \"Making directory dict\" ; \\\n");
+   buffer.AppendFormatted("\t\tmkdir dict; \\\n");
    buffer.AppendFormatted("\tfi;\n");
 #endif
 
@@ -862,14 +889,12 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("obj/TNetFolder.obj: $(ARGUSSYS)/src/TNetFolder.cpp $(ARGUSSYS)/include/TNetFolder.h obj/TNetFolder.d\n");
    buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), "$(ARGUSSYS)/src/TNetFolder", "TNetFolder");
 
-   buffer.AppendFormatted("obj/%sARGUSDict.obj: %sARGUSDict.h %sARGUSDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
-   tempBuffer[0].SetFormatted("%sARGUSDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sARGUSDict", shortCut.Data());
-   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
-   buffer.AppendFormatted("obj/%sTabDict.obj: %sTabDict.h %sTabDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("obj/ARGUSDict.obj: dict/ARGUSDict.h dict/ARGUSDict.cpp\n");
+   tempBuffer[0].SetFormatted("ARGUSDict");
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatDict.Data()), tempBuffer[0].Data(), tempBuffer[0].Data());
+   buffer.AppendFormatted("obj/%sTabDict.obj: dict/%sTabDict.h dict/%sTabDict.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data());
    tempBuffer[0].SetFormatted("%sTabDict", shortCut.Data());
-   tempBuffer[1].SetFormatted("%sTabDict", shortCut.Data());
-   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatBlank.Data()), tempBuffer[0].Data(), tempBuffer[1].Data());
+   buffer.AppendFormatted(const_cast<Char_t*>(compileFormatDict.Data()), tempBuffer[0].Data(), tempBuffer[0].Data());
 
    buffer.AppendFormatted("\n");
 
@@ -881,11 +906,11 @@ void ArgusBuilder::WriteMakefile()
 
    // Clean and build
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d %sARGUSDict.cpp %sARGUSDict.h %sFolderDict.cpp %sFolderDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sROMEDict.cpp %sROMEDict.h %sTabDict.cpp %sTabDict.h %sUserDict.cpp %sUserDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d dict/*.h dict/*.cpp\n");
    ROMEString tmp = shortCut;
    tmp.ToLower();
    buffer.AppendFormatted("%sclean:\n", tmp.Data());
-   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d %sFolderDict.cpp %sFolderDict.h %sFrameworkDict.cpp %sFrameworkDict.h %sTabDict.cpp %sTabDict.h %sUserDict.cpp %sUserDict.h\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d dict/%s%.h dict/%s.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("\n");
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -912,7 +937,7 @@ void ArgusBuilder::WriteMakefile()
 void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the ARGUS headers
-   buffer.AppendFormatted("%sARGUSDict.h %sARGUSDict.cpp:", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("dict/ARGUSDict.h dict/ARGUSDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(ARGUSSYS)/include/ArgusMonitor.h $(ARGUSSYS)/include/ArgusWindow.h $(ARGUSSYS)/include/ArgusTextDialog.h $(ARGUSSYS)/include/ArgusAnalyzerController.h $(ARGUSSYS)/include/TNetFolder.h\n");
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
@@ -924,13 +949,13 @@ void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sARGUSDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f dict/ARGUSDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sARGUSDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f dict/ARGUSDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
@@ -944,7 +969,7 @@ void ArgusBuilder::WriteARGUSDictionary(ROMEString& buffer)
 void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the framework headers
-   buffer.AppendFormatted("%sFrameworkDict.h %sFrameworkDict.cpp:", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("dict/%sFrameworkDict.h dict/%sFrameworkDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" include/framework/%sMonitor.h  include/framework/%sWindow.h\n", shortCut.Data(), shortCut.Data());
 #if defined( R__UNIX )
 #   if defined( R__MACOSX )
@@ -956,13 +981,13 @@ void ArgusBuilder::WriteFrameworkDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sFrameworkDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f dict/%sFrameworkDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sFrameworkDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f dict/%sFrameworkDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
@@ -978,7 +1003,7 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
 {
    // writes a script file that executes rootcint for the tab headers
    int i;
-   buffer.AppendFormatted("%sTabDict.h %sTabDict.cpp:", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("dict/%sTabDict.h dict/%sTabDict.cpp:", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted(" $(TabIncludes)");
    buffer.AppendFormatted(" $(BaseTabIncludes)");
    buffer.AppendFormatted("\n");
@@ -992,13 +1017,13 @@ void ArgusBuilder::WriteTabDictionary(ROMEString& buffer)
    buffer.AppendFormatted("\t");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f %sTabDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("%%ROOTSYS%%\\bin\\rootcint -f dict/%sTabDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I%%ROMESYS%%/include");
    buffer.AppendFormatted(" -I%%ROOTSYS%%/include");
    buffer.AppendFormatted(" -I%%ARGUSSYS%%/include");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f %sTabDict.cpp -c -p", shortCut.Data());
+   buffer.AppendFormatted("$(ROOTSYS)/bin/rootcint -f dict/%sTabDict.cpp -c -p", shortCut.Data());
    buffer.AppendFormatted(" -I$(ROMESYS)/include");
    buffer.AppendFormatted(" -I$(shell $(ROOTSYS)/bin/root-config --incdir)");
    buffer.AppendFormatted(" -I$(ARGUSSYS)/include");
@@ -1024,6 +1049,12 @@ void ArgusBuilder::WriteHTMLDoku()
 
    // Header
    buffer.Resize(0);
+   buffer.AppendFormatted("<!--\n");
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
+   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+   buffer.AppendFormatted("-->\n\n");
    buffer.AppendFormatted("<HTML>\n");
    buffer.AppendFormatted("<HEAD>\n");
    buffer.AppendFormatted("<TITLE>%s%s Manual</TITLE>\n", shortCut.Data(), mainProgName.Data());
@@ -1054,7 +1085,7 @@ void ArgusBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n", shortCut.Data(), mainProgName.Data());
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/htmldoc/ClassIndex.html\">Class Overview</A></li>\n", outDir.Data());
-   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/%sUserHTML.html\">Additional Info</A></li>\n", outDir.Data(), shortCut.Data());
+//   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/%sUserHTML.html\">Additional Info</A></li>\n", outDir.Data(), shortCut.Data());
    buffer.AppendFormatted("</ul>\n");
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<hr>\n");
@@ -1271,6 +1302,7 @@ void ArgusBuilder::WriteHTMLDoku()
       }
    }
    // Write UserHTML
+/*
    ROMEString userHtmlFile;
    userHtmlFile.SetFormatted("%s%sUserHTML.html", outDir.Data(), shortCut.Data());
    if (stat(userHtmlFile.Data(), &buf)) {
@@ -1307,6 +1339,7 @@ void ArgusBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("</html>");
       WriteFile(userHtmlFile.Data(), buffer.Data(), 0);
    }
+*/
 }
 
 
@@ -1388,53 +1421,6 @@ void ArgusBuilder::ROME2Argus(ROMEString &buffer)
    buffer.ReplaceAll("gAnalyzer", "gMonitor");
 }
 
-
-//______________________________________________________________________________
-Bool_t ArgusBuilder::WriteSteering(Int_t iTab)
-{
-   ROMEString hFile;
-   ROMEString buffer;
-
-   hFile.SetFormatted("%s/include/framework/%sGlobalSteering.h", outDir.Data(), shortCut.Data());
-
-   if (numOfSteering[numOfTab] == -1) {
-      remove(hFile.Data());
-      return kTRUE;
-   }
-
-   if (makeOutput)
-      cout << "\n   Output Files:" << endl;
-
-   // Description
-   buffer.Resize(0);
-   buffer.AppendFormatted("//// Author: %s\n", mainAuthor.Data());
-   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// Contains the global Steering Parameters                                   //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
-
-   // Header
-   buffer.AppendFormatted("#ifndef %sGlobalSteering_H\n", shortCut.Data());
-   buffer.AppendFormatted("#define %sGlobalSteering_H\n\n", shortCut.Data());
-   buffer.AppendFormatted("#include <string>\n\n");
-   buffer.AppendFormatted("#include <include/framework/%sMonitor.h>\n", shortCut.Data());
-
-   WriteSteeringClass(buffer, 0, iTab, 0);
-
-   buffer.AppendFormatted("#endif   // %sGlobalSteering_H\n", shortCut.Data());
-
-   //Write File
-   WriteFile(hFile.Data(), buffer.Data(), 6);
-
-   return kTRUE;
-}
-
-
 //______________________________________________________________________________
 Bool_t ArgusBuilder::WriteMonitorCpp()
 {
@@ -1443,9 +1429,8 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    ROMEString buffer;
    ROMEString parentt;
    ROMEString buf;
-   Int_t lenTot, j, k, ll;
+   Int_t j, k;
    Int_t iFold;
-   Char_t *pos;
    ROMEString classDescription;
    classDescription.SetFormatted("Basic class for the %s%s. This class creates and manages all folders.", shortCut.Data(), mainProgName.Data());
    ROMEString tmp;
@@ -1462,33 +1447,9 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    // File name
    cppFile.SetFormatted("%s/src/framework/%sMonitor.cpp", outDir.Data(), shortCut.Data());
    // Description
-   buffer.AppendFormatted("//// Author: %s\n", mainAuthor.Data());
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   ll = 74 - shortCut.Length();
-   format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted(const_cast<Char_t *>(format.Data()), shortCut.Data(), "Monitor");
-   format.Resize(0);
-   buffer.AppendFormatted("//                                                                            //\n");
-   pos = const_cast<Char_t*>(classDescription.Data());
-   lenTot = classDescription.Length();
-   while (pos - classDescription.Data() < lenTot) {
-      if (lenTot + (classDescription.Data() - pos) < 74)
-         i = lenTot + (classDescription.Data() - pos);
-      else
-         for (i = 74; pos[i] != 32 && i > 0; i--) {
-         }
-      if (i <= 0)
-         i = TMath::Min(75, lenTot);
-      pos[i] = 0;
-      buffer.AppendFormatted("// %-74.74s   \n", pos);
-      pos = pos + i + 1;
-   }
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
@@ -1858,8 +1819,8 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
    buffer.AppendFormatted("   if (path.Index(\"/GSP\")==0) {\n");
    ROMEString path = "/GSP";
    codeNumber = WriteSteeringInterpreterCode(buffer, codeNumber, 0, numOfTaskHierarchy, path, 1);
-   buffer.AppendFormatted("      gMonitor->Println(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
-   buffer.AppendFormatted("      gMonitor->Println(\"   \"+path+\"\\n\");\n");
+   buffer.AppendFormatted("      gMonitor->PrintLine(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
+   buffer.AppendFormatted("      gMonitor->PrintLine(\"   \"+path+\"\\n\");\n");
    buffer.AppendFormatted("      return -1;\n");
    buffer.AppendFormatted("   }\n");
    for (i = 0; i < numOfFolder; i++) {
@@ -1873,8 +1834,8 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
          }
       }
    }
-   buffer.AppendFormatted("   gMonitor->Println(\"\\nWrong path in configuration file.\\n\");\n");
-   buffer.AppendFormatted("   gMonitor->Println(\"   \"+path+\"\\n\");\n");
+   buffer.AppendFormatted("   gMonitor->PrintLine(\"\\nWrong path in configuration file.\\n\");\n");
+   buffer.AppendFormatted("   gMonitor->PrintLine(\"   \"+path+\"\\n\");\n");
    buffer.AppendFormatted("   return -1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -1995,7 +1956,7 @@ Bool_t ArgusBuilder::WriteMonitorCpp()
                buffer.AppendFormatted(",gMonitor->GetObjectInterpreterCharValue(gMonitor->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[i].Data(),valueName[i][j].Data(),k,k,k);
             buffer.AppendFormatted(");\n");
             buffer.AppendFormatted("   if (!this->GetDataBase(gMonitor->Get%s_%sDBIndex())->Write(values,path,gMonitor->GetCurrentRunNumber())) {\n",folderName[i].Data(),valueName[i][j].Data());
-            buffer.AppendFormatted("      gMonitor->Println\"   in Folder '%s' Value '%s'.\");\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      gMonitor->PrintLine(\"   in Folder '%s' Value '%s'.\");\n",folderName[i].Data(),valueName[i][j].Data());
             buffer.AppendFormatted("      delete values;\n");
             buffer.AppendFormatted("      return;\n");
             buffer.AppendFormatted("   }\n");
@@ -2083,10 +2044,8 @@ Bool_t ArgusBuilder::WriteMonitorH()
    // Description
    buffer.Resize(0);
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
@@ -2303,7 +2262,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("   // DAQ Access Methods\n");
    buffer.AppendFormatted("   %sMidasDAQ* GetMidasDAQ() {\n", shortCut.Data());
    buffer.AppendFormatted("      if (fMidasDAQ==NULL) {\n");
-   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the midas DAQ system over a gMonitor->GetMidasDAQ()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the midas DAQ system over a gMonitor->GetMidasDAQ()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
    buffer.AppendFormatted("         fApplication->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
@@ -2312,7 +2271,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("   void     SetMidasDAQ(%sMidasDAQ* handle) { fMidasDAQ = handle; };\n", shortCut.Data());
    buffer.AppendFormatted("   %sRomeDAQ*  GetRomeDAQ() {\n", shortCut.Data());
    buffer.AppendFormatted("      if (fRomeDAQ==NULL) {\n");
-   buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the root DAQ system over a gMonitor->GetRomeDAQ()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
+   buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the root DAQ system over a gMonitor->GetRomeDAQ()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
    buffer.AppendFormatted("         fApplication->Terminate(1);\n");
    buffer.AppendFormatted("         return NULL;\n");
    buffer.AppendFormatted("      }\n");
@@ -2322,7 +2281,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    if (this->orca) {
       buffer.AppendFormatted("   ROMEOrcaDAQ*  GetOrcaDAQ() {\n");
       buffer.AppendFormatted("      if (fOrcaDAQ==NULL) {\n");
-      buffer.AppendFormatted("         this->Println(\"\\nYou have tried to access the orca DAQ system over a gMonitor->GetOrcaDAQ()\\nhandle but the current DAQ system is not 'Orca'.\\n\\nShutting down the program.\\n\");\n");
+      buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the orca DAQ system over a gMonitor->GetOrcaDAQ()\\nhandle but the current DAQ system is not 'Orca'.\\n\\nShutting down the program.\\n\");\n");
       buffer.AppendFormatted("         fApplication->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
@@ -2392,8 +2351,6 @@ Bool_t ArgusBuilder::WriteWindowCpp()
    ROMEString format;
    ROMEString menu_title;
    ROMEString buf;
-   Int_t lenTot, ll;
-   Char_t *pos;
 
    ROMEString classDescription;
    classDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.", shortCut.Data(), mainProgName.Data());
@@ -2403,33 +2360,9 @@ Bool_t ArgusBuilder::WriteWindowCpp()
    cppFile.SetFormatted("%s/src/framework/%sWindow.cpp", outDir.Data(), shortCut.Data());
 
    // Description
-   buffer.AppendFormatted("//// Author: %s\n", mainAuthor.Data());
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   ll = 74 - shortCut.Length();
-   format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
-   format.Resize(0);
-   buffer.AppendFormatted("//                                                                            //\n");
-   pos = const_cast<Char_t*>(classDescription.Data());
-   lenTot = classDescription.Length();
-   while (pos - classDescription.Data() < lenTot) {
-      if (lenTot + (classDescription.Data() - pos) < 74)
-         i = lenTot + (classDescription.Data() - pos);
-      else
-         for (i = 74; pos[i] != 32 && i > 0; i--) {
-         }
-      if (i <= 0)
-         i = TMath::Min(75, lenTot);
-      pos[i] = 0;
-      buffer.AppendFormatted("// %-74.74s   \n", pos);
-      pos = pos + i + 1;
-   }
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
@@ -2626,8 +2559,6 @@ Bool_t ArgusBuilder::WriteWindowH()
    ROMEString hFile;
    ROMEString buffer;
    ROMEString buf;
-   Int_t lenTot, ll;
-   Char_t *pos;
    ROMEString classDescription;
    classDescription.SetFormatted("Main window class for the %s%s.", shortCut.Data(), mainProgName.Data());
    ROMEString tmp;
@@ -2663,33 +2594,9 @@ Bool_t ArgusBuilder::WriteWindowH()
    hFile.SetFormatted("%s/include/framework/%sWindow.h", outDir.Data(), shortCut.Data());
 
    // Description
-   buffer.AppendFormatted("//// Author: %s\n", mainAuthor.Data());
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   ll = 74 - shortCut.Length();
-   format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
-   format.Resize(0);
-   buffer.AppendFormatted("//                                                                            //\n");
-   pos = const_cast<Char_t*>(classDescription.Data());
-   lenTot = classDescription.Length();
-   while (pos - classDescription.Data() < lenTot) {
-      if (lenTot + (classDescription.Data() - pos) < 74)
-         i = lenTot + (classDescription.Data() - pos);
-      else
-         for (i = 74; pos[i] != 32 && i > 0; i--) {
-         }
-      if (i <= 0)
-         i = TMath::Min(75, lenTot);
-      pos[i] = 0;
-      buffer.AppendFormatted("// %-74.74s   \n", pos);
-      pos = pos + i + 1;
-   }
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
@@ -3373,11 +3280,10 @@ Bool_t ArgusBuilder::WriteTabH()
       // Description
       buffer.Resize(0);
       buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-      buffer.AppendFormatted("//                                                                            //\n");
-      buffer.AppendFormatted("// This file has been generated by the ROMEBuilder.                           //\n");
-      buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-      buffer.AppendFormatted("//                                                                            //\n");
+      buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+      buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
       buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
+
       // Header
       buffer.AppendFormatted("#ifndef %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#define %sT%s_Base_H\n\n", shortCut.Data(), tabName[iTab].Data());
@@ -3777,8 +3683,6 @@ Bool_t ArgusBuilder::WriteConfigCpp()
    Int_t i, j;
    ROMEString cppFile;
    ROMEString buffer;
-   Int_t lenTot, ll;
-   Char_t *pos;
    ROMEString format;
    ROMEString classDescription;
 
@@ -3788,32 +3692,9 @@ Bool_t ArgusBuilder::WriteConfigCpp()
 
    // Description
    buffer.Resize(0);
-   buffer.AppendFormatted("//// Author: %s\n", mainAuthor.Data());
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   ll = 74 - shortCut.Length();
-   format.SetFormatted("// %%s%%-%d.%ds //\n", ll, ll);
-   buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), "Monitor");
-   buffer.AppendFormatted("//                                                                            //\n");
-   pos = const_cast<Char_t*>(classDescription.Data());
-   lenTot = classDescription.Length();
-   while (pos - classDescription.Data() < lenTot) {
-      if (lenTot + (classDescription.Data() - pos) < 74)
-         i = lenTot + (classDescription.Data() - pos);
-      else
-         for (i = 74; pos[i] != 32 && i > 0; i--) {
-         }
-      if (i <= 0)
-         i = TMath::Min(75, lenTot);
-      pos[i] = 0;
-      buffer.AppendFormatted("// %-74.74s   \n", pos);
-      pos = pos + i + 1;
-   }
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header
@@ -5000,10 +4881,8 @@ Bool_t ArgusBuilder::WriteConfigH()
    // Description
    buffer.Resize(0);
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("//                                                                            //\n");
-   buffer.AppendFormatted("// This file has been generated by the ArgusBuilder.                          //\n");
-   buffer.AppendFormatted("// Manual changes to this file will always be overwritten by the builder.     //\n");
-   buffer.AppendFormatted("//                                                                            //\n");
+   buffer.AppendFormatted("//          *** This file will be overwritten by the ArgusBuilder ***         //\n");
+   buffer.AppendFormatted("//          ***      Don't make manual changes to this file       ***         //\n");
    buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n\n");
 
    // Header

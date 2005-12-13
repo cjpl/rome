@@ -86,7 +86,6 @@ public:
    Bool_t WriteWindowH();
    Bool_t ReadXMLTab();
    Bool_t ReadXMLMenu(Int_t currentNumberOfTabs);
-   Bool_t WriteSteering(Int_t iTab);
    Bool_t WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
    Bool_t WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
    Bool_t WriteTabCpp();
