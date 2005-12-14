@@ -7,6 +7,7 @@
 #ifndef ROMEXML_H
 #define ROMEXML_H
 
+
 #if defined( R__VISUAL_CPLUSPLUS )
 extern "C" {
 #endif

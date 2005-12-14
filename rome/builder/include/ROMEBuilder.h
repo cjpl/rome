@@ -321,6 +321,8 @@ public:
    void WriteAdditionalSourceFilesObjects(ROMEString& buffer);
    void WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer);
    void WriteUserMakeFile();
+   void WriteVisualProjects(int version,int subVersion);
+   void GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath);
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);

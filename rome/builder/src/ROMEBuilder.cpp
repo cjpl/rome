@@ -5,7 +5,6 @@
   $Id$
 
 ********************************************************************/
-
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <direct.h>
@@ -9565,7 +9564,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d dict/%s*.h dict/%s*.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
-   WriteBuildRule(buffer,"$(ROMESYS)\bin\romebuilder");
+   WriteBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder");
 #else
    WriteBuildRule(buffer,"$(ROMESYS)/bin/romebuilder");
 #endif // R__VISUAL_CPLUSPLUS
@@ -9582,8 +9581,381 @@ void ROMEBuilder::WriteMakefile() {
 
    // Write Makefile.usr
    WriteUserMakeFile();
-}
 
+   // Write Visual C++ Projects
+   WriteVisualProjects(7,10);
+}
+void ROMEBuilder::WriteVisualProjects(int version,int subVersion)
+{
+   int i;
+   ROMEString buffer;
+   ROMEString relativePath;
+   ROMEString str;
+   ROMEString fileName;
+   ROMEString formatVersion;
+   ROMEString projectGUID = "12345678-1234-1234-1234-123456789012";
+   switch (version) {
+      case 7:
+         formatVersion = "8.00";
+         break;
+      case 8:
+         formatVersion = "9.00";
+         break;
+      default:
+         return;
+   }
+
+   buffer.AppendFormatted("Microsoft Visual Studio Solution File, Format Version %s\n",formatVersion.Data());
+   buffer.AppendFormatted("Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = \"%s%s%d\", \"%s%s%d.vcproj\", \"{%s}\"\n",shortCut.Data(),mainProgName.Data(),version,shortCut.Data(),mainProgName.Data(),version,projectGUID.Data());
+   buffer.AppendFormatted("	ProjectSection(ProjectDependencies) = postProject\n");
+   buffer.AppendFormatted("	EndProjectSection\n");
+   buffer.AppendFormatted("EndProject\n");
+   buffer.AppendFormatted("Global\n");
+   buffer.AppendFormatted("	GlobalSection(SolutionConfiguration) = preSolution\n");
+   buffer.AppendFormatted("		Debug = Debug\n");
+   buffer.AppendFormatted("	EndGlobalSection\n");
+   buffer.AppendFormatted("	GlobalSection(ProjectConfiguration) = postSolution\n");
+   buffer.AppendFormatted("		{%s}.Debug.ActiveCfg = Debug|Win32\n",projectGUID.Data());
+   buffer.AppendFormatted("		{%s}.Debug.Build.0 = Debug|Win32\n",projectGUID.Data());
+   buffer.AppendFormatted("	EndGlobalSection\n");
+   buffer.AppendFormatted("	GlobalSection(ExtensibilityGlobals) = postSolution\n");
+   buffer.AppendFormatted("	EndGlobalSection\n");
+   buffer.AppendFormatted("	GlobalSection(ExtensibilityAddIns) = postSolution\n");
+   buffer.AppendFormatted("	EndGlobalSection\n");
+   buffer.AppendFormatted("EndGlobal\n");
+
+   fileName.SetFormatted("%s%s%d.sln",shortCut.Data(),mainProgName.Data(),version);
+   WriteFile(fileName.Data(),buffer.Data(),6);
+
+   ROMEXML *xml = new ROMEXML();
+   fileName.SetFormatted("%s%s%d.vcproj",shortCut.Data(),mainProgName.Data(),version);
+   xml->OpenFileForWrite(fileName.Data());
+   // VisualStudioProject
+   xml->StartElement("VisualStudioProject");
+   xml->WriteAttribute("ProjectType","Visual C++");
+   str.SetFormatted("%d.%d",version,subVersion);
+   xml->WriteAttribute("Version",str.Data());
+   str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
+   xml->WriteAttribute("Name",str.Data());
+   xml->WriteAttribute("ProjectGUID",projectGUID.Data());
+   str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
+   xml->WriteAttribute("RootNamespace",str.Data());
+   xml->WriteAttribute("Keyword","ManagedCProj");
+
+   // Platforms
+   xml->StartElement("Platforms");
+   xml->StartElement("Platform");
+   xml->WriteAttribute("Name","Win32");
+   xml->EndElement();
+   xml->EndElement();
+
+   // Configurations
+   xml->StartElement("Configurations");
+
+   // Debug
+   xml->StartElement("Configuration");
+   xml->WriteAttribute("Name","Debug|Win32");
+   xml->WriteAttribute("OutputDirectory","$(SolutionDir)$(ConfigurationName)");
+   xml->WriteAttribute("IntermediateDirectory","$(ConfigurationName)");
+   xml->WriteAttribute("ConfigurationType","1");
+   xml->WriteAttribute("CharacterSet","2");
+   xml->WriteAttribute("ManagedExtensions","FALSE");
+
+   // VCCLCompilerTool
+   ROMEString includeDirs;
+   includeDirs.AppendFormatted("\"$(ROOTSYS)\\include\"");
+   includeDirs.AppendFormatted(";\"$(ROMESYS)\\include\"");
+   includeDirs.AppendFormatted(";\"$(ARGUSSYS)\\include\"");
+   includeDirs.AppendFormatted(";\"$(SolutionDir)\"");
+   includeDirs.AppendFormatted(";\"$(SolutionDir)\\include\"");
+   for (i=0;i<numOfMFIncDirs;i++)
+      includeDirs.AppendFormatted(";\"%s\"",mfIncDir[i].Data());
+   ROMEString preDrocDefs = "WIN32;_DEBUG";
+   for (i=0;i<flags.GetEntriesFast();i++)
+      preDrocDefs.AppendFormatted(";%s",flags.At(i).Data());
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCCLCompilerTool");
+   xml->WriteAttribute("Optimization","0");
+   xml->WriteAttribute("AdditionalIncludeDirectories",includeDirs.Data());
+   xml->WriteAttribute("PreprocessorDefinitions",preDrocDefs.Data());
+   xml->WriteAttribute("MinimalRebuild","FALSE");
+   xml->WriteAttribute("BasicRuntimeChecks","0");
+   xml->WriteAttribute("RuntimeLibrary","1");
+   xml->WriteAttribute("RuntimeTypeInfo","TRUE");
+   xml->WriteAttribute("WarningLevel","3");
+   xml->WriteAttribute("DebugInformationFormat","3");
+   xml->EndElement();
+
+   // VCCustomBuildTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCCustomBuildTool");
+   xml->EndElement();
+
+   // VCLinkerTool
+   ROMEString libs;
+   libs.AppendFormatted("wsock32.lib gdi32.lib user32.lib kernel32.lib gdk-1.3.lib glib-1.3.lib libCore.lib libCint.lib libHist.lib libGraf.lib libGraf3d.lib libGpad.lib libTree.lib libRint.lib libPostscript.lib libMatrix.lib libPhysics.lib libGui.lib libHtml.lib libWin32gdk.lib libThread.lib");
+   for (i=0;i<numOfMFWinLibs;i++)
+      libs.AppendFormatted(" %s",mfWinLibName[i].Data());
+   ROMEString libDirs;
+   libDirs.AppendFormatted("\"$(ROOTSYS)\\lib\"");
+   libDirs.AppendFormatted(";\"$(ROMESYS)\\lib_win\"");
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCLinkerTool");
+   xml->WriteAttribute("AdditionalDependencies",libs.Data());
+   xml->WriteAttribute("OutputFile","$(OutDir)\\$(ProjectName).exe");
+   xml->WriteAttribute("LinkIncremental","2");
+   xml->WriteAttribute("AdditionalLibraryDirectories",libDirs.Data());
+   xml->WriteAttribute("GenerateDebugInformation","TRUE");
+   xml->WriteAttribute("AssemblyDebug","1");
+   xml->EndElement();
+
+   // VCMIDLTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCMIDLTool");
+   xml->EndElement();
+
+   // VCPostBuildEventTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCPostBuildEventTool");
+   xml->EndElement();
+
+   // VCPreBuildEventTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCPreBuildEventTool");
+   xml->WriteAttribute("Description","running Builder");
+   xml->WriteAttribute("CommandLine","nmake -f Makefile.win build");
+   xml->EndElement();
+
+   // VCPreLinkEventTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCPreLinkEventTool");
+   xml->EndElement();
+
+   // VCResourceCompilerTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCResourceCompilerTool");
+   xml->EndElement();
+
+   // VCWebServiceProxyGeneratorTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCWebServiceProxyGeneratorTool");
+   xml->EndElement();
+
+   // VCXMLDataGeneratorTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCXMLDataGeneratorTool");
+   xml->EndElement();
+
+   // VCWebDeploymentTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCWebDeploymentTool");
+   xml->EndElement();
+
+   // VCAuxiliaryManagedWrapperGeneratorTool
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCAuxiliaryManagedWrapperGeneratorTool");
+   xml->EndElement();
+
+   // End Debug
+   xml->EndElement();
+
+   // End Configurations
+   xml->EndElement();
+
+   // References
+   xml->StartElement("References");
+   xml->EndElement();
+
+   // Files
+   xml->StartElement("Files");
+
+   // Source Files
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Source Files");
+   xml->WriteAttribute("Filter","cpp;c;cxx");
+   xml->WriteAttribute("UniqueIdentifier","{4FC737F1-C7A5-4376-A066-2A32D752A2FF}");
+
+   // Tasks
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Tasks");
+   xml->WriteAttribute("Filter","cpp;c;cxx");
+   for (i=0;i<numOfTask;i++) {
+      xml->StartElement("File");
+      str.SetFormatted(".\\src\\tasks\\%sT%s.cpp",shortCut.Data(),taskName[i].Data());
+      xml->WriteAttribute("RelativePath",str.Data());
+      xml->EndElement();
+   }
+   xml->EndElement();
+
+   // User DAQs
+   if (numOfDAQ>0) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name","User DAQs");
+      xml->WriteAttribute("Filter","cpp;c;cxx");
+      for (i=0;i<numOfDAQ;i++) {
+         xml->StartElement("File");
+         str.SetFormatted(".\\src\\framework\\%s%s.cpp",shortCut.Data(),daqName[i].Data());
+         xml->WriteAttribute("RelativePath",str.Data());
+         xml->EndElement();
+      }
+      xml->EndElement();
+   }
+
+   // User DataBases
+   if (numOfDB>0) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name","User DataBases");
+      xml->WriteAttribute("Filter","cpp;c;cxx");
+      for (i=0;i<numOfDB;i++) {
+         xml->StartElement("File");
+         str.SetFormatted(".\\src\\framework\\%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
+         xml->WriteAttribute("RelativePath",str.Data());
+         xml->EndElement();
+      }
+      xml->EndElement();
+   }
+
+   // Folders
+   bool haveUserFolder = false;
+   for (i=0;i<numOfFolder;i++) {
+      if (folderUserCode[i]) {
+         haveUserFolder = true;
+         break;
+      }
+   }
+   if (haveUserFolder) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name","Folders");
+      xml->WriteAttribute("Filter","cpp;c;cxx");
+      for (i=0;i<numOfFolder;i++) {
+         if (folderUserCode[i]) {
+            xml->StartElement("File");
+            str.SetFormatted(".\\src\\framework\\%s%s.cpp",shortCut.Data(),folderName[i].Data());
+            xml->WriteAttribute("RelativePath",str.Data());
+            xml->EndElement();
+         }
+      }
+      xml->EndElement();
+   }
+
+   // User Classes
+   if (numOfMFSources>0) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name","User Classes");
+      xml->WriteAttribute("Filter","cpp;c;cxx");
+      for (i=0;i<numOfMFSources;i++) {
+         xml->StartElement("File");
+         GetRelativePath(mfSourceFileName[i].Data(),".",relativePath);
+         str.SetFormatted("%s\\%s%s.cpp",relativePath.Data(),shortCut.Data(),mfSourceFileName[i].Data());
+         xml->WriteAttribute("RelativePath",str.Data());
+         xml->EndElement();
+      }
+      xml->EndElement();
+   }
+
+   // Generated
+   ROMEStrArray genSrcFiles(100);
+   genSrcFiles.AddFormatted(".\\src\\framework\\main.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sAnalyzer.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sEventLoop.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sMidasDAQ.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sRomeDAQ.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sConfig.cpp",shortCut.Data());
+   genSrcFiles.AddFormatted(".\\src\\framework\\%sDataBaseDAQ.cpp",shortCut.Data());
+
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Generated");
+   xml->WriteAttribute("Filter","cpp;c;cxx");
+
+   for (i=0;i<genSrcFiles.GetEntriesFast();i++) {
+      xml->StartElement("File");
+      xml->WriteAttribute("RelativePath",genSrcFiles.At(i).Data());
+      xml->EndElement();
+   }
+
+   xml->EndElement();
+
+   // ROME
+   GetRelativePath("$(ROMESYS)",".",relativePath);
+   ROMEStrArray romeSrcFiles(100);
+   romeSrcFiles.AddFormatted("%s\\src\\mxml.c",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEAnalyzer.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEDataBaseDAQ.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEEventLoop.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEMidasDAQ.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEODBOfflineDataBase.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEODBOnlineDataBase.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEPath.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMERomeDAQ.cpp",relativePath.Data());
+   if (sql) {
+      romeSrcFiles.AddFormatted("%s\\src\\ROMESQL.cpp",relativePath.Data());
+      romeSrcFiles.AddFormatted("%s\\src\\ROMESQLDataBase.cpp",relativePath.Data());
+   }
+   romeSrcFiles.AddFormatted("%s\\src\\ROMESplashScreen.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEStr2DArray.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEStrArray.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEString.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMETask.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMETextDataBase.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEUtilities.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEXML.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\ROMEXMLDataBase.cpp",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\strlcpy.c",relativePath.Data());
+   romeSrcFiles.AddFormatted("%s\\src\\TNetFolderServer.cpp",relativePath.Data());
+
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","ROME");
+   xml->WriteAttribute("Filter","cpp;c;cxx");
+
+   for (i=0;i<romeSrcFiles.GetEntriesFast();i++) {
+      xml->StartElement("File");
+      xml->WriteAttribute("RelativePath",romeSrcFiles.At(i).Data());
+      xml->EndElement();
+   }
+
+   xml->EndElement();
+
+   // Dictionaries
+   ROMEStrArray dictSrcFiles(5);
+   dictSrcFiles.AddFormatted(".\\%sTaskDict.cpp",shortCut.Data());
+   dictSrcFiles.AddFormatted(".\\%sFolderDict.cpp",shortCut.Data());
+   dictSrcFiles.AddFormatted(".\\%sFrameworkDict.cpp",shortCut.Data());
+   dictSrcFiles.AddFormatted(".\\%sROMEDict.cpp",shortCut.Data());
+   dictSrcFiles.AddFormatted(".\\%sUserDict.cpp",shortCut.Data());
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Dictionaries");
+   xml->WriteAttribute("Filter","cpp;c;cxx");
+   for (i=0;i<dictSrcFiles.GetEntriesFast();i++) {
+      xml->StartElement("File");
+      xml->WriteAttribute("RelativePath",dictSrcFiles.At(i).Data());
+      xml->StartElement("FileConfiguration");
+      xml->WriteAttribute("Name","Debug|Win32");
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCCLCompilerTool");
+      xml->WriteAttribute("WarningLevel","0");
+      xml->EndElement();
+      xml->EndElement();
+      xml->EndElement();
+   }
+   xml->EndElement();
+
+   // End Source Files
+   xml->EndElement();
+
+   // End Files
+   xml->EndElement();
+
+   // Globals
+   xml->StartElement("Globals");
+   xml->EndElement();
+
+   xml->EndDocument();
+   delete xml;
+}
+void ROMEBuilder::GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath)
+{
+   relativePath = absolutePath;
+}
 void ROMEBuilder::WriteBuildRule(ROMEString& buffer,const char *builder)
 {
    int i;

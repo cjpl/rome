@@ -22,6 +22,7 @@ public:
    ROMEString& AppendFormatted(const char* format=NULL,...);
    ROMEString& InsertFormatted(int position,const char* format=NULL,...);
    ROMEString& SetFormatted(const char* format=NULL,...);
+   bool FormatString(ROMEString* string,const char* format,va_list parameters);
    int  NumberOfOccurrence(ROMEString& subString);
    int  NumberOfOccurrence(const char* subString);
    void Write();
@@ -33,7 +34,6 @@ public:
    ROMEString& StripSpaces();
 
 private:
-   bool FormatString(ROMEString* string,const char* format,va_list parameters);
    int  SearchFormatType(const char* str);
 };
 

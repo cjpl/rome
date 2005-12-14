@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEStrArray.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEStrArray_H
@@ -23,6 +23,8 @@ public:
    Int_t            GetEntriesFast() const;  //only OK when no gaps
    Int_t            GetLast() const;
    Bool_t           IsEmpty() const;
+
+   void             AddFormatted(const char* format,...);
 
    void             Add(TString &str);
    void             Add(const char* str);
