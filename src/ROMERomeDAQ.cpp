@@ -170,12 +170,13 @@ bool ROMERomeDAQ::BeginOfRun() {
 }
 bool ROMERomeDAQ::Event(int event) {
    if (gROME->isOffline()) {
+      int j;
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
       bool endfound = true;
       // read event
-      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
@@ -209,7 +210,7 @@ bool ROMERomeDAQ::Event(int event) {
             }
          }
       }
-      for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead())

@@ -9,6 +9,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEStrArray.h>
+#include <ROMEString.h>
 #include "Riostream.h"
 
 ROMEStrArray::ROMEStrArray(Int_t s, Int_t lowerBound)
@@ -50,6 +51,20 @@ Int_t ROMEStrArray::GetLast() const
 Bool_t ROMEStrArray::IsEmpty() const
 {
    return array->IsEmpty();
+}
+
+
+void ROMEStrArray::AddFormatted(const char* format,...)
+{
+   if (format==NULL)
+      return;
+   ROMEString *temp = new ROMEString();
+   va_list ap;
+   va_start(ap,format);
+   temp->FormatString(temp,format,ap);
+   va_end(ap);
+   this->AddLast(temp->Data());
+   delete temp;
 }
 
 void ROMEStrArray::Add(TString &str)
