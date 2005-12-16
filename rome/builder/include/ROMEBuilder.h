@@ -359,6 +359,7 @@ public:
    void WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sources,const char* folderName);
    void WriteVisualProjectProjUserSources(ROMEXML *xml);
    void WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
+   void WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* headers,const char* folderName);
    void GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath);
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);

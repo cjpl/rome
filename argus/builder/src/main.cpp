@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
       return 0;
 
    ROMEString path;
+   path.SetFormatted("%s/obj", argusb->outDir.Data());
+   argusb->MakeDir(path);
    path.SetFormatted("%s/dict", argusb->outDir.Data());
    argusb->MakeDir(path);
    path.SetFormatted("%s/src", argusb->outDir.Data());

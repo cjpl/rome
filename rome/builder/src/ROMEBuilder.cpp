@@ -209,7 +209,7 @@ bool ROMEBuilder::ReadXMLFolder() {
             if (type == 1 && !strcmp((const char*)name,"FieldType")) {
                readType = true;
                xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
-               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString")
+               if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString")
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
                else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "NULL";
@@ -479,7 +479,7 @@ bool ROMEBuilder::WriteFolderH() {
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
       for (i=0;i<numOfValue[iFold];i++) {
-         if (valueType[iFold][i]=="TString") {
+         if (valueType[iFold][i]=="TString" || valueType[iFold][i]=="ROMEString") {
             buffer.AppendFormatted("#include <%s.h>\n",valueType[iFold][i].Data());
             break;
          }
@@ -3134,7 +3134,7 @@ bool ROMEBuilder::ReadXMLSteering(int iTask) {
             if (type == 1 && !strcmp((const char*)name,"SPFieldType")) {
                readType = true;
                xml->GetValue(steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString")
+               if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "TString" || steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "ROMEString")
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "' '";
                else if (steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] == "std::string")
                   steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "\" \"";
@@ -4045,15 +4045,14 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("typedef struct{\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       int index = taskHierarchyParentIndex[i];
-      switchString = taskHierarchyName[i].Data();
+      switchString.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (index!=-1) {
          switchString.Insert(0,"_");
-         switchString.Insert(0,taskHierarchyName[index].Data());
+         switchString.InsertFormatted(0,"%s%03d",taskHierarchyName[index].Data(),index);
          index = taskHierarchyParentIndex[index];
       }
       format.SetFormatted("   int %%s;%%%ds  //! %%s Task\n",switchLen-switchString.Length());
       buffer.AppendFormatted(format.Data(),switchString.Data(),"",switchString.Data());
-//      buffer.AppendFormatted("   int %s;   //! %s Task\n",switchString.Data(),switchString.Data());
    }
    buffer.AppendFormatted("} TaskSwitches;\n");
 
@@ -4738,15 +4737,15 @@ bool ROMEBuilder::WriteConfigCpp() {
    ROMEString path;
    ROMEString classname;
    for (i=0;i<numOfTaskHierarchy;i++) {
-      buffer.AppendFormatted("   // %s Task\n",taskHierarchyName[i].Data());
+      buffer.AppendFormatted("   // %s%03d Task\n",taskHierarchyName[i].Data(),i);
       int index = i;
       pointer.Resize(0);
       path.Resize(0);
       classname.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
+         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),i);
          path.InsertFormatted(0,"/Task[TaskName='%s']",taskHierarchyName[index].Data());
-         classname.InsertFormatted(0,"::%sTask",taskHierarchyName[index].Data());
+         classname.InsertFormatted(0,"::%s%03dTask",taskHierarchyName[index].Data(),i);
          index = taskHierarchyParentIndex[index];
       }
       // Active
@@ -5318,11 +5317,11 @@ bool ROMEBuilder::WriteConfigCpp() {
    // Tasks
    buffer.AppendFormatted("   // tasks\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
-      buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
+      buffer.AppendFormatted("   // %s%03d task\n",taskHierarchyName[i].Data(),i);
       int index = i;
       pointer.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%sTask",taskHierarchyName[index].Data());
+         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),i);
          index = taskHierarchyParentIndex[index];
       }
       buffer.AppendFormatted("   if (fConfigData[modIndex]%s->fActiveModified) {\n",pointer.Data());
@@ -6084,8 +6083,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fTasksModified = false;\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (taskHierarchyParentIndex[i]==-1) {
-         buffer.AppendFormatted("         f%sTaskModified = false;\n",taskHierarchyName[i].Data());
-         buffer.AppendFormatted("         f%sTask = new %sTask();\n",taskHierarchyName[i].Data(),taskHierarchyName[i].Data());
+         buffer.AppendFormatted("         f%s%03dTaskModified = false;\n",taskHierarchyName[i].Data(),i);
+         buffer.AppendFormatted("         f%s%03dTask = new %s%03dTask();\n",taskHierarchyName[i].Data(),i,taskHierarchyName[i].Data(),i);
       }
    }
    buffer.AppendFormatted("         fTreesModified = false;\n");
@@ -6228,10 +6227,10 @@ bool ROMEBuilder::WriteMidasDAQCpp() {
       ROMEString switchString;
       for (i=0;i<numOfTaskHierarchy;i++) {
          int index = taskHierarchyParentIndex[i];
-         switchString = taskHierarchyName[i].Data();
+         switchString.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
          while (index!=-1) {
             switchString.Insert(0,"_");
-            switchString.Insert(0,taskHierarchyName[index].Data());
+            switchString.InsertFormatted(0,"%s%03d",taskHierarchyName[index].Data(),index);
             index = taskHierarchyParentIndex[index];
          }
          buffer.AppendFormatted("%s = BOOL : 0\\n",switchString.Data());
@@ -7433,7 +7432,7 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
          buffer.AppendFormatted("%s      xml->WriteElement(\"SPName\",\"%s\");\n",blank.Data(),steerFieldName[numTask][numSteer][k].Data());
          buffer.AppendFormatted("%s      if (index==0) {\n",blank.Data());
          GetFormat(&value,steerFieldType[numTask][numSteer][k].Data());
-         if (steerFieldType[numTask][numSteer][k]=="TString")
+         if (steerFieldType[numTask][numSteer][k]=="TString" || steerFieldType[numTask][numSteer][k]=="ROMEString")
             buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().Data());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          else if (steerFieldType[numTask][numSteer][k]=="std::string")
             buffer.AppendFormatted("%s         value.SetFormatted(\"%s\",%s->Get%s().c_str());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
@@ -7463,7 +7462,7 @@ bool ROMEBuilder::WriteSteeringConfigWrite(ROMEString &buffer,int numSteer,int n
          buffer.AppendFormatted("%s            xml->WriteElement(\"SPFieldArrayIndex\",value.Data());\n",blank.Data());
          buffer.AppendFormatted("%s            if (index==0) {\n",blank.Data());
          GetFormat(&value,steerFieldType[numTask][numSteer][k].Data());
-         if (steerFieldType[numTask][numSteer][k]=="TString")
+         if (steerFieldType[numTask][numSteer][k]=="TString" || steerFieldType[numTask][numSteer][k]=="ROMEString")
             buffer.AppendFormatted("%s               value.SetFormatted(\"%s\",%s->Get%sAt(i).Data());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
          else if (steerFieldType[numTask][numSteer][k]=="std::string")
             buffer.AppendFormatted("%s               value.SetFormatted(\"%s\",%s->Get%sAt(i).c_str());\n",blank.Data(),value.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data());
@@ -7862,7 +7861,7 @@ bool ROMEBuilder::WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMESt
       if (taskHierarchyParentIndex[i]!=parentIndex)
          continue;
       pointerI = pointer;
-      pointerI.AppendFormatted("->f%sTask",taskHierarchyName[i].Data());
+      pointerI.AppendFormatted("->f%s%03dTask",taskHierarchyName[i].Data(),i);
       buffer.AppendFormatted("%s      if (fConfigData[index]%sModified || index==0) {\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         // %s\n",blank.Data(),pointerI.Data());
       buffer.AppendFormatted("%s         xml->StartElement(\"Task\");\n",blank.Data());
@@ -7964,7 +7963,7 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (taskHierarchyParentIndex[i]!=parentIndex)
          continue;
-      buffer.AppendFormatted("%s      class %sTask {\n",blank.Data(),taskHierarchyName[i].Data());
+      buffer.AppendFormatted("%s      class %s%03dTask {\n",blank.Data(),taskHierarchyName[i].Data(),i);
       buffer.AppendFormatted("%s      public:\n",blank.Data());
       buffer.AppendFormatted("%s         ROMEString  fActive;\n",blank.Data());
       buffer.AppendFormatted("%s         bool        fActiveModified;\n",blank.Data());
@@ -8043,7 +8042,7 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
       }
       // Constructor
       buffer.AppendFormatted("%s      public:\n",blank.Data());
-      buffer.AppendFormatted("%s         %sTask() {\n",blank.Data(),taskHierarchyName[i].Data());
+      buffer.AppendFormatted("%s         %s%03dTask() {\n",blank.Data(),taskHierarchyName[i].Data(),i);
       if (numOfHistos[taskHierarchyClassIndex[i]]>0)
          buffer.AppendFormatted("%s            fHistogramsModified = false;\n",blank.Data());
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
@@ -8057,14 +8056,14 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
       for (j=0;j<numOfTaskHierarchy;j++) {
          if (taskHierarchyParentIndex[j]!=i)
             continue;
-         buffer.AppendFormatted("%s            f%sTask = new %sTask();\n",blank.Data(),taskHierarchyName[j].Data(),taskHierarchyName[j].Data());
+         buffer.AppendFormatted("%s            f%s%03dTask = new %s%03dTask();\n",blank.Data(),taskHierarchyName[j].Data(),i,taskHierarchyName[j].Data(),i);
       }
       buffer.AppendFormatted("%s         };\n",blank.Data());
       // Sub classes
       WriteTaskConfigClass(buffer,i,tab+1);
       buffer.AppendFormatted("%s      };\n",blank.Data());
-      buffer.AppendFormatted("%s      %sTask *f%sTask;\n",blank.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data());
-      buffer.AppendFormatted("%s      bool   f%sTaskModified;\n",blank.Data(),taskHierarchyName[i].Data());
+      buffer.AppendFormatted("%s      %s%03dTask *f%s%03dTask;\n",blank.Data(),taskHierarchyName[i].Data(),i,taskHierarchyName[i].Data(),i);
+      buffer.AppendFormatted("%s      bool   f%s%03dTaskModified;\n",blank.Data(),taskHierarchyName[i].Data(),i);
    }
    return true;
 }
@@ -8142,9 +8141,11 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // Tree Initialization
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
-   buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
-   buffer.AppendFormatted("   TTree *tree;\n");
-   buffer.AppendFormatted("   ROMEString fileName;\n\n");
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
+      buffer.AppendFormatted("   TTree *tree;\n");
+      buffer.AppendFormatted("   ROMEString fileName;\n\n");
+   }
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
       buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
@@ -8258,8 +8259,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    buffer.AppendFormatted("// Tree Filling\n");
    buffer.AppendFormatted("void %sEventLoop::FillTrees() {\n",shortCut.Data());
    buffer.AppendFormatted("   Statistics *stat = gAnalyzer->GetTriggerStatistics();\n");
-   buffer.AppendFormatted("   ROMETree *romeTree;\n");
-   buffer.AppendFormatted("   int i=0;\n");
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   ROMETree *romeTree;\n");
+      buffer.AppendFormatted("   int i;\n");
+   }
    buffer.AppendFormatted("   // Fill Trees;\n");
    buffer.AppendFormatted("   bool write = false;\n");
    buffer.AppendFormatted("   bool written = false;\n");
@@ -8305,8 +8308,10 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // get tree file names
    buffer.AppendFormatted("// Get Tree File Names\n");
    buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer,int treeIndex,const char* runNumber) {\n",shortCut.Data());
-   buffer.AppendFormatted("   ROMETree *romeTree;\n");
-   buffer.AppendFormatted("   switch (treeIndex) {\n");
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   ROMETree *romeTree;\n");
+      buffer.AppendFormatted("   switch (treeIndex) {\n");
+   }
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("      case %d:\n",i);
       buffer.AppendFormatted("         romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
@@ -8320,7 +8325,9 @@ bool ROMEBuilder::WriteEventLoopCpp() {
       buffer.AppendFormatted("         buffer.ReplaceAll(\"#\",runNumber);\n");
       buffer.AppendFormatted("         break;\n");
    }
-   buffer.AppendFormatted("   }\n");
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   }\n");
+   }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -8329,11 +8336,11 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    int parentInd;
    buffer.AppendFormatted("void %sEventLoop::InitTaskSwitches() {\n",shortCut.Data());
    for (i=0;i<numOfTaskHierarchy;i++) {
-      taskNameT = taskHierarchyName[i];
       parentInd = taskHierarchyParentIndex[i];
+      taskNameT.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (parentInd!=-1) {
-         taskNameT = taskNameT.Insert(0,"_");
-         taskNameT = taskNameT.Insert(0,taskHierarchyName[parentInd]);
+         taskNameT.Insert(0,"_");
+         taskNameT.InsertFormatted(0,"%s%03d",taskHierarchyName[parentInd].Data(),parentInd);
          parentInd = taskHierarchyParentIndex[parentInd];
       }
       buffer.AppendFormatted("   gAnalyzer->GetTaskSwitches()->%s = gAnalyzer->Get%s%03dTask()->IsActive();\n",taskNameT.Data(),taskHierarchyName[i].Data(),i);
@@ -8343,11 +8350,11 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // Update Task Switches
    buffer.AppendFormatted("void %sEventLoop::UpdateTaskSwitches() {\n",shortCut.Data());
    for (i=0;i<numOfTaskHierarchy;i++) {
-      taskNameT = taskHierarchyName[i];
       parentInd = taskHierarchyParentIndex[i];
+      taskNameT.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (parentInd!=-1) {
          taskNameT = taskNameT.Insert(0,"_");
-         taskNameT = taskNameT.Insert(0,taskHierarchyName[parentInd]);
+         taskNameT.InsertFormatted(0,"%s%03d",taskHierarchyName[parentInd].Data(),parentInd);
          parentInd = taskHierarchyParentIndex[parentInd];
       }
       buffer.AppendFormatted("   if (gAnalyzer->GetTaskSwitches()->%s)\n",taskNameT.Data());
@@ -9152,7 +9159,7 @@ void ROMEBuilder::AddFrameworkDictHeaders() {
 }
 void ROMEBuilder::AddFolderHeaders() {
    int i;
-   folderHeaders = new ROMEStrArray(numOfFolder*2);
+   folderHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0)*2);
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          folderHeaders->AddFormatted("%sinclude/framework/%s%s.h",outDir.Data(),shortCut.Data(),folderName[i].Data());
@@ -9163,7 +9170,7 @@ void ROMEBuilder::AddFolderHeaders() {
 }
 void ROMEBuilder::AddTaskHeaders() {
    int i;
-   taskHeaders = new ROMEStrArray(numOfTask*2);
+   taskHeaders = new ROMEStrArray(TMath::Max(numOfTask,0)*2);
    for (i=0;i<numOfTask;i++) {
       taskHeaders->AddFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[i].Data());
       if (taskUserCode[i])
@@ -9505,29 +9512,27 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 {
    ROMEString str;
    int i;
-   if (headers->GetEntriesFast()>0) {
-      buffer.AppendFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
-      for (i=0;i<headers->GetEntriesFast();i++) {
-         buffer.AppendFormatted(" %s",headers->At(i).Data());
-      }
-      buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
-      WriteRootCintCall(buffer);
-      buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
-      for (i=0;i<includeDirectories->GetEntriesFast();i++) {
-         str = includeDirectories->At(i).Data();
-#if defined( R__VISUAL_CPLUSPLUS )
-         str.ReplaceAll("$(","%");
-         str.ReplaceAll(")","%");
-#endif
-         buffer.AppendFormatted(" -I%s",str.Data());
-      }
-      buffer.AppendFormatted(" $(DictionaryIncludes)");
-      for (i=0;i<headers->GetEntriesFast();i++) {
-         buffer.AppendFormatted(" %s",headers->At(i).Data());
-      }
-      buffer.Append("\n\n");
+   buffer.AppendFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
+   for (i=0;i<headers->GetEntriesFast();i++) {
+      buffer.AppendFormatted(" %s",headers->At(i).Data());
    }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
+   WriteRootCintCall(buffer);
+   buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
+   for (i=0;i<includeDirectories->GetEntriesFast();i++) {
+      str = includeDirectories->At(i).Data();
+#if defined( R__VISUAL_CPLUSPLUS )
+      str.ReplaceAll("$(","%");
+      str.ReplaceAll(")","%");
+#endif
+      buffer.AppendFormatted(" -I%s",str.Data());
+   }
+   buffer.AppendFormatted(" $(DictionaryIncludes)");
+   for (i=0;i<headers->GetEntriesFast();i++) {
+      buffer.AppendFormatted(" %s",headers->At(i).Data());
+   }
+   buffer.Append("\n\n");
 }
 void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
@@ -10138,6 +10143,23 @@ void ROMEBuilder::WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sourc
       xml->EndElement();
    }
 }
+void ROMEBuilder::WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* headers,const char* folderName) {
+   int i;
+   ROMEString str;
+   if (headers->GetEntriesFast()>0) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name",folderName);
+      xml->WriteAttribute("Filter","h");
+      for (i=0;i<headers->GetEntriesFast();i++) {
+         xml->StartElement("File");
+         str = headers->At(i).Data();
+         str.ReplaceAll("/","\\");
+         xml->WriteAttribute("RelativePath",str.Data());
+         xml->EndElement();
+      }
+      xml->EndElement();
+   }
+}
 void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
    int i;
    ROMEString path;
@@ -10204,6 +10226,22 @@ void ROMEBuilder::WriteVisualProjects(int version,int subVersion)
    WriteVisualProjectProjSources(xml,romeSources,"ROME");
 
    // End Source Files
+   xml->EndElement();
+
+   // Header Files
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Header Files");
+   xml->WriteAttribute("Filter","h");
+   xml->WriteAttribute("UniqueIdentifier","{93995380-89BD-4b04-88EB-625FBE52EBFB}");
+
+   WriteVisualProjectProjHeaders(xml,taskHeaders,"Tasks");
+   WriteVisualProjectProjHeaders(xml,daqHeaders,"User DAQs");
+   WriteVisualProjectProjHeaders(xml,databaseHeaders,"User Databases");
+   WriteVisualProjectProjHeaders(xml,folderHeaders,"Folders");
+   WriteVisualProjectProjHeaders(xml,frameworkHeaders,"Generated");
+   WriteVisualProjectProjHeaders(xml,romeHeaders,"ROME");
+
+   // End Header Files
    xml->EndElement();
 
    // End Files

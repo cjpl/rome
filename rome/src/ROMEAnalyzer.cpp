@@ -55,7 +55,7 @@
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
-#include <THtml.h>
+//#include <THtml.h>
 #include <TArrayI.h>
 #include <TTask.h>
 #include <TTree.h>
@@ -239,11 +239,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          ParameterUsage();
          return false;
       }
-      if (!strcmp(argv[i],"-docu")) {
+/*      if (!strcmp(argv[i],"-docu")) {
          THtml html;
          html.MakeAll(true);
          return false;
-      }
+      }*/
       if (!strcmp(argv[i],"-i")&&i<argc-1) {
          configFile = argv[i+1];
          i++;
