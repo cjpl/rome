@@ -9446,7 +9446,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
       buffer.AppendFormatted(" -l%s",mfUnixLibName[i].Data());
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortcut.Data());
+   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortCut.ToLower(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
