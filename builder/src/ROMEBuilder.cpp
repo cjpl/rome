@@ -9222,7 +9222,7 @@ void ROMEBuilder::AddRomeSources(){
       romeSources->Add("$(ROMESYS)/src/ROMESQLDataBase.cpp");
    }
    if (romeDictHeaders->GetEntriesFast()>0)
-      romeSources->AddFormatted("%sdict/RomeDict.cpp",outDir.Data());
+      romeSources->AddFormatted("%sdict/ROMEDict.cpp",outDir.Data());
 }
 void ROMEBuilder::AddFrameworkSources(){
    frameworkSources = new ROMEStrArray(5);
