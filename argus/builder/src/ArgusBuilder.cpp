@@ -664,6 +664,7 @@ void ArgusBuilder::WriteMakefile()
    ROMEString tmp;
 
    AddInludeDirectories();
+   includeDirectories->AddFormatted("$(ARGUSSYS)/include/");
    AddRomeHeaders();
    AddRomeDictHeaders();
    AddArgusHeaders();
@@ -684,7 +685,6 @@ void ArgusBuilder::WriteMakefile()
    WriteMakefileHeader(buffer);
    WriteMakefileLibsAndFlags(buffer);
    WriteMakefileIncludes(buffer);
-   buffer.AppendFormatted("Includes %s $(Includes) %sI$(ARGUSSYS)/include/", EqualSign(),FlagSign());
 
    // root cint headers
    buffer.AppendFormatted("\n");
