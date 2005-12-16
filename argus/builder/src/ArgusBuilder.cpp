@@ -790,6 +790,10 @@ void ArgusBuilder::WriteMakefile()
    WriteMakefileCompileStatements(buffer,daqSources);
    WriteMakefileCompileStatements(buffer,databaseSources);
    WriteMakefileAdditionalSourceFilesCompileStatments(buffer);
+   ROMEStrArray *tempArray = new ROMEStrArray(1);
+   tempArray->AddFormatted("dict/%sUserDict.cpp",shortCut.Data());
+   WriteMakefileCompileStatements(buffer,tempArray);
+   delete tempArray;
 
    buffer.AppendFormatted("\n");
 

@@ -9564,8 +9564,12 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
 
    for (i=0;i<sources->GetEntriesFast();i++) {
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
+      path.ReplaceAll("\\","/");
 #if defined( R__UNIX )
-      buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
+      if (path.Index("/dict/")!=-1)
+         buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
+      else
+         buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
       buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s obj/%s.d\n",name.Data(),sources->At(i).Data(),name.Data());
       buffer.AppendFormatted("\tg++ -c $(Flags) $(Includes) %s -o obj/%s.obj\n",sources->At(i).Data(),name.Data());
@@ -9579,16 +9583,19 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       ROMEString str;
       path.ReplaceAll("$(","%");
       path.ReplaceAll(")","%");
-      if (path!="dict/")
+      if (path.Index("/dict/")!=-1)
+         buffer.AppendFormatted("obj/%s.obj: dict/%s.cpp\n",name.Data(),name.Data(),name.Data());
+      else {
          buffer.AppendFormatted("!INCLUDE obj/%s.d\n",name.Data());
-      buffer.AppendFormatted("obj/%s.obj: %s\n",name.Data(),sources->At(i).Data(),name.Data());
-      if (path!="dict/") {
+         buffer.AppendFormatted("obj/%s.obj: %s\n",name.Data(),sources->At(i).Data(),name.Data());
+      }
+      if (path.Index("/dict/")==-1) {
          buffer.AppendFormatted("\t@cd obj/\n",name.Data());
          buffer.AppendFormatted("\t@start /MIN %s\n",name.Data());
          buffer.AppendFormatted("\t@cd ../\n",name.Data());
       }
       buffer.AppendFormatted("\t@cl /nologo /c $(Flags) $(Includes) %s /Foobj/%s.obj\n",sources->At(i).Data(),name.Data());
-      if (path!="dict/") {
+      if (path.Index("/dict/")==-1) {
          batBuffer.AppendFormatted("cd ../\n");
          batBuffer.AppendFormatted("cd %s\n",path.Data());
          batBuffer.AppendFormatted("rmkdepend");
