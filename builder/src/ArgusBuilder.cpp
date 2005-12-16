@@ -2023,7 +2023,7 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("{\n");
    // friends
    if (numOfSteering[numOfTab] > 0) {
-      buffer.AppendFormatted("fiend class %sGlobalSteering;\"\n", shortCut.Data());
+      buffer.AppendFormatted("friend class %sGlobalSteering;\n", shortCut.Data());
    }
 
    // Fields
