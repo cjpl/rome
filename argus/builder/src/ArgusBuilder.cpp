@@ -2003,10 +2003,6 @@ Bool_t ArgusBuilder::WriteMonitorH()
    buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TNetFolder.h>\n");
    buffer.AppendFormatted("#include <TArrayI.h>\n", shortCut.Data());
-   // include
-   if (numOfSteering[numOfTab] > 0) {
-      buffer.AppendFormatted("#include \"include/framework/%sGlobalSteering.h\"\n", shortCut.Data());
-   }
    // DAQ includes
    buffer.AppendFormatted("#include <include/framework/%sMidasDAQ.h>\n", shortCut.Data());
    buffer.AppendFormatted("#include <include/framework/%sRomeDAQ.h>\n", shortCut.Data());
@@ -2025,6 +2021,10 @@ Bool_t ArgusBuilder::WriteMonitorH()
    // Class
    buffer.AppendFormatted("\nclass %sMonitor : public ArgusMonitor\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
+   // friends
+   if (numOfSteering[numOfTab] > 0) {
+      buffer.AppendFormatted("fiend class %sGlobalSteering;\"\n", shortCut.Data());
+   }
 
    // Fields
    buffer.AppendFormatted("protected:\n");
