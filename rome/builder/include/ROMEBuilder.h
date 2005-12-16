@@ -49,8 +49,6 @@ const char* const cloSeparator = ":";
 class ROMEBuilder
 {
 protected:
-   ROMEString compileFormatFrame,compileFormatFramF,compileFormatTasks,compileFormatTaskF,compileFormatBlank,compileFormatROME,compileFormatDict,compileFormatRANY,compileFormatAny;
-   ROMEString dependFormatFrame,dependFormatFramF,dependFormatTasks,dependFormatTaskF,dependFormatBlank,dependFormatROME,dependFormatRANY,dependFormatAny;
    bool haveFortranTask;
 public:
    ROMEString romeVersion;
@@ -66,6 +64,7 @@ public:
    bool  pgsql;
    bool  sqlite;
    bool  sqlite3;
+   bool  noVP;
    ROMEStrArray flags;
 
 protected:
@@ -242,7 +241,6 @@ protected:
    int numOfMFSources;
    ROMEString mfSourceFileName[maxNumberOfMFSources];
    ROMEString mfSourceFilePath[maxNumberOfMFSources];
-   ROMEString mfSourceFileType[maxNumberOfMFSources];
    ROMEString mfSourceFileDep[maxNumberOfMFSources];
    int numOfMFSourceFlags[maxNumberOfMFSources];
    ROMEString mfSourceFileFlag[maxNumberOfMFSources][maxNumberOfMFSourceFlags];
@@ -256,14 +254,22 @@ protected:
    ROMEString mainDescription;
    ROMEString styleSheet;
 
-// Compile Dependencies
-   ROMEString analyzerDep;
-   ROMEString eventLoopDep;
-   ROMEString configDep;
-   ROMEString midasDep;
-   ROMEString romeDep;
-   ROMEString databaseDep;
-   ROMEString daqDep;
+// Makefile
+   ROMEStrArray* includeDirectories;
+   ROMEStrArray* romeHeaders;
+   ROMEStrArray* romeDictHeaders;
+   ROMEStrArray* frameworkHeaders;
+   ROMEStrArray* frameworkDictHeaders;
+   ROMEStrArray* folderHeaders;
+   ROMEStrArray* taskHeaders;
+   ROMEStrArray* daqHeaders;
+   ROMEStrArray* databaseHeaders;
+   ROMEStrArray* romeSources;
+   ROMEStrArray* frameworkSources;
+   ROMEStrArray* folderSources;
+   ROMEStrArray* taskSources;
+   ROMEStrArray* daqSources;
+   ROMEStrArray* databaseSources;
 
 public:
    ROMEBuilder() { haveFortranTask = false; };
@@ -316,35 +322,47 @@ public:
    bool WriteEventLoopH();
    bool WriteMain();
    char* EqualSign();
+   char* FlagSign();
+   void AddInludeDirectories();
+   void AddRomeHeaders();
+   void AddRomeDictHeaders();
+   void AddFrameworkHeaders();
+   void AddFrameworkDictHeaders();
+   void AddFolderHeaders();
+   void AddTaskHeaders();
+   void AddDAQHeaders();
+   void AddDatabaseHeaders();
+   void AddRomeSources();
+   void AddFrameworkSources();
+   void AddFolderSources();
+   void AddTaskSources();
+   void AddDAQSources();
+   void AddDatabaseSources();
    void WriteMakefile();
-   void WriteBuildRule(ROMEString& buffer,const char* builder);
-   void WriteAdditionalSourceFilesObjects(ROMEString& buffer);
-   void WriteAdditionalSourceFilesCompileCommands(ROMEString& buffer);
+   void WriteMakefileHeader(ROMEString& buffer);
+   void WriteMakefileLibsAndFlags(ROMEString& buffer);
+   void WriteMakefileIncludes(ROMEString& buffer);
+   void WriteMakefileDictIncludes(ROMEString& buffer);
+   void WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources);
+   void WriteMakefileUserDictObject(ROMEString& buffer);
+   void WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
+   void WriteMakefileUserDictionary(ROMEString& buffer);
+   void WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
+   void WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
+   void WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer);
+   void WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
+   void WriteRootCintCall(ROMEString& buffer);
    void WriteUserMakeFile();
    void WriteVisualProjects(int version,int subVersion);
+   void WriteVisualProjectSln(int version,ROMEString& projectGUID);
+   void WriteVisualProjectProjSettings(ROMEXML *xml,int version,int subVersion,ROMEString& projectGUID);
+   void WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sources,const char* folderName);
+   void WriteVisualProjectProjUserSources(ROMEXML *xml);
+   void WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
    void GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath);
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
-   void WriteROMEBaseObjects(ROMEString& buffer);
-   void WriteROMEAdditionalObjects(ROMEString& buffer);
-   void WriteFolderObjects(ROMEString& buffer);
-   void WriteTaskObjects(ROMEString& buffer);
-   void WriteFrameWorkBaseObjects(ROMEString& buffer);
-   void WriteFrameWorkAdditionalObjects(ROMEString& buffer);
-   void WriteUserDictObject(ROMEString& buffer);
-   void WriteDefineFormats(ROMEString& buffer);
-   void WriteROMEBaseCompileStatements(ROMEString& buffer);
-   void WriteROMEAdditionalCompileStatements(ROMEString& buffer);
-   void WriteFolderCompileStatements(ROMEString& buffer);
-   void WriteTaskCompileStatements(ROMEString& buffer);
-   void WriteFrameWorkBaseCompileStatements(ROMEString& buffer);
-   void WriteFrameWorkAdditionalCompileStatements(ROMEString& buffer);
-   void WriteROMEDictionary(ROMEString& buffer);
-   void WriteFrameworkDictionary(ROMEString& buffer);
-   void WriteFolderDictionary(ROMEString& buffer);
-   void WriteTaskDictionary(ROMEString& buffer);
-   void WriteUserDictionary(ROMEString& buffer);
    virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
    void StartBuilder();
@@ -368,6 +386,7 @@ public:
    void Usage();
    bool CheckFileAndPath();
    void MakeDir(ROMEString &path);
+   void AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
 };

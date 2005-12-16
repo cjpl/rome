@@ -29,6 +29,10 @@ public:
    void WriteLine();
    int ToInteger();
    double ToDouble();
+   void ToLower();
+   const char* ToLower(ROMEString& destination);
+   void ToUpper();
+   const char* ToUpper(ROMEString& destination);
    istream& ReadFile(istream& str);
    istream& ReadLine(istream& str);
    ROMEString& StripSpaces();

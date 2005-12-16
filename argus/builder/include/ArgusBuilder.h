@@ -76,6 +76,12 @@ protected:
    ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
    ROMEString threadFunctionArgument[maxNumberOfTabs][maxNumberOfThreadFunctions][maxNumberOfThreadFunctionArguments];
 
+// Makefile
+   ROMEStrArray* argusHeaders;
+   ROMEStrArray* tabHeaders;
+   ROMEStrArray* argusSources;
+   ROMEStrArray* tabSources;
+
 public:
    ArgusBuilder() {};
    virtual ~ArgusBuilder() {};
@@ -97,7 +103,17 @@ public:
    Bool_t WriteConfigCpp();
    Bool_t WriteConfigH();
    Bool_t WriteMain();
+   void   AddArgusHeaders();
+   void   AddArgusSources();
+   void   AddTabHeaders();
+   void   AddTabSources();
+   void   AddFrameworkHeaders();
+   void   AddFrameworkDictHeaders();
+   void   AddFrameworkSources();
    void   WriteMakefile();
+   void   WriteMakefileHeader(ROMEString& buffer);
+   void   WriteMakefileLibsAndFlags(ROMEString& buffer);
+   void   WriteVisualProjects(int version,int subVersion);
    void   WriteHTMLDoku();
    void   WriteARGUSDictionary(ROMEString& buffer);
    void   WriteFrameworkDictionary(ROMEString& buffer);
