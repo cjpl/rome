@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Fri Dec 16 17:54:14 2005 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/romeConfig.xsd">
+  <MainConfiguration>
+    <RunNumbers></RunNumbers>
+    <EventNumbers></EventNumbers>
+    <InputFileNames></InputFileNames>
+    <Modes>
+      <AnalyzingMode>offline</AnalyzingMode>
+      <DAQSystem>none</DAQSystem>
+      <BatchMode>false</BatchMode>
+      <ShowSplashScreen>false</ShowSplashScreen>
+    </Modes>
+    <DataBases/>
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+    </Online>
+    <SocketInterface>
+      <PortNumber>9090</PortNumber>
+      <AvailableOffline>false</AvailableOffline>
+    </SocketInterface>
+    <Paths>
+      <InputFilePath>./</InputFilePath>
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+    <Tasks>
+      <Task>
+        <TaskName>MyTask</TaskName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>output</SPName>
+          <SPValue>xxx</SPValue>
+        </SteeringParameterField>
+      </Task>
+      <Task>
+        <TaskName>MyTask</TaskName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>output</SPName>
+          <SPValue>xxx</SPValue>
+        </SteeringParameterField>
+      </Task>
+    </Tasks>
+    <Midas/>
+  </MainConfiguration>
+</Configuration>
