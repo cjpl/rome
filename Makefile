@@ -1,9 +1,5 @@
-all:gotorome makerome gotoargus makeargus
-gotorome:
-	cd rome
+all:makerome makeargus
 makerome:
-	make
-gotoargus:
-	cd ../argus
+	cd rome;make
 makeargus:
-	make
+	cd argus;make

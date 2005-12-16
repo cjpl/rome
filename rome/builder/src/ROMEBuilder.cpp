@@ -9852,15 +9852,15 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
-   buffer.AppendFormatted("so: lib%s%s.so\n",shortcut.Data(),mainprogname.Data());
-   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
    buffer.AppendFormatted("\t");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
-   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortcut.Data(),mainprogname.Data(),shortcut.Data(),mainprogname.Data());
+   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp),shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
 #endif // R__MACOSX
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
