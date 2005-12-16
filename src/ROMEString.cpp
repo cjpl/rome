@@ -259,6 +259,24 @@ double ROMEString::ToDouble()
    char *cstop;
    return strtod(this->Data(),&cstop);
 }
+void ROMEString::ToLower() {
+   ((TString*)this)->ToLower();
+}
+const char* ROMEString::ToLower(ROMEString& destination)
+{
+   destination = this->Data();
+   destination.ToLower();
+   return destination.Data();
+}
+void ROMEString::ToUpper() {
+   ((TString*)this)->ToUpper();
+}
+const char* ROMEString::ToUpper(ROMEString& destination)
+{
+   destination = this->Data();
+   destination.ToUpper();
+   return destination.Data();
+}
 
 // Strip space,tab and new line at both sides
 ROMEString& ROMEString::StripSpaces(){

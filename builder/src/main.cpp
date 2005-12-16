@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
       return 0;
 
    ROMEString path;
+   path.SetFormatted("%s/dict",romeb->outDir.Data());
+   romeb->MakeDir(path);
    path.SetFormatted("%s/src",romeb->outDir.Data());
    romeb->MakeDir(path);
    path.SetFormatted("%s/src/tasks",romeb->outDir.Data());
