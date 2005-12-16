@@ -9068,21 +9068,6 @@ void ROMEBuilder::StartBuilder()
 #endif // ROOT_VERSION
 
 }
-char* ROMEBuilder::EqualSign() {
-#if defined( R__VISUAL_CPLUSPLUS )
-   return "=";
-#else
-   return ":=";
-#endif
-}
-char* ROMEBuilder::FlagSign() {
-#if defined( R__VISUAL_CPLUSPLUS )
-   return "/";
-#else
-   return "-";
-#endif
-}
-
 
 void ROMEBuilder::AddInludeDirectories() {
    includeDirectories = new ROMEStrArray(6);
@@ -9461,11 +9446,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
 }
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer) {
    int i;
-   buffer.AppendFormatted("Includes %s",EqualSign());
+   buffer.AppendFormatted("Includes %s",kEqualSign);
    for (i=0;i<includeDirectories->GetEntriesFast();i++)
-      buffer.AppendFormatted(" %sI%s",FlagSign(),includeDirectories->At(i).Data());
+      buffer.AppendFormatted(" %sI%s",kFlagSign,includeDirectories->At(i).Data());
    for (i=0;i<numOfMFIncDirs;i++)
-      buffer.AppendFormatted(" %sI%s",FlagSign(),mfIncDir[i].Data());
+      buffer.AppendFormatted(" %sI%s",kFlagSign,mfIncDir[i].Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    if (this->midas)
       buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
@@ -9485,7 +9470,7 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
    ROMEString fileName;
    ROMEString fileExtension;
    if (sources->GetEntriesFast()>0) {
-      buffer.AppendFormatted("objects %s $(objects)",EqualSign());
+      buffer.AppendFormatted("objects %s $(objects)",kEqualSign);
       for (i=0;i<sources->GetEntriesFast();i++) {
          AnalyzeFileName(sources->At(i).Data(),path,fileName,fileExtension);
          buffer.AppendFormatted(" obj/%s.obj",fileName.Data());
@@ -9650,7 +9635,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer) 
 #endif // R__UNIX
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
-      buffer.AppendFormatted("objects %s $(objects) obj/%s.obj\n",EqualSign(),name.Data());
+      buffer.AppendFormatted("objects %s $(objects) obj/%s.obj\n",kEqualSign,name.Data());
       for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
          if (commandLineFlag[j])
             continue;
@@ -9777,11 +9762,11 @@ void ROMEBuilder::WriteMakefile() {
 
    buffer.AppendFormatted("\n");
    // root cint headers
-   buffer.AppendFormatted("DictionaryHeaders %s\n",EqualSign());
+   buffer.AppendFormatted("DictionaryHeaders %s\n",kEqualSign);
    buffer.AppendFormatted("\n");
 
    // root cint includes
-   buffer.AppendFormatted("DictionaryIncludes %s\n",EqualSign());
+   buffer.AppendFormatted("DictionaryIncludes %s\n",kEqualSign);
    buffer.AppendFormatted("\n");
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -9793,13 +9778,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:startecho obj dict %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
-// user makefile
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
-#else
-   buffer.AppendFormatted("-include Makefile.usr\n");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("\n");
 
 // Objects
 // -------
@@ -9810,9 +9788,14 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
    WriteMakefileAdditionalSourceFilesObjects(buffer);
-   WriteMakefileUserDictObject(buffer);
-
+// user makefile
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
+#else
+   buffer.AppendFormatted("-include Makefile.usr\n");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
+   WriteMakefileUserDictObject(buffer);
 
 // echos
    buffer.AppendFormatted("startecho:\n");

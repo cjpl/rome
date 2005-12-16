@@ -35,16 +35,20 @@ const int maxNumberOfMFIncDirs = 20;
 const int maxNumberOfMFPreDefs = 20;
 const int maxNumberOfMFSources = 100;
 const int maxNumberOfMFSourceFlags = 5;
-
-const char valueCounter[maxNumberOfValueDimension] = {'i','j','k'};
-
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes = 10;
-
 const Ssiz_t kTStringResizeIncrement = 4096;
 
+const char valueCounter[maxNumberOfValueDimension] = {'i','j','k'};
 const char* const ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
 const char* const cloSeparator = ":";
+#if defined( R__VISUAL_CPLUSPLUS )
+const char* const kEqualSign = "=";
+const char* const kFlagSign = "/";
+#else
+const char* const kEqualSign =":=";
+const char* const kFlagSign = "-";
+#endif
 
 class ROMEBuilder
 {
@@ -321,8 +325,6 @@ public:
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
-   char* EqualSign();
-   char* FlagSign();
    void AddInludeDirectories();
    void AddRomeHeaders();
    void AddRomeDictHeaders();
