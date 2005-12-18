@@ -7,7 +7,7 @@
 #ifndef HWTEnglish_H
 #define HWTEnglish_H
 
-#include <include/tabs/HWTEnglish_Base.h>
+#include <include/generated/HWTEnglish_Base.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TGLayout.h>

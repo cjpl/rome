@@ -7,7 +7,7 @@
 #ifndef FOTTab_H
 #define FOTTab_H
 
-#include <include/tabs/FOTTab_Base.h>
+#include <include/generated/FOTTab_Base.h>
 #include <TClonesArray.h>
 #include "romeproject/include/framework/FORunInfo.h"
 #include "romeproject/include/framework/FOPMTData.h"

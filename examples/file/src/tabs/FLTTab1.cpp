@@ -11,7 +11,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/FLTTab1.h"
-#include "include/framework/FLWindow.h"
+#include "include/generated/FLWindow.h"
 
 ClassImp(FLTTab1)
 

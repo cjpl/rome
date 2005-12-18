@@ -11,7 +11,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/SBTTab1.h"
-#include "include/framework/SBWindow.h"
+#include "include/generated/SBWindow.h"
 #include <TTimeStamp.h>
 
 ClassImp(SBTTab1)

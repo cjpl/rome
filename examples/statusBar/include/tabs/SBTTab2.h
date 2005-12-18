@@ -7,7 +7,7 @@
 #ifndef SBTTab2_H
 #define SBTTab2_H
 
-#include <include/tabs/SBTTab2_Base.h>
+#include <include/generated/SBTTab2_Base.h>
 
 class SBTTab2 : public SBTTab2_Base
 {

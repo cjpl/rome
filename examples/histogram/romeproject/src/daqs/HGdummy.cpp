@@ -1,5 +1,5 @@
-#include <include/framework/HGAnalyzer.h>
-#include <include/framework/HGdummy.h>
+#include <include/generated/HGAnalyzer.h>
+#include <include/generated/HGdummy.h>
 
 HGdummy::HGdummy()
 {

@@ -7,7 +7,7 @@
 #ifndef SBTTab1_H
 #define SBTTab1_H
 
-#include <include/tabs/SBTTab1_Base.h>
+#include <include/generated/SBTTab1_Base.h>
 #include <TG3DLine.h>
 
 class SBTTab1 : public SBTTab1_Base

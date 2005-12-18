@@ -7,7 +7,7 @@
 #ifndef HWTItalian_H
 #define HWTItalian_H
 
-#include <include/tabs/HWTItalian_Base.h>
+#include <include/generated/HWTItalian_Base.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TGLayout.h>

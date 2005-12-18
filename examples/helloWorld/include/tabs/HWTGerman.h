@@ -7,7 +7,7 @@
 #ifndef HWTGerman_H
 #define HWTGerman_H
 
-#include <include/tabs/HWTGerman_Base.h>
+#include <include/generated/HWTGerman_Base.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TGLayout.h>
