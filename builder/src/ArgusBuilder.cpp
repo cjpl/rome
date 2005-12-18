@@ -5221,7 +5221,7 @@ void ArgusBuilder::WriteHeader(ROMEString& buffer, const Char_t* author, Bool_t 
    }
 }
 
-#undef ALIGN_DESC // align description 80 chars.
+#define ALIGN_DESC // align description 80 chars.
 //______________________________________________________________________________
 void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark)
 {
