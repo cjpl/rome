@@ -1,9 +1,14 @@
-/********************************************************************
-  ArgusAnalyzerController.cpp, R.Sawada
+// $Id$
+// Author: Ryu Sawada
 
-  $Id$
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusAnalyzerController                                              //
+//                                                                      //
+// GUI object which controlls analysis programs                         //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
-********************************************************************/
 #include "ArgusAnalyzerController.h"
 #include "ArgusMonitor.h"
 

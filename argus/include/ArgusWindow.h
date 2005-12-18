@@ -1,11 +1,16 @@
-/********************************************************************
-  ArgusWindow.h, R.Sawada
-
-  $Id$
-
-********************************************************************/
+// $Id$
+// Author: Ryu Sawada
 #ifndef ArgusWindow_H
 #define ArgusWindow_H
+
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusWindow                                                          //
+//                                                                      //
+// Base class for the main window of Argus projects                     //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )

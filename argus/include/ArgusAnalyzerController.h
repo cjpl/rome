@@ -1,11 +1,16 @@
-/********************************************************************
-  ArgusAnalyzerController.h, R.Sawada
-
-  $Id$
-
-********************************************************************/
+// $Id$
+// Author: Ryu Sawada
 #ifndef ArgusAnalyzerController_H
 #define ArgusAnalyzerController_H
+
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusAnalyzerController                                              //
+//                                                                      //
+// GUI object which controlls analysis programs                         //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )

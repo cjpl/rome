@@ -8,6 +8,7 @@
 #define ROMEUtilities_H
 
 #include <Rtypes.h>
+#include "ROMEString.h"
 
 class ROMEUtilities {
 public:
@@ -20,6 +21,7 @@ public:
    static void ByteSwap( ULong64_t *aValue );
    static void ByteSwap( Long64_t *aValue );
    static void ByteSwap( Double_t *aValue );
+   static void GetMidasTID(ROMEString *buf,Char_t *type);
 };
 
 #endif // ROMEUtilities_H
