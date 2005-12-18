@@ -7018,7 +7018,7 @@ bool ROMEBuilder::WriteDBCpp() {
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%sDataBase::Read(ROMEStr2dDArray *values,const char *dataBasePath,int runNumber,int eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
