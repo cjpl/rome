@@ -1,11 +1,16 @@
-/********************************************************************
-  ArgusBuilder.h, R. Sawada
-
-  $Id$
-
-********************************************************************/
+// $Id$
+// Author: Ryu Sawada
 #ifndef ArgusBuilder_H
 #define ArgusBuilder_H
+
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusBuilder                                                         //
+//                                                                      //
+// Class which generates source codes and documents from an XML file.   //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #include <ROMEBuilder.h>
 #include <RConfig.h>
@@ -108,9 +113,10 @@ public:
    void   WriteFrameworkDictionary(ROMEString& buffer);
    void   WriteTabDictionary(ROMEString& buffer);
    void   StartBuilder();
-   void   GetMidasTID(ROMEString *buf,Char_t *type);
    Bool_t ReplaceHeader(const Char_t* filename,const Char_t* header,const Char_t* content,Int_t nspace = 0);
    Bool_t WriteFile(const Char_t* filename,const Char_t* content,Int_t nspace = 0);
    void   ROME2Argus(ROMEString &buffer);
+   void   WriteHeader(ROMEString& buffer, const Char_t* author = 0, Bool_t overwrite = kFALSE);
+   void   WriteDescription(ROMEString& buffer, const Char_t* className = 0, const Char_t* description = 0, Bool_t endmark = kFALSE);
 };
 #endif   // ArgusBuilder_H

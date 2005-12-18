@@ -1,11 +1,16 @@
-/********************************************************************
-  ArgusTextDialog.h, R.Sawada
-
-  $Id$
-
-********************************************************************/
+// $Id$
+// Author: Ryu Sawada
 #ifndef  ArgusTextDialog_H
 #define  ArgusTextDialog_H
+
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusTextDialog                                                      //
+//                                                                      //
+// Dialogo bject which asks string                                      //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
 
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )

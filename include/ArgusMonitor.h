@@ -1,11 +1,17 @@
-/********************************************************************
-  ArgusMonitor.h, R.Sawada
-
-  $Id$
-
-********************************************************************/
+// $Id$
+// Author: Ryu Sawada
 #ifndef ArgusMonitor_H
 #define ArgusMonitor_H
+
+
+//////////////////////////////////////////////////////////////////////////
+//                                                                      //
+// ArgusMonitor                                                         //
+//                                                                      //
+// Base class for the main object in Argus projects                     //
+//                                                                      //
+//////////////////////////////////////////////////////////////////////////
+
 #include <ROMEAnalyzer.h>
 #include <ROMEConfig.h>
 #include <TNetFolder.h>
