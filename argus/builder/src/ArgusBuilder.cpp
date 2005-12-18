@@ -5221,7 +5221,7 @@ void ArgusBuilder::WriteHeader(ROMEString& buffer, const Char_t* author, Bool_t 
    }
 }
 
-
+#undef ALIGN_DESC // align description 80 chars.
 //______________________________________________________________________________
 void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark)
 {
@@ -5229,17 +5229,25 @@ void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className,
    ROMEString format;
    ROMEString desc = description;
    ROMEStrArray descs;
-   Int_t p, pLast, pSpace;
+   Int_t p, pLast;
+#if defined ( ALIGN_DESC )
+   Int_t pSpace;
+#endif
    Int_t i;
    Char_t *tmp = new Char_t[desc.Length() + 1];
 
    // analyze description
    if (description && strlen(description)) {
-      pLast = pSpace = 0;
+      pLast = 0;
+#if defined ( ALIGN_DESC )
+      pSpace = 0;
+#endif
       for (p = 0; p < desc.Length(); p++) {
          if (p == desc.Length() - 1) {
             strcpy(tmp, desc(pLast, p - pLast).Data());
             tmp[p - pLast + 1] = '\0';
+            if(tmp[p - pLast] == '\n')
+               tmp[p - pLast] = '\0';
             descs.Add(tmp);
             break;
          }
@@ -5250,6 +5258,7 @@ void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className,
             pLast = p + 1;
             continue;
          }
+#if defined ( ALIGN_DESC )
          else if (isspace(desc[p])) {
             pSpace = p;
          }
@@ -5268,6 +5277,7 @@ void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className,
             }
             continue;
          }
+#endif
       }
    }
    delete [] tmp;
@@ -5279,8 +5289,12 @@ void ArgusBuilder::WriteDescription(ROMEString& buffer, const Char_t* className,
       buffer.AppendFormatted(format.Data(), className, "");
       buffer.AppendFormatted("//                                                                            //\n");
       for (i = 0; i < descs.GetEntries(); i++) {
+#if defined ( ALIGN_DESC )
          format.SetFormatted("// %%s%%%ds //\n", nc - strlen("//  //") - descs[i].Length());
          buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+#else
+         buffer.AppendFormatted("// %s\n", descs[i].Data());
+#endif
       }
       buffer.AppendFormatted("//                                                                            //\n");
       if (endmark) {
