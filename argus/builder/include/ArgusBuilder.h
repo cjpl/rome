@@ -10,16 +10,6 @@
 #include <ROMEBuilder.h>
 #include <RConfig.h>
 #include <Rtypes.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#   include <io.h>
-#   include <direct.h>
-#endif
-#if defined( R__UNIX )
-#   include <unistd.h>
-#endif
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include "ArgusVersion.h"
 
 const Int_t maxNumberOfTabs                    =    200;
@@ -36,13 +26,12 @@ protected:
    ROMEString compileFormatTabs,compileFormatARGUS;
    ROMEString dependFormatTabs,dependFormatARGUS;
 public:
-   ROMEString   argusVersion;
+   ROMEString argusVersion;
    
 protected:
    Bool_t readTabs;
 
    Int_t recursiveTabDepth;
-//   Int_t recursiveSteerDepth;
    Int_t recursiveMenuDepth;
    
 // net folder

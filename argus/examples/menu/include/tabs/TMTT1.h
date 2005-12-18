@@ -7,7 +7,7 @@
 #ifndef TMTT1_H
 #define TMTT1_H
 
-#include <include/tabs/TMTT1_Base.h>
+#include <include/generated/TMTT1_Base.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TGLayout.h>

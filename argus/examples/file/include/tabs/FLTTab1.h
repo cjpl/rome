@@ -7,7 +7,7 @@
 #ifndef FLTTab1_H
 #define FLTTab1_H
 
-#include <include/tabs/FLTTab1_Base.h>
+#include <include/generated/FLTTab1_Base.h>
 #include <TGTextEntry.h>
 #include <TGButton.h>
 #include <TGLabel.h>

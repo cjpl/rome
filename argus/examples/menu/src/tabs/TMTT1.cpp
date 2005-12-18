@@ -11,7 +11,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/TMTT1.h"
-#include "include/framework/TMWindow.h"
+#include "include/generated/TMWindow.h"
 
 ClassImp(TMTT1)
 

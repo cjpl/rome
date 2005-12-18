@@ -11,7 +11,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/ACTTab.h"
-#include "include/framework/ACWindow.h"
+#include "include/generated/ACWindow.h"
 
 ClassImp(ACTTab)
 

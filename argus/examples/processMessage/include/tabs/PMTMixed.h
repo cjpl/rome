@@ -7,7 +7,7 @@
 #ifndef PMTMixed_H
 #define PMTMixed_H
 
-#include <include/tabs/PMTMixed_Base.h>
+#include <include/generated/PMTMixed_Base.h>
 #include <TGButton.h>
 #include <TGLayout.h>
 

@@ -7,7 +7,7 @@
 #ifndef PMTNoThread_H
 #define PMTNoThread_H
 
-#include <include/tabs/PMTNoThread_Base.h>
+#include <include/generated/PMTNoThread_Base.h>
 #include <TGButton.h>
 #include <TGLayout.h>
 

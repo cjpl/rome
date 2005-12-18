@@ -34,24 +34,6 @@ int main(int argc, char *argv[])
    if (!argusb->CheckFileAndPath())
       return 0;
 
-   ROMEString path;
-   path.SetFormatted("%s/obj", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/dict", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/src", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/src/tabs", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/src/framework", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/include/", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/include/tabs", argusb->outDir.Data());
-   argusb->MakeDir(path);
-   path.SetFormatted("%s/include/framework", argusb->outDir.Data());
-   argusb->MakeDir(path);
-
    argusb->StartBuilder();
    return 0;
 }

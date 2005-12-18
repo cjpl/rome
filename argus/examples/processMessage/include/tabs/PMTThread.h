@@ -7,7 +7,7 @@
 #ifndef PMTThread_H
 #define PMTThread_H
 
-#include <include/tabs/PMTThread_Base.h>
+#include <include/generated/PMTThread_Base.h>
 #include <TGButton.h>
 #include <TGLayout.h>
 

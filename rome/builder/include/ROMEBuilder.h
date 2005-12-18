@@ -54,6 +54,7 @@ class ROMEBuilder
 {
 protected:
    bool haveFortranTask;
+
 public:
    ROMEString romeVersion;
 
@@ -112,6 +113,7 @@ protected:
    bool folderUserCode[maxNumberOfFolders];
    bool folderSupport[maxNumberOfFolders];
    bool folderNoReset[maxNumberOfFolders];
+   bool hasFolderUserCode;
 
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
@@ -230,6 +232,7 @@ protected:
    ROMEString bankHeaderTimeStamp;
 
 // user makefile
+   int numOfIncludeDirectories;
    int numOfMFDictHeaders;
    ROMEString mfDictHeaderName[maxNumberOfMFDictHeaders];
    int numOfMFDictIncDirs;
@@ -325,7 +328,7 @@ public:
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
-   void AddInludeDirectories();
+   void AddIncludeDirectories();
    void AddRomeHeaders();
    void AddRomeDictHeaders();
    void AddFrameworkHeaders();
@@ -368,6 +371,7 @@ public:
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
    virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
    virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
+   virtual bool BackUpFile(const char* filename);
    void StartBuilder();
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
@@ -388,7 +392,6 @@ public:
    bool ReadCommandLineParameters(int argc, char *argv[]);
    void Usage();
    bool CheckFileAndPath();
-   void MakeDir(ROMEString &path);
    void AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);

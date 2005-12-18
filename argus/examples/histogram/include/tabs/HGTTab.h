@@ -7,7 +7,7 @@
 #ifndef HGTTab_H
 #define HGTTab_H
 
-#include <include/tabs/HGTTab_Base.h>
+#include <include/generated/HGTTab_Base.h>
 #include "TGButton.h"
 #include "TRootEmbeddedCanvas.h"
 #include "TGLayout.h"

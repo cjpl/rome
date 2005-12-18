@@ -7,7 +7,7 @@
 #ifndef HWTFrench_H
 #define HWTFrench_H
 
-#include <include/tabs/HWTFrench_Base.h>
+#include <include/generated/HWTFrench_Base.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
 #include <TGLayout.h>

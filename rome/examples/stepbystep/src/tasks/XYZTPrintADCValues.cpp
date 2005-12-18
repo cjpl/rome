@@ -17,7 +17,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/tasks/XYZTPrintADCValues.h>
+#include <include/generated/XYZTPrintADCValues.h>
 #include <Riostream.h>
 
 ClassImp(XYZTPrintADCValues)

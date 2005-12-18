@@ -57,7 +57,7 @@
 #include <TStyle.h>
 #include <TF1.h>
 #include <TH1.h>
-#include <include/tasks/MEGTADCPedestal.h>
+#include <include/generated/MEGTADCPedestal.h>
 #include <ROMEStrArray.h>
 #include <Riostream.h>
 

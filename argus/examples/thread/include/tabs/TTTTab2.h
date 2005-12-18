@@ -7,7 +7,7 @@
 #ifndef TTTTab2_H
 #define TTTTab2_H
 
-#include <include/tabs/TTTTab2_Base.h>
+#include <include/generated/TTTTab2_Base.h>
 #include <TGButton.h>
 #include <TGLayout.h>
 

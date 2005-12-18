@@ -38,7 +38,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/tasks/XYZTPrintADCValues.h>
+#include <include/generated/XYZTPrintADCValues.h>
 #include <TRandom.h>
 #include <Riostream.h>
 #include "TF1.h" 

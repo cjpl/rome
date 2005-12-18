@@ -7,7 +7,7 @@
 #ifndef ACTTab_H
 #define ACTTab_H
 
-#include <include/tabs/ACTTab_Base.h>
+#include <include/generated/ACTTab_Base.h>
 #include <TNetFolder.h>
 #include <ArgusAnalyzerController.h>
 

@@ -1,6 +1,6 @@
-#include <include/framework/FLuser.h>
-#include <include/framework/FLMonitor.h>
-#include <include/framework/FLConfig.h>
+#include <include/daqs/FLuser.h>
+#include <include/generated/FLMonitor.h>
+#include <include/generated/FLConfig.h>
 
 FLuser::FLuser()
 {

@@ -7,7 +7,7 @@
 #ifndef TTTTab1_H
 #define TTTTab1_H
 
-#include <include/tabs/TTTTab1_Base.h>
+#include <include/generated/TTTTab1_Base.h>
 #include <TGButton.h>
 #include <TCanvas.h>
 #include <TRootEmbeddedCanvas.h>
