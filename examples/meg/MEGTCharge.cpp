@@ -50,7 +50,7 @@
 #include <TCanvas.h>
 #include <ROME.h>
 #include "MEG.h"
-#include <include/tasks/MEGTCharge.h>
+#include <include/generated/MEGTCharge.h>
 
 ClassImp(MEGTCharge)
 

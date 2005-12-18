@@ -34,7 +34,7 @@
 
 #include <TFile.h>
 #include <ROME.h>
-#include <include/tasks/MEGTReadMidas.h>
+#include <include/generated/MEGTReadMidas.h>
 #include <Riostream.h>
 
 ClassImp(MEGTReadMidas)

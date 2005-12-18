@@ -19,7 +19,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/tasks/RDBTPrintFolders.h>
+#include <include/generated/RDBTPrintFolders.h>
 #include <Riostream.h>
 #include <TTimeStamp.h>
 

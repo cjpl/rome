@@ -1,5 +1,5 @@
-#include <include/framework/RDBdummy.h>
-#include <include/framework/RDBAnalyzer.h>
+#include <include/daqs/RDBdummy.h>
+#include <include/generated/RDBAnalyzer.h>
 
 RDBdummy::RDBdummy()
 {

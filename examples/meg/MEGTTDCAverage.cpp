@@ -42,7 +42,7 @@
 
 #include <TCanvas.h>
 #include "MEG.h"
-#include <include/tasks/MEGTTDCAverage.h>
+#include <include/generated/MEGTTDCAverage.h>
 #include "Riostream.h"
 
 ClassImp(MEGTTDCAverage)

@@ -11,7 +11,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/tasks/THTMyTask.h>
+#include <include/generated/THTMyTask.h>
 #include <Riostream.h>
 
 ClassImp(THTMyTask)
