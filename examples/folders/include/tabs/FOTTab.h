@@ -9,8 +9,8 @@
 
 #include <include/generated/FOTTab_Base.h>
 #include <TClonesArray.h>
-#include "romeproject/include/framework/FORunInfo.h"
-#include "romeproject/include/framework/FOPMTData.h"
+#include "romeproject/include/generated/FORunInfo.h"
+#include "romeproject/include/generated/FOPMTData.h"
 
 class FOTTab : public FOTTab_Base
 {

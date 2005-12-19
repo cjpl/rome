@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Sun Jul  3 19:26:07 2005 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/Argus/ArgusConfig.xsd">
+<!-- created by MXML on Mon Dec 19 10:13:11 2005 -->
+<Configuration>
+  <RunNumbers></RunNumbers>
+  <InputFileNames></InputFileNames>
+  <Modes>
+    <AnalyzingMode>offline</AnalyzingMode>
+    <DAQSystem>none</DAQSystem>
+  </Modes>
+  <Paths>
+    <InputFilePath>./</InputFilePath>
+  </Paths>
   <Window>
     <Scale>1.0</Scale>
     <StatusBar>true</StatusBar>
@@ -24,7 +33,7 @@
   <NetFolders>
     <mynetfolder>
       <Active>false</Active>
-      <Title>rome folder</Title>
+      <Reconnect>true</Reconnect>
       <Host>localhost</Host>
       <Port>9090</Port>
       <Root>FO</Root>
@@ -36,4 +45,5 @@
       <Active>true</Active>
     </Tab>
   </Tabs>
+  <Midas/>
 </Configuration>

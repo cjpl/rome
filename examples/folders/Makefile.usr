@@ -7,4 +7,4 @@
 #       obj/mySource.obj: mySource.cpp
 #          g++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj
 #
-DictionaryHeaders += romeproject/include/framework/FORunInfo.h romeproject/include/framework/FOPMTData.h
+DictionaryHeaders += romeproject/include/generated/FORunInfo.h romeproject/include/generated/FOPMTData.h
