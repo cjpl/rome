@@ -62,7 +62,7 @@
 		<xs:annotation>
 			<xs:documentation>Description of the author. The name of the auther will be used for documentations and the names of the authers of the task are written to the header of the task's '.cpp' file</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="AuthorName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Name of the author. (optional)</xs:documentation>
@@ -83,13 +83,13 @@
 					<xs:documentation>The e-mail of the author. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="ExperimentDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the experiment and the framework.</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="ExperimentName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Name of the experiment. Not used at the moment. (optional)</xs:documentation>
@@ -115,7 +115,7 @@
 					<xs:documentation>Style sheet file to be used for documentation. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="IncludeDesc">
 		<xs:annotation>
@@ -127,11 +127,13 @@
 					<xs:documentation>The file name of the include e.g. TString.h. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="IncludeType" type="IncludeTypeDesc" default="global" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The type of the include can be global or local. Local means that the include file is expected to be on the working directory (#include"TString.h"). Global means that the include is searched in the directories specified in the path environment variable (#include&lt;TString.h&gt;). Default is global</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">
@@ -149,6 +151,7 @@
 					<xs:documentation>The type of the steering parameter field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="SPFieldArraySize" type="xs:string" default="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The array size of the steering parameter field. Default is 1.</xs:documentation>
@@ -174,6 +177,7 @@
 					<xs:documentation>The Description which will be shown in command line help. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SteeringParameterGroupDesc">
@@ -186,6 +190,7 @@
 					<xs:documentation>The name of a steering parameter group.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="SPGroupArraySize" type="xs:string" default="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The array size of the steering parameter group. Default is 1.</xs:documentation>
@@ -201,6 +206,7 @@
 					<xs:documentation>The sub groups of this steering parameter group. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="FieldDesc">
@@ -218,6 +224,7 @@
 					<xs:documentation>The type of the field. Must be one out of the ValueTypeDesc list or a pointer to any root class. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="FieldComment" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>A comment about the field. (optional)</xs:documentation>
@@ -243,6 +250,7 @@
 					<xs:documentation>The path to the value in the database. This value will be ignored if 'DataBaseAccess' is not true in the this folder. This value can be overwritten in the configuration file. (required if 'DataBaseAccess' is true in the this folder)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="FolderDesc">
@@ -255,6 +263,7 @@
 					<xs:documentation>The name of the folder. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="FolderTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The title of the folder. Displayed in the ROOT browser. (optional)</xs:documentation>
@@ -310,6 +319,7 @@
 					<xs:documentation>Defines the sub folders of this folder. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="HistogramDesc">
@@ -322,6 +332,7 @@
 					<xs:documentation>The name of the histogram. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="HistTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The title of the histogram. Displayed in the ROOT browser. This value can be overwritten in the configuration file. (optional)</xs:documentation>
@@ -337,11 +348,13 @@
 					<xs:documentation>The title of the ROOT folder in which the histogram is stored. This value can be overwritten in the configuration file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 			<xs:element name="HistType" type="HistTypeDesc">
 				<xs:annotation>
 					<xs:documentation>The type of the histogram. Can be any ROOT histogram type. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="HistArraySize" type="xs:string" default="1" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The array size of the histogram. If the value is 1 the histogram is a single histogram. If the histogram is an array they are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
@@ -412,13 +425,14 @@
 					<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SteeringParametersDesc">
 		<xs:annotation>
 			<xs:documentation>Description of steering parameters.</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines a steering parameter field. (optional)</xs:documentation>
@@ -429,7 +443,7 @@
 					<xs:documentation>Defines a steering parameter group. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="TaskDesc">
 		<xs:annotation>
@@ -441,6 +455,7 @@
 					<xs:documentation>The name of the task. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="TaskEventId" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If this value is set to a midas event id, the task gets only executed for the events with that id. (optional)</xs:documentation>
@@ -481,6 +496,7 @@
 					<xs:documentation>Defines the steering parameters of the task. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TaskHierarchyDesc">
@@ -493,11 +509,13 @@
 					<xs:documentation>The name of the task. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="Task" type="TaskHierarchyDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a task in the task hierarchy of the framework. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="BranchDesc">
@@ -515,6 +533,7 @@
 					<xs:documentation>The name of the folder, whose data is stored to the branch. This folder has to be defined in the folder definition section of the xml file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="BufferSize" type="xs:integer" default="32000" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The buffer size of the branch. (optional)</xs:documentation>
@@ -525,6 +544,7 @@
 					<xs:documentation>The split level of the branch. If you have support folder fields in related folder, large split level might not safe. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="TreeDesc">
@@ -537,6 +557,7 @@
 					<xs:documentation>The name of the tree. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="TreeTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The title of the tree. Displayed in the ROOT browser. (optional)</xs:documentation>
@@ -552,6 +573,7 @@
 					<xs:documentation>Describes the branches of the tree. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="UserDAQSystemDesc">
@@ -593,6 +615,7 @@
 					<xs:documentation>The name of the folder, whose fields are filled with event header data. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="EventID" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The name of the field of folder [Folder], which is filled with the event id. (required)</xs:documentation>
@@ -613,6 +636,7 @@
 					<xs:documentation>The name of the field of folder [Folder], which is filled with the time stamp. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="BankArrayDesc">
@@ -625,6 +649,7 @@
 					<xs:documentation>The size of the bank array. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="BAStartIndex" type="xs:integer" default="0" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The starting index of the bank array. Default is 0.</xs:documentation>
@@ -635,6 +660,7 @@
 					<xs:documentation>Number of digits to add to the bank name. Default is 1.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="BankDesc">
@@ -652,11 +678,13 @@
 					<xs:documentation>The type of the bank. This is the  type of the values stored in the bank in the midas file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="BankArray" type="BankArrayDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes a bank array. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="BankFieldDesc">
@@ -674,6 +702,7 @@
 					<xs:documentation>The type of the field of the structured bank. This is the  type of the values in the structure stored in the bank in the midas file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="BankFieldSize" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The pack size of the field of the structured bank. E.g. the field length in bits. (optional)</xs:documentation>
@@ -684,6 +713,7 @@
 					<xs:documentation>The array size of the bank field. If this value is 1 or not present, then the field is a single value. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="StructuredBankDesc">
@@ -696,6 +726,7 @@
 					<xs:documentation>The name of the strucured bank. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="BankField" type="BankFieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes the fields of the structured bank. (optional)</xs:documentation>
@@ -706,13 +737,14 @@
 					<xs:documentation>Describes a bank array. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="BanksDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the banks in a midas event.</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="Bank" type="BankDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a bank of the framework. (optional)</xs:documentation>
@@ -723,7 +755,7 @@
 					<xs:documentation>Describes structured bank of the framework. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:complexType name="EventDefinitionDesc">
 		<xs:annotation>
@@ -735,19 +767,20 @@
 					<xs:documentation>The name of the event. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="EventID" type="xs:integer" default="-1">
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="EventID" type="xs:integer" default="-1" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.  Default is -1.</xs:documentation>
+					<xs:documentation>ID of the requested event. Specify -1 to receive events with any ID.  Default is -1. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="EventTriggerMask" type="xs:integer" default="-1">
+			<xs:element name="EventTriggerMask" type="xs:integer" default="-1" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask. This value has no effect in offline mode. Default is -1.</xs:documentation>
+					<xs:documentation>Trigger mask of requested events. The requested events must have at least one bit in its trigger mask common with the requested trigger mask. Use -1 to receive events with any trigger mask. This value has no effect in offline mode. Default is -1. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="EventSamplingRate" type="xs:integer" default="1">
+			<xs:element name="EventSamplingRate" type="xs:integer" default="1" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer. This value has no effect in offline mode. Default is 1.</xs:documentation>
+					<xs:documentation>A value of 1 receives all events which match the specified event ID and  trigger mask. If the events are consumed slower than produced, the producer is automatically slowed down. A value of  2 receives as much events as possible without slowing down the producer. This value has no effect in offline mode. Default is 1. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Banks" type="BanksDesc">
@@ -755,6 +788,7 @@
 					<xs:documentation>Describes the banks in a midas event. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+		</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DictionaryHeadersDesc">
@@ -867,7 +901,7 @@
 		<xs:annotation>
 			<xs:documentation>User defined additions to the makefile.</xs:documentation>
 		</xs:annotation>
-		<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 			<xs:element name="DictionaryHeaders" type="DictionaryHeadersDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Additional header files to be added to the rootcint command. (optional)</xs:documentation>
@@ -903,14 +937,14 @@
 					<xs:documentation>Additional source files to be compiled. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
+		</xs:choice>
 	</xs:complexType>
 	<xs:element name="ROMEFrameworkDefinition">
 		<xs:annotation>
 			<xs:documentation>Description of a ROME framework.</xs:documentation>
 		</xs:annotation>
 		<xs:complexType>
-			<xs:sequence>
+		<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element name="Experiment" type="ExperimentDesc">
 					<xs:annotation>
 						<xs:documentation>Describes the experiment and the framework. (required)</xs:documentation>
@@ -1062,7 +1096,7 @@
 						<xs:documentation>User defined additions to the makefile. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-			</xs:sequence>
+			</xs:choice>
 		</xs:complexType>
 	</xs:element>
 </xs:schema>
