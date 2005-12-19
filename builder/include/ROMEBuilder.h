@@ -167,6 +167,7 @@ protected:
    ROMEString taskHierarchyName[2*maxNumberOfTasks];
    int        taskHierarchyParentIndex[2*maxNumberOfTasks];
    int        taskHierarchyClassIndex[2*maxNumberOfTasks];
+   int        taskHierarchyMultiplicity[2*maxNumberOfTasks];
 
 // steering
 

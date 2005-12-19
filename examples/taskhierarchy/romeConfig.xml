@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Dec 16 17:54:14 2005 -->
+<!-- created by MXML on Mon Dec 19 09:09:27 2005 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/romeConfig.xsd">
   <MainConfiguration>
     <RunNumbers></RunNumbers>
@@ -26,20 +26,52 @@
     </Paths>
     <Tasks>
       <Task>
-        <TaskName>MyTask</TaskName>
+        <TaskName>TaskA</TaskName>
         <Active>true</Active>
         <SteeringParameterField>
           <SPName>output</SPName>
-          <SPValue>xxx</SPValue>
+          <SPValue>1. A</SPValue>
         </SteeringParameterField>
+        <Task>
+          <TaskName>TaskA</TaskName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>output</SPName>
+            <SPValue>sub A of 1. A</SPValue>
+          </SteeringParameterField>
+        </Task>
       </Task>
       <Task>
-        <TaskName>MyTask</TaskName>
+        <TaskName>TaskB</TaskName>
         <Active>true</Active>
         <SteeringParameterField>
           <SPName>output</SPName>
-          <SPValue>xxx</SPValue>
+          <SPValue>1. B</SPValue>
         </SteeringParameterField>
+        <Task>
+          <TaskName>TaskA</TaskName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>output</SPName>
+            <SPValue>sub A of 1. B</SPValue>
+          </SteeringParameterField>
+        </Task>
+      </Task>
+      <Task>
+        <TaskName>TaskA</TaskName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>output</SPName>
+          <SPValue>1. A</SPValue>
+        </SteeringParameterField>
+        <Task>
+          <TaskName>TaskA</TaskName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>output</SPName>
+            <SPValue>sub A of 1. A</SPValue>
+          </SteeringParameterField>
+        </Task>
       </Task>
     </Tasks>
     <Midas/>

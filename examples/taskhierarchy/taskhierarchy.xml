@@ -1,11 +1,21 @@
 <ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
 	<Experiment>
-		<ExperimentShortCut>TH</ExperimentShortCut>
 		<ProgramName>Example</ProgramName>
+		<ExperimentShortCut>TH</ExperimentShortCut>
 	</Experiment>
 	<Tasks>
 		<Task>
-			<TaskName>MyTask</TaskName>
+			<TaskName>TaskA</TaskName>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>output</SPFieldName>
+					<SPFieldType>ROMEString</SPFieldType>
+					<SPFieldInitialization>"xxx"</SPFieldInitialization>
+				</SteeringParameterField>
+			</SteeringParameters>
+		</Task>
+		<Task>
+			<TaskName>TaskB</TaskName>
 			<SteeringParameters>
 				<SteeringParameterField>
 					<SPFieldName>output</SPFieldName>
@@ -17,10 +27,22 @@
 	</Tasks>
 	<TaskHierarchy>
 		<Task>
-			<TaskName>MyTask</TaskName>
+			<TaskName>TaskA</TaskName>
+			<Task>
+				<TaskName>TaskA</TaskName>
+			</Task>
 		</Task>
 		<Task>
-			<TaskName>MyTask</TaskName>
+			<TaskName>TaskB</TaskName>
+			<Task>
+				<TaskName>TaskA</TaskName>
+			</Task>
+		</Task>
+		<Task>
+			<TaskName>TaskA</TaskName>
+			<Task>
+				<TaskName>TaskA</TaskName>
+			</Task>
 		</Task>
 	</TaskHierarchy>
 </ROMEFrameworkDefinition>

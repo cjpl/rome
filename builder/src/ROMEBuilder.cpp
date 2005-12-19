@@ -11,8 +11,17 @@
 #   include <io.h>
 #endif
 #include <float.h>
+
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include "TSystem.h"
 #include "TMath.h"
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+
 #include "Riostream.h"
 #include "ROMEString.h"
 #include "ROMEBuilder.h"
@@ -4774,9 +4783,9 @@ bool ROMEBuilder::WriteConfigCpp() {
       path.Resize(0);
       classname.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),i);
-         path.InsertFormatted(0,"/Task[TaskName='%s']",taskHierarchyName[index].Data());
-         classname.InsertFormatted(0,"::%s%03dTask",taskHierarchyName[index].Data(),i);
+         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),index);
+         path.InsertFormatted(0,"/Task[TaskName='%s'][%d]",taskHierarchyName[index].Data(),taskHierarchyMultiplicity[index]);
+         classname.InsertFormatted(0,"::%s%03dTask",taskHierarchyName[index].Data(),index);
          index = taskHierarchyParentIndex[index];
       }
       // Active
@@ -5352,7 +5361,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       int index = i;
       pointer.Resize(0);
       while (index!=-1) {
-         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),i);
+         pointer.InsertFormatted(0,"->f%s%03dTask",taskHierarchyName[index].Data(),index);
          index = taskHierarchyParentIndex[index];
       }
       buffer.AppendFormatted("   if (fConfigData[modIndex]%s->fActiveModified) {\n",pointer.Data());
@@ -8082,7 +8091,7 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
       for (j=0;j<numOfTaskHierarchy;j++) {
          if (taskHierarchyParentIndex[j]!=i)
             continue;
-         buffer.AppendFormatted("%s            f%s%03dTask = new %s%03dTask();\n",blank.Data(),taskHierarchyName[j].Data(),i,taskHierarchyName[j].Data(),i);
+         buffer.AppendFormatted("%s            f%s%03dTask = new %s%03dTask();\n",blank.Data(),taskHierarchyName[j].Data(),j,taskHierarchyName[j].Data(),j);
       }
       buffer.AppendFormatted("%s         };\n",blank.Data());
       // Sub classes
@@ -8932,6 +8941,16 @@ void ROMEBuilder::StartBuilder()
                            cout << "Terminating program." << endl;
                            return;
                         }
+                        taskHierarchyMultiplicity[numOfTaskHierarchy] = 1;
+                        for (i=0;i<numOfTaskHierarchy;i++) {
+                           if (taskHierarchyName[i]==taskHierarchyName[numOfTaskHierarchy] && 
+                               taskHierarchyParentIndex[i]==taskHierarchyParentIndex[numOfTaskHierarchy])
+                              taskHierarchyMultiplicity[numOfTaskHierarchy]++;
+                        }
+                        cout << taskHierarchyName[numOfTaskHierarchy].Data() << endl;
+                        cout << taskHierarchyParentIndex[numOfTaskHierarchy] << endl;
+                        cout << taskHierarchyClassIndex[numOfTaskHierarchy] << endl;
+                        cout << taskHierarchyMultiplicity[numOfTaskHierarchy] << endl;
                      }
                      if (type == 1 && !strcmp((const char*)name,"Task")) {
                         depth++;
@@ -9089,9 +9108,6 @@ void ROMEBuilder::StartBuilder()
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      char workdir[kMAXPATHLEN];
-      strcpy(workDir,gSystem->WorkingDirectory());
-
       tempStr.SetFormatted("nmake -f Makefile.win dict/ROMEDict.cpp dict/%sFrameworkDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data());
       if(numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp", shortCut.Data());
@@ -9103,8 +9119,6 @@ void ROMEBuilder::StartBuilder()
       system("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      char workDir[kMAXPATHLEN];
-      strcpy(workDir,gSystem->WorkingDirectory());
       system("nmake -f Makefile.win");
 #endif
    }
@@ -10336,7 +10350,7 @@ void ROMEBuilder::WriteUserMakeFile()
 #if defined( R__VISUAL_CPLUSPLUS )
    makeFile = "Makefile.winusr";
    ROMEString usrBuffer;
-   if (gSystem->AccessPathName(makeFile.Data(),kFileExists))
+   if (gSystem->AccessPathName(makeFile.Data(),kFileExists)) {
       usrBuffer.SetFormatted("# User editable Makefile for the %s%s\n",shortCut.Data(),mainProgName.Data());
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("# Description:\n");
