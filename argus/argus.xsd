@@ -502,7 +502,6 @@
         <xs:element minOccurs="0" name="GlobalSteeringParameters">
           <xs:annotation>
             <xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
-            <xs:documentation>Description of the global steering parameters of the framework.</xs:documentation>
           </xs:annotation>
           <xs:complexType>
             <xs:sequence>
