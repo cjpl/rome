@@ -849,7 +849,7 @@ void ArgusBuilder::WriteMakefile()
    buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d dict/*.h dict/*.cpp\n");
    buffer.AppendFormatted("%sclean:\n", shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d dict/%s%.h dict/%s.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d dict/%s.h dict/%s.cpp\n", shortCut.Data(), shortCut.Data(), shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("\n");
 
 #if defined( R__VISUAL_CPLUSPLUS )
