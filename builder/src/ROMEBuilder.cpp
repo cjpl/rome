@@ -8947,10 +8947,6 @@ void ROMEBuilder::StartBuilder()
                                taskHierarchyParentIndex[i]==taskHierarchyParentIndex[numOfTaskHierarchy])
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
-                        cout << taskHierarchyName[numOfTaskHierarchy].Data() << endl;
-                        cout << taskHierarchyParentIndex[numOfTaskHierarchy] << endl;
-                        cout << taskHierarchyClassIndex[numOfTaskHierarchy] << endl;
-                        cout << taskHierarchyMultiplicity[numOfTaskHierarchy] << endl;
                      }
                      if (type == 1 && !strcmp((const char*)name,"Task")) {
                         depth++;
@@ -9609,6 +9605,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #endif
       buffer.AppendFormatted(" -I%s",str.Data());
    }
+   for (i=0;i<numOfMFDictIncDirs;i++)
+      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    for (i=0;i<headers->GetEntriesFast();i++) {
       buffer.AppendFormatted(" %s",headers->At(i).Data());
@@ -9652,7 +9650,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
       path.ReplaceAll("\\","/");
 #if defined( R__UNIX )
-      if (path.Index("/dict/")!=-1)
+      if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
@@ -9669,19 +9667,19 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       ROMEString str;
       path.ReplaceAll("$(","%");
       path.ReplaceAll(")","%");
-      if (path.Index("/dict/")!=-1)
+      if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
          buffer.AppendFormatted("obj/%s.obj: dict/%s.cpp\n",name.Data(),name.Data(),name.Data());
       else {
          buffer.AppendFormatted("!INCLUDE obj/%s.d\n",name.Data());
          buffer.AppendFormatted("obj/%s.obj: %s\n",name.Data(),sources->At(i).Data(),name.Data());
       }
-      if (path.Index("/dict/")==-1) {
+      if (!(path.Index("/dict/")!=-1 || path.Index("dict/")==0)) {
          buffer.AppendFormatted("\t@cd obj/\n",name.Data());
          buffer.AppendFormatted("\t@start /MIN %s\n",name.Data());
          buffer.AppendFormatted("\t@cd ../\n",name.Data());
       }
       buffer.AppendFormatted("\t@cl /nologo /c $(Flags) $(Includes) %s /Foobj/%s.obj\n",sources->At(i).Data(),name.Data());
-      if (path.Index("/dict/")==-1) {
+      if (!(path.Index("/dict/")!=-1 || path.Index("dict/")==0)) {
          batBuffer.AppendFormatted("cd ../\n");
          batBuffer.AppendFormatted("cd %s\n",path.Data());
          batBuffer.AppendFormatted("rmkdepend");
@@ -9691,7 +9689,15 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
             str.ReplaceAll(")","%");
             batBuffer.AppendFormatted(" -I%s",str.Data());
          }
+         for (j=0;j<numOfMFIncDirs;j++) {
+            str = mfIncDir[j].Data();
+            str.ReplaceAll("$(","%");
+            str.ReplaceAll(")","%");
+            batBuffer.AppendFormatted(" -I%s",str.Data());
+         }
          batBuffer.AppendFormatted(" -f %sobj/%s.d -o .obj -p obj/ %s.%s\n",outDir.Data(),name.Data(),name.Data(),ext.Data());
+         batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s ./ -r %s\n",outDir.Data(),name.Data(),path.Data());
+         batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s \" *.h\" -r \" %s/*.h\" -v \" /\\\"\n",outDir.Data(),name.Data(),path.Data());
          batBuffer.AppendFormatted("cd %sobj\n",outDir.Data());
          batBuffer.AppendFormatted("exit\n",outDir.Data());
          batFileName.SetFormatted("%sobj/%s.bat",outDir.Data(),name.Data());
@@ -10083,11 +10089,8 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int su
 
    // VCCLCompilerTool
    ROMEString includeDirs;
-   includeDirs.AppendFormatted("\"$(ROOTSYS)\\include\"");
-   includeDirs.AppendFormatted(";\"$(ROMESYS)\\include\"");
-   includeDirs.AppendFormatted(";\"$(ARGUSSYS)\\include\"");
-   includeDirs.AppendFormatted(";\"$(SolutionDir)\"");
-   includeDirs.AppendFormatted(";\"$(SolutionDir)\\include\"");
+   for (i=0;i<includeDirectories->GetEntriesFast();i++)
+      includeDirs.AppendFormatted(";\"%s\"",includeDirectories->At(i).Data());
    for (i=0;i<numOfMFIncDirs;i++)
       includeDirs.AppendFormatted(";\"%s\"",mfIncDir[i].Data());
    ROMEString preDrocDefs = "WIN32;_DEBUG";
@@ -10198,7 +10201,7 @@ void ROMEBuilder::WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sourc
          str = sources->At(i).Data();
          str.ReplaceAll("/","\\");
          xml->WriteAttribute("RelativePath",str.Data());
-         if (str.Index("\\dict\\")!=-1)
+         if (str.Index("\\dict\\")!=-1 || str.Index("dict\\")==0)
             WriteVisualProjectProjWarningLevel(xml,"0");
          xml->EndElement();
       }
