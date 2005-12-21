@@ -872,15 +872,25 @@ void ArgusBuilder::WriteMakefile()
 
    // Write Visual C++ Projects
 #if defined( R__VISUAL_CPLUSPLUS )
-   if (!noVP)
-      WriteVisualProjects(7,10);
+   if (!noVP) {
+      WriteVisualProjects(2002);
+      WriteVisualProjects(2003);
+   }
 #endif // R__VISUAL_CPLUSPLUS
 }
 
 
 //______________________________________________________________________________
-void ArgusBuilder::WriteVisualProjects(int version,int subVersion)
+void ArgusBuilder::WriteVisualProjects(int version)
 {
+   switch (version) {
+      case 2002:
+         break;
+      case 2003:
+         break;
+      default:
+         return;
+   }
    ROMEString projectGUID = "12345678-1234-1234-1234-123456789012";
    WriteVisualProjectSln(version,projectGUID);
 
@@ -890,7 +900,7 @@ void ArgusBuilder::WriteVisualProjects(int version,int subVersion)
    fileName.SetFormatted("%s%s%d.vcproj",shortCut.Data(),mainProgName.Data(),version);
    xml->OpenFileForWrite(fileName.Data());
 
-   WriteVisualProjectProjSettings(xml,version,subVersion,projectGUID);
+   WriteVisualProjectProjSettings(xml,version,projectGUID);
 
    // Files
    xml->StartElement("Files");
@@ -911,6 +921,23 @@ void ArgusBuilder::WriteVisualProjects(int version,int subVersion)
    WriteVisualProjectProjSources(xml,romeSources,"ROME");
 
    // End Source Files
+   xml->EndElement();
+
+   // Header Files
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Header Files");
+   xml->WriteAttribute("Filter","h");
+   xml->WriteAttribute("UniqueIdentifier","{93995380-89BD-4b04-88EB-625FBE52EBFB}");
+
+   WriteVisualProjectProjHeaders(xml,tabHeaders,"Tabs");
+   WriteVisualProjectProjHeaders(xml,daqHeaders,"User DAQs");
+   WriteVisualProjectProjHeaders(xml,databaseHeaders,"User Databases");
+   WriteVisualProjectProjHeaders(xml,folderHeaders,"Folders");
+   WriteVisualProjectProjHeaders(xml,frameworkHeaders,"Generated");
+   WriteVisualProjectProjHeaders(xml,argusHeaders,"ARGUS");
+   WriteVisualProjectProjHeaders(xml,romeHeaders,"ROME");
+
+   // End Header Files
    xml->EndElement();
 
    // End Files
