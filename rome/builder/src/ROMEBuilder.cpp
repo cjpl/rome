@@ -9993,8 +9993,10 @@ void ROMEBuilder::WriteMakefile() {
 
    // Write Visual C++ Projects
 #if defined( R__VISUAL_CPLUSPLUS )
-   if (!noVP)
-      WriteVisualProjects(7,10);
+   if (!noVP) {
+      WriteVisualProjects(2002);
+      WriteVisualProjects(2003);
+   }
 #endif // R__VISUAL_CPLUSPLUS
 }
 void ROMEBuilder::WriteRootCintCall(ROMEString& buffer) {
@@ -10019,11 +10021,11 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
    ROMEString formatVersion;
 
    switch (version) {
-      case 7:
-         formatVersion = "8.00";
+      case 2002:
+         formatVersion = "7.00";
          break;
-      case 8:
-         formatVersion = "9.00";
+      case 2003:
+         formatVersion = "8.00";
          break;
       default:
          return;
@@ -10031,12 +10033,17 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
 
    buffer.AppendFormatted("Microsoft Visual Studio Solution File, Format Version %s\n",formatVersion.Data());
    buffer.AppendFormatted("Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = \"%s%s%d\", \"%s%s%d.vcproj\", \"{%s}\"\n",shortCut.Data(),mainProgName.Data(),version,shortCut.Data(),mainProgName.Data(),version,projectGUID.Data());
-   buffer.AppendFormatted("	ProjectSection(ProjectDependencies) = postProject\n");
-   buffer.AppendFormatted("	EndProjectSection\n");
+   if (version!=2002) {
+      buffer.AppendFormatted("	ProjectSection(ProjectDependencies) = postProject\n");
+      buffer.AppendFormatted("	EndProjectSection\n");
+   }
    buffer.AppendFormatted("EndProject\n");
    buffer.AppendFormatted("Global\n");
    buffer.AppendFormatted("	GlobalSection(SolutionConfiguration) = preSolution\n");
-   buffer.AppendFormatted("		Debug = Debug\n");
+   if (version!=2002)
+      buffer.AppendFormatted("		ConfigName.0 = Debug\n");
+   else
+      buffer.AppendFormatted("		Debug = Debug\n");
    buffer.AppendFormatted("	EndGlobalSection\n");
    buffer.AppendFormatted("	GlobalSection(ProjectConfiguration) = postSolution\n");
    buffer.AppendFormatted("		{%s}.Debug.ActiveCfg = Debug|Win32\n",projectGUID.Data());
@@ -10052,20 +10059,33 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
    fileName.SetFormatted("%s%s%d.sln",shortCut.Data(),mainProgName.Data(),version);
    WriteFile(fileName.Data(),buffer.Data(),6);
 }
-void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int subVersion,ROMEString& projectGUID) {
+void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMEString& projectGUID) {
    int i;
    ROMEString str;
+   ROMEString formatVersion;
+
+   switch (version) {
+      case 2002:
+         formatVersion = "7.00";
+         break;
+      case 2003:
+         formatVersion = "7.10";
+         break;
+      default:
+         return;
+   }
 
    // VisualStudioProject
    xml->StartElement("VisualStudioProject");
    xml->WriteAttribute("ProjectType","Visual C++");
-   str.SetFormatted("%d.%d",version,subVersion);
-   xml->WriteAttribute("Version",str.Data());
+   xml->WriteAttribute("Version",formatVersion.Data());
    str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
    xml->WriteAttribute("Name",str.Data());
    xml->WriteAttribute("ProjectGUID",projectGUID.Data());
-   str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
-   xml->WriteAttribute("RootNamespace",str.Data());
+   if (version!=2002) {
+      str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
+      xml->WriteAttribute("RootNamespace",str.Data());
+   }
    xml->WriteAttribute("Keyword","ManagedCProj");
 
    // Platforms
@@ -10081,8 +10101,14 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int su
    // Debug
    xml->StartElement("Configuration");
    xml->WriteAttribute("Name","Debug|Win32");
-   xml->WriteAttribute("OutputDirectory","$(SolutionDir)$(ConfigurationName)");
-   xml->WriteAttribute("IntermediateDirectory","$(ConfigurationName)");
+   if (version==2002) {
+      xml->WriteAttribute("OutputDirectory","Debug");
+      xml->WriteAttribute("IntermediateDirectory","Debug");
+   }
+   else {
+      xml->WriteAttribute("OutputDirectory","$(SolutionDir)$(ConfigurationName)");
+      xml->WriteAttribute("IntermediateDirectory","$(ConfigurationName)");
+   }
    xml->WriteAttribute("ConfigurationType","1");
    xml->WriteAttribute("CharacterSet","2");
    xml->WriteAttribute("ManagedExtensions","FALSE");
@@ -10125,11 +10151,17 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int su
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCLinkerTool");
    xml->WriteAttribute("AdditionalDependencies",libs.Data());
-   xml->WriteAttribute("OutputFile","$(OutDir)\\$(ProjectName).exe");
+   if (version==2002) {
+      str.SetFormatted("$(OutDir)/%s%s.exe",shortCut.Data(),mainProgName.Data());
+      xml->WriteAttribute("OutputFile",str.Data());
+   }
+   else
+      xml->WriteAttribute("OutputFile","$(OutDir)\\$(ProjectName).exe");
    xml->WriteAttribute("LinkIncremental","2");
    xml->WriteAttribute("AdditionalLibraryDirectories",libDirs.Data());
    xml->WriteAttribute("GenerateDebugInformation","TRUE");
-   xml->WriteAttribute("AssemblyDebug","1");
+   if (version!=2002)
+      xml->WriteAttribute("AssemblyDebug","1");
    xml->EndElement();
 
    // VCMIDLTool
@@ -10165,9 +10197,11 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int su
    xml->EndElement();
 
    // VCXMLDataGeneratorTool
-   xml->StartElement("Tool");
-   xml->WriteAttribute("Name","VCXMLDataGeneratorTool");
-   xml->EndElement();
+   if (version!=2002) {
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCXMLDataGeneratorTool");
+      xml->EndElement();
+   }
 
    // VCWebDeploymentTool
    xml->StartElement("Tool");
@@ -10175,9 +10209,11 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,int su
    xml->EndElement();
 
    // VCAuxiliaryManagedWrapperGeneratorTool
-   xml->StartElement("Tool");
-   xml->WriteAttribute("Name","VCAuxiliaryManagedWrapperGeneratorTool");
-   xml->EndElement();
+   if (version!=2002) {
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCAuxiliaryManagedWrapperGeneratorTool");
+      xml->EndElement();
+   }
 
    // End Debug
    xml->EndElement();
@@ -10239,11 +10275,19 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
          xml->StartElement("File");
          AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
          str.SetFormatted("%s\\%s.%s",mfSourceFilePath[i].Data(),name.Data(),ext.Data());
+         str.ReplaceAll("//","/");
+         str.ReplaceAll("/\\","/");
+         str.ReplaceAll("\\/","/");
+         str.ReplaceAll("\\\\","/");
          xml->WriteAttribute("RelativePath",str.Data());
          xml->EndElement();
       }
       xml->StartElement("File");
       str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
+      str.ReplaceAll("//","/");
+      str.ReplaceAll("/\\","/");
+      str.ReplaceAll("\\/","/");
+      str.ReplaceAll("\\\\","/");
       xml->WriteAttribute("RelativePath",str.Data());
       WriteVisualProjectProjWarningLevel(xml,"0");
       xml->EndElement();
@@ -10260,8 +10304,16 @@ void ROMEBuilder::WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *le
    xml->EndElement();
    xml->EndElement();
 }
-void ROMEBuilder::WriteVisualProjects(int version,int subVersion)
+void ROMEBuilder::WriteVisualProjects(int version)
 {
+   switch (version) {
+      case 2002:
+         break;
+      case 2003:
+         break;
+      default:
+         return;
+   }
    ROMEString projectGUID = "12345678-1234-1234-1234-123456789012";
    WriteVisualProjectSln(version,projectGUID);
 
@@ -10271,7 +10323,7 @@ void ROMEBuilder::WriteVisualProjects(int version,int subVersion)
    fileName.SetFormatted("%s%s%d.vcproj",shortCut.Data(),mainProgName.Data(),version);
    xml->OpenFileForWrite(fileName.Data());
 
-   WriteVisualProjectProjSettings(xml,version,subVersion,projectGUID);
+   WriteVisualProjectProjSettings(xml,version,projectGUID);
 
    // Files
    xml->StartElement("Files");

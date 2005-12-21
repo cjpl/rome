@@ -359,9 +359,9 @@ public:
    void WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
    void WriteRootCintCall(ROMEString& buffer);
    void WriteUserMakeFile();
-   void WriteVisualProjects(int version,int subVersion);
+   void WriteVisualProjects(int version);
    void WriteVisualProjectSln(int version,ROMEString& projectGUID);
-   void WriteVisualProjectProjSettings(ROMEXML *xml,int version,int subVersion,ROMEString& projectGUID);
+   void WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMEString& projectGUID);
    void WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sources,const char* folderName);
    void WriteVisualProjectProjUserSources(ROMEXML *xml);
    void WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);

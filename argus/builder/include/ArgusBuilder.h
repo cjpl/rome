@@ -107,7 +107,7 @@ public:
    void   WriteMakefile();
    void   WriteMakefileHeader(ROMEString& buffer);
    void   WriteMakefileLibsAndFlags(ROMEString& buffer);
-   void   WriteVisualProjects(int version,int subVersion);
+   void   WriteVisualProjects(int version);
    void   WriteHTMLDoku();
    void   WriteARGUSDictionary(ROMEString& buffer);
    void   WriteFrameworkDictionary(ROMEString& buffer);
