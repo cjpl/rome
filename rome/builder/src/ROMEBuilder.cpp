@@ -11315,78 +11315,95 @@ void ROMEBuilder::AddArgusSources(){
    if (argusHeaders->GetEntriesFast()>0)
       argusSources->AddFormatted("dict/ARGUSDict.cpp",shortCut.Data());
 }
-void ROMEBuilder::AddFrameworkHeaders() {
+void ROMEBuilder::AddGeneratedHeaders() {
    int i;
-   frameworkHeaders = new ROMEStrArray(8+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
-   frameworkHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
+   generatedHeaders = new ROMEStrArray(8+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
+   generatedHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
       if (taskUserCode[i]) {
-         frameworkHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+         generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
       }
       else {
-         frameworkHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+         generatedHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
       }
    }
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
-            frameworkHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+            generatedHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          }
          else {
-            frameworkHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+            generatedHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
          }
       }
    }
    for (i=0;i<numOfTab;i++) {
-      frameworkHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+      generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
    }
 }
-void ROMEBuilder::AddFrameworkDictHeaders() {
+void ROMEBuilder::AddGeneratedDictHeaders() {
+   generatedDictHeaders = new ROMEStrArray(2);
+   generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   generatedDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+}
+void ROMEBuilder::AddGeneratedFolderDictHeaders() {
    int i;
-   frameworkDictHeaders = new ROMEStrArray(2+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
-   frameworkDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
-   frameworkDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
-   for (i=0;i<numOfTask;i++) {
-      if (taskUserCode[i]) {
-         frameworkDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-      }
-      else {
-         frameworkDictHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      }
-   }
+   generatedFolderDictHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
-            frameworkDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+            generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          }
          else {
-            frameworkDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+            generatedFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
          }
       }
    }
-   for (i=0;i<numOfTab;i++) {
-      frameworkDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+}
+void ROMEBuilder::AddGeneratedTaskDictHeaders() {
+   int i;
+   generatedTaskDictHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i]) {
+         generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+      }
+      else {
+         generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      }
    }
 }
-void ROMEBuilder::AddFrameworkSources(){
-   frameworkSources = new ROMEStrArray(10);
-   frameworkSources->AddFormatted("src/generated/main.cpp");
-   frameworkSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sDataBaseDAQ.cpp",shortCut.Data());
-   if (frameworkDictHeaders->GetEntriesFast()>0)
-      frameworkSources->AddFormatted("dict/%sFrameworkDict.cpp",shortCut.Data());
+void ROMEBuilder::AddGeneratedTabDictHeaders() {
+   int i;
+   generatedTabDictHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
+   for (i=0;i<numOfTab;i++) {
+      generatedTabDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+   }
+}
+void ROMEBuilder::AddGeneratedSources(){
+   generatedSources = new ROMEStrArray(10);
+   generatedSources->AddFormatted("src/generated/main.cpp");
+   generatedSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sDataBaseDAQ.cpp",shortCut.Data());
+   if (generatedDictHeaders->GetEntriesFast()>0)
+      generatedSources->AddFormatted("dict/%sGeneratedDict.cpp",shortCut.Data());
+   if (generatedFolderDictHeaders->GetEntriesFast()>0)
+      generatedSources->AddFormatted("dict/%sGeneratedFolderDict.cpp",shortCut.Data());
+   if (generatedTaskDictHeaders->GetEntriesFast()>0)
+      generatedSources->AddFormatted("dict/%sGeneratedTaskDict.cpp",shortCut.Data());
+   if (generatedTabDictHeaders->GetEntriesFast()>0)
+      generatedSources->AddFormatted("dict/%sGeneratedTabDict.cpp",shortCut.Data());
 }
 void ROMEBuilder::AddFolderHeaders() {
    int i;
@@ -11963,8 +11980,11 @@ void ROMEBuilder::WriteMakefile() {
    AddRomeHeaders();
    AddRomeDictHeaders();
    AddArgusHeaders();
-   AddFrameworkHeaders();
-   AddFrameworkDictHeaders();
+   AddGeneratedHeaders();
+   AddGeneratedDictHeaders();
+   AddGeneratedFolderDictHeaders();
+   AddGeneratedTaskDictHeaders();
+   AddGeneratedTabDictHeaders();
    AddFolderHeaders();
    AddTaskHeaders();
    AddTabHeaders();
@@ -11972,7 +11992,7 @@ void ROMEBuilder::WriteMakefile() {
    AddDatabaseHeaders();
    AddRomeSources();
    AddArgusSources();
-   AddFrameworkSources();
+   AddGeneratedSources();
    AddFolderSources();
    AddTaskSources();
    AddTabSources();
@@ -12009,7 +12029,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileObjects(buffer,folderSources);
    WriteMakefileObjects(buffer,taskSources);
    WriteMakefileObjects(buffer,tabSources);
-   WriteMakefileObjects(buffer,frameworkSources);
+   WriteMakefileObjects(buffer,generatedSources);
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
    WriteMakefileAdditionalSourceFilesObjects(buffer);
@@ -12044,7 +12064,10 @@ void ROMEBuilder::WriteMakefile() {
 // Dictionary
    WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
    WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
-   WriteMakefileDictionary(buffer,shortCut+"FrameworkDict",frameworkDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"GeneratedTaskDict",generatedTaskDictHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"GeneratedTabDict",generatedTabDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"FolderDict",folderHeaders);
    WriteMakefileDictionary(buffer,shortCut+"TaskDict",taskHeaders);
    WriteMakefileDictionary(buffer,shortCut+"TabDict",tabHeaders);
@@ -12080,7 +12103,7 @@ void ROMEBuilder::WriteMakefile() {
 // ------------------
    WriteMakefileCompileStatements(buffer,romeSources);
    WriteMakefileCompileStatements(buffer,argusSources);
-   WriteMakefileCompileStatements(buffer,frameworkSources);
+   WriteMakefileCompileStatements(buffer,generatedSources);
    WriteMakefileCompileStatements(buffer,taskSources);
    WriteMakefileCompileStatements(buffer,tabSources);
    WriteMakefileCompileStatements(buffer,folderSources);
@@ -12500,7 +12523,7 @@ void ROMEBuilder::WriteVisualProjects(int version)
    WriteVisualProjectProjSources(xml,databaseSources,"User Databases");
    WriteVisualProjectProjSources(xml,folderSources,"Folders");
    WriteVisualProjectProjUserSources(xml);
-   WriteVisualProjectProjSources(xml,frameworkSources,"Generated");
+   WriteVisualProjectProjSources(xml,generatedSources,"Generated");
    WriteVisualProjectProjSources(xml,romeSources,"ROME");
    WriteVisualProjectProjSources(xml,argusSources,"ARGUS");
 
@@ -12519,7 +12542,7 @@ void ROMEBuilder::WriteVisualProjects(int version)
    WriteVisualProjectProjHeaders(xml,databaseHeaders,"User Databases");
    WriteVisualProjectProjHeaders(xml,folderHeaders,"Folders");
    WriteVisualProjectProjUserHeaders(xml);
-   WriteVisualProjectProjHeaders(xml,frameworkHeaders,"Generated");
+   WriteVisualProjectProjHeaders(xml,generatedHeaders,"Generated");
    WriteVisualProjectProjHeaders(xml,romeHeaders,"ROME");
    WriteVisualProjectProjHeaders(xml,argusHeaders,"ARGUS");
 
