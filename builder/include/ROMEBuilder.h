@@ -36,8 +36,15 @@ const int maxNumberOfMFPreDefs = 20;
 const int maxNumberOfMFSources = 100;
 const int maxNumberOfMFSourceFlags = 5;
 const int maxNumberOfEventRequests = 5;
-const int maxNumberOfPathObjectInterpreterCodes = 10;
+const int maxNumberOfPathObjectInterpreterCodes =     10;
+const int maxNumberOfTabs                       =    200;
+const int maxNumberOfMenus                      =     20;
+const int maxNumberOfMenuItems                  =     50;
+const int maxNumberOfThreadFunctions            =     10;
+const int maxNumberOfThreadFunctionArguments    =     10;
+const int maxNumberOfNetFolders                 =     10;
 const Ssiz_t kTStringResizeIncrement = 4096;
+const Char_t* const LINE_TITLE = "NoDayWithoutItsLine";
 
 const char valueCounter[maxNumberOfValueDimension] = {'i','j','k'};
 const char* const ROMECommandLineOptions = ":i:b:ns:m:r:e:docu:";
@@ -95,6 +102,9 @@ protected:
 
    int fNumberOfInterpreterCodes;
 
+   Int_t recursiveTabDepth;
+   Int_t recursiveMenuDepth;
+   
 // folders
    int numOfFolder;
    int numOfValue[maxNumberOfFolders];
@@ -123,6 +133,14 @@ protected:
    ROMEString valueArray[maxNumberOfFolders][maxNumberOfValues][maxNumberOfValueDimension];
    ROMEString valueDBName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueDBPath[maxNumberOfFolders][maxNumberOfValues];
+
+// net folder
+   Int_t      numOfNetFolder;
+   ROMEString netFolderName[maxNumberOfNetFolders];
+   ROMEString netFolderTitle[maxNumberOfNetFolders];
+   ROMEString netFolderHost[maxNumberOfNetFolders];
+   ROMEString netFolderPort[maxNumberOfNetFolders];
+   ROMEString netFolderRoot[maxNumberOfNetFolders];
 
 // task
 
@@ -188,6 +206,23 @@ protected:
 
    ROMEString usedCLO;
 
+// tab
+   Int_t      numOfTab;
+   ROMEString tabName[maxNumberOfTabs];
+   ROMEString tabTitle[maxNumberOfTabs];
+   ROMEString tabDescription[maxNumberOfTabs];
+   ROMEString tabAuthor[maxNumberOfTabs];
+   ROMEString tabVersion[maxNumberOfTabs];
+   Int_t      tabParentIndex[maxNumberOfTabs];
+   Int_t      tabNumOfChildren[maxNumberOfTabs];
+   Int_t      numOfMenu[maxNumberOfTabs];
+   Int_t      numOfMenuItem[maxNumberOfTabs][maxNumberOfMenus];
+   ROMEString menuTitle[maxNumberOfTabs][maxNumberOfMenus];
+   Int_t      menuDepth[maxNumberOfTabs][maxNumberOfMenus];
+   Int_t      menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   ROMEString menuItemEnumName[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   ROMEString menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+
 // tree
    int numOfTree;
    int numOfBranch[maxNumberOfTrees];
@@ -198,6 +233,12 @@ protected:
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchBufferSize[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchSplitLevel[maxNumberOfTrees][maxNumberOfBranches];
+
+// thread functions
+   Int_t      numOfThreadFunctions[maxNumberOfTabs];
+   Int_t      numOfThreadFunctionArguments[maxNumberOfTabs][maxNumberOfThreadFunctions];
+   ROMEString threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
+   ROMEString threadFunctionArgument[maxNumberOfTabs][maxNumberOfThreadFunctions][maxNumberOfThreadFunctionArguments];
 
 // daq
    int numOfDAQ;
@@ -249,7 +290,8 @@ protected:
    int numOfMFSources;
    ROMEString mfSourceFileName[maxNumberOfMFSources];
    ROMEString mfSourceFilePath[maxNumberOfMFSources];
-   ROMEString mfSourceFileDep[maxNumberOfMFSources];
+   ROMEString mfHeaderFileName[maxNumberOfMFSources];
+   ROMEString mfHeaderFilePath[maxNumberOfMFSources];
    int numOfMFSourceFlags[maxNumberOfMFSources];
    ROMEString mfSourceFileFlag[maxNumberOfMFSources][maxNumberOfMFSourceFlags];
 
@@ -266,17 +308,21 @@ protected:
    ROMEStrArray* includeDirectories;
    ROMEStrArray* romeHeaders;
    ROMEStrArray* romeDictHeaders;
+   ROMEStrArray* romeSources;
+   ROMEStrArray* argusHeaders;
+   ROMEStrArray* argusSources;
    ROMEStrArray* frameworkHeaders;
    ROMEStrArray* frameworkDictHeaders;
-   ROMEStrArray* folderHeaders;
-   ROMEStrArray* taskHeaders;
-   ROMEStrArray* daqHeaders;
-   ROMEStrArray* databaseHeaders;
-   ROMEStrArray* romeSources;
    ROMEStrArray* frameworkSources;
+   ROMEStrArray* folderHeaders;
    ROMEStrArray* folderSources;
+   ROMEStrArray* taskHeaders;
    ROMEStrArray* taskSources;
+   ROMEStrArray* tabHeaders;
+   ROMEStrArray* tabSources;
+   ROMEStrArray* daqHeaders;
    ROMEStrArray* daqSources;
+   ROMEStrArray* databaseHeaders;
    ROMEStrArray* databaseSources;
 
 public:
@@ -286,6 +332,7 @@ public:
    bool ReadXMLFolder();
    bool WriteFolderCpp();
    bool WriteFolderH();
+   bool ReadXMLNetFolder();
    bool ReadXMLTask();
    bool WriteSteeringClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
    bool WriteSteeringConfigClass(ROMEString& buffer,int numOfTaskSteer,int numTask,int tab);
@@ -301,9 +348,15 @@ public:
    void WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int nameLen,int typeLen);
    bool WriteTaskConfigWrite(ROMEString &buffer,int parentIndex,ROMEString& pointer,int tab);
    bool WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int tab);
+   bool WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
+   bool WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
    bool WriteTaskCpp();
    bool WriteTaskF();
    bool WriteTaskH();
+   bool ReadXMLTab();
+   bool ReadXMLMenu(Int_t currentNumberOfTabs);
+   bool WriteTabCpp();
+   bool WriteTabH();
    bool ReadXMLTree();
    bool ReadXMLDAQ();
    bool ReadXMLDB();
@@ -314,6 +367,10 @@ public:
    bool WriteAnalyzerCpp();
    bool WriteAnalyzerH();
    bool WriteAnalyzerF();
+   bool WriteWindowCpp();
+   bool WriteWindowH();
+   bool AddTab(ROMEString& buffer,Int_t& i);
+   bool AddMenuItems(ROMEString& buffer,Int_t i,Int_t j);
    bool WriteConfigCpp();
    bool WriteConfigH();
    bool WriteMidasDAQCpp();
@@ -332,17 +389,21 @@ public:
    void AddIncludeDirectories();
    void AddRomeHeaders();
    void AddRomeDictHeaders();
+   void AddRomeSources();
+   void AddArgusHeaders();
+   void AddArgusSources();
    void AddFrameworkHeaders();
    void AddFrameworkDictHeaders();
-   void AddFolderHeaders();
-   void AddTaskHeaders();
-   void AddDAQHeaders();
-   void AddDatabaseHeaders();
-   void AddRomeSources();
    void AddFrameworkSources();
+   void AddFolderHeaders();
    void AddFolderSources();
+   void AddTaskHeaders();
    void AddTaskSources();
+   void AddTabHeaders();
+   void AddTabSources();
+   void AddDAQHeaders();
    void AddDAQSources();
+   void AddDatabaseHeaders();
    void AddDatabaseSources();
    void WriteMakefile();
    void WriteMakefileHeader(ROMEString& buffer);
@@ -366,7 +427,7 @@ public:
    void WriteVisualProjectProjUserSources(ROMEXML *xml);
    void WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
    void WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* headers,const char* folderName);
-   void GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath);
+   void WriteVisualProjectProjUserHeaders(ROMEXML *xml);
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
@@ -394,6 +455,8 @@ public:
    void Usage();
    bool CheckFileAndPath();
    void AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
+   void WriteHeader(ROMEString& buffer, const Char_t* author, Bool_t overwrite);
+   void WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark);
 
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
 };

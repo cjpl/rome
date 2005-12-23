@@ -16,6 +16,7 @@
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h> 
+#include <TThread.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -54,7 +55,19 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fTreeUpdateIndex = 0;
 }
 
-#include <TBrowser.h>
+#define THREADRETURN NULL
+#define THREADTYPE void*
+bool windowCreated;
+THREADTYPE ArgusThread(void *arg)
+{
+   gROME->StartWindow();
+
+   ((TRint*)gROME->GetApplication())->SetPrompt("");
+   windowCreated = true;
+   ((TRint*)gROME->GetApplication())->Run();
+   return THREADRETURN;
+}
+
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
    bool firstUserInput = true;
@@ -93,10 +106,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       return;
    }
 
-   ExecuteTasks("i");
-   CleanTasks();
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      ExecuteTasks("i");
+      CleanTasks();
+   }
 
    eventLoopIndex = 0;
+
 
    // Loop over Runs
    //----------------
@@ -108,7 +124,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->PrintLine("\n\nTerminating Program !");
          return;
       }
-     if (this->isEndOfRun()) {
+      if (this->isEndOfRun()) {
          eventLoopIndex++;
          continue;
       }
@@ -124,8 +140,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // Begin of Run Tasks
-         ExecuteTasks("b");
-         CleanTasks();
+         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+            ExecuteTasks("b");
+            CleanTasks();
+         }
          eventLoopIndex++;
 
          // Output
@@ -136,10 +154,29 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
       }
 
+      // Start ARGUS
+      //-------------
+      if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())) {
+         windowCreated = false;
+         TThread *thread = new TThread("argus_thread", ArgusThread);
+         thread->Run();
+         while (!windowCreated)
+            gROME->ss_sleep(10);
+      }
+
       // Loop over Events
       //------------------
       firstUserInput = true;
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
+         if (gROME->IsWindowClosed()) {
+            this->SetStopped();
+            this->SetEndOfRun();
+            break;
+         }
+         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+            gSystem->ProcessEvents();
+            gSystem->Sleep(10);
+         }
          if (gROME->isOffline()) {
             // check event numbers
             int status = gROME->CheckEventNumber(i);
@@ -198,8 +235,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             ROMEEventLoop::fTaskSwitchesChanged = false;
          }
          char eventID = gROME->GetEventIDChar();
-         ExecuteTasks(&eventID);
-         CleanTasks();
+         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+            ExecuteTasks(&eventID);
+            CleanTasks();
+         }
          if (gROME->isTerminationFlag()) {
             gROME->PrintLine("\n\nTerminating Program !");
             return;
@@ -240,9 +279,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // End of Run Tasks
-         ExecuteTasks("e");
-         CleanTasks();
-
+         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+            ExecuteTasks("e");
+            CleanTasks();
+         }
          // Disconnect
          if (!this->DAQEndOfRun()) {
             this->Terminate();
@@ -254,17 +294,21 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
    // Terminate Tasks
-   ExecuteTasks("t");
-   CleanTasks();
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      ExecuteTasks("t");
+      CleanTasks();
+   }
 
    // Root Interpreter
-   TString prompt = gROME->GetProgramName();
-   prompt.ToLower();
-   prompt += " [%d]";
-   ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
-   if (!gROME->isBatchMode()) {
-      ((TRint*)gROME->GetApplication())->Run(true);
-      gROME->PrintLine();
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      ROMEString prompt = gROME->GetProgramName();
+      prompt.ToLower();
+      prompt += " [%d]";
+      ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
+      if (!gROME->isBatchMode()) {
+         ((TRint*)gROME->GetApplication())->Run(true);
+         gROME->PrintLine();
+      }
    }
 
    // Terminate
@@ -615,9 +659,13 @@ bool ROMEEventLoop::UserInput()
       if (interpreter) {
          text.SetFormatted("\nStart root session at the end of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
          gROME->PrintLine(text.Data());
+         ROMEString prompt = gROME->GetProgramName();
+         prompt.ToLower();
+         prompt += " [%d]";
+         ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
          ((TRint*)gROME->GetApplication())->Run(true);
          gSystem->Init();
-         ((TRint*)gROME->GetApplication())->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
+         ((TRint*)gROME->GetApplication())->ProcessLine(gROME->GetCintInitialisation());
       }
       gROME->ss_sleep(10);
    }

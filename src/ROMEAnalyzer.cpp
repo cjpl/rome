@@ -82,6 +82,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
 // Initialisations
 
+   fWindowClosed = false;
    fIOType = kNotBased;
    fRunNumber.Reset();
    fLastEventNumberIndex = 0;
@@ -139,33 +140,43 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    if (!ReadParameters(argc,argv)) return false;
 
+   if (isBatchMode() && IsStandAloneARGUS()) {
+      gROME->PrintLine("A stand alone ARGUS project can not run in batch mode!");
+      gROME->PrintLine("Terminating Program");
+      return false;
+   }
+
    if (this->isBatchMode())
       redirectOutput();
    else
       gROME->ss_getchar(0);
 
-   consoleStartScreen();
+   if (IsStandAloneROME() || IsROMEAndARGUS()) {
+      consoleStartScreen();
+      if (isSplashScreen()) startSplashScreen();
 
-   if (isSplashScreen()) startSplashScreen();
+      if (gROME->isOnline() || gROME->isSocketOffline()) {
+         TNetFolderServer *tnet = new TNetFolderServer();
+         tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
+         text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
+         gROME->PrintLine(text.Data());
+      }
 
-   if (gROME->isOnline() || gROME->isSocketOffline()) {
-      TNetFolderServer *tnet = new TNetFolderServer();
-      tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
-      text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
-      gROME->PrintLine(text.Data());
+      gROME->PrintLine("Program steering");
+      gROME->PrintLine("----------------");
+      gROME->PrintLine("q : Terminates the program");
+      gROME->PrintLine("e : Ends the program");
+      gROME->PrintLine("s : Stops the program");
+      gROME->PrintLine("r : Restarts the program");
+      gROME->PrintLine("c : Continuous Analysis");
+      gROME->PrintLine("o : Step by step Analysis");
+      gROME->PrintLine("g : Run until event #");
+      gROME->PrintLine("i : Root interpreter");
+      gROME->PrintLine();
    }
-
-   gROME->PrintLine("Program steering");
-   gROME->PrintLine("----------------");
-   gROME->PrintLine("q : Terminates the program");
-   gROME->PrintLine("e : Ends the program");
-   gROME->PrintLine("s : Stops the program");
-   gROME->PrintLine("r : Restarts the program");
-   gROME->PrintLine("c : Continuous Analysis");
-   gROME->PrintLine("o : Step by step Analysis");
-   gROME->PrintLine("g : Run until event #");
-   gROME->PrintLine("i : Root interpreter");
-   gROME->PrintLine();
+   if (IsStandAloneARGUS()) {
+      ShowRunStat(false);
+   }
 
    fMainTask->ExecuteTask("start");
 
@@ -176,7 +187,6 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    return true;
 }
-
 void ROMEAnalyzer::PrintText(char text)
 {
    cout << text;
@@ -721,4 +731,128 @@ void ROMEAnalyzer::redirectOutput() {
 void ROMEAnalyzer::restoreOutput() {
    if(fOldbuf)
       cout.rdbuf(fOldbuf);
+}
+
+Bool_t ROMEAnalyzer::IsNetFolderActive(const Char_t *name)
+{
+   for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
+      if (!stricmp(fNetFolderName[i].Data(), name)) {
+         if (!fNetFolderActive[i])
+            return false;
+         return true;
+      }
+   }
+   return false;
+};
+
+TNetFolder *ROMEAnalyzer::GetNetFolder(const Char_t *name)
+{
+   for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
+      if (!stricmp(fNetFolderName[i].Data(), name)) {
+         if (!fNetFolderActive[i]) {
+            Warning("GetNetFolder", "%s is not activated.", name);
+            return NULL;
+         }
+         return fNetFolder[i];
+      }
+   }
+   Error("GetNetFolder", "Netfolder '%s' is not defined", name);
+   return NULL;
+};
+
+Bool_t ROMEAnalyzer::ConnectNetFolder(const Char_t *name)
+{
+   Int_t i;
+   for (i = 0; i < fNumberOfNetFolders; i++) {
+      if (!stricmp(fNetFolderName[i].Data(), name))
+         break;
+   }
+   return ConnectNetFolder(i);
+}
+
+Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
+{
+   if (!(0 <= i && i < fNumberOfNetFolders))
+      return kFALSE;
+
+   if (!fNetFolderActive[i])
+      return kTRUE;
+
+   DisconnectNetFolder(i);
+   fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
+   while (!fNetFolderSocket[i]->IsValid()) {
+      delete fNetFolderSocket[i];
+      PrintText("can not make socket connection for ");
+      PrintText(fNetFolderName[i].Data());
+      PrintLine(".");
+      PrintLine("program sleeps for 5s and tries again.");
+      gSystem->Sleep(5000);
+      fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
+   }
+   fNetFolder[i] = new TNetFolder(fNetFolderRoot[i].Data(), fNetFolderName[i].Data(), fNetFolderSocket[i], fNetFolderReconnect[i]);
+   ROMEString errMessage;
+   if (!fNetFolder[i]->GetPointer()) {
+      errMessage.SetFormatted("%s failed to connect to %s folder of %s.", fNetFolderName[i].Data(), fNetFolderRoot[i].Data(), fNetFolderHost[i].Data());
+      Warning("ConnectNetFolder", errMessage);
+   }
+
+   return kTRUE;
+}
+
+Bool_t ROMEAnalyzer::DisconnectNetFolder(const Char_t *name)
+{
+   Int_t i;
+   for (i = 0; i < fNumberOfNetFolders; i++) {
+      if (!stricmp(fNetFolderName[i].Data(), name))
+         break;
+   }
+   return DisconnectNetFolder(i);
+}
+
+Bool_t ROMEAnalyzer::DisconnectNetFolder(Int_t i)
+{
+   if (!(0 <= i && i < fNumberOfNetFolders))
+      return kFALSE;
+   if (fNetFolderSocket[i]) {
+      fNetFolderSocket[i]->Close();
+      delete fNetFolderSocket[i];
+      fNetFolderSocket[i] = 0;
+   }
+
+   return kTRUE;
+}
+
+Bool_t ROMEAnalyzer::ConnectNetFolders()
+{
+   Int_t i;
+   for (i = 0; i < fNumberOfNetFolders; i++) {
+      if (!ConnectNetFolder(i))
+         return kFALSE;
+   }
+   return kTRUE;
+}
+
+Bool_t ROMEAnalyzer::DisconnectNetFolders()
+{
+   Int_t i;
+   for (i = 0; i < fNumberOfNetFolders; i++) {
+      if (!DisconnectNetFolder(i))
+         return kFALSE;
+   }
+   return kTRUE;
+}
+
+void ROMEAnalyzer::InitNetFolders(Int_t number)
+{
+   if (number < 1)
+      return;
+   fNetFolder = new TNetFolder *[number];
+   fNetFolderActive = new Bool_t[number];
+   fNetFolderReconnect = new Bool_t[number];
+   fNetFolderSocket = new TSocket *[number];
+   fNetFolderPort = new Int_t[number];
+   fNetFolderName = new ROMEString[number];
+   fNetFolderHost = new ROMEString[number];
+   fNetFolderRoot = new ROMEString[number];
+   fNumberOfNetFolders = number;
 }

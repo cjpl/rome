@@ -24,6 +24,7 @@
 #include <ROMEDataBase.h>
 #include <ROMEString.h>
 #include <ROMEDAQSystem.h>
+#include <TNetFolder.h>
 #if defined ( HAVE_SQL )
 #   include <ROMESQL.h>
 #endif
@@ -52,10 +53,26 @@ public:
       kFileNameBased
    };
 
+   // Program Mode
+   enum {
+      kStandAloneROME,
+      kStandAloneARGUS,
+      kROMEAndARGUS
+   };
+
 protected:
+
+   // Program Mode
+   int           fProgramMode;
+
+   // Window Closed
+   bool          fWindowClosed;                 //! Window closed flag
 
    // Application
    TApplication  *fApplication;                 //! Application Handle
+
+   // Cint
+   ROMEString    fCintInitialisation;           //! Initialization String for the Cint
 
    // Active DAQ System
    ROMEDAQSystem *fActiveDAQ;                   //! Handle to the active DAQ system
@@ -158,6 +175,17 @@ protected:
    // Event Based Data Base
    bool          fEventBasedDataBase;              //! Flag for Event Based Data Base
 
+   // NetFolder
+   Int_t            fNumberOfNetFolders;           //! Number of net folders
+   TNetFolder**     fNetFolder;                    //! netfoldr handle
+   Bool_t*          fNetFolderActive;              //! active flag
+   Bool_t*          fNetFolderReconnect;           //! reconnect flag
+   TSocket**        fNetFolderSocket;              //! socket connection handle
+   Int_t*           fNetFolderPort;                //! port number
+   ROMEString*      fNetFolderName;                //! name
+   ROMEString*      fNetFolderHost;                //! server host name
+   ROMEString*      fNetFolderRoot;                //! root directory name
+
 #ifndef __CINT__
    // stream
    streambuf    *fOldbuf;                          //! original buffer of stdout
@@ -168,6 +196,18 @@ public:
    ROMEAnalyzer(TApplication *app);
    ~ROMEAnalyzer();
 
+   // Program Mode
+   bool          IsStandAloneROME() { return fProgramMode==kStandAloneROME; };
+   bool          IsStandAloneARGUS() { return fProgramMode==kStandAloneARGUS; };
+   bool          IsROMEAndARGUS() { return fProgramMode==kROMEAndARGUS; };
+   void          SetStandAloneROME() { fProgramMode=kStandAloneROME; };
+   void          SetStandAloneARGUS() { fProgramMode=kStandAloneARGUS; };
+   void          SetROMEAndARGUS() { fProgramMode=kROMEAndARGUS; };
+
+   // Window Closed
+   bool          IsWindowClosed() { return fWindowClosed; }
+   void          WindowClosed() { fWindowClosed = true; }
+
    // Output
    void          PrintText(char text);
    void          PrintText(const char* text="");
@@ -176,6 +216,10 @@ public:
 
    // Application Handle
    TApplication* GetApplication() { return fApplication; };
+
+   // Cint
+   const char*   GetCintInitialisation() { return fCintInitialisation.Data(); };
+   void          SetCintInitialisation(const char* string) { fCintInitialisation = string; };
 
    // Active DAQ System
    const char*    GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
@@ -258,7 +302,6 @@ public:
    // Termination Flag
    Bool_t     isTerminationFlag() { return fTerminate; };
    void       SetTerminationFlag() { fTerminate = true; };
-
 
    // Event Read Flag
    bool       IsDontReadNextEvent() { return fDontReadNextEvent; };
@@ -414,6 +457,41 @@ public:
    void        SetEventBasedDataBase(bool flag=true) { fEventBasedDataBase = flag; };
    bool        IsEventBasedDataBase() { return fEventBasedDataBase; };
 
+   // NetFolder
+   Bool_t          IsNetFolderActive(const Char_t *name);
+   TNetFolder*     GetNetFolder(const Char_t* name);
+   Char_t*         GetNetFolderName(Int_t i) { return (Char_t*)fNetFolderName[i].Data(); }
+   Char_t*         GetNetFolderHost(Int_t i) { return (Char_t*)fNetFolderHost[i].Data(); }
+   Int_t           GetNetFolderPort(Int_t i) { return fNetFolderPort[i]; }
+   Char_t*         GetNetFolderRoot(Int_t i) { return (Char_t*)fNetFolderRoot[i].Data(); }
+   Bool_t          GetNetFolderActive(Int_t i) { return fNetFolderActive[i]; }
+   Bool_t          GetNetFolderReconnect(Int_t i) { return fNetFolderReconnect[i]; }
+   void            SetNetFolderName(Int_t i,const Char_t* name) { fNetFolderName[i] = name; }
+   void            SetNetFolderName(Int_t i,ROMEString& name) { fNetFolderName[i] = name; }
+   void            SetNetFolderHost(Int_t i,const Char_t* host) { fNetFolderHost[i] = host; }
+   void            SetNetFolderHost(Int_t i,ROMEString& host) { fNetFolderHost[i] = host; }
+   void            SetNetFolderPort(Int_t i,Int_t port) { fNetFolderPort[i] = port; }
+   void            SetNetFolderPort(Int_t i,const Char_t* port) { Char_t* cstop; fNetFolderPort[i] = strtol(port,&cstop,10); }
+   void            SetNetFolderPort(Int_t i,ROMEString& port) { SetNetFolderPort(i,(Char_t*)port.Data()); }
+   void            SetNetFolderRoot(Int_t i,const Char_t* root) { fNetFolderRoot[i] = root; }
+   void            SetNetFolderRoot(Int_t i,ROMEString& root) { fNetFolderRoot[i] = root; }
+   void            SetNetFolderActive(Int_t i,Bool_t active) { fNetFolderActive[i] = active; }
+   void            SetNetFolderReconnect(Int_t i,Bool_t reconnect) { fNetFolderReconnect[i] = reconnect; }
+   Int_t           GetNumberOfNetFolders() { return fNumberOfNetFolders; }
+
+   // NetFolder connection
+   Bool_t          ConnectNetFolder(const Char_t* name);
+   Bool_t          ConnectNetFolder(Int_t i);
+   Bool_t          DisconnectNetFolder(const Char_t* name);
+   Bool_t          DisconnectNetFolder(Int_t i);
+   Bool_t          ConnectNetFolders();
+   Bool_t          DisconnectNetFolders();
+   void            InitNetFolders(Int_t number);
+   
+
+   // Start Monitor
+   virtual bool StartWindow() = 0;
+
    virtual bool ReadSingleDataBaseFolders() = 0;
    virtual bool ReadArrayDataBaseFolders() = 0;
 
@@ -438,6 +516,7 @@ protected:
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
+
 
    ClassDef(ROMEAnalyzer,0)
 };

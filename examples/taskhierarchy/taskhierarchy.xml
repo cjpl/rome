@@ -45,4 +45,34 @@
 			</Task>
 		</Task>
 	</TaskHierarchy>
+	<Tabs>
+		<Tab>
+			<TabName>Tab</TabName>
+			<TabTitle>Tab</TabTitle>
+			<TabVersion>1</TabVersion>
+			<Menus>
+				<Menu>
+					<MenuTitle>T2 Color</MenuTitle>
+					<MenuItems>
+						<MenuItem>
+							<MenuItemTitle>&amp;Black</MenuItemTitle>
+							<MenuItemEnumName>M_T2_Color_Black</MenuItemEnumName>
+						</MenuItem>
+						<MenuItem>
+							<MenuItemTitle>&amp;Red</MenuItemTitle>
+							<MenuItemEnumName>M_T2_Color_Red</MenuItemEnumName>
+						</MenuItem>
+						<MenuItem>
+							<MenuItemTitle>&amp;Green</MenuItemTitle>
+							<MenuItemEnumName>M_T2_Color_Green</MenuItemEnumName>
+						</MenuItem>
+						<MenuItem>
+							<MenuItemTitle>B&amp;lue</MenuItemTitle>
+							<MenuItemEnumName>M_T2_Color_Blue</MenuItemEnumName>
+						</MenuItem>
+					</MenuItems>
+				</Menu>
+			</Menus>
+		</Tab>
+	</Tabs>
 </ROMEFrameworkDefinition>

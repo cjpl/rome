@@ -94,9 +94,13 @@ void ROMETask::StartRootInterpreter(const char* message) {
    gROME->PrintLine(text.Data());
    if (message)
       gROME->PrintLine(message);
+   ROMEString prompt = gROME->GetProgramName();
+   prompt.ToLower();
+   prompt += " [%d]";
+   ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
    ((TRint*)gROME->GetApplication())->Run(true);
    gSystem->Init();
-   gROME->GetApplication()->ProcessLine("MEGAnalyzer* gAnalyzer = ((MEGAnalyzer*)((TFolder*)gROOT->FindObjectAny(\"ROME\"))->GetListOfFolders()->MakeIterator()->Next());");
+   gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
 }
 
 // Time methods

@@ -23,7 +23,8 @@ void THTTaskA::Init()
 }
 void THTTaskA::BeginOfRun()
 {
-   gAnalyzer->SetTerminationFlag();
+//   this->StartRootInterpreter();
+//   gAnalyzer->SetTerminationFlag();
 }
 
 void THTTaskA::Event()
