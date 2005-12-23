@@ -12290,7 +12290,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    xml->WriteAttribute("AdditionalIncludeDirectories",includeDirs.Data());
    xml->WriteAttribute("PreprocessorDefinitions",preDrocDefs.Data());
    xml->WriteAttribute("MinimalRebuild","FALSE");
-   xml->WriteAttribute("BasicRuntimeChecks","0");
+   xml->WriteAttribute("BasicRuntimeChecks","2");
    xml->WriteAttribute("RuntimeLibrary","1");
    xml->WriteAttribute("RuntimeTypeInfo","TRUE");
    xml->WriteAttribute("WarningLevel","3");
