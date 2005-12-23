@@ -7853,7 +7853,7 @@ bool ROMEBuilder::WriteConfigH() {
    // tabs
    buffer.AppendFormatted("      // tabs\n");
    WriteTabConfigClass(buffer, -1, 0);
-   buffer.AppendFormatted("      Bool_t           fTabsModified;\n");
+   buffer.AppendFormatted("      Bool_t fTabsModified;\n");
    buffer.AppendFormatted("\n");
 
    // trees
@@ -7949,6 +7949,12 @@ bool ROMEBuilder::WriteConfigH() {
       if (taskHierarchyParentIndex[i]==-1) {
          buffer.AppendFormatted("         f%s%03dTaskModified = false;\n",taskHierarchyName[i].Data(),i);
          buffer.AppendFormatted("         f%s%03dTask = new %s%03dTask();\n",taskHierarchyName[i].Data(),i,taskHierarchyName[i].Data(),i);
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      if (tabParentIndex[i]==-1) {
+         buffer.AppendFormatted("         f%sTabModified = false;\n",tabName[i].Data());
+         buffer.AppendFormatted("         f%sTab = new %sTab();\n",tabName[i].Data(),tabName[i].Data());
       }
    }
    buffer.AppendFormatted("         fTreesModified = false;\n");
@@ -10014,8 +10020,8 @@ bool ROMEBuilder::WriteTabConfigClass(ROMEString &buffer, Int_t parentIndex, Int
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("%s      class %sTab {\n", blank.Data(), tabName[i].Data());
       buffer.AppendFormatted("%s      public:\n", blank.Data());
-      buffer.AppendFormatted("%s         ROMEString       fActive;\n", blank.Data());
-      buffer.AppendFormatted("%s         Bool_t           fActiveModified;\n", blank.Data());
+      buffer.AppendFormatted("%s         ROMEString fActive;\n", blank.Data());
+      buffer.AppendFormatted("%s         Bool_t     fActiveModified;\n", blank.Data());
       if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
          buffer.AppendFormatted("%s         // steering parameters\n", blank.Data());
          buffer.AppendFormatted("%s         class Steering {\n", blank.Data());
@@ -10042,8 +10048,8 @@ bool ROMEBuilder::WriteTabConfigClass(ROMEString &buffer, Int_t parentIndex, Int
       // Sub classes
       WriteTabConfigClass(buffer, i, tab + 1);
       buffer.AppendFormatted("%s      };\n", blank.Data());
-      buffer.AppendFormatted("%s      %sTab*          f%sTab;\n", blank.Data(), tabName[i].Data(), tabName[i].Data());
-      buffer.AppendFormatted("%s      Bool_t           f%sTabModified;\n", blank.Data(), tabName[i].Data());
+      buffer.AppendFormatted("%s      %sTab* f%sTab;\n", blank.Data(), tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted("%s      Bool_t f%sTabModified;\n", blank.Data(), tabName[i].Data());
    }
    return kTRUE;
 }
@@ -11144,13 +11150,13 @@ void ROMEBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e dict/ROMEDict.cpp dict/%sFrameworkDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("make -e dict/ROMEDict.cpp dict/%sGeneratedDict.cpp dict/%sGeneratedFolderDict.cpp dict/%sGeneratedTaskDict.cpp dict/%sGeneratedTabDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
       if(numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp", shortCut.Data());
       system(tempStr.Data());
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      tempStr.SetFormatted("nmake -f Makefile.win dict/ROMEDict.cpp dict/%sFrameworkDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win dict/ROMEDict.cpp dict/%sGeneratedDict.cpp dict/%sGeneratedFolderDict.cpp dict/%sGeneratedTaskDict.cpp dict/%sGeneratedTabDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
       if(numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp", shortCut.Data());
       system(tempStr.Data());
