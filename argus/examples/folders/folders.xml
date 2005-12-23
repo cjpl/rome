@@ -1,75 +1,75 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
-  <Experiment>
-    <ExperimentName>Folders</ExperimentName>
-    <ExperimentShortCut>FO</ExperimentShortCut>
-    <ProgramName>monitor</ProgramName>
-    <MonitorDescription>Several kind of folders.</MonitorDescription>
-  </Experiment>
-  <Author>
-    <AuthorName>Ryu Sawada</AuthorName>
-    <AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
-    <AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
-    <AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
-  </Author>
-  <Tabs>
-    <Tab>
-      <TabName>Tab</TabName>
-      <TabTitle>1</TabTitle>
-      <Author>Ryu Sawada</Author>
-      <TabVersion>1</TabVersion>
-    </Tab>
-  </Tabs>
-  <Folders>
-    <Folder>
-      <FolderName>FOData</FolderName>
-      <FolderTitle>FOData</FolderTitle>
-      <Author>Ryu Sawada</Author>
-      <FolderVersion>1</FolderVersion>
-      <FolderDescription>FO root folder.</FolderDescription>
-      <Folder>
-        <FolderName>ODB</FolderName>
-        <FolderTitle>This folder reads ODB</FolderTitle>
-        <DataBaseAccess>true</DataBaseAccess>
-        <Author>Ryu Sawada</Author>
-        <Field>
-          <FieldName>RunNumber</FieldName>
-          <FieldType>Int_t</FieldType>
-          <FieldComment>Run number</FieldComment>
-          <FieldInitialization>0</FieldInitialization>
-          <DataBaseName>myodb</DataBaseName>
-          <DataBasePath>&quot;/Runinfo/Run number&quot;</DataBasePath>
-        </Field>
-      </Folder>
-      <Folder>
-        <FolderName>ROMEDataBase</FolderName>
-        <FolderTitle>This folder reads rome database</FolderTitle>
-        <DataBaseAccess>true</DataBaseAccess>
-        <Author>Ryu Sawada</Author>
-        <Field>
-          <FieldName>comment</FieldName>
-          <FieldType>TString</FieldType>
-          <FieldComment>Run number</FieldComment>
-          <DataBaseName>myxml</DataBaseName>
-          <DataBasePath>"/RunCatalog[id=%d]/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
-        </Field>
-        <Field>
-          <FieldName>multipleDimension</FieldName>
-          <FieldType>Float_t</FieldType>
-          <FieldComment>multiple dimension field</FieldComment>
-          <ArraySize>3:4:5</ArraySize>
-        </Field>
-      </Folder>
-    </Folder>
-  </Folders>
-  <NetFolders>
-    <NetFolder>
-      <NetFolderName>mynetfolder</NetFolderName>
-      <NetFolderTitle>rome folder</NetFolderTitle>
-      <NetFolderHost>localhost</NetFolderHost>
-      <NetFolderPort>9090</NetFolderPort>
-      <NetFolderRoot>FO</NetFolderRoot>
-    </NetFolder>
-  </NetFolders>
-</ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
+	<Experiment>
+		<ExperimentName>Folders</ExperimentName>
+		<ExperimentShortCut>FO</ExperimentShortCut>
+		<ProgramName>monitor</ProgramName>
+		<FrameworkDescription>Several kind of folders.</FrameworkDescription>
+	</Experiment>
+	<Author>
+		<AuthorName>Ryu Sawada</AuthorName>
+		<AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+		<AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+		<AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
+	</Author>
+	<Tabs>
+		<Tab>
+			<TabName>Tab</TabName>
+			<TabTitle>1</TabTitle>
+			<Author>Ryu Sawada</Author>
+			<TabVersion>1</TabVersion>
+		</Tab>
+	</Tabs>
+	<Folders>
+		<Folder>
+			<FolderName>FOData</FolderName>
+			<FolderTitle>FOData</FolderTitle>
+			<Author>Ryu Sawada</Author>
+			<FolderVersion>1</FolderVersion>
+			<FolderDescription>FO root folder.</FolderDescription>
+			<Folder>
+				<FolderName>ODB</FolderName>
+				<FolderTitle>This folder reads ODB</FolderTitle>
+				<DataBaseAccess>true</DataBaseAccess>
+				<Author>Ryu Sawada</Author>
+				<Field>
+					<FieldName>RunNumber</FieldName>
+					<FieldType>Int_t</FieldType>
+					<FieldComment>Run number</FieldComment>
+					<FieldInitialization>0</FieldInitialization>
+					<DataBaseName>myodb</DataBaseName>
+					<DataBasePath>&quot;/Runinfo/Run number&quot;</DataBasePath>
+				</Field>
+			</Folder>
+			<Folder>
+				<FolderName>ROMEDataBase</FolderName>
+				<FolderTitle>This folder reads rome database</FolderTitle>
+				<DataBaseAccess>true</DataBaseAccess>
+				<Author>Ryu Sawada</Author>
+				<Field>
+					<FieldName>comment</FieldName>
+					<FieldType>TString</FieldType>
+					<FieldComment>Run number</FieldComment>
+					<DataBaseName>myxml</DataBaseName>
+					<DataBasePath>"/RunCatalog[id=%d]/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
+				</Field>
+				<Field>
+					<FieldName>multipleDimension</FieldName>
+					<FieldType>Float_t</FieldType>
+					<FieldComment>multiple dimension field</FieldComment>
+					<ArraySize>3:4:5</ArraySize>
+				</Field>
+			</Folder>
+		</Folder>
+	</Folders>
+	<NetFolders>
+		<NetFolder>
+			<NetFolderName>mynetfolder</NetFolderName>
+			<NetFolderTitle>rome folder</NetFolderTitle>
+			<NetFolderHost>localhost</NetFolderHost>
+			<NetFolderPort>9090</NetFolderPort>
+			<NetFolderRoot>FO</NetFolderRoot>
+		</NetFolder>
+	</NetFolders>
+</ROMEFrameworkDefinition>

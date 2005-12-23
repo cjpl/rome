@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
 	<Experiment>
 		<ExperimentName>Status bar example</ExperimentName>
 		<ExperimentShortCut>SB</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
-		<MonitorDescription>status bar.</MonitorDescription>
+		<FrameworkDescription>status bar.</FrameworkDescription>
 	</Experiment>
 	<Author>
 		<AuthorName>Ryu Sawada</AuthorName>
@@ -21,7 +21,7 @@
 				<SteeringParameterField>
 					<SPFieldName>text</SPFieldName>
 					<SPFieldType>TString</SPFieldType>
-<!--					<SPFieldInitialization>&quot;&quot;</SPFieldInitialization>-->
+					<!--					<SPFieldInitialization>&quot;&quot;</SPFieldInitialization>-->
 					<SPFieldComment>text in status bar.</SPFieldComment>
 				</SteeringParameterField>
 			</SteeringParameters>
@@ -31,4 +31,4 @@
 			<TabTitle>Tab 2</TabTitle>
 		</Tab>
 	</Tabs>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

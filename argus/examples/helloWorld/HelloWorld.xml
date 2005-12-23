@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
 	<Experiment>
 		<ExperimentName>Hello World</ExperimentName>
 		<ExperimentShortCut>HW</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
-		<MonitorDescription>The simplest example.</MonitorDescription>
+		<FrameworkDescription>The simplest example.</FrameworkDescription>
 	</Experiment>
 	<Author>
 		<AuthorName>Ryu Sawada</AuthorName>
@@ -71,4 +71,4 @@
 			</SteeringParameters>
 		</Tab>
 	</Tabs>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>
