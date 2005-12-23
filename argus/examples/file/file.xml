@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- edited by Ryu Sawada -->
+<ArgusMonitorDefinition>
+  <Experiment>
+    <ExperimentName>File</ExperimentName>
+    <ExperimentShortCut>FL</ExperimentShortCut>
+    <ProgramName>monitor</ProgramName>
+    <MonitorDescription>file input.</MonitorDescription>
+  </Experiment>
+  <Author>
+    <AuthorName>Ryu Sawada</AuthorName>
+    <AuthorInstitute>ICEPP, University of Tokyo</AuthorInstitute>
+    <AuthorCollaboration>Mu-E-Gamma (MEG)</AuthorCollaboration>
+    <AuthorEmail>ryu.sawada _AtMark_ psi.ch</AuthorEmail>
+  </Author>
+  <Tabs>
+    <Tab>
+      <TabName>Tab1</TabName>
+      <TabTitle>Tab 1</TabTitle>
+    </Tab>
+  </Tabs>
+  <Folders>
+    <Folder>
+      <FolderName>Test</FolderName>
+      <FolderTitle>Test</FolderTitle>
+      <Author>Ryu Sawada</Author>
+      <FolderVersion>1</FolderVersion>
+      <FolderDescription>Test.</FolderDescription>
+      <Field>
+        <FieldName>value</FieldName>
+        <FieldType>Int_t</FieldType>
+        <FieldComment>test</FieldComment>
+      </Field>
+    </Folder>
+  </Folders>
+  <Trees>
+    <Tree>
+      <TreeName>data</TreeName>
+      <TreeTitle>data</TreeTitle>
+      <Branch>
+        <BranchName>test</BranchName>
+        <RelatedFolder>Test</RelatedFolder>
+      </Branch>
+    </Tree>
+  </Trees>
+  <UserDAQSystems>
+    <UserDAQSystem>
+      <DAQSystemName>user</DAQSystemName>
+    </UserDAQSystem>
+  </UserDAQSystems>
+</ArgusMonitorDefinition>

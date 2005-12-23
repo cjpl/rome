@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Mon Dec 19 10:13:11 2005 -->
+<Configuration>
+  <RunNumbers></RunNumbers>
+  <InputFileNames></InputFileNames>
+  <Modes>
+    <AnalyzingMode>offline</AnalyzingMode>
+    <DAQSystem>none</DAQSystem>
+  </Modes>
+  <Paths>
+    <InputFilePath>./</InputFilePath>
+  </Paths>
+  <Window>
+    <Scale>1.0</Scale>
+    <StatusBar>true</StatusBar>
+  </Window>
+  <DataBases>
+    <DataBase>
+      <Name>myodb</Name>
+      <Type>odb</Type>
+      <Connection></Connection>
+    </DataBase>
+    <DataBase>
+      <Name>myxml</Name>
+      <Type>xml</Type>
+      <Connection>.;FODataBase</Connection>
+    </DataBase>
+  </DataBases>
+  <Online>
+    <Host></Host>
+    <Experiment></Experiment>
+  </Online>
+  <NetFolders>
+    <mynetfolder>
+      <Active>false</Active>
+      <Reconnect>true</Reconnect>
+      <Host>localhost</Host>
+      <Port>9090</Port>
+      <Root>FO</Root>
+    </mynetfolder>
+  </NetFolders>
+  <Tabs>
+    <Tab>
+      <TabName>Tab</TabName>
+      <Active>true</Active>
+    </Tab>
+  </Tabs>
+  <Midas/>
+</Configuration>

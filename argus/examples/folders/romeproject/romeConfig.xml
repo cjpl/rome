@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Wed May 11 11:25:27 2005 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <MainConfiguration>
+    <RunNumbers>0</RunNumbers>
+    <EventNumbers></EventNumbers>
+    <Modes>
+      <AnalyzingMode>online</AnalyzingMode>
+      <DAQSystem>midas</DAQSystem>
+      <BatchMode>false</BatchMode>
+      <ShowSplashScreen>true</ShowSplashScreen>
+    </Modes>
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+    </Online>
+    <SocketInterface>
+      <PortNumber>9090</PortNumber>
+      <AvailableOffline>false</AvailableOffline>
+    </SocketInterface>
+    <Paths>
+      <InputFilePath>./</InputFilePath>
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+    <Tasks/>
+    <Midas>
+      <Event>
+        <EventName>Trigger</EventName>
+        <Active>true</Active>
+        <Bank>
+          <BankName>ADC0</BankName>
+          <Active>true</Active>
+        </Bank>
+        <Bank>
+          <BankName>TDC0</BankName>
+          <Active>true</Active>
+        </Bank>
+      </Event>
+      <Event>
+        <EventName>Scaler</EventName>
+        <Active>true</Active>
+        <Bank>
+          <BankName>SCLR</BankName>
+          <Active>true</Active>
+        </Bank>
+      </Event>
+    </Midas>
+  </MainConfiguration>
+</Configuration>

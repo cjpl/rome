@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<FODataBase>
+  <RunCatalog>
+    <id>0</id>
+    <comment>folders test database - 0</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>1</id>
+    <comment>folders test database - 1</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>2</id>
+    <comment>folders test database - 2</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>3</id>
+    <comment>folders test database - 3</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>4</id>
+    <comment>folders test database - 4</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>5</id>
+    <comment>folders test database - 5</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>6</id>
+    <comment>folders test database - 6</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>7</id>
+    <comment>folders test database - 7</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>8</id>
+    <comment>folders test database - 8</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>9</id>
+    <comment>folders test database - 9</comment>
+  </RunCatalog>
+  <RunCatalog>
+    <id>100</id>
+    <comment>folders test database - 100</comment>
+  </RunCatalog>
+</FODataBase>
