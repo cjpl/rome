@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
 	<Experiment>
 		<ExperimentName>Thread Test</ExperimentName>
 		<ExperimentShortCut>TT</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
-		<MonitorDescription>The example of thread functions.</MonitorDescription>
+		<FrameworkDescription>The example of thread functions.</FrameworkDescription>
 	</Experiment>
 	<Author>
 		<AuthorName>Ryu Sawada</AuthorName>
@@ -43,4 +43,4 @@
 			</ThreadFunctions>
 		</Tab>
 	</Tabs>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

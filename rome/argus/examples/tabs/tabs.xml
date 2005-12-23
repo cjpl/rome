@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
 	<Experiment>
 		<ExperimentName>Tabs</ExperimentName>
 		<ExperimentShortCut>TB</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
-		<MonitorDescription>tabs.</MonitorDescription>
+		<FrameworkDescription>tabs.</FrameworkDescription>
 	</Experiment>
 	<Author>
 		<AuthorName>Ryu Sawada</AuthorName>
@@ -95,4 +95,4 @@
 			<SPFieldComment>Switch for pedestal calculation</SPFieldComment>
 		</SteeringParameterField>
 	</GlobalSteeringParameters>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

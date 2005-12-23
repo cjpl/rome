@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition>
 	<Experiment>
 		<ExperimentName>Process Message</ExperimentName>
 		<ExperimentShortCut>PM</ExperimentShortCut>
 		<ProgramName>monitor</ProgramName>
-		<MonitorDescription>The example shows three types of process message.</MonitorDescription>
+		<FrameworkDescription>The example shows three types of process message.</FrameworkDescription>
 	</Experiment>
 	<Author>
 		<AuthorName>Ryu Sawada</AuthorName>
@@ -33,4 +33,4 @@
 			<TabVersion>1</TabVersion>
 		</Tab>
 	</Tabs>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>
