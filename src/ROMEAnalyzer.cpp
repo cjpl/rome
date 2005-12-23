@@ -259,13 +259,21 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
    }
+   ROMEString answerString;
    char answer = 0;
    struct stat buf;
    if( stat( configFile.Data(), &buf )) {
       gROME->PrintText("Configuration file '");
       gROME->PrintText(configFile.Data());
       gROME->PrintLine("' not found.");
-      gROME->PrintFlush("Do you like the framework to generate a new configuration file ([y]/n) ? ");
+      gROME->PrintLine();
+      gROME->PrintLine("The framework can generate a new configuration file for you.");
+      gROME->PrintLine("Available configurations are :");
+      gROME->PrintLine("   [R] ROME Framework");
+      gROME->PrintLine("   [A] ARGUS Monitor");
+      gROME->PrintLine("   [M] ROME Framework with ARGUS Monitor");
+      gROME->PrintLine("   [N] Don't generate a configuration file");
+      gROME->PrintFlush("Please select a configuration [R/A/M/N]: ");
       gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
@@ -273,7 +281,15 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
       }
       gROME->ss_getchar(1);
-      if (answer!='n') {
+      answerString = answer;
+      answerString.ToUpper();
+      if (answerString=="R" || answerString=="A" || answerString=="M") {
+         if (answerString=="R")
+            gROME->SetStandAloneROME();
+         if (answerString=="A")
+            gROME->SetStandAloneARGUS();
+         if (answerString=="M")
+            gROME->SetROMEAndARGUS();
          if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
             gROME->PrintLine("\nTerminate program.\n");
             return false;
