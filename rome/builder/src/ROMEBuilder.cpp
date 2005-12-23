@@ -1223,6 +1223,67 @@ bool ROMEBuilder::WriteFolderH() {
    return true;
 }
 
+bool ROMEBuilder::ReadXMLNetFolder()
+{
+   // read the net folder definitions out of the xml file
+   Int_t type;
+   Char_t *name;
+   ROMEString currentNetFolderName = "";
+
+   // count netFolders
+   numOfNetFolder++;
+   if (numOfNetFolder >= maxNumberOfNetFolders) {
+      cout << "Maximal number of net folders reached : " << maxNumberOfNetFolders << " !" << endl;
+      cout << "Terminating program." << endl;
+      return kFALSE;
+   }
+   // initialization
+   netFolderName[numOfNetFolder] = "";
+   netFolderTitle[numOfNetFolder] = "";
+   netFolderHost[numOfNetFolder] = "localhost";
+   netFolderPort[numOfNetFolder] = "9090";
+   netFolderRoot[numOfNetFolder] = shortCut;
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      // end net object
+      if (type == 15 && !strcmp(name, "NetFolder")) {
+         // check input
+         if (netFolderName[numOfNetFolder] == "") {
+            cout << "The " << (numOfNetFolder + 1) << ". NetFolder has no name !" << endl;
+            cout << "Terminating program." << endl;
+            return kFALSE;
+         }
+         return kTRUE;
+      }
+      // net object name
+      if (type == 1 && !strcmp(name, "NetFolderName")) {
+         xml->GetValue(netFolderName[numOfNetFolder], netFolderName[numOfNetFolder]);
+         // output
+         if (makeOutput)
+            netFolderName[numOfNetFolder].WriteLine();
+      }
+      // net object title
+      if (type == 1 && !strcmp(name, "NetFolderTitle"))
+         xml->GetValue(netFolderTitle[numOfNetFolder], netFolderTitle[numOfNetFolder]);
+
+      // net object host
+      if (type == 1 && !strcmp(name, "NetFolderHost"))
+         xml->GetValue(netFolderHost[numOfNetFolder], netFolderHost[numOfNetFolder]);
+
+      // net object port
+      if (type == 1 && !strcmp(name, "NetFolderPort"))
+         xml->GetValue(netFolderPort[numOfNetFolder], netFolderPort[numOfNetFolder]);
+
+      // net object Root
+      if (type == 1 && !strcmp(name, "NetFolderRoot"))
+         xml->GetValue(netFolderRoot[numOfNetFolder], netFolderRoot[numOfNetFolder]);
+   }
+   return kTRUE;
+}
+
+
 bool ROMEBuilder::ReadXMLTask() {
    // read the task definitions out of the xml file
    ROMEString tmp;
@@ -2437,6 +2498,718 @@ bool ROMEBuilder::WriteTaskH() {
    return true;
 }
 
+bool ROMEBuilder::ReadXMLTab()
+{
+   // read the tab definitions out of the xml file
+   Char_t *name;
+   Int_t type, i, j;
+   ROMEString currentTabName = "";
+   Int_t currentNumberOfTabs = 0;
+
+   // count tabs
+   numOfTab++;
+   currentNumberOfTabs = numOfTab;
+   if (currentNumberOfTabs >= maxNumberOfTabs) {
+      cout << "Maximal number of tabs reached : " << maxNumberOfTabs << " !" << endl;
+      cout << "Terminating program." << endl;
+      return kFALSE;
+   }
+   // initialisation
+   tabName[currentNumberOfTabs] = "";
+   tabTitle[currentNumberOfTabs] = "";
+   tabAuthor[currentNumberOfTabs] = mainAuthor;
+   tabVersion[currentNumberOfTabs] = "1";
+   tabDescription[currentNumberOfTabs] = "";
+   numOfSteering[currentNumberOfTabs+numOfTaskHierarchy+1] = -1;
+   numOfThreadFunctions[currentNumberOfTabs] = -1;
+   numOfMenu[currentNumberOfTabs] = -1;
+   tabNumOfChildren[currentNumberOfTabs] = 0;
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+
+      // subtab
+      if (type == 1 && !strcmp(name, "Tab")) {
+         // set tab as parent for subsequent tabs
+         recursiveTabDepth++;
+         tabParentIndex[numOfTab + 1] = currentNumberOfTabs;
+         tabNumOfChildren[currentNumberOfTabs]++;
+
+         // read subtab
+         if (!ReadXMLTab())
+            return kFALSE;
+         continue;
+      }
+      // end tab
+      if (type == 15 && !strcmp(name, "Tab")) {
+         // check input
+         if (currentTabName == "") {
+            cout << "The " << (currentNumberOfTabs + 1) << ". Tab has no name !" << endl;
+            cout << "Terminating program." << endl;
+            return kFALSE;
+         }
+         recursiveTabDepth--;
+         return kTRUE;
+      }
+      // tab name
+      if (type == 1 && !strcmp(name, "TabName")) {
+         xml->GetValue(tabName[currentNumberOfTabs], tabName[currentNumberOfTabs]);
+         currentTabName = tabName[currentNumberOfTabs];
+         // output
+         if (makeOutput)
+            for (i = 0; i < recursiveTabDepth; i++)
+               cout << "   ";
+         if (makeOutput)
+            tabName[currentNumberOfTabs].WriteLine();
+      }
+      // tab title
+      if (type == 1 && !strcmp(name, "TabTitle"))
+         xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
+
+      // tab author
+      if (type == 1 && !strcmp(name, "Author"))
+         xml->GetValue(tabAuthor[currentNumberOfTabs], tabAuthor[currentNumberOfTabs]);
+
+      // tab version
+      if (type == 1 && !strcmp(name, "TabVersion"))
+         xml->GetValue(tabVersion[currentNumberOfTabs], tabVersion[currentNumberOfTabs]);
+
+      // tab description
+      if (type == 1 && !strcmp(name, "TabDescription"))
+         xml->GetValue(tabDescription[currentNumberOfTabs], tabDescription[currentNumberOfTabs]);
+
+      // tab steering parameters
+      if (type == 1 && !strcmp(name, "SteeringParameters")) {
+         // read steering parameter
+         steerName[currentNumberOfTabs+numOfTaskHierarchy+1][0] = "Steering";
+         steerParent[currentNumberOfTabs+numOfTaskHierarchy+1][0] = -1;
+         actualSteerIndex = 0;
+         recursiveSteerDepth = 0;
+         if (!ReadXMLSteering(currentNumberOfTabs+numOfTaskHierarchy+1))
+            return kFALSE;
+         numOfSteering[currentNumberOfTabs+numOfTaskHierarchy+1]++;
+      }
+      // tab threadFunctions
+      if (type == 1 && !strcmp(name, "ThreadFunctions")) {
+         if (makeOutput)
+            for (i = 0; i < recursiveTabDepth + 1; i++)
+               cout << "   ";
+         if (makeOutput)
+            cout << "ThreadFunctions:" << endl;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // end
+            if (type == 15 && !strcmp(name, "ThreadFunctions"))
+               break;
+
+            // thread function
+            if (type == 1 && !strcmp(name, "ThreadFunction")) {
+               // count thread functions
+               numOfThreadFunctions[currentNumberOfTabs]++;
+               if (numOfThreadFunctions[currentNumberOfTabs] >= maxNumberOfThreadFunctions) {
+                  cout << "Maximal number of thread functions reached : " << maxNumberOfThreadFunctions << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] = "";
+               numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] = 0;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+
+                  // end
+                  if (type == 15 && !strcmp(name, "ThreadFunction")) {
+                     // output
+                     if (makeOutput)
+                        for (i = 0; i < recursiveTabDepth + 2; i++)
+                           cout << "   ";
+                     if (makeOutput)
+                        threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]].WriteLine();
+                     break;
+                  }
+                  if (type == 1 && !strcmp(name, "FunctionName"))
+                     xml->GetValue(threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]], threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp(name, "FunctionArgument")) {
+                     xml->GetValue(threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]], threadFunctionArgument[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]][numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]]);
+                     numOfThreadFunctionArguments[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]++;
+                  }
+               }
+
+               // check input
+               if (threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]] == "") {
+                  cout << "A thread function of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               for (j = 0; j < numOfThreadFunctions[currentNumberOfTabs]; j++) {
+                  if (threadFunctionName[currentNumberOfTabs][j] == threadFunctionName[currentNumberOfTabs][numOfThreadFunctions[currentNumberOfTabs]]) {
+                     cout << "Two thread functions of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
+                     cout << "Terminating program." << endl;
+                     return kFALSE;
+                  }
+               }
+            }
+         }
+      }
+      // tab menu
+      if (type == 1 && !strcmp(name, "Menus")) {
+         if (makeOutput)
+            for (i = 0; i < recursiveTabDepth + 1; i++)
+               cout << "   ";
+         if (makeOutput)
+            cout << "Menus:" << endl;
+         recursiveMenuDepth = 0;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+
+            // end
+            if (type == 15 && !strcmp(name, "Menus")) {
+               numOfMenu[currentNumberOfTabs]++;
+               break;
+            }
+            // menu
+            if (type == 1 && !strcmp(name, "Menu")) {
+               recursiveMenuDepth++;
+               numOfMenu[currentNumberOfTabs]++;
+               if (!ReadXMLMenu(currentNumberOfTabs))
+                  return kFALSE;
+               recursiveMenuDepth--;
+            }
+         }
+      }
+
+   }
+
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::ReadXMLMenu(Int_t currentNumberOfTabs)
+{
+   Int_t type, i, j;
+   Char_t *name;
+
+   Int_t currentNumberOfMenus = numOfMenu[currentNumberOfTabs];
+   menuDepth[currentNumberOfTabs][currentNumberOfMenus] = recursiveMenuDepth;
+   // count menus
+   numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] = -1;
+   if (currentNumberOfMenus >= maxNumberOfMenus) {
+      cout << "Maximal number of menus reached : " << maxNumberOfMenus << " !" << endl;
+      cout << "Terminating program." << endl;
+      return kFALSE;
+   }
+   menuTitle[currentNumberOfTabs][currentNumberOfMenus] = "";
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+
+      // end
+      if (type == 15 && !strcmp(name, "Menu")) {
+         if (makeOutput)
+            for (i = 0; i < recursiveTabDepth + 2; i++)
+               cout << "   ";
+         if (makeOutput)
+            menuTitle[currentNumberOfTabs][currentNumberOfMenus].WriteLine();
+         numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+         for (j = 0; j < numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]; j++) {
+            if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE) {
+               if (makeOutput)
+                  for (i = 0; i < recursiveTabDepth + 3; i++)
+                     cout << "   ";
+               if (makeOutput)
+                  menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j].WriteLine();
+            }
+         }
+         break;
+      }
+      if (type == 1 && !strcmp(name, "MenuTitle"))
+         xml->GetValue(menuTitle[currentNumberOfTabs][currentNumberOfMenus], menuTitle[currentNumberOfTabs][currentNumberOfMenus]);
+
+      // tab menu items
+      if (type == 1 && !strcmp(name, "MenuItems")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+
+            // end
+            if (type == 15 && !strcmp(name, "MenuItems"))
+               break;
+
+            // menu
+            if (type == 1 && !strcmp(name, "Menu")) {
+               recursiveMenuDepth++;
+               numOfMenu[currentNumberOfTabs]++;
+               numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+               if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
+                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = numOfMenu[currentNumberOfTabs];
+               if (!ReadXMLMenu(currentNumberOfTabs))
+                  return kFALSE;
+               recursiveMenuDepth--;
+            }
+            // Splitter
+            if (type == 1 && !strcmp(name, "Line")) {
+               // count menu items
+               numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+               if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
+                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = LINE_TITLE;
+               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // end
+                  if (type == 15 && !strcmp(name, "Line"))
+                     break;
+               }
+            }
+            // menu item
+            if (type == 1 && !strcmp(name, "MenuItem")) {
+               // count menu items
+               numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]++;
+               if (numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] >= maxNumberOfMenuItems) {
+                  cout << "Maximal number of menu items reached : " << maxNumberOfMenuItems << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
+               menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = "";
+               menuItemChildMenuIndex[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] = 0;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+
+                  // end
+                  if (type == 15 && !strcmp(name, "MenuItem"))
+                     break;
+                  if (type == 1 && !strcmp(name, "MenuItemTitle"))
+                     xml->GetValue(menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
+                  if (type == 1 && !strcmp(name, "MenuItemEnumName")) {
+                     xml->GetValue(menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]], menuItemEnumName[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]);
+                  }
+               }
+
+               // check input
+               if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]] == "") {
+                  cout << currentNumberOfTabs << endl;
+                  cout << currentNumberOfMenus << endl;
+                  cout << numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus] << endl;
+                  cout << "A menu item of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
+                  cout << "Terminating program." << endl;
+                  return kFALSE;
+               }
+               for (j = 0; j < numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]; j++) {
+                  if (menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j] != LINE_TITLE && menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][j]
+                      == menuItemTitle[currentNumberOfTabs][currentNumberOfMenus][numOfMenuItem[currentNumberOfTabs][currentNumberOfMenus]]) {
+                     cout << "Two menu items of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
+                     cout << "Terminating program." << endl;
+                     return kFALSE;
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   // check input
+   if (menuTitle[currentNumberOfTabs][currentNumberOfMenus] == "") {
+      cout << "A menu of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Title !" << endl;
+      cout << "Terminating program." << endl;
+      return kFALSE;
+   }
+   for (j = 0; j < currentNumberOfMenus; j++) {
+      if (menuTitle[currentNumberOfTabs][j] == menuTitle[currentNumberOfTabs][currentNumberOfMenus]) {
+         cout << "Two menus of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Title !" << endl;
+         cout << "Terminating program." << endl;
+         return kFALSE;
+      }
+   }
+
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::WriteTabCpp()
+{
+   ROMEString cppFile;
+   ROMEString header;
+   ROMEString buffer;
+   Int_t i;
+   ROMEString format;
+   ROMEString clsDescription;
+   ROMEString clsName;
+   ROMEString str;
+
+   if (makeOutput)
+      cout << "\n   Output Cpp-Files:" << endl;
+   for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      header.Resize(0);
+      buffer.Resize(0);
+      // File name
+      cppFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+
+      // Description
+      WriteHeader(header, tabAuthor[iTab].Data(), kFALSE);
+      clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
+      clsDescription = tabDescription[iTab].Data();
+      // Thread
+      if (numOfThreadFunctions[iTab] > 0) {
+         clsDescription.AppendFormatted("\n\n");
+         clsDescription.AppendFormatted("This tab has following thread functions.\n");
+         for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+            clsDescription.AppendFormatted("   %s\n", threadFunctionName[iTab][i].Data(), "");
+         }
+      }
+      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
+
+      buffer.Resize(0);
+
+      // Header
+      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
+      buffer.AppendFormatted("\nClassImp(%sT%s)\n\n", shortCut.Data(), tabName[iTab].Data());
+
+      // Functions
+      buffer.AppendFormatted("void %sT%s::Init()\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu *menu,Long_t param)\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      buffer.AppendFormatted("void %sT%s::TabSelected()\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("}\n");
+
+      buffer.AppendFormatted("void %sT%s::TabUnSelected()\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // Thread
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("void %sT%s::%s()\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   gSystem->Sleep(10000);\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+      }
+
+      // Write file
+      ReplaceHeader(cppFile.Data(), header.Data(), buffer.Data(), 6);
+   }
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::WriteTabH()
+{
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString format;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   Int_t i, j;
+   if (makeOutput)
+      cout << "\n   Output H-Files:" << endl;
+
+   for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      // File name
+      hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      // Description
+      buffer.Resize(0);
+      WriteHeader(buffer, tabAuthor[iTab].Data(), kTRUE);
+      buffer.AppendFormatted("#ifndef %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("#define %sT%s_Base_H\n\n", shortCut.Data(), tabName[iTab].Data());
+      clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
+      clsDescription = tabDescription[iTab].Data();
+      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+      buffer.AppendFormatted("\n\n");
+
+      // Header
+#if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( push )\n");
+      buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"TGFrame.h\"\n");
+      buffer.AppendFormatted("#include \"TGMenu.h\"\n");
+      buffer.AppendFormatted("#include \"TThread.h\"\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"Riostream.h\"\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
+      buffer.AppendFormatted("   void*  inst;\n");
+      buffer.AppendFormatted("   Long_t msg;\n");
+      buffer.AppendFormatted("   Long_t param1;\n");
+      buffer.AppendFormatted("   Long_t param2;\n");
+      buffer.AppendFormatted("};\n");
+
+      // Class
+      buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("{\n");
+      buffer.AppendFormatted("protected:\n");
+
+      // Fields
+      if (numOfSteering[iTab+numOfTaskHierarchy+1] > 0) {
+         WriteSteeringClass(buffer, 0, iTab+numOfTaskHierarchy+1, 1);
+         buffer.AppendFormatted("\n");
+      }
+      if (numOfSteering[iTab+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("   Steering* fSteering; //! Handle to Steering class\n\n");
+      }
+      // Thread
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("   TThread* m%s; //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Bool_t   f%sActive; //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Int_t    f%sNumberOfLoops; //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Int_t    f%sInterval; //!\n", threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
+            buffer.AppendFormatted("   %s f%sArgument_%d; //!\n", threadFunctionArgument[iTab][i][j].Data(), threadFunctionName[iTab][i].Data(), j);
+      }
+      buffer.AppendFormatted("   Int_t    fVersion; //! Version number\n");
+      buffer.AppendFormatted("   Bool_t   fActive; //! is Active\n");
+
+      // Methods
+      buffer.AppendFormatted("public:\n");
+
+      // Constructor
+      buffer.AppendFormatted("   // Constructor\n");
+      buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(){\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("      fVersion = %s;\n", tabVersion[iTab].Data());
+      buffer.AppendFormatted("      fActive  = kFALSE;\n");
+      if (numOfSteering[iTab+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("      fSteering = new Steering();\n");
+      }
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("      m%s       = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   ~%sT%s_Base(){\n", shortCut.Data(), tabName[iTab].Data());
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+
+      // Thread
+      buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2){\n");
+      buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){return kTRUE;}\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg){\n");
+      buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n", shortCut.Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   Bool_t RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2){\n");
+      buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n", tabName[iTab].Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("      arg->inst   = this;\n");
+      buffer.AppendFormatted("      arg->msg    = msg;\n");
+      buffer.AppendFormatted("      arg->param1 = param1;\n");
+      buffer.AppendFormatted("      arg->param2 = param2;\n");
+      buffer.AppendFormatted("      TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
+      buffer.AppendFormatted("      mProcessMessageThread->Run();\n");
+      buffer.AppendFormatted("      return kTRUE;\n");
+      buffer.AppendFormatted("   }\n");
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   virtual void %s(", threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++) {
+            buffer.AppendFormatted("%s", threadFunctionArgument[iTab][i][j].Data());
+            if (j < numOfThreadFunctionArguments[iTab][i] - 1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted(")\n");
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("      cout<<endl\n");
+         buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
+         buffer.AppendFormatted("          <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("          <<\"   void %s();\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("          <<\"   void %sT%s::%s()\"<<endl\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\"   {\"<<endl\n");
+         buffer.AppendFormatted("          <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
+         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   static void Thread%s(void* arg){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      TThread::SetCancelOn();\n");
+         buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
+         buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("      Int_t iLoop = 0;\n");
+//         buffer.AppendFormatted("      Int_t meid=TThread::SelfId(); // get pthread id\n");
+         buffer.AppendFormatted("      while(inst->f%sActive){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         TThread::CancelPoint();\n");
+         buffer.AppendFormatted("         inst->%s(", threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++) {
+            buffer.AppendFormatted("inst->f%sArgument_%d", threadFunctionName[iTab][i].Data(), j);
+            if (j < numOfThreadFunctionArguments[iTab][i] - 1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted("); // call the user defined threaded function\n");
+         buffer.AppendFormatted("         if(inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops) {\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            inst->f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            if(inst->m%s){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("               TThread::Delete(inst->m%s);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("               inst->m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            }\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   Bool_t Start%s(", threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
+            buffer.AppendFormatted("%s arg%d,", threadFunctionArgument[iTab][i][j].Data(), j);
+         buffer.AppendFormatted("Int_t interval = 1000, Int_t nloop = 0){\n");
+
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
+            buffer.AppendFormatted("      f%sArgument_%d = arg%d;\n", threadFunctionName[iTab][i].Data(), j, j);
+         buffer.AppendFormatted("      f%sActive        = kTRUE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sInterval      = interval;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(!m%s){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s->Run();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      return kTRUE;\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   Bool_t Stop%s(){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      gSystem->Sleep(1000); // wait a while for threads to halt\n");
+         buffer.AppendFormatted("      if(m%s){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         TThread::Delete(m%s);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      return kTRUE;\n");
+         buffer.AppendFormatted("   } \n");
+         buffer.AppendFormatted("   Bool_t Kill%s(){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      if(m%s){\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s->Kill();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      return kTRUE;\n");
+         buffer.AppendFormatted("   } \n");
+
+         buffer.AppendFormatted("\n");
+      }
+      buffer.AppendFormatted("\n");
+
+      // User Methods
+      buffer.AppendFormatted("   // User Methods\n");
+      if (numOfSteering[iTab+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("   Steering* GetSteeringParameters() { return fSteering; };\n");
+         buffer.AppendFormatted("   Steering* GetSP() { return fSteering; };\n");
+      }
+      buffer.AppendFormatted("   Bool_t       GetActive() { return fActive; };\n");
+      buffer.AppendFormatted("   void         SetActive(Bool_t active) { fActive = active; };\n");
+      buffer.AppendFormatted("   virtual void TabSelected(){};\n");
+      buffer.AppendFormatted("   virtual void TabUnSelected(){};\n");
+      buffer.AppendFormatted("   virtual void MenuClicked(TGPopupMenu *menu,Long_t param)\n");
+      buffer.AppendFormatted("   {\n");
+      buffer.AppendFormatted("      cout<<endl\n");
+      buffer.AppendFormatted("          <<\" Function MenuClicked is not implemented in %s.\"<<endl\n", tabName[iTab].Data());
+      buffer.AppendFormatted("          <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
+      buffer.AppendFormatted("          <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("          <<\"   void MenuClicked(TGPopupMenu *menu,Long_t param);\"<<endl\n");
+      buffer.AppendFormatted("          <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("          <<\"   void %sT%s::MenuClicked(TGPopupMenu *menu,Long_t param)\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("          <<\"   {\"<<endl\n");
+      buffer.AppendFormatted("          <<\"      cout<<\\\"param = \\\"<< param <<endl;\"<<endl\n");
+      buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
+      buffer.AppendFormatted("   }\n");
+
+      // Footer
+      buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+      buffer.AppendFormatted("};\n\n");
+      buffer.AppendFormatted("#endif   // %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
+
+      // Write File
+      WriteFile(hFile.Data(), buffer.Data(), 6);
+
+      // User H-File
+      hFile.SetFormatted("%sinclude/tabs/%sT%s.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
+         // Description
+         buffer.Resize(0);
+
+         // Description
+         WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+         buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
+         clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
+         clsDescription = tabDescription[iTab].Data();
+         WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
+         buffer.AppendFormatted("\n\n");
+
+         // Header
+         buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
+
+         // Class
+         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("protected:\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("public:\n");
+
+         // Constructor
+         buffer.AppendFormatted("   %sT%s():%sT%s_Base()\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   void Init();\n");
+         buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
+         buffer.AppendFormatted("   void TabSelected();\n");
+         buffer.AppendFormatted("   void TabUnSelected();\n");
+
+         // Thread
+         for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+            buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
+         }
+         buffer.AppendFormatted("\n");
+
+         // Fields
+         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+         buffer.AppendFormatted("};\n\n");
+         buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+
+         // Write File
+         WriteFile(hFile.Data(), buffer.Data(), 6);
+      }
+   }
+
+   return kTRUE;
+}
+
+
 bool ROMEBuilder::ReadXMLTree() {
    char *name;
    int type,i,j;
@@ -3246,6 +4019,7 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
    char *name;
    int type;
    ROMEString temp;
+   ROMEString ext;
 
    numOfMFDictHeaders = 0;
    numOfMFDictIncDirs = 0;
@@ -3366,31 +4140,46 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                break;
          }
       }
-      if (type == 1 && !strcmp((const char*)name,"AdditionalSourceFiles")) {
+      if (type == 1 && !strcmp((const char*)name,"AdditionalFiles")) {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
             // source file
-            if (type == 1 && !strcmp((const char*)name,"SourceFile")) {
+            if (type == 1 && !strcmp((const char*)name,"File")) {
                numOfMFSourceFlags[numOfMFSources] = 0;
                mfSourceFileName[numOfMFSources] = "";
                mfSourceFilePath[numOfMFSources] = "";
+               mfHeaderFileName[numOfMFSources] = "";
+               mfHeaderFilePath[numOfMFSources] = "";
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
-                  // file name
-                  if (type == 1 && !strcmp((const char*)name,"FileName")) {
-                     xml->GetValue(mfSourceFileName[numOfMFSources],mfSourceFileName[numOfMFSources]);
-                     if (mfSourceFileName[numOfMFSources].Index(".")==-1)
+                  // source file
+                  if (type == 1 && !strcmp((const char*)name,"SourceFile")) {
+                     xml->GetValue(temp,"");
+                     AnalyzeFileName(temp.Data(),mfSourceFilePath[numOfMFSources],mfSourceFileName[numOfMFSources],ext);
+                     if (ext.Length()==0)
                         mfSourceFileName[numOfMFSources].Append(".cpp");
-                  }
-                  // file path
-                  if (type == 1 && !strcmp((const char*)name,"FilePath")) {
-                     xml->GetValue(mfSourceFilePath[numOfMFSources],mfSourceFilePath[numOfMFSources]);
+                     else
+                        mfSourceFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
                      if (mfSourceFilePath[numOfMFSources].Length()>0) {
                         if (mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='/' ||
                            mfSourceFilePath[numOfMFSources][mfSourceFilePath[numOfMFSources].Length()-1]!='\\')
                            mfSourceFilePath[numOfMFSources].Append("/");
+                     }
+                  }
+                  // header file
+                  if (type == 1 && !strcmp((const char*)name,"HeaderFile")) {
+                     xml->GetValue(temp,"");
+                     AnalyzeFileName(temp.Data(),mfHeaderFilePath[numOfMFSources],mfHeaderFileName[numOfMFSources],ext);
+                     if (ext.Length()==0)
+                        mfHeaderFileName[numOfMFSources].Append(".h");
+                     else
+                        mfHeaderFileName[numOfMFSources].AppendFormatted(".%s",ext.Data());
+                     if (mfHeaderFilePath[numOfMFSources].Length()>0) {
+                        if (mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='/' ||
+                           mfHeaderFilePath[numOfMFSources][mfHeaderFilePath[numOfMFSources].Length()-1]!='\\')
+                           mfHeaderFilePath[numOfMFSources].Append("/");
                      }
                   }
                   // flags
@@ -3399,13 +4188,13 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                      xml->GetValue(mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]],mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]]);
                      numOfMFSourceFlags[numOfMFSources]++;
                   }   
-                  if (type == 15 && !strcmp((const char*)name,"SourceFile")) {
+                  if (type == 15 && !strcmp((const char*)name,"File")) {
                      numOfMFSources++;
                      break;
                   }
                }
             }
-            if (type == 15 && !strcmp((const char*)name,"AdditionalSourceFiles"))
+            if (type == 15 && !strcmp((const char*)name,"AdditionalFiles"))
                break;
          }
       }
@@ -3515,6 +4304,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
 
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("\n");
@@ -3691,7 +4481,42 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    }
    buffer.AppendFormatted("\n");
 
+   // NetFolder
+   buffer.AppendFormatted("   InitNetFolders(%d);\n", numOfNetFolder);
+   buffer.AppendFormatted("   fNumberOfNetFolders = %d;\n", numOfNetFolder);
+   for (i = 0; i < numOfNetFolder; i++) {
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   // %s\n", netFolderName[i].Data());
+      buffer.AppendFormatted("   fNetFolderName[%d]   = \"%s\";\n", i, netFolderName[i].Data());
+      buffer.AppendFormatted("   fNetFolderActive[%d] = kFALSE;\n", i);
+      buffer.AppendFormatted("   fNetFolderReconnect[%d] = kTRUE;\n", i);
+      buffer.AppendFormatted("   fNetFolder[%d]       = 0;\n", i);
+      buffer.AppendFormatted("   fNetFolderSocket[%d] = 0;\n", i);
+      if (netFolderHost[i].Length())
+         buffer.AppendFormatted("   fNetFolderHost[%d]   = \"%s\";\n", i, netFolderHost[i].Data());
+      else
+         buffer.AppendFormatted("   fNetFolderHost[%d]   = \"localhost\";\n", i);
+      if (netFolderPort[i].Length())
+         buffer.AppendFormatted("   fNetFolderPort[%d]   = %s;\n", i, netFolderPort[i].Data());
+      else
+         buffer.AppendFormatted("   fNetFolderPort[%d]   = 9090;\n", i);
+      if (netFolderRoot[i].Length())
+         buffer.AppendFormatted("   fNetFolderRoot[%d]   = \"%s\";\n", i, netFolderRoot[i].Data());
+      else
+//         buffer.AppendFormatted("   fNetFolderRoot[%d]   = \"histos\";\n",i);
+         buffer.AppendFormatted("   fNetFolderRoot[%d]   = \"%s\";\n", i, shortCut.Data());
+      buffer.AppendFormatted("\n");
+   }
+
+   buffer.AppendFormatted("\n");
+
+   // End of Constructor
    buffer.AppendFormatted("}\n\n");
+
+   buffer.AppendFormatted("bool %sAnalyzer::StartWindow() {\n", shortCut.Data());
+   buffer.AppendFormatted("   return gWindow->Start();\n");
+   buffer.AppendFormatted("}\n");
+
 
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
@@ -3763,6 +4588,23 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          WriteSteeringReadParameters(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT);
       }
    }
+   // Tab steering parameter
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
+      Int_t index = i;
+      pointer.Resize(0);
+      while (index != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("%s->fSteering", pointer.Data());
+         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
+         WriteSteeringReadParameters(buffer, 0, i+numOfTaskHierarchy+1, pointerT, steerPointerT);
+      }
+   }
    buffer.AppendFormatted("   return false;\n");
    buffer.AppendFormatted("}\n\n");
 
@@ -3794,8 +4636,24 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          WriteSteeringParameterUsage(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT);
       }
    }
+   // Tab steering parameter
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
+      Int_t index = i;
+      pointer.Resize(0);
+      while (index != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         pointerT.SetFormatted("%s->fSteering", pointer.Data());
+         steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->Get%s%03dTab())->GetSP()", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+         WriteSteeringParameterUsage(buffer, 0, i+numOfTaskHierarchy+1, pointerT, steerPointerT);
+      }
+   }
    buffer.AppendFormatted("}\n\n");
-
 
 /*   // WriteDataBaseFolders
    for (i=0;i<numOfFolder;i++) {
@@ -4362,6 +5220,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
 
    // Private
    buffer.AppendFormatted("private:\n");
+   buffer.AppendFormatted("   bool StartWindow();\n");
    buffer.AppendFormatted("   bool ReadUserParameter(const char* opt, const char *value, int& i);\n");
    buffer.AppendFormatted("   void UserParameterUsage();\n");
    buffer.AppendFormatted("   void startSplashScreen();\n");
@@ -4469,6 +5328,479 @@ bool ROMEBuilder::WriteAnalyzerF() {
    return true;
 }
 
+bool ROMEBuilder::WriteWindowCpp()
+{
+   Int_t i, j;
+   ROMEString cppFile;
+   ROMEString buffer;
+   ROMEString bufferTemp;
+   ROMEString format;
+   ROMEString menu_title;
+   ROMEString buf;
+
+   ROMEString clsDescription;
+   ROMEString clsName;
+   clsDescription.SetFormatted("Main window class for the %s%s. This class creates main window and manages Tabs.", shortCut.Data(), mainProgName.Data());
+   clsName.SetFormatted("%sWindow", shortCut.Data());
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sWindow.cpp", outDir.Data(), shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"TGMsgBox.h\"\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"ArgusTextDialog.h\"\n");
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("ClassImp(%sWindow);\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("%sWindow *gWindow;\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, Char_t* title) : ArgusWindow(p,title)\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
+
+   for (i = 0; i < numOfTab; i++) {
+      Int_t index = tabParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
+      for (j = 0; j < numOfMenu[i]; j++) {
+         buffer.AppendFormatted("   f%sMenu[%d] = NULL;\n", tabName[i].Data(), j);
+      }
+   }
+
+   for (i = 0; i < numOfTab; i++) {
+      format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n");
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
+   }
+   buffer.AppendFormatted("}\n\n");
+   buffer.AppendFormatted("\n");
+
+   // CreateTabs
+   buffer.AppendFormatted("Bool_t %sWindow::CreateTabs()\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t tabID = 0;\n");
+   for (i = 0; i < numOfTab; i++) {
+      recursiveTabDepth = 0;
+      if (!AddTab(buffer, i))
+         return kFALSE;
+   }
+   buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // ProcessMessage
+   buffer.AppendFormatted("Bool_t %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
+   buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
+   buffer.AppendFormatted("   case kC_COMMAND:    \n");
+   buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
+   buffer.AppendFormatted("      case kCM_MENU:\n");
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
+      for (j = 0; j < numOfMenu[i]; j++) {
+         buffer.AppendFormatted("            if (f%sMenu[%d]->GetEntry(param1)!=0)\n", tabName[i].Data(), j);
+         buffer.AppendFormatted("               f%s%03dTab->MenuClicked(f%sMenu[%d],param1);\n", tabName[i].Data(), i, tabName[i].Data(), j);
+      }
+      buffer.AppendFormatted("         }\n");
+   }
+   buffer.AppendFormatted("         switch (param1) {\n");
+   buffer.AppendFormatted("         case M_FILE_EXIT:\n");
+   buffer.AppendFormatted("            CloseWindow();\n");
+   buffer.AppendFormatted("            break;\n");
+   for (i = 0; i < numOfNetFolder; i++) {
+      buffer.AppendFormatted("         case M_FILE_CONNECT_%s:\n", netFolderName[i].Data());
+      buffer.AppendFormatted("            gAnalyzer->ConnectNetFolder(\"%s\");\n", netFolderName[i].Data());
+      buffer.AppendFormatted("            break;\n");
+   }
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      case kCM_BUTTON:\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      case kCM_LISTBOX:\n");
+   buffer.AppendFormatted("         break;      \n");
+   buffer.AppendFormatted("      case kCM_TAB:\n");
+
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
+      for (j = 0; j < numOfMenu[i]; j++) {
+         menu_title = menuTitle[i][j];
+         menu_title.ReplaceAll("&", "");
+         buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n", menu_title.Data());
+      }
+      buffer.AppendFormatted("         }\n");
+   }
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("         // %s\n", tabName[i].Data());
+      buffer.AppendFormatted("         if (");
+      Int_t index = i;
+      do {
+         buffer.AppendFormatted(" param1 == f%sTabID ||", tabName[index].Data());
+         index = tabParentIndex[index];
+      } while (index != -1);
+      buffer.Remove(buffer.Length() - 2);       // remove the last "||"
+      buffer.AppendFormatted(") {\n");
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n", tabName[i].Data(), i);
+      for (j = 0; j < numOfMenu[i]; j++) {
+         buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n", tabName[i].Data(), j);
+         buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n", tabName[i].Data(), j);
+      }
+      for (j = 0; j < numOfMenu[i]; j++) {
+         if (menuDepth[i][j] == 1) {
+            if (!AddMenuItems(buffer, i, j))
+               return kFALSE;
+            buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[i][j].Data(), tabName[i].Data(), j);
+            buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
+         }
+      }
+      buffer.AppendFormatted("         }\n");
+   }
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("         // %s\n", tabName[i].Data());
+      buffer.AppendFormatted("         if(fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n", tabName[i].Data(), i);
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         if(fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted("            fCurrentTabID = param1;\n");
+      buffer.AppendFormatted("            f%s%03dTab->TabSelected();\n", tabName[i].Data(), i);
+      buffer.AppendFormatted("         }\n");
+   }
+   buffer.AppendFormatted("         fCurrentTabID = param1;\n");
+
+   buffer.AppendFormatted("         MapSubwindows();\n");
+   buffer.AppendFormatted("         Resize(fWidth-1,fHeight-1);\n");
+   buffer.AppendFormatted("         Resize(fWidth+1,fHeight+1);\n");
+   buffer.AppendFormatted("         MapWindow();\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      break;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // GetMenuHandle
+   buffer.AppendFormatted("TGPopupMenu* %sWindow::GetMenuHandle(const Char_t* menuName)\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("   if(fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
+      for (j = 0; j < numOfMenu[i]; j++) {
+         buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\"))\n", menuTitle[i][j].Data());
+         buffer.AppendFormatted("         return f%sMenu[%d];\n", tabName[i].Data(), j);
+      }
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("   cout<<\"Error: A menu (\"<<menuName<<\") was not found.\"<<endl;\n");
+   buffer.AppendFormatted("   return NULL;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // AddMenuNetFolder
+   buffer.AppendFormatted("Bool_t %sWindow::AddMenuNetFolder(TGPopupMenu* menu)\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   if(gAnalyzer->GetNumberOfNetFolders() <= 0 )\n", i);
+   buffer.AppendFormatted("      return kFALSE;\n", i);
+   buffer.AppendFormatted("   Bool_t active = kFALSE;\n", i);
+   for (i = 0; i < numOfNetFolder; i++) {
+      buffer.AppendFormatted("   if(gAnalyzer->GetNetFolderActive(%d)){\n", i);
+      buffer.AppendFormatted("      menu->AddEntry(\"%s\", M_FILE_CONNECT_%s);\n", netFolderName[i].Data(), netFolderName[i].Data());
+      buffer.AppendFormatted("      active = kTRUE;\n");
+      buffer.AppendFormatted("   }\n", i);
+   }
+   buffer.AppendFormatted("   return active;\n", i);
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // Write File
+   WriteFile(cppFile.Data(), buffer.Data(), 6);
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::WriteWindowH()
+{
+   Int_t i, j, k;
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString buf;
+
+   ROMEString clsDescription;
+   ROMEString clsName;
+   clsDescription.SetFormatted("Main window class for the %s%s.", shortCut.Data(), mainProgName.Data());
+   clsName.SetFormatted("%sWindow", shortCut.Data());
+
+   ROMEString format;
+
+   Int_t nameLen = -1;
+   Int_t typeLen = -1;
+   Int_t scl = shortCut.Length();
+   for (i = 0; i < numOfTab; i++) {
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("f000Tab")));
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("tT")));
+      nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("Get000Tab()")));
+      typeLen = TMath::Max(typeLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("T*")));
+   }
+   typeLen = TMath::Max(typeLen, static_cast<Int_t>(strlen("TGCompositeFrame*")));
+
+   // max tab switch name length
+   Int_t switchLen = -1;
+   ROMEString switchString;
+   for (i = 0; i < numOfTab; i++) {
+      Int_t index = tabParentIndex[i];
+      switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      if (switchLen < static_cast<Int_t>(switchString.Length()))
+         switchLen = switchString.Length();
+   }
+
+   // File name
+   hFile.SetFormatted("%sinclude/generated/%sWindow.h", outDir.Data(), shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   buffer.AppendFormatted("#ifndef %sWINDOW_H\n", shortCut.Data());
+   buffer.AppendFormatted("#define %sWINDOW_H\n\n", shortCut.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("#include \"ArgusWindow.h\"\n");
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
+   // Tab Switches Structure
+   buffer.AppendFormatted("// Tab Switches Structure\n");
+   buffer.AppendFormatted("typedef struct{\n");
+
+   for (i = 0; i < numOfTab; i++) {
+      Int_t index = tabParentIndex[i];
+      switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      format.SetFormatted("   Bool_t %%s;%%%ds  //! %%s Tab\n", switchLen - switchString.Length());
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), switchString.Data(), "", switchString.Data());
+//      buffer.AppendFormatted("   Int_t %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
+   }
+   buffer.AppendFormatted("} TabSwitches;\n");
+   buffer.AppendFormatted("\n");
+
+   // Class
+   buffer.AppendFormatted("class %sWindow : public ArgusWindow {  \n", shortCut.Data());
+   // Enumeration
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   enum CommandIdentifiers{\n");
+   buffer.AppendFormatted("      M_FILE_CONNECT_ROOT = 10,\n");
+   for (i = 0; i < numOfNetFolder; i++)
+      buffer.AppendFormatted("      M_FILE_CONNECT_%s,\n", netFolderName[i].Data());
+   buffer.Remove(buffer.Length() - 2, 1);       // remove the last ','
+   buffer.AppendFormatted("   };\n");
+
+   buffer.AppendFormatted("   enum MenuEnumeration {\n");
+   buffer.AppendFormatted("      M_ROOT = 1000,\n");
+   for (i = 0; i < numOfTab; i++) {
+      for (j = 0; j < numOfMenu[i]; j++) {
+         for (k = 0; k < numOfMenuItem[i][j]; k++) {
+            if (menuItemEnumName[i][j][k].Length() > 0)
+               buffer.AppendFormatted("      %s,\n", menuItemEnumName[i][j][k].Data());
+         }
+      }
+   }
+   buffer.Remove(buffer.Length() - 2, 1);       // remove the last ','
+   buffer.AppendFormatted("   };\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("private:\n");
+   for (i = 0; i < numOfTab; i++) {
+      if (tabNumOfChildren[i])
+         buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n", tabName[i].Data(), i);
+   }
+   for (i = 0; i < numOfTab; i++) {
+      if (numOfMenu[i] > 0)
+         buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n", tabName[i].Data(), numOfMenu[i]);
+      buffer.AppendFormatted("   Int_t               f%sTabID;\n", tabName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
+   // Tab Switches
+   buffer.AppendFormatted("   // Tab Switches\n");
+   buffer.AppendFormatted("   TabSwitches fTabSwitches;               //! Tab Switches\n");
+   buffer.AppendFormatted("\n");
+
+   // Tab Fields
+   buffer.AppendFormatted("   // Tab Fields\n");
+   for (i = 0; i < numOfTab; i++) {
+      format.SetFormatted("   %%sT%%s*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n", typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*"), nameLen - tabName[i].Length() - strlen("f000Tab"));
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data());
+      format.SetFormatted("   TGCompositeFrame*%%%ds t%%sT%%s;%%%ds  // Container of %%s Tab\n", typeLen - strlen("TGCompositeFrame*"), nameLen - tabName[i].Length() - scl - strlen("tT"));
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), "", shortCut.Data(), tabName[i].Data(), "", tabName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
+   // Method
+   buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   %sWindow(const TGWindow *p, Char_t *title);\n", shortCut.Data());
+   buffer.AppendFormatted("   ~%sWindow(){}\n", shortCut.Data());
+   buffer.AppendFormatted("   Bool_t CreateTabs();\n");
+   buffer.AppendFormatted("   Bool_t AddMenuNetFolder(TGPopupMenu* menu);\n");
+   buffer.AppendFormatted("\n");
+
+   // Tab Switches
+   buffer.AppendFormatted("   // Tab Switches\n");
+   buffer.AppendFormatted("   TabSwitches* GetTabSwitches() { return &fTabSwitches; }\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   // Tabs\n");
+   for (i = 0; i < numOfTab; i++) {
+      format.SetFormatted("   %%sT%%s*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds }\n", typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*"), nameLen - tabName[i].Length() - strlen("Get000Tab()"), nameLen - tabName[i].Length() - strlen("f000Tab"));
+      buffer.AppendFormatted(const_cast<Char_t*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data(), i, "");
+   }
+   buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
+   buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const Char_t* menuName);\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("   ClassDef(%sWindow,1)\n", shortCut.Data());
+   buffer.AppendFormatted("};\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("extern %sWindow *gWindow;\n", shortCut.Data());
+   buffer.AppendFormatted("#endif\n");
+
+   // Write File
+   WriteFile(hFile.Data(), buffer.Data(), 6);
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
+{
+   Int_t j;
+   ROMEString parentt;
+   ROMEString format;
+   Int_t index = tabParentIndex[i];
+
+   ROMEString switchString = tabName[i].Data();
+   Int_t depth;
+   while (index != -1) {
+      switchString.Insert(0, "_");
+      switchString.Insert(0, tabName[index].Data());
+      index = tabParentIndex[index];
+   }
+   if (tabParentIndex[i] == -1)
+      parentt = "fTab";
+   else
+      parentt.SetFormatted("f%s%03dTabSubTab", tabName[tabParentIndex[i]].Data(), tabParentIndex[i]);
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("   if (fTabSwitches.%s){\n", switchString.Data());
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n", shortCut.Data(), tabName[i].Data(), parentt.Data(), tabTitle[i].Data());
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("      f%s%03dTab->ReparentWindow(t%sT%s, 60, 20);\n", tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("      f%s%03dTab->Init();\n", tabName[i].Data(), i);
+
+   if (!tabNumOfChildren[i]) {
+      for (depth = 0; depth < recursiveTabDepth; depth++)
+         buffer += "   ";
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), i);
+   }
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+
+   buffer.AppendFormatted("      f%sTabID = tabID++;\n", tabName[i].Data());
+
+   if (tabNumOfChildren[i]) {
+      for (depth = 0; depth < recursiveTabDepth; depth++)
+         buffer += "   ";
+      buffer.AppendFormatted("      f%s%03dTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*GetWindowScale()), (UInt_t)(400*GetWindowScale()));\n", tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
+   }
+   recursiveTabDepth++;
+   j = i;
+
+   while (i < j + tabNumOfChildren[j]) {
+      i++;
+      if (!AddTab(buffer, i))
+         return kFALSE;
+   }
+
+   recursiveTabDepth--;
+
+   if (tabNumOfChildren[j]) {
+      for (depth = 0; depth < recursiveTabDepth; depth++)
+         buffer += "   ";
+      buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%03dTabSubTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n", shortCut.Data(), tabName[j].Data(), tabName[j].Data(), j);
+   }
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("   }\n");
+
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j)
+{
+   Int_t k;
+
+   for (k = 0; k < numOfMenuItem[i][j]; k++) {
+      if (menuItemTitle[i][j][k] == LINE_TITLE) {
+         buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[i].Data(), j);
+      }
+      else if (menuItemChildMenuIndex[i][j][k]) {
+         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k]))
+            return kFALSE;
+         buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[i].Data(), j, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
+                                , tabName[i].Data(), menuItemChildMenuIndex[i][j][k]);
+      }
+      else {
+         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[i].Data(), j, menuItemTitle[i][j][k].Data()
+                                , menuItemEnumName[i][j][k].Data());
+      }
+   }
+
+   return kTRUE;
+}
+
+
 bool ROMEBuilder::WriteConfigCpp() {
    int i;
 
@@ -4522,6 +5854,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    }
 
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
 
    // Constructor
@@ -4538,6 +5871,8 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fXMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
+   buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml))\n");
+   buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
    buffer.AppendFormatted("   delete [] fConfigData;\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
@@ -4559,6 +5894,28 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
+
+   // Read Program Configuration
+   buffer.AppendFormatted("\n// Read Program Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::ReadProgramConfiguration(ROMEXML *xml) {\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEString romeBuffer;\n");
+   buffer.AppendFormatted("   ROMEString argusBuffer;\n");
+   // RunNumbers
+   buffer.AppendFormatted("   xml->GetPathValue(\"/Configuration/ProgramConfiguration/ROME/Active\",romeBuffer,\"\");\n");
+   buffer.AppendFormatted("   xml->GetPathValue(\"/Configuration/ProgramConfiguration/ARGUS/Active\",argusBuffer,\"\");\n");
+   buffer.AppendFormatted("   romeBuffer.ToLower();\n");
+   buffer.AppendFormatted("   argusBuffer.ToLower();\n");
+   buffer.AppendFormatted("   if (romeBuffer==\"false\" && argusBuffer!=\"true\")\n");
+   buffer.AppendFormatted("      return false;\n");
+   buffer.AppendFormatted("   if (romeBuffer!=\"false\" && argusBuffer!=\"true\")\n");
+   buffer.AppendFormatted("      gAnalyzer->SetStandAloneROME();\n");
+   buffer.AppendFormatted("   if (romeBuffer==\"false\" && argusBuffer==\"true\")\n");
+   buffer.AppendFormatted("      gAnalyzer->SetStandAloneARGUS();\n");
+   buffer.AppendFormatted("   if (romeBuffer!=\"false\" && argusBuffer==\"true\")\n");
+   buffer.AppendFormatted("      gAnalyzer->SetROMEAndARGUS();\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+
 
    // Read Configuration
    buffer.AppendFormatted("\n// Read Configuration\n");
@@ -4590,6 +5947,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fLastInputFileNameIndex = 0;\n");
    buffer.AppendFormatted("      gAnalyzer->DecodeInputFileNames(fConfigData[index]->fInputFileNames,fConfigData[index]->fInputFileNameArray);\n");
    buffer.AppendFormatted("   }\n");
+
    // modes
    buffer.AppendFormatted("   // modes\n");
    // AnalyzingMode
@@ -4626,6 +5984,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fModesModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fModesModified = false;\n");
+
    // DataBase
    buffer.AppendFormatted("   // database\n");
    buffer.AppendFormatted("   if (index==0) {\n");
@@ -4677,6 +6036,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("            fConfigData[index]->fDataBaseModified[i] = false;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
+
    // Online
    buffer.AppendFormatted("   // online\n");
    // Host
@@ -4697,6 +6057,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fOnlineModified = false;\n");
+
    // socket interface
    buffer.AppendFormatted("   // socket interface\n");
    // PortNumber
@@ -4717,6 +6078,54 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fSocketInterfaceModified = false;\n");
+
+   // Window
+   buffer.AppendFormatted("   // window\n");
+   buffer.AppendFormatted("   fConfigData[index]->fWindow = new ConfigData::Window();\n");
+   // Window/Scale
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/Scale\",fConfigData[index]->fWindow->fScale,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScale==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fScaleModified = kTRUE;\n");
+   // Window/StatusBar
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Window/StatusBar\",fConfigData[index]->fWindow->fStatusBar,\"\");\n");
+   buffer.AppendFormatted("   fConfigData[index]->fWindow->fStatusBar.ToLower();\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStatusBar==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fStatusBarModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindow->fStatusBarModified = kTRUE;\n");
+   // --Window
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fWindow->fStatusBarModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindowModified = kTRUE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fWindowModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
+
+   // AnalyzerController
+   buffer.AppendFormatted("   // AnalyzerController\n");
+   buffer.AppendFormatted("   fConfigData[index]->fAnalyzerController = new ConfigData::AnalyzerController();\n");
+   // AnalyzerController/Active
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/AnalyzerController/Active\",fConfigData[index]->fAnalyzerController->fActive,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fAnalyzerController->fActive==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerController->fActiveModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerController->fActiveModified = kTRUE;\n");
+   // AnalyzerController/NetFolder
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/AnalyzerController/NetFolder\",fConfigData[index]->fAnalyzerController->fNetFolder,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fAnalyzerController->fNetFolder==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerController->fNetFolderModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerController->fNetFolderModified = kTRUE;\n");
+   // --AnalyzerController
+   buffer.AppendFormatted("   if (fConfigData[index]->fAnalyzerController->fActiveModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fAnalyzerController->fNetFolderModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerControllerModified = kTRUE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fAnalyzerControllerModified = kFALSE;\n");
+   buffer.AppendFormatted("\n");
+
    // paths
    buffer.AppendFormatted("   // paths\n");
    // InputFilePath
@@ -4737,6 +6146,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = false;\n");
+
    // folders
    buffer.AppendFormatted("   // folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -4770,6 +6180,60 @@ bool ROMEBuilder::WriteConfigCpp() {
          }
       }
    }
+
+   // NetFolder
+   if (numOfNetFolder > 0) {
+      buffer.AppendFormatted("   // NetFolder\n");
+      for (i = 0; i < numOfNetFolder; i++) {
+         buffer.AppendFormatted("   fConfigData[index]->fNetFolder[%d] = new ConfigData::NetFolder();\n", i);
+         // NetFolder/Active
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/NetFolder[NetFolderName='%s']/Active\",fConfigData[index]->fNetFolder[%d]->fActive,\"\");\n", netFolderName[i].Data(), i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fActive==\"\")\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fActiveModified = kFALSE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fActiveModified = kTRUE;\n", i);
+         // NetFolder/Reconnect
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/NetFolder[NetFolderName='%s']/Reconnect\",fConfigData[index]->fNetFolder[%d]->fReconnect,\"\");\n", netFolderName[i].Data(), i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fReconnect==\"\")\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fReconnectModified = kFALSE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fReconnectModified = kTRUE;\n", i);
+         // NetFolder/Host
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/NetFolder[NetFolderName='%s']/Host\",fConfigData[index]->fNetFolder[%d]->fHost,\"\");\n", netFolderName[i].Data(), i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fHost==\"\")\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fHostModified = kFALSE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fHostModified = kTRUE;\n", i);
+         // NetFolder/Port
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/NetFolder[NetFolderName='%s']/Port\",fConfigData[index]->fNetFolder[%d]->fPort,\"\");\n", netFolderName[i].Data(), i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fPort==\"\")\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fPortModified = kFALSE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fPortModified = kTRUE;\n", i);
+         // NetFolder/Root
+         buffer.AppendFormatted("   xml->GetPathValue(path+\"/NetFolders/NetFolder[NetFolderName='%s']/Root\",fConfigData[index]->fNetFolder[%d]->fRoot,\"\");\n", netFolderName[i].Data(), i);
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fRoot==\"\")\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fRootModified = kFALSE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolder[%d]->fRootModified = kTRUE;\n", i);
+         // --NetFolder
+         buffer.AppendFormatted("   if (fConfigData[index]->fNetFolder[%d]->fActiveModified    ||\n", i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fReconnectModified ||\n", i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fHostModified      ||\n", i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fPortModified      ||\n", i);
+         buffer.AppendFormatted("       fConfigData[index]->fNetFolder[%d]->fRootModified)\n", i);
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolderModified[%d] = kTRUE;\n", i);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      fConfigData[index]->fNetFolderModified[%d] = kFALSE;\n", i);
+         buffer.AppendFormatted("\n");
+      }
+      buffer.AppendFormatted("      fConfigData[index]->fNetFoldersModified = kFALSE;\n");
+      for (i = 0; i < numOfNetFolder; i++) {
+         buffer.AppendFormatted("      if(fConfigData[index]->fNetFolderModified[%d])\n", i);
+         buffer.AppendFormatted("         fConfigData[index]->fNetFoldersModified = kTRUE;\n");
+      }
+   }
+
    // tasks
    buffer.AppendFormatted("   // tasks\n");
    buffer.AppendFormatted("   fConfigData[index]->fTasksModified = false;\n");
@@ -4961,6 +6425,67 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]%sModified = false;\n",pointer.Data());
    }
+
+
+   // Tabs
+   buffer.AppendFormatted("   // tabs\n");
+   buffer.AppendFormatted("   fConfigData[index]->fTabsModified = kFALSE;\n");
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("   // %s Tab\n", tabName[i].Data());
+      Int_t index = i;
+      pointer.Resize(0);
+      path.Resize(0);
+      classname.Resize(0);
+      while (index != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
+         path.InsertFormatted(0, "/Tab[TabName='%s']", tabName[index].Data());
+         classname.InsertFormatted(0, "::%sTab", tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted("   fConfigData[index]%s = new ConfigData%s();\n", pointer.Data(), classname.Data());
+      // Active
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Tabs%s/Active\",fConfigData[index]%s->fActive,\"\");\n", path.Data(), pointer.Data());
+      buffer.AppendFormatted("   if (fConfigData[index]%s->fActive==\"\")\n", pointer.Data());
+      buffer.AppendFormatted("      fConfigData[index]%s->fActiveModified = kFALSE;\n", pointer.Data());
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]%s->fActiveModified = kTRUE;\n", pointer.Data());
+      // Steering parameter
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("   // steering parameters\n");
+         buffer.AppendFormatted("   fConfigData[index]%s->fSteering = new ConfigData%s::Steering();\n", pointer.Data(), classname.Data());
+         ROMEString pathT;
+         ROMEString pointerT;
+         ROMEString classT;
+         ROMEString indexT;
+         ROMEString blankT;
+         Int_t indexCounter = 0;
+         pathT.SetFormatted("path+\"/Tabs%s", path.Data());
+         pointerT.SetFormatted("fConfigData[index]%s->fSteering", pointer.Data());
+         classT.SetFormatted("ConfigData%s::Steering", classname.Data());
+         WriteSteeringConfigRead(buffer, 0, i+numOfTaskHierarchy+1, xml, pathT, pointerT, classT, indexT, blankT, &indexCounter);
+      }
+      // all
+      buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified", pointer.Data());
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0)
+         buffer.AppendFormatted("\n    || fConfigData[index]%s->fSteeringModified", pointer.Data());
+      buffer.AppendFormatted(") {\n");
+      buffer.AppendFormatted("      fConfigData[index]->fTabsModified = kTRUE;\n");
+      buffer.AppendFormatted("      fConfigData[index]%sModified = kTRUE;\n", pointer.Data());
+      ROMEString tempPointer = pointer;
+      while (kTRUE) {
+         for (j = tempPointer.Length() - 1; tempPointer[j] != '>' && j > 0; j--) {
+         }
+         if (j <= 1)
+            break;
+         tempPointer = tempPointer(0, j - 1);
+         buffer.AppendFormatted("      fConfigData[index]%sModified = kTRUE;\n", tempPointer.Data());
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else\n");
+      buffer.AppendFormatted("      fConfigData[index]%sModified = kFALSE;\n", pointer.Data());
+   }
+
+
    // trees
    buffer.AppendFormatted("   // trees\n");
    // Accumulate
@@ -5031,6 +6556,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sTreeModified = false;\n",treeName[i].Data());
    }
+
    // Global Steering Parameters
    if (numOfSteering[numOfTaskHierarchy]>0) {
       buffer.AppendFormatted("   // global steering parameters\n");
@@ -5045,6 +6571,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       classT.SetFormatted("ConfigData::GlobalSteering");
       WriteSteeringConfigRead(buffer,0,numOfTaskHierarchy,xml,pathT,pointerT,classT,indexT,blankT,&indexCounter);
    }
+
    // midas banks
    for (i=0;i<numOfEvent;i++) {
       // Active
@@ -5080,6 +6607,7 @@ bool ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   else\n");
       buffer.AppendFormatted("      fConfigData[index]->f%sEventModified = false;\n",eventName[i].Data());
    }
+
    // end
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -5308,6 +6836,27 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetSocketOffline(false);\n");
    buffer.AppendFormatted("   }\n");
+   // Window
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fScaleModified) {\n");
+   buffer.AppendFormatted("      gWindow->SetWindowScale(static_cast<Float_t>(atof(fConfigData[index]->fWindow->fScale.Data())));\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fWindow->fStatusBarModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fWindow->fStatusBar==\"false\")\n");
+   buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(kFALSE);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gWindow->SetStatusBarSwitch(kTRUE);\n");
+   buffer.AppendFormatted("   }\n");
+   // AnalyzerController
+   buffer.AppendFormatted("   if (fConfigData[index]->fAnalyzerController->fActiveModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fAnalyzerController->fActive==\"true\")\n");
+   buffer.AppendFormatted("         gWindow->SetControllerActive(kTRUE);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gWindow->SetControllerActive(kFALSE);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fAnalyzerController->fNetFolderModified) {\n");
+   buffer.AppendFormatted("      gWindow->SetControllerNetFolder(fConfigData[index]->fAnalyzerController->fNetFolder.Data());\n");
+   buffer.AppendFormatted("   }\n");
+
    // Folders
    buffer.AppendFormatted("   // folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -5353,6 +6902,36 @@ bool ROMEBuilder::WriteConfigCpp() {
             buffer.AppendFormatted("   }\n");
          }
       }
+   }
+   // NetFolder
+   buffer.AppendFormatted("   // net folders\n");
+   for (i = 0; i < numOfNetFolder; i++) {
+      buffer.AppendFormatted("   gAnalyzer->SetNetFolderName(%d,\"%s\");\n", i, netFolderName[i].Data());
+      buffer.AppendFormatted("   gAnalyzer->SetNetFolderRoot(%d,\"%s\");\n", i, shortCut.Data());
+   }
+   if (numOfNetFolder > 0) {
+      buffer.AppendFormatted("   for(i=0;i<gAnalyzer->GetNumberOfNetFolders();i++){\n", i);
+      buffer.AppendFormatted("      if (fConfigData[index]->fNetFolderModified[i]){\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fActiveModified){\n");
+      buffer.AppendFormatted("            if(fConfigData[index]->fNetFolder[i]->fActive == \"true\")\n");
+      buffer.AppendFormatted("               gAnalyzer->SetNetFolderActive(i,kTRUE);\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               gAnalyzer->SetNetFolderActive(i,kFALSE);\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fReconnectModified){\n");
+      buffer.AppendFormatted("            if(fConfigData[index]->fNetFolder[i]->fReconnect == \"true\")\n");
+      buffer.AppendFormatted("               gAnalyzer->SetNetFolderReconnect(i,kTRUE);\n");
+      buffer.AppendFormatted("            else\n");
+      buffer.AppendFormatted("               gAnalyzer->SetNetFolderReconnect(i,kFALSE);\n");
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fHostModified)\n");
+      buffer.AppendFormatted("            gAnalyzer->SetNetFolderHost(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fHost.Data()));\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fPortModified)\n");
+      buffer.AppendFormatted("            gAnalyzer->SetNetFolderPort(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fPort.Data()));\n");
+      buffer.AppendFormatted("         if (fConfigData[index]->fNetFolder[i]->fRootModified)\n");
+      buffer.AppendFormatted("            gAnalyzer->SetNetFolderRoot(i,const_cast<Char_t*>(fConfigData[index]->fNetFolder[i]->fRoot.Data()));\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
    }
    // Tasks
    buffer.AppendFormatted("   // tasks\n");
@@ -5430,6 +7009,66 @@ bool ROMEBuilder::WriteConfigCpp() {
          WriteSteeringConfigSet(buffer,0,taskHierarchyClassIndex[i],pointerT,steerPointerT,blankT,&indexCounter);
       }
    }
+   // Tabs
+   buffer.AppendFormatted("   // tabs\n");
+   for (i = 0; i < numOfTab; i++) {
+      buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
+      Int_t index = i;
+      pointer.Resize(0);
+      while (index != -1) {
+         pointer.InsertFormatted(0, "->f%sTab", tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      ROMEString switchString = tabName[i].Data();
+      index = tabParentIndex[i];
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted("   if (fConfigData[index]%s->fActiveModified) {\n", pointer.Data());
+      buffer.AppendFormatted("      if (fConfigData[index]%s->fActive==\"false\")\n", pointer.Data());
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = kFALSE;\n", switchString.Data());
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gWindow->GetTabSwitches()->%s = kTRUE;\n", switchString.Data());
+      buffer.AppendFormatted("   }\n");
+      // Steering parameter
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("   // steering parameters\n");
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         ROMEString blankT;
+         Int_t indexCounter = 0;
+         pointerT.SetFormatted("%s->fSteering", pointer.Data());
+         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
+         WriteSteeringConfigSet(buffer, 0, i+numOfTaskHierarchy+1, pointerT, steerPointerT, blankT, &indexCounter);
+      }
+   }
+   for (i = 0; i < numOfTab; i++) {
+      Int_t index = tabParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted("   // %s tab enabled hierarchy\n", tabName[i].Data());
+      buffer.AppendFormatted("   gWindow->GetTabSwitches()->%s = gWindow->GetTabSwitches()->%s ", switchString.Data(), switchString.Data());
+      index = tabParentIndex[i];
+      while (index != -1) {
+         Int_t index2 = tabParentIndex[index];
+         ROMEString switchString2 = tabName[index].Data();
+         while (index2 != -1) {
+            switchString2.Insert(0, "_");
+            switchString2.Insert(0, tabName[index2].Data());
+            index2 = tabParentIndex[index2];
+         }
+         buffer.AppendFormatted(" * gWindow->GetTabSwitches()->%s", switchString2.Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted(";\n");
+   }
+
    // Trees
    buffer.AppendFormatted("   // trees\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fTreeAccumulateModified) {\n");
@@ -5536,6 +7175,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/rome/rome/romeConfig.xsd\");\n");
+   buffer.AppendFormatted("   WriteProgramConfiguration(xml);\n");
    buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
@@ -5548,6 +7188,27 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   delete xml;\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
+
+   // Write Program Configuration
+   buffer.AppendFormatted("\n// Write Program Configuration\n");
+   buffer.AppendFormatted("bool %sConfig::WriteProgramConfiguration(ROMEXML *xml) {\n",shortCut.Data());
+   buffer.AppendFormatted("   xml->StartElement(\"ProgramConfiguration\");\n");
+   buffer.AppendFormatted("   xml->StartElement(\"ROME\");\n");
+   buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneROME() || gAnalyzer->IsROMEAndARGUS())\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"Active\",\"true\");\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"Active\",\"false\");\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   buffer.AppendFormatted("   xml->StartElement(\"ARGUS\");\n");
+   buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() || gAnalyzer->IsROMEAndARGUS())\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"Active\",\"true\");\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      xml->WriteElement(\"Active\",\"false\");\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   buffer.AppendFormatted("   xml->EndElement();\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+
 
    // Write Configuration
    buffer.AppendFormatted("\n// Write Configuration\n");
@@ -5689,6 +7350,57 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"OutputFilePath\",fConfigData[index]->fPaths->fOutputFilePath.Data());\n");
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
+
+   // Window
+   buffer.AppendFormatted("   // window\n");
+   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fWindowModified || index==0)) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Window\");\n");
+   // Window/Scale
+   buffer.AppendFormatted("      if (index==0){\n");
+   buffer.AppendFormatted("         str.SetFormatted(\"%%2.1f\",gWindow->GetWindowScale());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",const_cast<Char_t*>(str.Data()));\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fScaleModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Scale\",const_cast<Char_t*>(fConfigData[index]->fWindow->fScale.Data()));\n");
+   // Window/StatusBar
+   buffer.AppendFormatted("      if (index==0){\n");
+   buffer.AppendFormatted("         if(gWindow->GetStatusBarSwitch())\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",const_cast<Char_t*>(str.Data()));\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fWindow->fStatusBarModified){\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"StatusBar\",fConfigData[index]->fWindow->fStatusBar.Data());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+
+   // AnalyzerController
+   buffer.AppendFormatted("   // AnalyzerController\n");
+   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fAnalyzerControllerModified || index==0)) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"AnalyzerController\");\n");
+   // AnalyzerController/Active
+   buffer.AppendFormatted("      if (index==0){\n");
+   buffer.AppendFormatted("         if(gWindow->IsControllerActive())\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"false\");\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Active\",const_cast<Char_t*>(str.Data()));\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fAnalyzerController->fActiveModified){\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Active\",fConfigData[index]->fAnalyzerController->fActive.Data());\n");
+   buffer.AppendFormatted("      }\n");
+   // AnalyzerController/NetFolder
+   buffer.AppendFormatted("      if (index==0){\n");
+   buffer.AppendFormatted("         if (gWindow->GetControllerNetFolder()!=NULL)\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"NetFolder\",gWindow->GetControllerNetFolder()->GetName());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fAnalyzerController->fNetFolderModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"NetFolder\",fConfigData[index]->fAnalyzerController->fNetFolder.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+
    // Folders
    buffer.AppendFormatted("   // folders\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fFoldersModified) {\n");
@@ -5721,6 +7433,56 @@ bool ROMEBuilder::WriteConfigCpp() {
    }
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
+   // NetFolder
+   if (numOfNetFolder > 0) {
+      buffer.AppendFormatted("   // NetFolder\n");
+      buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fNetFoldersModified || index==0)){\n");
+      buffer.AppendFormatted("      xml->StartElement(\"NetFolders\");\n");
+      for (i = 0; i < numOfNetFolder; i++) {
+         buffer.AppendFormatted("      if (fConfigData[index]->fNetFolderModified[%d] || index==0){\n", i);
+         buffer.AppendFormatted("         xml->StartElement(\"NetFolder\");\n");
+         buffer.AppendFormatted("         xml->WriteElement(\"NetFolderName\",\"%s\");\n",netFolderName[i].Data());
+         // NetFolder/Active
+         buffer.AppendFormatted("         if (index==0){\n");
+         buffer.AppendFormatted("            if(gAnalyzer->GetNetFolderActive(%d))\n", i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"true\");\n");
+         buffer.AppendFormatted("            else\n", i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Active\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fActiveModified)\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Active\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fActive.Data()));\n", i);
+         // NetFolder/Reconnect
+         buffer.AppendFormatted("         if (index==0){\n");
+         buffer.AppendFormatted("            if(gAnalyzer->GetNetFolderReconnect(%d))\n", i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Reconnect\",\"true\");\n");
+         buffer.AppendFormatted("            else\n", i);
+         buffer.AppendFormatted("               xml->WriteElement(\"Reconnect\",\"false\");\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fReconnectModified)\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Reconnect\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fReconnect.Data()));\n", i);
+         // NetFolder/Host
+         buffer.AppendFormatted("         if (index==0)\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"Host\",gAnalyzer->GetNetFolderHost(%d));\n", i);
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fHostModified)\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Host\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fHost.Data()));\n", i);
+         // NetFolder/Port
+         buffer.AppendFormatted("         if (index==0){\n");
+         buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetNetFolderPort(%d));\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Port\",const_cast<Char_t*>(str.Data()));\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fPortModified)\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Port\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fPort.Data()));\n", i);
+         // NetFolder/Root
+         buffer.AppendFormatted("         if (index==0)\n");
+         buffer.AppendFormatted("            xml->WriteElement(\"Root\",gAnalyzer->GetNetFolderRoot(%d));\n", i);
+         buffer.AppendFormatted("         else if (fConfigData[index]->fNetFolder[%d]->fRootModified)\n", i);
+         buffer.AppendFormatted("            xml->WriteElement(\"Root\",const_cast<Char_t*>(fConfigData[index]->fNetFolder[%d]->fRoot.Data()));\n", i);
+         buffer.AppendFormatted("         xml->EndElement();\n");
+         buffer.AppendFormatted("      }\n");
+      }
+      buffer.AppendFormatted("      xml->EndElement();\n");
+      buffer.AppendFormatted("   }\n");
+   }
    // Tasks
    buffer.AppendFormatted("   // tasks\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fTasksModified || index==0) {\n");
@@ -5729,6 +7491,15 @@ bool ROMEBuilder::WriteConfigCpp() {
    WriteTaskConfigWrite(buffer,-1,pointer,0);
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
+   // Tabs
+   buffer.AppendFormatted("   // tabs\n");
+   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fTabsModified || index==0)) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Tabs\");\n");
+   pointer.Resize(0);
+   WriteTabConfigWrite(buffer, -1, pointer, 0);
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+
    // Trees
    buffer.AppendFormatted("   // trees\n");
    if (numOfTree>0) {
@@ -5985,6 +7756,41 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      SocketInterface *fSocketInterface;\n");
    buffer.AppendFormatted("      bool   fSocketInterfaceModified;\n");
+   // paths
+   buffer.AppendFormatted("      // paths;\n");
+   buffer.AppendFormatted("      class Paths {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fInputFilePath;\n");
+   buffer.AppendFormatted("         bool        fInputFilePathModified;\n");
+   buffer.AppendFormatted("         ROMEString  fOutputFilePath;\n");
+   buffer.AppendFormatted("         bool        fOutputFilePathModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Paths *fPaths;\n");
+   buffer.AppendFormatted("      bool   fPathsModified;\n");
+   // window
+   buffer.AppendFormatted("      // window;\n");
+   buffer.AppendFormatted("      class Window {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString       fScale;\n");
+   buffer.AppendFormatted("         Bool_t           fScaleModified;\n");
+   buffer.AppendFormatted("         ROMEString       fStatusBar;\n");
+   buffer.AppendFormatted("         Bool_t           fStatusBarModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Window*          fWindow;\n");
+   buffer.AppendFormatted("      Bool_t           fWindowModified;\n");
+
+   // analyzer controller
+   buffer.AppendFormatted("      // analyzer controller;\n");
+   buffer.AppendFormatted("      class AnalyzerController {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString       fActive;\n");
+   buffer.AppendFormatted("         Bool_t           fActiveModified;\n");
+   buffer.AppendFormatted("         ROMEString       fNetFolder;\n");
+   buffer.AppendFormatted("         Bool_t           fNetFolderModified;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      AnalyzerController* fAnalyzerController;\n");
+   buffer.AppendFormatted("      Bool_t              fAnalyzerControllerModified;\n");
+
    // folders
    buffer.AppendFormatted("      // folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -6018,21 +7824,38 @@ bool ROMEBuilder::WriteConfigH() {
       }
    }
    buffer.AppendFormatted("      bool   fFoldersModified;\n");
-   // paths
-   buffer.AppendFormatted("      // paths;\n");
-   buffer.AppendFormatted("      class Paths {\n");
+   // NetFolder
+   buffer.AppendFormatted("      // NetFolder;\n");
+   buffer.AppendFormatted("      class NetFolder {\n");
    buffer.AppendFormatted("      public:\n");
-   buffer.AppendFormatted("         ROMEString  fInputFilePath;\n");
-   buffer.AppendFormatted("         bool        fInputFilePathModified;\n");
-   buffer.AppendFormatted("         ROMEString  fOutputFilePath;\n");
-   buffer.AppendFormatted("         bool        fOutputFilePathModified;\n");
+   buffer.AppendFormatted("         ROMEString       fActive;\n");
+   buffer.AppendFormatted("         Bool_t           fActiveModified;\n");
+   buffer.AppendFormatted("         ROMEString       fReconnect;\n");
+   buffer.AppendFormatted("         Bool_t           fReconnectModified;\n");
+   buffer.AppendFormatted("         ROMEString       fRoot;\n");
+   buffer.AppendFormatted("         Bool_t           fRootModified;\n");
+   buffer.AppendFormatted("         ROMEString       fHost;\n");
+   buffer.AppendFormatted("         Bool_t           fHostModified;\n");
+   buffer.AppendFormatted("         ROMEString       fPort;\n");
+   buffer.AppendFormatted("         Bool_t           fPortModified;\n");
    buffer.AppendFormatted("      };\n");
-   buffer.AppendFormatted("      Paths *fPaths;\n");
-   buffer.AppendFormatted("      bool   fPathsModified;\n");
+   if (numOfNetFolder > 0) {
+      buffer.AppendFormatted("      NetFolder*       fNetFolder[%d];\n", numOfNetFolder);
+      buffer.AppendFormatted("      Bool_t           fNetFolderModified[%d];\n", numOfNetFolder);
+      buffer.AppendFormatted("      Bool_t           fNetFoldersModified;\n");
+   }
+   buffer.AppendFormatted(" \n");
+
    // tasks
    buffer.AppendFormatted("      // tasks\n");
    WriteTaskConfigClass(buffer,-1,0);
    buffer.AppendFormatted("      bool   fTasksModified;\n");
+   // tabs
+   buffer.AppendFormatted("      // tabs\n");
+   WriteTabConfigClass(buffer, -1, 0);
+   buffer.AppendFormatted("      Bool_t           fTabsModified;\n");
+   buffer.AppendFormatted("\n");
+
    // trees
    buffer.AppendFormatted("      // trees\n");
    buffer.AppendFormatted("      ROMEString  fTreeAccumulate;\n");
@@ -6165,7 +7988,9 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   bool CheckConfiguration(const char *file);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
+   buffer.AppendFormatted("   bool ReadProgramConfiguration(ROMEXML *xml);\n");
    buffer.AppendFormatted("   bool ReadConfiguration(ROMEXML *xml,ROMEString& path,int index);\n");
+   buffer.AppendFormatted("   bool WriteProgramConfiguration(ROMEXML *xml);\n");
    buffer.AppendFormatted("   bool WriteConfiguration(ROMEXML *xml,int index);\n");
    buffer.AppendFormatted("   bool SetConfiguration(int modIndex,int index);\n");
 
@@ -8103,6 +9928,127 @@ bool ROMEBuilder::WriteTaskConfigClass(ROMEString &buffer,int parentIndex,int ta
    return true;
 }
 
+bool ROMEBuilder::WriteTabConfigWrite(ROMEString &buffer, Int_t parentIndex, ROMEString &pointer, Int_t tab)
+{
+   Int_t i;
+
+   // max tab switch name length
+   Int_t switchLen = -1;
+   ROMEString switchString;
+   for (i = 0; i < numOfTab; i++) {
+      Int_t index = tabParentIndex[i];
+      switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      if (switchLen < static_cast<Int_t>(switchString.Length()))
+         switchLen = switchString.Length();
+   }
+
+   ROMEString blank = "";
+   for (i = 0; i < tab; i++)
+      blank.Append("   ");
+
+   ROMEString pointerI;
+   for (i = 0; i < numOfTab; i++) {
+      if (tabParentIndex[i] != parentIndex)
+         continue;
+      Int_t index = tabParentIndex[i];
+      switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      pointerI = pointer;
+      pointerI.AppendFormatted("->f%sTab", tabName[i].Data());
+      buffer.AppendFormatted("%s      if (fConfigData[index]%sModified || index==0) {\n", blank.Data(), pointerI.Data());
+      buffer.AppendFormatted("%s         // %s\n", blank.Data(), pointerI.Data());
+      buffer.AppendFormatted("%s         xml->StartElement(\"Tab\");\n", blank.Data());
+      buffer.AppendFormatted("%s         xml->WriteElement(\"TabName\",\"%s\");\n", blank.Data(), tabName[i].Data());
+      buffer.AppendFormatted("%s         if (index==0) {\n", blank.Data());
+      buffer.AppendFormatted("%s            if (gWindow->GetTabSwitches()->%s)\n", blank.Data(), switchString.Data());
+      buffer.AppendFormatted("%s               xml->WriteElement(\"Active\",\"true\");\n", blank.Data());
+      buffer.AppendFormatted("%s            else\n", blank.Data());
+      buffer.AppendFormatted("%s               xml->WriteElement(\"Active\",\"false\");\n", blank.Data());
+      buffer.AppendFormatted("%s         }\n", blank.Data());
+      buffer.AppendFormatted("%s         else if (fConfigData[index]%s->fActiveModified)\n", blank.Data(), pointerI.Data());
+      buffer.AppendFormatted("%s            xml->WriteElement(\"Active\",const_cast<Char_t*>(fConfigData[index]%s->fActive.Data()));\n", blank.Data(), pointerI.Data());
+
+      // Steering parameter
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("%s         // steering parameters\n", blank.Data());
+         buffer.AppendFormatted("%s         if (fConfigData[index]%s->fSteeringModified || index==0) {\n", blank.Data(), pointerI.Data());
+         buffer.AppendFormatted("%s            ROMEString value;\n", blank.Data());
+         ROMEString pointerT;
+         ROMEString steerPointerT;
+         Int_t indexCounter = 0;
+         pointerT.SetFormatted("fConfigData[index]%s->fSteering", pointerI.Data());
+         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
+         WriteSteeringConfigWrite(buffer, 0, i+numOfTaskHierarchy+1, pointerT, steerPointerT, 3 + tab, &indexCounter);
+      }
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0)
+         buffer.AppendFormatted("%s         }\n", blank.Data());
+      WriteTabConfigWrite(buffer, i, pointerI, tab + 1);
+      buffer.AppendFormatted("%s         xml->EndElement();\n", blank.Data());
+      buffer.AppendFormatted("%s      }\n", blank.Data());
+   }
+
+   return kTRUE;
+}
+
+
+bool ROMEBuilder::WriteTabConfigClass(ROMEString &buffer, Int_t parentIndex, Int_t tab)
+{
+   Int_t j, i;
+
+   ROMEString blank = "";
+   for (i = 0; i < tab; i++)
+      blank.Append("   ");
+
+   for (i = 0; i < numOfTab; i++) {
+      if (tabParentIndex[i] != parentIndex)
+         continue;
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("%s      class %sTab {\n", blank.Data(), tabName[i].Data());
+      buffer.AppendFormatted("%s      public:\n", blank.Data());
+      buffer.AppendFormatted("%s         ROMEString       fActive;\n", blank.Data());
+      buffer.AppendFormatted("%s         Bool_t           fActiveModified;\n", blank.Data());
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("%s         // steering parameters\n", blank.Data());
+         buffer.AppendFormatted("%s         class Steering {\n", blank.Data());
+         buffer.AppendFormatted("%s         public:\n", blank.Data());
+         WriteSteeringConfigClass(buffer, 0, i+numOfTaskHierarchy+1, tab + 3);
+         buffer.AppendFormatted("%s         };\n", blank.Data());
+         buffer.AppendFormatted("%s         Steering*        fSteering;\n", blank.Data());
+         buffer.AppendFormatted("%s         Bool_t           fSteeringModified;\n", blank.Data());
+      }
+      // Constructor
+      buffer.AppendFormatted("%s      public:\n", blank.Data());
+      buffer.AppendFormatted("%s         %sTab() {\n", blank.Data(), tabName[i].Data());
+      if (numOfSteering[i+numOfTaskHierarchy+1] > 0) {
+         buffer.AppendFormatted("%s         fSteeringModified = kFALSE;\n", blank.Data());
+         buffer.AppendFormatted("%s         fSteering         = new Steering();\n", blank.Data());
+      }
+      for (j = 0; j < numOfTab; j++) {
+         if (tabParentIndex[j] != i)
+            continue;
+         buffer.AppendFormatted("%s            f%sTab = new %sTab();\n", blank.Data(), tabName[j].Data(), tabName[j].Data());
+      }
+      buffer.AppendFormatted("%s         };\n", blank.Data());
+
+      // Sub classes
+      WriteTabConfigClass(buffer, i, tab + 1);
+      buffer.AppendFormatted("%s      };\n", blank.Data());
+      buffer.AppendFormatted("%s      %sTab*          f%sTab;\n", blank.Data(), tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted("%s      Bool_t           f%sTabModified;\n", blank.Data(), tabName[i].Data());
+   }
+   return kTRUE;
+}
+
+
 bool ROMEBuilder::WriteEventLoopCpp() {
    int i;
 
@@ -8176,8 +10122,8 @@ bool ROMEBuilder::WriteEventLoopCpp() {
    // Tree Initialization
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
    if (numOfTree>0) {
-      buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
       buffer.AppendFormatted("   TTree *tree;\n");
       buffer.AppendFormatted("   ROMEString fileName;\n\n");
    }
@@ -8508,6 +10454,7 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
@@ -8521,9 +10468,14 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gAnalyzer = new %sAnalyzer(app);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   char str[200];\n");
+   buffer.AppendFormatted("   sprintf(str,\"ARGUS - %%s\", gAnalyzer->GetProgramName());\n");
+   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n", shortCut.Data());
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"ROME\",\"ROME Folder\");\n");
    buffer.AppendFormatted("   fMainFolder->Add(gAnalyzer);\n");
-   buffer.AppendFormatted("   app->ProcessLine(\"%sAnalyzer* gAnalyzer = ((%sAnalyzer*)((TFolder*)gROOT->FindObjectAny(\\\"ROME\\\"))->GetListOfFolders()->MakeIterator()->Next());\");\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("   gAnalyzer->SetCintInitialisation(\"%sAnalyzer* gAnalyzer = ((%sAnalyzer*)((TFolder*)gROOT->FindObjectAny(\\\"ROME\\\"))->GetListOfFolders()->MakeIterator()->Next());\");\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("   app->ProcessLine(gAnalyzer->GetCintInitialisation());\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!gAnalyzer->Start(argc, argv)) {\n");
    buffer.AppendFormatted("      delete gAnalyzer;\n");
@@ -8742,11 +10694,14 @@ void ROMEBuilder::StartBuilder()
 
    numOfFolder = -1;
    numOfTask = -1;
+   numOfTaskHierarchy = -1;
    numOfTree = -1;
    numOfEvent = -1;
    numOfDAQ = -1;
    numOfDB = -1;
    numOfIncludeDirectories = -1;
+   numOfTab = -1;
+   numOfNetFolder = -1;
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
@@ -8964,6 +10919,78 @@ void ROMEBuilder::StartBuilder()
                   numOfTaskHierarchy++;
                   continue;
                }
+               if (!strcmp((const char*)name,"Tabs")) {
+                  if (numOfTaskHierarchy==-1)
+                     numOfTaskHierarchy++;
+                  // initialization
+                  numOfTab = -1;
+                  // output
+                  if (makeOutput)
+                     cout << "\n\nTabs:" << endl;
+                  while (xml->NextLine()) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     // tab
+                     if (type == 1 && !strcmp(name, "Tab")) {
+                        tabParentIndex[numOfTab + 1] = taskHierarchyParentIndex[numOfTab + 1] = -1;
+                        recursiveTabDepth = 0;
+                        if (!ReadXMLTab())
+                           return;
+                     }
+                     // tabs end
+                     if (type == 15 && !strcmp(name, "Tabs")) {
+                        break;
+                     }
+                  }
+                  // check input
+                  for (i = 0; i < numOfTab; i++) {
+                     for (j = i + 1; j < numOfTab; j++) {
+                        if (tabName[i] == tabName[j]) {
+                           cout << "\nTab '" << tabName[i].Data() << "' is defined twice !" << endl;
+                           cout << "Terminating program." << endl;
+                           return;
+                        }
+                     }
+                  }
+                  // count tabs
+                  numOfTab++;
+                  for (i = 0; i < numOfTab; i++)
+                     numOfThreadFunctions[i]++;
+               }
+
+               if (!strcmp((const char*)name,"NetFolders")) {
+                  // initialization
+                  numOfNetFolder = -1;
+                  // output
+                  if (makeOutput)
+                     cout << "\n\nNetFolders:" << endl;
+                  while (xml->NextLine()) {
+                     type = xml->GetType();
+                     name = xml->GetName();
+                     // net object
+                     if (type == 1 && !strcmp(name, "NetFolder")) {
+                        if (!ReadXMLNetFolder())
+                           return;
+                     }
+                     // net folders end
+                     if (type == 15 && !strcmp(name, "NetFolders")) {
+                        break;
+                     }
+                  }
+                  // check input
+                  for (i = 0; i < numOfNetFolder; i++) {
+                     for (j = i + 1; j < numOfNetFolder; j++) {
+                        if (netFolderName[i] == netFolderName[j]) {
+                           cout << "\nNet folder '" << netFolderName[i].Data() << "' is defined twice !" << endl;
+                           cout << "Terminating program." << endl;
+                           return;
+                        }
+                     }
+                  }
+                  // count net object
+                  numOfNetFolder++;
+               }
+
                if (!strcmp((const char*)name,"Trees")) {
                   numOfTree = -1;
                   if (!ReadXMLTree()) return;
@@ -8981,6 +11008,8 @@ void ROMEBuilder::StartBuilder()
                   if (!ReadXMLMidasBanks()) return;
                }
                if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
+                  if (numOfTaskHierarchy==-1)
+                     numOfTaskHierarchy++;
                   readGlobalSteeringParameters = true;
                   // output
                   if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
@@ -9036,6 +11065,10 @@ void ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    path.SetFormatted("%sinclude/tasks", outDir.Data());
    gSystem->MakeDirectory(path.Data());
+   path.SetFormatted("%ssrc/tabs", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
+   path.SetFormatted("%sinclude/tabs", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
    if (hasFolderUserCode) {
       path.SetFormatted("%ssrc/folders", outDir.Data());
       gSystem->MakeDirectory(path.Data());
@@ -9056,25 +11089,38 @@ void ROMEBuilder::StartBuilder()
    }
 
    // write classes
-   if (makeOutput) cout << "\n\nFramework :" << endl;
-   if (makeOutput) cout << "\n\nAnalyzer:" << endl;
+   if (makeOutput) 
+      cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return;
    if (!WriteAnalyzerH()) return;
    if (!WriteAnalyzerF()) return;
-   if (makeOutput) cout << "\n\nFolders:" << endl;
+   if (makeOutput) 
+      cout << "\n\nWindow:" << endl;
+   if (!WriteWindowCpp()) return;
+   if (!WriteWindowH()) return;
+   if (makeOutput) 
+      cout << "\n\nFolders:" << endl;
    if (!WriteFolderCpp()) return;
    if (!WriteFolderH()) return;
-   if (makeOutput) cout << "\n\nTasks:" << endl;
+   if (makeOutput) 
+      cout << "\n\nTasks:" << endl;
    if (!WriteTaskCpp()) return;
    if (!WriteTaskF()) return;
    if (!WriteTaskH()) return;
-   if (makeOutput) cout << "\n\nUser DAQ Systems:" << endl;
+   if (makeOutput)
+      cout << "\n\nTabs:" << endl;
+   if (!WriteTabCpp()) return;
+   if (!WriteTabH()) return;
+   if (makeOutput) 
+      cout << "\n\nUser DAQ Systems:" << endl;
    if (!WriteDAQCpp()) return;
    if (!WriteDAQH()) return;
-   if (makeOutput) cout << "\n\nUser Database Interfaces:" << endl;
+   if (makeOutput) 
+      cout << "\n\nUser Database Interfaces:" << endl;
    if (!WriteDBCpp()) return;
    if (!WriteDBH()) return;
-   if (makeOutput) cout << "\n\nFramework:" << endl;
+   if (makeOutput) 
+      cout << "\n\nFramework:" << endl;
    if (!WriteSteering(numOfTaskHierarchy)) return;
    if (!WriteConfigCpp()) return;
    if (!WriteConfigH()) return;
@@ -9150,6 +11196,7 @@ void ROMEBuilder::AddIncludeDirectories() {
    includeDirectories = new ROMEStrArray(numOfIncludeDirectories);
    includeDirectories->AddFormatted("$(ROOTSYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/include/");
+   includeDirectories->AddFormatted("$(ROMESYS)/argus/include/");
    includeDirectories->AddFormatted(".");
    includeDirectories->AddFormatted("./include/");
 #if defined( __ARGUS__ ) //ARGUS
@@ -9191,6 +11238,7 @@ void ROMEBuilder::AddRomeHeaders() {
    romeHeaders->Add("$(ROMESYS)/include/ROMEXMLDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/strlcpy.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
+   romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
    if (this->mysql)
@@ -9211,64 +11259,8 @@ void ROMEBuilder::AddRomeDictHeaders() {
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
+   romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
 }
-void ROMEBuilder::AddFrameworkHeaders() {
-   frameworkHeaders = new ROMEStrArray(7);
-   frameworkHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
-   frameworkHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
-}
-void ROMEBuilder::AddFrameworkDictHeaders() {
-   frameworkDictHeaders = new ROMEStrArray(1);
-   frameworkDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
-}
-void ROMEBuilder::AddFolderHeaders() {
-   int i;
-   folderHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0)*2);
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (folderUserCode[i]) {
-            folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
-            folderHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
-         }
-         else {
-            folderHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
-         }
-      }
-   }
-}
-void ROMEBuilder::AddTaskHeaders() {
-   int i;
-   taskHeaders = new ROMEStrArray(TMath::Max(numOfTask,0)*2);
-   for (i=0;i<numOfTask;i++) {
-      if (taskUserCode[i]) {
-         taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
-         taskHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-      }
-      else {
-         taskHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      }
-   }
-}
-void ROMEBuilder::AddDAQHeaders() {
-   int i;
-   daqHeaders = new ROMEStrArray(TMath::Max(numOfDAQ,0));
-   for (i=0;i<numOfDAQ;i++) {
-      daqHeaders->AddFormatted("include/daqs/%s%s.h",shortCut.Data(),daqName[i].Data());
-   }
-}
-void ROMEBuilder::AddDatabaseHeaders() {
-   int i;
-   databaseHeaders = new ROMEStrArray(TMath::Max(numOfDB,0));
-   for (i=0;i<numOfDB;i++) {
-      databaseHeaders->AddFormatted("include/databases/%s%sDataBase.h",shortCut.Data(),dbName[i].Data());
-   }
-}
-
 void ROMEBuilder::AddRomeSources(){
    romeSources = new ROMEStrArray(28);
    romeSources->Add("$(ROMESYS)/src/mxml.c");
@@ -9291,6 +11283,7 @@ void ROMEBuilder::AddRomeSources(){
    romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
    romeSources->Add("$(ROMESYS)/src/strlcpy.c");
    romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
+   romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");
    if (this->mysql)
@@ -9308,17 +11301,103 @@ void ROMEBuilder::AddRomeSources(){
    if (romeDictHeaders->GetEntriesFast()>0)
       romeSources->AddFormatted("dict/ROMEDict.cpp");
 }
+void ROMEBuilder::AddArgusHeaders() {
+   argusHeaders = new ROMEStrArray(1);
+   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
+   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
+   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
+}
+void ROMEBuilder::AddArgusSources(){
+   argusSources = new ROMEStrArray(6);
+   argusSources->Add("$(ROMESYS)/argus/src/ArgusWindow.cpp");
+   argusSources->Add("$(ROMESYS)/argus/src/ArgusTextDialog.cpp");
+   argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
+   if (argusHeaders->GetEntriesFast()>0)
+      argusSources->AddFormatted("dict/ARGUSDict.cpp",shortCut.Data());
+}
+void ROMEBuilder::AddFrameworkHeaders() {
+   int i;
+   frameworkHeaders = new ROMEStrArray(8+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
+   frameworkHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+   frameworkHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i]) {
+         frameworkHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+      }
+      else {
+         frameworkHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      }
+   }
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i]) {
+            frameworkHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+         }
+         else {
+            frameworkHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+         }
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      frameworkHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+   }
+}
+void ROMEBuilder::AddFrameworkDictHeaders() {
+   int i;
+   frameworkDictHeaders = new ROMEStrArray(2+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
+   frameworkDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   frameworkDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i]) {
+         frameworkDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+      }
+      else {
+         frameworkDictHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      }
+   }
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i]) {
+            frameworkDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+         }
+         else {
+            frameworkDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+         }
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      frameworkDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+   }
+}
 void ROMEBuilder::AddFrameworkSources(){
-   frameworkSources = new ROMEStrArray(5);
+   frameworkSources = new ROMEStrArray(10);
    frameworkSources->AddFormatted("src/generated/main.cpp");
    frameworkSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
-   frameworkSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
    frameworkSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
+   frameworkSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
+   frameworkSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
    frameworkSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
    frameworkSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
    frameworkSources->AddFormatted("src/generated/%sDataBaseDAQ.cpp",shortCut.Data());
    if (frameworkDictHeaders->GetEntriesFast()>0)
       frameworkSources->AddFormatted("dict/%sFrameworkDict.cpp",shortCut.Data());
+}
+void ROMEBuilder::AddFolderHeaders() {
+   int i;
+   folderHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i]) {
+            folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
+         }
+      }
+   }
 }
 void ROMEBuilder::AddFolderSources(){
    int i;
@@ -9331,6 +11410,15 @@ void ROMEBuilder::AddFolderSources(){
    if (folderHeaders->GetEntriesFast()>0)
       folderSources->AddFormatted("dict/%sFolderDict.cpp",shortCut.Data());
 }
+void ROMEBuilder::AddTaskHeaders() {
+   int i;
+   taskHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i]) {
+         taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      }
+   }
+}
 void ROMEBuilder::AddTaskSources(){
    int i;
    taskSources = new ROMEStrArray(numOfTask+1);
@@ -9340,6 +11428,33 @@ void ROMEBuilder::AddTaskSources(){
    if (taskHeaders->GetEntriesFast()>0)
       taskSources->AddFormatted("dict/%sTaskDict.cpp",shortCut.Data());
 }
+void ROMEBuilder::AddTabHeaders() {
+   int i;
+   tabHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
+   for (i=0;i<numOfTab;i++) {
+      tabHeaders->AddFormatted("include/tabs/%sT%s.h",shortCut.Data(),tabName[i].Data());
+   }
+}
+
+
+void ROMEBuilder::AddTabSources(){
+   int i;
+   tabSources = new ROMEStrArray(numOfTab+1);
+   for (i=0;i<numOfTab;i++) {
+      tabSources->AddFormatted("src/tabs/%sT%s.cpp",shortCut.Data(),tabName[i].Data());
+   }
+   if (tabHeaders->GetEntriesFast()>0)
+      tabSources->AddFormatted("dict/%sTabDict.cpp",shortCut.Data());
+}
+
+
+void ROMEBuilder::AddDAQHeaders() {
+   int i;
+   daqHeaders = new ROMEStrArray(TMath::Max(numOfDAQ,0));
+   for (i=0;i<numOfDAQ;i++) {
+      daqHeaders->AddFormatted("include/daqs/%s%s.h",shortCut.Data(),daqName[i].Data());
+   }
+}
 void ROMEBuilder::AddDAQSources(){
    int i;
    daqSources = new ROMEStrArray(3+TMath::Max(numOfDAQ,0));
@@ -9347,6 +11462,14 @@ void ROMEBuilder::AddDAQSources(){
       daqSources->AddFormatted("src/daqs/%s%s.cpp",shortCut.Data(),daqName[i].Data());
    }
 }
+void ROMEBuilder::AddDatabaseHeaders() {
+   int i;
+   databaseHeaders = new ROMEStrArray(TMath::Max(numOfDB,0));
+   for (i=0;i<numOfDB;i++) {
+      databaseHeaders->AddFormatted("include/databases/%s%sDataBase.h",shortCut.Data(),dbName[i].Data());
+   }
+}
+
 void ROMEBuilder::AddDatabaseSources(){
    int i;
    databaseSources = new ROMEStrArray(TMath::Max(numOfDB,0));
@@ -9839,16 +11962,20 @@ void ROMEBuilder::WriteMakefile() {
    AddIncludeDirectories();
    AddRomeHeaders();
    AddRomeDictHeaders();
+   AddArgusHeaders();
    AddFrameworkHeaders();
    AddFrameworkDictHeaders();
    AddFolderHeaders();
    AddTaskHeaders();
+   AddTabHeaders();
    AddDAQHeaders();
    AddDatabaseHeaders();
    AddRomeSources();
+   AddArgusSources();
    AddFrameworkSources();
    AddFolderSources();
    AddTaskSources();
+   AddTabSources();
    AddDAQSources();
    AddDatabaseSources();
 
@@ -9878,8 +12005,10 @@ void ROMEBuilder::WriteMakefile() {
 // Objects
 // -------
    WriteMakefileObjects(buffer,romeSources);
+   WriteMakefileObjects(buffer,argusSources);
    WriteMakefileObjects(buffer,folderSources);
    WriteMakefileObjects(buffer,taskSources);
+   WriteMakefileObjects(buffer,tabSources);
    WriteMakefileObjects(buffer,frameworkSources);
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
@@ -9914,9 +12043,11 @@ void ROMEBuilder::WriteMakefile() {
 
 // Dictionary
    WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
+   WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionary(buffer,shortCut+"FrameworkDict",frameworkDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"FolderDict",folderHeaders);
    WriteMakefileDictionary(buffer,shortCut+"TaskDict",taskHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"TabDict",tabHeaders);
    WriteMakefileUserDictionary(buffer);
 	
 
@@ -9948,8 +12079,10 @@ void ROMEBuilder::WriteMakefile() {
 // Compile Statements
 // ------------------
    WriteMakefileCompileStatements(buffer,romeSources);
+   WriteMakefileCompileStatements(buffer,argusSources);
    WriteMakefileCompileStatements(buffer,frameworkSources);
    WriteMakefileCompileStatements(buffer,taskSources);
+   WriteMakefileCompileStatements(buffer,tabSources);
    WriteMakefileCompileStatements(buffer,folderSources);
    WriteMakefileCompileStatements(buffer,daqSources);
    WriteMakefileCompileStatements(buffer,databaseSources);
@@ -10273,24 +12406,51 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
       xml->WriteAttribute("Filter","cpp;c;cxx");
       for (i=0;i<numOfMFSources;i++) {
          xml->StartElement("File");
-         AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
-         str.SetFormatted("%s\\%s.%s",mfSourceFilePath[i].Data(),name.Data(),ext.Data());
-         str.ReplaceAll("//","/");
-         str.ReplaceAll("/\\","/");
-         str.ReplaceAll("\\/","/");
-         str.ReplaceAll("\\\\","/");
+         str.SetFormatted("%s\\%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
+         str.ReplaceAll("//","\\");
+         str.ReplaceAll("/\\","\\");
+         str.ReplaceAll("\\/","\\");
+         str.ReplaceAll("\\\\","\\");
+         str.ReplaceAll("/","\\");
          xml->WriteAttribute("RelativePath",str.Data());
          xml->EndElement();
       }
       xml->StartElement("File");
       str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
-      str.ReplaceAll("//","/");
-      str.ReplaceAll("/\\","/");
-      str.ReplaceAll("\\/","/");
-      str.ReplaceAll("\\\\","/");
+      str.ReplaceAll("//","\\");
+      str.ReplaceAll("/\\","\\");
+      str.ReplaceAll("\\/","\\");
+      str.ReplaceAll("\\\\","\\");
+      str.ReplaceAll("/","\\");
       xml->WriteAttribute("RelativePath",str.Data());
       WriteVisualProjectProjWarningLevel(xml,"0");
       xml->EndElement();
+      xml->EndElement();
+   }
+}
+void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml) {
+   int i;
+   ROMEString path;
+   ROMEString name;
+   ROMEString ext;
+   ROMEString str;
+   if (numOfMFSources>0) {
+      xml->StartElement("Filter");
+      xml->WriteAttribute("Name","User Classes");
+      xml->WriteAttribute("Filter","h");
+      for (i=0;i<numOfMFSources;i++) {
+         if (mfHeaderFileName[i].Length()==0)
+            continue;
+         xml->StartElement("File");
+         str.SetFormatted("%s\\%s",mfHeaderFilePath[i].Data(),mfHeaderFileName[i].Data());
+         str.ReplaceAll("//","\\");
+         str.ReplaceAll("/\\","\\");
+         str.ReplaceAll("\\/","\\");
+         str.ReplaceAll("\\\\","\\");
+         str.ReplaceAll("/","\\");
+         xml->WriteAttribute("RelativePath",str.Data());
+         xml->EndElement();
+      }
       xml->EndElement();
    }
 }
@@ -10335,12 +12495,14 @@ void ROMEBuilder::WriteVisualProjects(int version)
    xml->WriteAttribute("UniqueIdentifier","{4FC737F1-C7A5-4376-A066-2A32D752A2FF}");
 
    WriteVisualProjectProjSources(xml,taskSources,"Tasks");
+   WriteVisualProjectProjSources(xml,tabSources,"Tabs");
    WriteVisualProjectProjSources(xml,daqSources,"User DAQs");
    WriteVisualProjectProjSources(xml,databaseSources,"User Databases");
    WriteVisualProjectProjSources(xml,folderSources,"Folders");
    WriteVisualProjectProjUserSources(xml);
    WriteVisualProjectProjSources(xml,frameworkSources,"Generated");
    WriteVisualProjectProjSources(xml,romeSources,"ROME");
+   WriteVisualProjectProjSources(xml,argusSources,"ARGUS");
 
    // End Source Files
    xml->EndElement();
@@ -10352,11 +12514,14 @@ void ROMEBuilder::WriteVisualProjects(int version)
    xml->WriteAttribute("UniqueIdentifier","{93995380-89BD-4b04-88EB-625FBE52EBFB}");
 
    WriteVisualProjectProjHeaders(xml,taskHeaders,"Tasks");
+   WriteVisualProjectProjHeaders(xml,tabHeaders,"Tabs");
    WriteVisualProjectProjHeaders(xml,daqHeaders,"User DAQs");
    WriteVisualProjectProjHeaders(xml,databaseHeaders,"User Databases");
    WriteVisualProjectProjHeaders(xml,folderHeaders,"Folders");
+   WriteVisualProjectProjUserHeaders(xml);
    WriteVisualProjectProjHeaders(xml,frameworkHeaders,"Generated");
    WriteVisualProjectProjHeaders(xml,romeHeaders,"ROME");
+   WriteVisualProjectProjHeaders(xml,argusHeaders,"ARGUS");
 
    // End Header Files
    xml->EndElement();
@@ -10370,10 +12535,6 @@ void ROMEBuilder::WriteVisualProjects(int version)
 
    xml->EndDocument();
    delete xml;
-}
-void ROMEBuilder::GetRelativePath(const char* absolutePath,const char* referencePath,ROMEString &relativePath)
-{
-   relativePath = absolutePath;
 }
 void ROMEBuilder::WriteUserMakeFile()
 {
@@ -11290,5 +13451,113 @@ void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMESt
    else {
       nameOfFile = str(0,ind);
       extensionOfFile = str(ind+1,str.Length()-ind-1);
+   }
+}
+void ROMEBuilder::WriteHeader(ROMEString& buffer, const Char_t* author, Bool_t overwrite)
+{
+   if (author && strlen(author))
+      buffer.AppendFormatted("// Author: %s\n\n", author);
+
+   if (overwrite) {
+      buffer.AppendFormatted("/******************************************************************************\n");
+#if defined( __ARGUS__ )
+      buffer.AppendFormatted(" *         *** This file will be overwritten by the ArgusBuilder  ***         *\n");
+#else
+      buffer.AppendFormatted(" *         ***  This file will be overwritten by the ROMEBuilder  ***         *\n");
+#endif
+      buffer.AppendFormatted(" *          ***      Don't make manual changes to this file      ***          *\n");
+      buffer.AppendFormatted(" ******************************************************************************/\n\n");
+   }
+}
+
+#define ALIGN_DESC // align description 80 chars.
+void ROMEBuilder::WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark)
+{
+   const Int_t nc = 80;
+   ROMEString format;
+   ROMEString desc = description;
+   ROMEStrArray descs;
+   Int_t p, pLast;
+#if defined ( ALIGN_DESC )
+   Int_t pSpace;
+#endif
+   Int_t i;
+   Char_t *tmp = new Char_t[desc.Length() + 1];
+
+   // analyze description
+   if (description && strlen(description)) {
+      pLast = 0;
+#if defined ( ALIGN_DESC )
+      pSpace = 0;
+#endif
+      for (p = 0; p < desc.Length(); p++) {
+         if (p == desc.Length() - 1) {
+            strcpy(tmp, desc(pLast, p - pLast).Data());
+            tmp[p - pLast + 1] = '\0';
+            if(tmp[p - pLast] == '\n')
+               tmp[p - pLast] = '\0';
+            descs.Add(tmp);
+            break;
+         }
+         else if (desc[p] == '\n') {
+            strcpy(tmp, desc(pLast, p - 1 - pLast).Data());
+            tmp[ p - 1 - pLast + 1] = '\0';
+            descs.Add(tmp);
+            pLast = p + 1;
+            continue;
+         }
+#if defined ( ALIGN_DESC )
+         else if (isspace(desc[p])) {
+            pSpace = p;
+         }
+         else if (p >= pLast + nc - static_cast<int>(strlen("//  //")) - 1) {
+            if(pLast > pSpace) {
+               strcpy(tmp, desc(pLast, p - pLast).Data());
+               tmp[p - pLast + 1] = '\0';
+               descs.Add(tmp);
+               pLast = p;
+            }
+            else {
+               strcpy(tmp, desc(pLast, pSpace - pLast).Data());
+               tmp[pSpace - pLast + 1] = '\0';
+               descs.Add(tmp);
+               pLast = pSpace + 1;
+            }
+            continue;
+         }
+#endif
+      }
+   }
+   delete [] tmp;
+
+   if (className && strlen(className)) {
+      buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+      buffer.AppendFormatted("//                                                                            //\n");
+      format.SetFormatted("// %%s%%%ds //\n", nc - strlen("//  //") - strlen(className));
+      buffer.AppendFormatted(format.Data(), className, "");
+      buffer.AppendFormatted("//                                                                            //\n");
+      for (i = 0; i < descs.GetEntries(); i++) {
+#if defined ( ALIGN_DESC )
+         format.SetFormatted("// %%s%%%ds //\n", nc - strlen("//  //") - descs[i].Length());
+         buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+#else
+         buffer.AppendFormatted("// %s\n", descs[i].Data());
+#endif
+      }
+      buffer.AppendFormatted("//                                                                            //\n");
+      if (endmark) {
+         buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
+#if defined( __ARGUS__ )
+         buffer.AppendFormatted("/*  This header was generated by ArgusBuilder. Manual changes above the       *\n");
+         buffer.AppendFormatted(" * following line will be lost next time ArgusBuilder is executed.            */\n");
+#else
+         buffer.AppendFormatted("/*  This header was generated by ROMEBuilder. Manual changes above the        *\n");
+         buffer.AppendFormatted(" * following line will be lost next time ROMEBuilder is executed.             */\n");
+#endif
+         buffer.AppendFormatted("/////////////////////////////////////----///////////////////////////////////////");
+      }
+      else {
+         buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////");
+      }
    }
 }

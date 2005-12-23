@@ -35,7 +35,7 @@ int main(int argc, char *argv[])
 
    ROMEBuilder* romeb = new ROMEBuilder();
 
-   romeb->romeVersion = "Version 1.2";
+   romeb->romeVersion = "Version 2.0";
    
    ROMEString xmlFile = "";
 

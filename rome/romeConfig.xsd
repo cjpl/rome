@@ -359,6 +359,43 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="NetFolderDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the NetFolder configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="NetFolderName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the NetFolder. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Activate flag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Reconnect" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the framework tries to reconnect if the connection is lost. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Host" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The host of the NetFolder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Port" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The port for the connection</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Root" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The host's root folder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="TaskDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the task configuration.</xs:documentation>
@@ -392,6 +429,38 @@
 			<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a sub-task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TabDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the tab configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TabName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the tab.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Inactive tasks are not executed by the framework.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a steering parameter field of a task.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a steering parameter group of a task.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a sub-tab.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -477,6 +546,81 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="WindowDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the main window property.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Scale" type="xs:float" default="1.0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Basic size of main window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StatusBar" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Basic size of main window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AnalyzerControllerDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Title of the menu item.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NetFolderName" type="xs:string" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ROMEDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the ROME settings.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the progam will be an analyzer. Default is true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ARGUSDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the ARGUSsettings.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the progam will be a monitor. Default is true.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ProgramConfigurationDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the program configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ROME" type="ROMEDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The ROME settings. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ARGUS" type="ARGUSDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The ARGUS settings. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="ConfigurationDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the configuration.</xs:documentation>
@@ -522,6 +666,16 @@
 					<xs:documentation>Describes the file paths the framework is using. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Window" type="WindowDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the main window property.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the Analyzer Contoller Settings.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="Folders" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the folders in the framework.</xs:documentation>
@@ -536,6 +690,20 @@
 					</xs:sequence>
 				</xs:complexType>
 			</xs:element>
+			<xs:element name="NetFolders" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the NetFolders in the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="NetFolder" type="NetFolderDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the NetFolder configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
 			<xs:element name="Tasks" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the tasks in the framework.</xs:documentation>
@@ -545,6 +713,20 @@
 						<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>Describes the task configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Tabs" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the tabs.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Tab" type="TabDesc" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the tab configuration.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 					</xs:sequence>
@@ -610,6 +792,11 @@
 		</xs:annotation>
 		<xs:complexType>
 			<xs:sequence>
+				<xs:element name="ProgramConfiguration" type="ProgramConfigurationDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Describes the program configuration. (required)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="MainConfiguration" type="ConfigurationDesc">
 					<xs:annotation>
 						<xs:documentation>Describes the main framework configuration. (required)</xs:documentation>
