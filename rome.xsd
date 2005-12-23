@@ -324,7 +324,7 @@
 	</xs:complexType>
 	<xs:complexType name="NetFolderDesc">
 		<xs:annotation>
-			<xs:documentation>Description of net folders.</xs:documentation>
+			<xs:documentation>Description of net folders. Net folders are folders accessed over the socket interface.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="NetFolderName" type="xs:string">
@@ -555,12 +555,12 @@
 			<xs:documentation>Description of MenuItems.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="MenuItemTitle" type="xs:string" maxOccurs="1" minOccurs="0">
+			<xs:element name="MenuItemTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Title of the menu item.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="MenuItemEnumName" type="xs:string" maxOccurs="1" minOccurs="0">
+			<xs:element name="MenuItemEnumName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Enumeration name.</xs:documentation>
 				</xs:annotation>
@@ -572,17 +572,17 @@
 			<xs:documentation>Description of MenuItems.</xs:documentation>
 		</xs:annotation>
 		<xs:choice minOccurs="0" maxOccurs="unbounded">
-			<xs:element name="MenuItem" type="MenuItemDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="MenuItem" type="MenuItemDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines the menu item.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Menu" type="MenuDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="Menu" type="MenuDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines the menu.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Line" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="Line" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Put a line.</xs:documentation>
 				</xs:annotation>
@@ -594,12 +594,12 @@
 			<xs:documentation>Description of Menu.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="MenuTitle" type="xs:string" maxOccurs="1" minOccurs="0">
+			<xs:element name="MenuTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Title of the menu.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="MenuItems" type="MenuItemsDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="MenuItems" type="MenuItemsDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines the menu items.</xs:documentation>
 				</xs:annotation>
@@ -608,10 +608,10 @@
 	</xs:complexType>
 	<xs:complexType name="MenusDesc">
 		<xs:annotation>
-			<xs:documentation>Description of Menus.</xs:documentation>
+			<xs:documentation>Description of Menus. Only used for ARGUS displays.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="Menu" type="MenuDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="Menu" type="MenuDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines a menu.</xs:documentation>
 				</xs:annotation>
@@ -623,12 +623,12 @@
 			<xs:documentation>Description of ThreadFunction.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="FunctionName" type="xs:string" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="FunctionName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Name of a thread function.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="FunctionArgument" type="xs:string" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="FunctionArgument" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Argument for the thread function.</xs:documentation>
 				</xs:annotation>
@@ -637,10 +637,10 @@
 	</xs:complexType>
 	<xs:complexType name="ThreadFunctionsDesc">
 		<xs:annotation>
-			<xs:documentation>Description of ThreadFunctions.</xs:documentation>
+			<xs:documentation>Description of ThreadFunctions. Only used for ARGUS displays.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ThreadFunction" type="ThreadFunctionDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="ThreadFunction" type="ThreadFunctionDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Defines a thread function.</xs:documentation>
 				</xs:annotation>
@@ -649,7 +649,7 @@
 	</xs:complexType>
 	<xs:complexType name="TabDesc">
 		<xs:annotation>
-			<xs:documentation>Description of Tabs.</xs:documentation>
+			<xs:documentation>Description of Tabs. Only used for ARGUS displays.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="TabName" type="xs:string">
@@ -678,22 +678,22 @@
 						<xs:documentation>The description of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="SteeringParameters" type="SteeringParametersDesc" maxOccurs="unbounded" minOccurs="0">
+				<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines the steering parameters of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThreadFunctions" type="ThreadFunctionsDesc" maxOccurs="unbounded" minOccurs="0">
+				<xs:element name="ThreadFunctions" type="ThreadFunctionsDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines the thread functions of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Menus" type="MenusDesc" maxOccurs="unbounded" minOccurs="0">
+				<xs:element name="Menus" type="MenusDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines the menus of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Tab" type="TabDesc" maxOccurs="unbounded" minOccurs="0">
+				<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines a Tab.</xs:documentation>
 					</xs:annotation>
