@@ -175,6 +175,9 @@ protected:
    // Event Based Data Base
    bool          fEventBasedDataBase;              //! Flag for Event Based Data Base
 
+   // GUI Window
+   Float_t          fWindowScale;                  //! Window scale
+
    // NetFolder
    Int_t            fNumberOfNetFolders;           //! Number of net folders
    TNetFolder**     fNetFolder;                    //! netfoldr handle
@@ -207,6 +210,10 @@ public:
    // Window Closed
    bool          IsWindowClosed() { return fWindowClosed; }
    void          WindowClosed() { fWindowClosed = true; }
+   Float_t       GetWindowScale() { return fWindowScale; }
+   void          SetWindowScale(Float_t scale) { fWindowScale = scale; }
+   void          SetWindowScale(Char_t* scale) { Char_t* cstop; fWindowScale = (Float_t)strtod(scale,&cstop); }
+   void          SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); }
 
    // Output
    void          PrintText(char text);
