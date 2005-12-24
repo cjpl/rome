@@ -1,0 +1,10 @@
+ARGUS is merged with ROME.
+Please use romebuilder instead of argusbuilder.
+
+There are three changes to make you project work.
+
+(1) Replace <ArgusMonitorDefinition> tag in your definition file with <ROMEFrameworkDefinition>.
+
+(2) Replace #include <???Monitor.h> with #include <???Analyzer.h> in your source code.
+
+(3) Replace gMonitor with gAnalyzer in your code.
