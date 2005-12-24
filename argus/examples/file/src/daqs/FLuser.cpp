@@ -1,5 +1,5 @@
 #include <include/daqs/FLuser.h>
-#include <include/generated/FLMonitor.h>
+#include <include/generated/FLAnalyzer.h>
 #include <include/generated/FLConfig.h>
 
 FLuser::FLuser()

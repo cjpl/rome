@@ -52,7 +52,7 @@
 					<FieldType>TString</FieldType>
 					<FieldComment>Run number</FieldComment>
 					<DataBaseName>myxml</DataBaseName>
-					<DataBasePath>"/RunCatalog[id=%d]/comment",gMonitor->GetODB()->GetRunNumber()</DataBasePath>
+					<DataBasePath>"/RunCatalog[id=%d]/comment",gAnalyzer->GetODB()->GetRunNumber()</DataBasePath>
 				</Field>
 				<Field>
 					<FieldName>multipleDimension</FieldName>

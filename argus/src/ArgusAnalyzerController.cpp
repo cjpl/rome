@@ -36,10 +36,10 @@ ClassImp(ArgusAnalyzerController)
 // Horizontal frame which contains picture buttons
    fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 4 + 4, 32 + 4);
 
-   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ARGUSSYS/icons/play.xpm"), B_Play);
-   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ARGUSSYS/icons/next.xpm"), B_Next);
-   fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ARGUSSYS/icons/stop.xpm"), B_Stop);
-   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ARGUSSYS/icons/frwd.xpm"), B_Frwd);
+   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
+   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
+   fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
+   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
 
    fPlayButton->AllowStayDown(kTRUE);
 
@@ -139,7 +139,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          switch (parm1) {
          case B_Play:
             if (fPlayButton->IsDown()) {
-               fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/pause.xpm"));
+               fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
                if (fNetFolder) {        // control analyzer
                   fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
@@ -150,7 +150,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                }
             }
             else {
-               fPlayButton->SetPicture(gClient->GetPicture("$ARGUSSYS/icons/play.xpm"));
+               fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
                if (fNetFolder) {        // control analyzer
                   fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
