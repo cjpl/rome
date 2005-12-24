@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
 	<Experiment>
 		<ExperimentName>Tabs</ExperimentName>
 		<ExperimentShortCut>TB</ExperimentShortCut>
@@ -95,4 +94,4 @@
 			<SPFieldComment>Switch for pedestal calculation</SPFieldComment>
 		</SteeringParameterField>
 	</GlobalSteeringParameters>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

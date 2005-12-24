@@ -16,10 +16,10 @@ ClassImp(HGTTab)
 void HGTTab::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gMonitor->GetWindowScale()), (UInt_t) (700 * gMonitor->GetWindowScale()));
+   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
 
    // Create an embedded canvas and add to the main frame, centered in x and y 
-   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gMonitor->GetWindowScale()), (UInt_t) (600 * gMonitor->GetWindowScale()));
+   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gAnalyzer->GetWindowScale()), (UInt_t) (600 * gAnalyzer->GetWindowScale()));
 
    // Create "Update" button 
    fBUpdate = new TGTextButton(fVert, "Update", B_UPDATE);
@@ -32,7 +32,7 @@ void HGTTab::Init()
 
 void HGTTab::Update()
 {
-   if (!gMonitor->GetNetFolder("mynetfolder"))
+   if (!gAnalyzer->GetNetFolder("mynetfolder"))
       return;
 
    fCanvas->GetCanvas()->cd();
@@ -40,7 +40,7 @@ void HGTTab::Update()
    if (fHisto) {
       delete fHisto;
    }
-   fHisto = (TH1F *) gMonitor->GetNetFolder("mynetfolder")->FindObjectAny("hAdc0");
+   fHisto = (TH1F *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("hAdc0");
    if (!fHisto) {
       cout << "Histo hAdc0 not available." << endl;
    }

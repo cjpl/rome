@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
   <Experiment>
     <ExperimentName>File</ExperimentName>
     <ExperimentShortCut>FL</ExperimentShortCut>
@@ -48,4 +48,4 @@
       <DAQSystemName>user</DAQSystemName>
     </UserDAQSystem>
   </UserDAQSystems>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

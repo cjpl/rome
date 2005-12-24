@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- edited by Ryu Sawada -->
-<ArgusMonitorDefinition>
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
 	<Experiment>
 		<ExperimentName>Status bar example</ExperimentName>
 		<ExperimentShortCut>SB</ExperimentShortCut>
@@ -31,4 +30,4 @@
 			<TabTitle>Tab 2</TabTitle>
 		</Tab>
 	</Tabs>
-</ArgusMonitorDefinition>
+</ROMEFrameworkDefinition>

@@ -56,6 +56,7 @@ const char* const kFlagSign = "/";
 const char* const kEqualSign =":=";
 const char* const kFlagSign = "-";
 #endif
+const char* const kHeaderEndMark = "/////////////////////////////////////----///////////////////////////////////////";
 
 class ROMEBuilder
 {
@@ -178,6 +179,7 @@ protected:
    ROMEString histoZNbins[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZmin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZmax[maxNumberOfTasks][maxNumberOfHistos];
+   bool hasTaskUserCode;
 
 // task hierarchy
 
