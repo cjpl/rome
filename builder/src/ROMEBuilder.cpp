@@ -119,6 +119,9 @@ bool ROMEBuilder::ReadXMLFolder() {
          if (tmp == "true")
             folderUserCode[numOfFolder] = true;
       }
+      else {
+         hasFolderGenerated = true;
+      }
       // folder version
       if (type == 1 && !strcmp((const char*)name,"FolderVersion"))
          xml->GetValue(folderVersion[numOfFolder],folderVersion[numOfFolder]);
@@ -1359,6 +1362,9 @@ bool ROMEBuilder::ReadXMLTask() {
          xml->GetValue(tmp,"false");
          if (tmp == "true")
             taskUserCode[numOfTask] = true;
+      }
+      else {
+         hasTaskGenerated = true;
       }
       // task author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
@@ -5834,7 +5840,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    if (this->sql)
-      buffer.AppendFormatted("#include \"ROMEsqldatabase.h\"\n");
+      buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted("#include \"include/databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
 
@@ -10781,6 +10787,7 @@ void ROMEBuilder::StartBuilder()
                   // initialization
                   numOfFolder = -1;
                   hasFolderUserCode = false;
+                  hasFolderGenerated = false;
                   parent[0] = "GetMainFolder()";
                   // output
                   if (makeOutput) cout << "Folders:" << endl;
@@ -10849,6 +10856,7 @@ void ROMEBuilder::StartBuilder()
                   numOfTask = -1;
                   parent[0] = "GetMainTask()";
                   hasTaskUserCode = false;
+                  hasTaskGenerated = false;
                   // output
                   if (makeOutput) cout << "\n\nTasks:" << endl;
                   while (xml->NextLine()) {
@@ -11158,24 +11166,32 @@ void ROMEBuilder::StartBuilder()
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
-      tempStr.SetFormatted("make -e dict/ROMEDict.cpp dict/%sGeneratedDict.cpp dict/%sGeneratedFolderDict.cpp dict/%sGeneratedTaskDict.cpp dict/%sGeneratedTabDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
-      if(numOfMFDictHeaders>0)
-         tempStr.AppendFormatted(" dict/%sUserDict.cpp", shortCut.Data());
-      system(tempStr.Data());
+      tempStr.SetFormatted("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      tempStr.SetFormatted("nmake -f Makefile.win dict/ROMEDict.cpp dict/%sGeneratedDict.cpp dict/%sGeneratedFolderDict.cpp dict/%sGeneratedTaskDict.cpp dict/%sGeneratedTabDict.cpp dict/%sFolderDict.cpp dict/%sTaskDict.cpp",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
-      if(numOfMFDictHeaders>0)
-         tempStr.AppendFormatted(" dict/%sUserDict.cpp", shortCut.Data());
-      system(tempStr.Data());
+      tempStr.SetFormatted("nmake -f Makefile.win");
 #endif
+      tempStr.AppendFormatted(" dict/ROMEDict.cpp dict/%sGeneratedDict.cpp",shortCut.Data(),shortCut.Data());
+      if(hasFolderGenerated)
+         tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
+      if(hasFolderUserCode)
+         tempStr.AppendFormatted(" dict/%sFolderDict.cpp",shortCut.Data());
+      if(hasTaskGenerated)
+         tempStr.AppendFormatted(" dict/%sGeneratedTaskDict.cpp",shortCut.Data());
+      if(hasTaskUserCode)
+         tempStr.AppendFormatted(" dict/%sTaskDict.cpp",shortCut.Data());
+      if(numOfTab>0)
+         tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
+      if(numOfMFDictHeaders>0)
+         tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
+      gSystem->Exec(tempStr.Data());
    }
    else {
 #if defined( R__UNIX )
-      system("make -e");
+      gSystem->Exec("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      system("nmake -f Makefile.win");
+      gSystem->Exec("nmake -f Makefile.win");
 #endif
    }
 // Documentation
@@ -11270,7 +11286,7 @@ void ROMEBuilder::AddRomeHeaders() {
    }
 }
 void ROMEBuilder::AddRomeDictHeaders() {
-   romeDictHeaders = new ROMEStrArray(3);
+   romeDictHeaders = new ROMEStrArray(4);
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
@@ -11317,7 +11333,7 @@ void ROMEBuilder::AddRomeSources(){
       romeSources->AddFormatted("dict/ROMEDict.cpp");
 }
 void ROMEBuilder::AddArgusHeaders() {
-   argusHeaders = new ROMEStrArray(1);
+   argusHeaders = new ROMEStrArray(3);
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");

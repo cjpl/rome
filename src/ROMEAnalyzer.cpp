@@ -64,6 +64,7 @@
 #include <TObjString.h>
 #include <TROOT.h>
 #include <TBrowser.h>
+#include <THtml.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -249,11 +250,11 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          ParameterUsage();
          return false;
       }
-/*      if (!strcmp(argv[i],"-docu")) {
+      if (!strcmp(argv[i],"-docu")) {
          THtml html;
          html.MakeAll(true);
          return false;
-      }*/
+      }
       if (!strcmp(argv[i],"-i")&&i<argc-1) {
          configFile = argv[i+1];
          i++;

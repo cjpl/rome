@@ -11,7 +11,6 @@
 #include <ROMEXML.h>
 #include <ROMEString.h>
 
-const int bufferLength = 500000;
 const int maxNumberOfTasks = 300;
 const int maxNumberOfFolders = 200;
 const int maxNumberOfTrees = 50;
@@ -125,6 +124,7 @@ protected:
    bool folderSupport[maxNumberOfFolders];
    bool folderNoReset[maxNumberOfFolders];
    bool hasFolderUserCode;
+   bool hasFolderGenerated;
 
    ROMEString valueName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString valueType[maxNumberOfFolders][maxNumberOfValues];
@@ -180,6 +180,7 @@ protected:
    ROMEString histoZmin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZmax[maxNumberOfTasks][maxNumberOfHistos];
    bool hasTaskUserCode;
+   bool hasTaskGenerated;
 
 // task hierarchy
 
