@@ -11613,7 +11613,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    if (this->sql)
       buffer.AppendFormatted(" -DHAVE_SQL");
    if (this->mysql)
-      buffer.AppendFormatted(" $(shell mysql_config --cflags) -DHAVE_MYSQL");
+      buffer.AppendFormatted(" $(shell mysql_config --include) -DHAVE_MYSQL");
    if (this->pgsql)
       buffer.AppendFormatted(" -I$(shell pg_config --includedir) -DHAVE_PGSQL");
    if (this->sqlite)
