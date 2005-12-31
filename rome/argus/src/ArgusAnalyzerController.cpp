@@ -13,7 +13,7 @@
 #include "ROMEAnalyzer.h"
 
 ClassImp(ArgusAnalyzerController)
-#define DEBUG
+#define AADEBUG
 // Constructor
     ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, TNetFolder * nf, UInt_t options)
 :TGTransientFrame(p, main, w, h, options)
@@ -25,7 +25,7 @@ ClassImp(ArgusAnalyzerController)
    fEventStep = 1;
    fEventInterval = 5;
 
-#if !defined( DEBUG )
+#if !defined( AADEBUG )
    if (!fNetFolder->fSocket || !fNetFolder->fSocket->IsValid())
       Error("ArgusAnalyzerController", "NetFolder is not connected to server.");
    return;
@@ -118,7 +118,7 @@ ClassImp(ArgusAnalyzerController)
    SetWMPosition(ax, ay);
 
    TString window_name = "Control Panel";
-#if !defined( DEBUG )
+#if !defined( AADEBUG )
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
    window_name += ".";
