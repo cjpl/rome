@@ -55,18 +55,6 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fTreeUpdateIndex = 0;
 }
 
-#define THREADRETURN NULL
-#define THREADTYPE void*
-bool windowCreated;
-THREADTYPE ArgusThread(void *arg)
-{
-   gROME->StartWindow();
-
-   ((TRint*)gROME->GetApplication())->SetPrompt("");
-   windowCreated = true;
-   ((TRint*)gROME->GetApplication())->Run();
-   return THREADRETURN;
-}
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
@@ -157,11 +145,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Start ARGUS
       //-------------
       if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())) {
-         windowCreated = false;
-         TThread *thread = new TThread("argus_thread", ArgusThread);
-         thread->Run();
-         while (!windowCreated)
-            gROME->ss_sleep(10);
+         gROME->StartWindow();
       }
 
       // Loop over Events
