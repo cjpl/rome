@@ -998,26 +998,31 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="WindowsLibrariesDesc">
+	<xs:complexType name="LibraryDesc">
 		<xs:annotation>
-			<xs:documentation>Additional windows library files to be added to the link command.</xs:documentation>
+			<xs:documentation>Additional library to be added to the link command.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="LibraryName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="LibraryName" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Name of the library. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="NeededFlag" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Precompiler flag needed for this file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="UnixLibrariesDesc">
+	<xs:complexType name="LibrariesDesc">
 		<xs:annotation>
-			<xs:documentation>Additional unix library files to be added to the link command.</xs:documentation>
+			<xs:documentation>Additional windows library files to be added to the link command.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="LibraryName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Library" type="LibraryDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Name of the library. (optional)</xs:documentation>
+					<xs:documentation>Additional library to be added to the link command. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -1061,7 +1066,7 @@
 					<xs:documentation>Name and path of the header file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="NeededFlag" type="xs:string" minOccurs="0">
+			<xs:element name="NeededFlag" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Precompiler flag needed for this file. (optional)</xs:documentation>
 				</xs:annotation>
@@ -1095,12 +1100,12 @@
 					<xs:documentation>Additional include directories to be added to the rootcint command. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="WindowsLibraries" type="WindowsLibrariesDesc" minOccurs="0">
+			<xs:element name="WindowsLibraries" type="LibrariesDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Additional windows library files to be added to the link command. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="UnixLibraries" type="UnixLibrariesDesc" minOccurs="0">
+			<xs:element name="UnixLibraries" type="LibrariesDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Additional unix library files to be added to the link command. (optional)</xs:documentation>
 				</xs:annotation>

@@ -4028,14 +4028,6 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
    ROMEString temp;
    ROMEString ext;
 
-   numOfMFDictHeaders = 0;
-   numOfMFDictIncDirs = 0;
-   numOfMFWinLibs = 0;
-   numOfMFUnixLibs = 0;
-   numOfMFIncDirs = 0;
-   numOfMFPreDefs = 0;
-   numOfMFSources = 0;
-
    while (xml->NextLine()) {
       type = xml->GetType();
       name = xml->GetName();
@@ -4084,14 +4076,30 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
-            // library name
-            if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+            if (type == 1 && !strcmp((const char*)name,"Library")) {
                mfWinLibName[numOfMFWinLibs] = "";
-               xml->GetValue(mfWinLibName[numOfMFWinLibs],mfWinLibName[numOfMFWinLibs]);
-               if (mfWinLibName[numOfMFWinLibs].Length()>0) {
-                  if (mfWinLibName[numOfMFWinLibs].Index(".")==-1)
-                     mfWinLibName[numOfMFWinLibs].Append(".lib");
-                  numOfMFWinLibs++;
+               numOfMFWinLibFlags[numOfMFWinLibs] = 0;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // library name
+                  if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+                     xml->GetValue(mfWinLibName[numOfMFWinLibs],mfWinLibName[numOfMFWinLibs]);
+                     if (mfWinLibName[numOfMFWinLibs].Length()>0) {
+                        if (mfWinLibName[numOfMFWinLibs].Index(".")==-1)
+                           mfWinLibName[numOfMFWinLibs].Append(".lib");
+                     }
+                  }
+                  // flags
+                  if (type == 1 && !strcmp((const char*)name,"NeededFlag")) {
+                     mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]] = "";
+                     xml->GetValue(mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]],mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]]);
+                     numOfMFWinLibFlags[numOfMFWinLibs]++;
+                  }   
+                  if (type == 15 && !strcmp((const char*)name,"Library")) {
+                     numOfMFWinLibs++;
+                     break;
+                  }
                }
             }
             if (type == 15 && !strcmp((const char*)name,"WindowsLibraries"))
@@ -4102,12 +4110,31 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
-            // library name
-            if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+            if (type == 1 && !strcmp((const char*)name,"Library")) {
                mfUnixLibName[numOfMFUnixLibs] = "";
-               xml->GetValue(mfUnixLibName[numOfMFUnixLibs],mfUnixLibName[numOfMFUnixLibs]);
-               if (mfUnixLibName[numOfMFUnixLibs].Length()>0)
-                  numOfMFUnixLibs++;
+               numOfMFUnixLibFlags[numOfMFUnixLibs] = 0;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // library name
+                  if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
+                     xml->GetValue(mfUnixLibName[numOfMFUnixLibs],mfUnixLibName[numOfMFUnixLibs]);
+                     if (mfUnixLibName[numOfMFUnixLibs].Length()>0) {
+                        if (mfUnixLibName[numOfMFUnixLibs].Index(".")==-1)
+                           mfUnixLibName[numOfMFUnixLibs].Append(".lib");
+                     }
+                  }
+                  // flags
+                  if (type == 1 && !strcmp((const char*)name,"NeededFlag")) {
+                     mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]] = "";
+                     xml->GetValue(mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]],mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]]);
+                     numOfMFUnixLibFlags[numOfMFUnixLibs]++;
+                  }   
+                  if (type == 15 && !strcmp((const char*)name,"Library")) {
+                     numOfMFUnixLibs++;
+                     break;
+                  }
+               }
             }
             if (type == 15 && !strcmp((const char*)name,"UnixLibraries"))
                break;
@@ -10723,6 +10750,13 @@ void ROMEBuilder::StartBuilder()
    numOfIncludeDirectories = -1;
    numOfTab = -1;
    numOfNetFolder = -1;
+   numOfMFDictHeaders = 0;
+   numOfMFDictIncDirs = 0;
+   numOfMFWinLibs = 0;
+   numOfMFUnixLibs = 0;
+   numOfMFIncDirs = 0;
+   numOfMFPreDefs = 0;
+   numOfMFSources = 0;
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
@@ -11550,7 +11584,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
 }
 void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
-   int i;
+   int i,j;
    ROMEString tmp;
 #if defined( R__VISUAL_CPLUSPLUS )
    // libs
@@ -11574,9 +11608,14 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    else
       buffer.AppendFormatted("midaslibs = \n");
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
-   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)");
-   for (i=0;i<numOfMFWinLibs;i++)
-      buffer.AppendFormatted(" %s",mfWinLibName[i].Data());
+   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   for (i=0;i<numOfMFWinLibs;i++) {
+      for (j=0;j<numOfMFWinLibFlags[i];j++)
+         buffer.AppendFormatted("!IFDEF %s\n",mfWinLibFlag[i][j].Data());
+      buffer.AppendFormatted("Libraries = $(Libraries) %s\n",mfWinLibName[i].Data());
+      for (j=0;j<numOfMFWinLibFlags[i];j++)
+         buffer.AppendFormatted("!ENDIF # %s\n",mfWinLibFlag[i][j].Data());
+   }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
@@ -11706,9 +11745,14 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)");
-   for (i=0;i<numOfMFUnixLibs;i++)
-      buffer.AppendFormatted(" -l%s",mfUnixLibName[i].Data());
+   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   for (i=0;i<numOfMFUnixLibs;i++) {
+      for (j=0;j<numOfMFUnixLibFlags[i];j++)
+         buffer.AppendFormatted("ifdef %s\n",mfUnixLibFlag[i][j].Data());
+      buffer.AppendFormatted("Libraries += -l%s\n",mfUnixLibName[i].Data());
+      for (j=0;j<numOfMFUnixLibFlags[i];j++)
+         buffer.AppendFormatted("endif # %s\n",mfUnixLibFlag[i][j].Data());
+   }
    buffer.AppendFormatted("\n");
    // flags
    buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortCut.ToLower(tmp));
@@ -12257,7 +12301,7 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
    WriteFile(fileName.Data(),buffer.Data(),6);
 }
 void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMEString& projectGUID) {
-   int i;
+   int i,j,k;
    ROMEString str;
    ROMEString formatVersion;
 
@@ -12339,9 +12383,26 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
 
    // VCLinkerTool
    ROMEString libs;
+   bool addLib = true;
+   bool flagMatched = true;
    libs.AppendFormatted("wsock32.lib gdi32.lib user32.lib kernel32.lib gdk-1.3.lib glib-1.3.lib libCore.lib libCint.lib libHist.lib libGraf.lib libGraf3d.lib libGpad.lib libTree.lib libRint.lib libPostscript.lib libMatrix.lib libPhysics.lib libGui.lib libHtml.lib libWin32gdk.lib libThread.lib libMinuit.lib libGeom.lib libGeomPainter.lib");
-   for (i=0;i<numOfMFWinLibs;i++)
-      libs.AppendFormatted(" %s",mfWinLibName[i].Data());
+   for (i=0;i<numOfMFWinLibs;i++) {
+      for (j=0;j<numOfMFWinLibFlags[i];j++) {
+         flagMatched = false;
+         for (k=0;k<flags.GetEntriesFast();k++) {
+            if (mfWinLibFlag[i][j]==flags.At(k)) {
+               flagMatched = true;
+               break;
+            }
+         }
+         if (!flagMatched) {
+            addLib = false;
+            break;
+         }
+      }
+      if (addLib)
+         libs.AppendFormatted(" %s",mfWinLibName[i].Data());
+   }
    ROMEString libDirs;
    libDirs.AppendFormatted("\"$(ROOTSYS)\\lib\"");
    libDirs.AppendFormatted(";\"$(ROMESYS)\\lib_win\"");
@@ -12459,7 +12520,9 @@ void ROMEBuilder::WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* heade
    }
 }
 void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
-   int i;
+   int i,j,k;
+   bool addFile = true;
+   bool flagMatched = true;
    ROMEString path;
    ROMEString name;
    ROMEString ext;
@@ -12469,15 +12532,31 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
       xml->WriteAttribute("Name","User Classes");
       xml->WriteAttribute("Filter","cpp;c;cxx");
       for (i=0;i<numOfMFSources;i++) {
-         xml->StartElement("File");
-         str.SetFormatted("%s\\%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
-         str.ReplaceAll("//","\\");
-         str.ReplaceAll("/\\","\\");
-         str.ReplaceAll("\\/","\\");
-         str.ReplaceAll("\\\\","\\");
-         str.ReplaceAll("/","\\");
-         xml->WriteAttribute("RelativePath",str.Data());
-         xml->EndElement();
+         addFile = true;
+         for (j=0;j<numOfMFSourceFlags[i];j++) {
+            flagMatched = false;
+            for (k=0;k<flags.GetEntriesFast();k++) {
+               if (mfSourceFileFlag[i][j]==flags.At(k)) {
+                  flagMatched = true;
+                  break;
+               }
+            }
+            if (!flagMatched) {
+               addFile = false;
+               break;
+            }
+         }
+         if (addFile) {
+            xml->StartElement("File");
+            str.SetFormatted("%s\\%s",mfSourceFilePath[i].Data(),mfSourceFileName[i].Data());
+            str.ReplaceAll("//","\\");
+            str.ReplaceAll("/\\","\\");
+            str.ReplaceAll("\\/","\\");
+            str.ReplaceAll("\\\\","\\");
+            str.ReplaceAll("/","\\");
+            xml->WriteAttribute("RelativePath",str.Data());
+            xml->EndElement();
+         }
       }
       xml->StartElement("File");
       str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
@@ -12493,7 +12572,9 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
    }
 }
 void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml) {
-   int i;
+   int i,j,k;
+   bool addFile = true;
+   bool flagMatched = true;
    ROMEString path;
    ROMEString name;
    ROMEString ext;
@@ -12505,15 +12586,31 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml) {
       for (i=0;i<numOfMFSources;i++) {
          if (mfHeaderFileName[i].Length()==0)
             continue;
-         xml->StartElement("File");
-         str.SetFormatted("%s\\%s",mfHeaderFilePath[i].Data(),mfHeaderFileName[i].Data());
-         str.ReplaceAll("//","\\");
-         str.ReplaceAll("/\\","\\");
-         str.ReplaceAll("\\/","\\");
-         str.ReplaceAll("\\\\","\\");
-         str.ReplaceAll("/","\\");
-         xml->WriteAttribute("RelativePath",str.Data());
-         xml->EndElement();
+         addFile = true;
+         for (j=0;j<numOfMFSourceFlags[i];j++) {
+            flagMatched = false;
+            for (k=0;k<flags.GetEntriesFast();k++) {
+               if (mfSourceFileFlag[i][j]==flags.At(k)) {
+                  flagMatched = true;
+                  break;
+               }
+            }
+            if (!flagMatched) {
+               addFile = false;
+               break;
+            }
+         }
+         if (addFile) {
+            xml->StartElement("File");
+            str.SetFormatted("%s\\%s",mfHeaderFilePath[i].Data(),mfHeaderFileName[i].Data());
+            str.ReplaceAll("//","\\");
+            str.ReplaceAll("/\\","\\");
+            str.ReplaceAll("\\/","\\");
+            str.ReplaceAll("\\\\","\\");
+            str.ReplaceAll("/","\\");
+            xml->WriteAttribute("RelativePath",str.Data());
+            xml->EndElement();
+         }
       }
       xml->EndElement();
    }

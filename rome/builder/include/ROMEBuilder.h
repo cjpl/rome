@@ -29,7 +29,9 @@ const int maxNumberOfStructFields = 50;
 const int maxNumberOfMFDictHeaders = 100;
 const int maxNumberOfMFDictIncDirs = 20;
 const int maxNumberOfMFWinLibs = 20;
+const int maxNumberOfMFWinLibFlags = 5;
 const int maxNumberOfMFUnixLibs = 20;
+const int maxNumberOfMFUnixLibFlags = 5;
 const int maxNumberOfMFIncDirs = 20;
 const int maxNumberOfMFPreDefs = 20;
 const int maxNumberOfMFSources = 100;
@@ -282,10 +284,17 @@ protected:
    ROMEString mfDictHeaderName[maxNumberOfMFDictHeaders];
    int numOfMFDictIncDirs;
    ROMEString mfDictIncDir[maxNumberOfMFDictIncDirs];
+
    int numOfMFWinLibs;
    ROMEString mfWinLibName[maxNumberOfMFWinLibs];
+   int numOfMFWinLibFlags[maxNumberOfMFWinLibs];
+   ROMEString mfWinLibFlag[maxNumberOfMFWinLibs][maxNumberOfMFWinLibFlags];
+
    int numOfMFUnixLibs;
    ROMEString mfUnixLibName[maxNumberOfMFUnixLibs];
+   int numOfMFUnixLibFlags[maxNumberOfMFUnixLibs];
+   ROMEString mfUnixLibFlag[maxNumberOfMFUnixLibs][maxNumberOfMFUnixLibFlags];
+
    int numOfMFIncDirs;
    ROMEString mfIncDir[maxNumberOfMFIncDirs];
    int numOfMFPreDefs;
