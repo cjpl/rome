@@ -53,6 +53,8 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fContinuous = true;
    fUserInputLastTime = 0;
    fTreeUpdateIndex = 0;
+   fStopAtRun = -1;
+   fStopAtEvent = -1;
 }
 
 

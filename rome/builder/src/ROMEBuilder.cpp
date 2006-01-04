@@ -7500,7 +7500,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    }
    // Tasks
    buffer.AppendFormatted("   // tasks\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fTasksModified || index==0) {\n");
+   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneROME()) && (fConfigData[index]->fTasksModified || index==0)) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Tasks\");\n");
    pointer.Resize(0);
    WriteTaskConfigWrite(buffer,-1,pointer,0);
