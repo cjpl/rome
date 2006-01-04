@@ -5780,6 +5780,14 @@ bool ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
       buffer += "   ";
    buffer.AppendFormatted("   }\n");
 
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("   else\n");
+
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("      f%sTabID = -1;\n", tabName[i].Data());
+
    return kTRUE;
 }
 
@@ -11171,7 +11179,7 @@ void ROMEBuilder::StartBuilder()
 #if defined( R__VISUAL_CPLUSPLUS )
       tempStr.SetFormatted("nmake -f Makefile.win");
 #endif
-      tempStr.AppendFormatted(" dict/ROMEDict.cpp dict/%sGeneratedDict.cpp",shortCut.Data(),shortCut.Data());
+      tempStr.AppendFormatted(" dict/ROMEDict.cpp dict/ARGUSDict.cpp dict/%sGeneratedDict.cpp",shortCut.Data(),shortCut.Data());
       if(hasFolderGenerated)
          tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
       if(hasFolderUserCode)
@@ -11182,6 +11190,8 @@ void ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/%sTaskDict.cpp",shortCut.Data());
       if(numOfTab>0)
          tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
+      if(numOfTab>0)
+         tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
       if(numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
       gSystem->Exec(tempStr.Data());
@@ -12316,7 +12326,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    xml->WriteAttribute("PreprocessorDefinitions",preDrocDefs.Data());
    xml->WriteAttribute("MinimalRebuild","FALSE");
    xml->WriteAttribute("BasicRuntimeChecks","2");
-   xml->WriteAttribute("RuntimeLibrary","1");
+   xml->WriteAttribute("RuntimeLibrary","2");
    xml->WriteAttribute("RuntimeTypeInfo","TRUE");
    xml->WriteAttribute("WarningLevel","3");
    xml->WriteAttribute("DebugInformationFormat","3");
