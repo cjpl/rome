@@ -4123,10 +4123,6 @@ bool ROMEBuilder::ReadXMLUserMakefile() {
                   // library name
                   if (type == 1 && !strcmp((const char*)name,"LibraryName")) {
                      xml->GetValue(mfUnixLibName[numOfMFUnixLibs],mfUnixLibName[numOfMFUnixLibs]);
-                     if (mfUnixLibName[numOfMFUnixLibs].Length()>0) {
-                        if (mfUnixLibName[numOfMFUnixLibs].Index(".")==-1)
-                           mfUnixLibName[numOfMFUnixLibs].Append(".lib");
-                     }
                   }
                   // flags
                   if (type == 1 && !strcmp((const char*)name,"NeededFlag")) {
