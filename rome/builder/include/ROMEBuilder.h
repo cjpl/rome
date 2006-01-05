@@ -234,6 +234,7 @@ protected:
    ROMEString treeName[maxNumberOfTrees];
    ROMEString treeTitle[maxNumberOfTrees];
    ROMEString treeFileName[maxNumberOfTrees];
+   ROMEString treeDescription[maxNumberOfTrees];
    ROMEString branchName[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchFolder[maxNumberOfTrees][maxNumberOfBranches];
    ROMEString branchBufferSize[maxNumberOfTrees][maxNumberOfBranches];
