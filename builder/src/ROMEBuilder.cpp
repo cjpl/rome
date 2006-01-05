@@ -3240,6 +3240,7 @@ bool ROMEBuilder::ReadXMLTree() {
          treeName[numOfTree] = "";
          treeTitle[numOfTree] = "";
          treeFileName[numOfTree] = "";
+         treeDescription[numOfTree] = "";
 
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -3253,6 +3254,9 @@ bool ROMEBuilder::ReadXMLTree() {
             // tree title
             if (type == 1 && !strcmp((const char*)name,"TreeTitle"))
                xml->GetValue(treeTitle[numOfTree],treeTitle[numOfTree]);
+            // tree description
+            if (type == 1 && !strcmp((const char*)name,"TreeDescription"))
+               xml->GetValue(treeDescription[numOfTree],treeDescription[numOfTree]);
             // tree file name
             if (type == 1 && !strcmp((const char*)name,"TreeOutputFileName"))
                xml->GetValue(treeFileName[numOfTree],treeFileName[numOfTree]);
@@ -12984,6 +12988,8 @@ void ROMEBuilder::WriteHTMLDoku() {
    buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",treeName[i].Data());
+      if(treeDescription[i].Length())
+         buffer.AppendFormatted("%s\n",treeDescription[i].Data());
       buffer.AppendFormatted("<ul>\n");
       for (j=0;j<numOfBranch[i];j++) {
          buffer.AppendFormatted("<li type=\"circle\">%s (%s)</li>\n",branchName[i][j].Data(),branchFolder[i][j].Data());
