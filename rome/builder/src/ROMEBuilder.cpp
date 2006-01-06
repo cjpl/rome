@@ -2583,8 +2583,10 @@ bool ROMEBuilder::ReadXMLTab()
          xml->GetValue(tabAuthor[currentNumberOfTabs], tabAuthor[currentNumberOfTabs]);
 
       // tab version
-      if (type == 1 && !strcmp(name, "TabVersion"))
+      if (type == 1 && !strcmp(name, "TabVersion")) {
          xml->GetValue(tabVersion[currentNumberOfTabs], tabVersion[currentNumberOfTabs]);
+         ParseSVNKeyword(tabVersion[currentNumberOfTabs]);
+      }
 
       // tab description
       if (type == 1 && !strcmp(name, "TabDescription"))
