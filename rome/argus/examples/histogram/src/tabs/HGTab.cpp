@@ -10,16 +10,17 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/HGTTab.h"
+#include "include/generated/HWWindow.h"
 
 ClassImp(HGTTab)
 
 void HGTTab::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
+   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
 
    // Create an embedded canvas and add to the main frame, centered in x and y 
-   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gAnalyzer->GetWindowScale()), (UInt_t) (600 * gAnalyzer->GetWindowScale()));
+   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gWindow->GetWindowScale()), (UInt_t) (600 * gWindow->GetWindowScale()));
 
    // Create "Update" button 
    fBUpdate = new TGTextButton(fVert, "Update", B_UPDATE);

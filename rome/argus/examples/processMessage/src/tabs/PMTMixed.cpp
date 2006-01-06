@@ -11,12 +11,13 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/PMTMixed.h"
+#include "include/generated/PMWindow.h"
 
 ClassImp(PMTMixed)
 
 void PMTMixed::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
 
    fButton1 = new TGTextButton(fHorz, "w/o Thread", 0);
    fButton2 = new TGTextButton(fHorz, "w/  Thread", 1);

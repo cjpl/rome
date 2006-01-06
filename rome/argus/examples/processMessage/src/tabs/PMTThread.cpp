@@ -11,12 +11,13 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/PMTThread.h"
+#include "include/generated/PMWindow.h"
 
 ClassImp(PMTThread)
 
 void PMTThread::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
 
    fButton = new TGTextButton(fHorz, "w/ Thread", 0);
    fButton->Associate(this);

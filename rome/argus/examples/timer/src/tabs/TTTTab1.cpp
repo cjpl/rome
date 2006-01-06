@@ -11,16 +11,17 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/TTTTab1.h"
+#include "include/generated/TTWindow.h"
 
 ClassImp(TTTTab1)
 
 void TTTTab1::Init()
 {
-   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
+   fVert = new TGVerticalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
 
-   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gAnalyzer->GetWindowScale()), (UInt_t) (600 * gAnalyzer->GetWindowScale()));
+   fCanvas = new TRootEmbeddedCanvas("Sample Canvas", fVert, (UInt_t) (600 * gWindow->GetWindowScale()), (UInt_t) (600 * gWindow->GetWindowScale()));
 
-   fHorz = new TGHorizontalFrame(fVert, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (100 * gAnalyzer->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(fVert, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (100 * gWindow->GetWindowScale()));
 
    fBStartVertical = new TGTextButton(fHorz, "Start vertical", B_STARTV);
    fBStopVertical = new TGTextButton(fHorz, "Stop vertical", B_STOPV);
