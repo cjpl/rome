@@ -155,6 +155,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       firstUserInput = true;
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
          if (gROME->IsWindowClosed()) {
+            if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+               this->DAQTerminate();
+               gROME->SetTerminationFlag();
+               gROME->PrintLine("\n\nTerminating Program !");
+               return;
+            }
             this->SetStopped();
             this->SetEndOfRun();
             break;
@@ -658,6 +664,12 @@ bool ROMEEventLoop::UserInput()
 
       gSystem->ProcessEvents();
       gSystem->Sleep(10);
+      if (gROME->IsWindowClosed()) {
+         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())
+            return false;
+         this->SetTerminate();
+         break;
+      }
    }
    if (hit)
       time(&fProgressTimeOfLastEvent);

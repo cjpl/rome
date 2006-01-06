@@ -65,7 +65,8 @@ public:
    ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,TNetFolder* nf,UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
-   
+   void CloseWindow();
+
    ClassDef(ArgusAnalyzerController,1)
 };
 

@@ -248,3 +248,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
    }
    return kTRUE;
 }
+void ArgusAnalyzerController::CloseWindow()
+{
+   gROME->WindowClosed();
+}
