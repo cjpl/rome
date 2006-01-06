@@ -11707,7 +11707,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
 
    // flags
-   buffer.AppendFormatted("Flags = /GX /GR $(%suserflags)",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("Flags = /GX /GR /MD $(%suserflags)",shortCut.ToLower(tmp));
    if (this->midas)
       buffer.AppendFormatted(" /DHAVE_MIDAS");
    if (this->orca)
