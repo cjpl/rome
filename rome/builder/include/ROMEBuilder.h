@@ -402,6 +402,7 @@ public:
    bool WriteEventLoopCpp();
    bool WriteEventLoopH();
    bool WriteMain();
+   bool WriteReadTreesC();
    void AddIncludeDirectories();
    void AddRomeHeaders();
    void AddRomeDictHeaders();

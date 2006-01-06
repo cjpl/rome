@@ -11285,6 +11285,7 @@ void ROMEBuilder::StartBuilder()
    if (!WriteEventLoopCpp()) return;
    if (!WriteEventLoopH()) return;
    if (!WriteMain()) return;
+   if (!WriteReadTreesC()) return;
    delete xml;
 
    ROMEString buffer;
@@ -13199,6 +13200,106 @@ void ROMEBuilder::WriteHTMLDoku() {
       WriteFile(userHtmlFile.Data(),buffer.Data(),0);
    }
 */
+}
+
+bool ROMEBuilder::WriteReadTreesC() {
+   // Write sample macro to read output trees
+
+   int i;
+   ROMEString cFile;
+   ROMEString buffer;
+   ROMEString tmp;
+   ROMEString macroDescription;
+   buffer.Resize(0);
+   macroDescription.Resize(0);
+
+   // File name
+   cFile.SetFormatted("%ssrc/generated/%sReadTrees.C",outDir.Data(),shortCut.Data());
+   WriteHeader(buffer, mainAuthor, kTRUE);
+   macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   macroDescription.AppendFormatted("This macro reads following trees.\n");
+   for(i=0;i<numOfTree;i++)
+      macroDescription.AppendFormatted("   %s\n", treeName[i].Data());
+   macroDescription.AppendFormatted("\n");
+   WriteDescription(buffer, gSystem->BaseName(cFile.Data()), macroDescription.Data(), kFALSE);
+
+   // Header
+   buffer.AppendFormatted("\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"TBranchElement.h\"\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+#if 0
+   int iFold=0,j,k;
+
+   // prepare folders
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfBranch[i];j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         else {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
+         buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
+      }
+   }
+
+   // set address
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfBranch[i];j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         else {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
+         buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
+      }
+   }
+
+   // print
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfBranch[i];j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         if (folderArray[iFold]=="1") {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         else {
+            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+         }
+         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
+         buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
+      }
+   }
+   buffer.AppendFormatted("}\n\n");
+#endif
+
+   // Write File
+   WriteFile(cFile.Data(),buffer.Data(),6);
+
+   return true;
 }
 
 void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group)
