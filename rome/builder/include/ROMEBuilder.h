@@ -476,8 +476,8 @@ public:
    void AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
    void WriteHeader(ROMEString& buffer, const Char_t* author, Bool_t overwrite);
    void WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark);
-
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
+   void ParseSVNKeyword(ROMEString& str);
 };
 
 #endif   // ROMEBuilder_H
