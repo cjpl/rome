@@ -140,13 +140,6 @@ bool ROMERomeDAQ::BeginOfRun() {
                   return true;
                }
             }
-            if(!tree->GetEntries()) {
-               ROMEString buf;
-               buf.SetFormatted("TTree '%s' does not have any events !", tree->GetName());
-               gROME->PrintLine(buf);
-               this->SetEndOfRun();
-               return true;
-            }
             romeTree->SetTree(tree);
             fTreePosition[j] = 0;
          }
@@ -181,7 +174,7 @@ bool ROMERomeDAQ::Event(int event) {
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
-      bool endfound = false;
+      bool endfound = true;
       // read event
       for (j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
@@ -221,8 +214,8 @@ bool ROMERomeDAQ::Event(int event) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead())
-            if (fTreeNextSeqNumber[j] == -1)
-               endfound = true;
+            if (fTreeNextSeqNumber[j] != -1)
+               endfound = false;
       }
       if (endfound) {
          this->SetEndOfRun();
