@@ -7,10 +7,14 @@
 #ifndef ROMERint_H
 #define ROMERint_H
 
-#pragma warning( push )
-#pragma warning( disable : 4800 )
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif
 #include "TRint.h"
-#pragma warning( pop )
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif
 
 class ROMERint : public TRint {
 private:
