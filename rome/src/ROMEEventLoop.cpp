@@ -229,6 +229,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
+         if (this->isEndOfRun())
+            break;
 
          // Write Event
          if (!this->WriteEvent() && gROME->isFillEvent()) {
