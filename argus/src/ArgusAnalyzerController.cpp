@@ -141,68 +141,58 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (fPlayButton->IsDown()) {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
-               if (fNetFolder) {        // control analyzer
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
+               if (gROME->IsStandAloneARGUS()) {
+                  if (fNetFolder) {
+                     fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
+                     fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
+                  }
                }
-               else {           // control active DAQ
-                  // to be implemented something
+               else {
+                  gROME->SetUserEventC();
+                  gROME->SetUserEventR();
                }
             }
             else {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
-               if (fNetFolder) {        // control analyzer
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
+               if (gROME->IsStandAloneARGUS()) {
+                  if (fNetFolder) {
+                     fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
+                  }
                }
-               else {           // control active DAQ
-                  // to be implemented something
+               else {
+                  gROME->SetUserEventS();
                }
             }
             break;
          case B_Next:
-            if (fNetFolder) {   // control analyzer
-               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
-               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
-            }
-            else {              // control active DAQ
-               if (fRunNumber != fLastRunNumber) {
-                  fLastRunNumber = fRunNumber;
-                  gROME->GetActiveDAQ()->EndOfRun();
-                  gROME->SetCurrentRunNumber(fRunNumber);
-                  if (!gROME->GetActiveDAQ()->BeginOfRun()) {
-                     // currently, only sequensial read from event-0 is supported. Random access will be supported soon.
-                     fEventNumber = 0;
-                     gROME->SetCurrentEventNumber(fEventNumber);
-                     return false;
-                  }
-                  // currently, only sequensial read from event-0 is supported. Random access will be supported soon.
-                  fEventNumber = 0;
-                  gROME->SetCurrentEventNumber(fEventNumber);
-                  gROME->SetCurrentRunNumber(fRunNumber);
+            if (gROME->IsStandAloneARGUS()) {
+               if (fNetFolder) {
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
                }
-               // read data from file
-               gROME->GetActiveDAQ()->Event(fEventNumber);
-
-               // increment event number
-               fEventNumber++;
-               gROME->SetCurrentEventNumber(fEventNumber);
+            }
+            else {
+               gROME->SetUserEventO();
+               gROME->SetUserEventR();
             }
             break;
          case B_Stop:
-            if (fNetFolder) {   // control analyzer
-               fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
+            if (gROME->IsStandAloneARGUS()) {
+               if (fNetFolder) {
+                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
+               }
             }
-            else {              // control active DAQ
-               // to be implemented something
+            else {
+               gROME->SetUserEventS();
             }
             break;
          case B_Frwd:
-            if (fNetFolder) {   // control analyzer
-               // to be implemented something
+            if (gROME->IsStandAloneARGUS()) {
+               if (fNetFolder) {
+               }
             }
-            else {              // control active DAQ
-               gROME->GetActiveDAQ()->EndOfRun();
+            else {
             }
             break;
          default:

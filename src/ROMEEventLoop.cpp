@@ -655,7 +655,9 @@ bool ROMEEventLoop::UserInput()
          gSystem->Init();
          ((TRint*)gROME->GetApplication())->ProcessLine(gROME->GetCintInitialisation());
       }
-      gROME->ss_sleep(10);
+
+      gSystem->ProcessEvents();
+      gSystem->Sleep(10);
    }
    if (hit)
       time(&fProgressTimeOfLastEvent);

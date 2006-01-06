@@ -450,7 +450,7 @@ Bool_t ROMEAnalyzer::ss_kbhit()
 #endif
 }
 
-int ROMEAnalyzer::ss_sleep(int millisec)
+/*int ROMEAnalyzer::ss_sleep(int millisec)
 {
    fd_set readfds;
    struct timeval timeout;
@@ -468,14 +468,14 @@ int ROMEAnalyzer::ss_sleep(int millisec)
    do {
       status = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
 
-      /* if an alarm signal was cought, restart select with reduced timeout */
+      // if an alarm signal was cought, restart select with reduced timeout
       if (status == -1 && timeout.tv_sec >= 1)
          timeout.tv_sec -= 1;
 
-   } while (status == -1);      /* dont return if an alarm signal was cought */
+   } while (status == -1);      // dont return if an alarm signal was cought 
 
    return 1;
-}
+}*/
 
 #define CH_BS             8
 #define CH_TAB            9
