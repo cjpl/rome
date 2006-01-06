@@ -36,7 +36,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/tasks/HGTMakeHistogram.h>
+#include <include/generated/HGTMakeHistogram.h>
 #include <Riostream.h>
 #include <TRandom.h>
 

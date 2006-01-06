@@ -11186,6 +11186,8 @@ void ROMEBuilder::StartBuilder()
       }
    }
    if (!readGlobalSteeringParameters) {
+      if (numOfTaskHierarchy==-1)
+         numOfTaskHierarchy++;
       steerName[numOfTaskHierarchy][0] = "GlobalSteering";
       steerParent[numOfTaskHierarchy][0] = -1;
       numOfSteering[numOfTaskHierarchy] = 0;

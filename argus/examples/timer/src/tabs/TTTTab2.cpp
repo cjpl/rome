@@ -11,12 +11,13 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/tabs/TTTTab2.h"
+#include "include/generated/TTWindow.h"
 
 ClassImp(TTTTab2)
 
 void TTTTab2::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
 
    fBStart_2_1 = new TGTextButton(fHorz, "Start 2_1", B_START_2_1);
    fBStop_2_1 = new TGTextButton(fHorz, "Stop 2_1", B_STOP_2_1);
