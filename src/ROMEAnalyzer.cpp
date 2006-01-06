@@ -83,6 +83,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
 // Initialisations
 
+   fProgramMode = kStandAloneROME;
    fWindowClosed = false;
    fIOType = kNotBased;
    fRunNumber.Reset();
