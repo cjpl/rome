@@ -141,12 +141,6 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
 
    if (!ReadParameters(argc,argv)) return false;
 
-   if (isBatchMode() && IsStandAloneARGUS()) {
-      gROME->PrintLine("A stand alone ARGUS project can not run in batch mode!");
-      gROME->PrintLine("Terminating Program");
-      return false;
-   }
-
    if (this->isBatchMode())
       redirectOutput();
    else
@@ -287,8 +281,10 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (answerString=="R" || answerString=="A" || answerString=="M") {
          if (answerString=="R")
             gROME->SetStandAloneROME();
-         if (answerString=="A")
+         if (answerString=="A") {
             gROME->SetStandAloneARGUS();
+            gROME->SetBatchMode(true);
+         }
          if (answerString=="M")
             gROME->SetROMEAndARGUS();
          if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
