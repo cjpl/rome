@@ -123,8 +123,10 @@ bool ROMEBuilder::ReadXMLFolder() {
          hasFolderGenerated = true;
       }
       // folder version
-      if (type == 1 && !strcmp((const char*)name,"FolderVersion"))
+      if (type == 1 && !strcmp((const char*)name,"FolderVersion")) {
          xml->GetValue(folderVersion[numOfFolder],folderVersion[numOfFolder]);
+         ParseSVNKeyword(folderVersion[numOfFolder]);
+      }
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
          xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
@@ -1384,8 +1386,10 @@ bool ROMEBuilder::ReadXMLTask() {
          }
       }
       // task version
-      if (type == 1 && !strcmp((const char*)name,"TaskVersion"))
+      if (type == 1 && !strcmp((const char*)name,"TaskVersion")) {
          xml->GetValue(taskVersion[numOfTask],taskVersion[numOfTask]);
+         ParseSVNKeyword(taskVersion[numOfTask]);
+      }
       // task description
       if (type == 1 && !strcmp((const char*)name,"TaskDescription"))
          xml->GetValue(taskDescription[numOfTask],taskDescription[numOfTask]);
@@ -13724,4 +13728,21 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const Char_t* className, 
          buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////");
       }
    }
+}
+
+void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
+{
+   // extract Subversion revision number from string.
+   if(!str.BeginsWith("$") || !str.EndsWith(" $")) // This isn't Subversion keyword
+      return;
+
+   if(str.BeginsWith("$Rev: "))                      str.Remove(0, 6);
+   else if(str.BeginsWith("$Revision: "))            str.Remove(0, 11);
+   else if(str.BeginsWith("$LastChangedRevision: ")) str.Remove(0, 22);
+   else{
+      cout << "Warning: ROMEBuilder does not support keyword '"<<str<<"'"<<endl;
+      return;
+   }
+   str.Remove(str.Length()-2, 2);
+   return;
 }
