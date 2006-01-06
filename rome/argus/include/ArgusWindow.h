@@ -33,6 +33,7 @@ class ArgusWindow : public TGMainFrame
 protected:
    TGStatusBar* fStatusBar;        //! status bar
    Bool_t       fStatusBarSwitch;  //! status bar switch
+   int          fUpdateFrequency;  //! update frequency
    TGMenuBar*   fMenuBar;          //! menu bar
    TGPopupMenu* fMenuFile;         //! file menu
    TGPopupMenu* fMenuNetFolder;    //! file menu, net folder
@@ -77,6 +78,10 @@ public:
    void           SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; };
    Bool_t         GetStatusBarSwitch() { return fStatusBarSwitch; };
    TGStatusBar*   GetStatusBar() { return fStatusBar; };
+
+   // Update Frequency
+   void           SetUpdateFrequency(Int_t duration) { fUpdateFrequency = duration; };
+   Int_t          GetUpdateFrequency() { return fUpdateFrequency; };
    
    // Menu
    TGMenuBar*     GetMenuBar() { return fMenuBar; };

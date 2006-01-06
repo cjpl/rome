@@ -50,6 +50,50 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="AnalyzerControllerDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Title of the menu item.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NetFolderName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="ArgusDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the argus specific properties.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="WindowScale" type="xs:float" default="1.0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Basic size of main window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StatusBar" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Display a status bar in the window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UpdateFrequency" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="DataBaseDesc">
 		<xs:annotation>
 			<xs:documentation>Describes a data base, to which the framework should be connected.</xs:documentation>
@@ -264,7 +308,7 @@
 					<xs:documentation>The index of the group of a steering parameter group array. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc">
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a steering parameter field of the steering parameter group array. (required)</xs:documentation>
 				</xs:annotation>
@@ -546,40 +590,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="WindowDesc">
-		<xs:annotation>
-			<xs:documentation>Describes the main window property.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="Scale" type="xs:float" default="1.0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Basic size of main window.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="StatusBar" type="xs:boolean" default="true" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Basic size of main window.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="AnalyzerControllerDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="Active" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation>Title of the menu item.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="NetFolderName" type="xs:string" maxOccurs="1" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="ROMEDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the ROME settings.</xs:documentation>
@@ -646,6 +656,11 @@
 					<xs:documentation>Describes the modes in which the framework can run. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="Argus" type="ArgusDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the argus specific properties.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="DataBases" type="DataBasesDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Definition of the data bases, which the analysis accesses. (optional)</xs:documentation>
@@ -664,16 +679,6 @@
 			<xs:element name="Paths" type="PathsDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the file paths the framework is using. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Window" type="WindowDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the main window property.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the Analyzer Contoller Settings.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Folders" minOccurs="0">

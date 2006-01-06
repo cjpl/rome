@@ -26,8 +26,10 @@ ClassImp(ArgusWindow)
 ArgusWindow::ArgusWindow(const TGWindow* p, Char_t* title)
 {
    fWindowScale = 1;
+   fStatusBarSwitch = true;
    fControllerActive = false;
    fControllerNetFolder = NULL;
+   fUpdateFrequency = 0;
 }
 
 Bool_t ArgusWindow::Start()
@@ -62,7 +64,9 @@ Bool_t ArgusWindow::Start()
       return kFALSE;
 
    AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-   SetWindowName(gROME->GetProgramName());
+   ROMEString name;
+   name.SetFormatted("ARGUS - %s", gROME->GetProgramName());
+   SetWindowName(name.Data());
    MapSubwindows();
    Resize(GetDefaultSize());
    MapWindow();
