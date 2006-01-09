@@ -11681,7 +11681,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
 }
 void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
-   int i,j;
+   int i,j,k;
    ROMEString tmp;
 #if defined( R__VISUAL_CPLUSPLUS )
    // libs
@@ -11706,12 +11706,24 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
       buffer.AppendFormatted("midaslibs = \n");
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
    buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   bool addLib = true;
+   bool flagMatched = true;
    for (i=0;i<numOfMFWinLibs;i++) {
-      for (j=0;j<numOfMFWinLibFlags[i];j++)
-         buffer.AppendFormatted("!IFDEF %s\n",mfWinLibFlag[i][j].Data());
-      buffer.AppendFormatted("Libraries = $(Libraries) %s\n",mfWinLibName[i].Data());
-      for (j=0;j<numOfMFWinLibFlags[i];j++)
-         buffer.AppendFormatted("!ENDIF # %s\n",mfWinLibFlag[i][j].Data());
+      for (j=0;j<numOfMFWinLibFlags[i];j++) {
+         flagMatched = false;
+         for (k=0;k<flags.GetEntriesFast();k++) {
+            if (mfWinLibFlag[i][j]==flags.At(k)) {
+               flagMatched = true;
+               break;
+            }
+         }
+         if (!flagMatched) {
+            addLib = false;
+            break;
+         }
+      }
+      if (addLib)
+         buffer.AppendFormatted("Libraries = $(Libraries) %s\n",mfWinLibName[i].Data());
    }
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -12398,7 +12410,7 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
    WriteFile(fileName.Data(),buffer.Data(),6);
 }
 void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMEString& projectGUID) {
-   int i,j,k;
+   int i;
    ROMEString str;
    ROMEString formatVersion;
 
@@ -12479,33 +12491,12 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    xml->EndElement();
 
    // VCLinkerTool
-   ROMEString libs;
-   bool addLib = true;
-   bool flagMatched = true;
-   libs.AppendFormatted("wsock32.lib gdi32.lib user32.lib kernel32.lib gdk-1.3.lib glib-1.3.lib libCore.lib libCint.lib libHist.lib libGraf.lib libGraf3d.lib libGpad.lib libTree.lib libRint.lib libPostscript.lib libMatrix.lib libPhysics.lib libGui.lib libHtml.lib libWin32gdk.lib libThread.lib libMinuit.lib libGeom.lib libGeomPainter.lib");
-   for (i=0;i<numOfMFWinLibs;i++) {
-      for (j=0;j<numOfMFWinLibFlags[i];j++) {
-         flagMatched = false;
-         for (k=0;k<flags.GetEntriesFast();k++) {
-            if (mfWinLibFlag[i][j]==flags.At(k)) {
-               flagMatched = true;
-               break;
-            }
-         }
-         if (!flagMatched) {
-            addLib = false;
-            break;
-         }
-      }
-      if (addLib)
-         libs.AppendFormatted(" %s",mfWinLibName[i].Data());
-   }
    ROMEString libDirs;
    libDirs.AppendFormatted("\"$(ROOTSYS)\\lib\"");
    libDirs.AppendFormatted(";\"$(ROMESYS)\\lib_win\"");
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCLinkerTool");
-   xml->WriteAttribute("AdditionalDependencies",libs.Data());
+   xml->WriteAttribute("AdditionalDependencies","wsock32.lib gdi32.lib user32.lib kernel32.lib");
    if (version==2002) {
       str.SetFormatted("$(OutDir)/%s%s.exe",shortCut.Data(),mainProgName.Data());
       xml->WriteAttribute("OutputFile",str.Data());
@@ -12724,6 +12715,7 @@ void ROMEBuilder::WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *le
 }
 void ROMEBuilder::WriteVisualProjects(int version)
 {
+   int i,j,k;
    switch (version) {
       case 2002:
          break;
@@ -12782,6 +12774,108 @@ void ROMEBuilder::WriteVisualProjects(int version)
    WriteVisualProjectProjHeaders(xml,argusHeaders,"ARGUS");
 
    // End Header Files
+   xml->EndElement();
+
+   // Library Files
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Library Files");
+   xml->WriteAttribute("Filter","lib");
+   xml->WriteAttribute("UniqueIdentifier","{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}");
+
+   // root
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","ROOT");
+   xml->WriteAttribute("Filter","lib");
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/gdk-1.3.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/glib-1.3.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libCore.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libCint.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libHist.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGraf.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGraf3d.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGpad.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libTree.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libRint.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libPostscript.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libMatrix.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libPhysics.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGui.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libHtml.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libWin32gdk.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libThread.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libMinuit.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGeom.lib");
+   xml->EndElement();
+   xml->StartElement("File");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGeomPainter.lib");
+   xml->EndElement();
+   xml->EndElement();
+   // user
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","User");
+   xml->WriteAttribute("Filter","lib");
+   bool addLib = true;
+   bool flagMatched = true;
+   for (i=0;i<numOfMFWinLibs;i++) {
+      for (j=0;j<numOfMFWinLibFlags[i];j++) {
+         flagMatched = false;
+         for (k=0;k<flags.GetEntriesFast();k++) {
+            if (mfWinLibFlag[i][j]==flags.At(k)) {
+               flagMatched = true;
+               break;
+            }
+         }
+         if (!flagMatched) {
+            addLib = false;
+            break;
+         }
+      }
+      if (addLib) {
+         xml->StartElement("File");
+         xml->WriteAttribute("RelativePath",mfWinLibName[i].Data());
+         xml->EndElement();
+      }
+   }
+   xml->EndElement();
+
+   // End Library Files
    xml->EndElement();
 
    // End Files
