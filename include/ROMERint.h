@@ -7,6 +7,7 @@
 #ifndef ROMERint_H
 #define ROMERint_H
 
+#include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
