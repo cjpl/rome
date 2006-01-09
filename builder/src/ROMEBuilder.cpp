@@ -10581,12 +10581,12 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("#include \"TFolder.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
-   buffer.AppendFormatted("#include \"windows.h\"\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ROMERint.h\"\n");
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
+   buffer.AppendFormatted("#include \"windows.h\"\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
