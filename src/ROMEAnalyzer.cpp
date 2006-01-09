@@ -82,30 +82,30 @@ void *gPassToROME;  // void ROMEAnalyzer Handle
 ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
 // Initialisations
-
    fProgramMode = kStandAloneROME;
    fWindowClosed = false;
-   fIOType = kNotBased;
-   fRunNumber.Reset();
-   fLastEventNumberIndex = 0;
    fApplication = app;
+   fCintInitialisation = "";
+   fActiveDAQ = 0;
    fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
    fSplashScreen = true;
    fDontReadNextEvent = false;
+   fInputDir = "./";
+   fOutputDir = "./";
+   fDataBaseDir = 0;
+   fConfigDir = "./";
    fCurrentRunNumber = 0;
+   fRunNumber.Reset();
+   fRunNumberString = "";
    fCurrentEventNumber = 0;
-   fEventID = 'a';
-   fTerminate = false;
-   fTreeAccumulation = false;
-   fPortNumber = 9090;
-   fSocketOffline = false;
-   fTreeObjects = new TObjArray(0);
-   fHistoFolders = new TObjArray(0);
-   fOnlineHost = "";
-   fPortNumber = 9090;
-   fSocketOffline = false;
-   fActiveDAQ = NULL;
+   fEventNumber.Reset();
+   fEventNumberString = "";
+   fLastEventNumberIndex = 0;
+   fCurrentInputFileName = "";
+//   fInputFileNames.Reset();
+   fInputFileNamesString = "";
+   fIOType = kNotBased;
    fUserEvent = false;
    fUserEventQ = false;
    fUserEventE = false;
@@ -114,11 +114,40 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fUserEventO = false;
    fUserEventC = false;
    fUserEventG = false;
+   fUserEventGRunNumber = 0;
+   fUserEventGEventNumber = 0;
    fUserEventI = false;
+   fEventID = 'a';
+   fMidasOnlineDataBase = 0;
+   fTerminate = false;
+   fFillEvent = false;
+   fMainTask = 0;
+   fMainFolder = 0;
+   fHistoFiles = 0;
+   fTreeObjects = new TObjArray(0);
+   fTreeAccumulation = false;
+   fMainHistoFolder = 0;
+   fHistoFolders = new TObjArray(0);
+   fProgramName = "rome";
+   fOnlineHost = "";
+   fOnlineExperiment = "";
+   fPortNumber = 9090;
+   fSocketOffline = false;
+   fDataBaseHandle = 0;
+   fDataBaseConnection = 0;
+   fNumberOfDataBases = 0;
+   fConfiguration = 0;
    fShowRunStat = true;
-   fInputDir = "./";
-   fOutputDir = "./";
    fEventBasedDataBase = false;
+   fNumberOfNetFolders = 0;
+   fNetFolder = 0;
+   fNetFolderActive = 0;
+   fNetFolderReconnect = 0;
+   fNetFolderSocket = 0;
+   fNetFolderPort = 0;
+   fNetFolderName = 0;
+   fNetFolderHost = 0;
+   fNetFolderRoot = 0;
    fOldbuf = 0;
 }
 
@@ -765,13 +794,13 @@ TNetFolder *ROMEAnalyzer::GetNetFolder(const Char_t *name)
       if (!stricmp(fNetFolderName[i].Data(), name)) {
          if (!fNetFolderActive[i]) {
             Warning("GetNetFolder", "%s is not activated.", name);
-            return NULL;
+            return 0;
          }
          return fNetFolder[i];
       }
    }
    Error("GetNetFolder", "Netfolder '%s' is not defined", name);
-   return NULL;
+   return 0;
 };
 
 Bool_t ROMEAnalyzer::ConnectNetFolder(const Char_t *name)
