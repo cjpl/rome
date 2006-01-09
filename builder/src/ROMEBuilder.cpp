@@ -1698,25 +1698,25 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("}\n\n");
 #endif
 #if defined( R__UNIX )
-         buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("   %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("extern \"C\" void %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("   %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("extern \"C\" void %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("   %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("extern \"C\" void %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("   %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("extern \"C\" void %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp));
+         buffer.AppendFormatted("   %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("}\n\n");
          //Write File
          header += buffer;
@@ -11707,9 +11707,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
    buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    bool addLib = true;
-   bool flagMatched = true;
+   bool flagMatched = false;
    for (i=0;i<numOfMFWinLibs;i++) {
+      addLib = true;
       for (j=0;j<numOfMFWinLibFlags[i];j++) {
+         addLib = false;
          flagMatched = false;
          for (k=0;k<flags.GetEntriesFast();k++) {
             if (mfWinLibFlag[i][j]==flags.At(k)) {
@@ -11717,8 +11719,8 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
                break;
             }
          }
-         if (!flagMatched) {
-            addLib = false;
+         if (flagMatched) {
+            addLib = true;
             break;
          }
       }
@@ -12168,7 +12170,7 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
 void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
-   ROMEString tmp;
+   ROMEString tmp,tmp2;
 
    AddIncludeDirectories();
    AddRomeHeaders();
@@ -12212,7 +12214,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 // all
-   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
@@ -12270,7 +12272,7 @@ void ROMEBuilder::WriteMakefile() {
 
 // Link Statement
 // --------------
-   buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
    if (haveFortranTask)
@@ -12280,15 +12282,15 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
-   buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
-   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
-   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp),shortCut.ToLower(tmp),mainProgName.ToLower(tmp));
+   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
@@ -12610,7 +12612,7 @@ void ROMEBuilder::WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* heade
 void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
    int i,j,k;
    bool addFile = true;
-   bool flagMatched = true;
+   bool flagMatched = false;
    ROMEString path;
    ROMEString name;
    ROMEString ext;
@@ -12622,6 +12624,7 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
       for (i=0;i<numOfMFSources;i++) {
          addFile = true;
          for (j=0;j<numOfMFSourceFlags[i];j++) {
+            addFile = false;
             flagMatched = false;
             for (k=0;k<flags.GetEntriesFast();k++) {
                if (mfSourceFileFlag[i][j]==flags.At(k)) {
@@ -12629,8 +12632,8 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml) {
                   break;
                }
             }
-            if (!flagMatched) {
-               addFile = false;
+            if (flagMatched) {
+               addFile = true;
                break;
             }
          }
@@ -12676,6 +12679,7 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml) {
             continue;
          addFile = true;
          for (j=0;j<numOfMFSourceFlags[i];j++) {
+            addFile = false;
             flagMatched = false;
             for (k=0;k<flags.GetEntriesFast();k++) {
                if (mfSourceFileFlag[i][j]==flags.At(k)) {
@@ -12683,8 +12687,8 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml) {
                   break;
                }
             }
-            if (!flagMatched) {
-               addFile = false;
+            if (flagMatched) {
+               addFile = true;
                break;
             }
          }
@@ -12852,9 +12856,11 @@ void ROMEBuilder::WriteVisualProjects(int version)
    xml->WriteAttribute("Name","User");
    xml->WriteAttribute("Filter","lib");
    bool addLib = true;
-   bool flagMatched = true;
+   bool flagMatched = false;
    for (i=0;i<numOfMFWinLibs;i++) {
+      addLib = true;
       for (j=0;j<numOfMFWinLibFlags[i];j++) {
+         addLib = false;
          flagMatched = false;
          for (k=0;k<flags.GetEntriesFast();k++) {
             if (mfWinLibFlag[i][j]==flags.At(k)) {
@@ -12862,8 +12868,8 @@ void ROMEBuilder::WriteVisualProjects(int version)
                break;
             }
          }
-         if (!flagMatched) {
-            addLib = false;
+         if (flagMatched) {
+            addLib = true;
             break;
          }
       }
@@ -13313,7 +13319,7 @@ bool ROMEBuilder::WriteReadTreesC() {
    ROMEString cFile;
    ROMEString buffer;
    ROMEString format;
-   ROMEString tmp;
+   ROMEString tmp,tmp2;
    ROMEString macroDescription;
    buffer.Resize(0);
    macroDescription.Resize(0);
@@ -13321,11 +13327,11 @@ bool ROMEBuilder::WriteReadTreesC() {
    // File name
    cFile.SetFormatted("%ssrc/generated/%sReadTrees.C", outDir.Data(), shortCut.Data());
    WriteHeader(buffer, mainAuthor, true);
-   macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp));
+   macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    macroDescription.AppendFormatted(" Usage\n");
    macroDescription.AppendFormatted("   %% make so;\n");
    macroDescription.AppendFormatted("   %% root;\n");
-   macroDescription.AppendFormatted("   root [0] gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp));
+   macroDescription.AppendFormatted("   root [0] gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    macroDescription.AppendFormatted("   root [1] .L src/generated/%sReadTrees.C\n", shortCut.Data());
    macroDescription.AppendFormatted("   root [2] %sReadTrees(1, 0, 10)\n", shortCut.Data());
    macroDescription.AppendFormatted("\n");
@@ -13395,7 +13401,7 @@ bool ROMEBuilder::WriteReadTreesC() {
    for (iTree = 0; iTree < numOfTree; iTree++)
       buffer.AppendFormatted("                 , Bool_t read%s = kTRUE\n", treeName[iTree].Data());
    buffer.AppendFormatted("                 ){\n");
-//   buffer.AppendFormatted("   gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp));
+//   buffer.AppendFormatted("   gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
 
    // Open files
    buffer.AppendFormatted("   Char_t filename[100];\n", treeName[iTree].Data());
