@@ -1,0 +1,21 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>XYZ</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+	</Experiment>
+	<Tasks>
+		<Task>
+			<TaskName>FillHisto</TaskName>
+			<Histogram>
+				<HistName>MyHisto</HistName>
+				<HistFolderName>myhistos</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+			</Histogram>
+		</Task>
+	</Tasks>
+</ROMEFrameworkDefinition>

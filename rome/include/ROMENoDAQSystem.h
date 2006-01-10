@@ -14,15 +14,12 @@ class ROMENoDAQSystem : public ROMEDAQSystem{
 public:
    ROMENoDAQSystem::ROMENoDAQSystem() {};
 
-   bool fFirstTime;
-
    int   GetTimeStamp() { return -1; };
    const char* GetName() { return "none"; };
 
-   bool Init() { fFirstTime = true; return true; };
+   bool Init() { return true; };
    bool BeginOfRun() { 
-      if (!fFirstTime) SetTerminate();
-      fFirstTime = false;
+      this->SetRunning();
       return true; };
    bool Event(int event) { 
       if (gROME->IsStandAloneARGUS()) SetContinue(); 
