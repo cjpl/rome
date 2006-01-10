@@ -7107,7 +7107,7 @@ bool ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("      if (fConfigData[index]%s->f%sHisto->fAccumulate==\"false\")\n",pointer.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("         ((%sT%s*)gAnalyzer->Get%s%03dTask())->Set%sAccumulation(false);\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         ((%sT%s*)gAnalyzer->Get%s%03dTask())->Set%sAccumulation(false);\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("         ((%sT%s*)gAnalyzer->Get%s%03dTask())->Set%sAccumulation(true);\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   }\n");
       }
       // Steering parameter
@@ -7389,7 +7389,7 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    // Argus
    buffer.AppendFormatted("   // Argus\n");
-   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fArgusModified || index==0)) {\n");
+   buffer.AppendFormatted("   if (((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && index==0) || fConfigData[index]->fArgusModified) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Argus\");\n");
    // Argus/WindowScale
    buffer.AppendFormatted("      if (index==0){\n");
@@ -7610,7 +7610,7 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    // Tasks
    buffer.AppendFormatted("   // tasks\n");
-   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneROME()) && (fConfigData[index]->fTasksModified || index==0)) {\n");
+   buffer.AppendFormatted("   if (((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneROME()) && index==0) || fConfigData[index]->fTasksModified) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Tasks\");\n");
    pointer.Resize(0);
    WriteTaskConfigWrite(buffer,-1,pointer,0);
@@ -7619,7 +7619,7 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    // Tabs
    buffer.AppendFormatted("   // tabs\n");
-   buffer.AppendFormatted("   if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && (fConfigData[index]->fTabsModified || index==0)) {\n");
+   buffer.AppendFormatted("   if (((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && index==0) || fConfigData[index]->fTabsModified) {\n");
    buffer.AppendFormatted("      xml->StartElement(\"Tabs\");\n");
    pointer.Resize(0);
    WriteTabConfigWrite(buffer, -1, pointer, 0);
@@ -7840,6 +7840,12 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fBatchModeModified;\n");
    buffer.AppendFormatted("         ROMEString  fShowSplashScreen;\n");
    buffer.AppendFormatted("         bool        fShowSplashScreenModified;\n");
+   buffer.AppendFormatted("         Modes() {\n");
+   buffer.AppendFormatted("            fAnalyzingModeModified = false;\n");
+   buffer.AppendFormatted("            fDAQSystemModified = false;\n");
+   buffer.AppendFormatted("            fBatchModeModified = false;\n");
+   buffer.AppendFormatted("            fShowSplashScreenModified = false;\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Modes *fModes;\n");
    buffer.AppendFormatted("      bool   fModesModified;\n");
@@ -7861,9 +7867,20 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("            Bool_t           fActiveModified;\n");
    buffer.AppendFormatted("            ROMEString       fNetFolder;\n");
    buffer.AppendFormatted("            Bool_t           fNetFolderModified;\n");
+   buffer.AppendFormatted("            AnalyzerController() {\n");
+   buffer.AppendFormatted("               fActiveModified = false;\n");
+   buffer.AppendFormatted("               fNetFolderModified = false;\n");
+   buffer.AppendFormatted("            };\n");
    buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("         AnalyzerController* fAnalyzerController;\n");
    buffer.AppendFormatted("         Bool_t              fAnalyzerControllerModified;\n");
+   buffer.AppendFormatted("         Argus() {\n");
+   buffer.AppendFormatted("            fWindowScaleModified = false;\n");
+   buffer.AppendFormatted("            fStatusBarModified = false;\n");
+   buffer.AppendFormatted("            fUpdateFrequencyModified = false;\n");
+   buffer.AppendFormatted("            fAnalyzerControllerModified = false;\n");
+   buffer.AppendFormatted("            fAnalyzerController = new AnalyzerController();\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Argus*           fArgus;\n");
    buffer.AppendFormatted("      Bool_t           fArgusModified;\n");
@@ -7880,6 +7897,12 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fConnectionModified;\n");
    buffer.AppendFormatted("         ROMEString  fEventBased;\n");
    buffer.AppendFormatted("         bool        fEventBasedModified;\n");
+   buffer.AppendFormatted("         DataBase() {\n");
+   buffer.AppendFormatted("            fNameModified = false;\n");
+   buffer.AppendFormatted("            fTypeModified = false;\n");
+   buffer.AppendFormatted("            fConnectionModified = false;\n");
+   buffer.AppendFormatted("            fEventBasedModified = false;\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      DataBase **fDataBase;\n");
    buffer.AppendFormatted("      bool      *fDataBaseModified;\n");
@@ -7893,6 +7916,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         ROMEString  fExperiment;\n");
    buffer.AppendFormatted("         bool        fExperimentModified;\n");
    buffer.AppendFormatted("         Online() {\n");
+   buffer.AppendFormatted("            fHostModified = false;\n");
+   buffer.AppendFormatted("            fExperimentModified = false;\n");
    buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Online *fOnline;\n");
@@ -7905,6 +7930,10 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fPortNumberModified;\n");
    buffer.AppendFormatted("         ROMEString  fAvailableOffline;\n");
    buffer.AppendFormatted("         bool        fAvailableOfflineModified;\n");
+   buffer.AppendFormatted("         SocketInterface() {\n");
+   buffer.AppendFormatted("            fPortNumberModified = false;\n");
+   buffer.AppendFormatted("            fAvailableOfflineModified = false;\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      SocketInterface *fSocketInterface;\n");
    buffer.AppendFormatted("      bool   fSocketInterfaceModified;\n");
@@ -7916,6 +7945,10 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fInputFilePathModified;\n");
    buffer.AppendFormatted("         ROMEString  fOutputFilePath;\n");
    buffer.AppendFormatted("         bool        fOutputFilePathModified;\n");
+   buffer.AppendFormatted("         Paths() {\n");
+   buffer.AppendFormatted("            fInputFilePathModified = false;\n");
+   buffer.AppendFormatted("            fOutputFilePathModified = false;\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Paths *fPaths;\n");
    buffer.AppendFormatted("      bool   fPathsModified;\n");
@@ -7967,6 +8000,13 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         Bool_t           fHostModified;\n");
    buffer.AppendFormatted("         ROMEString       fPort;\n");
    buffer.AppendFormatted("         Bool_t           fPortModified;\n");
+   buffer.AppendFormatted("         NetFolder() {\n");
+   buffer.AppendFormatted("            fActiveModified = false;\n");
+   buffer.AppendFormatted("            fReconnectModified = false;\n");
+   buffer.AppendFormatted("            fRootModified = false;\n");
+   buffer.AppendFormatted("            fHostModified = false;\n");
+   buffer.AppendFormatted("            fPortModified = false;\n");
+   buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    if (numOfNetFolder > 0) {
       buffer.AppendFormatted("      NetFolder*       fNetFolder[%d];\n", numOfNetFolder);
@@ -8004,6 +8044,14 @@ bool ROMEBuilder::WriteConfigH() {
       buffer.AppendFormatted("         bool        fMaxNumberOfEntriesModified;\n");
       buffer.AppendFormatted("         ROMEString  fFileName;\n");
       buffer.AppendFormatted("         bool        fFileNameModified;\n");
+      buffer.AppendFormatted("         %sTree() {\n",treeName[i].Data());
+      buffer.AppendFormatted("            fReadModified = false;\n");
+      buffer.AppendFormatted("            fWriteModified = false;\n");
+      buffer.AppendFormatted("            fFillModified = false;\n");
+      buffer.AppendFormatted("            fCompressionLevelModified = false;\n");
+      buffer.AppendFormatted("            fMaxNumberOfEntriesModified = false;\n");
+      buffer.AppendFormatted("            fFileNameModified = false;\n");
+      buffer.AppendFormatted("         };\n");
       buffer.AppendFormatted("      };\n");
       buffer.AppendFormatted("      %sTree *f%sTree;\n",treeName[i].Data(),treeName[i].Data());
       buffer.AppendFormatted("      bool   f%sTreeModified;\n",treeName[i].Data());
@@ -8059,6 +8107,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fInputFileNamesModified = false;\n");
    buffer.AppendFormatted("         fModesModified = false;\n");
    buffer.AppendFormatted("         fModes = new Modes();\n");
+   buffer.AppendFormatted("         fArgusModified = false;\n");
+   buffer.AppendFormatted("         fArgus = new Argus();\n");
    buffer.AppendFormatted("         fDataBasesModified = false;\n");
    buffer.AppendFormatted("         fOnlineModified = false;\n");
    buffer.AppendFormatted("         fOnline = new Online();\n");
@@ -8080,6 +8130,7 @@ bool ROMEBuilder::WriteConfigH() {
          buffer.AppendFormatted("         f%s%03dTask = new %s%03dTask();\n",taskHierarchyName[i].Data(),i,taskHierarchyName[i].Data(),i);
       }
    }
+   buffer.AppendFormatted("         fTabsModified = false;\n");
    for (i=0;i<numOfTab;i++) {
       if (tabParentIndex[i]==-1) {
          buffer.AppendFormatted("         f%sTabModified = false;\n",tabName[i].Data());
@@ -10673,24 +10724,24 @@ bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
    }
    for (int i=1;i<argc;i++) {
       // -- only for testing (start) --
-      if (!strcmp(argv[i],"-dc")) {
-         makeOutput = true;
-         noLink = true;
+      if (!strcmp(argv[i],"-meg")) {
+         makeOutput = false;
          midas = true;
-         outDir = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/";
-         xmlFile = "C:/Data/analysis/MEG/ROME .NET/DCAnalyzer/dc.xml";
-      }
-      else if (!strcmp(argv[i],"-meg")) {
-         makeOutput = true;
-         midas = true;
-         orca = true;
          noLink = true;
          sql = true;
          mysql = true;
-         sqlite = false;
-//         sqlite3 = true;
-         outDir = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/";
-         xmlFile = "C:/Data/analysis/MEG/ROME .NET/MEGFrameWork/MEGFrameWork.xml";
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         flags.AddAtAndExpand("HAVE_DRS",0);
+         flags.AddAtAndExpand("HAVE_MSCB",1);
+         flags.AddAtAndExpand("HAVE_USB",2);
+         flags.AddAtAndExpand("HAVE_AFG3251",3);
+         flags.AddAtAndExpand("HAVE_VME",4);
+      }
+      else if (!strcmp(argv[i],"-multi")) {
+         noLink = true;
+         outDir = "C:/rome/examples/multirun/";
+         xmlFile = "C:/rome/examples/multirun/multirun.xml";
       }
       else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;
@@ -10698,20 +10749,6 @@ bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
          noLink = true;
          outDir = "C:/lpframework/";
          xmlFile = "C:/lpframework/lpframework.xml";
-      }
-      else if (!strcmp(argv[i],"-sample")) {
-         makeOutput = true;
-         midas = false;
-         noLink = false;
-         outDir = "C:/rome/examples/sample/";
-         xmlFile = "C:/rome/examples/sample/sample.xml";
-      }
-      else if (!strcmp(argv[i],"-dance")) {
-         makeOutput = true;
-         midas = false;
-         noLink = true;
-         outDir = "C:/Data/Testprojects/dance2/test/";
-         xmlFile = "C:/Data/Testprojects/dance2/test/dance.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {
