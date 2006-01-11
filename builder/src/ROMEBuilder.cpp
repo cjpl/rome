@@ -1698,6 +1698,7 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("}\n\n");
 #endif
 #if defined( R__UNIX )
+         ROMEString tmp2;
          buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
          buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("   %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
@@ -11718,7 +11719,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer) {
    buffer.AppendFormatted("\n");
 }
 void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
-   int i,j,k;
+   int i,j;
    ROMEString tmp;
 #if defined( R__VISUAL_CPLUSPLUS )
    // libs
@@ -11745,6 +11746,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer) {
    buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
    bool addLib = true;
    bool flagMatched = false;
+   int k;
    for (i=0;i<numOfMFWinLibs;i++) {
       addLib = true;
       for (j=0;j<numOfMFWinLibFlags[i];j++) {
