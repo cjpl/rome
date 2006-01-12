@@ -9888,8 +9888,14 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
          buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
       }
       else {
-         format.SetFormatted("   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds { return (%%s%%s*)f%%sFolders->At(index);%%%ds };\n",typeLen-folderName[numFolder].Length()-scl,0+nameLen-folderName[numFolder].Length(),lt);
-         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),"");
+         format.SetFormatted(   "   %%s%%s*%%%ds  Get%%sAt(int index)%%%ds\n",typeLen-folderName[numFolder].Length()-scl,0+nameLen-folderName[numFolder].Length());
+         buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
+         buffer.AppendFormatted("   { if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("        ROMEString str;str.SetFormatted(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
+         buffer.AppendFormatted("        this->PrintLine(str.Data());\n");
+         buffer.AppendFormatted("        ((TRint*)fApplication)->Terminate(1);\n");
+         buffer.AppendFormatted("        return NULL; }\n");
+         buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          format.SetFormatted("   TClonesArray*%%%ds  Get%%ss()%%%ds { return f%%sFolders;%%%ds };\n",typeLen-12,10+nameLen-folderName[numFolder].Length(),14+typeLen+nameLen-folderName[numFolder].Length());
          buffer.AppendFormatted(format.Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
          format.SetFormatted("   TClonesArray**%%%ds Get%%sAddress()%%%ds { return &f%%sFolders;%%%ds };\n",typeLen-12,4+nameLen-folderName[numFolder].Length(),13+typeLen+nameLen-folderName[numFolder].Length());
