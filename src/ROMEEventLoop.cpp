@@ -162,7 +162,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
                return;
             }
             this->SetStopped();
-            this->SetEndOfRun();
+            this->SetTerminate();
             break;
          }
          if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
