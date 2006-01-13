@@ -299,7 +299,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       prompt.ToLower();
       prompt += " [%d]";
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
-      if (!gROME->isBatchMode()) {
+      if (!gROME->isBatchMode() && !gROME->isQuitMode()) {
          ((TRint*)gROME->GetApplication())->Run(true);
          gROME->PrintLine();
       }

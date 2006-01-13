@@ -80,6 +80,7 @@ protected:
    // Modes
    Int_t      fAnalysisMode;                    //! Analysis mode flag
    Bool_t     fBatchMode;                       //! Batch mode flag
+   Bool_t     fQuitMode;                        //! Quit mode flag
    Bool_t     fSplashScreen;                    //! Splash screen flag
 
 
@@ -269,9 +270,11 @@ public:
    // modes
    Bool_t     isSplashScreen() { return fSplashScreen; };
    Bool_t     isBatchMode() { return fBatchMode; };
+   Bool_t     isQuitMode() { return fQuitMode; };
 
    void       SetSplashScreen(bool flag=true)  { fSplashScreen = flag; };
    void       SetBatchMode(bool flag=true) { fBatchMode = flag; };
+   void       SetQuitMode(bool flag=true) { fQuitMode = flag; };
 
    // Analysis Mode
    Bool_t     isOnline() { return fAnalysisMode==kAnalyzeOnline; };

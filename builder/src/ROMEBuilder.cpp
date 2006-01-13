@@ -6076,6 +6076,12 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fModes->fBatchModeModified = false;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fModes->fBatchModeModified = true;\n");
+   // Modes/QuitMode
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/QuitMode\",fConfigData[index]->fModes->fQuitMode,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fModes->fQuitMode==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fQuitModeModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fModes->fQuitModeModified = true;\n");
    // Modes/ShowSplashScreen
    buffer.AppendFormatted("   xml->GetPathValue(path+\"/Modes/ShowSplashScreen\",fConfigData[index]->fModes->fShowSplashScreen,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fModes->fShowSplashScreen==\"\")\n");
@@ -6086,6 +6092,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (fConfigData[index]->fModes->fAnalyzingModeModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fDAQSystemModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fBatchModeModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fModes->fQuitModeModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fModes->fShowSplashScreenModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fModesModified = true;\n");
    buffer.AppendFormatted("   else\n");
@@ -6856,6 +6863,12 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetBatchMode(false);\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fQuitModeModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fModes->fQuitMode==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetQuitMode(true);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetQuitMode(false);\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fModes->fShowSplashScreenModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fModes->fShowSplashScreen==\"false\")\n");
    buffer.AppendFormatted("         gAnalyzer->SetSplashScreen(false);\n");
@@ -7383,6 +7396,15 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fBatchModeModified)\n");
    buffer.AppendFormatted("         xml->WriteElement(\"BatchMode\",fConfigData[index]->fModes->fBatchMode.Data());\n");
+   // Modes/QuitMode
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->isQuitMode())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"QuitMode\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"QuitMode\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fModes->fQuitModeModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"QuitMode\",fConfigData[index]->fModes->fQuitMode.Data());\n");
    // Modes/ShowSplashScreen
    buffer.AppendFormatted("      if (index==0) {\n");
    buffer.AppendFormatted("         if (gAnalyzer->isSplashScreen())\n");
@@ -7846,12 +7868,15 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         bool        fDAQSystemModified;\n");
    buffer.AppendFormatted("         ROMEString  fBatchMode;\n");
    buffer.AppendFormatted("         bool        fBatchModeModified;\n");
+   buffer.AppendFormatted("         ROMEString  fQuitMode;\n");
+   buffer.AppendFormatted("         bool        fQuitModeModified;\n");
    buffer.AppendFormatted("         ROMEString  fShowSplashScreen;\n");
    buffer.AppendFormatted("         bool        fShowSplashScreenModified;\n");
    buffer.AppendFormatted("         Modes() {\n");
    buffer.AppendFormatted("            fAnalyzingModeModified = false;\n");
    buffer.AppendFormatted("            fDAQSystemModified = false;\n");
    buffer.AppendFormatted("            fBatchModeModified = false;\n");
+   buffer.AppendFormatted("            fQuitModeModified = false;\n");
    buffer.AppendFormatted("            fShowSplashScreenModified = false;\n");
    buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
@@ -9875,7 +9900,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
       return;
    ROMEString format;
    if (numOfValue[numFolder] > 0) {
-      int lt = typeLen-folderName[numFolder].Length()-scl+nameLen-folderName[numFolder].Length();
+//      int lt = typeLen-folderName[numFolder].Length()-scl+nameLen-folderName[numFolder].Length();
       if (folderArray[numFolder]=="1") {
          format.SetFormatted("   %%s%%s*%%%ds  Get%%s()%%%ds { return f%%sFolder;%%%ds };\n",typeLen-folderName[numFolder].Length()-scl,11+nameLen-folderName[numFolder].Length(),15+typeLen+nameLen-folderName[numFolder].Length());
          buffer.AppendFormatted(format.Data(),shortCut.Data(),folderName[numFolder].Data(),"",folderName[numFolder].Data(),"",folderName[numFolder].Data(),"");
