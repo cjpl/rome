@@ -150,6 +150,9 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fNetFolderHost = 0;
    fNetFolderRoot = 0;
    fOldbuf = 0;
+   fSocketToROMEActive = true;
+   fSocketToROMEHost = "localhost";
+   fSocketToROMEPort = 9090;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -845,6 +848,26 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    }
 
    return kTRUE;
+}
+
+
+Bool_t ROMEAnalyzer::ConnectSocketToROME()
+{
+   ROMEString port;
+   port.SetFormatted("%d",fSocketToROMEPort);
+   fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
+   while (!fSocketToROME->IsValid()) {
+      delete fSocketToROME;
+      PrintText("can not make socket connection to the ROME analyzer on host '");
+      PrintText(fSocketToROMEHost.Data());
+      PrintText("' through port ");
+      PrintText(port);
+      PrintLine(".");
+      PrintLine("program sleeps for 5s and tries again.");
+      gSystem->Sleep(5000);
+      fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
+   }
+   return true;
 }
 
 Bool_t ROMEAnalyzer::DisconnectNetFolder(const Char_t *name)

@@ -308,7 +308,7 @@
 				</xs:element>
 				<xs:element name="NetFolder" type="xs:boolean" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>If true, the folder will be a TNetFolder in the stand alone ARGUS mode. The folder is then managed by the framework. Default false. (optional)</xs:documentation>
+						<xs:documentation>If true, the folder will be filled over the socket connection to a ROME analyzer in the stand alone ARGUS mode. Default false. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
