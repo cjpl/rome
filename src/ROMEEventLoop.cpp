@@ -20,7 +20,6 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <io.h>
 #endif
