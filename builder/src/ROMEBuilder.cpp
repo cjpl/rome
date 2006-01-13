@@ -53,6 +53,7 @@ bool ROMEBuilder::ReadXMLFolder() {
    folderVersion[numOfFolder] = "1";
    folderDescription[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
+   folderNet[numOfFolder] = false;
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = false;
@@ -130,6 +131,12 @@ bool ROMEBuilder::ReadXMLFolder() {
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
          xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+      // Net Folder
+      if (type == 1 && !strcmp((const char*)name,"NetFolder")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true")
+            folderNet[numOfFolder] = true;
+      }
       // folder author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
          while (xml->NextLine()) {
@@ -12215,7 +12222,7 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
 void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
-   ROMEString tmp,tmp2;
+   ROMEString tmp,tmp2,tmp3,tmp4;
 
    AddIncludeDirectories();
    AddRomeHeaders();

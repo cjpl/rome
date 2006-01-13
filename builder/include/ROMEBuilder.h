@@ -120,7 +120,8 @@ protected:
    ROMEString folderAuthor[maxNumberOfFolders];
    ROMEString folderVersion[maxNumberOfFolders];
    ROMEString folderInclude[maxNumberOfFolders][maxNumberOfInclude];
-   bool  folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
+   bool folderNet[maxNumberOfFolders];
+   bool folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
    bool folderDataBase[maxNumberOfFolders];
    bool folderUserCode[maxNumberOfFolders];
    bool folderSupport[maxNumberOfFolders];
