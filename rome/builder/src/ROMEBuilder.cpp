@@ -4860,6 +4860,18 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    }
    buffer.AppendFormatted("\n");
 
+   // Connect SocketToROME NetFolder
+   buffer.AppendFormatted("   // Connect SocketToROME NetFolder\n");
+   buffer.AppendFormatted("bool %sAnalyzer::ConnectSocketToROMENetFolder() {\n",shortCut.Data());
+   buffer.AppendFormatted("   fSocketToROMENetFolder = new TNetFolder(\"%s\",\"RootNetFolder\", fSocketToROME, true);\n",shortCut.Data());
+   buffer.AppendFormatted("   if (!fSocketToROMENetFolder->GetPointer()) {\n");
+   buffer.AppendFormatted("      Warning(\"ConnectSocketToROMENetFolder\", \"Failed to connect to the ROME analyzer.\");\n");
+   buffer.AppendFormatted("      return false;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Splash Screen
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LPDWORD lpThreadId;\n");
@@ -5354,6 +5366,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("   void UserParameterUsage();\n");
    buffer.AppendFormatted("   void startSplashScreen();\n");
    buffer.AppendFormatted("   void consoleStartScreen();\n");
+   buffer.AppendFormatted("   bool ConnectSocketToROMENetFolder();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ClassDef(%sAnalyzer,0);\n",shortCut.Data());
 
@@ -6169,16 +6182,40 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgus->fAnalyzerController->fNetFolderModified = kTRUE;\n");
    // --Argus/AnalyzerController
-   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fAnalyzerController->fActiveModified ||\n");
-   buffer.AppendFormatted("       fConfigData[index]->fArgus->fAnalyzerController->fNetFolderModified)\n");
-   buffer.AppendFormatted("      fConfigData[index]->fArgus->fAnalyzerControllerModified = kTRUE;\n");
+   // Argus/SocketToROME
+   buffer.AppendFormatted("   // Argus/SocketToROME\n");
+   buffer.AppendFormatted("   fConfigData[index]->fArgus->fSocketToROME = new ConfigData::Argus::SocketToROME();\n");
+   // Argus/SocketToROME/Active
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/SocketToROME/Active\",fConfigData[index]->fArgus->fSocketToROME->fActive,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fActive==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fActiveModified = kFALSE;\n");
    buffer.AppendFormatted("   else\n");
-   buffer.AppendFormatted("      fConfigData[index]->fArgus->fAnalyzerControllerModified = kFALSE;\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fActiveModified = kTRUE;\n");
+   // Argus/SocketToROME/Host
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/AnalyzerController/Host\",fConfigData[index]->fArgus->fSocketToROME->fHost,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fHost==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fHostModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fHostModified = kTRUE;\n");
+   // Argus/SocketToROME/Port
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/AnalyzerController/Port\",fConfigData[index]->fArgus->fSocketToROME->fPort,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fPort==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fPortModified = kFALSE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fPortModified = kTRUE;\n");
+   // --Argus/SocketToROME
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fActiveModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fArgus->fSocketToROME->fHostModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fArgus->fSocketToROME->fPortModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROMEModified = kTRUE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROMEModified = kFALSE;\n");
    buffer.AppendFormatted("\n");
    // --Argus
    buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fWindowScaleModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fArgus->fStatusBarModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fArgus->fUpdateFrequencyModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fArgus->fSocketToROMEModified ||\n");
    buffer.AppendFormatted("       fConfigData[index]->fArgus->fAnalyzerControllerModified)\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgusModified = kTRUE;\n");
    buffer.AppendFormatted("   else\n");
@@ -6923,6 +6960,7 @@ bool ROMEBuilder::WriteConfigCpp() {
    for (i=0;i<numOfTab;i++)
       buffer.AppendFormatted("      gWindow->Get%s%03dTab()->SetUpdateFrequency(strtol(fConfigData[index]->fArgus->fUpdateFrequency.Data(),&cstop,10));\n", tabName[i].Data(), i);
    buffer.AppendFormatted("   }\n");
+   // Argus/AnalyzerController
    buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fAnalyzerController->fActiveModified) {\n");
    buffer.AppendFormatted("      if (fConfigData[index]->fArgus->fAnalyzerController->fActive==\"true\")\n");
    buffer.AppendFormatted("         gWindow->SetControllerActive(kTRUE);\n");
@@ -6931,6 +6969,19 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fAnalyzerController->fNetFolderModified) {\n");
    buffer.AppendFormatted("      gWindow->SetControllerNetFolder(fConfigData[index]->fArgus->fAnalyzerController->fNetFolder.Data());\n");
+   buffer.AppendFormatted("   }\n");
+   // Argus/SocketToROME
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fActiveModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[index]->fArgus->fSocketToROME->fActive==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSocketToROMEActive(kTRUE);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetSocketToROMEActive(kFALSE);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fHostModified) {\n");
+   buffer.AppendFormatted("      gAnalyzer->SetSocketToROMEHost(fConfigData[index]->fArgus->fSocketToROME->fHost.Data());\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fPortModified) {\n");
+   buffer.AppendFormatted("      gAnalyzer->SetSocketToROMEPort(fConfigData[index]->fArgus->fSocketToROME->fPort.Data());\n");
    buffer.AppendFormatted("   }\n");
 
    // DataBase
@@ -7500,6 +7551,36 @@ bool ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("         xml->WriteElement(\"NetFolder\",fConfigData[index]->fArgus->fAnalyzerController->fNetFolder.Data());\n");
    // --Argus/AnalyzerController
    buffer.AppendFormatted("      xml->EndElement();\n");
+   // Argus/SocketToROME
+   buffer.AppendFormatted("      if ((gAnalyzer->IsStandAloneARGUS() && index==0) || fConfigData[index]->fArgus->fSocketToROMEModified) {\n");
+   buffer.AppendFormatted("         xml->StartElement(\"SocketToROME\");\n");
+   // Argus/SocketToROME/Active
+   buffer.AppendFormatted("         if (index==0){\n");
+   buffer.AppendFormatted("            if(gAnalyzer->IsSocketToROMEActive())\n");
+   buffer.AppendFormatted("               str.SetFormatted(\"true\");\n");
+   buffer.AppendFormatted("            else\n");
+   buffer.AppendFormatted("               str.SetFormatted(\"false\");\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Active\",const_cast<Char_t*>(str.Data()));\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         else if (fConfigData[index]->fArgus->fSocketToROME->fActiveModified){\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Active\",fConfigData[index]->fArgus->fSocketToROME->fActive.Data());\n");
+   buffer.AppendFormatted("         }\n");
+   // Argus/SocketToROME/Host
+   buffer.AppendFormatted("         if (index==0){\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Host\",gAnalyzer->GetSocketToROMEHost());\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         else if (fConfigData[index]->fArgus->fSocketToROME->fHostModified)\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Host\",fConfigData[index]->fArgus->fSocketToROME->fHost.Data());\n");
+   // Argus/SocketToROME/Port
+   buffer.AppendFormatted("         if (index==0){\n");
+   buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetSocketToROMEPort());\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Port\",str.Data());\n");
+   buffer.AppendFormatted("         }\n");
+   buffer.AppendFormatted("         else if (fConfigData[index]->fArgus->fSocketToROME->fPortModified)\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Port\",fConfigData[index]->fArgus->fSocketToROME->fPort.Data());\n");
+   // --Argus/SocketToROME
+   buffer.AppendFormatted("         xml->EndElement();\n");
+   buffer.AppendFormatted("      }\n");
    // --Argus
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
@@ -7939,12 +8020,31 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("         AnalyzerController* fAnalyzerController;\n");
    buffer.AppendFormatted("         Bool_t              fAnalyzerControllerModified;\n");
+   buffer.AppendFormatted("         // socket to ROME;\n");
+   buffer.AppendFormatted("         class SocketToROME {\n");
+   buffer.AppendFormatted("         public:\n");
+   buffer.AppendFormatted("            ROMEString       fActive;\n");
+   buffer.AppendFormatted("            Bool_t           fActiveModified;\n");
+   buffer.AppendFormatted("            ROMEString       fHost;\n");
+   buffer.AppendFormatted("            Bool_t           fHostModified;\n");
+   buffer.AppendFormatted("            ROMEString       fPort;\n");
+   buffer.AppendFormatted("            Bool_t           fPortModified;\n");
+   buffer.AppendFormatted("            SocketToROME() {\n");
+   buffer.AppendFormatted("               fActiveModified = false;\n");
+   buffer.AppendFormatted("               fHostModified = false;\n");
+   buffer.AppendFormatted("               fPortModified = false;\n");
+   buffer.AppendFormatted("            };\n");
+   buffer.AppendFormatted("         };\n");
+   buffer.AppendFormatted("         SocketToROME* fSocketToROME;\n");
+   buffer.AppendFormatted("         Bool_t        fSocketToROMEModified;\n");
    buffer.AppendFormatted("         Argus() {\n");
    buffer.AppendFormatted("            fWindowScaleModified = false;\n");
    buffer.AppendFormatted("            fStatusBarModified = false;\n");
    buffer.AppendFormatted("            fUpdateFrequencyModified = false;\n");
    buffer.AppendFormatted("            fAnalyzerControllerModified = false;\n");
    buffer.AppendFormatted("            fAnalyzerController = new AnalyzerController();\n");
+   buffer.AppendFormatted("            fSocketToROMEModified = false;\n");
+   buffer.AppendFormatted("            fSocketToROME = new SocketToROME();\n");
    buffer.AppendFormatted("         };\n");
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Argus*           fArgus;\n");

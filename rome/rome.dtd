@@ -38,10 +38,10 @@
 <!ELEMENT FieldInitialization ANY>
 <!ELEMENT DataBaseName ANY>
 <!ELEMENT DataBasePath ANY>
-<!--Folders-->
+<!--SupportFolders-->
 <!ELEMENT SupportFolders ANY>
 <!ELEMENT SupportFolder ANY>
-<!--Folders-->
+<!--NetFolders-->
 <!ELEMENT NetFolders ANY>
 <!ELEMENT NetFolder ANY>
 <!ELEMENT NetFolderName ANY>

@@ -158,6 +158,13 @@ protected:
    int           fPortNumber;                      //! Port Number for TSocket
    bool          fSocketOffline;                   //! Socket available offline
 
+   // SocketToROME
+   TSocket*      fSocketToROME;                    //! Handle to socket connection to ROME
+   TNetFolder*   fSocketToROMENetFolder;           //! Handle to the TNetFolder of the socket connection to ROME
+   bool          fSocketToROMEActive;              //! Socket connection to ROME active flag
+   ROMEString    fSocketToROMEHost;                //! Socket connection to ROME host
+   int           fSocketToROMEPort;                //! Socket connection to ROME port
+
    // Statistics
    Statistics    fTriggerStatistics;               //! Trigger Statistics
    Statistics    fScalerStatistics;                //! Scaler Statistics
@@ -434,6 +441,16 @@ public:
    void       SetPortNumber(const char* portNumber) { char* cstop; fPortNumber = strtol(portNumber,&cstop,10); };
    void       SetSocketOffline(bool flag=true) { fSocketOffline = flag; };
 
+   // SocketToROME
+   bool        IsSocketToROMEActive() { return fSocketToROMEActive; };
+   const char* GetSocketToROMEHost() { return fSocketToROMEHost.Data(); };
+   int         GetSocketToROMEPort() { return fSocketToROMEPort; };
+
+   void        SetSocketToROMEActive(bool flag) { fSocketToROMEActive = flag; };
+   void        SetSocketToROMEHost(const char* host) { fSocketToROMEHost = host; };
+   void        SetSocketToROMEPort(int portNumber) { fSocketToROMEPort = portNumber; };
+   void        SetSocketToROMEPort(const char* portNumber) { char* cstop; fSocketToROMEPort = strtol(portNumber,&cstop,10); };
+
    // Midas ODB
    int        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
    int*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; };
@@ -518,6 +535,8 @@ protected:
 
    virtual void startSplashScreen() = 0;
    virtual void consoleStartScreen() = 0;
+   Bool_t ConnectSocketToROME();
+   virtual bool ConnectSocketToROMENetFolder() = 0;
 
 
    ClassDef(ROMEAnalyzer,0)
