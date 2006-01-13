@@ -8,7 +8,8 @@
 #define ROMEUtilities_H
 
 #include <Rtypes.h>
-#include "ROMEString.h"
+#include <ROMEString.h>
+#include <ROMEStrArray.h>
 
 class ROMEUtilities {
 public:
@@ -22,6 +23,7 @@ public:
    static void ByteSwap( Long64_t *aValue );
    static void ByteSwap( Double_t *aValue );
    static void GetMidasTID(ROMEString *buf,Char_t *type);
+   static void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
 };
 
 #endif // ROMEUtilities_H

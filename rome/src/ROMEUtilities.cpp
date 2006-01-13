@@ -10,6 +10,15 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #include <ROMEUtilities.h>
+#include <ROMEXML.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#  pragma warning( push )
+#  pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TSystem.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#  pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 
 // Byte swapping big endian <-> little endian
 void ROMEUtilities::ByteSwap( UShort_t *aValue ) 
@@ -134,4 +143,32 @@ void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
 #endif
    else
       buf->Append("TID_STRING");        //< zero terminated string
+}
+
+void ROMEUtilities::SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath)
+{
+   // search XML files which has 'xmlpath' from 'filepath' directory
+   char *direntry;
+   TString afile;
+   void *dirp = gSystem->OpenDirectory(filepath);
+   if (!dirp)
+      return;
+   ROMEXML *tmp;
+
+   //loop on all entries of this directory
+   while ((direntry=(char*)gSystem->GetDirEntry(dirp))) {
+      TString afile = Form("%s/%s",filepath,direntry);
+
+      if(!afile.EndsWith(".xml") && !afile.EndsWith(".XML"))
+         continue;
+
+      tmp = new ROMEXML();
+      if (!tmp->OpenFileForRead(afile.Data()))
+         continue;
+      if(tmp->NumberOfOccurrenceOfPath(xmlpath))
+         files.AddLast(afile);
+      delete tmp;
+   }
+
+   return;
 }

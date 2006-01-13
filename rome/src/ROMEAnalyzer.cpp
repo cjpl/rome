@@ -72,6 +72,7 @@
 #include <ROMETask.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEEventLoop.h>
+#include <ROMEUtilities.h>
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)
@@ -255,7 +256,7 @@ void ROMEAnalyzer::PrintFlush(const char* text)
 
 void ROMEAnalyzer::ParameterUsage()
 {
-   gROME->PrintLine("  -i       Configuration file (default romeConfig.xml)");
+   gROME->PrintLine("  -i       Configuration file");
    gROME->PrintLine("  -b       Batch Mode (no Argument)");
    gROME->PrintLine("  -q       Quit Mode (no Argument)");
    gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
@@ -272,7 +273,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    // Reads the Inputlineparameters
    int i;
 
-   ROMEString configFile("romeConfig.xml");
+   ROMEString configFile("");
 
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")) {
@@ -289,21 +290,76 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
    }
+
    ROMEString answerString;
+   ROMEString printString;
+   char answerLine[80];
+
+   if (!configFile.Length()) {
+      ROMEStrArray foundFiles;
+      foundFiles.RemoveAll();
+      TString curDir = gSystem->WorkingDirectory();
+      TString dirName = curDir;
+      ROMEUtilities::SearchXMLFiles(foundFiles, dirName.Data(), "/Configuration");
+      dirName += "/config";
+      ROMEUtilities::SearchXMLFiles(foundFiles, dirName.Data(), "/Configuration");
+      for (i = 0; i < foundFiles.GetEntries(); i++) {
+         if(foundFiles.At(i).BeginsWith(curDir.Data()))
+            foundFiles.AddAt(foundFiles.At(i).Remove(0, curDir.Length()+1), i);
+      }
+
+      if (foundFiles.GetEntries() == 0) {
+         ;
+      }
+      else if (foundFiles.GetEntries() == 1) {
+         configFile = foundFiles.At(0);
+      }
+      else {
+         i = -1;
+         while (i < 0 || i >= foundFiles.GetEntries()) {
+            gROME->PrintLine("Which configuration file do you use?");
+            for (i = 0; i < foundFiles.GetEntries(); i++) {
+               printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
+               gROME->PrintLine(printString.Data());
+            }
+            gROME->PrintLine("   [q] Quit");
+            gROME->PrintFlush("File number: ");
+            cin.getline(answerLine, sizeof(answerLine));
+            answerString = answerLine;
+            if(answerString == "q" || answerString == "Q") {
+               return false;
+            }
+            i = answerString.ToInteger();
+            if (!answerString.IsDigit() || i < 0 || i >= foundFiles.GetEntries()) {
+               printString.SetFormatted("File number %s is not found.", answerString.Data());
+               gROME->PrintLine(printString.Data());
+               gROME->PrintLine();
+               i = -1;
+            }
+         }
+         configFile = foundFiles[i];
+      }
+   }
+
    char answer = 0;
-   struct stat buf;
-   if( stat( configFile.Data(), &buf )) {
-      gROME->PrintText("Configuration file '");
-      gROME->PrintText(configFile.Data());
-      gROME->PrintLine("' not found.");
+   bool overwrite = true;
+   if( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
+      if(configFile.Length()) {
+         gROME->PrintText("Configuration file '");
+         gROME->PrintText(configFile.Data());
+         gROME->PrintLine("' not found.");
+      }
+      else {
+         configFile = "romeConfig.xml";
+      }
       gROME->PrintLine();
       gROME->PrintLine("The framework can generate a new configuration file for you.");
-      gROME->PrintLine("Available configurations are :");
+      gROME->PrintLine("Available configuration types are :");
       gROME->PrintLine("   [R] ROME Framework");
       gROME->PrintLine("   [A] ARGUS Monitor");
       gROME->PrintLine("   [M] ROME Framework with ARGUS Monitor");
       gROME->PrintLine("   [N] Don't generate a configuration file");
-      gROME->PrintFlush("Please select a configuration [R/A/M/N]: ");
+      gROME->PrintFlush("Please select a configuration type[R/A/M/N]: ");
       gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
@@ -322,18 +378,47 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
          if (answerString=="M")
             gROME->SetROMEAndARGUS();
-         if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-            gROME->PrintLine("\nTerminate program.\n");
-            return false;
+         gROME->PrintLine();
+         printString.SetFormatted("Please specify file name (default='%s'): ", configFile.Data());
+         gROME->PrintFlush(printString.Data());
+         cin.getline(answerLine, sizeof(answerLine));
+         if(strlen(answerLine))
+            configFile = answerLine;
+         if(!configFile.EndsWith(".xml") && !configFile.EndsWith(".XML"))
+            configFile += ".xml";
+         if (!gSystem->AccessPathName(configFile.Data(), kFileExists)) {
+            printString.SetFormatted("overwrite '%s'? ", configFile.Data());
+            gROME->PrintFlush(printString.Data());
+/*
+            gROME->ss_getchar(0);
+            while (answer==0) {
+               while (this->ss_kbhit()) {
+                  answer = this->ss_getchar(0);
+               }
+            }
+            gROME->ss_getchar(1);
+*/
+            cin>>answer;
+            if(answer != 'y' && answer != 'Y')
+               overwrite = false;
          }
-         gROME->PrintLine("\nThe framework generated a new configuration file.");
-         gROME->PrintLine("Please edit this file and restart the program.\n");
+         if (overwrite) {
+            if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
+               gROME->PrintLine("\nTerminate program.\n");
+               return false;
+            }
+            gROME->PrintLine("\nThe framework generated a new configuration file.");
+            gROME->PrintLine(configFile.Data());
+            gROME->PrintLine("Please edit this file and restart the program.\n");
+         }
       }
       else {
          gROME->PrintLine("\nTerminate program.\n");
       }
       return false;
    }
+   printString.SetFormatted("reading configuration from %s", configFile.Data());
+   gROME->PrintLine(printString.Data());
    if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
       gROME->PrintLine("\nTerminate program.\n");
       return false;
@@ -347,7 +432,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (!strcmp(argv[i],"-b")) {
          fBatchMode = true;
       }
-      if (!strcmp(argv[i],"-q")) {
+      else if (!strcmp(argv[i],"-q")) {
          fQuitMode = true;
       }
       else if (!strcmp(argv[i],"-ns")) {
