@@ -317,7 +317,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else {
          i = -1;
          while (i < 0 || i >= foundFiles.GetEntries()) {
-            gROME->PrintLine("Which configuration file do you use?");
+            gROME->PrintLine("Please select a configuration file.");
             for (i = 0; i < foundFiles.GetEntries(); i++) {
                printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
                gROME->PrintLine(printString.Data());
