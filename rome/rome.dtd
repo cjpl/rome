@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!ELEMENT ROMEFrameworkDefinition ANY>
+<!ATTLIST ROMEFrameworkDefinition xmlns:xsi CDATA  #IMPLIED>
+<!ATTLIST ROMEFrameworkDefinition xsi:noNamespaceSchemaLocation CDATA  #IMPLIED>
+<!--Experiment-->
+<!ELEMENT Experiment ANY>
+<!ELEMENT ExperimentName ANY>
+<!ELEMENT ExperimentShortCut ANY>
+<!ELEMENT ProgramName ANY>
+<!ELEMENT FrameworkDescription ANY>
+<!ELEMENT DocumentStyleSheet ANY>
+<!--Author-->
+<!ELEMENT Author ANY>
+<!ELEMENT AuthorName ANY>
+<!ELEMENT AuthorInstitute ANY>
+<!ELEMENT AuthorCollaboration ANY>
+<!ELEMENT AuthorEmail ANY>
+<!--Include-->
+<!ELEMENT Include ANY>
+<!ELEMENT IncludeName ANY>
+<!ELEMENT IncludeType ANY>
+<!--Folders-->
+<!ELEMENT Folders ANY>
+<!ELEMENT Folder ANY>
+<!ELEMENT FolderName ANY>
+<!ELEMENT FolderTitle ANY>
+<!ELEMENT ArraySize ANY>
+<!ELEMENT DataBaseAccess ANY>
+<!ELEMENT NoResetByFramework ANY>
+<!ELEMENT ChangeableClassFile ANY>
+<!ELEMENT FolderVersion ANY>
+<!ELEMENT FolderDescription ANY>
+<!--Field-->
+<!ELEMENT Field ANY>
+<!ELEMENT FieldName ANY>
+<!ELEMENT FieldType ANY>
+<!ELEMENT FieldComment ANY>
+<!ELEMENT FieldInitialization ANY>
+<!ELEMENT DataBaseName ANY>
+<!ELEMENT DataBasePath ANY>
+<!--Folders-->
+<!ELEMENT SupportFolders ANY>
+<!ELEMENT SupportFolder ANY>
+<!--Folders-->
+<!ELEMENT NetFolders ANY>
+<!ELEMENT NetFolder ANY>
+<!ELEMENT NetFolderName ANY>
+<!ELEMENT NetFolderTitle ANY>
+<!ELEMENT NetFolderHost ANY>
+<!ELEMENT NetFolderPort ANY>
+<!ELEMENT NetFolderRoot ANY>
+<!--Tasks-->
+<!ELEMENT Tasks ANY>
+<!ELEMENT Task ANY>
+<!ELEMENT TaskName ANY>
+<!ELEMENT TaskEventId ANY>
+<!ELEMENT TaskVersion ANY>
+<!ELEMENT TaskDescription ANY>
+<!--TaskHierarchy-->
+<!ELEMENT TaskHierarchy ANY>
+<!--Histogram-->
+<!ELEMENT Histogram ANY>
+<!ELEMENT HistName ANY>
+<!ELEMENT HistTitle ANY>
+<!ELEMENT HistFolderName ANY>
+<!ELEMENT HistFolderTitle ANY>
+<!ELEMENT HistType ANY>
+<!ELEMENT HistArraySize ANY>
+<!ELEMENT HistArrayStartIndex ANY>
+<!ELEMENT HistXLabel ANY>
+<!ELEMENT HistYLabel ANY>
+<!ELEMENT HistZLabel ANY>
+<!ELEMENT HistXNbins ANY>
+<!ELEMENT HistYNbins ANY>
+<!ELEMENT HistZNbins ANY>
+<!ELEMENT HistXmin ANY>
+<!ELEMENT HistYmin ANY>
+<!ELEMENT HistZmin ANY>
+<!ELEMENT HistXmax ANY>
+<!ELEMENT HistYmax ANY>
+<!ELEMENT HistZmax ANY>
+<!--SteeringParameters-->
+<!ELEMENT SteeringParameters ANY>
+<!ELEMENT SteeringParameterField ANY>
+<!ELEMENT SPFieldName ANY>
+<!ELEMENT SPFieldType ANY>
+<!ELEMENT SPFieldArraySize ANY>
+<!ELEMENT SPFieldInitialization ANY>
+<!ELEMENT SPFieldComment ANY>
+<!ELEMENT SPFieldCommandLineOption ANY>
+<!ELEMENT SPFieldCommandLineDescription ANY>
+<!ELEMENT SteeringParameterGroup ANY>
+<!ELEMENT SPGroupName ANY>
+<!ELEMENT SPGroupArraySize ANY>
+<!--Tabs-->
+<!ELEMENT Tabs ANY>
+<!ELEMENT Tab ANY>
+<!ELEMENT TabName ANY>
+<!ELEMENT TabTitle ANY>
+<!ELEMENT TabVersion ANY>
+<!ELEMENT TabDescription ANY>
+<!--ThreadFunctions-->
+<!ELEMENT ThreadFunctions ANY>
+<!ELEMENT ThreadFunction ANY>
+<!ELEMENT FunctionName ANY>
+<!ELEMENT FunctionArgument ANY>
+<!--Menus-->
+<!ELEMENT Menus ANY>
+<!ELEMENT Menu ANY>
+<!ELEMENT MenuTitle ANY>
+<!ELEMENT MenuItems ANY>
+<!ELEMENT MenuItem ANY>
+<!ELEMENT MenuItemTitle ANY>
+<!ELEMENT MenuItemEnumName ANY>
+<!ELEMENT Line ANY>
+<!--Trees-->
+<!ELEMENT Trees ANY>
+<!ELEMENT Tree ANY>
+<!ELEMENT TreeName ANY>
+<!ELEMENT TreeTitle ANY>
+<!ELEMENT TreeOutputFileName ANY>
+<!ELEMENT TreeDescription ANY>
+<!ELEMENT Branch ANY>
+<!ELEMENT BranchName ANY>
+<!ELEMENT RelatedFolder ANY>
+<!ELEMENT BufferSize ANY>
+<!ELEMENT SplitLevel ANY>
+<!--Global Steering Parameters-->
+<!ELEMENT GlobalSteeringParameters ANY>
+<!--UserDAQSystems-->
+<!ELEMENT UserDAQSystems ANY>
+<!ELEMENT UserDAQSystem ANY>
+<!ELEMENT DAQSystemName ANY>
+<!--UserDatabases-->
+<!ELEMENT UserDatabases ANY>
+<!ELEMENT UserDatabase ANY>
+<!ELEMENT DatabaseName ANY>
+<!--MidasBanks-->
+<!ELEMENT MidasBanks ANY>
+<!ELEMENT EventHeader ANY>
+<!ELEMENT EventID ANY>
+<!ELEMENT TriggerMask ANY>
+<!ELEMENT SerialNumber ANY>
+<!ELEMENT TimeStamp ANY>
+<!ELEMENT EventDefinition ANY>
+<!ELEMENT EventName ANY>
+<!ELEMENT EventTriggerMask ANY>
+<!ELEMENT EventSamplingRate ANY>
+<!ELEMENT Banks ANY>
+<!ELEMENT Bank ANY>
+<!ELEMENT BankName ANY>
+<!ELEMENT BankType ANY>
+<!ELEMENT BankArray ANY>
+<!ELEMENT BASize ANY>
+<!ELEMENT BAStartIndex ANY>
+<!ELEMENT BANumberOfDigits ANY>
+<!--UserMakeFile-->
+<!ELEMENT UserMakeFile ANY>
+<!ELEMENT DictionaryHeaders ANY>
+<!ELEMENT HeaderName ANY>
+<!ELEMENT DictionaryIncludesDirectories ANY>
+<!ELEMENT IncludesDirectory ANY>
+<!ELEMENT WindowsLibraries ANY>
+<!ELEMENT Library ANY>
+<!ELEMENT LibraryName ANY>
+<!ELEMENT UnixLibraries ANY>
+<!ELEMENT IncludeDirectories ANY>
+<!ELEMENT IncludeDirectory ANY>
+<!ELEMENT AdditionalFiles ANY>
+<!ELEMENT File ANY>
+<!ELEMENT SourceFile ANY>
+<!ELEMENT HeaderFile ANY>
+<!ELEMENT NeededFlag ANY>
+
