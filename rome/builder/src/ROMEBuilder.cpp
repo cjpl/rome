@@ -483,6 +483,7 @@ bool ROMEBuilder::WriteFolderH() {
       }
 
       // Includes
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -1844,6 +1845,7 @@ bool ROMEBuilder::WriteTaskH() {
          buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
       }
 
+      buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -1851,6 +1853,8 @@ bool ROMEBuilder::WriteTaskH() {
       buffer.AppendFormatted("#include \"TH1.h\"\n");
       buffer.AppendFormatted("#include \"TH2.h\"\n");
       buffer.AppendFormatted("#include \"TH3.h\"\n");
+      buffer.AppendFormatted("#include \"TProfile.h\"\n");
+      buffer.AppendFormatted("#include \"TProfile2D.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -2971,6 +2975,7 @@ bool ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("\n\n");
 
       // Header
+      buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -4379,6 +4384,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    buffer.AppendFormatted("#include <direct.h>\n");
 #endif
    buffer.AppendFormatted("#include <sys/stat.h>\n");
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -4843,6 +4849,17 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    WriteObjectInterpreterValue(buffer,"double","Double");
    WriteObjectInterpreterValue(buffer,"ROMEString&","Char");
 
+   // Histo Getters
+   buffer.AppendFormatted("   // Histo Getters\n");
+   for (i=0;i<numOfTask;i++) {
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
+         buffer.AppendFormatted("}\n");
+      }
+   }
+   buffer.AppendFormatted("\n");
+
    // Splash Screen
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LPDWORD lpThreadId;\n");
@@ -4997,6 +5014,7 @@ bool ROMEBuilder::WriteAnalyzerH() {
 #if defined( R__UNIX )
    buffer.AppendFormatted("#include <unistd.h>\n");
 #endif
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -5006,6 +5024,11 @@ bool ROMEBuilder::WriteAnalyzerH() {
    buffer.AppendFormatted("#include \"TTree.h\"\n");
    buffer.AppendFormatted("#include \"TFolder.h\"\n");
    buffer.AppendFormatted("#include \"TClonesArray.h\"\n");
+   buffer.AppendFormatted("#include \"TH1.h\"\n");
+   buffer.AppendFormatted("#include \"TH2.h\"\n");
+   buffer.AppendFormatted("#include \"TH3.h\"\n");
+   buffer.AppendFormatted("#include \"TProfile.h\"\n");
+   buffer.AppendFormatted("#include \"TProfile2D.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -5159,6 +5182,14 @@ bool ROMEBuilder::WriteAnalyzerH() {
          if(folderArray[i]!="variable")
             buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),folderName[i].Data());
+      }
+   }
+   buffer.AppendFormatted("\n");
+   // Histo Getters
+   buffer.AppendFormatted("   // Histo\n");
+   for (i=0;i<numOfTask;i++) {
+      for (j=0;j<numOfHistos[i];j++) {
+         buffer.AppendFormatted("   %s* Get%s();\n",histoType[i][j].Data(),histoName[i][j].Data());
       }
    }
    buffer.AppendFormatted("\n");
@@ -5451,6 +5482,7 @@ bool ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("\n\n");
 
    // Header
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -8771,6 +8803,7 @@ bool ROMEBuilder::WriteRomeDAQCpp() {
 
    // Header
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -10315,6 +10348,7 @@ bool ROMEBuilder::WriteEventLoopCpp() {
 #endif
 
    buffer.AppendFormatted("#include <sys/stat.h>\n");
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -10593,6 +10627,7 @@ bool ROMEBuilder::WriteEventLoopH() {
    buffer.AppendFormatted("#ifndef %sEventLoop_H\n",shortCut.Data());
    buffer.AppendFormatted("#define %sEventLoop_H\n\n",shortCut.Data());
 
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -10669,6 +10704,7 @@ bool ROMEBuilder::WriteMain() {
    buffer.AppendFormatted("// ***      Don't make manual changes to this file      *** //\n");
    buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
 
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -10781,6 +10817,11 @@ bool ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[]) {
          noLink = true;
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
+      }
+      else if (!strcmp(argv[i],"-histogui")) {
+         noLink = true;
+         outDir = "C:/rome/examples/histogui/";
+         xmlFile = "C:/rome/examples/histogui/histogui.xml";
       }
       else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;
@@ -13429,6 +13470,7 @@ bool ROMEBuilder::WriteReadTreesC() {
 
    // Header
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
