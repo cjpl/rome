@@ -27,6 +27,8 @@
 			<xs:enumeration value="TH3F"/>
 			<xs:enumeration value="TH3I"/>
 			<xs:enumeration value="TH3S"/>
+			<xs:enumeration value="TProfile"/>
+			<xs:enumeration value="TProfile2D"/>
 		</xs:restriction>
 	</xs:simpleType>
 	<xs:simpleType name="ValueTypeDesc">
@@ -294,7 +296,7 @@
 						<xs:documentation>Describes the auther of this folder. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="FolderVersion" type="xs:integer" default="1" minOccurs="0">
+				<xs:element name="FolderVersion" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The version of the folder. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
 					</xs:annotation>
@@ -302,6 +304,11 @@
 				<xs:element name="FolderDescription" type="xs:string" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The description of the folder. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="NetFolder" type="xs:boolean" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>If true, the folder will be a TNetFolder in the stand alone ARGUS mode. The folder is then managed by the framework. Default false. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
@@ -503,7 +510,7 @@
 						<xs:documentation>Defines the auther of the task. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="TaskVersion" type="xs:integer" default="1" minOccurs="0">
+				<xs:element name="TaskVersion" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The version of the task. The version is used for the ROOT dictionary as the ROOT ClassVersionID. Default is 1.</xs:documentation>
 					</xs:annotation>
@@ -668,7 +675,7 @@
 						<xs:documentation>Defines the auther of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="TabVersion" type="xs:integer" minOccurs="0">
+				<xs:element name="TabVersion" type="xs:string" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The version of the Tab. The version is used for the ROOT dictionary as the ROOT ClassVersionID.</xs:documentation>
 					</xs:annotation>
