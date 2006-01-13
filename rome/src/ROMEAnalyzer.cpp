@@ -89,6 +89,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fActiveDAQ = 0;
    fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
+   fQuitMode = false;
    fSplashScreen = true;
    fDontReadNextEvent = false;
    fInputDir = "./";
@@ -253,6 +254,7 @@ void ROMEAnalyzer::ParameterUsage()
 {
    gROME->PrintLine("  -i       Configuration file (default romeConfig.xml)");
    gROME->PrintLine("  -b       Batch Mode (no Argument)");
+   gROME->PrintLine("  -q       Quit Mode (no Argument)");
    gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
    gROME->PrintLine("  -m       Analysing Mode : (online/[offline])");
    gROME->PrintLine("  -r       Runnumbers");
@@ -341,6 +343,9 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-b")) {
          fBatchMode = true;
+      }
+      if (!strcmp(argv[i],"-q")) {
+         fQuitMode = true;
       }
       else if (!strcmp(argv[i],"-ns")) {
          fSplashScreen = false;
