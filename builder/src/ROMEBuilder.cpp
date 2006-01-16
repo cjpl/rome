@@ -392,8 +392,7 @@ bool ROMEBuilder::WriteFolderCpp() {
 
       // Backup old files
       if (!folderUserCode[iFold]) {
-         if (!BackUpFile(cppFile.Data()))
-            return false;
+         BackUpFile(cppFile.Data());
          continue;
       }
 
@@ -438,25 +437,44 @@ bool ROMEBuilder::WriteFolderCpp() {
 bool ROMEBuilder::WriteFolderH() {
    ROMEString hFile;
    ROMEString buffer;
-
-   int j,i;
+   int i,j;
    ROMEString str;
    ROMEString format;
+   bool changeableFlagChanged;
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iFold=0;iFold<numOfFolder;iFold++) {
+      changeableFlagChanged = false;
       if (numOfValue[iFold] == 0) continue;
 
-      // backup old files
+      // make dummy include file
       if (folderUserCode[iFold]) {
          hFile.SetFormatted("%sinclude/generated/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         if (!BackUpFile(hFile.Data())) return false;
+         buffer.SetFormatted("#include \"include/folders/%s%s.h\"",shortCut.Data(),folderName[iFold].Data());
+         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
       }
       else {
          hFile.SetFormatted("%sinclude/generated/%s%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         if (!BackUpFile(hFile.Data())) return false;
+         BackUpFile(hFile.Data());
          hFile.SetFormatted("%sinclude/folders/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         if (!BackUpFile(hFile.Data())) return false;
+         buffer.SetFormatted("#include \"include/generated/%s%s.h\"",shortCut.Data(),folderName[iFold].Data());
+         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+      }
+      if (changeableFlagChanged) {
+         buffer.SetFormatted("%sobj/%s%s.d",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sGeneratedFolderDict.h",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sGeneratedFolderDict.cpp",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sobj/%sGeneratedFolderDict.d",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sdict/%sFolderDict.h",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sFolderDict.cpp",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sobj/%sFolderDict.d",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
       }
 
       // File name
@@ -483,7 +501,7 @@ bool ROMEBuilder::WriteFolderH() {
       }
 
       // Includes
-   buffer.AppendFormatted("#include \"RConfig.h\"\n");
+      buffer.AppendFormatted("#include \"RConfig.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
@@ -1198,7 +1216,7 @@ bool ROMEBuilder::WriteFolderH() {
 
       // User H-File
       hFile.SetFormatted("%sinclude/folders/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-      if (folderUserCode[iFold] && gSystem->AccessPathName(hFile.Data(),kFileExists)) {
+      if (folderUserCode[iFold] && (changeableFlagChanged || gSystem->AccessPathName(hFile.Data(),kFileExists))) {
          // Description
          buffer.Resize(0);
          buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
@@ -1804,22 +1822,41 @@ bool ROMEBuilder::WriteTaskH() {
    ROMEString hFile;
    ROMEString buffer;
    ROMEString format;
-
+   bool changeableFlagChanged;
    int i,j;
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      changeableFlagChanged = false;
 
-      // backup old files
+      // make dummy include file
       if (taskUserCode[iTask]) {
          hFile.SetFormatted("%sinclude/generated/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         if(!BackUpFile(hFile.Data())) return false;
+         buffer.SetFormatted("#include \"include/tasks/%sT%s.h\"",shortCut.Data(),taskName[iTask].Data());
+         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
       }
       else {
          hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         if(!BackUpFile(hFile.Data())) return false;
+         BackUpFile(hFile.Data());
          hFile.SetFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         if(!BackUpFile(hFile.Data())) return false;
+         buffer.SetFormatted("#include \"include/generated/%sT%s.h\"",shortCut.Data(),taskName[iTask].Data());
+         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+      }
+      if (changeableFlagChanged) {
+         buffer.SetFormatted("%sobj/%sT%s.d",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sGeneratedTaskDict.h",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sGeneratedTaskDict.cpp",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sobj/%sGeneratedTaskDict.d",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sdict/%sTaskDict.h",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());
+         buffer.SetFormatted("%sdict/%sTaskDict.cpp",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
+         buffer.SetFormatted("%sobj/%sTaskDict.d",outDir.Data(),shortCut.Data());
+         BackUpFile(buffer.Data());         
       }
 
       buffer.Resize(0);
@@ -2487,7 +2524,7 @@ bool ROMEBuilder::WriteTaskH() {
 
       // User H-File
       hFile.SetFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-      if (taskUserCode[iTask] && gSystem->AccessPathName(hFile.Data(),kFileExists)) {
+      if (taskUserCode[iTask] && (changeableFlagChanged || gSystem->AccessPathName(hFile.Data(),kFileExists))) {
          // Description
          buffer.Resize(0);
          buffer.AppendFormatted("////////////////////////////////////////////////////////////////////////////////\n");
@@ -11434,11 +11471,9 @@ void ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    if (numOfTask > 0) {
       path.SetFormatted("%ssrc/tasks", outDir.Data());
+      gSystem->MakeDirectory(path.Data());   
+      path.SetFormatted("%sinclude/tasks", outDir.Data());
       gSystem->MakeDirectory(path.Data());
-      if (hasTaskUserCode) {
-         path.SetFormatted("%sinclude/tasks", outDir.Data());
-         gSystem->MakeDirectory(path.Data());
-      }
    }
    if (numOfTab > 0) {
       path.SetFormatted("%ssrc/tabs", outDir.Data());
@@ -11449,9 +11484,9 @@ void ROMEBuilder::StartBuilder()
    if (hasFolderUserCode) {
       path.SetFormatted("%ssrc/folders", outDir.Data());
       gSystem->MakeDirectory(path.Data());
-      path.SetFormatted("%sinclude/folders", outDir.Data());
-      gSystem->MakeDirectory(path.Data());
    }
+   path.SetFormatted("%sinclude/folders", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
    if (numOfDAQ > 0) {
       path.SetFormatted("%ssrc/daqs", outDir.Data());
       gSystem->MakeDirectory(path.Data());
@@ -11706,8 +11741,7 @@ void ROMEBuilder::AddArgusSources(){
       argusSources->AddFormatted("dict/ARGUSDict.cpp",shortCut.Data());
 }
 void ROMEBuilder::AddGeneratedHeaders() {
-   int i;
-   generatedHeaders = new ROMEStrArray(8+TMath::Max(numOfTask,0)+TMath::Max(numOfFolder,0)+TMath::Max(numOfTab,0));
+   generatedHeaders = new ROMEStrArray(8);
    generatedHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
@@ -11716,27 +11750,6 @@ void ROMEBuilder::AddGeneratedHeaders() {
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
-   for (i=0;i<numOfTask;i++) {
-      if (taskUserCode[i]) {
-         generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-      }
-      else {
-         generatedHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      }
-   }
-   for (i=0;i<numOfFolder;i++) {
-      if (numOfValue[i] > 0) {
-         if (folderUserCode[i]) {
-            generatedHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
-         }
-         else {
-            generatedHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
-         }
-      }
-   }
-   for (i=0;i<numOfTab;i++) {
-      generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
-   }
 }
 void ROMEBuilder::AddGeneratedDictHeaders() {
    generatedDictHeaders = new ROMEStrArray(2);
@@ -11811,7 +11824,7 @@ void ROMEBuilder::AddFolderSources(){
    folderSources = new ROMEStrArray(numOfFolder+1);
    for (i=0;i<numOfFolder;i++) {
       if (folderUserCode[i]) {
-         folderSources->AddFormatted("src/generated/%s%s.cpp",shortCut.Data(),folderName[i].Data());
+         folderSources->AddFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[i].Data());
       }
    }
    if (folderHeaders->GetEntriesFast()>0)
@@ -14121,35 +14134,41 @@ bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const ch
    return true;
 }
 
-bool ROMEBuilder::WriteFile(const char* filename,const char* body,int nspace) {
+bool ROMEBuilder::WriteFile(const char* filename,const char* body,int nspace, bool backup) {
+   // return true when backup file is created
    fstream *fileStream;
    ROMEString fileBuffer;
+   bool backupCreated = false;
 
-   if((fileStream = new fstream(filename,ios::in))){
+   if ((fileStream = new fstream(filename,ios::in))) {
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
    }
-   if(fileBuffer != body){
-      if(!(fileStream = new fstream(filename,ios::out | ios::trunc))){
+
+   if (fileBuffer != body) {
+      if (backup)
+         backupCreated = BackUpFile(filename);
+      if (!(fileStream = new fstream(filename,ios::out | ios::trunc))) {
          if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
-         return false;
+         return backupCreated;
       }
       if (makeOutput) cout << setw(nspace)<< "" << filename << endl;
       *fileStream<<body;
       delete fileStream;
    }
-   return true;
+   return backupCreated;
 }
 
 bool ROMEBuilder::BackUpFile(const char* filename) {
+   // return true when backup file is creaded
    if (gSystem->AccessPathName(filename, kFileExists))
-      return true;
+      return false;
 
    ROMEString newName;
    Int_t i;
    Int_t errcode;
-   for(i = 0; i < kMaxInt; i++){
-      if(i == 0)
+   for (i = 0; i < kMaxInt; i++) {
+      if (i == 0)
          newName.SetFormatted("%s.save", filename);
       else
          newName.SetFormatted("%s.save.%d", filename, i);
