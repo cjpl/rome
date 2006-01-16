@@ -6806,7 +6806,7 @@ bool ROMEBuilder::WriteConfigCpp() {
 
    // Check Configuration
    buffer.AppendFormatted("\n// Check Configuration\n");
-   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(int runNumber) {\n",shortCut.Data());
+   buffer.AppendFormatted("bool %sConfig::CheckConfiguration(long runNumber) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i,j;\n");
    buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
    buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
@@ -7945,6 +7945,7 @@ bool ROMEBuilder::WriteConfigH() {
 
    buffer.AppendFormatted("#if !defined(__CINT__)\n");
    buffer.AppendFormatted("#include \"TArrayI.h\"\n");
+   buffer.AppendFormatted("#include \"TArrayL.h\"\n");
    buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
@@ -7962,8 +7963,8 @@ bool ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   public:\n");
    buffer.AppendFormatted("      ROMEString    fRunNumbers;\n");
    buffer.AppendFormatted("      bool          fRunNumbersModified;\n");
-   buffer.AppendFormatted("      int           fLastRunNumberIndex;\n");
-   buffer.AppendFormatted("      TArrayI       fRunNumberArray;\n");
+   buffer.AppendFormatted("      long          fLastRunNumberIndex;\n");
+   buffer.AppendFormatted("      TArrayL       fRunNumberArray;\n");
    buffer.AppendFormatted("      ROMEString    fEventNumbers;\n");
    buffer.AppendFormatted("      bool          fEventNumbersModified;\n");
    buffer.AppendFormatted("      ROMEString    fInputFileNames;\n");
@@ -8335,7 +8336,7 @@ bool ROMEBuilder::WriteConfigH() {
    // methods
    buffer.AppendFormatted("   bool WriteConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   bool ReadConfigurationFile(const char *file);\n");
-   buffer.AppendFormatted("   bool CheckConfiguration(int runNumber);\n");
+   buffer.AppendFormatted("   bool CheckConfiguration(long runNumber);\n");
    buffer.AppendFormatted("   bool CheckConfiguration(const char *file);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
@@ -9204,12 +9205,12 @@ bool ROMEBuilder::WriteDBCpp() {
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%sDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,long runNumber,long eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("bool %s%sDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("bool %s%sDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,long runNumber,long eventNumber)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
@@ -9256,8 +9257,8 @@ bool ROMEBuilder::WriteDBH() {
          // Methods
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   bool   Init(const char* name,const char* path,const char* connection);\n");
-         buffer.AppendFormatted("   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber);\n");
-         buffer.AppendFormatted("   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber);\n");
+         buffer.AppendFormatted("   bool   Read(ROMEStr2DArray *values,const char *path,long runNumber,long eventNumber);\n");
+         buffer.AppendFormatted("   bool   Write(ROMEStr2DArray* values,const char *path,long runNumber,long eventNumber);\n");
          buffer.AppendFormatted("   char*  GetType() { return \"%s\"; }\n",dbName[iDB].Data());
          buffer.AppendFormatted("   char*  GetDescription() { return \"%s\"; }\n",dbDescription[iDB].Data());
 

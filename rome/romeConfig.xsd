@@ -43,6 +43,11 @@
 					<xs:documentation>If the program runs in batch mode, it makes no graphical output. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="QuitMode" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the program doesn't start a root session at the end. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="ShowSplashScreen" type="xs:boolean" default="true" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Program shows a splash screen, when starting up. Default is true.</xs:documentation>

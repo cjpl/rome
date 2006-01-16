@@ -11,6 +11,7 @@
 #include <TRint.h>
 #include <TFile.h>
 #include <TArrayI.h>
+#include <TArrayL.h>
 #include <ROMEString.h>
 #include <TList.h>
 #include <TTask.h>
@@ -93,15 +94,15 @@ protected:
    ROMEString fConfigDir;                       //! Configuration File Directory
 
    // Run Numbers
-   Int_t      fCurrentRunNumber;                //! Currently Analyzed Run Number
-   TArrayI    fRunNumber;                       //! Run Numbers to Analyze
+   Long_t     fCurrentRunNumber;                //! Currently Analyzed Run Number
+   TArrayL    fRunNumber;                       //! Run Numbers to Analyze
    ROMEString fRunNumberString;                 //! Run Numbers in Input String Format
 
    // Event Numbers
-   Int_t      fCurrentEventNumber;              //! Currently Analyzed Event Number
-   TArrayI    fEventNumber;                     //! Event Numbers to Analyze
-   ROMEString fEventNumberString;               //! Event Numbers in Input String Format
-   Int_t      fLastEventNumberIndex;            //! Index of the last Analyzed Event Number
+   Long_t      fCurrentEventNumber;              //! Currently Analyzed Event Number
+   TArrayL     fEventNumber;                     //! Event Numbers to Analyze
+   ROMEString  fEventNumberString;               //! Event Numbers in Input String Format
+   Long_t      fLastEventNumberIndex;            //! Index of the last Analyzed Event Number
 
    // Input File Names
    ROMEString   fCurrentInputFileName;            //! Name of Currently Analyzed Input File
@@ -333,14 +334,14 @@ public:
    TFolder*  GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); };
 
    // Run Number
-   void       GetRunNumberStringAt(ROMEString& buffer,int i) { if (i>=fRunNumber.GetSize()) buffer.SetFormatted("%0*d",5,0); buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
-   int        GetRunNumberAt(int i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
+   void       GetRunNumberStringAt(ROMEString& buffer,Long_t i) { if (i>=fRunNumber.GetSize()) buffer.SetFormatted("%0*d",5,0); buffer.SetFormatted("%0*d",5,fRunNumber.At(i)); }
+   Long_t     GetRunNumberAt(Long_t i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
    void       GetCurrentRunNumberString(ROMEString& buffer) { buffer.SetFormatted("%0*d",5,fCurrentRunNumber); }
-   int        GetCurrentRunNumber() { return fCurrentRunNumber; }
-   int        GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
+   Long_t     GetCurrentRunNumber() { return fCurrentRunNumber; }
+   Long_t     GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    const char* GetRunNumberStringOriginal() { return fRunNumberString.Data(); }
 
-   void       SetCurrentRunNumber(int runNumber) { fCurrentRunNumber = runNumber; }
+   void       SetCurrentRunNumber(Long_t runNumber) { fCurrentRunNumber = runNumber; }
    void       SetRunNumbers(ROMEString& numbers) {
                   fRunNumberString = numbers;
                   DecodeRunNumbers(numbers,fRunNumber); }
@@ -349,10 +350,10 @@ public:
                   DecodeRunNumbers(fRunNumberString,fRunNumber); }
 
    // Event Number
-   int        GetCurrentEventNumber() { return fCurrentEventNumber; }
+   Long_t      GetCurrentEventNumber() { return fCurrentEventNumber; }
    const char* GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
-   void       SetCurrentEventNumber(int eventNumber) { fCurrentEventNumber = eventNumber; }
+   void       SetCurrentEventNumber(Long_t eventNumber) { fCurrentEventNumber = eventNumber; }
    void       SetEventNumbers(ROMEString& numbers) {
                   fEventNumberString = numbers;
                   DecodeRunNumbers(numbers,fEventNumber); }
@@ -360,7 +361,7 @@ public:
                   fEventNumberString = numbers;
                   DecodeRunNumbers(fEventNumberString,fEventNumber); }
 
-   int        CheckEventNumber(int eventNumber);
+   Long_t     CheckEventNumber(Long_t eventNumber);
    void       InitCheckEventNumber() { fLastEventNumberIndex = 0; };
 
    // Input File Names
@@ -466,7 +467,7 @@ public:
    virtual bool        Start(int argc=0, char **argv=NULL);
 
    // Decode Methods
-   void        DecodeRunNumbers(ROMEString& str,TArrayI& arr);
+   void        DecodeRunNumbers(ROMEString& str,TArrayL& arr);
    void        DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr);
 
    // Run Stat

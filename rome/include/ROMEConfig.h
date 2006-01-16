@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEConfig.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEConfig_H
@@ -18,7 +18,7 @@ public:
 
    virtual bool WriteConfigurationFile(const char *file) = 0;
    virtual bool ReadConfigurationFile(const char *file) = 0;
-   virtual bool CheckConfiguration(int runNumber) = 0;
+   virtual bool CheckConfiguration(long runNumber) = 0;
    virtual bool CheckConfiguration(const char *file) = 0;
 //   bool CheckConfiguration(ROMEString& file) { return CheckConfiguration(file.Data()); }
 };
