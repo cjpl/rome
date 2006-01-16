@@ -453,7 +453,7 @@ public:
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
    virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
-   virtual bool WriteFile(const char* filename,const char* content,int nspace = 0);
+   virtual bool WriteFile(const char* filename,const char* content,int nspace = 0, bool backup = false);
    virtual bool BackUpFile(const char* filename);
    void StartBuilder();
    void GetFormat(ROMEString *buf,const char *type);
