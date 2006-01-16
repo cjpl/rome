@@ -1,4 +1,4 @@
-<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/rome.xsd">
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
 	<Experiment>
 		<ProgramName>Example</ProgramName>
 		<ExperimentShortCut>TH</ExperimentShortCut>

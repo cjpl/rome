@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jan 13 15:51:54 2006 -->
+<!-- created by MXML on Mon Jan 16 16:13:11 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
-      <Active>false</Active>
+      <Active>true</Active>
     </ROME>
     <ARGUS>
       <Active>true</Active>
@@ -11,14 +11,14 @@
   </ProgramConfiguration>
   <MainConfiguration>
     <RunNumbers>1</RunNumbers>
-    <EventNumbers>1-10000</EventNumbers>
+    <EventNumbers>1-100000</EventNumbers>
     <InputFileNames></InputFileNames>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
       <BatchMode>false</BatchMode>
       <QuitMode>false</QuitMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
+      <ShowSplashScreen>false</ShowSplashScreen>
     </Modes>
     <Argus>
       <WindowScale>1.0</WindowScale>

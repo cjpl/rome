@@ -472,7 +472,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-int ROMEAnalyzer::CheckEventNumber(int eventNumber)
+long ROMEAnalyzer::CheckEventNumber(long eventNumber)
 {
    if (fEventNumber.GetSize()==0)
       return 1;
@@ -489,19 +489,19 @@ int ROMEAnalyzer::CheckEventNumber(int eventNumber)
    return -1;
 }
 
-void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayI& arr)
+void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayL& arr)
 {
    char cminus='-';
    char ccomma=',';
    char csemi =';';
    char *pstr = (char*)str.Data();
    bool bminus = false;
-   int num;
-   int i;
-   int na=0;
-   int nat=1;
+   long num;
+   long i;
+   long na=0;
+   long nat=1;
    arr.Set(10);
-   int arraySize = arr.GetSize();
+   long arraySize = arr.GetSize();
    while (pstr<str.Data()+str.Length()) {
       if (na>=arraySize*nat) {
          nat++;

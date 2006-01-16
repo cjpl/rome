@@ -164,9 +164,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->SetTerminate();
             break;
          }
-         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
-            gSystem->ProcessEvents();
-            gSystem->Sleep(10);
+         // Update
+         if (!this->Update()) {
+            this->Terminate();
+            gROME->SetTerminationFlag();
+            gROME->PrintLine("\n\nTerminating Program !");
+            return;
          }
          if (gROME->isOffline()) {
             // check event numbers
@@ -239,14 +242,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Write Event
          if (!this->WriteEvent() && gROME->isFillEvent()) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            gROME->PrintLine("\n\nTerminating Program !");
-            return;
-         }
-
-         // Update
-         if (!this->Update()) {
             this->Terminate();
             gROME->SetTerminationFlag();
             gROME->PrintLine("\n\nTerminating Program !");
@@ -528,6 +523,10 @@ bool ROMEEventLoop::Update()
       text.SetFormatted("%d events processed                                                    \r",(int)gROME->GetTriggerStatistics()->processedEvents);
       gROME->PrintFlush(text.Data());
 
+      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+         gSystem->ProcessEvents();
+         gSystem->Sleep(10);
+      }
       fProgressWrite = false;
    }
    // ODB update
@@ -661,8 +660,10 @@ bool ROMEEventLoop::UserInput()
          ((TRint*)gROME->GetApplication())->ProcessLine(gROME->GetCintInitialisation());
       }
 
-      gSystem->ProcessEvents();
-      gSystem->Sleep(10);
+      if (wait) {
+         gSystem->ProcessEvents();
+         gSystem->Sleep(10);
+      }
       if (gROME->IsWindowClosed()) {
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())
             return false;
