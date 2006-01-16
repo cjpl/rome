@@ -164,13 +164,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->SetTerminate();
             break;
          }
-         // Update
-         if (!this->Update()) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            gROME->PrintLine("\n\nTerminating Program !");
-            return;
-         }
          if (gROME->isOffline()) {
             // check event numbers
             int status = gROME->CheckEventNumber(i);
@@ -182,6 +175,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
                this->SetEndOfRun();
                break;
             }
+         }
+         // Update
+         if (!this->Update()) {
+            this->Terminate();
+            gROME->SetTerminationFlag();
+            gROME->PrintLine("\n\nTerminating Program !");
+            return;
          }
 
          // User Input
@@ -519,16 +519,21 @@ bool ROMEEventLoop::Update()
       }
    }
 
-   if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
-      text.SetFormatted("%d events processed                                                    \r",(int)gROME->GetTriggerStatistics()->processedEvents);
-      gROME->PrintFlush(text.Data());
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
+         text.SetFormatted("%d events processed                                                    \r",(int)gROME->GetTriggerStatistics()->processedEvents);
+         gROME->PrintFlush(text.Data());
+      }
+   }
 
-      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+      if (((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
-      fProgressWrite = false;
    }
+   fProgressWrite = false;
+
    // ODB update
 #if defined( HAVE_MIDAS )
    db_send_changed_records();
