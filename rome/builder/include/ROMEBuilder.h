@@ -344,7 +344,7 @@ protected:
 
 public:
    ROMEBuilder() { haveFortranTask = false; };
-   virtual ~ROMEBuilder() {};
+   ~ROMEBuilder() {};
 
    bool ReadXMLFolder();
    bool WriteFolderCpp();
@@ -452,9 +452,9 @@ public:
    void WriteHTMLDoku();
    void WriteHTMLStyle(ROMEString &buffer);
    void WriteHTMLSteering(ROMEString &buffer,int numSteer,int numTask,const char* group);
-   virtual bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0);
-   virtual bool WriteFile(const char* filename,const char* content,int nspace = 0, bool backup = false);
-   virtual bool BackUpFile(const char* filename);
+   bool ReplaceHeader(const char* filename,const char* header,const char* content,int nspace = 0, const char* str1 = 0, const char* str2 = 0);
+   bool WriteFile(const char* filename,const char* content,int nspace = 0, bool backup = false);
+   bool BackUpFile(const char* filename);
    void StartBuilder();
    void GetFormat(ROMEString *buf,const char *type);
    void setValue(ROMEString *buf,const char *destination,const char *source,const char *type,int version);
@@ -480,6 +480,8 @@ public:
    void WriteDescription(ROMEString& buffer, const Char_t* className, const Char_t* description, Bool_t endmark);
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
    void ParseSVNKeyword(ROMEString& str);
+   bool RemoveFile(const char* filename, const char* str = 0);
+   void RemoveDepFiles(const char* str = 0);
 };
 
 #endif   // ROMEBuilder_H
