@@ -447,34 +447,23 @@ bool ROMEBuilder::WriteFolderH() {
       changeableFlagChanged = false;
       if (numOfValue[iFold] == 0) continue;
 
-      // make dummy include file
+      // back up old files
       if (folderUserCode[iFold]) {
          hFile.SetFormatted("%sinclude/generated/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         buffer.SetFormatted("#include \"include/folders/%s%s.h\"",shortCut.Data(),folderName[iFold].Data());
-         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+         changeableFlagChanged = RemoveFile(hFile.Data());
       }
       else {
          hFile.SetFormatted("%sinclude/generated/%s%s_Base.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         BackUpFile(hFile.Data());
+         changeableFlagChanged = RemoveFile(hFile.Data());
          hFile.SetFormatted("%sinclude/folders/%s%s.h",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         buffer.SetFormatted("#include \"include/generated/%s%s.h\"",shortCut.Data(),folderName[iFold].Data());
-         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+         BackUpFile(hFile.Data());
       }
       if (changeableFlagChanged) {
-         buffer.SetFormatted("%sobj/%s%s.d",outDir.Data(),shortCut.Data(),folderName[iFold].Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sGeneratedFolderDict.h",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sGeneratedFolderDict.cpp",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sobj/%sGeneratedFolderDict.d",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sdict/%sFolderDict.h",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sFolderDict.cpp",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sobj/%sFolderDict.d",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
+         if (folderUserCode[iFold])
+            hFile.SetFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[iFold].Data());
+         else
+            hFile.SetFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[iFold].Data());
+         RemoveDepFiles(hFile.Data());
       }
 
       // File name
@@ -1769,7 +1758,17 @@ bool ROMEBuilder::WriteTaskCpp() {
          buffer.AppendFormatted("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
 
          //Write File
-         ReplaceHeader(cppFile.Data(),header.Data(),buffer.Data(),6);
+         // replace header
+         ROMEString str1, str2;
+         if (taskUserCode[iTask]) {
+            str1.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+            str2.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+         }
+         else {
+            str1.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+            str2.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+         }
+         ReplaceHeader(cppFile.Data(),header.Data(),buffer.Data(),6,str1.Data(),str2.Data());
       }
    }
    return true;
@@ -1829,34 +1828,23 @@ bool ROMEBuilder::WriteTaskH() {
    for (int iTask=0;iTask<numOfTask;iTask++) {
       changeableFlagChanged = false;
 
-      // make dummy include file
+      //back up old files
       if (taskUserCode[iTask]) {
          hFile.SetFormatted("%sinclude/generated/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         buffer.SetFormatted("#include \"include/tasks/%sT%s.h\"",shortCut.Data(),taskName[iTask].Data());
-         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+         changeableFlagChanged = RemoveFile(hFile.Data());
       }
       else {
          hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         BackUpFile(hFile.Data());
+         changeableFlagChanged = RemoveFile(hFile.Data());
          hFile.SetFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         buffer.SetFormatted("#include \"include/generated/%sT%s.h\"",shortCut.Data(),taskName[iTask].Data());
-         changeableFlagChanged = WriteFile(hFile.Data(),buffer.Data(),6,true);
+         BackUpFile(hFile.Data());
       }
       if (changeableFlagChanged) {
-         buffer.SetFormatted("%sobj/%sT%s.d",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sGeneratedTaskDict.h",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sGeneratedTaskDict.cpp",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sobj/%sGeneratedTaskDict.d",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sdict/%sTaskDict.h",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());
-         buffer.SetFormatted("%sdict/%sTaskDict.cpp",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
-         buffer.SetFormatted("%sobj/%sTaskDict.d",outDir.Data(),shortCut.Data());
-         BackUpFile(buffer.Data());         
+         if (taskUserCode[iTask])
+            hFile.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+         else
+            hFile.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+         RemoveDepFiles(hFile.Data());
       }
 
       buffer.Resize(0);
@@ -11471,9 +11459,11 @@ void ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    if (numOfTask > 0) {
       path.SetFormatted("%ssrc/tasks", outDir.Data());
-      gSystem->MakeDirectory(path.Data());   
-      path.SetFormatted("%sinclude/tasks", outDir.Data());
       gSystem->MakeDirectory(path.Data());
+      if (hasTaskUserCode) {
+         path.SetFormatted("%sinclude/tasks", outDir.Data());
+         gSystem->MakeDirectory(path.Data());
+      }
    }
    if (numOfTab > 0) {
       path.SetFormatted("%ssrc/tabs", outDir.Data());
@@ -11484,9 +11474,9 @@ void ROMEBuilder::StartBuilder()
    if (hasFolderUserCode) {
       path.SetFormatted("%ssrc/folders", outDir.Data());
       gSystem->MakeDirectory(path.Data());
+      path.SetFormatted("%sinclude/folders", outDir.Data());
+      gSystem->MakeDirectory(path.Data());
    }
-   path.SetFormatted("%sinclude/folders", outDir.Data());
-   gSystem->MakeDirectory(path.Data());
    if (numOfDAQ > 0) {
       path.SetFormatted("%ssrc/daqs", outDir.Data());
       gSystem->MakeDirectory(path.Data());
@@ -14093,7 +14083,7 @@ const char* ROMEBuilder::TArray2StandardType(const char *type) {
    }
    return type;
 }
-bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,int nspace) {
+bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,int nspace,const char* str1, const char* str2) {
    bool writeFile = false;
    fstream *fileStream;
    ROMEString fileBuffer;
@@ -14104,7 +14094,6 @@ bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const ch
       buffer += body;
    }
    else {
-      // compare old and new file
       if(!(fileStream = new fstream(filename,ios::in))){
          if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
          return false;
@@ -14114,11 +14103,17 @@ bool ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const ch
       pBuffer = fileBuffer.Index(kHeaderEndMark);
       if (pBuffer<0) {
          if (makeOutput)
-            cout << "\n\nWarning : File '" << filename << "' does not have header end mark. Builder does not update header" << endl;
+            cout << "\n\nWarning : File '" << filename << "' does not have header end mark. Builder does not modify this file." << endl;
          return true;
       }
+      // compare old and new header
       if(fileBuffer(0,pBuffer+80) != header)
          writeFile = true;
+      //check if the file has string to be replaced.
+      if(str1  && fileBuffer.Contains(str1)) {
+         writeFile = true;
+         fileBuffer.ReplaceAll(str1, str2);
+      }
    }
    if (writeFile) {
       if(pBuffer>=0)
@@ -14180,6 +14175,8 @@ bool ROMEBuilder::BackUpFile(const char* filename) {
             return false;
          }
          else {
+            if (makeOutput)
+               cout<<"   renamed '"<<filename<<"' -> '"<<newName<<"'."<<endl;
             return true;
          }
       }
@@ -14395,5 +14392,65 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
       return;
    }
    str.Remove(str.Length()-2, 2);
+   return;
+}
+
+bool ROMEBuilder::RemoveFile(const char* filename, const char* str)
+{
+   // Remove file if exists.
+   // If str!=0, remove file only when it contains 'str';
+   // return true when the file is removed.
+   if (!filename)
+      return false;
+
+   if (!gSystem->AccessPathName(filename,kFileExists)) {
+      bool removeFile = false;
+      ROMEString fileBuffer;
+      fstream *fileStream;  
+      if (!str) {
+         removeFile = true;
+      }
+      else {
+         if(!(fileStream = new fstream(filename,ios::in))){
+            if (makeOutput) cout << "\n\nError : Failed to open '" << filename << "' !!!" << endl;
+            return false;
+         }
+         fileBuffer.ReadFile(*fileStream);
+         delete fileStream;
+         if (fileBuffer.Contains(str))
+            removeFile = true;
+      }
+      if (removeFile) {
+         ROMEString tmp;
+         tmp.SetFormatted("rm -f %s", filename);
+         gSystem->Exec(tmp.Data());
+         if (makeOutput)
+            cout<<"   removed '"<<filename<<"'."<<endl;
+         return true;
+      }
+   }
+
+   return false;
+}
+
+void ROMEBuilder::RemoveDepFiles(const char* str)
+{
+   // Remove .d files in 'obj' directory
+   // If str!=0, remove files only when it contains 'str';
+   char *direntry;
+   TString afile;
+   TString dirname = outDir;
+   dirname += "obj";
+   void *dirp = gSystem->OpenDirectory(dirname);
+   if (!dirp)
+      return;
+
+   //loop on all entries of this directory
+   while ((direntry = (char*)gSystem->GetDirEntry(dirp))) {
+      TString afile = Form("%s/%s", dirname.Data(), direntry);
+      if (afile.EndsWith(".d"))
+         RemoveFile(afile.Data(), str);
+   }
+
    return;
 }
