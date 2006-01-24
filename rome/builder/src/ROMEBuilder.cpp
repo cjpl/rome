@@ -2292,6 +2292,12 @@ bool ROMEBuilder::WriteTaskH() {
             if (histoType[iTask][i][2]==51) {
                buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zNbins,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             }
+            if (histoType[iTask][i]=="TProfile") {
+               buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,ymin,ymax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            if (histoType[iTask][i]=="TProfile2D") {
+               buffer.AppendFormatted("   f%s = new %s(histoName.Data(),histoTitle.Data(),xNbins,xmin,xmax,yNbins,ymin,ymax,zmin,zmax);\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            }
             if (!homeFolder)
                buffer.AppendFormatted("   %sFolder->Add(f%s);\n",histoFolderName[iTask][i].Data(),histoName[iTask][i].Data());
             else
