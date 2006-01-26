@@ -12576,6 +12576,7 @@ void ROMEBuilder::WriteMakefile() {
    if (!noVP) {
       WriteVisualProjects(2002);
       WriteVisualProjects(2003);
+      WriteVisualProjects(2005);
    }
 #endif // R__VISUAL_CPLUSPLUS
 }
@@ -12607,32 +12608,51 @@ void ROMEBuilder::WriteVisualProjectSln(int version,ROMEString& projectGUID) {
       case 2003:
          formatVersion = "8.00";
          break;
+      case 2005:
+         formatVersion = "9.00";
+         break;
       default:
          return;
    }
 
    buffer.AppendFormatted("Microsoft Visual Studio Solution File, Format Version %s\n",formatVersion.Data());
+   if (version==2005)
+      buffer.AppendFormatted("# Visual Studio 2005\n");
    buffer.AppendFormatted("Project(\"{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}\") = \"%s%s%d\", \"%s%s%d.vcproj\", \"{%s}\"\n",shortCut.Data(),mainProgName.Data(),version,shortCut.Data(),mainProgName.Data(),version,projectGUID.Data());
-   if (version!=2002) {
+   if (version==2003) {
       buffer.AppendFormatted("	ProjectSection(ProjectDependencies) = postProject\n");
       buffer.AppendFormatted("	EndProjectSection\n");
    }
    buffer.AppendFormatted("EndProject\n");
    buffer.AppendFormatted("Global\n");
-   buffer.AppendFormatted("	GlobalSection(SolutionConfiguration) = preSolution\n");
-   if (version!=2002)
-      buffer.AppendFormatted("		ConfigName.0 = Debug\n");
-   else
-      buffer.AppendFormatted("		Debug = Debug\n");
-   buffer.AppendFormatted("	EndGlobalSection\n");
-   buffer.AppendFormatted("	GlobalSection(ProjectConfiguration) = postSolution\n");
-   buffer.AppendFormatted("		{%s}.Debug.ActiveCfg = Debug|Win32\n",projectGUID.Data());
-   buffer.AppendFormatted("		{%s}.Debug.Build.0 = Debug|Win32\n",projectGUID.Data());
-   buffer.AppendFormatted("	EndGlobalSection\n");
-   buffer.AppendFormatted("	GlobalSection(ExtensibilityGlobals) = postSolution\n");
-   buffer.AppendFormatted("	EndGlobalSection\n");
-   buffer.AppendFormatted("	GlobalSection(ExtensibilityAddIns) = postSolution\n");
-   buffer.AppendFormatted("	EndGlobalSection\n");
+   if (version<2005) {
+	   buffer.AppendFormatted("	GlobalSection(SolutionConfiguration) = preSolution\n");
+	   if (version==2003)
+		   buffer.AppendFormatted("		ConfigName.0 = Debug\n");
+	   if (version==2002)
+		   buffer.AppendFormatted("		Debug = Debug\n");
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+	   buffer.AppendFormatted("	GlobalSection(ProjectConfiguration) = postSolution\n");
+	   buffer.AppendFormatted("		{%s}.Debug.ActiveCfg = Debug|Win32\n",projectGUID.Data());
+	   buffer.AppendFormatted("		{%s}.Debug.Build.0 = Debug|Win32\n",projectGUID.Data());
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+	   buffer.AppendFormatted("	GlobalSection(ExtensibilityGlobals) = postSolution\n");
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+	   buffer.AppendFormatted("	GlobalSection(ExtensibilityAddIns) = postSolution\n");
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+   }
+   else {
+	   buffer.AppendFormatted("	GlobalSection(SolutionConfigurationPlatforms) = preSolution\n");
+	   buffer.AppendFormatted("		Debug|Win32 = Debug|Win32\n");
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+	   buffer.AppendFormatted("	GlobalSection(ProjectConfigurationPlatforms) = postSolution\n");
+	   buffer.AppendFormatted("		{%s}.Debug|Win32.ActiveCfg = Debug|Win32\n",projectGUID.Data());
+	   buffer.AppendFormatted("		{%s}.Debug|Win32.Build.0 = Debug|Win32\n",projectGUID.Data());
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+	   buffer.AppendFormatted("	GlobalSection(SolutionProperties) = preSolution\n");
+	   buffer.AppendFormatted("		HideSolutionNode = FALSE\n");
+	   buffer.AppendFormatted("	EndGlobalSection\n");
+   }
    buffer.AppendFormatted("EndGlobal\n");
 
    ROMEString fileName;
@@ -12651,6 +12671,9 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
       case 2003:
          formatVersion = "7.10";
          break;
+      case 2005:
+         formatVersion = "8.00";
+         break;
       default:
          return;
    }
@@ -12662,7 +12685,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
    xml->WriteAttribute("Name",str.Data());
    xml->WriteAttribute("ProjectGUID",projectGUID.Data());
-   if (version!=2002) {
+   if (version>2002) {
       str.SetFormatted("%s%s%d",shortCut.Data(),mainProgName.Data(),version);
       xml->WriteAttribute("RootNamespace",str.Data());
    }
@@ -12675,6 +12698,12 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    xml->EndElement();
    xml->EndElement();
 
+   if (version==2005) {
+      // ToolFiles
+      xml->StartElement("ToolFiles");
+      xml->EndElement();
+   }
+
    // Configurations
    xml->StartElement("Configurations");
 
@@ -12685,13 +12714,16 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
       xml->WriteAttribute("OutputDirectory","Debug");
       xml->WriteAttribute("IntermediateDirectory","Debug");
    }
-   else {
+   if (version>2002) {
       xml->WriteAttribute("OutputDirectory","$(SolutionDir)$(ConfigurationName)");
       xml->WriteAttribute("IntermediateDirectory","$(ConfigurationName)");
    }
    xml->WriteAttribute("ConfigurationType","1");
    xml->WriteAttribute("CharacterSet","2");
-   xml->WriteAttribute("ManagedExtensions","FALSE");
+   if (version<=2003)
+      xml->WriteAttribute("ManagedExtensions","FALSE");
+   if (version>2003)
+      xml->WriteAttribute("ManagedExtensions","0");
 
    // VCCLCompilerTool
    ROMEString includeDirs;
@@ -12700,6 +12732,8 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    for (i=0;i<numOfMFIncDirs;i++)
       includeDirs.AppendFormatted(";\"%s\"",mfIncDir[i].Data());
    ROMEString preDrocDefs = "WIN32;_DEBUG";
+   if (version>2003)
+      preDrocDefs += ";_CRT_SECURE_NO_DEPRECATE";
    for (i=0;i<flags.GetEntriesFast();i++)
       preDrocDefs.AppendFormatted(";%s",flags.At(i).Data());
    xml->StartElement("Tool");
@@ -12713,6 +12747,8 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    xml->WriteAttribute("RuntimeTypeInfo","TRUE");
    xml->WriteAttribute("WarningLevel","3");
    xml->WriteAttribute("DebugInformationFormat","3");
+   if (version>2003)
+      xml->WriteAttribute("DisableSpecificWarnings","4996");
    xml->EndElement();
 
    // VCCustomBuildTool
@@ -12788,6 +12824,42 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,int version,ROMESt
    if (version!=2002) {
       xml->StartElement("Tool");
       xml->WriteAttribute("Name","VCAuxiliaryManagedWrapperGeneratorTool");
+      xml->EndElement();
+   }
+   if (version>2003) {
+      // VCManagedResourceCompilerTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCManagedResourceCompilerTool");
+      xml->EndElement();
+
+      // VCALinkTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCALinkTool");
+      xml->EndElement();
+
+      // VCManifestTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCManifestTool");
+      xml->EndElement();
+
+      // VCXDCMakeTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCXDCMakeTool");
+      xml->EndElement();
+
+      // VCBscMakeTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCBscMakeTool");
+      xml->EndElement();
+
+      // VCFxCopTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCFxCopTool");
+      xml->EndElement();
+
+      // VCAppVerifierTool
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCAppVerifierTool");
       xml->EndElement();
    }
 
@@ -12952,6 +13024,8 @@ void ROMEBuilder::WriteVisualProjects(int version)
       case 2002:
          break;
       case 2003:
+         break;
+      case 2005:
          break;
       default:
          return;
