@@ -1,0 +1,38 @@
+<ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
+	<Experiment>
+		<ExperimentShortCut>XYZ</ExperimentShortCut>
+		<ProgramName>Analyzer</ProgramName>
+	</Experiment>
+	<Folders>
+		<Folder>
+			<FolderName>GaussData</FolderName>
+			<NoResetByFramework>true</NoResetByFramework>
+			<Field>
+				<FieldName>Bin</FieldName>
+				<FieldType>TArrayF</FieldType>
+				<FieldComment>Bin Data</FieldComment>
+			</Field>
+		</Folder>
+	</Folders>
+	<Tasks>
+		<Task>
+			<TaskName>FillHistoAndFolder</TaskName>
+			<Histogram>
+				<HistName>Histo1</HistName>
+				<HistFolderName>histo1</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+				<Argus>
+					<Tab>
+						<TabName>Histos</TabName>
+						<Index>0</Index>
+					</Tab>
+				</Argus>
+			</Histogram>
+		</Task>
+	</Tasks>
+</ROMEFrameworkDefinition>

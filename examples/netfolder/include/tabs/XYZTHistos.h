@@ -1,9 +1,9 @@
-#ifndef XYZTMyHisto_H
-#define XYZTMyHisto_H
+#ifndef XYZTHistos_H
+#define XYZTHistos_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTMyHisto                                                                //
+// XYZTHistos                                                                 //
 //                                                                            //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
@@ -11,30 +11,20 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <RConfig.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( push )
-#pragma warning( disable : 4800 )
-#endif // R__VISUAL_CPLUSPLUS
-#include <TRootEmbeddedCanvas.h>
-#include <TCanvas.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+#include "include/generated/XYZTHistos_Base.h"
 
-#include "include/generated/XYZTMyHisto_Base.h"
-
-class XYZTMyHisto : public XYZTMyHisto_Base
+class XYZTHistos : public XYZTHistos_Base
 {
 protected:
+   TH1F *histo2;
    TRootEmbeddedCanvas *fCanvas;
 
 public:
-   XYZTMyHisto():XYZTMyHisto_Base()
+   XYZTHistos():XYZTHistos_Base()
    {
    }
 
-   ~XYZTMyHisto()
+   ~XYZTHistos()
    {
    }
 
@@ -45,7 +35,7 @@ public:
    void EventHandler();
 
 
-   ClassDef(XYZTMyHisto,1)
+   ClassDef(XYZTHistos,1)
 };
 
-#endif   // XYZTMyHisto_H
+#endif   // XYZTHistos_H
