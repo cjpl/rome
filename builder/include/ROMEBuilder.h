@@ -25,6 +25,7 @@ const int maxNumberOfValues = 50;
 const int maxNumberOfValueDimension = 3;
 const int maxNumberOfInclude = 10;
 const int maxNumberOfHistos = 50;
+const int maxNumberOfHistoTabs = 5;
 const int maxNumberOfStructFields = 50;
 const int maxNumberOfMFDictHeaders = 100;
 const int maxNumberOfMFDictIncDirs = 20;
@@ -39,6 +40,7 @@ const int maxNumberOfMFSourceFlags = 5;
 const int maxNumberOfEventRequests = 5;
 const int maxNumberOfPathObjectInterpreterCodes =     10;
 const int maxNumberOfTabs                       =    200;
+const int maxNumberOfTabHistos                  =     20;
 const int maxNumberOfMenus                      =     20;
 const int maxNumberOfMenuItems                  =     50;
 const int maxNumberOfThreadFunctions            =     10;
@@ -182,6 +184,9 @@ protected:
    ROMEString histoZNbins[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZmin[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString histoZmax[maxNumberOfTasks][maxNumberOfHistos];
+   int numOfHistoTabs[maxNumberOfTasks][maxNumberOfHistos];
+   ROMEString histoTabName[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
+   ROMEString histoTabIndex[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
    bool hasTaskUserCode;
    bool hasTaskGenerated;
 
@@ -228,6 +233,10 @@ protected:
    Int_t      menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
    ROMEString menuItemEnumName[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
    ROMEString menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
+   int        numOfTabHistos[maxNumberOfTabs];
+   ROMEString tabHistoName[maxNumberOfTabs][maxNumberOfTabHistos];
+   int        tabHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
+   int        tabHistoIndexMax[maxNumberOfTabs];
 
 // tree
    int numOfTree;
