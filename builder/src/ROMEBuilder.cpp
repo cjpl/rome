@@ -4849,17 +4849,6 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    WriteObjectInterpreterValue(buffer,"double","Double");
    WriteObjectInterpreterValue(buffer,"ROMEString&","Char");
 
-   // Histo Getters
-   buffer.AppendFormatted("   // Histo Getters\n");
-   for (i=0;i<numOfTask;i++) {
-      for (j=0;j<numOfHistos[i];j++) {
-         buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
-         buffer.AppendFormatted("   return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
-         buffer.AppendFormatted("}\n");
-      }
-   }
-   buffer.AppendFormatted("\n");
-
    // Splash Screen
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("LPDWORD lpThreadId;\n");
@@ -5182,14 +5171,6 @@ bool ROMEBuilder::WriteAnalyzerH() {
          if(folderArray[i]!="variable")
             buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   Int_t Get%sSize() { return f%sFolders->GetEntries(); }\n",folderName[i].Data(),folderName[i].Data());
-      }
-   }
-   buffer.AppendFormatted("\n");
-   // Histo Getters
-   buffer.AppendFormatted("   // Histo\n");
-   for (i=0;i<numOfTask;i++) {
-      for (j=0;j<numOfHistos[i];j++) {
-         buffer.AppendFormatted("   %s* Get%s();\n",histoType[i][j].Data(),histoName[i][j].Data());
       }
    }
    buffer.AppendFormatted("\n");
