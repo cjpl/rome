@@ -474,8 +474,8 @@ public:
    bool isFolder(const char *type);
    bool isTArrayType(const char *type);
    bool isTArrayType(TString &type) { return isTArrayType(type.Data()); };
-   const char* TArray2StandardType(const char *type);
-   const char* TArray2StandardType(TString &type) { return TArray2StandardType(type.Data()); };
+   const char* TArray2StandardType(const char *type,ROMEString &standardType);
+   const char* TArray2StandardType(TString &type,ROMEString &standardType) { return TArray2StandardType(type.Data(),standardType); };
    bool isRootClassType(const char *type) { TString tmp=type; return isRootClassType(tmp); };
    bool isRootClassType(TString &type) { ROMEString tmp=type; tmp.StripSpaces(); return tmp(0)=='T'; };
    bool isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
