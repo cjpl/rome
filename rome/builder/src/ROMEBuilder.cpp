@@ -1471,6 +1471,7 @@ bool ROMEBuilder::ReadXMLTask() {
          histoZNbins[numOfTask][numOfHistos[numOfTask]] = "1";
          histoZmin[numOfTask][numOfHistos[numOfTask]] = "0";
          histoZmax[numOfTask][numOfHistos[numOfTask]] = "1";
+         numOfHistoTabs[numOfTask][numOfHistos[numOfTask]] = 0;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -1531,6 +1532,41 @@ bool ROMEBuilder::ReadXMLTask() {
             // histo max value in z
             if (type == 1 && !strcmp((const char*)name,"HistZmax"))
                xml->GetValue(histoZmax[numOfTask][numOfHistos[numOfTask]],histoZmax[numOfTask][numOfHistos[numOfTask]]);
+            // argus
+            if (type == 1 && !strcmp((const char*)name,"Argus")) {
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // tab
+                  if (type == 1 && !strcmp((const char*)name,"Tab")) {
+                     if (numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]>=maxNumberOfHistoTabs) {
+                        cout << "Maximal number of Tabs in the Argus section of Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' reached : " << maxNumberOfHistoTabs << " !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                     histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "";
+                     histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
+                     while (xml->NextLine()) {
+                        type = xml->GetType();
+                        name = xml->GetName();
+                        // tab name
+                        if (type == 1 && !strcmp((const char*)name,"TabName"))
+                           xml->GetValue(histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                        // index
+                        if (type == 1 && !strcmp((const char*)name,"Index"))
+                           xml->GetValue(histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                        // tab end
+                        if (type == 15 && !strcmp((const char*)name,"Tab")) {
+                           numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]++;
+                           break;
+                        }
+                     }
+                  }
+                  // argus end
+                  if (type == 15 && !strcmp((const char*)name,"Argus"))
+                     break;
+               }
+            }
             // histo end
             if (type == 15 && !strcmp((const char*)name,"Histogram"))
                break;
@@ -2583,6 +2619,7 @@ bool ROMEBuilder::ReadXMLTab()
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
+   numOfTabHistos[currentNumberOfTabs] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2934,6 +2971,7 @@ bool ROMEBuilder::WriteTabCpp()
 
       buffer.Resize(0);
 
+      buffer.AppendFormatted("\n");
       // Header
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
@@ -3014,6 +3052,9 @@ bool ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("#include \"TGFrame.h\"\n");
       buffer.AppendFormatted("#include \"TGMenu.h\"\n");
       buffer.AppendFormatted("#include \"TThread.h\"\n");
+      buffer.AppendFormatted("#include \"TRootEmbeddedCanvas.h\"\n");
+      buffer.AppendFormatted("#include \"TCanvas.h\"\n");
+      buffer.AppendFormatted("#include \"TPad.h\"\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -3054,6 +3095,9 @@ bool ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("   Int_t    fUpdateFrequency; //! Update Frequency\n");
       buffer.AppendFormatted("   TTimer   *fEventHandlerTimer; //! Timer for the EventHandler function\n");
       buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
+      if (numOfTabHistos[iTab]>0) {
+         buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas;\n");
+      }
 
       // Methods
       buffer.AppendFormatted("public:\n");
@@ -3081,15 +3125,61 @@ bool ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("\n");
 
       // InitTab
+      int nx=1,ny=1;
       buffer.AppendFormatted("   void InitTab() {\n");
+      if (numOfTabHistos[iTab]>0) {
+         buffer.AppendFormatted("      // Init Histos\n");
+         buffer.AppendFormatted("      fGeneratedCanvas = new TRootEmbeddedCanvas(\"GeneratedCanvas\", this, 600, 600);\n");
+         buffer.AppendFormatted("      AddFrame(fGeneratedCanvas,new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
+         if (tabHistoIndexMax[iTab]>1)
+            ny = 2;
+         if (tabHistoIndexMax[iTab]>2)
+            nx = 2;
+         if (tabHistoIndexMax[iTab]>4)
+            ny = 3;
+         if (tabHistoIndexMax[iTab]>6)
+            nx = 3;
+         if (tabHistoIndexMax[iTab]>9)
+            ny = 4;
+         if (tabHistoIndexMax[iTab]>12)
+            nx = 4;
+         if (tabHistoIndexMax[iTab]>16)
+            ny = 5;
+         if (tabHistoIndexMax[iTab]>20)
+            nx = 5;
+         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->Divide(%d, %d);\n",nx,ny);
+         for (i=0;i<tabHistoIndexMax[iTab];i++) {
+            buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+            for (j=0;j<numOfTabHistos[iTab];j++) {
+               if (tabHistoIndex[iTab][j]==i) {
+                  buffer.AppendFormatted("      gAnalyzer->Get%s()->Draw();\n",tabHistoName[iTab][j].Data());
+                  break;
+               }
+            }
+         }
+      }
+      buffer.AppendFormatted("      // Init EventHandler\n");
       buffer.AppendFormatted("      fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);\n");
-      buffer.AppendFormatted("      fEventHandlerTimer->Connect(\"Timeout()\", \"%sT%s\", this, \"EventHandler()\");\n",shortCut.Data(),tabName[iTab].Data());
+      buffer.AppendFormatted("      fEventHandlerTimer->Connect(\"Timeout()\", \"%sT%s\", this, \"TabEventHandler()\");\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("      Init();\n");
       buffer.AppendFormatted("      if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {\n");
       buffer.AppendFormatted("         fEventHandlerTimer->TurnOn();\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   virtual void Init() = 0;\n");
+      buffer.AppendFormatted("\n");
+
+      // TabEventHandler
+      buffer.AppendFormatted("   void TabEventHandler() {\n");
+      for (i=0;i<tabHistoIndexMax[iTab];i++) {
+         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+         buffer.AppendFormatted("      gPad->Modified();\n");
+         buffer.AppendFormatted("      gPad->Update();\n");
+      }
+      buffer.AppendFormatted("      EventHandler();\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("   virtual void EventHandler() = 0;\n");
       buffer.AppendFormatted("\n");
 
       // StartEventHandler
@@ -11063,7 +11153,8 @@ void ROMEBuilder::StartBuilder()
    bool finished = false;
    bool inputok = false;
    int type;
-   int i,j;
+   int i,j,k,l;
+   bool found;
 
    experimentName = "";
    styleSheet = "";
@@ -11434,6 +11525,50 @@ void ROMEBuilder::StartBuilder()
       cout << "Terminating the ROMEBuilder." << endl;
       return;
    }
+   // Check Histos & Tabs
+   for (i=0;i<numOfTask;i++) {
+      for (j=0;j<numOfHistos[i];j++) {
+         for (k=0;k<numOfHistoTabs[i][j];k++) {
+            found = false;
+            for (l=0;l<numOfTab;l++) {
+               if (histoTabName[i][j][k]==tabName[l]) {
+                  found = true;
+                  tabHistoName[l][numOfTabHistos[l]] = histoName[i][j];
+                  tabHistoIndex[l][numOfTabHistos[l]] = histoTabIndex[i][j][k].ToInteger();
+                  numOfTabHistos[l]++;
+                  break;
+               }
+            }
+            if (!found) {
+               if (numOfTab<0)
+                  numOfTab = 0;
+               tabName[numOfTab] = histoTabName[i][j][k];
+               tabTitle[numOfTab] = histoTabName[i][j][k];
+               tabAuthor[numOfTab] = mainAuthor;
+               tabVersion[numOfTab] = "1";
+               tabDescription[numOfTab] = "";
+               numOfSteering[numOfTab+numOfTaskHierarchy+1] = -1;
+               numOfMenu[numOfTab] = -1;
+               tabNumOfChildren[numOfTab] = 0;
+               numOfThreadFunctions[numOfTab] = 0;
+               tabParentIndex[numOfTab] = taskHierarchyParentIndex[numOfTab] = -1;
+
+               tabHistoName[numOfTab][0] = histoName[i][j];
+               tabHistoIndex[numOfTab][0] = histoTabIndex[i][j][k].ToInteger();
+               numOfTabHistos[numOfTab] = 1;
+               numOfTab++;
+            }
+         }
+      }
+   }
+
+   for (i=0;i<numOfTab;i++) {
+      tabHistoIndexMax[i] = 0;
+      for (j=0;j<numOfTabHistos[i];j++) {
+         tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1,tabHistoIndexMax[i]);
+      }
+   }
+
    // test for fortran
    for (i=0;i<numOfTask;i++) {
       if (taskFortran[i]) {
@@ -11737,7 +11872,8 @@ void ROMEBuilder::AddArgusSources(){
       argusSources->AddFormatted("dict/ARGUSDict.cpp",shortCut.Data());
 }
 void ROMEBuilder::AddGeneratedHeaders() {
-   generatedHeaders = new ROMEStrArray(8);
+   int i;
+   generatedHeaders = new ROMEStrArray(8+TMath::Max(numOfFolder,0)+TMath::Max(numOfTask,0)+TMath::Max(numOfTab,0));
    generatedHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
@@ -11746,6 +11882,27 @@ void ROMEBuilder::AddGeneratedHeaders() {
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i]) {
+            generatedHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+         }
+         else {
+            generatedHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+         }
+      }
+   }
+   for (i=0;i<numOfTask;i++) {
+      if (taskUserCode[i]) {
+         generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+      }
+      else {
+         generatedHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+   }
 }
 void ROMEBuilder::AddGeneratedDictHeaders() {
    generatedDictHeaders = new ROMEStrArray(2);
@@ -11760,7 +11917,7 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders() {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
          }
-         else {
+        else {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
          }
       }
@@ -13093,64 +13250,64 @@ void ROMEBuilder::WriteVisualProjects(int version)
    xml->WriteAttribute("Name","ROOT");
    xml->WriteAttribute("Filter","lib");
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/gdk-1.3.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\gdk-1.3.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/glib-1.3.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\glib-1.3.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libCore.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libCore.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libCint.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libCint.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libHist.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libHist.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGraf.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGraf.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGraf3d.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGraf3d.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGpad.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGpad.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libTree.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libTree.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libRint.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libRint.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libPostscript.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libPostscript.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libMatrix.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libMatrix.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libPhysics.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libPhysics.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGui.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGui.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libHtml.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libHtml.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libWin32gdk.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libWin32gdk.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libThread.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libThread.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libMinuit.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libMinuit.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGeom.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGeom.lib");
    xml->EndElement();
    xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)/lib/libGeomPainter.lib");
+   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGeomPainter.lib");
    xml->EndElement();
    xml->EndElement();
    // user

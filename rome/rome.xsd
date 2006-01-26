@@ -361,6 +361,35 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="HistoTabDesc">
+		<xs:annotation>
+			<xs:documentation>Description of display configuration for a tab.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TabName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name of the tab.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Index" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Index of the histogram in the tab. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HistoArgusDesc">
+		<xs:annotation>
+			<xs:documentation>Description of Argus display configuration for the histogram.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Tab" type="HistoTabDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Display configuration for a tab.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="HistogramDesc">
 		<xs:annotation>
 			<xs:documentation>Description of histograms.</xs:documentation>
@@ -462,6 +491,11 @@
 				<xs:element name="HistZmax" type="xs:double" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Argus" type="HistoArgusDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Argus display configuration for the histogram.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
