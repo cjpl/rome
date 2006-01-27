@@ -30,6 +30,7 @@ TNetFolder::TNetFolder(const Char_t *name, const Char_t *title, TSocket *socket,
 TNetFolder::~TNetFolder()
 {
 }
+
 void TNetFolder::Reconnect()
 {
    Warning("Reconnect", "can not make socket connection to %s on port %d.", fHost.Data(), fPort);
@@ -75,7 +76,7 @@ Bool_t TNetFolder::Recv(TMessage *&mess)
    return kTRUE;
 }
 
-Int_t TNetFolder::GetPointer()
+Long_t TNetFolder::GetPointer()
 {
    TMessage *m;
    TString str = "GetPointer ";
@@ -89,7 +90,7 @@ Int_t TNetFolder::GetPointer()
       delete m;
       return 0;
    }
-   Int_t p;
+   Long_t p;
    *m >> p;
    delete m;
    return p;

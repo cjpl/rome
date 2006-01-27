@@ -9,8 +9,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( push )
-#pragma warning( disable : 4800 )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TMessage.h>
 #include <TSocket.h>
@@ -21,15 +21,13 @@
 #include <TObjArray.h>
 #include <TApplication.h>
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-#include <TThread.h>
+#   include <TThread.h>
 #endif // ROOT_VERSION
 #if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( pop )
+#   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TNetFolderServer.h>
 #include <Riostream.h>
-
-#define PTYPE int
 
 #define THREADRETURN NULL
 #define THREADTYPE void*
@@ -47,7 +45,7 @@ TFolder *ReadFolderPointer(TSocket *socket)
    //read pointer to current folder
    TMessage *message = 0;
    socket->Recv(message);
-   Int_t p;
+   Long_t p;
    *message>>p;
    delete message;
    return (TFolder*)p;
@@ -189,7 +187,7 @@ int ResponseFunction(TSocket *socket) {
 
       //write pointer
       message.Reset(kMESS_ANY);
-      int p = (PTYPE)obj;
+      Long_t p = (Long_t)obj;
       message<<p;
       socket->Send(message);
 
@@ -230,8 +228,6 @@ int ResponseFunction(TSocket *socket) {
 #endif // ROOT_VERSION
    return 1;
 }
-
-
 
 
 THREADTYPE Server(void *arg)
