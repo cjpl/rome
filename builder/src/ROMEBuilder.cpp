@@ -5023,7 +5023,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
             buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS()) {\n");
             buffer.AppendFormatted("      ROMEString name;\n");
-            buffer.AppendFormatted("      Int_t arrayStartIndex;\n");
+            buffer.AppendFormatted("      Int_t arrayStartIndex = 0;\n");
 // FIX ME
 //            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)f%s%03dTask)->GetObjectInterpreterIntValue(f%sArrayStartIndexCode,arrayStartIndex);\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
             buffer.AppendFormatted("      arrayStartIndex = 0;\n");
