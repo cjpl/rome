@@ -431,8 +431,8 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
       return;
 
    // swap bank header
-   ROMEUtilities::ByteSwap((UInt_t   *)&pbh->data_size);
-   ROMEUtilities::ByteSwap((UInt_t   *)&pbh->flags);
+   ROMEUtilities::ByteSwap((UInt_t*)&pbh->data_size);
+   ROMEUtilities::ByteSwap((UInt_t*)&pbh->flags);
 
    // check for 32bit banks
    b32 = ((pbh->flags & (1<<4)) > 0);
@@ -441,18 +441,18 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
    pbk32 = (BANK32 *) pbk;
 
    // scan event
-   while ((Seek_t) pbk - (Seek_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
+   while ((Long64_t) pbk - (Long64_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
       // swap bank header
       if (b32) {
-         ROMEUtilities::ByteSwap((UInt_t *)&pbk32->type);
-         ROMEUtilities::ByteSwap((UInt_t *)&pbk32->data_size);
+         ROMEUtilities::ByteSwap((UInt_t*)&pbk32->type);
+         ROMEUtilities::ByteSwap((UInt_t*)&pbk32->data_size);
          pdata = pbk32 + 1;
          type = (UShort_t) pbk32->type;
          for ( long i = 0; i < 4; i++ )
             name[ i ] = pbk32->name[ i ];
       } else {
-         ROMEUtilities::ByteSwap((UShort_t *)&pbk->type);
-         ROMEUtilities::ByteSwap((UShort_t *)&pbk->data_size);
+         ROMEUtilities::ByteSwap((UShort_t*)&pbk->type);
+         ROMEUtilities::ByteSwap((UShort_t*)&pbk->data_size);
          pdata = pbk + 1;
          type = pbk->type;
          for ( long i = 0; i < 4; i++ )
@@ -471,7 +471,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
       switch (type) {
          case TID_WORD:
          case TID_SHORT:
-            while ((Seek_t) pdata < (Seek_t) pbk) {
+            while ((Long64_t) pdata < (Long64_t) pbk) {
                ROMEUtilities::ByteSwap((UShort_t*)pdata);
                pdata = (void *) (((UShort_t *) pdata) + 1);
             }
@@ -481,21 +481,21 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          case TID_INT:
          case TID_BOOL:
          case TID_FLOAT:
-            while ((Seek_t) pdata < (Seek_t) pbk) {
+            while ((Long64_t) pdata < (Long64_t) pbk) {
                ROMEUtilities::ByteSwap((UInt_t*)pdata);
                pdata = (void *) (((UInt_t *) pdata) + 1);
             }
             break;
 
          case TID_DOUBLE:
-            while ((Seek_t) pdata < (Seek_t) pbk) {
+            while ((Long64_t) pdata < (Long64_t) pbk) {
                ROMEUtilities::ByteSwap((ULong64_t*)pdata);
                pdata = (void *) (((ULong64_t *) pdata) + 1);
             }
             break;
 
          case TID_STRUCT:
-            while ( (Seek_t) pdata < (Seek_t) pbk ) {
+            while ( (Long64_t) pdata < (Long64_t) pbk ) {
                 pdata = ByteSwapStruct( &name[ 0 ], pdata );
             }
             break;
