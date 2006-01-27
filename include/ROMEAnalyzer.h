@@ -446,6 +446,7 @@ public:
    bool        IsSocketToROMEActive() { return fSocketToROMEActive; };
    const char* GetSocketToROMEHost() { return fSocketToROMEHost.Data(); };
    int         GetSocketToROMEPort() { return fSocketToROMEPort; };
+   TNetFolder* GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; };
 
    void        SetSocketToROMEActive(bool flag) { fSocketToROMEActive = flag; };
    void        SetSocketToROMEHost(const char* host) { fSocketToROMEHost = host; };
@@ -508,7 +509,6 @@ public:
    Bool_t          ConnectNetFolders();
    Bool_t          DisconnectNetFolders();
    void            InitNetFolders(Int_t number);
-   
 
    // Start Monitor
    virtual bool StartWindow() = 0;

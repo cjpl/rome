@@ -151,6 +151,8 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fNetFolderHost = 0;
    fNetFolderRoot = 0;
    fOldbuf = 0;
+   fSocketToROME = NULL;
+   fSocketToROMENetFolder = NULL;
    fSocketToROMEActive = true;
    fSocketToROMEHost = "localhost";
    fSocketToROMEPort = 9090;
@@ -175,6 +177,10 @@ bool ROMEAnalyzer::Start(int argc, char **argv)
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
+
+   if (IsStandAloneARGUS()) {
+      ConnectSocketToROME();
+   }
 
    if (this->isBatchMode())
       redirectOutput();
@@ -938,9 +944,15 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
 
 Bool_t ROMEAnalyzer::ConnectSocketToROME()
 {
+   if (fSocketToROME!=NULL) {
+      if (fSocketToROME->IsValid()) {
+         return true;
+      }
+   }
    ROMEString port;
    port.SetFormatted("%d",fSocketToROMEPort);
-   fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
+   if (fSocketToROME==NULL)
+      fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
    while (!fSocketToROME->IsValid()) {
       delete fSocketToROME;
       PrintText("can not make socket connection to the ROME analyzer on host '");
@@ -952,6 +964,7 @@ Bool_t ROMEAnalyzer::ConnectSocketToROME()
       gSystem->Sleep(5000);
       fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
    }
+   ConnectSocketToROMENetFolder();
    return true;
 }
 

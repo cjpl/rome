@@ -69,6 +69,7 @@ Bool_t ArgusWindow::Start()
    SetWindowName(name.Data());
    MapSubwindows();
    Resize(GetDefaultSize());
+   gSystem->Sleep(500);
    MapWindow();
    fCurrentTabID = 1;
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);

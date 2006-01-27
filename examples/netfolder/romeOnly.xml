@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jan 27 16:08:18 2006 -->
+<!-- created by MXML on Fri Jan 27 16:18:40 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
       <Active>true</Active>
     </ROME>
     <ARGUS>
-      <Active>true</Active>
+      <Active>false</Active>
     </ARGUS>
   </ProgramConfiguration>
   <MainConfiguration>
@@ -35,7 +35,7 @@
     </Online>
     <SocketInterface>
       <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
+      <AvailableOffline>true</AvailableOffline>
     </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
@@ -47,12 +47,6 @@
         <Active>true</Active>
       </Task>
     </Tasks>
-    <Tabs>
-      <Tab>
-        <TabName>Histos</TabName>
-        <Active>true</Active>
-      </Tab>
-    </Tabs>
     <Midas/>
   </MainConfiguration>
 </Configuration>

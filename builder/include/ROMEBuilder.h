@@ -236,6 +236,8 @@ protected:
    int        numOfTabHistos[maxNumberOfTabs];
    ROMEString tabHistoName[maxNumberOfTabs][maxNumberOfTabHistos];
    int        tabHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
+   int        tabHistoTaskIndex[maxNumberOfTabs][maxNumberOfTabHistos];
+   int        tabHistoHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
    int        tabHistoIndexMax[maxNumberOfTabs];
 
 // tree

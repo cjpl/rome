@@ -3121,7 +3121,10 @@ bool ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("   TTimer   *fEventHandlerTimer; //! Timer for the EventHandler function\n");
       buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
       if (numOfTabHistos[iTab]>0) {
-         buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas;\n");
+         buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
+         for (i=0;i<numOfTabHistos[iTab];i++) {
+            buffer.AppendFormatted("   %s* f%sHisto; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data());
+         }
       }
 
       // Methods
@@ -3174,10 +3177,11 @@ bool ROMEBuilder::WriteTabH()
             nx = 5;
          buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->Divide(%d, %d);\n",nx,ny);
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
-            buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("      gAnalyzer->Get%s()->Draw();\n",tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                  buffer.AppendFormatted("      f%sHisto = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("      f%sHisto->Draw();\n",tabHistoName[iTab][j].Data());
                   break;
                }
             }
@@ -3197,9 +3201,17 @@ bool ROMEBuilder::WriteTabH()
       // TabEventHandler
       buffer.AppendFormatted("   void TabEventHandler() {\n");
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
-         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-         buffer.AppendFormatted("      gPad->Modified();\n");
-         buffer.AppendFormatted("      gPad->Update();\n");
+         for (j=0;j<numOfTabHistos[iTab];j++) {
+            if (tabHistoIndex[iTab][j]==i) {
+               buffer.AppendFormatted("      f%sHisto = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),tabHistoName[iTab][j].Data());
+               buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+               buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS())\n");
+               buffer.AppendFormatted("         f%sHisto->Draw();\n",tabHistoName[iTab][j].Data());
+               buffer.AppendFormatted("      gPad->Modified();\n");
+               buffer.AppendFormatted("      gPad->Update();\n");
+               break;
+            }
+         }
       }
       buffer.AppendFormatted("      EventHandler();\n");
       buffer.AppendFormatted("   }\n");
@@ -5000,7 +5012,10 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    for (i=0;i<numOfTask;i++) {
       for (j=0;j<numOfHistos[i];j++) {
          buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
-         buffer.AppendFormatted("   return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
+         buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS())\n");
+         buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoType[i][j].Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
          buffer.AppendFormatted("}\n");
       }
    }
@@ -5009,6 +5024,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
    // Connect SocketToROME NetFolder
    buffer.AppendFormatted("   // Connect SocketToROME NetFolder\n");
    buffer.AppendFormatted("bool %sAnalyzer::ConnectSocketToROMENetFolder() {\n",shortCut.Data());
+   buffer.AppendFormatted("   delete fSocketToROMENetFolder;\n");
    buffer.AppendFormatted("   fSocketToROMENetFolder = new TNetFolder(\"%s\",\"RootNetFolder\", fSocketToROME, true);\n",shortCut.Data());
    buffer.AppendFormatted("   if (!fSocketToROMENetFolder->GetPointer()) {\n");
    buffer.AppendFormatted("      Warning(\"ConnectSocketToROMENetFolder\", \"Failed to connect to the ROME analyzer.\");\n");
@@ -11566,6 +11582,8 @@ void ROMEBuilder::StartBuilder()
                   found = true;
                   tabHistoName[l][numOfTabHistos[l]] = histoName[i][j];
                   tabHistoIndex[l][numOfTabHistos[l]] = histoTabIndex[i][j][k].ToInteger();
+                  tabHistoTaskIndex[l][numOfTabHistos[l]] = i;
+                  tabHistoHistoIndex[l][numOfTabHistos[l]] = j;
                   numOfTabHistos[l]++;
                   break;
                }
@@ -11586,6 +11604,8 @@ void ROMEBuilder::StartBuilder()
 
                tabHistoName[numOfTab][0] = histoName[i][j];
                tabHistoIndex[numOfTab][0] = histoTabIndex[i][j][k].ToInteger();
+               tabHistoTaskIndex[numOfTab][0] = i;
+               tabHistoHistoIndex[numOfTab][0] = j;
                numOfTabHistos[numOfTab] = 1;
                numOfTab++;
             }
@@ -11813,6 +11833,7 @@ void ROMEBuilder::AddRomeHeaders() {
    romeHeaders->Add("$(ROMESYS)/include/ROMEPath.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMERint.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEString.h");

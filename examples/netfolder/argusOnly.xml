@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jan 27 16:08:18 2006 -->
+<!-- created by MXML on Fri Jan 27 16:18:45 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
-      <Active>true</Active>
+      <Active>false</Active>
     </ROME>
     <ARGUS>
       <Active>true</Active>
     </ARGUS>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers>1-100000</EventNumbers>
+    <RunNumbers></RunNumbers>
+    <EventNumbers></EventNumbers>
     <InputFileNames></InputFileNames>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
@@ -27,6 +27,11 @@
       <AnalyzerController>
         <Active>false</Active>
       </AnalyzerController>
+      <SocketToROME>
+        <Active>true</Active>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketToROME>
     </Argus>
     <DataBases/>
     <Online>
@@ -41,12 +46,6 @@
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Tasks>
-      <Task>
-        <TaskName>FillHistoAndFolder</TaskName>
-        <Active>true</Active>
-      </Task>
-    </Tasks>
     <Tabs>
       <Tab>
         <TabName>Histos</TabName>
