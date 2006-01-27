@@ -22,25 +22,25 @@
 #   define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
 #   define EVENTID_MESSAGE  ((short) 0x8002)  /**< Message events    */
 typedef struct {
-   short int event_id;
-   short int trigger_mask;
-   unsigned long int serial_number;
-   unsigned long int time_stamp;
-   unsigned long int data_size;
+   Short_t event_id;
+   Short_t trigger_mask;
+   UInt_t serial_number;
+   UInt_t time_stamp;
+   UInt_t data_size;
 } EVENT_HEADER;
 typedef struct {
-   unsigned long int data_size;
-   unsigned long int flags;
+   UInt_t data_size;
+   UInt_t flags;
 } BANK_HEADER;
 typedef struct {
-   char name[4];
-   unsigned short int type;
-   unsigned short int data_size;
+   Char_t name[4];
+   UShort_t type;
+   UShort_t data_size;
 } BANK;
 typedef struct {
-   char name[4];
-   unsigned long int type;
-   unsigned long int data_size;
+   Char_t name[4];
+   UInt_t type;
+   UInt_t data_size;
 } BANK32;
 #   define ALIGN8(x)  (((x)+7) & ~7)
 //Data types Definition                         min      max
@@ -75,7 +75,7 @@ protected:
 
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base (Online)
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
-   int        fMidasFileHandle;                 //! Handle to a un-gzipped Midas Inputfile
+   Long64_t   fMidasFileHandle;                 //! Handle to a un-gzipped Midas Inputfile
    gzFile     fMidasGzFileHandle;               //! Handle to Midas gzipped Inputfile
    bool       fGZippedMidasFile;                //! True if input file is gzipped.
    bool       fStopRequest;                     //! True if a Stop transition message was received
@@ -133,7 +133,7 @@ public:
 #endif
 #ifndef HAVE_MIDAS
    bool bk_is32(void *event);
-   int bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata);
+   int bk_find(void* pbkh, const char *name, UInt_t* bklen, UInt_t* bktype,void *pdata);
 #endif
 };
 

@@ -448,14 +448,14 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          ROMEUtilities::ByteSwap((UInt_t*)&pbk32->data_size);
          pdata = pbk32 + 1;
          type = (UShort_t) pbk32->type;
-         for ( long i = 0; i < 4; i++ )
+         for ( Int_t i = 0; i < 4; i++ )
             name[ i ] = pbk32->name[ i ];
       } else {
          ROMEUtilities::ByteSwap((UShort_t*)&pbk->type);
          ROMEUtilities::ByteSwap((UShort_t*)&pbk->data_size);
          pdata = pbk + 1;
          type = pbk->type;
-         for ( long i = 0; i < 4; i++ )
+         for ( Int_t i = 0; i < 4; i++ )
             name[ i ] = pbk->name[ i ];
       }
 
@@ -490,7 +490,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          case TID_DOUBLE:
             while ((Long64_t) pdata < (Long64_t) pbk) {
                ROMEUtilities::ByteSwap((ULong64_t*)pdata);
-               pdata = (void *) (((ULong64_t *) pdata) + 1);
+               pdata = (void *) (((ULong64_t*) pdata) + 1);
             }
             break;
 
@@ -512,19 +512,19 @@ bool ROMEMidasDAQ::bk_is32(void *event)
    return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
 }
 
-int ROMEMidasDAQ::bk_find(void* pbkh, const char *name, unsigned long * bklen, unsigned long * bktype,void *pdata)
+int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t* bktype,void *pdata)
 {
-   int tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
+   Int_t tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
    BANK *pbk;
    BANK32 *pbk32;
-   unsigned long dname;
+   UInt_t dname;
 
    if (bk_is32(pbkh)) {
-      pbk32 = (BANK32 *) (((BANK_HEADER *)pbkh) + 1);
-      strncpy((char *) &dname, name, 4);
+      pbk32 = (BANK32*) (((BANK_HEADER*)pbkh) + 1);
+      strncpy((Char_t*) &dname, name, 4);
       do {
-         if (*((unsigned long *) pbk32->name) == dname) {
-            *((void **) pdata) = pbk32 + 1;
+         if (*((UInt_t*) pbk32->name) == dname) {
+            *((void**) pdata) = pbk32 + 1;
             if (tid_size[pbk32->type & 0xFF] == 0)
                *bklen = pbk32->data_size;
             else
@@ -533,14 +533,14 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const char *name, unsigned long * bklen, u
             *bktype = pbk32->type;
             return 1;
          }
-         pbk32 = (BANK32 *) ((char *) (pbk32 + 1) + ALIGN8(pbk32->data_size));
-      } while ((unsigned long) pbk32 - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
+         pbk32 = (BANK32*) ((Char_t*) (pbk32 + 1) + ALIGN8(pbk32->data_size));
+      } while ((ULong64_t) pbk32 - (ULong64_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    } else {
-      pbk = (BANK *) (((BANK_HEADER *)pbkh) + 1);
-      strncpy((char *) &dname, name, 4);
+      pbk = (BANK*) (((BANK_HEADER*)pbkh) + 1);
+      strncpy((Char_t*) &dname, name, 4);
       do {
-         if (*((unsigned long *) pbk->name) == dname) {
-            *((void **) pdata) = pbk + 1;
+         if (*((UInt_t*) pbk->name) == dname) {
+            *((void**) pdata) = pbk + 1;
             if (tid_size[pbk->type & 0xFF] == 0)
                *bklen = pbk->data_size;
             else
@@ -549,10 +549,10 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const char *name, unsigned long * bklen, u
             *bktype = pbk->type;
             return 1;
          }
-         pbk = (BANK *) ((char *) (pbk + 1) + ALIGN8(pbk->data_size));
-      } while ((unsigned long) pbk - (unsigned long) pbkh < ((BANK_HEADER *) pbkh)->data_size + sizeof(BANK_HEADER));
+         pbk = (BANK*) ((Char_t*) (pbk + 1) + ALIGN8(pbk->data_size));
+      } while ((ULong64_t) pbk - (ULong64_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    }
-   *((void **) pdata) = NULL;
+   *((void**) pdata) = NULL;
    return 0;
 }
 #endif
