@@ -75,7 +75,7 @@ protected:
 
    int        fMidasOnlineDataBase;             //! Handle to the Midas Online Data Base (Online)
    int        fMidasOnlineBuffer;               //! Midas Online Buffer
-   Long64_t   fMidasFileHandle;                 //! Handle to a un-gzipped Midas Inputfile
+   Seek_t     fMidasFileHandle;                 //! Handle to a un-gzipped Midas Inputfile
    gzFile     fMidasGzFileHandle;               //! Handle to Midas gzipped Inputfile
    bool       fGZippedMidasFile;                //! True if input file is gzipped.
    bool       fStopRequest;                     //! True if a Stop transition message was received
