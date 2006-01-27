@@ -45,7 +45,7 @@ TFolder *ReadFolderPointer(TSocket *socket)
    //read pointer to current folder
    TMessage *message = 0;
    socket->Recv(message);
-   Long_t p;
+   size_t p;
    *message>>p;
    delete message;
    return (TFolder*)p;
@@ -187,7 +187,7 @@ int ResponseFunction(TSocket *socket) {
 
       //write pointer
       message.Reset(kMESS_ANY);
-      Long_t p = (Long_t)obj;
+      size_t p = (size_t)obj;
       message<<p;
       socket->Send(message);
 

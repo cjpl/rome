@@ -76,7 +76,7 @@ Bool_t TNetFolder::Recv(TMessage *&mess)
    return kTRUE;
 }
 
-Long_t TNetFolder::GetPointer()
+size_t TNetFolder::GetPointer()
 {
    TMessage *m;
    TString str = "GetPointer ";
@@ -90,7 +90,7 @@ Long_t TNetFolder::GetPointer()
       delete m;
       return 0;
    }
-   Long_t p;
+   size_t p;
    *m >> p;
    delete m;
    return p;
