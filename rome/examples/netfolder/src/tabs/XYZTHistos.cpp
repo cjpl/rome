@@ -24,12 +24,12 @@ void XYZTHistos::Init()
 
 void XYZTHistos::EventHandler()
 {
-   histo2->Reset();
+/*   histo2->Reset();
    for (int i=0;i<200;i++)
       histo2->Fill(i-100,gAnalyzer->GetGaussData()->GetBinAt(i));
    fCanvas->GetCanvas()->cd();
    gPad->Modified();
-   gPad->Update();
+   gPad->Update();*/
 }
 
 void XYZTHistos::MenuClicked(TGPopupMenu *menu,Long_t param)

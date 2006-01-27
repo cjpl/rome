@@ -62,12 +62,34 @@
 		<xs:sequence>
 			<xs:element name="Active" type="xs:boolean">
 				<xs:annotation>
-					<xs:documentation>Title of the menu item.</xs:documentation>
+					<xs:documentation>Activate flag.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="NetFolderName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SocketToROMEDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the socket interface to the ROME analyzer. This section is needed if the ARGUS display should connect to a ROME analyzer of the current project..</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Activate flag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Host" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Host which runs the ROME analyzer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Port" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Port number for the socket connection.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -95,6 +117,11 @@
 			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SocketToROME" type="SocketToROMEDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Description of the socket interface to the ROME analyzer. This section is needed if the ARGUS display should connect to a ROME analyzer of the current project.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
