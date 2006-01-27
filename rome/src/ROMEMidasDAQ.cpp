@@ -441,7 +441,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
    pbk32 = (BANK32 *) pbk;
 
    // scan event
-   while ((ULong_t) pbk - (ULong_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
+   while ((size_t) pbk - (size_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
       // swap bank header
       if (b32) {
          ROMEUtilities::ByteSwap((UInt_t*)&pbk32->type);
@@ -471,7 +471,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
       switch (type) {
          case TID_WORD:
          case TID_SHORT:
-            while ((ULong_t) pdata < (ULong_t) pbk) {
+            while ((size_t) pdata < (size_t) pbk) {
                ROMEUtilities::ByteSwap((UShort_t*)pdata);
                pdata = (void *) (((UShort_t *) pdata) + 1);
             }
@@ -481,21 +481,21 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
          case TID_INT:
          case TID_BOOL:
          case TID_FLOAT:
-            while ((ULong_t) pdata < (ULong_t) pbk) {
+            while ((size_t) pdata < (size_t) pbk) {
                ROMEUtilities::ByteSwap((UInt_t*)pdata);
                pdata = (void *) (((UInt_t *) pdata) + 1);
             }
             break;
 
          case TID_DOUBLE:
-            while ((ULong_t) pdata < (ULong_t) pbk) {
+            while ((size_t) pdata < (size_t) pbk) {
                ROMEUtilities::ByteSwap((ULong64_t*)pdata);
                pdata = (void *) (((ULong64_t*) pdata) + 1);
             }
             break;
 
          case TID_STRUCT:
-            while ( (ULong_t) pdata < (ULong_t) pbk ) {
+            while ( (size_t) pdata < (size_t) pbk ) {
                 pdata = ByteSwapStruct( &name[ 0 ], pdata );
             }
             break;
@@ -534,7 +534,7 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t*
             return 1;
          }
          pbk32 = (BANK32*) ((Char_t*) (pbk32 + 1) + ALIGN8(pbk32->data_size));
-      } while ((ULong_t) pbk32 - (ULong_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
+      } while ((size_t) pbk32 - (size_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    } else {
       pbk = (BANK*) (((BANK_HEADER*)pbkh) + 1);
       strncpy((Char_t*) &dname, name, 4);
@@ -550,7 +550,7 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t*
             return 1;
          }
          pbk = (BANK*) ((Char_t*) (pbk + 1) + ALIGN8(pbk->data_size));
-      } while ((ULong_t) pbk - (ULong_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
+      } while ((size_t) pbk - (size_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    }
    *((void**) pdata) = NULL;
    return 0;

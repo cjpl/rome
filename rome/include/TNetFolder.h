@@ -32,7 +32,7 @@ class TNetFolder : public TNamed
 {
 protected:
   TSocket  *fSocket;     // connection to TObjServer server
-  Long_t    fFolder;     // pointer to TFolder object
+  size_t    fFolder;     // pointer to TFolder object
   Bool_t    fReconnect;  // try to reconnect when connection is broken
   TString   fHost;       // host of socket connection
   Int_t     fPort;       // port of socket connection
@@ -79,7 +79,7 @@ public:
   virtual void Remove( TObject * )
     { Error("Remove","Not available for TNetFolders"); }
     
-  Long_t GetPointer();
+  size_t GetPointer();
   void ExecuteCommand(const char *line);
   void ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
 
