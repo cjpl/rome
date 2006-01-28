@@ -7,6 +7,7 @@
 		<Folder>
 			<FolderName>GaussData</FolderName>
 			<NoResetByFramework>true</NoResetByFramework>
+			<NetFolder>true</NetFolder>
 			<Field>
 				<FieldName>Bin</FieldName>
 				<FieldType>TArrayF</FieldType>
