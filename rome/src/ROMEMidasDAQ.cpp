@@ -259,7 +259,7 @@ bool ROMEMidasDAQ::Event(int event) {
          }
          if (trans == TR_STOP || fStopRequest) {
             fStopRequest = true;
-            int numberOfBytes;
+            Int_t numberOfBytes;
             bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
             if (numberOfBytes <= 0) {
                this->SetEndOfRun();
@@ -306,12 +306,12 @@ bool ROMEMidasDAQ::Event(int event) {
       bool readError = false;
 
       // read event
-      int n;
+      ssize_t n;
       if(!fGZippedMidasFile)
          n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
       else
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-      if (n < (int)sizeof(EVENT_HEADER)) readError = true;
+      if (n < static_cast<ssize_t>(sizeof(EVENT_HEADER))) readError = true;
       else {
 #if !defined( R__BYTESWAP )
          //byte swapping
@@ -328,7 +328,7 @@ bool ROMEMidasDAQ::Event(int event) {
                n = read(fMidasFileHandle,pevent+1,pevent->data_size);
             else
                n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
-            if (n != (int) pevent->data_size) readError = true;
+            if (n != static_cast<ssize_t>(pevent->data_size)) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
       }
@@ -441,7 +441,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
    pbk32 = (BANK32 *) pbk;
 
    // scan event
-   while ((size_t) pbk - (size_t) pbh < (Int_t) pbh->data_size + (Int_t) sizeof(BANK_HEADER)) {
+   while ((size_t) pbk - (size_t) pbh < pbh->data_size + sizeof(BANK_HEADER)) {
       // swap bank header
       if (b32) {
          ROMEUtilities::ByteSwap((UInt_t*)&pbk32->type);
