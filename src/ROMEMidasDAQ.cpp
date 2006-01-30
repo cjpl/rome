@@ -306,12 +306,12 @@ bool ROMEMidasDAQ::Event(int event) {
       bool readError = false;
 
       // read event
-      ssize_t n;
+      Long64_t n;
       if(!fGZippedMidasFile)
          n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
       else
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-      if (n < static_cast<ssize_t>(sizeof(EVENT_HEADER))) readError = true;
+      if (n < static_cast<Long64_t>(sizeof(EVENT_HEADER))) readError = true;
       else {
 #if !defined( R__BYTESWAP )
          //byte swapping
@@ -328,7 +328,7 @@ bool ROMEMidasDAQ::Event(int event) {
                n = read(fMidasFileHandle,pevent+1,pevent->data_size);
             else
                n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
-            if (n != static_cast<ssize_t>(pevent->data_size)) readError = true;
+            if (n != static_cast<Long64_t>(pevent->data_size)) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
       }
