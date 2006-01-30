@@ -944,6 +944,8 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
 
 Bool_t ROMEAnalyzer::ConnectSocketToROME()
 {
+   if (!IsSocketToROMEActive())
+      return false;
    if (fSocketToROME!=NULL) {
       if (fSocketToROME->IsValid()) {
          return true;
