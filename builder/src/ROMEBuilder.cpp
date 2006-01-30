@@ -3205,7 +3205,7 @@ bool ROMEBuilder::WriteTabH()
             if (tabHistoIndex[iTab][j]==i) {
                buffer.AppendFormatted("      f%sHisto = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),tabHistoName[iTab][j].Data());
                buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-               buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS())\n");
+               buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
                buffer.AppendFormatted("         f%sHisto->Draw();\n",tabHistoName[iTab][j].Data());
                buffer.AppendFormatted("      gPad->Modified();\n");
                buffer.AppendFormatted("      gPad->Update();\n");
@@ -5013,7 +5013,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
       for (j=0;j<numOfHistos[i];j++) {
          if (histoArraySize[i][j]=="1") {
             buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoType[i][j].Data(),histoName[i][j].Data());
             buffer.AppendFormatted("   else\n");
             buffer.AppendFormatted("      return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
@@ -5021,7 +5021,7 @@ bool ROMEBuilder::WriteAnalyzerCpp() {
          }
          else {
             buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS()) {\n");
+            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive()) {\n");
             buffer.AppendFormatted("      ROMEString name;\n");
             buffer.AppendFormatted("      Int_t arrayStartIndex = 0;\n");
 // FIX ME
@@ -10228,13 +10228,13 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
       if (folderArray[numFolder]=="1") {
          buffer.AppendFormatted("   %s%s* Get%s() {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolder = (%s%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return f%sFolder; };\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   %s%s** Get%sAddress() {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolder = (%s%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return &f%sFolder; };\n",folderName[numFolder].Data());
@@ -10242,7 +10242,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
       else if (folderArray[numFolder]=="variable") {
          buffer.AppendFormatted("   %s%s* Get%sAt(int index) {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("     if (f%sFolders->GetEntries()<=index)\n",folderName[numFolder].Data());
@@ -10251,13 +10251,13 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
          buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ss() {\n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return f%sFolders; };\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress() {;\n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return &f%sFolders; };\n",folderName[numFolder].Data());
@@ -10265,7 +10265,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
       else {
          buffer.AppendFormatted("   %s%s* Get%sAt(int index) {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("     if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
@@ -10276,13 +10276,13 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,int numFolder,int scl,int
          buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ss() { \n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return f%sFolders; };\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress() { \n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
-            buffer.AppendFormatted("      if (IsStandAloneARGUS())\n");
+            buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
             buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return &f%sFolders; };\n",folderName[numFolder].Data());
