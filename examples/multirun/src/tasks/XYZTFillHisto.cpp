@@ -18,11 +18,11 @@
 //
 // The following method can be used to fill a histogram :
 //
-// Fill<Histogram Name>(double value,double weight)
+// Fill<Histogram Name>(Double_t value,Double_t weight)
 //
 // For histogram arrays use :
 //
-// Fill<Histogram Name>At(int index,double value,double weight)
+// Fill<Histogram Name>At(Int_t index,Double_t value,Double_t weight)
 //
 // If more histogram functions are needed use the following function the get
 // a handle to the histogram and use the root functions.
@@ -31,7 +31,7 @@
 //
 // For histogram arrays use :
 //
-// Get<Histogram Name>At(int index)
+// Get<Histogram Name>At(Int_t index)
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 

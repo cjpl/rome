@@ -16,11 +16,11 @@ public:
    ROMEConfig() {};
    virtual ~ROMEConfig() {};
 
-   virtual bool WriteConfigurationFile(const char *file) = 0;
-   virtual bool ReadConfigurationFile(const char *file) = 0;
-   virtual bool CheckConfiguration(long runNumber) = 0;
-   virtual bool CheckConfiguration(const char *file) = 0;
-//   bool CheckConfiguration(ROMEString& file) { return CheckConfiguration(file.Data()); }
+   virtual Bool_t WriteConfigurationFile(const char *file) = 0;
+   virtual Bool_t ReadConfigurationFile(const char *file) = 0;
+   virtual Bool_t CheckConfiguration(Long64_t runNumber) = 0;
+   virtual Bool_t CheckConfiguration(const char *file) = 0;
+//   Bool_t CheckConfiguration(ROMEString& file) { return CheckConfiguration(file.Data()); }
 };
 
 #endif   // ROMEConfig_H

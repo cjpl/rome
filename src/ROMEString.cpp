@@ -28,7 +28,8 @@ ROMEString& ROMEString::AppendFormatted(const char* format,...)
    va_end(ap);
    return *this;
 }
-ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
+
+ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* format,...)
 {
    if (format==NULL)
       return *this;
@@ -42,6 +43,7 @@ ROMEString& ROMEString::InsertFormatted(int position,const char* format,...)
       this->Insert(position,tmp);
    return *this;
 }
+
 ROMEString& ROMEString::SetFormatted(const char* format,...)
 {
    if (format==NULL)
@@ -54,7 +56,8 @@ ROMEString& ROMEString::SetFormatted(const char* format,...)
    va_end(ap);
    return *this;
 }
-bool ROMEString::FormatString(ROMEString* string,const char* format,va_list parameters)
+
+Bool_t ROMEString::FormatString(ROMEString* str,const char* format,va_list parameters)
 {
    char* cstop;
    char* tmp;
@@ -76,9 +79,9 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
    while (pstart!=NULL) {
       if (strlen(pstart)==1)
          return false;
-      string->Append(pactual,pstart-pactual);
+      str->Append(pactual,pstart-pactual);
       if (pstart[1]=='%') {
-         string->Append("%");
+         str->Append("%");
          pactual = pstart+2;
          pstart = strstr(pactual,"%");
          continue;
@@ -118,7 +121,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
       switch (pstart[ind]) {
          case 'c' :
             characterValue = va_arg(parameters,int);
-            string->Append(characterValue);
+            str->Append(characterValue);
             break;
          case 's' :
             if (asterisk)
@@ -133,7 +136,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
                sprintf(tmp,form,numberOfDigits,stringValue);
             else
                sprintf(tmp,form,stringValue);
-            string->Append(tmp);
+            str->Append(tmp);
             delete [] tmp;
             break;
          case 'd' :
@@ -149,7 +152,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
                sprintf(tmp,form,numberOfDigits,integerValue);
             else
                sprintf(tmp,form,integerValue);
-            string->Append(tmp);
+            str->Append(tmp);
             delete [] tmp;
             break;
          case 'e' :
@@ -165,7 +168,7 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
                sprintf(tmp,form,numberOfDigits,doubleValue);
             else
                sprintf(tmp,form,doubleValue);
-            string->Append(tmp);
+            str->Append(tmp);
             delete [] tmp;
             break;
             break;
@@ -178,25 +181,27 @@ bool ROMEString::FormatString(ROMEString* string,const char* format,va_list para
       pstart = strstr(pactual,"%");
       delete [] form;
    }
-   string->Append(pactual);
+   str->Append(pactual);
    return true;
 }
+
 void ROMEString::Write() {
    cout << this->Data();
 }
+
 
 void ROMEString::WriteLine() {
    cout << this->Data() << endl;
 }
 
-int ROMEString::NumberOfOccurrence(ROMEString& subString)
+Int_t ROMEString::NumberOfOccurrence(ROMEString& subString)
 {
    return this->NumberOfOccurrence(subString.Data());
 }
 
-int ROMEString::NumberOfOccurrence(const char* subString)
+Int_t ROMEString::NumberOfOccurrence(const char* subString)
 {
-   int numberOfOccurrence = 0;
+   Int_t numberOfOccurrence = 0;
    const char* str = this->Data();
    str = strstr(str,subString);
    while (str!=NULL) {
@@ -207,7 +212,7 @@ int ROMEString::NumberOfOccurrence(const char* subString)
    return numberOfOccurrence;
 }
 
-int ROMEString::SearchFormatType(const char* str)
+Int_t ROMEString::SearchFormatType(const char* str)
 {
    const char numberOfTypes = 17;
    int i,j;
@@ -219,6 +224,7 @@ int ROMEString::SearchFormatType(const char* str)
    }
    return -1;
 }
+
 istream& ROMEString::ReadFile(istream& str) {
    this->Resize(0);
    char *buffer = "";
@@ -234,6 +240,7 @@ istream& ROMEString::ReadFile(istream& str) {
    }
    return str;
 }
+
 istream& ROMEString::ReadLine(istream& str) {
    this->Resize(0);
    char *buffer = "";
@@ -249,28 +256,34 @@ istream& ROMEString::ReadLine(istream& str) {
    }
    return str;
 }
-int ROMEString::ToInteger()
+
+Int_t ROMEString::ToInteger()
 {
    char *cstop;
    return strtol(this->Data(),&cstop,10);
 }
-double ROMEString::ToDouble()
+
+Double_t ROMEString::ToDouble()
 {
    char *cstop;
    return strtod(this->Data(),&cstop);
 }
+
 void ROMEString::ToLower() {
    ((TString*)this)->ToLower();
 }
+
 const char* ROMEString::ToLower(ROMEString& destination)
 {
    destination = this->Data();
    destination.ToLower();
    return destination.Data();
 }
+
 void ROMEString::ToUpper() {
    ((TString*)this)->ToUpper();
 }
+
 const char* ROMEString::ToUpper(ROMEString& destination)
 {
    destination = this->Data();

@@ -13,11 +13,11 @@ class ROMENoDataBase : public ROMEDataBase {
 public:
    ROMENoDataBase() {};
    ~ROMENoDataBase() {};
-   bool   Init(const char* name,const char* path,const char* connection) { fName = name; return true; };
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber) { return true; };
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber) { return true; };
-   char*  GetType() { return "none"; }
-   char*  GetDescription() { return "No data base connected"; }
+   Bool_t  Init(const char* name,const char* path,const char* connection) { fName = name; return true; };
+   Bool_t  Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber) { return true; };
+   Bool_t  Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber) { return true; };
+   char   *GetType() { return "none"; }
+   char   *GetDescription() { return "No data base connected"; }
 };
 
 #endif   // ROMEDataBase_H

@@ -15,7 +15,7 @@
 ROMEDataBaseDAQ::ROMEDataBaseDAQ() {
 }
 
-bool ROMEDataBaseDAQ::Init() {
+Bool_t ROMEDataBaseDAQ::Init() {
    if (gROME->isOnline()) {
       gROME->PrintLine("Database mode is not supported for online analysis.\n");
       return false;
@@ -25,7 +25,8 @@ bool ROMEDataBaseDAQ::Init() {
    }
    return true;
 }
-bool ROMEDataBaseDAQ::BeginOfRun() {
+
+Bool_t ROMEDataBaseDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       gROME->SetCurrentEventNumber(1);
       this->SetAnalyze();
@@ -33,19 +34,22 @@ bool ROMEDataBaseDAQ::BeginOfRun() {
    }
    return true;
 }
-bool ROMEDataBaseDAQ::Event(int event) {
+
+Bool_t ROMEDataBaseDAQ::Event(Long64_t event) {
    if (gROME->isOffline()) {
       gROME->SetCurrentEventNumber(event);
    }
 
    return true;
 }
-bool ROMEDataBaseDAQ::EndOfRun() {
+
+Bool_t ROMEDataBaseDAQ::EndOfRun() {
    if (gROME->isOffline()) {
    }
    return true;
 }
-bool ROMEDataBaseDAQ::Terminate() {
+
+Bool_t ROMEDataBaseDAQ::Terminate() {
    if (gROME->isOffline()) {
    }
    return true;

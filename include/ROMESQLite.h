@@ -1,7 +1,7 @@
 /********************************************************************
   ROMESQLite.h, R. Sawada
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMESQLITE_H
@@ -11,37 +11,37 @@
 #include <ROMESQL.h>
 #include <ROMEStrArray.h>
 #include <ROMEStr2DArray.h>
-const int fileOpenMode = 0;
+const Int_t fileOpenMode = 0;
 
 class ROMESQLite : public ROMESQL
 {
 protected:
-   char*          errmsg;
-   int            errnum;
-   sqlite*        db;
-   sqlite_vm*     vm;
-   ROMEStr2DArray result;
-   int            numOfRows;
-   int            numOfFields;
-   int            currentRow;
+   char           *errmsg;
+   Int_t           errnum;
+   sqlite         *db;
+   sqlite_vm      *vm;
+   ROMEStr2DArray  result;
+   Int_t           numOfRows;
+   Int_t           numOfFields;
+   Int_t           currentRow;
 
 public:
    ROMESQLite();
    virtual ~ROMESQLite();
-   bool  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
-   bool  DisConnect();
-   bool  MakeQuery(const char* query,bool store);
-   bool  StoreResult();
-   bool  NextRow();
-   char* GetField(int fieldNumber);
-   int   GetNumberOfRows(){ return numOfRows; }
-   int   GetNumberOfFields(){ return numOfFields; }
-   void  FreeResult();
-   int   GetErrorCode(){ return errnum; };
-   char* GetErrorMessage(){ return errmsg; };
-   bool  StartTransaction( const char* option );
-   bool  CommitTransaction( const char* option );
-   bool  RollbackTransaction( const char* option );
+   Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
+   Bool_t  DisConnect();
+   Bool_t  MakeQuery(const char* query,Bool_t store);
+   Bool_t  StoreResult();
+   Bool_t  NextRow();
+   char*   GetField(Int_t fieldNumber);
+   Int_t   GetNumberOfRows(){ return numOfRows; }
+   Int_t   GetNumberOfFields(){ return numOfFields; }
+   void    FreeResult();
+   Int_t   GetErrorCode(){ return errnum; };
+   char   *GetErrorMessage(){ return errmsg; };
+   Bool_t  StartTransaction( const char* option );
+   Bool_t  CommitTransaction( const char* option );
+   Bool_t  RollbackTransaction( const char* option );
 
 };
 

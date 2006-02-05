@@ -48,8 +48,7 @@ ROMEPath::~ROMEPath() {
    delete fConstraintValue;
 }
 
-
-bool ROMEPath::DecodeConstraint(const char* contraint)
+Bool_t ROMEPath::DecodeConstraint(const char* contraint)
 {
    int istart,iend,iequal,iconst=0;
    ROMEString str = contraint;
@@ -82,7 +81,7 @@ bool ROMEPath::DecodeConstraint(const char* contraint)
    return true;
 }
 
-bool ROMEPath::Decode(const char* dataBasePath,int runNumber,int eventNumber)
+Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    this->SetOrderTableName("");
    this->SetOrderFieldName("idx");
@@ -334,7 +333,7 @@ void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ){
    return;
 }
 
-int ROMEPath::MinPosition(int i1,int i2,int i3,int i4) {
+Int_t ROMEPath::MinPosition(Int_t i1,Int_t i2,Int_t i3,Int_t i4) {
    if (i1==-1 && i2==-1 && i3==-1 && i4==-1)
       return -1;
    if (i1==-1)

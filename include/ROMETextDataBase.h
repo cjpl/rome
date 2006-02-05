@@ -37,37 +37,37 @@
 #include <Riostream.h>
 #include <ROMEDataBase.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( push )
-#pragma warning( disable : 4244 )
+#   pragma warning( push )
+#   pragma warning( disable : 4244 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TTimeStamp.h>
 #if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( pop )
+#   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
 class ROMETextDataBase : public ROMEDataBase
 {
 protected:
-   ROMEString fDirectoryPath;
-   TTimeStamp* fTime;
+   ROMEString  fDirectoryPath;
+   TTimeStamp *fTime;
 
 public:
    ROMETextDataBase();
    ~ROMETextDataBase();
 
-   bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber);
-   bool   Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber);
-   char*  GetType() { return "text"; }
-   char*  GetDescription() { return "Text data base using the file system to store tables"; }
+   Bool_t      Init(const char* name,const char* path,const char* connection);
+   Bool_t      Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
+   Bool_t      Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
+   char       *GetType() { return "text"; }
+   char       *GetDescription() { return "Text data base using the file system to store tables"; }
 
 protected:
-   void   RemoveComment(ROMEString &buffer,bool initialize = false);
-   bool   ContainsData(const char* buffer);
-   const char* StartMark(const char* valueName);
-   const char* EndMark(const char* valueName);
-   void   AddHeader(ROMEString &buffer,const char* fileName);
-   void   RemoveHeader(ROMEString &buffer);
+   void        RemoveComment(ROMEString &buffer,Bool_t initialize = false);
+   Bool_t      ContainsData(const char* buffer);
+   const char *StartMark(const char* valueName);
+   const char *EndMark(const char* valueName);
+   void        AddHeader(ROMEString &buffer,const char* fileName);
+   void        RemoveHeader(ROMEString &buffer);
 };
 
 #endif   // ROMETexDataBase_H

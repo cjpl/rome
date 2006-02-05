@@ -19,15 +19,16 @@ ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase() {
    delete xml;
 }
 
-bool ROMEODBOfflineDataBase::Init(const char* name,const char* path,const char* connection) {
+Bool_t ROMEODBOfflineDataBase::Init(const char* name,const char* path,const char* connection) {
    fName = name;
    return true;
 }
-bool ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
+
+Bool_t ROMEODBOfflineDataBase::SetBuffer(char *buffer) {
    return xml->OpenBufferForPath(buffer);
 }
 
-bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber)
+Bool_t ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    ROMEString value;
    if (!xml->isPathOpen())
@@ -37,7 +38,7 @@ bool ROMEODBOfflineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePat
    return true;
 }
 
-bool ROMEODBOfflineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber)
+Bool_t ROMEODBOfflineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
    return true;
 }

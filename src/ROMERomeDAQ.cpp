@@ -18,7 +18,7 @@ ROMERomeDAQ::ROMERomeDAQ() {
    fInputFileNameIndex = -1;
 }
 
-bool ROMERomeDAQ::Init() {
+Bool_t ROMERomeDAQ::Init() {
    if (gROME->isOnline()) {
       gROME->PrintLine("Rome mode is not supported for online analysis.\n");
       return false;
@@ -43,7 +43,8 @@ bool ROMERomeDAQ::Init() {
    }
    return true;
 }
-bool ROMERomeDAQ::BeginOfRun() {
+
+Bool_t ROMERomeDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       this->SetRunning();
       // Read Trees
@@ -58,8 +59,8 @@ bool ROMERomeDAQ::BeginOfRun() {
       if ((gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO()))
          gROME->GetCurrentRunNumberString(runNumberString);
       bool treeRead = false;
-      fTreePosition = new int[gROME->GetTreeObjectEntries()];
-      fTreeNextSeqNumber = new int[gROME->GetTreeObjectEntries()];
+      fTreePosition = new Long64_t[gROME->GetTreeObjectEntries()];
+      fTreeNextSeqNumber = new Long64_t[gROME->GetTreeObjectEntries()];
       for (j=0;j<gROME->GetTreeObjectEntries();j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
@@ -168,7 +169,8 @@ bool ROMERomeDAQ::BeginOfRun() {
    }
    return true;
 }
-bool ROMERomeDAQ::Event(int event) {
+
+Bool_t ROMERomeDAQ::Event(Long64_t event) {
    if (gROME->isOffline()) {
       int j;
       ROMETree *romeTree;
@@ -229,7 +231,8 @@ bool ROMERomeDAQ::Event(int event) {
 
    return true;
 }
-bool ROMERomeDAQ::EndOfRun() {
+
+Bool_t ROMERomeDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       if (gROME->IsRunNumberBasedIO()) {
          for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
@@ -240,7 +243,8 @@ bool ROMERomeDAQ::EndOfRun() {
    }
    return true;
 }
-bool ROMERomeDAQ::Terminate() {
+
+Bool_t ROMERomeDAQ::Terminate() {
    if (gROME->isOffline()) {
    }
    return true;

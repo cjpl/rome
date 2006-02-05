@@ -23,11 +23,11 @@ public:
    ROMEODBOnlineDataBase();
    ~ROMEODBOnlineDataBase();
 
-   bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber);
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber);
-   char*  GetType() { return "odb"; };
-   char*  GetDescription() { return "Midas ODB database for online use"; };
+   Bool_t  Init(const char* name,const char* path,const char* connection);
+   Bool_t  Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   Bool_t  Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   char   *GetType() { return "odb"; };
+   char   *GetDescription() { return "Midas ODB database for online use"; };
 };
 
 #endif   // ROMEXMLDataBase_H

@@ -24,7 +24,7 @@ ROMESQLite::~ROMESQLite() {
    DisConnect();
 }
 
-bool ROMESQLite::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
+Bool_t ROMESQLite::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
    TString filename = server;
    if(strlen(database) && strlen(server)){
@@ -40,7 +40,7 @@ bool ROMESQLite::Connect(const char *server,const char *user,const char *passwd,
    return true;
 }
 
-bool ROMESQLite::DisConnect()
+Bool_t ROMESQLite::DisConnect()
 {
    if (db){
       sqlite_close(db);
@@ -49,7 +49,7 @@ bool ROMESQLite::DisConnect()
    return true;
 }
 
-bool ROMESQLite::MakeQuery(const char* query, bool store)
+Bool_t ROMESQLite::MakeQuery(const char* query, Bool_t store)
 {
 #if defined( SQLDEBUG )
    cout<<endl<<"ROMESQLite::MakeQuery : "<<query<<endl;
@@ -75,7 +75,7 @@ bool ROMESQLite::MakeQuery(const char* query, bool store)
    return true;
 }
 
-bool ROMESQLite::StoreResult()
+Bool_t ROMESQLite::StoreResult()
 {
    int status;
    const char** values = NULL;
@@ -109,7 +109,7 @@ bool ROMESQLite::StoreResult()
    return true;
 }
 
-bool ROMESQLite::NextRow() {
+Bool_t ROMESQLite::NextRow() {
    if(currentRow+1 >= GetNumberOfRows()){
       cout << "NextRow error : You have tried nonexistent row." << endl;
       return false;
@@ -118,7 +118,7 @@ bool ROMESQLite::NextRow() {
    return true;
 }
 
-char* ROMESQLite::GetField(int fieldNumber) {
+char* ROMESQLite::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
       cout << "GetField error : field number out of bounds" << endl;
       return NULL;
@@ -139,21 +139,21 @@ void ROMESQLite::FreeResult() {
    result.RemoveAll();
 }
 
-bool ROMESQLite::StartTransaction( const char* option ){
+Bool_t ROMESQLite::StartTransaction( const char* option ){
    TString sqlQuery = "START TRANSACTION ";
    sqlQuery += option;
    sqlQuery += ";";
    return MakeQuery(sqlQuery.Data(),false);
 }
 
-bool ROMESQLite::CommitTransaction( const char* option ){
+Bool_t ROMESQLite::CommitTransaction( const char* option ){
    TString sqlQuery = "COMMIT ";
    sqlQuery += option;
    sqlQuery += ";";
    return MakeQuery(sqlQuery.Data(),false);
 }
 
-bool ROMESQLite::RollbackTransaction( const char* option ){
+Bool_t ROMESQLite::RollbackTransaction( const char* option ){
    TString sqlQuery = "ROLLBACK ";
    sqlQuery += option;
    sqlQuery += ";";
