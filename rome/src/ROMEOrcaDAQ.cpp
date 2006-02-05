@@ -14,19 +14,23 @@
 ROMEOrcaDAQ::ROMEOrcaDAQ() {
 }
 
-bool ROMEOrcaDAQ::Init() {
+Bool_t ROMEOrcaDAQ::Init() {
    cout << "This is Orca" << endl;
    return true;
 }
-bool ROMEOrcaDAQ::BeginOfRun() {
+
+Bool_t ROMEOrcaDAQ::BeginOfRun() {
    return true;
 }
-bool ROMEOrcaDAQ::Event(int event) {
+
+Bool_t ROMEOrcaDAQ::Event(Long64_t event) {
    return true;
 }
-bool ROMEOrcaDAQ::EndOfRun() {
+
+Bool_t ROMEOrcaDAQ::EndOfRun() {
    return true;
 }
-bool ROMEOrcaDAQ::Terminate() {
+
+Bool_t ROMEOrcaDAQ::Terminate() {
    return true;
 }

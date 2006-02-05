@@ -5,7 +5,7 @@
 //                                                                      //
 //  Handles character string array of array.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEStr2DArray.h>
@@ -29,10 +29,12 @@ Int_t ROMEStr2DArray::GetEntries() const
 {
    return array->GetEntries();
 }
+
 Int_t ROMEStr2DArray::GetEntriesFast() const
 {
    return array->GetEntriesFast();
 }
+
 Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx) const
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -41,6 +43,7 @@ Int_t ROMEStr2DArray::GetEntriesAt(Int_t idx) const
       return 0;
    return ((TObjArray*)array->At(idx))->GetEntries();
 }
+
 Int_t ROMEStr2DArray::GetEntriesFastAt(Int_t idx) const
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -54,6 +57,7 @@ void ROMEStr2DArray::SetAt(TString &str, Int_t idx, Int_t idy)
 {
    this->SetAt(str.Data(),idx,idy);
 }
+
 void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
@@ -70,6 +74,7 @@ void ROMEStr2DArray::SetAt(const char* str, Int_t idx, Int_t idy)
    }
    subArray->AddAtAndExpand(new TObjString(str),idy);
 }
+
 void ROMEStr2DArray::SetAt(ROMEStrArray *str, Int_t idx, Int_t idy)
 {
    if (idx<0||idx>=array->GetEntriesFast()) {
@@ -105,6 +110,7 @@ void ROMEStr2DArray::RemoveAt(Int_t idx, Int_t idy)
    delete subArray->At(idy);
    subArray->RemoveAt(idy);
 }
+
 void ROMEStr2DArray::RemoveAllAt(Int_t idx)
 {
    if (idx<0||idx>=array->GetEntriesFast())
@@ -119,6 +125,7 @@ void ROMEStr2DArray::RemoveAllAt(Int_t idx)
    delete array->At(idx);
    array->RemoveAt(idx);
 }
+
 void ROMEStr2DArray::RemoveAll()
 {
    for (int i=0;i<array->GetEntriesFast();i++) {

@@ -14,18 +14,20 @@ class ROMENoDAQSystem : public ROMEDAQSystem{
 public:
    ROMENoDAQSystem::ROMENoDAQSystem() {};
 
-   int   GetTimeStamp() { return -1; };
-   const char* GetName() { return "none"; };
+   Int_t       GetTimeStamp() { return -1; };
+   const char *GetName() { return "none"; };
 
-   bool Init() { return true; };
-   bool BeginOfRun() { 
-      this->SetRunning();
-      return true; };
-   bool Event(int event) { 
-      if (gROME->IsStandAloneARGUS()) SetContinue(); 
-      return true; };
-   bool EndOfRun() { return true; };
-   bool Terminate() { return true; };
+   Bool_t      Init() { return true; };
+   Bool_t      BeginOfRun() { 
+                  this->SetRunning();
+                  return true;
+               };
+   Bool_t      Event(Long64_t event) { 
+                  if (gROME->IsStandAloneARGUS()) SetContinue(); 
+                  return true;
+               };
+   Bool_t      EndOfRun() { return true; };
+   Bool_t      Terminate() { return true; };
 };
 
 #endif   // ROMENoDAQSystem_H

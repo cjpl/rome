@@ -163,7 +163,7 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 }
 
 
-bool ROMEAnalyzer::Start(int argc, char **argv)
+Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
    ROMEString text;
@@ -274,7 +274,7 @@ void ROMEAnalyzer::ParameterUsage()
    gROME->UserParameterUsage();
    return;
 }
-bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
+Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
    int i;
@@ -478,7 +478,7 @@ bool ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-long ROMEAnalyzer::CheckEventNumber(long eventNumber)
+Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
 {
    if (fEventNumber.GetSize()==0)
       return 1;
@@ -495,7 +495,7 @@ long ROMEAnalyzer::CheckEventNumber(long eventNumber)
    return -1;
 }
 
-void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayL& arr)
+void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayL64& arr)
 {
    char cminus='-';
    char ccomma=',';
@@ -549,21 +549,21 @@ void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
 {
    int ind,num=0;
    TString temp;
-   ROMEString string = str;
-   while ((ind=string.Index(","))!=-1) {
-      temp = string(0,ind);
+   ROMEString str2 = str;
+   while ((ind=str2.Index(","))!=-1) {
+      temp = str2(0,ind);
       arr.AddAtAndExpand(temp,num);
       num++;
-      string = string(ind+1,string.Length()-ind-1);
+      str2 = str2(ind+1,str2.Length()-ind-1);
    }
    arr.AddAtAndExpand(str,num);
 }
 
-bool ROMEAnalyzer::toBool(int value) {
+Bool_t ROMEAnalyzer::toBool(Int_t value) {
    return value!=0;
 }
 
-Bool_t ROMEAnalyzer::ss_kbhit()
+UInt_t ROMEAnalyzer::ss_kbhit()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
    return toBool(kbhit());
@@ -617,7 +617,7 @@ Bool_t ROMEAnalyzer::ss_kbhit()
 #define CH_RIGHT  (CH_EXT+8)
 #define CH_LEFT   (CH_EXT+9)
 
-int ROMEAnalyzer::ss_getchar(bool reset)
+Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 {
 #if defined( R__UNIX )
    static unsigned long int init = 0;
@@ -824,7 +824,7 @@ int ROMEAnalyzer::ss_getchar(bool reset)
 #endif
 }
 
-long ROMEAnalyzer::ss_millitime()
+UInt_t ROMEAnalyzer::ss_millitime()
 {
 #if defined( R__UNIX )
    {
@@ -837,11 +837,12 @@ long ROMEAnalyzer::ss_millitime()
 
 #elif defined( R__VISUAL_CPLUSPLUS )
 
-   return (int) GetTickCount();
+   return (UInt_t) GetTickCount();
 
 #endif
 }
-int ROMEAnalyzer::stricmp(const char* c1,const char* c2)
+
+Int_t ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 {
 #if defined( R__UNIX )
    return strcasecmp(c1,c2);
@@ -852,7 +853,7 @@ int ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 #endif
 }
 
-bool ROMEAnalyzer::strtobool(const char* str)
+Bool_t ROMEAnalyzer::strtobool(const char* str)
 {
    char *cstop;
    if (!strcmp(str,"true"))
@@ -875,7 +876,7 @@ void ROMEAnalyzer::restoreOutput() {
       cout.rdbuf(fOldbuf);
 }
 
-Bool_t ROMEAnalyzer::IsNetFolderActive(const Char_t *name)
+Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -887,7 +888,7 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const Char_t *name)
    return false;
 };
 
-TNetFolder *ROMEAnalyzer::GetNetFolder(const Char_t *name)
+TNetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -902,7 +903,7 @@ TNetFolder *ROMEAnalyzer::GetNetFolder(const Char_t *name)
    return 0;
 };
 
-Bool_t ROMEAnalyzer::ConnectNetFolder(const Char_t *name)
+Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {
@@ -970,7 +971,7 @@ Bool_t ROMEAnalyzer::ConnectSocketToROME()
    return true;
 }
 
-Bool_t ROMEAnalyzer::DisconnectNetFolder(const Char_t *name)
+Bool_t ROMEAnalyzer::DisconnectNetFolder(const char *name)
 {
    Int_t i;
    for (i = 0; i < fNumberOfNetFolders; i++) {

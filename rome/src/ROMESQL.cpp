@@ -5,12 +5,12 @@
 //                                                                      //
 //  Provides SQL data base access.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQL.h>
 
-bool ROMESQL::CreateDataBase(const char* database)
+Bool_t ROMESQL::CreateDataBase(const char* database)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("CREATE DATABASE %s;",database);
@@ -21,7 +21,7 @@ bool ROMESQL::CreateDataBase(const char* database)
    return true;
 }
 
-bool ROMESQL::DeleteDataBase(const char* database)
+Bool_t ROMESQL::DeleteDataBase(const char* database)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("DROP DATABASE IF EXISTS %s;",database);
@@ -32,7 +32,7 @@ bool ROMESQL::DeleteDataBase(const char* database)
    return true;
 }
 
-bool ROMESQL::CreateTable(const char* table,const char* fields)
+Bool_t ROMESQL::CreateTable(const char* table,const char* fields)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("CREATE TABLE %s (%s);",table,fields);
@@ -43,7 +43,7 @@ bool ROMESQL::CreateTable(const char* table,const char* fields)
    return true;
 }
 
-bool ROMESQL::DeleteTable(const char* table)
+Bool_t ROMESQL::DeleteTable(const char* table)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("DROP TABLE IF EXISTS %s;",table);
@@ -54,7 +54,7 @@ bool ROMESQL::DeleteTable(const char* table)
    return true;
 }
 
-bool ROMESQL::InsertRow(const char* table,const char* fields,const char* values)
+Bool_t ROMESQL::InsertRow(const char* table,const char* fields,const char* values)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("INSERT INTO %s (%s) VALUES (%s);",table,fields,values);
@@ -65,7 +65,7 @@ bool ROMESQL::InsertRow(const char* table,const char* fields,const char* values)
    return true;
 }
 
-bool ROMESQL::DeleteRow(const char* table,const char* constraint)
+Bool_t ROMESQL::DeleteRow(const char* table,const char* constraint)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("DELETE FROM %s WHERE %s;",table,constraint);
@@ -76,7 +76,7 @@ bool ROMESQL::DeleteRow(const char* table,const char* constraint)
    return true;
 }
 
-bool ROMESQL::ReplaceField(const char* table,const char* field,const char* value,const char* constraint)
+Bool_t ROMESQL::ReplaceField(const char* table,const char* field,const char* value,const char* constraint)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("UPDATE %s SET %s=%s WHERE %s;",table,field,value,constraint);
@@ -87,7 +87,7 @@ bool ROMESQL::ReplaceField(const char* table,const char* field,const char* value
    return true;
 }
 
-bool ROMESQL::ExistField(const char* table,const char* field)
+Bool_t ROMESQL::ExistField(const char* table,const char* field)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("select %s from %s;",field,table);
@@ -98,7 +98,7 @@ bool ROMESQL::ExistField(const char* table,const char* field)
    return true;
 }
 
-bool ROMESQL::ReadField(const char* table,const char* field,const char* constraint)
+Bool_t ROMESQL::ReadField(const char* table,const char* field,const char* constraint)
 {
    ROMEString sqlquery;
    sqlquery.SetFormatted("select %s from %s where %s;",field,table,constraint);

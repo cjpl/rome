@@ -33,7 +33,7 @@
 #if defined( HAVE_MIDAS )
 #   include <midas.h>
 #   define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
-void ProcessMessage(int hBuf, int id, EVENT_HEADER * pheader, void *message)
+void ProcessMessage(Int_t hBuf, Int_t id, EVENT_HEADER *pheader, void *message)
 {
 // This method is called, when a system message from the online system occurs
 }
@@ -44,11 +44,12 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
    fCurrentRawDataEvent = 0;
 }
 
-bool ROMEMidasDAQ::Init() {
+Bool_t ROMEMidasDAQ::Init() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       // Connect to the Frontend
-      int requestId,i;
+      INT requestId;
+      Int_t i;
 
       gROME->PrintLine("Program is running online.\n");
 
@@ -112,8 +113,8 @@ bool ROMEMidasDAQ::Init() {
       }
 
       // Get Runnumber
-      int runNumber = 0;
-      int size = sizeof(runNumber);
+      Int_t runNumber = 0;
+      Int_t size = sizeof(runNumber);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
          gROME->PrintLine("\nCannot read runnumber from the online database");
          return false;
@@ -176,7 +177,8 @@ bool ROMEMidasDAQ::Init() {
    }
    return true;
 }
-bool ROMEMidasDAQ::BeginOfRun() {
+
+Bool_t ROMEMidasDAQ::BeginOfRun() {
    if (gROME->isOffline()) {
       ROMEString filename;
       ROMEString gzfilename;
@@ -243,13 +245,14 @@ bool ROMEMidasDAQ::BeginOfRun() {
    }
    return true;
 }
-bool ROMEMidasDAQ::Event(int event) {
+
+Bool_t ROMEMidasDAQ::Event(Long64_t event) {
    // Switch Raw Data Buffer
    this->SwitchRawDataBuffer();
 
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
-      int runNumber,trans;
+      int runNumber,trans; // use int instead of INT or Int_t
       if (cm_query_transition(&trans, &runNumber, NULL) || fStopRequest) {
          if (trans == TR_START) {
             gROME->SetCurrentRunNumber(runNumber);
@@ -259,7 +262,7 @@ bool ROMEMidasDAQ::Event(int event) {
          }
          if (trans == TR_STOP || fStopRequest) {
             fStopRequest = true;
-            Int_t numberOfBytes;
+            INT numberOfBytes;
             bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
             if (numberOfBytes <= 0) {
                this->SetEndOfRun();
@@ -278,7 +281,7 @@ bool ROMEMidasDAQ::Event(int event) {
          this->SetContinue();
          return true;
       }
-      int size = this->GetRawDataEventSize();
+      INT size = this->GetRawDataEventSize();
       void* mEvent = this->GetRawDataEvent();
       status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
       if (status != BM_SUCCESS) {
@@ -306,12 +309,12 @@ bool ROMEMidasDAQ::Event(int event) {
       bool readError = false;
 
       // read event
-      Long64_t n;
+      Long_t n;
       if(!fGZippedMidasFile)
          n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
       else
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-      if (n < static_cast<Long64_t>(sizeof(EVENT_HEADER))) readError = true;
+      if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
       else {
 #if !defined( R__BYTESWAP )
          //byte swapping
@@ -328,7 +331,7 @@ bool ROMEMidasDAQ::Event(int event) {
                n = read(fMidasFileHandle,pevent+1,pevent->data_size);
             else
                n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
-            if (n != static_cast<Long64_t>(pevent->data_size)) readError = true;
+            if (n != static_cast<Long_t>(pevent->data_size)) readError = true;
 //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
          }
       }
@@ -379,7 +382,8 @@ bool ROMEMidasDAQ::Event(int event) {
    this->InitHeader();
    return true;
 }
-bool ROMEMidasDAQ::EndOfRun() {
+
+Bool_t ROMEMidasDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       if(!fGZippedMidasFile)
          close(fMidasFileHandle);
@@ -388,7 +392,8 @@ bool ROMEMidasDAQ::EndOfRun() {
    }
    return true;
 }
-bool ROMEMidasDAQ::Terminate() {
+
+Bool_t ROMEMidasDAQ::Terminate() {
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
       cm_disconnect_experiment();
@@ -414,7 +419,7 @@ analyzer which has different byte ordering.
 is only swapped if it is in the wrong format.
 @return 1==event has been swap, 0==event has not been swapped.
 */
-void ROMEMidasDAQ::bk_swap(void *event, bool force)
+INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
 {
    BANK_HEADER  *pbh;
    BANK         *pbk;
@@ -428,7 +433,7 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
 
    // only swap if flags in high 16-bit
    if (pbh->flags < 0x10000 && !force)
-      return;
+      return 0;
 
    // swap bank header
    ROMEUtilities::ByteSwap((UInt_t*)&pbh->data_size);
@@ -501,18 +506,18 @@ void ROMEMidasDAQ::bk_swap(void *event, bool force)
             break;
       }
    }
-   return;
+   return CM_SUCCESS;
 }
 #   endif
 
 #endif
 #if !defined( HAVE_MIDAS )
-bool ROMEMidasDAQ::bk_is32(void *event)
+BOOL ROMEMidasDAQ::bk_is32(void *event)
 {
-   return ((((BANK_HEADER *) event)->flags & (1<<4)) > 0);
+   return ((((BANK_HEADER *) event)->flags & BANK_FORMAT_32BIT) > 0);
 }
 
-int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t* bktype,void *pdata)
+INT ROMEMidasDAQ::bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata)
 {
    Int_t tid_size[] = {0,1,1,1,2,2,4,4,4,4,8,1,0,0,0,0,0};
    BANK *pbk;
@@ -521,7 +526,7 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t*
 
    if (bk_is32(pbkh)) {
       pbk32 = (BANK32*) (((BANK_HEADER*)pbkh) + 1);
-      strncpy((Char_t*) &dname, name, 4);
+      strncpy((char*) &dname, name, 4);
       do {
          if (*((UInt_t*) pbk32->name) == dname) {
             *((void**) pdata) = pbk32 + 1;
@@ -533,11 +538,11 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t*
             *bktype = pbk32->type;
             return 1;
          }
-         pbk32 = (BANK32*) ((Char_t*) (pbk32 + 1) + ALIGN8(pbk32->data_size));
+         pbk32 = (BANK32*) ((char*) (pbk32 + 1) + ALIGN8(pbk32->data_size));
       } while ((size_t) pbk32 - (size_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    } else {
       pbk = (BANK*) (((BANK_HEADER*)pbkh) + 1);
-      strncpy((Char_t*) &dname, name, 4);
+      strncpy((char*) &dname, name, 4);
       do {
          if (*((UInt_t*) pbk->name) == dname) {
             *((void**) pdata) = pbk + 1;
@@ -549,7 +554,7 @@ int ROMEMidasDAQ::bk_find(void* pbkh, const Char_t *name, UInt_t* bklen, UInt_t*
             *bktype = pbk->type;
             return 1;
          }
-         pbk = (BANK*) ((Char_t*) (pbk + 1) + ALIGN8(pbk->data_size));
+         pbk = (BANK*) ((char*) (pbk + 1) + ALIGN8(pbk->data_size));
       } while ((size_t) pbk - (size_t) pbkh < ((BANK_HEADER*) pbkh)->data_size + sizeof(BANK_HEADER));
    }
    *((void**) pdata) = NULL;

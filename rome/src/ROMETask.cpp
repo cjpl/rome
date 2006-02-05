@@ -35,6 +35,7 @@ ROMETask::ROMETask(const char *name,const char *title):TTask(name,title)
    fName = name;
    fEventID = 'a';
 }
+
 void ROMETask::Exec(Option_t *option)
 {
    // Overrides the TTask::Exec Method to replace the Exec Method with the following Methods :
@@ -110,16 +111,19 @@ void ROMETask::TimeReset()
    // Reset the Tasks stopwatch
    fWatch.Reset();
 }
+
 void ROMETask::TimeStart()
 {
    // Starts the Tasks stopwatch
    fWatch.Start(false);
 }
+
 void ROMETask::TimeEnd()
 {
    // Ends the Tasks stopwatch
    fWatch.Stop();
 }
+
 const char* ROMETask::GetTime()
 {
    // Returns the elapsed time in a readable format

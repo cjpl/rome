@@ -38,7 +38,7 @@ void ROMESQLDataBase:: ResetPhrase(){
    fAdInsertValues.Resize(0);
 }
 
-bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,int runNumber,int eventNumber,const char* currentIdName,const char* currentIdxName){
+Bool_t ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,const char* currentIdxName){
    ROMEString value = dbConstraint;
    ROMEPath *dbpath = new ROMEPath();
    int is1,ie1,is2,ie2,is3,ie3;
@@ -165,7 +165,7 @@ bool ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const cha
    return true;
 }
 
-bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber,int eventNumber){
+Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t eventNumber){
    ROMEString sqlQuery;
    ROMEString sqlResult;
    ROMEString temp;
@@ -292,7 +292,7 @@ bool ROMESQLDataBase:: MakePhrase(ROMEPath* path,int runNumber,int eventNumber){
    return true;
 }
 
-bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* connection) {
+Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* connection) {
    ROMEString path = connection;
    ROMEString server;
    ROMEString user;
@@ -419,7 +419,7 @@ bool ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* con
    return true;
 }
 
-bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber){
+Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber){
    int iField,iOrder;
    int iLastOrder=0;
    int iArray,jArray;
@@ -553,7 +553,7 @@ bool ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int r
    return true;
 }
 
-bool ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber) {
+Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    int iField;
    int iOrder;
    ROMEPath *path = new ROMEPath();

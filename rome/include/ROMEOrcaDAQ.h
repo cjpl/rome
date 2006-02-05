@@ -16,14 +16,14 @@ public:
    ROMEOrcaDAQ::ROMEOrcaDAQ();
 
    // Additional Getters
-   int   GetTimeStamp() { return 0; };  // TODO
-   const char* GetName() { return "orca"; };
+   Int_t       GetTimeStamp() { return 0; };  // TODO
+   const char *GetName() { return "orca"; };
 
-   bool Init();
-   bool BeginOfRun();
-   bool Event(int event);
-   bool EndOfRun();
-   bool Terminate();
+   Bool_t      Init();
+   Bool_t      BeginOfRun();
+   Bool_t      Event(Long64_t event);
+   Bool_t      EndOfRun();
+   Bool_t      Terminate();
 };
 
 #endif   // ROMEOrcaDAQ_H

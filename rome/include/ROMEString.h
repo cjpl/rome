@@ -14,31 +14,31 @@ class ROMEString : public TString
 {
 public:
    ROMEString() : TString() {};
-   ROMEString(int s) : TString(s) {};
+   ROMEString(Ssiz_t s) : TString(s) {};
    ROMEString(char c) : TString(c) {};
    ROMEString(const char* s) : TString(s) {};
    ROMEString(const TString& s) : TString(s) {};
    ROMEString(const TSubString& s) : TString(s) {};
    ROMEString& AppendFormatted(const char* format=NULL,...);
-   ROMEString& InsertFormatted(int position,const char* format=NULL,...);
+   ROMEString& InsertFormatted(Ssiz_t position,const char* format=NULL,...);
    ROMEString& SetFormatted(const char* format=NULL,...);
-   bool FormatString(ROMEString* string,const char* format,va_list parameters);
-   int  NumberOfOccurrence(ROMEString& subString);
-   int  NumberOfOccurrence(const char* subString);
-   void Write();
-   void WriteLine();
-   int ToInteger();
-   double ToDouble();
-   void ToLower();
+   Bool_t      FormatString(ROMEString* str,const char* format,va_list parameters);
+   Int_t       NumberOfOccurrence(ROMEString& subString);
+   Int_t       NumberOfOccurrence(const char* subString);
+   void        Write();
+   void        WriteLine();
+   Int_t       ToInteger();
+   Double_t    ToDouble();
+   void        ToLower();
    const char* ToLower(ROMEString& destination);
-   void ToUpper();
+   void        ToUpper();
    const char* ToUpper(ROMEString& destination);
-   istream& ReadFile(istream& str);
-   istream& ReadLine(istream& str);
+   istream&    ReadFile(istream& str);
+   istream&    ReadLine(istream& str);
    ROMEString& StripSpaces();
 
 private:
-   int  SearchFormatType(const char* str);
+   Int_t       SearchFormatType(const char* str);
 };
 
 #endif   // ROMEString_H

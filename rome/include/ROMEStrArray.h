@@ -13,7 +13,8 @@
 class ROMEStrArray : public TObject
 {
 protected:
-   TObjArray* array;  // The array containing the TStrings
+   TObjArray *array;  // The array containing the TStrings
+
 public:
    ROMEStrArray(Int_t s = TCollection::kInitCapacity, Int_t lowerBound = 0);
    ROMEStrArray(ROMEStrArray& strArray);

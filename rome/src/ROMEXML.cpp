@@ -33,6 +33,7 @@ ROMEXML::ROMEXML() {
    rootNode=NULL;
    currentNode=NULL;
 }
+
 ROMEXML::~ROMEXML() {
    if (rootNode!=NULL) {
       mxml_free_tree(rootNode);
@@ -41,7 +42,7 @@ ROMEXML::~ROMEXML() {
 }
 
 // read
-bool ROMEXML::OpenFileForRead(const char* file) {
+Bool_t ROMEXML::OpenFileForRead(const char* file) {
    char error[240];
    rootNode = mxml_parse_file((char*)file, error, sizeof(error));
    if (rootNode == NULL) {
@@ -62,7 +63,8 @@ bool ROMEXML::OpenFileForRead(const char* file) {
    endTag = false;
    return true;
 }
-bool ROMEXML::NextLine() {
+
+Bool_t ROMEXML::NextLine() {
    if (endTag) {
       if (currentNode==rootNode)
          return false;
@@ -93,16 +95,19 @@ bool ROMEXML::NextLine() {
    return true;
 }
 
-bool ROMEXML::GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue) {
+Bool_t ROMEXML::GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue) {
    return GetAttribute(name,value,defaultValue.Data());
 }
-bool ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue) {
    return GetAttribute(name.Data(),value,defaultValue);
 }
-bool ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+
+Bool_t ROMEXML::GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
    return GetAttribute(name.Data(),value,defaultValue.Data());
 }
-bool ROMEXML::GetAttribute(const char* name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetAttribute(const char* name,ROMEString& value,const char* defaultValue) {
    value = mxml_get_attribute(currentNode,(char*)name);
    if (value==NULL) {
       value = defaultValue;
@@ -111,16 +116,17 @@ bool ROMEXML::GetAttribute(const char* name,ROMEString& value,const char* defaul
    return true;
 }
 
-bool ROMEXML::GetValue(ROMEString& value,ROMEString& defaultValue) {
+Bool_t ROMEXML::GetValue(ROMEString& value,ROMEString& defaultValue) {
    return GetValue(value,defaultValue.Data());
 }
-bool ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
    value = mxml_get_value(currentNode);
    return true;
 }
 
 // write
-bool ROMEXML::OpenFileForWrite(const char* file) {
+Bool_t ROMEXML::OpenFileForWrite(const char* file) {
    writer = mxml_open_file(file);
    if (writer==NULL)
       return false;
@@ -134,36 +140,36 @@ bool ROMEXML::OpenFileForWrite(const char* file) {
    return true;
 }
 
-int ROMEXML::SetTranslate(int flag) {
+Int_t ROMEXML::SetTranslate(Int_t flag) {
    return mxml_set_translate(writer,flag);
 }
 
-bool ROMEXML::StartElement(const char* name)
+Bool_t ROMEXML::StartElement(const char* name)
 {
    if (!mxml_start_element(writer,name))
       return false;
    return true;
 }
 
-bool ROMEXML::EndElement() {
+Bool_t ROMEXML::EndElement() {
    if (!mxml_end_element(writer))
       return false;
    return true;
 }
 
-bool ROMEXML::EndDocument() {
+Bool_t ROMEXML::EndDocument() {
    if (!mxml_close_file(writer))
       return false;
    return true;
 }
 
-bool ROMEXML::WriteAttribute(const char* name,const char* value) {
+Bool_t ROMEXML::WriteAttribute(const char* name,const char* value) {
    if (!mxml_write_attribute(writer,name,value))
       return false;
    return true;
 }
 
-bool ROMEXML::WriteElement(const char* name,const char* value) {
+Bool_t ROMEXML::WriteElement(const char* name,const char* value) {
    if (!mxml_start_element(writer,name))
       return false;
    if (!mxml_write_value(writer,value))
@@ -172,19 +178,21 @@ bool ROMEXML::WriteElement(const char* name,const char* value) {
       return false;
    return true;
 }
-bool ROMEXML::WriteValue(const char* value) {
+
+Bool_t ROMEXML::WriteValue(const char* value) {
    if (!mxml_write_value(writer,value))
       return false;
    return true;
 }
-bool ROMEXML::WriteComment(const char* text) {
+
+Bool_t ROMEXML::WriteComment(const char* text) {
    if (!mxml_write_comment(writer,text))
       return false;
    return true;
 }
 
 // path
-bool ROMEXML::OpenFileForPath(const char* file) {
+Bool_t ROMEXML::OpenFileForPath(const char* file) {
    char error[240];
    rootNode = mxml_parse_file((char*)file, error, sizeof(error));
    if (rootNode == NULL) {
@@ -201,7 +209,7 @@ bool ROMEXML::OpenFileForPath(const char* file) {
    return true;
 }
 
-bool ROMEXML::OpenBufferForPath(char* buffer) {
+Bool_t ROMEXML::OpenBufferForPath(char* buffer) {
    if (rootNode!=NULL) {
       mxml_free_tree(rootNode);
       rootNode = NULL;
@@ -215,13 +223,14 @@ bool ROMEXML::OpenBufferForPath(char* buffer) {
    return true;
 }
 
-bool ROMEXML::ExistPath(const char* path) {
+Bool_t ROMEXML::ExistPath(const char* path) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return true;
 }
-int ROMEXML::NumberOfOccurrenceOfPath(const char* path) {
+
+Int_t ROMEXML::NumberOfOccurrenceOfPath(const char* path) {
    PMXML_NODE *node = NULL;
    int numberOfNodes = mxml_find_nodes(rootNode,(char*)path,&node);
    if (numberOfNodes<0)
@@ -230,28 +239,35 @@ int ROMEXML::NumberOfOccurrenceOfPath(const char* path) {
    return numberOfNodes;
 }
 
-bool ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+Bool_t ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
    return GetPathAttribute(path.Data(),name.Data(),value,defaultValue.Data());
 }
-bool ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(ROMEString& path,ROMEString& name,ROMEString& value,const char* defaultValue) {
    return GetPathAttribute(path.Data(),name.Data(),value,defaultValue);
 }
-bool ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,ROMEString& defaultValue) {
    return GetPathAttribute(path.Data(),name,value,defaultValue.Data());
 }
-bool ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,ROMEString& defaultValue) {
    return GetPathAttribute(path,name.Data(),value,defaultValue.Data());
 }
-bool ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(ROMEString& path,const char* name,ROMEString& value,const char* defaultValue) {
    return GetPathAttribute(path.Data(),name,value,defaultValue);
 }
-bool ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(const char* path,ROMEString& name,ROMEString& value,const char* defaultValue) {
    return GetPathAttribute(path,name.Data(),value,defaultValue);
 }
-bool ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,ROMEString& defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,ROMEString& defaultValue) {
    return GetPathAttribute(path,name,value,defaultValue.Data());
 }
-bool ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL) {
       value = defaultValue;
@@ -265,16 +281,19 @@ bool ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& val
    return true;
 }
 
-bool ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,ROMEString& defaultValue) {
+Bool_t ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,ROMEString& defaultValue) {
    return GetPathValue(path.Data(),value,defaultValue.Data());
 }
-bool ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathValue(ROMEString& path,ROMEString& value,const char* defaultValue) {
    return GetPathValue(path.Data(),value,defaultValue);
 }
-bool ROMEXML::GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue) {
+
+Bool_t ROMEXML::GetPathValue(const char* path,ROMEString& value,ROMEString& defaultValue) {
    return GetPathValue(path,value,defaultValue.Data());
 }
-bool ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaultValue) {
+
+Bool_t ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaultValue) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL) {
       value = defaultValue;
@@ -283,10 +302,12 @@ bool ROMEXML::GetPathValue(const char* path,ROMEString& value,const char* defaul
    value = mxml_get_value(node);
    return true;
 }
-bool ROMEXML::GetPathValues(ROMEString& path,ROMEStrArray* values) {
+
+Bool_t ROMEXML::GetPathValues(ROMEString& path,ROMEStrArray* values) {
    return GetPathValues(path.Data(),values);
 }
-bool ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
+
+Bool_t ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
    PMXML_NODE *node = NULL;
    int numberOfNodes = mxml_find_nodes(rootNode,(char*)path,&node);
    if (numberOfNodes<0)
@@ -298,55 +319,55 @@ bool ROMEXML::GetPathValues(const char* path,ROMEStrArray* values) {
    return true;
 }
 
-bool ROMEXML::ReplacePathAttributeValue(const char* path,const char* name,const char* value) {
+Bool_t ROMEXML::ReplacePathAttributeValue(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_replace_attribute_value(node,(char*)name,(char*)value)!=0;
 }
 
-bool ROMEXML::ReplacePathAttributeName(const char* path,const char* name,const char* newName) {
+Bool_t ROMEXML::ReplacePathAttributeName(const char* path,const char* name,const char* newName) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_replace_attribute_name(node,(char*)name,(char*)newName)!=0;
 }
 
-bool ROMEXML::ReplacePathName(const char* path,const char* name) {
+Bool_t ROMEXML::ReplacePathName(const char* path,const char* name) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_replace_node_name(node,(char*)name)!=0;
 }
 
-bool ROMEXML::ReplacePathValue(const char* path,const char* value) {
+Bool_t ROMEXML::ReplacePathValue(const char* path,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_replace_node_value(node,(char*)value)!=0;
 }
 
-bool ROMEXML::DeletePathAttribute(const char* path,const char* name) {
+Bool_t ROMEXML::DeletePathAttribute(const char* path,const char* name) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_delete_attribute(node,(char*)name)!=0;
 }
-bool ROMEXML::DeletePath(const char* path) {
+Bool_t ROMEXML::DeletePath(const char* path) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_delete_node(node)!=0;
 }
 
-bool ROMEXML::NewPathAttribute(const char* path,const char* name,const char* value) {
+Bool_t ROMEXML::NewPathAttribute(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_add_attribute(node,(char*)name,(char*)value)!=0;
 }
 
-bool ROMEXML::NewPathNextElement(const char* path,const char* name,const char* value) {
+Bool_t ROMEXML::NewPathNextElement(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
@@ -354,35 +375,35 @@ bool ROMEXML::NewPathNextElement(const char* path,const char* name,const char* v
    return mxml_add_node_at(node->parent,(char*)name,(char*)value,nextChild)!=0;
 }
 
-bool ROMEXML::NewPathPrevElement(const char* path,const char* name,const char* value) {
+Bool_t ROMEXML::NewPathPrevElement(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    int nextChild = IndexOfChildNode(node->parent,node);
    return mxml_add_node_at(node->parent,(char*)name,(char*)value,nextChild)!=0;
 }
-int ROMEXML::NewPathLastElement(const char* path,const char* name,const char* value) {
+Int_t ROMEXML::NewPathLastElement(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_add_node(node->parent,(char*)name,(char*)value)!=0;
 }
 
-bool ROMEXML::NewPathChildElement(const char* path,const char* name,const char* value) {
+Bool_t ROMEXML::NewPathChildElement(const char* path,const char* name,const char* value) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return mxml_add_node(node,(char*)name,(char*)value)!=0;
 }
 
-bool ROMEXML::HasPathChildren(const char* path) {
+Bool_t ROMEXML::HasPathChildren(const char* path) {
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL)
       return false;
    return node->n_children!=0;
 }
 
-bool ROMEXML::WritePathFile(const char* file) {
+Bool_t ROMEXML::WritePathFile(const char* file) {
    mxml_write_tree((char*)file,rootNode);
    return true;
 }
@@ -392,32 +413,39 @@ PMXML_NODE ROMEXML::GetPathNode(const char* path) {
    return mxml_find_node(rootNode,(char*)path);
 }
 
+
 PMXML_NODE ROMEXML::GetRootNode() {
    return rootNode;
 }
-PMXML_NODE ROMEXML::GetSubNode(PMXML_NODE node,int i) {
+
+PMXML_NODE ROMEXML::GetSubNode(PMXML_NODE node,Int_t i) {
    return mxml_subnode(node,i);
 }
+
 const char* ROMEXML::GetNodeValue(PMXML_NODE node) {
    return mxml_get_value(node);
 }
-int ROMEXML::GetNodeIntValue(PMXML_NODE node) {
+
+Int_t ROMEXML::GetNodeIntValue(PMXML_NODE node) {
    char *cstop;
    return strtol(mxml_get_value(node),&cstop,10);
 }
-double ROMEXML::GetNodeDoubleValue(PMXML_NODE node) {
+
+Double_t ROMEXML::GetNodeDoubleValue(PMXML_NODE node) {
    char *cstop;
    return strtod(mxml_get_value(node),&cstop);
 }
+
 const char* ROMEXML::GetNodeName(PMXML_NODE node) {
    return mxml_get_name(node);
 }
+
 const char* ROMEXML::GetNodeAttribute(PMXML_NODE node,const char* name) {
    return mxml_get_attribute(node,(char*)name);
 }
 
 // auxiliary
-int ROMEXML::IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode)
+Int_t ROMEXML::IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode)
 {
    for (int i=0;i<node->n_children;i++) {
       if (&node->child[i] == childNode) {

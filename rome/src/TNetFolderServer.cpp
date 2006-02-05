@@ -79,10 +79,10 @@ int ResponseFunction(TSocket *socket) {
 
       TCollection *folders = folder->GetListOfFolders();
       TIterator *iterFolders = folders->MakeIterator();
-      TString str;
+      TString name;
       while ((obj = iterFolders->Next())) {
-         str = obj->GetName();
-         names->Add(new TObjString(str.Data()));
+         name = obj->GetName();
+         names->Add(new TObjString(name.Data()));
       }
 
       //write folder names
@@ -203,26 +203,26 @@ int ResponseFunction(TSocket *socket) {
       socket->Recv(method, sizeof(method));
       socket->Recv(arg, sizeof(arg));
 
-      TString str = "temporarySocketObject = gROOT->FindObjectAny(\"";
-      str += objName;
-      str += "\");";
-      fApplication->ProcessLine(str.Data());
-      str = "((";
-      str += type;
-      str += ")temporarySocketObject)->";
-      str += method;
-      str += "(";
-      str += arg;
-      str += ");";
-      fApplication->ProcessLine(str.Data());
+      TString command = "temporarySocketObject = gROOT->FindObjectAny(\"";
+      command += objName;
+      command += "\");";
+      fApplication->ProcessLine(command.Data());
+      command = "((";
+      command += type;
+      command += ")temporarySocketObject)->";
+      command += method;
+      command += "(";
+      command += arg;
+      command += ");";
+      fApplication->ProcessLine(command.Data());
       return 1;
    }
    else if (strncmp(str, "Execute", 7) == 0) {
-      char string[200];
-      socket->Recv(string, sizeof(string));
+      char str[200];
+      socket->Recv(str, sizeof(str));
 
-      TString str = string;
-      fApplication->ProcessLine(str.Data());
+      TString command = command;
+      fApplication->ProcessLine(command.Data());
       return 1;
    }
 #endif // ROOT_VERSION
@@ -264,7 +264,7 @@ THREADTYPE ServerLoop(void *arg)
 }
 
 
-void TNetFolderServer::StartServer(TApplication *app,int port)
+void TNetFolderServer::StartServer(TApplication *app,Int_t port)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // start Socket server loop

@@ -13,20 +13,20 @@
 class ROMEDataBaseDAQ : public ROMEDAQSystem {
 protected:
 
-   int           fTimeStamp;                       //! Current time stamp
+   Int_t         fTimeStamp;                       //! Current time stamp
 
 public:
    ROMEDataBaseDAQ();
    virtual ~ROMEDataBaseDAQ() {};
 
-   int   GetTimeStamp() { return fTimeStamp; };
-   const char* GetName() { return "database"; };
+   Int_t       GetTimeStamp() { return fTimeStamp; };
+   const char *GetName() { return "database"; };
 
-   bool Init();
-   bool BeginOfRun();
-   bool Event(int event);
-   bool EndOfRun();
-   bool Terminate();
+   Bool_t      Init();
+   Bool_t      BeginOfRun();
+   Bool_t      Event(Long64_t event);
+   Bool_t      EndOfRun();
+   Bool_t      Terminate();
 };
 
 #endif   // ROMEDataBaseDAQ_H

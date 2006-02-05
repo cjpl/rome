@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEMySQL.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEMYSQL_H
@@ -18,26 +18,26 @@ class ROMEMySQL : public ROMESQL
 {
 protected:
    MYSQL      mysql;
-   MYSQL_RES* result;
+   MYSQL_RES *result;
    MYSQL_ROW  row;
 
 public:
    ROMEMySQL();
    virtual ~ROMEMySQL();
-   bool  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
-   bool  DisConnect();
-   bool  MakeQuery(const char* query,bool store);
-   bool  StoreResult();
-   bool  NextRow();
-   char* GetField(int fieldNumber);
-   int   GetNumberOfRows();
-   int   GetNumberOfFields();
-   void  FreeResult();
-   int   GetErrorCode();
-   char* GetErrorMessage();
-   bool  StartTransaction( const char* option );
-   bool  CommitTransaction( const char* option );
-   bool  RollbackTransaction( const char* option );
+   Bool_t  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
+   Bool_t  DisConnect();
+   Bool_t  MakeQuery(const char* query,Bool_t store);
+   Bool_t  StoreResult();
+   Bool_t  NextRow();
+   char   *GetField(Int_t fieldNumber);
+   Int_t   GetNumberOfRows();
+   Int_t   GetNumberOfFields();
+   void    FreeResult();
+   Int_t   GetErrorCode();
+   char   *GetErrorMessage();
+   Bool_t  StartTransaction( const char* option );
+   Bool_t  CommitTransaction( const char* option );
+   Bool_t  RollbackTransaction( const char* option );
 
    bool  DataSeek(my_ulonglong offset);
 };

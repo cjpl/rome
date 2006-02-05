@@ -1,7 +1,7 @@
 /********************************************************************
   TNetFolderServer.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef TNetFolderServer_H
@@ -12,9 +12,9 @@
 class TNetFolderServer : public TNamed
 {
 protected:
-   int fPort;
+   Int_t fPort;
 public:
-   void StartServer(TApplication *app,int port);
+   void StartServer(TApplication *app,Int_t port);
 };
 
 #endif   // TNetFolderServer_H

@@ -22,7 +22,7 @@ ROMETextDataBase::~ROMETextDataBase() {
    delete fTime;
 }
 
-bool ROMETextDataBase::Init(const char* name,const char* path,const char* connection) {
+Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* connection) {
    // set directory
    // "connection" has no mean for this class.
    if(strlen(path)){
@@ -38,8 +38,8 @@ bool ROMETextDataBase::Init(const char* name,const char* path,const char* connec
    return true;
 }
 
-bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int runNumber,int eventNumber) {
-   int        ps,pe;
+Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
+   Ssiz_t     ps,pe;
    int        iRow,iCol;
    ROMEString lineBuffer = "";
    ROMEString fileName;
@@ -121,7 +121,7 @@ bool ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,int 
    return true;
 }
 
-bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int runNumber,int eventNumber) {
+Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    fstream*   fileStream;
    ROMEString fileBuffer;
    ROMEString buffer;
@@ -131,7 +131,7 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
    int        iRow,iCol;
    bool       append  = false;
    bool       prepend = false;
-   int        ps,pe;
+   Ssiz_t     ps,pe;
    TArrayI    fieldLen;
 
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,0,0))
@@ -177,7 +177,7 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
       if(values->GetEntriesAt(iRow)>fieldLen.GetSize())
          fieldLen.Set(values->GetEntriesAt(iRow));
       for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
-         if(fieldLen.At(iCol)<(Int_t)strlen(values->At(iRow,iCol)))
+         if(fieldLen.At(iCol)<(Ssiz_t)strlen(values->At(iRow,iCol)))
             fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol);
       }
    }
@@ -232,9 +232,9 @@ bool ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,int
    return true;
 }
 
-void ROMETextDataBase::RemoveComment(ROMEString &buffer,bool initialize) {
+void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) {
    static bool inComment;
-   int ps,pe;
+   Ssiz_t ps,pe;
 
    if(initialize)
       inComment = false;
@@ -272,7 +272,7 @@ void ROMETextDataBase::RemoveComment(ROMEString &buffer,bool initialize) {
    return;
 }
 
-bool ROMETextDataBase::ContainsData(const char* buffer) {
+Bool_t ROMETextDataBase::ContainsData(const char* buffer) {
    // return true if "buffer" contains non-space characters
    if(!buffer)
       return false;
@@ -304,7 +304,7 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    ROMEString tmp;
    ROMEStrArray valueNames;
 
-   int ps,pe;
+   Ssiz_t ps,pe;
 
    ps = pe = 0;
    while((ps=filename.Index("/",1,pe,TString::kExact))!=-1){
@@ -348,7 +348,7 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
 }
 
 void ROMETextDataBase::RemoveHeader(ROMEString &buffer) {
-   int pBuffer = buffer.Index(EndOfHeader,strlen(EndOfHeader),0,TString::kExact);
+   Ssiz_t pBuffer = buffer.Index(EndOfHeader,strlen(EndOfHeader),0,TString::kExact);
    if(pBuffer>=0)
       buffer.Remove(0,pBuffer+strlen(EndOfHeader)+1);
    return;

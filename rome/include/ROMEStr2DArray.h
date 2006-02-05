@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEStr2DArray.h, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEStr2DArray_H
@@ -14,7 +14,7 @@
 class ROMEStr2DArray : public TObject
 {
 protected:
-   TObjArray* array;   // Array containing the ROMEStrArrays
+   TObjArray *array;   // Array containing the ROMEStrArrays
    Int_t      fSizeX;  // Initial array size
    Int_t      fSizeY;  // Initial sub array size
 public:

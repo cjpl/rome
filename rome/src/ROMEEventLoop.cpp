@@ -83,7 +83,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Declarations
    //--------------
-   int i,ii,eventLoopIndex;
+   Long64_t i,ii,eventLoopIndex;
 
    // Initialisation
    //----------------
@@ -307,8 +307,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 }
 
-
-bool ROMEEventLoop::DAQInit() {
+Bool_t ROMEEventLoop::DAQInit()
+{
    // Initialize the analyzer. Called before the init tasks.
    int j;
    this->SetRunning();
@@ -357,7 +357,9 @@ bool ROMEEventLoop::DAQInit() {
    }
    return true;
 }
-bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
+
+Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
+{
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEString runNumberString;
    // Statistics
@@ -452,7 +454,8 @@ bool ROMEEventLoop::DAQBeginOfRun(Int_t eventLoopIndex) {
    return true;
 }
 
-bool ROMEEventLoop::DAQEvent(Int_t event) {
+Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
+{
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
 
@@ -494,14 +497,16 @@ bool ROMEEventLoop::DAQEvent(Int_t event) {
    return true;
 }
 
-bool ROMEEventLoop::WriteEvent() {
+Bool_t ROMEEventLoop::WriteEvent()
+{
    // Writes the event. Called after the Event tasks.
    this->CleanUpFolders();
    fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());
    this->FillTrees();
    return true;
 }
-bool ROMEEventLoop::Update()
+
+Bool_t ROMEEventLoop::Update()
 {
    // Update the Analyzer. Called after the Event tasks.
 
@@ -542,7 +547,7 @@ bool ROMEEventLoop::Update()
    return true;
 }
 
-bool ROMEEventLoop::UserInput()
+Bool_t ROMEEventLoop::UserInput()
 {
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
@@ -682,7 +687,8 @@ bool ROMEEventLoop::UserInput()
    return true;
 }
 
-bool ROMEEventLoop::DAQEndOfRun() {
+Bool_t ROMEEventLoop::DAQEndOfRun()
+{
    // Disconnects the current run. Called after the EndOfRun tasks.
 
    // Write non accumulative output tree files
@@ -730,7 +736,8 @@ bool ROMEEventLoop::DAQEndOfRun() {
    return true;
 }
 
-bool ROMEEventLoop::DAQTerminate() {
+Bool_t ROMEEventLoop::DAQTerminate()
+{
    // Clean up the analyzer. Called after the Terminate tasks.
    // Write accumulative output tree files
    // Close all files

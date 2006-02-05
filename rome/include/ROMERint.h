@@ -22,19 +22,20 @@ private:
    Bool_t fRunning;
 public:
    ROMERint(const char *appClassName, int *argc, char **argv,
-      void *options = 0, int numOptions = 0, Bool_t noLogo = kFALSE)
+      void *options = 0, Int_t numOptions = 0, Bool_t noLogo = kFALSE)
       : TRint(appClassName, argc, argv, options, numOptions,noLogo) 
    { fRunning = false; };
+
    Bool_t HandleTermInput() {
-      if (fRunning)
-         return TRint::HandleTermInput();
-      return true;
-   }
-   void Run(Bool_t retrn) {
-      fRunning = true;
-      TRint::Run(retrn);
-      fRunning = false;
-   }
+             if (fRunning)
+                return TRint::HandleTermInput();
+             return true;
+          }
+   void   Run(Bool_t retrn) {
+             fRunning = true;
+             TRint::Run(retrn);
+             fRunning = false;
+          }
 };
 
 #endif   // ROMERint_H

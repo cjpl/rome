@@ -18,7 +18,7 @@ TNetFolder::TNetFolder():TNamed()
    fReconnect = kTRUE;
 }
 
-TNetFolder::TNetFolder(const Char_t *name, const Char_t *title, TSocket *socket, bool reconnect):TNamed(name, title)
+TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Bool_t reconnect):TNamed(name, title)
 {
    fSocket = socket;
    fFolder = GetPointer();
@@ -52,7 +52,7 @@ Bool_t TNetFolder::Send(const TMessage &mess)
    return kTRUE;
 }
 
-Bool_t TNetFolder::Send(const Char_t *mess, Int_t kind)
+Bool_t TNetFolder::Send(const char *mess, Int_t kind)
 {
    if (fSocket->Send(mess, kind) == -1) {
       do {
@@ -117,7 +117,7 @@ TObjArray *TNetFolder::GetListOfFolders()
    return 0;
 }
 
-TObject *TNetFolder::FindObject(const Char_t *name) const
+TObject *TNetFolder::FindObject(const char *name) const
 {
    TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObject ";
@@ -145,7 +145,7 @@ TObject *TNetFolder::FindObject(const Char_t *name) const
    return obj;
 }
 
-TObject *TNetFolder::FindObjectAny(const Char_t *name) const
+TObject *TNetFolder::FindObjectAny(const char *name) const
 {
    TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObjectAny ";
@@ -173,7 +173,7 @@ TObject *TNetFolder::FindObjectAny(const Char_t *name) const
    return obj;
 }
 
-const Char_t *TNetFolder::FindFullPathName(const Char_t *name)
+const char *TNetFolder::FindFullPathName(const char *name)
 {
    TString str = "FindFullPathName ";
    str.Append(name);
@@ -194,7 +194,7 @@ const Char_t *TNetFolder::FindFullPathName(const Char_t *name)
       return NULL;
    }
 
-   const Char_t *path = ((TObjString *) mr->ReadObject(mr->GetClass()))->String().Data();
+   const char *path = ((TObjString *) mr->ReadObject(mr->GetClass()))->String().Data();
 
    delete mr;
    return path;
@@ -231,7 +231,7 @@ Int_t TNetFolder::Occurence(const TObject *obj)
    return retValue;
 }
 
-void TNetFolder::ExecuteCommand(const Char_t *line)
+void TNetFolder::ExecuteCommand(const char *line)
 {
    // The line is executed by the CINT of the server
    if (!Send("Execute")) {
@@ -244,7 +244,7 @@ void TNetFolder::ExecuteCommand(const Char_t *line)
    }
 }
 
-void TNetFolder::ExecuteMethod(const Char_t *objectName, const Char_t *objectType, const Char_t *methodName, const Char_t *methodArguments)
+void TNetFolder::ExecuteMethod(const char *objectName, const char *objectType, const char *methodName, const char *methodArguments)
 {
    // A method of an object is executed by the CINT of the server. 
    // The statment on the server side is the following :

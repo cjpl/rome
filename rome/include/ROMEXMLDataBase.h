@@ -18,28 +18,28 @@
 class ROMEXMLDataBase : public ROMEDataBase
 {
 protected:
-   ROMEString    fDirectoryPath;
-   ROMEString    fDataBaseName;
-   ROMEStrArray  fOrderTableIDs;
-   int           fOrderTableIndex;
-   ROMEStrArray  fIDX;
+   ROMEString     fDirectoryPath;
+   ROMEString     fDataBaseName;
+   ROMEStrArray   fOrderTableIDs;
+   Int_t          fOrderTableIndex;
+   ROMEStrArray   fIDX;
    ROMEStr2DArray fPointerArray;
-   ROMEXML      *xml;
-   ROMEString    fXMLBase;
-   ROMEString    fFileName;
+   ROMEXML       *xml;
+   ROMEString     fXMLBase;
+   ROMEString     fFileName;
 
 
-   bool   WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,int arrayIndex);
-   int    SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,int runNumber,int eventNumber,bool write);
+   Bool_t WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& basePath,ROMEString& value,Int_t arrayIndex);
+   Int_t  SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber,Bool_t write);
 public:
    ROMEXMLDataBase();
    ~ROMEXMLDataBase();
 
-   bool   Init(const char* name,const char* path,const char* connection);
-   bool   Read(ROMEStr2DArray *values,const char *path,int runNumber,int eventNumber);
-   bool   Write(ROMEStr2DArray* values,const char *path,int runNumber,int eventNumber);
-   char*  GetType() { return "xml"; }
-   char*  GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
+   Bool_t Init(const char* name,const char* path,const char* connection);
+   Bool_t Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   Bool_t Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   char  *GetType() { return "xml"; }
+   char  *GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
 };
 
 #endif   // ROMEXMLDataBase_H
