@@ -202,6 +202,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          valueType[numOfFolder][numOfValue[numOfFolder]] = "";
          valueComment[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
+         valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
          for(iDm=0;iDm<maxNumberOfValueDimension;iDm++)
             valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
          valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -279,6 +280,12 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             // database path
             if (type == 1 && !strcmp((const char*)name,"DataBasePath"))
                xml->GetValue(valueDBPath[numOfFolder][numOfValue[numOfFolder]],valueDBPath[numOfFolder][numOfValue[numOfFolder]]);
+            // no boundcheck
+            if (type == 1 && !strcmp((const char*)name,"NoBoundCheck")) {
+               xml->GetValue(tmp,"false");
+               if (tmp == "true")
+                  valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = true;
+            }
             // field end
             if (type == 15 && !strcmp((const char*)name,"Field"))
                break;
@@ -716,22 +723,36 @@ Bool_t ROMEBuilder::WriteFolderH()
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
                buffer.Resize(buffer.Length()-2);
-               format.SetFormatted("%%%ds { return &%%s",lb);
-               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               format.SetFormatted("%%%ds) {",lb);
+               buffer.AppendFormatted(format.Data(),"");
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return %s;\n",valueInit[iFold][i].Data());
+               }
+               buffer.AppendFormatted("      return &%s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
-               format.SetFormatted(";%%%ds };\n",lb);
-               buffer.AppendFormatted(format.Data(),"");
+               buffer.AppendFormatted(";\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if (isFolder(valueType[iFold][i].Data())) {
-               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return (%%-%ds)(%%s->At(index));%%%ds };\n",typeLen,lb,typeLen,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index) {\n",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return %s;\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               format.SetFormatted("      return (%%-%ds)(%%s->At(index));\n",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   };\n");
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"TClonesArray*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                format.SetFormatted("   %%-%ds  Get%%sSize()%%%ds { return %%s->GetEntries();%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
             }
             else if(isTArrayType(valueType[iFold][i])) {
+               // TArray itself checks bounds.
                format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return %%s%%sAt(index);%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),relation.Data(),"");
                if (valueType[iFold][i].Contains("*")) {
@@ -755,21 +776,38 @@ Bool_t ROMEBuilder::WriteFolderH()
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
                buffer.Resize(buffer.Length()-2);
-               format.SetFormatted(")%%%ds { return &%%s",lb);
-               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               buffer.AppendFormatted(") {\n");
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return %s;\n",valueInit[iFold][i].Data());
+               }
+               buffer.AppendFormatted("      return &%s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
-               format.SetFormatted(";%%%ds };\n",lb);
-               buffer.AppendFormatted(format.Data(),"");
+               buffer.AppendFormatted(";\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
                     && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
-               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index) {\n",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return %s;\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               buffer.AppendFormatted("      return %s[index];\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   };\n");
             }
             else if(valueArray[iFold][i][0]=="variable"){
-               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index)%%%ds { return %%s[index];%%%ds };\n",typeLen,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+               format.SetFormatted("   %%-%ds  Get%%sAt(Int_t index) {\n",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+/* // no way to know array size when the folder is read from TFile.
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return %s;\n",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+*/
+               buffer.AppendFormatted("      return %s[index];\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("   }\n");
                format.SetFormatted("   %%-%ds* Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
                format.SetFormatted("   %%-%ds  Get%%sSize()%%%ds { return %%sSize;%%%ds };\n",typeLen,lb,lb);
@@ -788,12 +826,19 @@ Bool_t ROMEBuilder::WriteFolderH()
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
                buffer.Resize(buffer.Length()-2);
-               format.SetFormatted(")%%%ds { return %%s",lb);
-               buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data());
+               buffer.AppendFormatted(") {\n");
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return %s;\n",valueInit[iFold][i].Data());
+               }
+               buffer.AppendFormatted("      return %s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
-               format.SetFormatted(";%%%ds };\n",lb);
-               buffer.AppendFormatted(format.Data(),"");
+               buffer.AppendFormatted(";\n");
+               buffer.AppendFormatted("   }\n");
                format.SetFormatted("   %%-%ds* Get%%s()%%%ds { return &%%s",typeLen,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
@@ -830,6 +875,49 @@ Bool_t ROMEBuilder::WriteFolderH()
             else {
                format.SetFormatted("   %%-%ds  Get%%s()%%%ds { return %%s;%%%ds };\n",typeLen,lb,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),"");
+            }
+         }
+      }
+      buffer.AppendFormatted("\n");
+
+      // BoundsOk
+      for (i=0;i<numOfValue[iFold];i++) {
+         if (valueDimension[iFold][i]>0) {
+            if (isFolder(valueType[iFold][i].Data())) {
+               buffer.AppendFormatted("   Bool_t %sBoundsOk(Int_t index) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (index < 0 || index >= Get%sSize())\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         return kFALSE;\n");
+               buffer.AppendFormatted("      return kTRUE;\n");
+               buffer.AppendFormatted("   }\n");
+            }
+            else if (valueArray[iFold][i][0]=="variable") {
+/*  // no way to know array size when the folder is read from TFile.
+               buffer.AppendFormatted("   Bool_t %sBoundsOk(Int_t index) {\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (index < 0 || index >= Get%sSize())\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         return kFALSE;\n");
+               buffer.AppendFormatted("      return kTRUE;\n");
+               buffer.AppendFormatted("   }\n");
+*/
+            }
+            else if(isTArrayType(valueType[iFold][i])) {
+               // TArray itself checks bounds.
+            }
+            else {
+               buffer.AppendFormatted("   Bool_t %sBoundsOk(",valueName[iFold][i].Data());
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               buffer.Resize(buffer.Length()-2);
+               buffer.AppendFormatted(" ) {\n");
+               buffer.AppendFormatted("      if (");
+               for(iDm=0;iDm<valueDimension[iFold][i];iDm++) {
+                  buffer.AppendFormatted(" %c < 0 ||",valueCounter[iDm]);
+                  buffer.AppendFormatted(" %c >= %s ||",valueCounter[iDm],valueArray[iFold][i][iDm].Data());
+               }
+               buffer.Resize(buffer.Length()-2);
+               buffer.AppendFormatted(")\n");
+               buffer.AppendFormatted("         return kFALSE;\n");
+               buffer.AppendFormatted("      return kTRUE;\n");
+               buffer.AppendFormatted("   }\n");
             }
          }
       }
@@ -880,6 +968,7 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
+
       // Setters
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
@@ -903,12 +992,21 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
-               format.SetFormatted("%%-%ds %%s_value%%%ds) { %%s",typeLen,lb);
-               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
+               format.SetFormatted("%%-%ds %%s_value) {\n",typeLen);
+               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data());
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(") return;\n");
+               }
+               buffer.AppendFormatted("   %s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
-               format.SetFormatted("%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,lb);
+               format.SetFormatted("%%%ds = %%s_value;%%%ds SetModified(true);\n",lb,lb);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"");
+               buffer.AppendFormatted("   }\n");
             }
             else if (isFolder(valueType[iFold][i].Data())) {
                if(valueArray[iFold][i][0]!="variable")
@@ -927,6 +1025,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                   buffer.AppendFormatted("public:\n");
             }
             else if(isTArrayType(valueType[iFold][i])) {
+               // TArray itself checks bounds.
                format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s%%sAddAt(%%s_value,index)%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),relation.Data(),valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
@@ -950,12 +1049,23 @@ Bool_t ROMEBuilder::WriteFolderH()
                continue;
             else if(isRootClassType(valueType[iFold][i].Data()) && isPointerType(valueType[iFold][i].Data())
                     && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")){
-               format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s[index] = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
+               format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value) {\n",lb,typeLen);
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s[index] = %s_value; SetModified(true);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   }\n");
             }
             else if(valueArray[iFold][i][0]=="variable") {
-               format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) { %%s[index] = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen,lb,lb,lb);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
+               format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value) {\n",lb,typeLen);
+               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+/* // no way to know array size when the folder is read from TFile.
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return;\n",valueName[iFold][i].Data());
+*/
+               buffer.AppendFormatted("      %s[index] = %s_value; SetModified(true);\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("   }\n",lb,typeLen,lb,lb,lb);
+
                format.SetFormatted("   void Set%%s%%%ds(%%-%ds* %%s_value%%%ds) { %%s = %%s_value%%%ds;%%%ds SetModified(true); };\n",lb,typeLen-1,lb,lb,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data(),valueName[iFold][i].Data(),"","");
                buffer.AppendFormatted("   void Set%sSize(Int_t number) {\n",valueName[iFold][i].Data());
@@ -985,12 +1095,21 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
-               format.SetFormatted("%%-%ds %%s_value%%%ds) { %%s",typeLen,lb);
-               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
+               format.SetFormatted("%%-%ds %%s_value) {\n",typeLen);
+               buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return;\n");
+               }
+               buffer.AppendFormatted("      %s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
-               format.SetFormatted("%%%ds = %%s_value;%%%ds SetModified(true); };\n",lb,lb);
+               format.SetFormatted("%%%ds = %%s_value;%%%ds SetModified(true);\n",lb,lb);
                buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"");
+               buffer.AppendFormatted("   }\n");
                format.SetFormatted("   %%-%ds  Set%%sCopy(Int_t n,%%s* array)%%%ds {\n",typeLen,lb);
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer),"");
                buffer.AppendFormatted("      if(!array || !n) return;\n");
@@ -1034,8 +1153,16 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"");
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
-               format.SetFormatted("%%-%ds %%s_value%%%ds) { %%s",typeLen,lb);
-               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
+               format.SetFormatted("%%-%ds %%s_value%%%ds) {\n",typeLen,lb);
+               buffer.AppendFormatted(format.Data(),"TObject*",valueName[iFold][i].Data(),"");
+               if (!valueNoBoundChech[iFold][i]) {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return;\n");
+               }
+               buffer.AppendFormatted("      %%s",valueName[iFold][i].Data());
                for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
                   buffer.AppendFormatted("[%c]",valueCounter[iDm]);
                format.SetFormatted("%%%ds += %%s_value;%%%ds SetModified(true); };\n",lb,lb);
@@ -1044,6 +1171,8 @@ Bool_t ROMEBuilder::WriteFolderH()
             else if(isTArrayType(valueType[iFold][i])) {
                format.SetFormatted("   void Add%%sAt%%%ds(Int_t index,%%-%ds %%s_value%%%ds) {\n",lb,typeLen,lb);
                buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),"");
+               if (!valueNoBoundChech[iFold][i])
+                  buffer.AppendFormatted("      if(!%sBoundsOk(index)) return;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %s tmp = %s%sAt(index);\n",TArray2StandardType(valueType[iFold][i],tempBuffer),valueName[iFold][i].Data(),relation.Data());
                buffer.AppendFormatted("      tmp += %s_value;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      %s%sAddAt(tmp,index);\n",valueName[iFold][i].Data(),relation.Data());
@@ -1057,6 +1186,14 @@ Bool_t ROMEBuilder::WriteFolderH()
                   buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
                format.SetFormatted("%%-%ds %%s_value%%%ds) {\n",typeLen,lb);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"");
+               // no way to know array size when the folder is read from TFile.
+               if (!valueNoBoundChech[iFold][i] && valueArray[iFold][i][0]!="variable") {
+                  buffer.AppendFormatted("      if(!%sBoundsOk(",valueName[iFold][i].Data());
+                  for(iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                     buffer.AppendFormatted("%c, ",valueCounter[iDm]);
+                  buffer.Resize(buffer.Length()-2);
+                  buffer.AppendFormatted(")) return;\n");
+               }
 /*
                if(valueArray[iFold][i][0]!="variable"){
                   buffer.AppendFormatted("      if(%c>%sSize) return;\n",valueCounter[0],valueName[iFold][i].Data());

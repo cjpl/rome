@@ -139,6 +139,7 @@ protected:
    ROMEString    valueArray[maxNumberOfFolders][maxNumberOfValues][maxNumberOfValueDimension];
    ROMEString    valueDBName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString    valueDBPath[maxNumberOfFolders][maxNumberOfValues];
+   Bool_t        valueNoBoundChech[maxNumberOfFolders][maxNumberOfValues];
 
 // net folder
    Int_t         numOfNetFolder;
