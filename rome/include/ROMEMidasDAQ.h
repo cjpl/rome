@@ -23,6 +23,7 @@ typedef UInt_t   DWORD;
 typedef DWORD    BOOL;
 const BOOL TRUE = 1;
 const BOOL FALSE = 0;
+const Int_t CM_SUCCESS = 1;
 #   define BANK_FORMAT_32BIT   (1<<4)
 #   define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */
 #   define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
@@ -134,7 +135,7 @@ public:
    //byte swapping
 #ifndef R__BYTESWAP
 #   ifndef HAVE_MIDAS
-   void           bk_swap(void *event, BOOL force);
+   INT            bk_swap(void *event, BOOL force);
 #   endif
    virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
 #endif
