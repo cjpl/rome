@@ -23,6 +23,7 @@ public:
                   return true;
                };
    Bool_t      Event(Long64_t event) { 
+                  gROME->SetCurrentEventNumber(event);
                   if (gROME->IsStandAloneARGUS()) SetContinue(); 
                   return true;
                };
