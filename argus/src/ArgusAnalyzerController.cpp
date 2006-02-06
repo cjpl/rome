@@ -74,8 +74,8 @@ ClassImp(ArgusAnalyzerController)
 
 // Vertical frame which contains text entries
    fVerticalFrame[1] = new TGVerticalFrame(fHorizontalFrame[1], 60, 20);
-   fRunNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_RunNumber, fRunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, fEventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fRunNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_RunNumber, (Double_t)fRunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
+   fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, (Double_t)fEventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventStepEntry = new TGNumberEntry(fVerticalFrame[1], fEventStep, 5, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1], fEventInterval, 5, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
 

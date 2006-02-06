@@ -482,7 +482,7 @@ Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
 {
    if (fEventNumber.GetSize()==0)
       return 1;
-   for (int i=fLastEventNumberIndex;i<fEventNumber.GetSize();i++) {
+   for (Long64_t i=fLastEventNumberIndex;i<fEventNumber.GetSize();i++) {
       if (fEventNumber.At(i)==eventNumber) {
          fLastEventNumberIndex = i+1;
          return 1;
@@ -502,12 +502,12 @@ void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayL64& arr)
    char csemi =';';
    char *pstr = (char*)str.Data();
    bool bminus = false;
-   long num;
-   long i;
-   long na=0;
-   long nat=1;
+   Long64_t num;
+   Long64_t i;
+   Long64_t na=0;
+   Long64_t nat=1;
    arr.Set(10);
-   long arraySize = arr.GetSize();
+   Long64_t arraySize = arr.GetSize();
    while (pstr<str.Data()+str.Length()) {
       if (na>=arraySize*nat) {
          nat++;
