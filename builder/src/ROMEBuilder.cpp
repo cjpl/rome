@@ -13558,16 +13558,18 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
             xml->EndElement();
          }
       }
-      xml->StartElement("File");
-      str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
-      str.ReplaceAll("//","\\");
-      str.ReplaceAll("/\\","\\");
-      str.ReplaceAll("\\/","\\");
-      str.ReplaceAll("\\\\","\\");
-      str.ReplaceAll("/","\\");
-      xml->WriteAttribute("RelativePath",str.Data());
-      WriteVisualProjectProjWarningLevel(xml,"0");
-      xml->EndElement();
+      if (numOfMFDictHeaders>0) {
+         xml->StartElement("File");
+         str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
+         str.ReplaceAll("//","\\");
+         str.ReplaceAll("/\\","\\");
+         str.ReplaceAll("\\/","\\");
+         str.ReplaceAll("\\\\","\\");
+         str.ReplaceAll("/","\\");
+         xml->WriteAttribute("RelativePath",str.Data());
+         WriteVisualProjectProjWarningLevel(xml,"0");
+         xml->EndElement();
+      }
       xml->EndElement();
    }
 }
