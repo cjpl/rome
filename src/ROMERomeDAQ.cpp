@@ -88,7 +88,6 @@ bool ROMERomeDAQ::BeginOfRun() {
                      tree->Read(treename.Data());
                      fTreeIndex++;
                      tree->SetName(fCurrentTreeName.Data());
-                     tree->SetDirectory(romeTree->GetFile());
                   }
                }
                if (fTreeIndex==0) {
@@ -205,7 +204,6 @@ bool ROMERomeDAQ::Event(int event) {
                else if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())
                   tree->SetDirectory(fRootFiles[fInputFileNameIndex]);
                tree->GetEntry(fTreePosition[j]);
-               tree->SetDirectory(romeTree->GetFile());
                fTreePosition[j]++;
             }
          }
