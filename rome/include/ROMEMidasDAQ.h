@@ -7,6 +7,7 @@
 #ifndef ROMEMidasDAQ_H
 #define ROMEMidasDAQ_H
 
+
 #include <RConfig.h>
 #include <zlib.h>
 #include <ROMEAnalyzer.h>
@@ -16,11 +17,16 @@
 #ifdef HAVE_MIDAS
 #   include <midas.h>
 #else
+#if defined( R__VISUAL_CPLUSPLUS )
+typedef unsigned long   DWORD;
+typedef int    BOOL;
+#else
+typedef UInt_t   DWORD;
+typedef DWORD    BOOL;
+#endif
 typedef Int_t    HNDLE;
 typedef Int_t    INT;
 typedef UShort_t WORD;
-typedef UInt_t   DWORD;
-typedef DWORD    BOOL;
 const BOOL TRUE = 1;
 const BOOL FALSE = 0;
 const Int_t CM_SUCCESS = 1;

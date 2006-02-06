@@ -9437,8 +9437,8 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
              || fileBuffer.Contains("Event(Int_t event)")
              || fileBuffer.Contains("Event(long event)")) { 
             cerr<<"type of event number was changed to Long64."<<endl
-                <<"Please modify."<<shortCut<<daqName[iDAQ]<<".h and "
-                <<shortCut<<daqName[iDAQ]<<".cpp"<<endl;
+                <<"Please modify "<<shortCut.Data()<<daqName[iDAQ].Data()<<".h and "
+                <<shortCut.Data()<<daqName[iDAQ].Data()<<".cpp"<<endl;
             return false;
          }
       }

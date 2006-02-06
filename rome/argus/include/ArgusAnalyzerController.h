@@ -29,9 +29,9 @@ class ArgusAnalyzerController : public TGTransientFrame
 {
 protected:
    TNetFolder*         fNetFolder;
-   Int_t               fRunNumber;
-   Int_t               fLastRunNumber;
-   Int_t               fEventNumber;
+   Long64_t            fRunNumber;
+   Long64_t            fLastRunNumber;
+   Long64_t            fEventNumber;
    Int_t               fEventStep;
    Int_t               fEventInterval;
    TGVerticalFrame*    fVerticalFrame[2];
