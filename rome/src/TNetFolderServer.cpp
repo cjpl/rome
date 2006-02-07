@@ -19,7 +19,6 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include <TObjArray.h>
-#include <TApplication.h>
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #   include <TThread.h>
 #endif // ROOT_VERSION
@@ -29,17 +28,9 @@
 #include <TNetFolderServer.h>
 #include <Riostream.h>
 
-#define THREADRETURN NULL
-#define THREADTYPE void*
+TApplication *TNetFolderServer::fApplication;
 
-TApplication *fApplication;
-
-TFolder *ReadFolderPointer(TSocket *socket);
-int ResponseFunction(TSocket *socket);
-THREADTYPE Server(void *arg);
-THREADTYPE ServerLoop(void *arg);
-
-TFolder *ReadFolderPointer(TSocket *socket)
+TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    //read pointer to current folder
@@ -54,15 +45,22 @@ TFolder *ReadFolderPointer(TSocket *socket)
 #endif // ROOT_VERSION
 }
 
-int ResponseFunction(TSocket *socket) {
+int TNetFolderServer::ResponseFunction(TSocket *socket) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-   // Command handling
-   char str[80];
+   // Read Command
+   char str[200];
    if (socket->Recv(str, sizeof(str)) <= 0) {
       socket->Close();
       delete socket;
       return 0;
    }
+   return CheckCommand(socket,str);
+#endif // ROOT_VERSION
+   return 1;
+}
+int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   // Check Command
    if (strcmp(str, "GetListOfFolders") == 0) {
       TMessage message(kMESS_OBJECT);
       TFolder *folder = ReadFolderPointer(socket);
@@ -194,10 +192,10 @@ int ResponseFunction(TSocket *socket) {
       return 1;
    }
    else if (strncmp(str, "Execute", 7) == 0) {
-      char str[200];
-      socket->Recv(str, sizeof(str));
+      char string[200];
+      socket->Recv(string, sizeof(string));
 
-      TString command = command;
+      TString command = string;
       fApplication->ProcessLine(command.Data());
       return 1;
    }
@@ -206,19 +204,19 @@ int ResponseFunction(TSocket *socket) {
 }
 
 
-THREADTYPE Server(void *arg)
+THREADTYPE TNetFolderServer::Server(void *arg)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
 
-   while (ResponseFunction(socket))
+   while (TNetFolderServer::ResponseFunction(socket))
    {}
 #endif // ROOT_VERSION
    return THREADRETURN;
 }
 
 
-THREADTYPE ServerLoop(void *arg)
+THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // Server loop listening for incoming network connections on port
@@ -226,12 +224,10 @@ THREADTYPE ServerLoop(void *arg)
 // each connection.
    int port = *(int*)arg;
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
-   fApplication->ProcessLine("TObject* temporarySocketObject;");
-
    do {
       TSocket *sock = lsock->Accept();
 
-      TThread *thread = new TThread("Server", Server, sock);
+      TThread *thread = new TThread("Server", TNetFolderServer::Server, sock);
       thread->Run();
 
    } while (1);
@@ -246,7 +242,7 @@ void TNetFolderServer::StartServer(TApplication *app,Int_t port)
 // start Socket server loop
    fApplication = app;
    fPort = port;
-   TThread *thread = new TThread("server_loop", ServerLoop, &fPort);
+   TThread *thread = new TThread("server_loop", TNetFolderServer::ServerLoop, &fPort);
    thread->Run();
 #endif // ROOT_VERSION
 }

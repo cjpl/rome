@@ -78,19 +78,6 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
    return numberOfOccurrence;
 }
 
-Int_t ROMEString::SearchFormatType(const char* str)
-{
-   const char numberOfTypes = 17;
-   int i,j;
-   char c[numberOfTypes] = {'c','C','d','i','o','u','x','X','e','E','f','g','G','n','p','s','S'};
-   for (i=0;i<(int)strlen(str);i++) {
-      for (j=0;j<numberOfTypes;j++) {
-         if (str[i]==c[j]) return i;;
-      }
-   }
-   return -1;
-}
-
 istream& ROMEString::ReadFile(istream& str) {
    this->Resize(0);
    char *buffer = "";

@@ -37,9 +37,6 @@ public:
    istream&     ReadFile(istream& str);
    istream&     ReadLine(istream& str);
    ROMEString&  StripSpaces();
-
-private:
-   Int_t       SearchFormatType(const char* str);
 };
 
 #endif   // ROMEString_H

@@ -43,7 +43,7 @@ protected:
    // Analyzer Controller
    bool fControllerActive;
    ArgusAnalyzerController *fController;
-   TNetFolder *fControllerNetFolder;
+   ROMENetFolder *fControllerNetFolder;
 
 
    // Window
@@ -65,7 +65,7 @@ public:
    ArgusAnalyzerController *GetAnalyzerController() { return fController; };
    bool IsControllerActive() { return fControllerActive; };
    void SetControllerActive(bool flag) { fControllerActive = flag; };
-   TNetFolder *GetControllerNetFolder() { return fControllerNetFolder; };
+   ROMENetFolder *GetControllerNetFolder() { return fControllerNetFolder; };
    void        SetControllerNetFolder(const char* folderName) { fControllerNetFolder = gROME->GetNetFolder(folderName); };
 
    // Window Scale

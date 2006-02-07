@@ -15,7 +15,7 @@
 ClassImp(ArgusAnalyzerController)
 #define AADEBUG
 // Constructor
-    ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, TNetFolder * nf, UInt_t options)
+    ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, ROMENetFolder * nf, UInt_t options)
 :TGTransientFrame(p, main, w, h, options)
 {
    fNetFolder = nf;

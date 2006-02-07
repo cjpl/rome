@@ -4,4 +4,5 @@
 #pragma link C++ class ROMETask;
 #pragma link C++ class ROMETreeInfo;
 #pragma link C++ class TNetFolder;
+#pragma link C++ class ROMENetFolder;
 #endif
