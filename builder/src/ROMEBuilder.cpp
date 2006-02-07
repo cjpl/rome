@@ -5236,7 +5236,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("// Connect SocketToROME NetFolder\n");
    buffer.AppendFormatted("Bool_t %sAnalyzer::ConnectSocketToROMENetFolder() {\n",shortCut.Data());
    buffer.AppendFormatted("   delete fSocketToROMENetFolder;\n");
-   buffer.AppendFormatted("   fSocketToROMENetFolder = new TNetFolder(\"%s\",\"RootNetFolder\", fSocketToROME, true);\n",shortCut.Data());
+   buffer.AppendFormatted("   fSocketToROMENetFolder = new ROMENetFolder(\"%s\",\"RootNetFolder\", fSocketToROME, true);\n",shortCut.Data());
    buffer.AppendFormatted("   if (!fSocketToROMENetFolder->GetPointer()) {\n");
    buffer.AppendFormatted("      Warning(\"ConnectSocketToROMENetFolder\", \"Failed to connect to the ROME analyzer.\");\n");
    buffer.AppendFormatted("      return false;\n");
@@ -12347,6 +12347,8 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/strlcpy.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
    if (this->mysql)
@@ -12370,6 +12372,7 @@ void ROMEBuilder::AddRomeDictHeaders()
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
    romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
+   romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
    romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
    romeDictHeaders->Add("$(ROMESYS)/include/LinkDef.h");
 }
@@ -12399,6 +12402,8 @@ void ROMEBuilder::AddRomeSources()
    romeSources->Add("$(ROMESYS)/src/strlcpy.c");
    romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
    romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMENetFolderServer.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMENetFolder.cpp");
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");
    if (this->mysql)

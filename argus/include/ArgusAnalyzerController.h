@@ -23,12 +23,12 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include "TNetFolder.h"
+#include "ROMENetFolder.h"
 
 class ArgusAnalyzerController : public TGTransientFrame
 {
 protected:
-   TNetFolder*         fNetFolder;
+   ROMENetFolder*      fNetFolder;
    Long64_t            fRunNumber;
    Long64_t            fLastRunNumber;
    Long64_t            fEventNumber;
@@ -62,7 +62,7 @@ protected:
       
 public:
    ArgusAnalyzerController():TGTransientFrame(){};
-   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,TNetFolder* nf,UInt_t options = kVerticalFrame);
+   ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
    void CloseWindow();

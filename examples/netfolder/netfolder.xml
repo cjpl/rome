@@ -1,7 +1,7 @@
 <ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
 	<Experiment>
-		<ExperimentShortCut>XYZ</ExperimentShortCut>
-		<ProgramName>Analyzer</ProgramName>
+		<ExperimentShortCut>NF</ExperimentShortCut>
+		<ProgramName>Example</ProgramName>
 	</Experiment>
 	<Folders>
 		<Folder>

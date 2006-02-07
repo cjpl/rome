@@ -68,7 +68,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TNetFolderServer.h>
+#include <ROMENetFolderServer.h>
 #include <ROMETask.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEEventLoop.h>
@@ -193,7 +193,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       if (isSplashScreen()) startSplashScreen();
 
       if (gROME->isOnline() || gROME->isSocketOffline()) {
-         TNetFolderServer *tnet = new TNetFolderServer();
+         ROMENetFolderServer *tnet = new ROMENetFolderServer();
          tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
          text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
          gROME->PrintLine(text.Data());
@@ -911,7 +911,7 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
    return false;
 };
 
-TNetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
+ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 {
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
@@ -955,7 +955,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
       gSystem->Sleep(5000);
       fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
-   fNetFolder[i] = new TNetFolder(fNetFolderRoot[i].Data(), fNetFolderName[i].Data(), fNetFolderSocket[i], fNetFolderReconnect[i]);
+   fNetFolder[i] = new ROMENetFolder(fNetFolderRoot[i].Data(), fNetFolderName[i].Data(), fNetFolderSocket[i], fNetFolderReconnect[i]);
    ROMEString errMessage;
    if (!fNetFolder[i]->GetPointer()) {
       errMessage.SetFormatted("%s failed to connect to %s folder of %s.", fNetFolderName[i].Data(), fNetFolderRoot[i].Data(), fNetFolderHost[i].Data());
@@ -1041,7 +1041,7 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
 {
    if (number < 1)
       return;
-   fNetFolder = new TNetFolder *[number];
+   fNetFolder = new ROMENetFolder *[number];
    fNetFolderActive = new Bool_t[number];
    fNetFolderReconnect = new Bool_t[number];
    fNetFolderSocket = new TSocket *[number];

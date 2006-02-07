@@ -26,7 +26,7 @@
 #include <ROMEDataBase.h>
 #include <ROMEString.h>
 #include <ROMEDAQSystem.h>
-#include <TNetFolder.h>
+#include <ROMENetFolder.h>
 #if defined ( HAVE_SQL )
 #   include <ROMESQL.h>
 #endif
@@ -164,7 +164,7 @@ protected:
 
    // SocketToROME
    TSocket       *fSocketToROME;                 //! Handle to socket connection to ROME
-   TNetFolder    *fSocketToROMENetFolder;        //! Handle to the TNetFolder of the socket connection to ROME
+   ROMENetFolder *fSocketToROMENetFolder;        //! Handle to the ROMENetFolder of the socket connection to ROME
    Bool_t         fSocketToROMEActive;           //! Socket connection to ROME active flag
    ROMEString     fSocketToROMEHost;             //! Socket connection to ROME host
    Int_t          fSocketToROMEPort;             //! Socket connection to ROME port
@@ -189,7 +189,7 @@ protected:
 
    // NetFolder
    Int_t          fNumberOfNetFolders;           //! Number of net folders
-   TNetFolder   **fNetFolder;                    //! netfoldr handle
+   ROMENetFolder **fNetFolder;                    //! netfolder handle
    Bool_t        *fNetFolderActive;              //! active flag
    Bool_t        *fNetFolderReconnect;           //! reconnect flag
    TSocket      **fNetFolderSocket;              //! socket connection handle
@@ -480,7 +480,7 @@ public:
    Bool_t          IsSocketToROMEActive() { return fSocketToROMEActive; };
    const char     *GetSocketToROMEHost() { return fSocketToROMEHost.Data(); };
    Int_t           GetSocketToROMEPort() { return fSocketToROMEPort; };
-   TNetFolder     *GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; };
+   ROMENetFolder  *GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; };
 
    void            SetSocketToROMEActive(Bool_t flag) { fSocketToROMEActive = flag; };
    void            SetSocketToROMEHost(const char *host) { fSocketToROMEHost = host; };
@@ -519,7 +519,7 @@ public:
 
    // NetFolder
    Bool_t          IsNetFolderActive(const char *name);
-   TNetFolder     *GetNetFolder(const char *name);
+   ROMENetFolder  *GetNetFolder(const char *name);
    char           *GetNetFolderName(Int_t i) { return (char*)fNetFolderName[i].Data(); }
    char           *GetNetFolderHost(Int_t i) { return (char*)fNetFolderHost[i].Data(); }
    Int_t           GetNetFolderPort(Int_t i) { return fNetFolderPort[i]; }
