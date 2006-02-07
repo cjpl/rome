@@ -14,175 +14,41 @@
 #include <stdlib.h>
 #include <TString.h>
 #include <TMath.h>
-#include <ROMEString.h>
-#include "Riostream.h"
+#include <TVirtualMutex.h>
+#include <Riostream.h>
+#include "ROMEString.h"
 
-ROMEString& ROMEString::AppendFormatted(const char* format,...)
+ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
 {
-   if (format==NULL)
+   if (va_(fmt)==NULL)
       return *this;
-   bool res;
    va_list ap;
-   va_start(ap,format);
-   res = FormatString(this,format,ap);
+   va_start(ap,va_(fmt));
+   this->Append(Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
 
-ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* format,...)
+ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* va_(fmt),...)
 {
-   if (format==NULL)
+   if (va_(fmt)==NULL)
       return *this;
-   bool res;
    va_list ap;
-   va_start(ap,format);
-   ROMEString tmp;
-   res = FormatString(&tmp,format,ap);
-   va_end(ap);
-   if (res)
-      this->Insert(position,tmp);
-   return *this;
-}
-
-ROMEString& ROMEString::SetFormatted(const char* format,...)
-{
-   if (format==NULL)
-      return *this;
-   bool res;
-   va_list ap;
-   va_start(ap,format);
-   this->Resize(0);
-   res = FormatString(this,format,ap);
+   va_start(ap,va_(fmt));
+   this->Insert(position,Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
 
-Bool_t ROMEString::FormatString(ROMEString* str,const char* format,va_list parameters)
+ROMEString& ROMEString::SetFormatted(const char* va_(fmt),...)
 {
-   char* cstop;
-   char* tmp;
-   const char* pstart;
-   const char* pactual;
-   char* form;
-   char* pp;
-   bool    asterisk;
-   int     additionalDigits;
-   int     numberOfDigits=0;
-   int     precision;
-   char*   stringValue;
-   char    characterValue;
-   int     integerValue;
-   double  doubleValue;
-   int ind=0;
-   pactual = format;
-   pstart = strstr(pactual,"%");
-   while (pstart!=NULL) {
-      if (strlen(pstart)==1)
-         return false;
-      str->Append(pactual,pstart-pactual);
-      if (pstart[1]=='%') {
-         str->Append("%");
-         pactual = pstart+2;
-         pstart = strstr(pactual,"%");
-         continue;
-      }
-      ind = SearchFormatType(pstart);
-      if (ind==-1)
-         return false;
-      form = new char[ind+2];
-      strncpy(form,pstart,ind+1);
-      form[ind+1] = 0;
-      pp = form;
-      asterisk = false;
-      additionalDigits = 0;
-      for (;;) {
-         pp++;
-         if (pp[0]=='-'||pp[0]=='0'||pp[0]==' ') {
-            continue;
-         }
-         if (pp[0]=='+'||pp[0]=='#') {
-            additionalDigits++;
-            continue;
-         }
-         break;
-      }
-      if (pp[0]=='*') {
-         asterisk = true;
-         pp++;
-      }
-      else {
-         numberOfDigits = strtol(pp,&cstop,10);
-         pp = cstop;
-      }
-      precision = -1;
-      if (pp[0]=='.') {
-         precision = strtol(pp+1,&cstop,10);
-      }
-      switch (pstart[ind]) {
-         case 'c' :
-            characterValue = va_arg(parameters,int);
-            str->Append(characterValue);
-            break;
-         case 's' :
-            if (asterisk)
-               numberOfDigits = va_arg(parameters,int);
-            else
-               numberOfDigits = TMath::Max(numberOfDigits,precision);
-            stringValue = va_arg(parameters,char*);
-            if (stringValue==NULL)
-               return false;
-            tmp = new char[TMath::Max(numberOfDigits,(int)strlen(stringValue))+2+additionalDigits];
-            if (asterisk)
-               sprintf(tmp,form,numberOfDigits,stringValue);
-            else
-               sprintf(tmp,form,stringValue);
-            str->Append(tmp);
-            delete [] tmp;
-            break;
-         case 'd' :
-         case 'i' :
-         case 'x' :
-            if (asterisk)
-               numberOfDigits = va_arg(parameters,int);
-            else
-               numberOfDigits = TMath::Max(numberOfDigits,precision);
-            integerValue = va_arg(parameters,int);
-            tmp = new char[TMath::Max(numberOfDigits,(Int_t)TMath::Log10(TMath::Abs(integerValue))+1)+2+additionalDigits];
-            if (asterisk)
-               sprintf(tmp,form,numberOfDigits,integerValue);
-            else
-               sprintf(tmp,form,integerValue);
-            str->Append(tmp);
-            delete [] tmp;
-            break;
-         case 'e' :
-         case 'f' :
-         case 'g' :
-            if (precision==-1)
-               precision = 6;
-            if (asterisk)
-               numberOfDigits = va_arg(parameters,int);
-            doubleValue = va_arg(parameters,double);
-            tmp = new char[TMath::Max(numberOfDigits+precision+1,(Int_t)TMath::Log10(TMath::Abs((Int_t)doubleValue))+1+precision+1)+2+additionalDigits];
-            if (asterisk)
-               sprintf(tmp,form,numberOfDigits,doubleValue);
-            else
-               sprintf(tmp,form,doubleValue);
-            str->Append(tmp);
-            delete [] tmp;
-            break;
-            break;
-         default :
-            delete [] form;
-            return false;
-            break;
-      }
-      pactual = pstart+ind+1;
-      pstart = strstr(pactual,"%");
-      delete [] form;
-   }
-   str->Append(pactual);
-   return true;
+   if (va_(fmt)==NULL)
+      return *this;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   *this = Format(va_(fmt), ap);
+   va_end(ap);
+   return *this;
 }
 
 void ROMEString::Write() {
@@ -307,3 +173,68 @@ ROMEString& ROMEString::StripSpaces(){
    this->Remove(0,start);
    return *this;
 }
+
+// formatting functions copied from TString.cxx
+static const int cb_size  = 4096;
+static const int fld_size = 2048;
+static char gFormbuf[cb_size];       // some slob for form overflow
+static char *gBfree  = gFormbuf;
+static char *gEndbuf = &gFormbuf[cb_size-1];
+char *ROMEString::SlowFormat(const char *format, va_list ap, int hint)
+{
+   // Format a string in a formatting buffer (using a printf style
+   // format descriptor).
+
+   static char *slowBuffer  = 0;
+   static int   slowBufferSize = 0;
+
+   R__LOCKGUARD2(gStringMutex);
+
+   if (hint == -1) hint = fld_size;
+   if (hint > slowBufferSize) {
+      delete [] slowBuffer;
+      slowBufferSize = 2 * hint;
+      if (hint < 0 || slowBufferSize < 0) {
+         slowBufferSize = 0;
+         slowBuffer = 0;
+         return 0;
+      }
+      slowBuffer = new char[slowBufferSize];
+   }
+
+   int n = vsnprintf(slowBuffer, slowBufferSize, format, ap);
+   // old vsnprintf's return -1 if string is truncated new ones return
+   // total number of characters that would have been written
+   if (n == -1 || n >= slowBufferSize) {
+      if (n == -1) n = 2 * slowBufferSize;
+      if (n == slowBufferSize) n++;
+      if (n <= 0) return 0; // int overflow!
+      return SlowFormat(format, ap, n);
+   }
+
+   return slowBuffer;
+}
+
+char* ROMEString::Format(const char *format, va_list ap)
+{
+   // Format a string in a circular formatting buffer (using a printf style
+   // format descriptor).
+
+   R__LOCKGUARD2(gStringMutex);
+
+   char *buf = gBfree;
+
+   if (buf+fld_size > gEndbuf)
+      buf = gFormbuf;
+
+   int n = vsnprintf(buf, fld_size, format, ap);
+   // old vsnprintf's return -1 if string is truncated new ones return
+   // total number of characters that would have been written
+   if (n == -1 || n >= fld_size) {
+      return SlowFormat(format, ap, n);
+   }
+
+   gBfree = buf+n+1;
+   return buf;
+}
+// end of formatting functions copied from TString.cxx
