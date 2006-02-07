@@ -20,7 +20,6 @@ public:
    virtual Bool_t ReadConfigurationFile(const char *file) = 0;
    virtual Bool_t CheckConfiguration(Long64_t runNumber) = 0;
    virtual Bool_t CheckConfiguration(const char *file) = 0;
-//   Bool_t CheckConfiguration(ROMEString& file) { return CheckConfiguration(file.Data()); }
 };
 
 #endif   // ROMEConfig_H
