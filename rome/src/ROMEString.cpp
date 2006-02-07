@@ -175,6 +175,9 @@ ROMEString& ROMEString::StripSpaces(){
 }
 
 // formatting functions copied from TString.cxx
+#if defined( R__VISUAL_CPLUSPLUS )
+#define vsnprintf _vsnprintf
+#endif
 static const int cb_size  = 4096;
 static const int fld_size = 2048;
 static char gFormbuf[cb_size];       // some slob for form overflow
