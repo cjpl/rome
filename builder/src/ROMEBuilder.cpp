@@ -2283,6 +2283,7 @@ Bool_t ROMEBuilder::WriteTaskH()
             }
             buffer.AppendFormatted("   void Draw%sAt(Int_t index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   TobjArray* Get%s() { return f%ss; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   void Set%sTitle(const char* value);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("   void Set%sFolderTitle(const char* value);\n",histoName[iTask][i].Data());
@@ -6453,7 +6454,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   else {\n");
    buffer.AppendFormatted("      fConfigData[index]->fRunNumbersModified = true;\n");
    buffer.AppendFormatted("      fConfigData[index]->fLastRunNumberIndex = 0;\n");
-   buffer.AppendFormatted("      gAnalyzer->DecodeRunNumbers(fConfigData[index]->fRunNumbers,fConfigData[index]->fRunNumberArray);\n");
+   buffer.AppendFormatted("      gAnalyzer->DecodeNumbers(fConfigData[index]->fRunNumbers,fConfigData[index]->fRunNumberArray);\n");
    buffer.AppendFormatted("   }\n");
 
    // EventNumbers
@@ -6709,6 +6710,27 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = true;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fPathsModified = false;\n");
+
+   // Histograms
+   buffer.AppendFormatted("   // histograms\n");
+   // Paths/Read
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Histograms/Read\",fConfigData[index]->fHistograms->fRead,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fHistograms->fRead==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistograms->fReadModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistograms->fReadModified = true;\n");
+   // Histograms/Run
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Histograms/Run\",fConfigData[index]->fHistograms->fRun,\"\");\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fHistograms->fRun==\"\")\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistograms->fRunModified = false;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistograms->fRunModified = true;\n");
+   // --Histograms
+   buffer.AppendFormatted("   if (fConfigData[index]->fHistograms->fReadModified ||\n");
+   buffer.AppendFormatted("       fConfigData[index]->fHistograms->fRunModified)\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistogramsModified = true;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fConfigData[index]->fHistogramsModified = false;\n");
 
    // Folders
    buffer.AppendFormatted("   // folders\n");
@@ -7176,11 +7198,10 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("}\n\n");
 
 
-
    // Check Configuration
    buffer.AppendFormatted("\n// Check Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::CheckConfiguration(Long64_t runNumber) {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i,j;\n");
+   buffer.AppendFormatted("   int i,j,ret;\n");
    buffer.AppendFormatted("   if (fActiveConfiguration!=0) {\n");
    buffer.AppendFormatted("      if (!SetConfiguration(fActiveConfiguration,0))\n");
    buffer.AppendFormatted("         return false;\n");
@@ -7189,13 +7210,16 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      if (fConfigData[i]->fRunNumbersModified) {\n");
    buffer.AppendFormatted("         if (fConfigData[i]->fLastRunNumberIndex!=-1) {\n");
    buffer.AppendFormatted("            for (j=fConfigData[i]->fLastRunNumberIndex;j<fConfigData[i]->fRunNumberArray.GetSize();j++) {\n");
-   buffer.AppendFormatted("               if (fConfigData[i]->fRunNumberArray.At(j)==runNumber) {\n");
+   buffer.AppendFormatted("               ret = gAnalyzer->CheckNumber(runNumber,fConfigData[i]->fRunNumberArray);\n");
+   buffer.AppendFormatted("               if (ret==-1) {\n");
+   buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = -1;\n");
+   buffer.AppendFormatted("                  break;\n");
+   buffer.AppendFormatted("               }\n");
+   buffer.AppendFormatted("               else if (ret==1) {\n");
    buffer.AppendFormatted("                  if (!SetConfiguration(i,i))\n");
    buffer.AppendFormatted("                     return false;\n");
    buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
-   buffer.AppendFormatted("               }\n");
-   buffer.AppendFormatted("               else if (fConfigData[i]->fRunNumberArray.At(j)<runNumber) {\n");
-   buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = -1;\n");
+   buffer.AppendFormatted("                  return true;\n");
    buffer.AppendFormatted("               }\n");
    buffer.AppendFormatted("               else {\n");
    buffer.AppendFormatted("                  fConfigData[i]->fLastRunNumberIndex = j;\n");
@@ -7249,6 +7273,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   // event numbers\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fEventNumbersModified)\n");
    buffer.AppendFormatted("      gAnalyzer->SetEventNumbers(fConfigData[index]->fEventNumbers);\n");
+
    // Paths
    buffer.AppendFormatted("   // paths\n");
    buffer.AppendFormatted("   if (fConfigData[modIndex]->fPaths->fInputFilePathModified) {\n");
@@ -7260,6 +7285,18 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      if (fConfigData[index]->fPaths->fOutputFilePath[fConfigData[index]->fPaths->fOutputFilePath.Length()-1]!='/' && fConfigData[index]->fPaths->fOutputFilePath[fConfigData[index]->fPaths->fOutputFilePath.Length()-1]!='\\\\')\n");
    buffer.AppendFormatted("         fConfigData[index]->fPaths->fOutputFilePath.Append(\"/\");\n");
    buffer.AppendFormatted("      gAnalyzer->SetOutputDir(fConfigData[index]->fPaths->fOutputFilePath);\n");
+   buffer.AppendFormatted("   }\n");
+
+   // Histograms
+   buffer.AppendFormatted("   // histograms\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fHistograms->fReadModified) {\n");
+   buffer.AppendFormatted("      if (fConfigData[modIndex]->fHistograms->fRead==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetHistosRead(true);\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetHistosRead(false);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if (fConfigData[modIndex]->fHistograms->fRunModified) {\n");
+   buffer.AppendFormatted("      gAnalyzer->SetHistosRun(strtol(fConfigData[modIndex]->fHistograms->fRun.Data(),&cstop,10));\n");
    buffer.AppendFormatted("   }\n");
 
    // Modes
@@ -8040,6 +8077,29 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      xml->EndElement();\n");
    buffer.AppendFormatted("   }\n");
 
+   // Histograms
+   buffer.AppendFormatted("   // histograms\n");
+   buffer.AppendFormatted("   if (fConfigData[index]->fHistogramsModified || index==0) {\n");
+   buffer.AppendFormatted("      xml->StartElement(\"Histograms\");\n");
+   // Histograms/Read
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         if (gAnalyzer->IsHistosRead())\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Read\",\"true\");\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            xml->WriteElement(\"Read\",\"false\");\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fHistograms->fReadModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Read\",fConfigData[index]->fHistograms->fRead.Data());\n");
+   // Histograms/Run
+   buffer.AppendFormatted("      if (index==0) {\n");
+   buffer.AppendFormatted("         str.SetFormatted(\"%%d\",gAnalyzer->GetHistosRun());\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Run\",str.Data());\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      else if (fConfigData[index]->fHistograms->fRunModified)\n");
+   buffer.AppendFormatted("         xml->WriteElement(\"Run\",fConfigData[index]->fHistograms->fRun.Data());\n");
+   buffer.AppendFormatted("      xml->EndElement();\n");
+   buffer.AppendFormatted("   }\n");
+
    // Folders
    buffer.AppendFormatted("   // folders\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fFoldersModified) {\n");
@@ -8337,7 +8397,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   public:\n");
    buffer.AppendFormatted("      ROMEString    fRunNumbers;\n");
    buffer.AppendFormatted("      Bool_t        fRunNumbersModified;\n");
-   buffer.AppendFormatted("      Long64_t      fLastRunNumberIndex;\n");
+   buffer.AppendFormatted("      Int_t         fLastRunNumberIndex;\n");
    buffer.AppendFormatted("      TArrayL64     fRunNumberArray;\n");
    buffer.AppendFormatted("      ROMEString    fEventNumbers;\n");
    buffer.AppendFormatted("      Bool_t        fEventNumbersModified;\n");
@@ -8492,6 +8552,22 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("      Paths *fPaths;\n");
    buffer.AppendFormatted("      Bool_t fPathsModified;\n");
+
+   // histograms
+   buffer.AppendFormatted("      // histograms;\n");
+   buffer.AppendFormatted("      class Histograms {\n");
+   buffer.AppendFormatted("      public:\n");
+   buffer.AppendFormatted("         ROMEString  fRead;\n");
+   buffer.AppendFormatted("         Bool_t      fReadModified;\n");
+   buffer.AppendFormatted("         ROMEString  fRun;\n");
+   buffer.AppendFormatted("         Bool_t      fRunModified;\n");
+   buffer.AppendFormatted("         Histograms() {\n");
+   buffer.AppendFormatted("            fReadModified = false;\n");
+   buffer.AppendFormatted("            fRunModified = false;\n");
+   buffer.AppendFormatted("         };\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      Histograms *fHistograms;\n");
+   buffer.AppendFormatted("      Bool_t fHistogramsModified;\n");
 
    // folders
    buffer.AppendFormatted("      // folders\n");
@@ -8656,6 +8732,8 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("         fSocketInterface = new SocketInterface();\n");
    buffer.AppendFormatted("         fPathsModified = false;\n");
    buffer.AppendFormatted("         fPaths = new Paths();\n");
+   buffer.AppendFormatted("         fHistogramsModified = false;\n");
+   buffer.AppendFormatted("         fHistograms = new Histograms();\n");
    for (i=0;i<numOfFolder;i++) {
       if (folderDataBase[i] && !folderSupport[i]) {
          buffer.AppendFormatted("         f%sFolderModified = false;\n",folderName[i].Data());
@@ -10937,6 +11015,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
    ROMEString parentt;
 
+   bool breaking;
    int j,k,iFold=0;
 
    ROMEString classDescription;
@@ -11123,7 +11202,15 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("   Statistics *stat = gAnalyzer->GetTriggerStatistics();\n");
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
-      buffer.AppendFormatted("   int i;\n");
+   }
+   breaking = false;
+   for (i=0;i<numOfTree && !breaking;i++) {
+      for (j=0;j<numOfBranch[i] && !breaking;j++) {
+         if (folderArray[iFold]!="1") {
+            buffer.AppendFormatted("   int i;\n");
+            breaking = true;;
+         }
+      }
    }
    buffer.AppendFormatted("   // Fill Trees;\n");
    buffer.AppendFormatted("   bool write = false;\n");
@@ -11226,6 +11313,49 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    buffer.AppendFormatted("};\n\n");
 
+   // Read Histograms
+   buffer.AppendFormatted("void %sEventLoop::ReadHistograms() {\n",shortCut.Data());
+   breaking = false;
+   for (i=0;i<numOfTaskHierarchy && !breaking;i++) {
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !breaking;j++) {
+         if (histoArraySize[taskHierarchyClassIndex[i]][j]!="1") {
+            buffer.AppendFormatted("   int i;\n");
+            breaking = true;
+         }
+      }
+   }
+   buffer.AppendFormatted("   ROMEString filename;\n");
+   buffer.AppendFormatted("   filename.SetFormatted(\"%%s%%s%%05d.root\",gAnalyzer->GetInputDir(),\"histos\",gAnalyzer->GetHistosRun());\n");
+   buffer.AppendFormatted("   TFile *file = new TFile(filename.Data(),\"READ\");\n");
+   buffer.AppendFormatted("   if (file->IsZombie()) {\n");
+   buffer.AppendFormatted("       cout << \"Histograms of run \" << gAnalyzer->GetHistosRun() << \" not available.\" << endl;\n");
+   buffer.AppendFormatted("       cout << \"Please check the run number and the input path.\" << endl << endl;\n");
+   buffer.AppendFormatted("       cout << \"No Histogram loaded!\" << endl << endl;\n");
+   buffer.AppendFormatted("       return;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   file->FindObjectAny(\"histos\");\n");
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
+            buffer.AppendFormatted("   %s* %sTemp = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (%sTemp==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      %sTemp->Copy(*gAnalyzer->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         }
+         else {
+            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%s->GetEntries();i++) {\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %s* %sTemp = ((%s*)file->FindObjectAny(gAnalyzer->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      if (%sTemp==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      else\n");
+            buffer.AppendFormatted("         %sTemp->Copy(*gAnalyzer->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   };\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("};\n\n");
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -11299,6 +11429,9 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   // Task Switches\n");
    buffer.AppendFormatted("   void InitTaskSwitches();\n");
    buffer.AppendFormatted("   void UpdateTaskSwitches();\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("   void ReadHistograms();\n");
    buffer.AppendFormatted("\n");
 
 //   buffer.AppendFormatted("   ClassDef(%sEventLoop,0);\n",shortCut.Data());
@@ -14838,7 +14971,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
    bool writeFile = false;
    fstream *fileStream;
    ROMEString fileBuffer;
-   Long64_t pBuffer=-1;
+   Ssiz_t pBuffer=-1;
    ROMEString buffer = header;
    if (gSystem->AccessPathName(filename,kFileExists)) {
       writeFile = true;

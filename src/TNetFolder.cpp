@@ -243,30 +243,3 @@ void TNetFolder::ExecuteCommand(const char *line)
       return;
    }
 }
-
-void TNetFolder::ExecuteMethod(const char *objectName, const char *objectType, const char *methodName, const char *methodArguments)
-{
-   // A method of an object is executed by the CINT of the server. 
-   // The statment on the server side is the following :
-   //   ((objectType)objectName)->methodName(methodArguments);
-   if (!Send("ExecuteMethod")) {
-      ExecuteMethod(objectName, objectType, methodName, methodArguments);
-      return;
-   }
-   if (!Send(objectName)) {
-      ExecuteMethod(objectName, objectType, methodName, methodArguments);
-      return;
-   }
-   if (!Send(objectType)) {
-      ExecuteMethod(objectName, objectType, methodName, methodArguments);
-      return;
-   }
-   if (!Send(methodName)) {
-      ExecuteMethod(objectName, objectType, methodName, methodArguments);
-      return;
-   }
-   if (!Send(methodArguments)) {
-      ExecuteMethod(objectName, objectType, methodName, methodArguments);
-      return;
-   }
-}

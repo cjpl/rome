@@ -100,6 +100,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       CleanTasks();
    }
 
+   // Read Histograms
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      if (gROME->IsHistosRead()) {
+         ReadHistograms();
+      }
+   }
+
    eventLoopIndex = 0;
 
 
@@ -334,7 +341,6 @@ Bool_t ROMEEventLoop::DAQInit()
       }
    }
 
-
    // Initialize DAQ System
    if (!gROME->GetActiveDAQ()->Init())
       return false;
@@ -369,17 +375,16 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    stat->writtenEvents = 0;
    fStatisticsTimeOfLastEvent = 0;
    fStatisticsLastEvent = 0;
-   // Event Number Check
-   gROME->InitCheckEventNumber();
 
    if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
       // run number based IO
-      if (gROME->GetNumberOfRunNumbers()<=eventLoopIndex) {
+      Long64_t runNumber = gROME->GetNextRunNumber(gROME->GetCurrentRunNumber());
+      if (runNumber==-1) {
          this->SetTerminate();
          return true;
       }
       // Check Configuration
-      gROME->SetCurrentRunNumber(gROME->GetRunNumberAt(eventLoopIndex));
+      gROME->SetCurrentRunNumber(runNumber);
       gROME->GetConfiguration()->CheckConfiguration(gROME->GetCurrentRunNumber());
    }
 

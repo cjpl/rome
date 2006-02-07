@@ -107,7 +107,6 @@ protected:
    Long64_t       fCurrentEventNumber;           //! Currently Analyzed Event Number
    TArrayL64      fEventNumber;                  //! Event Numbers to Analyze
    ROMEString     fEventNumberString;            //! Event Numbers in Input String Format
-   Long64_t       fLastEventNumberIndex;         //! Index of the last Analyzed Event Number
 
    // Input File Names
    ROMEString     fCurrentInputFileName;         //! Name of Currently Analyzed Input File
@@ -149,6 +148,8 @@ protected:
    // Histogram Folders
    TFolder       *fMainHistoFolder;              //! Handle to Main Histogram Folder (histos)
    TObjArray     *fHistoFolders;                 //! Handle to Histogram Folder Objects
+   Bool_t         fHistoRead;                    //! Histogram read flag
+   Int_t          fHistoRun;                     //! Read Histograms of this Run
 
    // Program name
    ROMEString     fProgramName;                  //! Name of this Program
@@ -337,6 +338,11 @@ public:
    // Histogram Folders
    TFolder        *GetMainHistoFolder() { return fMainHistoFolder; };
    TFolder        *GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); };
+   Bool_t          IsHistosRead() { return fHistoRead; };
+   Int_t           GetHistosRun() { return fHistoRun; };
+
+   void            SetHistosRead(Bool_t flag) { fHistoRead = flag; };
+   void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; };
 
    // Run Number
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i) {
@@ -355,10 +361,11 @@ public:
    void            SetCurrentRunNumber(Long64_t runNumber) { fCurrentRunNumber = runNumber; }
    void            SetRunNumbers(ROMEString &numbers) {
                    fRunNumberString = numbers;
-                   DecodeRunNumbers(numbers,fRunNumber); }
+                   DecodeNumbers(numbers,fRunNumber); }
    void            SetRunNumbers(const char *numbers) {
                    fRunNumberString = numbers;
-                   DecodeRunNumbers(fRunNumberString,fRunNumber); }
+                   DecodeNumbers(fRunNumberString,fRunNumber); }
+   Long64_t        GetNextRunNumber(Long64_t runNumber);
 
    // Event Number
    Long64_t        GetCurrentEventNumber() { return fCurrentEventNumber; }
@@ -367,14 +374,12 @@ public:
    void            SetCurrentEventNumber(Long64_t eventNumber) { fCurrentEventNumber = eventNumber; }
    void            SetEventNumbers(ROMEString &numbers) {
                    fEventNumberString = numbers;
-                   DecodeRunNumbers(numbers,fEventNumber); }
+                   DecodeNumbers(numbers,fEventNumber); }
    void            SetEventNumbers(const char *numbers) {
                       fEventNumberString = numbers;
-                      DecodeRunNumbers(fEventNumberString,fEventNumber);
+                      DecodeNumbers(fEventNumberString,fEventNumber);
                    }
 
-   Int_t           CheckEventNumber(Long64_t eventNumber);
-   void            InitCheckEventNumber() { fLastEventNumberIndex = 0; };
 
    // Input File Names
    ROMEString      GetInputFileNameAt(Int_t i) { return fInputFileNames.At(i); }
@@ -496,9 +501,13 @@ public:
    // Start Method
    virtual Bool_t  Start(int argc=0, char **argv=NULL);
 
-   // Decode Methods
-   void            DecodeRunNumbers(ROMEString &str,TArrayL64 &arr);
+   // Run/Event Number Handling
+   void            DecodeNumbers(ROMEString &str,TArrayL64 &arr);
    void            DecodeInputFileNames(ROMEString &str,ROMEStrArray &arr);
+   Int_t           CheckEventNumber(Long64_t eventNumber);
+   Int_t           CheckRunNumber(Long64_t runNumber);
+   Int_t           CheckNumber(Long64_t eventNumber,TArrayL64 &numbers);
+
 
    // Run Stat
    void            ShowRunStat(Bool_t flag=true) { fShowRunStat = flag; };

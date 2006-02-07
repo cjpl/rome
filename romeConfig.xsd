@@ -211,7 +211,24 @@
 			</xs:element>
 			<xs:element name="OutputFilePath" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The path of all output files. (required)</xs:documentation>
+					<xs:documentation>The path of all output files. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="HistogramReadDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the histogram reading.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Read" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Read flag. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Run" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>Run number of the required histogram file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -711,6 +728,11 @@
 			<xs:element name="Paths" type="PathsDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the file paths the framework is using. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Histograms" type="HistogramReadDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the histogram reading. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Folders" minOccurs="0">

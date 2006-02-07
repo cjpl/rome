@@ -193,30 +193,6 @@ int ResponseFunction(TSocket *socket) {
 
       return 1;
    }
-   else if (strncmp(str, "ExecuteMethod", 13) == 0) {
-      char objName[100];
-      char method[100];
-      char type[100];
-      char arg[100];
-      socket->Recv(objName, sizeof(objName));
-      socket->Recv(type, sizeof(type));
-      socket->Recv(method, sizeof(method));
-      socket->Recv(arg, sizeof(arg));
-
-      TString command = "temporarySocketObject = gROOT->FindObjectAny(\"";
-      command += objName;
-      command += "\");";
-      fApplication->ProcessLine(command.Data());
-      command = "((";
-      command += type;
-      command += ")temporarySocketObject)->";
-      command += method;
-      command += "(";
-      command += arg;
-      command += ");";
-      fApplication->ProcessLine(command.Data());
-      return 1;
-   }
    else if (strncmp(str, "Execute", 7) == 0) {
       char str[200];
       socket->Recv(str, sizeof(str));

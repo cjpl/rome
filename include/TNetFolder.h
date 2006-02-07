@@ -38,7 +38,7 @@ protected:
   Int_t     fPort;       // port of socket connection
   
 public:
-  TNetFolder();  
+  TNetFolder();
   TNetFolder( char const *, char const *, TSocket * ,Bool_t reconnect=true);  
   virtual ~TNetFolder();
   
@@ -58,7 +58,6 @@ public:
   virtual void        Remove( TObject * ) { Error("Remove","Not available for TNetFolders"); }    
   size_t              GetPointer();
   void                ExecuteCommand(const char *line);
-  void                ExecuteMethod(const char *objectName,const char *objectType,const char *methodName,const char *methodArguments);
 
 protected:
 

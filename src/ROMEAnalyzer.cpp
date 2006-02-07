@@ -103,7 +103,6 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fCurrentEventNumber = 0;
    fEventNumber.Reset();
    fEventNumberString = "";
-   fLastEventNumberIndex = 0;
    fCurrentInputFileName = "";
 //   fInputFileNames.Reset();
    fInputFileNamesString = "";
@@ -156,6 +155,8 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fSocketToROMEActive = true;
    fSocketToROMEHost = "localhost";
    fSocketToROMEPort = 9090;
+   fHistoRead = false;
+   fHistoRun = 0;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -478,58 +479,80 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
+Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber) 
 {
-   if (fEventNumber.GetSize()==0)
+   return CheckNumber(eventNumber,fEventNumber);
+}
+Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber) 
+{
+   return CheckNumber(runNumber,fRunNumber);
+}
+Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
+{
+   if (numbers.GetSize()==0)
       return 1;
-   for (Long64_t i=fLastEventNumberIndex;i<fEventNumber.GetSize();i++) {
-      if (fEventNumber.At(i)==eventNumber) {
-         fLastEventNumberIndex = i+1;
-         return 1;
-      }
-      else if (fEventNumber.At(i)>eventNumber) {
-         fLastEventNumberIndex = i;
+   for (Int_t i=0;i<numbers.GetSize();i++) {
+      if (TMath::Abs(numbers.At(i))>number) {
          return 0;
+      }
+      if (numbers.At(i)<0) {
+         if (TMath::Abs(numbers.At(i))<=number && TMath::Abs(numbers.At(i+1))>=number) {
+            return 1;
+         }
+      }
+      else {
+         if (numbers.At(i)==number) {
+            return 1;
+         }
+      }
+   }
+   return -1;
+}
+Long64_t ROMEAnalyzer::GetNextRunNumber(Long64_t runNumber)
+{
+   for (Int_t i=0;i<fRunNumber.GetSize();i++) {
+      if (fRunNumber.At(i)<0) {
+         if (TMath::Abs(fRunNumber.At(i))<=runNumber && TMath::Abs(fRunNumber.At(i+1))>runNumber) {
+            return runNumber+1;
+         }
+      }
+      else {
+         if (fRunNumber.At(i)==runNumber && i<fRunNumber.GetSize()-1) {
+            return TMath::Abs(fRunNumber.At(i+1));
+         }
+      }
+      if (TMath::Abs(fRunNumber.At(i))>runNumber) {
+         return TMath::Abs(fRunNumber.At(i));
       }
    }
    return -1;
 }
 
-void ROMEAnalyzer::DecodeRunNumbers(ROMEString& str,TArrayL64& arr)
+void ROMEAnalyzer::DecodeNumbers(ROMEString& str,TArrayL64& arr)
 {
    char cminus='-';
    char ccomma=',';
    char csemi =';';
    char *pstr = (char*)str.Data();
-   bool bminus = false;
    Long64_t num;
-   Long64_t i;
-   Long64_t na=0;
-   Long64_t nat=1;
+   Int_t na=0;
+   Int_t nat=1;
    arr.Set(10);
-   Long64_t arraySize = arr.GetSize();
+   Int_t arraySize = arr.GetSize();
    while (pstr<str.Data()+str.Length()) {
       if (na>=arraySize*nat) {
          nat++;
          arr.Set(arraySize*nat);
       }
       num = strtol(pstr,&pstr,10);
-      if (bminus) {
-         for (i=arr.At(na-1)+1;i<num;i++) {
-            arr.AddAt(i,na);
-            na++;
-            if (na>=arraySize*nat) {
-               nat++;
-               arr.Set(arraySize*nat);
-            }
-         }
-         bminus = false;
-      }
       if (pstr[0]==cminus) {
-         arr.AddAt(num,na);
+         arr.AddAt(-num,na);
+         if (num==0) {
+            na++;
+            arr.AddAt(-1,na);
+         }
          na++;
          pstr++;
-         bminus = true;
       }
       else if (pstr[0]==ccomma||pstr[0]==csemi) {
          arr.AddAt(num,na);

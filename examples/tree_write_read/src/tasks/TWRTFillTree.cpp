@@ -32,7 +32,7 @@ void TWRTFillTree::BeginOfRun()
 
 void TWRTFillTree::Event()
 {
-   gAnalyzer->GetData()->SetValue(gAnalyzer->GetCurrentEventNumber());
+   gAnalyzer->GetData()->SetValue((int)gAnalyzer->GetCurrentEventNumber());
 }
 
 void TWRTFillTree::EndOfRun()
