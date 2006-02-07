@@ -11206,6 +11206,10 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    breaking = false;
    for (i=0;i<numOfTree && !breaking;i++) {
       for (j=0;j<numOfBranch[i] && !breaking;j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
          if (folderArray[iFold]!="1") {
             buffer.AppendFormatted("   int i;\n");
             breaking = true;;
@@ -12232,6 +12236,7 @@ void ROMEBuilder::StartBuilder()
 // Linking
    if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
+   if (!WriteLinkDefHs()) return;
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
@@ -12367,14 +12372,20 @@ void ROMEBuilder::AddRomeHeaders()
 
 void ROMEBuilder::AddRomeDictHeaders()
 {
-   romeDictHeaders = new ROMEStrArray(4);
+   romeDictHeaders = new ROMEStrArray(6);
+   romeLinkDefSuffix = new ROMEStrArray(6);
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
+   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
+   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
+   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
+   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
+   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
-   romeDictHeaders->Add("$(ROMESYS)/include/LinkDef.h");
+   romeLinkDefSuffix->Add("-!");
 }
 
 void ROMEBuilder::AddRomeSources()
@@ -12425,9 +12436,13 @@ void ROMEBuilder::AddRomeSources()
 void ROMEBuilder::AddArgusHeaders()
 {
    argusHeaders = new ROMEStrArray(3);
+   argusLinkDefSuffix = new ROMEStrArray(3);
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
+   argusLinkDefSuffix->Add("");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
+   argusLinkDefSuffix->Add("");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
+   argusLinkDefSuffix->Add("");
 }
 
 void ROMEBuilder::AddArgusSources()
@@ -12478,21 +12493,27 @@ void ROMEBuilder::AddGeneratedHeaders()
 void ROMEBuilder::AddGeneratedDictHeaders()
 {
    generatedDictHeaders = new ROMEStrArray(2);
+   generatedLinkDefSuffix = new ROMEStrArray(2);
    generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
 }
 
 void ROMEBuilder::AddGeneratedFolderDictHeaders()
 {
    int i;
    generatedFolderDictHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
+   generatedFolderLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfFolder,0));
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
+            generatedFolderLinkDefSuffix->Add("");
          }
         else {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s.h",shortCut.Data(),folderName[i].Data());
+            generatedFolderLinkDefSuffix->Add("");
          }
       }
    }
@@ -12502,12 +12523,15 @@ void ROMEBuilder::AddGeneratedTaskDictHeaders()
 {
    int i;
    generatedTaskDictHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
+   generatedTaskLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTask,0));
    for (i=0;i<numOfTask;i++) {
       if (taskUserCode[i]) {
          generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+         generatedTaskLinkDefSuffix->Add("");
       }
       else {
          generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
+         generatedTaskLinkDefSuffix->Add("");
       }
    }
 }
@@ -12516,8 +12540,10 @@ void ROMEBuilder::AddGeneratedTabDictHeaders()
 {
    int i;
    generatedTabDictHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
+   generatedTabLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTab,0));
    for (i=0;i<numOfTab;i++) {
       generatedTabDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
+      generatedTabLinkDefSuffix->Add("");
    }
 }
 
@@ -12546,10 +12572,12 @@ void ROMEBuilder::AddFolderHeaders()
 {
    int i;
    folderHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
+   folderLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfFolder,0));
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
+            folderLinkDefSuffix->Add("");
          }
       }
    }
@@ -12572,9 +12600,11 @@ void ROMEBuilder::AddTaskHeaders()
 {
    int i;
    taskHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
+   taskLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTask,0));
    for (i=0;i<numOfTask;i++) {
       if (taskUserCode[i]) {
          taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
+         taskLinkDefSuffix->Add("");
       }
    }
 }
@@ -12594,8 +12624,10 @@ void ROMEBuilder::AddTabHeaders()
 {
    int i;
    tabHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
+   tabLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTab,0));
    for (i=0;i<numOfTab;i++) {
       tabHeaders->AddFormatted("include/tabs/%sT%s.h",shortCut.Data(),tabName[i].Data());
+      tabLinkDefSuffix->Add("");
    }
 }
 
@@ -12912,7 +12944,7 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 }
 
-void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers)
+void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName)
 {
    ROMEString str;
    int i;
@@ -12920,6 +12952,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    for (i=0;i<headers->GetEntriesFast();i++) {
       buffer.AppendFormatted(" %s",headers->At(i).Data());
    }
+   if(linkDefName)
+      buffer.AppendFormatted(" %s",linkDefName);
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
    WriteRootCintCall(buffer);
@@ -12938,6 +12972,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    for (i=0;i<headers->GetEntriesFast();i++) {
       buffer.AppendFormatted(" %s",headers->At(i).Data());
    }
+   if(linkDefName)
+      buffer.AppendFormatted(" %s",linkDefName);
    buffer.Append("\n\n");
 }
 
@@ -13257,7 +13293,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
-   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
+   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders,"dict/ROMELinkDef.h");
    WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
@@ -14619,6 +14655,66 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 
    // Write File
    WriteFile(cFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteLinkDefHs()
+{
+   ROMEString filename;
+
+   filename = "dict/ROMELinkDef.h";
+   if(!WriteLinkDefH(romeDictHeaders, romeLinkDefSuffix, filename.Data()))
+      return false;
+/*
+   filename = "dict/ARGUSLinkDef.h";
+   if(!WriteLinkDefH(argusHeaders, argusLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sGeneratedLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(generatedDictHeaders, generatedLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sGeneratedFolderLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(generatedFolderDictHeaders, generatedFolderLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sGeneratedTaskLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(generatedTaskDictHeaders, generatedTaskLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sGeneratedTabLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(generatedTabDictHeaders, generatedTabLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sFolderLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(folderHeaders, folderLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sTaskLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(taskHeaders, taskLinkDefSuffix, filename.Data()))
+      return false;
+   filename.SetFormatted("dict/%sTabLinkDef.h",shortCut.Data());
+   if(!WriteLinkDefH(tabHeaders, tabLinkDefSuffix, filename.Data()))
+      return false;
+*/
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix, const char* filename)
+{
+   ROMEString buffer;
+   ROMEString classname;
+   int i;
+
+   buffer.SetFormatted("#ifdef __CINT__\n");
+   if (headers->GetEntriesFast()>0) {
+      for (i=0;i<headers->GetEntriesFast();i++) {
+         classname = gSystem->BaseName(headers->At(i).Data());
+         classname.Resize(classname.Length()-2); // remove ".h"
+         if (ldsuffix->At(i).Length()>0)
+            buffer.AppendFormatted("#pragma link C++ class %s%s;\n", classname.Data(), ldsuffix->At(i).Data());
+         else
+            buffer.AppendFormatted("#pragma link C++ class %s;\n", classname.Data());
+      }
+      buffer.AppendFormatted("#endif\n");
+      WriteFile(filename, buffer.Data(), 6);
+   }
 
    return true;
 }
