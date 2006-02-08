@@ -1992,11 +1992,11 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
 
    for (i=0 ; i<level ; i++)
       printf("  ");
-   sprintf(fmt, "Addr: %%0%ldlX\n", sizeof(void*)*2);
+   sprintf(fmt, "Addr: %%0%dlX\n", (unsigned int)sizeof(void*)*2);
    printf(fmt, (unsigned long)tree);
    for (i=0 ; i<level ; i++)
       printf("  ");
-   sprintf(fmt, "Prnt: %%0%ldlX\n", sizeof(void*)*2);
+   sprintf(fmt, "Prnt: %%0%dlX\n", (unsigned int)sizeof(void*)*2);
    printf(fmt, (unsigned long)tree->parent);
    for (i=0 ; i<level ; i++)
       printf("  ");
