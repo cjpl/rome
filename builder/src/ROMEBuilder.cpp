@@ -1748,6 +1748,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
                      }
                      histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "";
                      histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
+                     histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
                      while (xml->NextLine()) {
                         type = xml->GetType();
                         name = xml->GetName();
@@ -1757,6 +1758,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
                         // index
                         if (type == 1 && !strcmp((const char*)name,"Index"))
                            xml->GetValue(histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                        // array index
+                        if (type == 1 && !strcmp((const char*)name,"HistArrayIndex"))
+                           xml->GetValue(histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
                         // tab end
                         if (type == 15 && !strcmp((const char*)name,"Tab")) {
                            numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]++;
@@ -2283,7 +2287,7 @@ Bool_t ROMEBuilder::WriteTaskH()
             }
             buffer.AppendFormatted("   void Draw%sAt(Int_t index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   TobjArray* Get%s() { return f%ss; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   TObjArray* Get%s() { return f%ss; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   void Set%sTitle(const char* value);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("   void Set%sFolderTitle(const char* value);\n",histoName[iTask][i].Data());
@@ -3231,7 +3235,7 @@ Bool_t ROMEBuilder::WriteTabH()
    ROMEString clsName;
    ROMEString clsDescription;
 
-   Int_t i, j;
+   Int_t i, j,k;
    if (makeOutput)
       cout << "\n   Output H-Files:" << endl;
 
@@ -3303,7 +3307,13 @@ Bool_t ROMEBuilder::WriteTabH()
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
          for (i=0;i<numOfTabHistos[iTab];i++) {
-            buffer.AppendFormatted("   %s* f%sHisto%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i);
+            if (histoArraySize[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]]==1)
+               buffer.AppendFormatted("   %s* f%sHisto%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i);
+            else {
+               for (j=tabHistoArrayIndexStart[iTab][i];j<=tabHistoArrayIndexEnd[iTab][i];j++) {
+                  buffer.AppendFormatted("   %s* f%sHisto%d_%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i,j);
+               }
+            }
          }
       }
 
@@ -3359,9 +3369,18 @@ Bool_t ROMEBuilder::WriteTabH()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-                  buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
-                  buffer.AppendFormatted("      f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]==1) {
+                     buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                     buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                     buffer.AppendFormatted("      f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  }
+                  else {
+                     for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
+                        buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                        buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                        buffer.AppendFormatted("      f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                     }
+                  }
                   break;
                }
             }
@@ -3383,12 +3402,24 @@ Bool_t ROMEBuilder::WriteTabH()
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
-               buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
-               buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-               buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
-               buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
-               buffer.AppendFormatted("      gPad->Modified();\n");
-               buffer.AppendFormatted("      gPad->Update();\n");
+               if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]==1) {
+                  buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                  buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                  buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  buffer.AppendFormatted("      gPad->Modified();\n");
+                  buffer.AppendFormatted("      gPad->Update();\n");
+               }
+               else {
+                  for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
+                     buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                     buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                     buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                     buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                     buffer.AppendFormatted("      gPad->Modified();\n");
+                     buffer.AppendFormatted("      gPad->Update();\n");
+                  }
+               }
                break;
             }
          }
@@ -5212,6 +5243,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("}\n");
          }
          else {
+            buffer.AppendFormatted("TObjArray* %sAnalyzer::Get%s() {\n",shortCut.Data(),histoName[i][j].Data());
+            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
+            buffer.AppendFormatted("      return (TObjArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoName[i][j].Data());
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      return ((%sT%s*)f%s%03dTask)->Get%s();\n",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyName[i].Data(),i,histoName[i][j].Data());
+            buffer.AppendFormatted("}\n");
             buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive()) {\n");
             buffer.AppendFormatted("      ROMEString name;\n");
@@ -5577,8 +5614,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       for (j=0;j<numOfHistos[i];j++) {
          if (histoArraySize[i][j]=="1")
             buffer.AppendFormatted("   %s* Get%s();\n",histoType[i][j].Data(),histoName[i][j].Data());
-         else
+         else {
+            buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[i][j].Data());
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index);\n",histoType[i][j].Data(),histoName[i][j].Data());
+         }
       }
    }
    buffer.AppendFormatted("\n");
@@ -11348,7 +11387,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             buffer.AppendFormatted("      %sTemp->Copy(*gAnalyzer->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%s->GetEntries();i++) {\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%s()->GetEntries();i++) {\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      %s* %sTemp = ((%s*)file->FindObjectAny(gAnalyzer->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      if (%sTemp==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("         cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -11702,6 +11741,7 @@ void ROMEBuilder::StartBuilder()
    int type;
    int i,j,k,l;
    bool found;
+   ROMEString str;
 
    experimentName = "";
    styleSheet = "";
@@ -12072,6 +12112,9 @@ void ROMEBuilder::StartBuilder()
       cout << "Terminating the ROMEBuilder." << endl;
       return;
    }
+   int tabNumber;
+   int histoNumber;
+   int is,ie,ind;
    // Check Histos & Tabs
    for (i=0;i<numOfTask;i++) {
       for (j=0;j<numOfHistos[i];j++) {
@@ -12080,11 +12123,8 @@ void ROMEBuilder::StartBuilder()
             for (l=0;l<numOfTab;l++) {
                if (histoTabName[i][j][k]==tabName[l]) {
                   found = true;
-                  tabHistoName[l][numOfTabHistos[l]] = histoName[i][j];
-                  tabHistoIndex[l][numOfTabHistos[l]] = histoTabIndex[i][j][k].ToInteger();
-                  tabHistoTaskIndex[l][numOfTabHistos[l]] = i;
-                  tabHistoHistoIndex[l][numOfTabHistos[l]] = j;
-                  numOfTabHistos[l]++;
+                  tabNumber = l;
+                  histoNumber = numOfTabHistos[l];
                   break;
                }
             }
@@ -12102,13 +12142,25 @@ void ROMEBuilder::StartBuilder()
                numOfThreadFunctions[numOfTab] = 0;
                tabParentIndex[numOfTab] = taskHierarchyParentIndex[numOfTab] = -1;
 
-               tabHistoName[numOfTab][0] = histoName[i][j];
-               tabHistoIndex[numOfTab][0] = histoTabIndex[i][j][k].ToInteger();
-               tabHistoTaskIndex[numOfTab][0] = i;
-               tabHistoHistoIndex[numOfTab][0] = j;
-               numOfTabHistos[numOfTab] = 1;
+               tabNumber = numOfTab;
+               histoNumber = 0;
+               numOfTabHistos[numOfTab] = 0;
                numOfTab++;
             }
+            is = histoTabArrayIndex[i][j][k].ToInteger(); ie = is;
+            if ((ind=histoTabArrayIndex[i][j][k].Index("-"))!=-1) {
+               str = histoTabArrayIndex[i][j][k](0,ind);
+               is = str.ToInteger();
+               str = histoTabArrayIndex[i][j][k](ind+1,histoTabArrayIndex[i][j][k].Length()-ind-1);
+               ie = str.ToInteger();
+            }
+            tabHistoName[tabNumber][histoNumber] = histoName[i][j];
+            tabHistoIndex[tabNumber][histoNumber] = histoTabIndex[i][j][k].ToInteger();
+            tabHistoArrayIndexStart[tabNumber][histoNumber] = is;
+            tabHistoArrayIndexEnd[tabNumber][histoNumber] = ie;
+            tabHistoTaskIndex[tabNumber][histoNumber] = i;
+            tabHistoHistoIndex[tabNumber][histoNumber] = j;
+            numOfTabHistos[tabNumber]++;
          }
       }
    }
@@ -12302,6 +12354,10 @@ void ROMEBuilder::AddIncludeDirectories()
    if (numOfDB > 0) numOfIncludeDirectories++;
    if (numOfTab >0) numOfIncludeDirectories++;
    if (hasTaskUserCode) numOfIncludeDirectories++;
+#if defined( R__VISUAL_CPLUSPLUS )
+   if (mysql) numOfIncludeDirectories++;
+   if (midas) numOfIncludeDirectories++;
+#endif
    includeDirectories = new ROMEStrArray(numOfIncludeDirectories);
    includeDirectories->AddFormatted("$(ROOTSYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/include/");
@@ -12316,6 +12372,10 @@ void ROMEBuilder::AddIncludeDirectories()
    if (hasFolderUserCode) includeDirectories->AddFormatted("./include/folders/");
    if (numOfDAQ > 0) includeDirectories->AddFormatted("./include/daqs/");
    if (numOfDB > 0) includeDirectories->AddFormatted("./include/databases/");
+#if defined( R__VISUAL_CPLUSPLUS )
+   if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
+   if (midas) includeDirectories->AddFormatted("$(MIDASSYS)/include/");
+#endif
 }
 
 void ROMEBuilder::AddRomeHeaders()
@@ -12677,6 +12737,47 @@ void ROMEBuilder::AddDatabaseSources()
       databaseSources->AddFormatted("src/databases/%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
    }
 }
+void ROMEBuilder::AddRootLibraries()
+{
+   rootLibraries = new ROMEStrArray(30);
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\gdk-1.3.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\glib-1.3.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libCore.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libCint.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libHist.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGraf.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGraf3d.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGpad.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libTree.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libRint.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libPostscript.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libMatrix.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libPhysics.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGui.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libHtml.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libWin32gdk.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libThread.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libMinuit.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeom.lib");
+   rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeomPainter.lib");
+}
+void ROMEBuilder::AddMysqlLibraries()
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   mysqlLibraries = new ROMEStrArray(3);
+   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\libmySQL.lib");
+   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysqlclient.lib");
+   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysys.lib");
+#endif
+}
+void ROMEBuilder::AddMidasLibraries()
+{
+#if defined( R__VISUAL_CPLUSPLUS )
+   midasLibraries = new ROMEStrArray(1);
+   midasLibraries->AddFormatted("$(MIDASSYS)\\nt\\lib\\midas.lib");
+#endif
+}
+
 
 void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
 {
@@ -13229,6 +13330,9 @@ void ROMEBuilder::WriteMakefile() {
    AddTabSources();
    AddDAQSources();
    AddDatabaseSources();
+   AddRootLibraries();
+   AddMysqlLibraries();
+   AddMidasLibraries();
 
    WriteMakefileHeader(buffer);
    WriteMakefileLibsAndFlags(buffer);
@@ -13547,6 +13651,10 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    ROMEString preDrocDefs = "WIN32;_DEBUG";
    if (version>2003)
       preDrocDefs += ";_CRT_SECURE_NO_DEPRECATE";
+   if (mysql)
+      preDrocDefs += ";HAVE_MYSQL";
+   if (midas)
+      preDrocDefs += ";HAVE_MIDAS";
    for (i=0;i<flags.GetEntriesFast();i++)
       preDrocDefs.AppendFormatted(";%s",flags.At(i).Data());
    xml->StartElement("Tool");
@@ -13687,40 +13795,22 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    xml->EndElement();
 }
 
-void ROMEBuilder::WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sources,const char* folderName)
+void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,const char* folderName,const char* filter)
 {
    int i;
    ROMEString str;
-   if (sources->GetEntriesFast()>0) {
+   if (files->GetEntriesFast()>0) {
       xml->StartElement("Filter");
       xml->WriteAttribute("Name",folderName);
-      xml->WriteAttribute("Filter","cpp;c;cxx");
-      for (i=0;i<sources->GetEntriesFast();i++) {
+      xml->WriteAttribute("Filter",filter);
+      for (i=0;i<files->GetEntriesFast();i++) {
          xml->StartElement("File");
-         str = sources->At(i).Data();
+         str = files->At(i).Data();
          str.ReplaceAll("/","\\");
+         RelativeWindowsPath(str,outDir.Data());
          xml->WriteAttribute("RelativePath",str.Data());
          if (str.Index("\\dict\\")!=-1 || str.Index("dict\\")==0)
             WriteVisualProjectProjWarningLevel(xml,"0");
-         xml->EndElement();
-      }
-      xml->EndElement();
-   }
-}
-
-void ROMEBuilder::WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* headers,const char* folderName)
-{
-   int i;
-   ROMEString str;
-   if (headers->GetEntriesFast()>0) {
-      xml->StartElement("Filter");
-      xml->WriteAttribute("Name",folderName);
-      xml->WriteAttribute("Filter","h");
-      for (i=0;i<headers->GetEntriesFast();i++) {
-         xml->StartElement("File");
-         str = headers->At(i).Data();
-         str.ReplaceAll("/","\\");
-         xml->WriteAttribute("RelativePath",str.Data());
          xml->EndElement();
       }
       xml->EndElement();
@@ -13764,6 +13854,7 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
             str.ReplaceAll("\\/","\\");
             str.ReplaceAll("\\\\","\\");
             str.ReplaceAll("/","\\");
+            RelativeWindowsPath(str,outDir.Data());
             xml->WriteAttribute("RelativePath",str.Data());
             xml->EndElement();
          }
@@ -13776,6 +13867,7 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
          str.ReplaceAll("\\/","\\");
          str.ReplaceAll("\\\\","\\");
          str.ReplaceAll("/","\\");
+         RelativeWindowsPath(str,outDir.Data());
          xml->WriteAttribute("RelativePath",str.Data());
          WriteVisualProjectProjWarningLevel(xml,"0");
          xml->EndElement();
@@ -13823,6 +13915,7 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml)
             str.ReplaceAll("\\/","\\");
             str.ReplaceAll("\\\\","\\");
             str.ReplaceAll("/","\\");
+            RelativeWindowsPath(str,outDir.Data());
             xml->WriteAttribute("RelativePath",str.Data());
             xml->EndElement();
          }
@@ -13875,15 +13968,15 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    xml->WriteAttribute("Filter","cpp;c;cxx");
    xml->WriteAttribute("UniqueIdentifier","{4FC737F1-C7A5-4376-A066-2A32D752A2FF}");
 
-   WriteVisualProjectProjSources(xml,taskSources,"Tasks");
-   WriteVisualProjectProjSources(xml,tabSources,"Tabs");
-   WriteVisualProjectProjSources(xml,daqSources,"User DAQs");
-   WriteVisualProjectProjSources(xml,databaseSources,"User Databases");
-   WriteVisualProjectProjSources(xml,folderSources,"Folders");
+   WriteVisualProjectProjFiles(xml,taskSources,"Tasks","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,tabSources,"Tabs","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,daqSources,"User DAQs","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,databaseSources,"User Databases","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,folderSources,"Folders","cpp;c;cxx");
    WriteVisualProjectProjUserSources(xml);
-   WriteVisualProjectProjSources(xml,generatedSources,"Generated");
-   WriteVisualProjectProjSources(xml,romeSources,"ROME");
-   WriteVisualProjectProjSources(xml,argusSources,"ARGUS");
+   WriteVisualProjectProjFiles(xml,generatedSources,"Generated","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,romeSources,"ROME","cpp;c;cxx");
+   WriteVisualProjectProjFiles(xml,argusSources,"ARGUS","cpp;c;cxx");
 
    // End Source Files
    xml->EndElement();
@@ -13894,15 +13987,15 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    xml->WriteAttribute("Filter","h");
    xml->WriteAttribute("UniqueIdentifier","{93995380-89BD-4b04-88EB-625FBE52EBFB}");
 
-   WriteVisualProjectProjHeaders(xml,taskHeaders,"Tasks");
-   WriteVisualProjectProjHeaders(xml,tabHeaders,"Tabs");
-   WriteVisualProjectProjHeaders(xml,daqHeaders,"User DAQs");
-   WriteVisualProjectProjHeaders(xml,databaseHeaders,"User Databases");
-   WriteVisualProjectProjHeaders(xml,folderHeaders,"Folders");
+   WriteVisualProjectProjFiles(xml,taskHeaders,"Tasks","h");
+   WriteVisualProjectProjFiles(xml,tabHeaders,"Tabs","h");
+   WriteVisualProjectProjFiles(xml,daqHeaders,"User DAQs","h");
+   WriteVisualProjectProjFiles(xml,databaseHeaders,"User Databases","h");
+   WriteVisualProjectProjFiles(xml,folderHeaders,"Folders","h");
    WriteVisualProjectProjUserHeaders(xml);
-   WriteVisualProjectProjHeaders(xml,generatedHeaders,"Generated");
-   WriteVisualProjectProjHeaders(xml,romeHeaders,"ROME");
-   WriteVisualProjectProjHeaders(xml,argusHeaders,"ARGUS");
+   WriteVisualProjectProjFiles(xml,generatedHeaders,"Generated","h");
+   WriteVisualProjectProjFiles(xml,romeHeaders,"ROME","h");
+   WriteVisualProjectProjFiles(xml,argusHeaders,"ARGUS","h");
 
    // End Header Files
    xml->EndElement();
@@ -13913,71 +14006,10 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    xml->WriteAttribute("Filter","lib");
    xml->WriteAttribute("UniqueIdentifier","{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}");
 
-   // root
-   xml->StartElement("Filter");
-   xml->WriteAttribute("Name","ROOT");
-   xml->WriteAttribute("Filter","lib");
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\gdk-1.3.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\glib-1.3.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libCore.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libCint.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libHist.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGraf.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGraf3d.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGpad.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libTree.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libRint.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libPostscript.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libMatrix.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libPhysics.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGui.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libHtml.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libWin32gdk.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libThread.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libMinuit.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGeom.lib");
-   xml->EndElement();
-   xml->StartElement("File");
-   xml->WriteAttribute("RelativePath","$(ROOTSYS)\\lib\\libGeomPainter.lib");
-   xml->EndElement();
-   xml->EndElement();
+   WriteVisualProjectProjFiles(xml,rootLibraries,"ROOT","lib");
+   WriteVisualProjectProjFiles(xml,mysqlLibraries,"MySQL","lib");
+   WriteVisualProjectProjFiles(xml,midasLibraries,"MIDAS","lib");
+
    // user
    xml->StartElement("Filter");
    xml->WriteAttribute("Name","User");
@@ -15434,4 +15466,65 @@ void ROMEBuilder::RemoveDepFiles(const char* str)
    }
 
    return;
+}
+
+void ROMEBuilder::RelativeWindowsPath(ROMEString &path,const char *referencePath)
+{
+   int ind,inde,i,equalChars;
+   int backSteps;
+   char *envPath;
+   ROMEString temp;
+   ROMEString str;
+   ROMEString refPath = referencePath;
+   ROMEString file;
+   ind = refPath.Index(":");
+   if (ind==-1)
+      return;
+   while ((ind = path.Index("$("))!=-1) {
+      inde = path.Index(")");
+      str = path(ind+2,inde-(ind+2));
+      envPath = getenv(str.Data());
+      str = path(0,ind);
+      str += envPath;
+      str += path(inde+1,path.Length()-inde-1);
+      path = str;
+   }
+   ind = path.Index(":");
+   if (ind==-1)
+      return;
+   refPath.ToLower();
+   refPath.ReplaceAll("/","\\");
+   if (refPath[refPath.Length()-1]!='\\')
+      refPath += "\\";
+   path.ReplaceAll("/","\\");
+   ind = path.Last('\\');
+   if (ind==-1) {
+      file = path;
+      path = "";
+   }
+   else {
+      file = path(ind+1,path.Length()-ind-1);
+      path = path(0,ind+1);
+   }
+   path.ToLower();
+   for (equalChars=0;equalChars<TMath::Min(path.Length(),refPath.Length());equalChars++) {
+      if (path[equalChars]!=refPath[equalChars])
+         break;
+   }
+   while (path[equalChars]!='/' && path[equalChars]!='\\') {
+      equalChars--;
+      if (equalChars<0)
+         break;
+   }
+   str.Resize(0);
+   if (equalChars<refPath.Length()-1) {
+      temp = refPath(equalChars+1,refPath.Length()-equalChars-1);
+      backSteps = temp.NumberOfOccurrence("\\");
+      for (i=0;i<backSteps;i++) {
+         str += "..\\";
+      }
+   }
+   str += path(equalChars+1,path.Length()-equalChars-1);
+   str += file;
+   path = str;
 }

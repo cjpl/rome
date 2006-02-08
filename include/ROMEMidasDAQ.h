@@ -23,12 +23,12 @@ typedef int    BOOL;
 #else
 typedef UInt_t   DWORD;
 typedef DWORD    BOOL;
+const BOOL TRUE = 1;
+const BOOL FALSE = 0;
 #endif
 typedef Int_t    HNDLE;
 typedef Int_t    INT;
 typedef UShort_t WORD;
-const BOOL TRUE = 1;
-const BOOL FALSE = 0;
 const Int_t CM_SUCCESS = 1;
 #   define BANK_FORMAT_32BIT   (1<<4)
 #   define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */

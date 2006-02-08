@@ -51,7 +51,9 @@ void HGUITFillHisto::BeginOfRun()
 
 void HGUITFillHisto::Event()
 {
-   GetMyHisto()->Fill(gRandom->Gaus(0,20));
+   GetMyHistoAt(0)->Fill(gRandom->Gaus(0,10));
+   GetMyHistoAt(1)->Fill(gRandom->Gaus(0,20));
+   GetMyHistoAt(2)->Fill(gRandom->Gaus(0,30));
 }
 
 void HGUITFillHisto::EndOfRun()

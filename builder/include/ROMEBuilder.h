@@ -187,6 +187,7 @@ protected:
    Int_t         numOfHistoTabs[maxNumberOfTasks][maxNumberOfHistos];
    ROMEString    histoTabName[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
    ROMEString    histoTabIndex[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
+   ROMEString    histoTabArrayIndex[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
    Bool_t        hasTaskUserCode;
    Bool_t        hasTaskGenerated;
 
@@ -234,6 +235,8 @@ protected:
    Int_t         numOfTabHistos[maxNumberOfTabs];
    ROMEString    tabHistoName[maxNumberOfTabs][maxNumberOfTabHistos];
    Int_t         tabHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
+   Int_t         tabHistoArrayIndexStart[maxNumberOfTabs][maxNumberOfTabHistos];
+   Int_t         tabHistoArrayIndexEnd[maxNumberOfTabs][maxNumberOfTabHistos];
    Int_t         tabHistoTaskIndex[maxNumberOfTabs][maxNumberOfTabHistos];
    Int_t         tabHistoHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
    Int_t         tabHistoIndexMax[maxNumberOfTabs];
@@ -359,6 +362,9 @@ protected:
    ROMEStrArray* daqSources;
    ROMEStrArray* databaseHeaders;
    ROMEStrArray* databaseSources;
+   ROMEStrArray* rootLibraries;
+   ROMEStrArray* mysqlLibraries;
+   ROMEStrArray* midasLibraries;
 
 public:
    ROMEBuilder() { haveFortranTask = false; };
@@ -446,6 +452,9 @@ public:
    void    AddDAQSources();
    void    AddDatabaseHeaders();
    void    AddDatabaseSources();
+   void    AddRootLibraries();
+   void    AddMysqlLibraries();
+   void    AddMidasLibraries();
    void    WriteMakefile();
    void    WriteMakefileHeader(ROMEString& buffer);
    void    WriteMakefileLibsAndFlags(ROMEString& buffer);
@@ -464,10 +473,9 @@ public:
    void    WriteVisualProjects(Int_t version);
    void    WriteVisualProjectSln(Int_t version,ROMEString& projectGUID);
    void    WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROMEString& projectGUID);
-   void    WriteVisualProjectProjSources(ROMEXML *xml,ROMEStrArray* sources,const char* folderName);
+   void    WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,const char* folderName,const char* filter);
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
    void    WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
-   void    WriteVisualProjectProjHeaders(ROMEXML *xml,ROMEStrArray* headers,const char* folderName);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
    void    WriteHTMLDoku();
    void    WriteHTMLStyle(ROMEString &buffer);
@@ -502,6 +510,8 @@ public:
    void    ParseSVNKeyword(ROMEString& str);
    Bool_t  RemoveFile(const char* filename, const char* str = 0);
    void    RemoveDepFiles(const char* str = 0);
+   void    RelativeWindowsPath(ROMEString &path,const char *referencePath);
+
 };
 
 #endif   // ROMEBuilder_H
