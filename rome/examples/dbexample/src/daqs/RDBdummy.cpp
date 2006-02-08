@@ -19,7 +19,7 @@ bool RDBdummy::BeginOfRun()
    return true;
 }
 
-bool RDBdummy::Event(int event)
+bool RDBdummy::Event(Long64_t event)
 {
    gAnalyzer->SetCurrentEventNumber(event);
    return true;

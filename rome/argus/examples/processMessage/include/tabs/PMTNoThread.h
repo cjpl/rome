@@ -33,6 +33,7 @@ public:
    void MenuClicked(Long_t param);
    Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
    void withOutMakingThread();
+   void EventHandler(){;};
 
    ClassDef(PMTNoThread,1)
 };

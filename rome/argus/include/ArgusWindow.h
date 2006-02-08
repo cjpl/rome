@@ -54,7 +54,7 @@ protected:
    };
       
 public:
-   ArgusWindow() {}
+   ArgusWindow():TGMainFrame(NULL,1,1) {} 
    ArgusWindow(const TGWindow* p, Char_t* title);
    virtual ~ArgusWindow() {};
    Bool_t         Start();

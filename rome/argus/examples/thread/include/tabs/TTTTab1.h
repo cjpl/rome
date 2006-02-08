@@ -61,6 +61,7 @@ public:
    bool ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
    void func_1_1();
    void func_1_2();
+   void EventHandler(){;};
 
    ClassDef(TTTTab1,1)
 };

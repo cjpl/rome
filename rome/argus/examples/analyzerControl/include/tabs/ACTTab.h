@@ -14,7 +14,7 @@
 class ACTTab : public ACTTab_Base
 {
 protected:
-   TNetFolder*              fNetFolder;
+   ROMENetFolder*           fNetFolder;
    ArgusAnalyzerController* fController;
 
 public:
@@ -30,6 +30,7 @@ public:
    void MenuClicked(TGPopupMenu *menu,Long_t param);
    void TabSelected();
    void TabUnSelected();
+   void EventHandler(){;};
 
 
    ClassDef(ACTTab,1)
