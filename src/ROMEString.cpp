@@ -178,7 +178,9 @@ char *ROMEString::SlowFormat(const char *format, va_list ap, int hint)
    static char *slowBuffer  = 0;
    static int   slowBufferSize = 0;
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,0,0))
    R__LOCKGUARD2(gStringMutex);
+#endif
 
    if (hint == -1) hint = fld_size;
    if (hint > slowBufferSize) {
@@ -210,7 +212,9 @@ char* ROMEString::Format(const char *format, va_list ap)
    // Format a string in a circular formatting buffer (using a printf style
    // format descriptor).
 
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(5,2,0))
    R__LOCKGUARD2(gStringMutex);
+#endif
 
    char *buf = gBfree;
 
