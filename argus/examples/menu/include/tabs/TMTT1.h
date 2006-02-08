@@ -37,6 +37,7 @@ public:
 
    void Init();
    void MenuClicked(TGPopupMenu *menu,Long_t param);
+   void EventHandler(){;};
 
    ClassDef(TMTT1,1)
 };

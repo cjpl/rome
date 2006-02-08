@@ -36,6 +36,7 @@ public:
    }
 
    void Init();
+   void EventHandler(){;};
 
    ClassDef(HWTEnglish,1)
 };

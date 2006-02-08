@@ -88,6 +88,7 @@ public:
       }
       return kTRUE;
    }
+   void EventHandler(){;};
 
    ClassDef(TTTTab2,1)
 };

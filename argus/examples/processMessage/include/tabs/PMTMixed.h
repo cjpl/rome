@@ -38,6 +38,7 @@ public:
    Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2);
    void withOutMakingThread();
    void withMakingThread();
+   void EventHandler(){;};
 
    ClassDef(PMTMixed,1)
 };

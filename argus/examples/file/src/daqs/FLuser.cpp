@@ -18,7 +18,7 @@ bool FLuser::BeginOfRun()
    return true;
 }
 
-bool FLuser::Event(int event)
+bool FLuser::Event(Long64_t event)
 {
    cout << "user DAQ: event " << event << endl;
    return true;

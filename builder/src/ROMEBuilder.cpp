@@ -3292,22 +3292,22 @@ Bool_t ROMEBuilder::WriteTabH()
       }
       // Thread
       for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
-         buffer.AppendFormatted("   TThread* m%s; //!\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   Bool_t   f%sActive; //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   TThread* m%s;         //!\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Bool_t   f%sActive;   //!\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   Int_t    f%sNumberOfLoops; //!\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("   Int_t    f%sInterval; //!\n", threadFunctionName[iTab][i].Data());
          for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
             buffer.AppendFormatted("   %s f%sArgument_%d; //!\n", threadFunctionArgument[iTab][i][j].Data(), threadFunctionName[iTab][i].Data(), j);
       }
-      buffer.AppendFormatted("   Int_t    fVersion; //! Version number\n");
-      buffer.AppendFormatted("   Bool_t   fActive; //! is Active\n");
-      buffer.AppendFormatted("   Int_t    fUpdateFrequency; //! Update Frequency\n");
-      buffer.AppendFormatted("   TTimer   *fEventHandlerTimer; //! Timer for the EventHandler function\n");
+      buffer.AppendFormatted("   Int_t    fVersion;              //! Version number\n");
+      buffer.AppendFormatted("   Bool_t   fActive;               //! is Active\n");
+      buffer.AppendFormatted("   Int_t    fUpdateFrequency;      //! Update Frequency\n");
+      buffer.AppendFormatted("   TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function\n");
       buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
          for (i=0;i<numOfTabHistos[iTab];i++) {
-            if (histoArraySize[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]]==1)
+            if (histoArraySize[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]]=="1")
                buffer.AppendFormatted("   %s* f%sHisto%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i);
             else {
                for (j=tabHistoArrayIndexStart[iTab][i];j<=tabHistoArrayIndexEnd[iTab][i];j++) {
@@ -3322,7 +3322,7 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // Constructor
       buffer.AppendFormatted("   // Constructor\n");
-      buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(){\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(NULL,1,1){\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n", tabVersion[iTab].Data());
       buffer.AppendFormatted("      fActive  = kFALSE;\n");
       buffer.AppendFormatted("      fUpdateFrequency  = 0;\n");
@@ -3369,7 +3369,7 @@ Bool_t ROMEBuilder::WriteTabH()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]==1) {
+                  if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                      buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                      buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
                      buffer.AppendFormatted("      f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
@@ -3402,7 +3402,7 @@ Bool_t ROMEBuilder::WriteTabH()
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
-               if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]==1) {
+               if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                   buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
                   buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                   buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");

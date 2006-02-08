@@ -56,6 +56,7 @@ public:
    void MenuClicked(TGPopupMenu *menu,Long_t param);
    void TabSelected();
    void TabUnSelected();
+   void EventHandler(){;};
 
    bool ProcessMessage(Long_t msg, Long_t param1, Long_t param2);
 

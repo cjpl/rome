@@ -25,6 +25,7 @@ public:
    void Init();
    void TabSelected();
    void TabUnSelected();
+   void EventHandler(){;};
 
 
    ClassDef(SBTTab2,1)

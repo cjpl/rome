@@ -99,6 +99,7 @@ public:
       }
       return kTRUE;
    }
+   void EventHandler(){;};
 
    ClassDef(TTTTab1,1)
 };

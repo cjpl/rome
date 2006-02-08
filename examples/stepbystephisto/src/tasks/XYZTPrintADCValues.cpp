@@ -43,8 +43,20 @@
 #include <Riostream.h>
 #include "TF1.h" 
 
-Double_t lognormal(Double_t *x, Double_t *par) { 
-    return TMath::LogNormal(x[0]-par[3],par[0],par[1],par[2]); 
+Double_t lognormal(Double_t *x, Double_t *par) {
+   Double_t x2 = x[0]-par[3];
+   Double_t sigma = par[0];
+   Double_t theta = par[1];
+   Double_t m = par[2];
+   if ((x2<theta) || (sigma<=0) || (m<=0)) {
+      cerr<<"Error in lognormal: illegal parameter values"<<endl;
+      return 0;
+   }
+   Double_t templog2 = TMath::Log((x2-theta)/m)*TMath::Log((x2-theta)/m);
+   Double_t temp1 = TMath::Exp(-templog2/(2*sigma*sigma));
+   Double_t temp2 = (x2-theta)*sigma*TMath::Sqrt(2*TMath::Pi());
+
+   return temp1/temp2;
 } 
 
 ClassImp(XYZTPrintADCValues)

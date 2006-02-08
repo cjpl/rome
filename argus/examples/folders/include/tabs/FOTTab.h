@@ -27,6 +27,7 @@ public:
    }
 
    void Init();
+   void EventHandler(){;};
 
 
    ClassDef(FOTTab,1)
