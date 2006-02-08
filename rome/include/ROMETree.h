@@ -24,7 +24,8 @@ private:
       Int_t    fWrite;             //!   Write Flag
       Int_t    fFill;              //!   Fill Flag
       Int_t    fCompressionLevel;  //!   Compression Level
-      Long64_t fMaxEntries;        //!   Max number of entries, 0 in case of a non circular tree
+      Int_t    fMaxEntries;        //!   Max number of entries, 0 in case of a non circular tree
+     /* note: use 4byte integer for odb */
    } fSwitches;                    //!   Switches Structure
 
    ROMEString  fSwitchesString;    //!   Switches String
@@ -47,7 +48,8 @@ public:
       fSwitches.fWrite = write;
       fSwitches.fFill = fill;
       fSwitches.fCompressionLevel = compressionLevel;
-      fSwitches.fMaxEntries = maxEntries; 
+      fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
+      /* note: use 4byte integer for odb */
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
       if (maxEntries>0) fTree->SetCircular(maxEntries);
 #endif 
@@ -94,7 +96,8 @@ public:
                   for (Int_t i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
                };
    void         SetMaxEntries(Long64_t maxEntries) {
-                   fSwitches.fMaxEntries = maxEntries;
+                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
+		   /* note: use 4byte integer for odb */
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                    if (maxEntries>0) fTree->SetCircular(maxEntries);
 #endif 
