@@ -10,6 +10,7 @@
 				<HistName>MyHisto</HistName>
 				<HistFolderName>myhistos</HistFolderName>
 				<HistType>TH1F</HistType>
+				<HistArraySize>3</HistArraySize>
 				<HistXLabel>X</HistXLabel>
 				<HistYLabel>Entries</HistYLabel>
 				<HistXNbins>100</HistXNbins>
@@ -18,15 +19,13 @@
 				<Argus>
 					<Tab>
 						<TabName>GeneratedHisto</TabName>
+						<HistArrayIndex>0-1</HistArrayIndex>
 						<Index>0</Index>
 					</Tab>
 					<Tab>
 						<TabName>GeneratedHisto</TabName>
-						<Index>1</Index>
-					</Tab>
-					<Tab>
-						<TabName>GeneratedHisto</TabName>
-						<Index>3</Index>
+						<HistArrayIndex>2</HistArrayIndex>
+						<Index>2</Index>
 					</Tab>
 				</Argus>
 			</Histogram>

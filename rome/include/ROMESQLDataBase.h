@@ -46,7 +46,7 @@ public:
 
    char*  GetDBMSType() { return (char*) fDBMSType.Data(); }
    void   LinkError() {
-      cout<<"Error: This program is not linked with "<<fDBMSType<<" library."<<endl;
+      cout<<"Error: This program is not linked with "<<fDBMSType.Data()<<" library."<<endl;
    }
 
    Bool_t       Init(const char* name,const char* dataBase,const char* connection);
