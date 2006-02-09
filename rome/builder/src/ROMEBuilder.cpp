@@ -11380,19 +11380,19 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    for (i=0;i<numOfTaskHierarchy;i++) {
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   %s* %sTemp = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (%sTemp==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("      cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      %sTemp->Copy(*gAnalyzer->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %sTemp_%d->Copy(*gAnalyzer->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
             buffer.AppendFormatted("   for (i=0;i<gAnalyzer->Get%s()->GetEntries();i++) {\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      %s* %sTemp = ((%s*)file->FindObjectAny(gAnalyzer->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      if (%sTemp==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
-            buffer.AppendFormatted("         %sTemp->Copy(*gAnalyzer->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   };\n");
          }
       }
