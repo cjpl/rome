@@ -294,6 +294,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       CleanTasks();
    }
 
+   // Terminate
+   if (!this->DAQTerminate()) {
+      gROME->SetTerminationFlag();
+      gROME->PrintLine("\n\nTerminating Program !");
+      return;
+   }
    // Root Interpreter
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEString prompt = gROME->GetProgramName();
@@ -306,12 +312,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       }
    }
 
-   // Terminate
-   if (!this->DAQTerminate()) {
-      gROME->SetTerminationFlag();
-      gROME->PrintLine("\n\nTerminating Program !");
-      return;
-   }
 }
 
 Bool_t ROMEEventLoop::DAQInit()
@@ -474,6 +474,9 @@ Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
 
    if (!gROME->GetActiveDAQ()->Event(event))
       return false;
+   if (this->isContinue()) {
+      return true;
+   }
 
    if (gROME->IsEventBasedDataBase()) {
       if (!gROME->ReadSingleDataBaseFolders()) {

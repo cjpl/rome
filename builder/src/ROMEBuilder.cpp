@@ -4780,6 +4780,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
       if (taskUserCode[i])
          buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
@@ -4789,7 +4790,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
 
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("\n");
@@ -4800,7 +4800,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#include <windows.h>\n");
+   buffer.AppendFormatted("#include <Windows4Root.h>\n");
    buffer.AppendFormatted("void CreateSplash(unsigned long time,char*,char*,ROMEString*,int);\n");
    buffer.AppendFormatted("DWORD WINAPI SplashThread ( LPVOID lpvoid) {\n");
    bool same = false;
@@ -6391,6 +6391,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
 
+   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
@@ -6418,7 +6419,6 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    }
 
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
 
    // Constructor
@@ -11513,12 +11513,9 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ROMERint.h\"\n");
-   buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#include \"windows.h\"\n");
-#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
@@ -12168,7 +12165,7 @@ void ROMEBuilder::StartBuilder()
    for (i=0;i<numOfTab;i++) {
       tabHistoIndexMax[i] = 0;
       for (j=0;j<numOfTabHistos[i];j++) {
-         tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1,tabHistoIndexMax[i]);
+         tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1+tabHistoArrayIndexEnd[i][j]-tabHistoArrayIndexStart[i][j],tabHistoIndexMax[i]);
       }
    }
 
@@ -12554,9 +12551,9 @@ void ROMEBuilder::AddGeneratedDictHeaders()
 {
    generatedDictHeaders = new ROMEStrArray(2);
    generatedLinkDefSuffix = new ROMEStrArray(2);
-   generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
-   generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
 }
 
