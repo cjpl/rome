@@ -13459,9 +13459,9 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d dict/*.h dict/*.cpp\n");
+   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d\n");
    buffer.AppendFormatted("%sclean:\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d dict/%s*.h dict/%s*.cpp\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d\n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
    WriteMakefileBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder.exe");
