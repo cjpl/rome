@@ -145,7 +145,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          // Output
          TimeStart();
          if (gROME->IsShowRunStat()) {
-            text.SetFormatted("\n\nRun %d started",gROME->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+            text.SetFormatted("\n\nRun %I64d started",gROME->GetCurrentRunNumber());
+#else
+            text.SetFormatted("\n\nRun %lld started",gROME->GetCurrentRunNumber());
+#endif
             gROME->PrintLine(text.Data());
          }
       }
@@ -263,10 +267,17 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
-            text.SetFormatted("Run %d stopped                                             \n",gROME->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+            text.SetFormatted("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
             gROME->PrintLine(text.Data());
-            text.SetFormatted("%d events processed\n",(int)gROME->GetProcessedEvents());
+            text.SetFormatted("%I64d events processed\n",(Long64_t)gROME->GetProcessedEvents());
             gROME->PrintLine(text.Data());
+#else
+            text.SetFormatted("Run %lld stopped                                             \n",gROME->GetCurrentRunNumber());
+            gROME->PrintLine(text.Data());
+            text.SetFormatted("%lld events processed\n",(Long64_t)gROME->GetProcessedEvents());
+            gROME->PrintLine(text.Data());
+#endif
 
             gROME->PrintText("run time = ");
             gROME->PrintLine(GetTime());
@@ -521,9 +532,9 @@ Bool_t ROMEEventLoop::Update()
    ROMEString text;
    // Progress Display
    if (fProgressDelta>1) {
-      if ((int)gROME->GetTriggerStatistics()->processedEvents >= fProgressLastEvent + fProgressDelta) {
+      if ((Long64_t)gROME->GetTriggerStatistics()->processedEvents >= fProgressLastEvent + fProgressDelta) {
          time(&fProgressTimeOfLastEvent);
-         fProgressLastEvent = (int)gROME->GetTriggerStatistics()->processedEvents;
+         fProgressLastEvent = (Long64_t)gROME->GetTriggerStatistics()->processedEvents;
          fProgressWrite = true;
       }
       else {
@@ -533,14 +544,18 @@ Bool_t ROMEEventLoop::Update()
    }
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      if (!fContinuous || ((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
-         text.SetFormatted("%d events processed                                                    \r",(int)gROME->GetTriggerStatistics()->processedEvents);
+      if (!fContinuous || ((fProgressDelta==1 || !((Long64_t)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
+#if defined( R__VISUAL_CPLUSPLUS )
+         text.SetFormatted("%I64d events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);
+#else
+         text.SetFormatted("%lld events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);
+#endif
          gROME->PrintFlush(text.Data());
       }
    }
 
    if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
-      if (((fProgressDelta==1 || !((int)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
+      if (((fProgressDelta==1 || !((Long64_t)gROME->GetTriggerStatistics()->processedEvents%fProgressDelta) && fProgressWrite))) {
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
@@ -565,7 +580,11 @@ Bool_t ROMEEventLoop::UserInput()
    ROMEString text;
 
    if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
-      text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+      text.SetFormatted("Stopped at event %I64d                      \r",gROME->GetCurrentEventNumber());
+#else
+      text.SetFormatted("Stopped at event %lld                      \r",gROME->GetCurrentEventNumber());
+#endif
       gROME->PrintFlush(text.Data());
       wait = true;
    }
@@ -593,7 +612,11 @@ Bool_t ROMEEventLoop::UserInput()
             wait = false;
          }
          if (ch == 's' || gROME->IsUserEventS()) {
-            text.SetFormatted("Stopped at event %d                      \r",gROME->GetCurrentEventNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+            text.SetFormatted("Stopped at event %I64d                      \r",gROME->GetCurrentEventNumber());
+#else
+            text.SetFormatted("Stopped at event %lld                      \r",gROME->GetCurrentEventNumber());
+#endif
             gROME->PrintFlush(text.Data());
             wait = true;
          }
@@ -667,7 +690,11 @@ Bool_t ROMEEventLoop::UserInput()
          gROME->DeleteUserEvent();
       }
       if (interpreter) {
-         text.SetFormatted("\nStart root session at the end of event number %d of run number %d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+         text.SetFormatted("\nStart root session at the end of event number %I64d of run number %I64d",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#else
+         text.SetFormatted("\nStart root session at the end of event number %lld of run number %lld",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#endif
          gROME->PrintLine(text.Data());
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();

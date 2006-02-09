@@ -91,7 +91,11 @@ void ROMETask::Exec(Option_t *option)
 
 void ROMETask::StartRootInterpreter(const char* message) {
    ROMEString text;
-   text.SetFormatted("\nIn method %s of task %s of event number %d of run number %d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+   text.SetFormatted("\nIn method %s of task %s of event number %I64d of run number %I64d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#else
+   text.SetFormatted("\nIn method %s of task %s of event number %lld of run number %lld",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+#endif
    gROME->PrintLine(text.Data());
    if (message)
       gROME->PrintLine(message);

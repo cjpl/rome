@@ -93,11 +93,19 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
    ROMEString orderPath;
    ROMEString path = dataBasePath;
    // replace ## with the current run number
-   tmpString.SetFormatted("%d",eventNumber);
+#if defined( R__VISUAL_CPLUSPLUS )
+   tmpString.SetFormatted("%I64d",eventNumber);
+#else
+   tmpString.SetFormatted("%lld",eventNumber);
+#endif
    path.ReplaceAll("##",tmpString);
    originalPath = path;
    // replace # with the current run number
-   tmpString.SetFormatted("%d",runNumber);
+#if defined( R__VISUAL_CPLUSPLUS )
+   tmpString.SetFormatted("%I64d",runNumber);
+#else
+   tmpString.SetFormatted("%lld",runNumber);
+#endif
    path.ReplaceAll("#",tmpString);
    // check path
    if (path.Length()<=0) {
