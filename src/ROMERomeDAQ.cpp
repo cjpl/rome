@@ -132,10 +132,17 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                if (fInputFileNameIndex==-1) {
                   ROMEString buf;
-                  buf.SetFormatted("Run %d not found in the specified input files !",gROME->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+                  buf.SetFormatted("Run %I64d not found in the specified input files !",gROME->GetCurrentRunNumber());
                   gROME->PrintLine(buf);
-                  buf.SetFormatted("Skipping run %d.",gROME->GetCurrentRunNumber());
+                  buf.SetFormatted("Skipping run %I64d.",gROME->GetCurrentRunNumber());
                   gROME->PrintLine(buf);
+#else
+                  buf.SetFormatted("Run %lld not found in the specified input files !",gROME->GetCurrentRunNumber());
+                  gROME->PrintLine(buf);
+                  buf.SetFormatted("Skipping run %lld.",gROME->GetCurrentRunNumber());
+                  gROME->PrintLine(buf);
+#endif
                   this->SetEndOfRun();
                   return true;
                }

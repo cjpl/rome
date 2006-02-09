@@ -8295,7 +8295,11 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("            xml->WriteElement(\"CompressionLevel\",fConfigData[index]->f%sTree->fCompressionLevel.Data());\n",treeName[i].Data());
          // MaxNumberOfEntries
          buffer.AppendFormatted("         if (index==0) {\n");
-         buffer.AppendFormatted("            str.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("            str.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+#else
+         buffer.AppendFormatted("            str.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());\n",i);
+#endif
          buffer.AppendFormatted("            xml->WriteElement(\"MaxNumberOfEntries\",str.Data());\n");
          buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         else if (fConfigData[index]->f%sTree->fMaxNumberOfEntriesModified)\n",treeName[i].Data());
