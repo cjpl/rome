@@ -5,14 +5,14 @@
 //                                                                      //
 //  Displays a splash screen.
 //                                                                      //
-//  $Id:$
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 
 #include <ROMEString.h>
-#include <windows.h>
+#include <Windows4Root.h>
 #include <Riostream.h>
 
 #define ID_SPLASHSCREEN      25

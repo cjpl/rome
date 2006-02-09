@@ -18,7 +18,7 @@
 #      include <conio.h>
 #   endif
 #   include <direct.h>
-#   include <windows.h>
+#   include <Windows4Root.h>
 #endif
 
 #if defined( R__UNIX )
