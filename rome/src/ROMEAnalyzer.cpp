@@ -285,7 +285,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    ROMEString configFile("");
 
    for (i=1;i<argc;i++) {
-      if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")) {
+      if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help")) {
          ParameterUsage();
          return false;
       }
