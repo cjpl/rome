@@ -6605,13 +6605,13 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fActiveModified = kTRUE;\n");
    // Argus/SocketToROME/Host
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/AnalyzerController/Host\",fConfigData[index]->fArgus->fSocketToROME->fHost,\"\");\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/SocketToROME/Host\",fConfigData[index]->fArgus->fSocketToROME->fHost,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fHost==\"\")\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fHostModified = kFALSE;\n");
    buffer.AppendFormatted("   else\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fHostModified = kTRUE;\n");
    // Argus/SocketToROME/Port
-   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/AnalyzerController/Port\",fConfigData[index]->fArgus->fSocketToROME->fPort,\"\");\n");
+   buffer.AppendFormatted("   xml->GetPathValue(path+\"/Argus/SocketToROME/Port\",fConfigData[index]->fArgus->fSocketToROME->fPort,\"\");\n");
    buffer.AppendFormatted("   if (fConfigData[index]->fArgus->fSocketToROME->fPort==\"\")\n");
    buffer.AppendFormatted("      fConfigData[index]->fArgus->fSocketToROME->fPortModified = kFALSE;\n");
    buffer.AppendFormatted("   else\n");

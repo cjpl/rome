@@ -182,6 +182,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (IsStandAloneARGUS()) {
       ConnectSocketToROME();
    }
+   if (!ConnectNetFolders())
+      return false;
 
    if (this->isBatchMode())
       redirectOutput();
@@ -379,10 +381,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       if (answerString=="R" || answerString=="A" || answerString=="M") {
          if (answerString=="R")
             gROME->SetStandAloneROME();
-         if (answerString=="A") {
+         if (answerString=="A")
             gROME->SetStandAloneARGUS();
-            gROME->SetBatchMode(true);
-         }
          if (answerString=="M")
             gROME->SetROMEAndARGUS();
          gROME->PrintLine();

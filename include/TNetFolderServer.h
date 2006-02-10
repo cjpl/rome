@@ -25,15 +25,15 @@ class TNetFolderServer : public TNamed
 {
 protected:
    static TApplication *fApplication;
-   Int_t fPort;
+   Int_t                fPort;
 public:
-   void StartServer(TApplication *app,Int_t port);
-   static int ResponseFunction(TSocket *socket);
+   void               StartServer(TApplication *app,Int_t port);
+   static int         ResponseFunction(TSocket *socket);
 protected:
-   static int CheckCommand(TSocket *socket,char *str);
-   static TFolder *ReadFolderPointer(TSocket *socket);
-   static THREADTYPE Server(void *arg);
-   static THREADTYPE ServerLoop(void *arg);
+   static int         CheckCommand(TSocket *socket,char *str);
+   static TFolder    *ReadFolderPointer(TSocket *socket);
+   static THREADTYPE  Server(void *arg);
+   static THREADTYPE  ServerLoop(void *arg);
 
 };
 
