@@ -12876,7 +12876,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell  $(ROOTSYS)/bin/root-config --cflags)\n");
-   buffer.AppendFormatted("rootthreadlibs := -lThread\n");
+   buffer.AppendFormatted("rootthreadlibs := -lThread -lpthread\n");
    buffer.AppendFormatted("sqllibs :=");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
@@ -12918,7 +12918,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("MACOSXTARGET := MACOSX_DEPLOYMENT_TARGET=$(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
-   buffer.AppendFormatted("oslibs := -lpthread -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+   buffer.AppendFormatted("oslibs := -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
    buffer.AppendFormatted("endif\n");
@@ -12929,7 +12929,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("endif\n");
 #elif defined( R__LINUX )
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function\n");
-   buffer.AppendFormatted("oslibs := -lutil -lpthread\n");
+   buffer.AppendFormatted("oslibs := -lutil\n");
    buffer.AppendFormatted("soflags := -shared -Wl\n");
 #elif defined( R__SOLARIS )
    buffer.AppendFormatted("oscflags :=\n");
@@ -14971,21 +14971,13 @@ Bool_t ROMEBuilder::isBoolType(const char *type)
 
 Bool_t ROMEBuilder::isIntType(const char *type)
 {
-   if (
-       !strcmp(type,"int") ||
-       !strcmp(type,"unsigned int") ||
-       !strcmp(type,"Int_t") ||
-       !strcmp(type,"UInt_t") ||
-
-       !strcmp(type,"long") ||
-       !strcmp(type,"unsigned long") ||
-       !strcmp(type,"Long_t") ||
-       !strcmp(type,"ULong_t")) {
-      return true;
-   }
-   return false;
+// check if the type is valid for array length specifier in TTree.
+// unsigned, char, short, Long64_t are not valid.
+   return (
+      !strcmp(type,"int")
+      || !strcmp(type,"Int_t")
+      );
 }
-
 
 ROMEString& ROMEBuilder::convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer)
 {
