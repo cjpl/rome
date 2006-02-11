@@ -254,7 +254,7 @@
 				</xs:element>
 				<xs:element name="NoBoundCheck" type="xs:boolean" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>If this is true, bound check is supposed to be done when read and write arrayed field. Default is false. ROME does not check bound of variable length array even when this is true.</xs:documentation>
+						<xs:documentation>If this is true, bound check is supposed to be done when reading and writing arrayed field. Default is false. For variable length array, ROME checks if memory is allocated instead of checks bound when this is true.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
