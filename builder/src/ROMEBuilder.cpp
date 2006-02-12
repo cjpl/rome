@@ -1599,11 +1599,11 @@ Bool_t ROMEBuilder::ReadXMLTask()
             if (type == 1 && !strcmp((const char*)name,"AuthorName"))
                xml->GetValue(taskAuthor[numOfTask],taskAuthor[numOfTask]);
             if (type == 1 && !strcmp((const char*)name,"AuthorInstitute"))
-               xml->GetValue(mainInstitute,mainInstitute);
+               xml->GetValue(taskAuthorInstitute[numOfTask],taskAuthorInstitute[numOfTask]);
             if (type == 1 && !strcmp((const char*)name,"AuthorCollaboration"))
-               xml->GetValue(mainCollaboration,mainCollaboration);
+               xml->GetValue(taskAuthorCollaboration[numOfTask],taskAuthorCollaboration[numOfTask]);
             if (type == 1 && !strcmp((const char*)name,"AuthorEmail"))
-               xml->GetValue(mainEmail,mainEmail);
+               xml->GetValue(taskAuthorEmail[numOfTask],taskAuthorEmail[numOfTask]);
             if (type == 15 && !strcmp((const char*)name,"Author"))
                break;
          }
@@ -2877,8 +2877,22 @@ Bool_t ROMEBuilder::ReadXMLTab()
          xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
 
       // tab author
-      if (type == 1 && !strcmp(name, "Author"))
-         xml->GetValue(tabAuthor[currentNumberOfTabs], tabAuthor[currentNumberOfTabs]);
+      if (type == 1 && !strcmp((const char*)name,"Author")) {
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            if (type == 1 && !strcmp((const char*)name,"AuthorName"))
+               xml->GetValue(tabAuthor[currentNumberOfTabs],tabAuthor[currentNumberOfTabs]);
+            if (type == 1 && !strcmp((const char*)name,"AuthorInstitute"))
+               xml->GetValue(tabAuthorInstitute[currentNumberOfTabs],tabAuthorInstitute[currentNumberOfTabs]);
+            if (type == 1 && !strcmp((const char*)name,"AuthorCollaboration"))
+               xml->GetValue(tabAuthorCollaboration[currentNumberOfTabs],tabAuthorCollaboration[currentNumberOfTabs]);
+            if (type == 1 && !strcmp((const char*)name,"AuthorEmail"))
+               xml->GetValue(tabAuthorEmail[currentNumberOfTabs],tabAuthorEmail[currentNumberOfTabs]);
+            if (type == 15 && !strcmp((const char*)name,"Author"))
+               break;
+         }
+      }
 
       // tab version
       if (type == 1 && !strcmp(name, "TabVersion")) {
@@ -4831,6 +4845,19 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
       if (!same) {
          authors[numAuthors] = taskAuthor[i];
+         numAuthors++;
+      }
+   }
+   for (i=0;i<numOfTab;i++) {
+      same = false;
+      for (j=0;j<i+1;j++) {
+         if (authors[j]==tabAuthor[i]) {
+            same = true;
+            break;
+         }
+      }
+      if (!same) {
+         authors[numAuthors] = tabAuthor[i];
          numAuthors++;
       }
    }
