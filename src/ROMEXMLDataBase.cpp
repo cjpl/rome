@@ -467,7 +467,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
          for (i=0;i<fIDX.GetEntriesFast();i++) {
             cout << i << endl;
             xmlPath = fXMLBase;
-            xmlPath.InsertFormatted(xmlPath.Length()-1,"[idx=%d]",strtol(fIDX.At(i).Data(),&cstop,10));
+            xmlPath.InsertFormatted(xmlPath.Length()-1,"[idx=%ld]",strtol(fIDX.At(i).Data(),&cstop,10));
             xmlPath += path->GetFieldName();
             path->Decode(xmlPath.Data(),0,eventNumber);
             vTemp = values->At(i,0);
