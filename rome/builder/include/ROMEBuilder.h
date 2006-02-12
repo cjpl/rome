@@ -222,6 +222,9 @@ protected:
    ROMEString    tabTitle[maxNumberOfTabs];
    ROMEString    tabDescription[maxNumberOfTabs];
    ROMEString    tabAuthor[maxNumberOfTabs];
+   ROMEString    tabAuthorInstitute[maxNumberOfTabs];
+   ROMEString    tabAuthorCollaboration[maxNumberOfTabs];
+   ROMEString    tabAuthorEmail[maxNumberOfTabs];
    ROMEString    tabVersion[maxNumberOfTabs];
    Int_t         tabParentIndex[maxNumberOfTabs];
    Int_t         tabNumOfChildren[maxNumberOfTabs];
