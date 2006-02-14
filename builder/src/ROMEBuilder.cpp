@@ -13485,12 +13485,6 @@ void ROMEBuilder::WriteMakefile() {
 
    buffer.AppendFormatted("\n");
 
-#if defined( R__VISUAL_CPLUSPLUS )
-//   buffer.AppendFormatted("!INCLUDE obj/*.d\n");
-#else
-   buffer.AppendFormatted("-include obj/*.d\n");
-#endif // R__VISUAL_CPLUSPLUS
-
    buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d\n");
    buffer.AppendFormatted("distclean:\n");
@@ -13502,6 +13496,13 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder.exe");
 #else
    WriteMakefileBuildRule(buffer,"$(ROMESYS)/bin/romebuilder.exe");
+#endif // R__VISUAL_CPLUSPLUS
+
+// .d files need to be place at the last
+#if defined( R__VISUAL_CPLUSPLUS )
+//   buffer.AppendFormatted("!INCLUDE obj/*.d\n");
+#else
+   buffer.AppendFormatted("-include obj/*.d\n");
 #endif // R__VISUAL_CPLUSPLUS
 
    ROMEString makeFile;
