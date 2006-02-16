@@ -6042,14 +6042,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
-      buffer.AppendFormatted("         if (");
-      Int_t index = i;
-      do {
-         buffer.AppendFormatted(" param1 == f%sTabID ||", tabName[index].Data());
-         index = tabParentIndex[index];
-      } while (index != -1);
-      buffer.Remove(buffer.Length() - 2);       // remove the last "||"
-      buffer.AppendFormatted(") {\n");
+      buffer.AppendFormatted("         if (param1 == f%sTabID) {\n", tabName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n", tabName[i].Data(), i);
       for (j = 0; j < numOfMenu[i]; j++) {
          buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n", tabName[i].Data(), j);
@@ -6063,6 +6056,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
             buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
          }
       }
+      buffer.AppendFormatted("         }\n");
+      buffer.AppendFormatted("         if (");
+      Int_t index = i;
+      do {
+         buffer.AppendFormatted(" param1 != f%sTabID &&", tabName[index].Data());
+         index = tabParentIndex[index];
+      } while (index != -1);
+      buffer.Remove(buffer.Length() - 2);       // remove the last "&&"
+      buffer.AppendFormatted(") {\n");
+      buffer.AppendFormatted("            f%s%03dTab->SetActive(kFALSE);\n", tabName[i].Data(), i);
       buffer.AppendFormatted("         }\n");
    }
    for (i = 0; i < numOfTab; i++) {
