@@ -12455,9 +12455,9 @@ void ROMEBuilder::AddRomeHeaders()
    if (this->pgsql)
       romeHeaders->Add("$(ROMESYS)/include/ROMEPgSQL.h");
    if (this->sqlite)
-      romeHeaders->Add("$(ROMESYS)/include/ROMESQLLite.h");
+      romeHeaders->Add("$(ROMESYS)/include/ROMESQLite.h");
    if (this->sqlite3)
-      romeHeaders->Add("$(ROMESYS)/include/ROMESQLLite3.h");
+      romeHeaders->Add("$(ROMESYS)/include/ROMESQLite3.h");
    if (this->sql) {
       romeHeaders->Add("$(ROMESYS)/include/ROMESQL.h");
       romeHeaders->Add("$(ROMESYS)/include/ROMESQLDataBase.h");
@@ -12516,9 +12516,9 @@ void ROMEBuilder::AddRomeSources()
    if (this->pgsql)
       romeSources->Add("$(ROMESYS)/src/ROMEPgSQL.cpp");
    if (this->sqlite)
-      romeSources->Add("$(ROMESYS)/src/ROMESQLLite.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMESQLite.cpp");
    if (this->sqlite3)
-      romeSources->Add("$(ROMESYS)/src/ROMESQLLite3.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMESQLite3.cpp");
    if (this->sql) {
       romeSources->Add("$(ROMESYS)/src/ROMESQL.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMESQLDataBase.cpp");

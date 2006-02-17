@@ -18,6 +18,9 @@
 
 const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
+const char* const kRunNumberReplace = "R_UN_NUMBE_R";
+const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
+const Int_t kNumberOfReadCache = 10;
 
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
@@ -241,6 +244,22 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
          sqlQuery += " WHERE ";
          sqlQuery += fWherePhrase;
          sqlQuery += " LIMIT 1;";
+
+         ROMEString tmpString;
+#if defined( R__VISUAL_CPLUSPLUS )
+         tmpString.SetFormatted("%I64d",eventNumber);
+#else
+         tmpString.SetFormatted("%lld",eventNumber);
+#endif
+         sqlQuery.ReplaceAll(kEventNumberReplace, tmpString);
+         // replace # with the current run number
+#if defined( R__VISUAL_CPLUSPLUS )
+         tmpString.SetFormatted("%I64d",runNumber);
+#else
+         tmpString.SetFormatted("%lld",runNumber);
+#endif
+         sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
+
          if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
             cout << "Wrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;
             fSQL->FreeResult();
@@ -429,57 +448,96 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    ROMEString fieldName;
    ROMEString sqlQuery;
    ROMEString orderField;
+   static ROMEString queryCache[kNumberOfReadCache];
+   static ROMEString pathCache[kNumberOfReadCache];
+   static Int_t iCache = 0;
+   Bool_t cacheFound = kFALSE;
 
-   if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
-      cout << "Path decode error : " << dataBasePath << endl;
-      delete path;
-      return false;
-   }
-
-   this->ResetPhrase();
-   if(!MakePhrase(path,runNumber,eventNumber)){
-      cout<<"Invalid input for database read."<<endl;
-      delete path;
-      return false;
-   }
-   if(!fFromPhrase.Contains(path->GetOrderTableName())){
-      cout<<"Invalid path for database read."<<endl
-          <<"order tabele("<<path->GetOrderTableName()<<") should be in path"<<endl;
-      delete path;
-      return false;
-   }
-   if(path->IsOrderArray())
-      orderField.AppendFormatted("%s.%s",
-                                 strlen(path->GetOrderTableName())
-                                 ? path->GetOrderTableName() : path->GetTableNameAt(path->GetNumberOfTables()-1),
-                                 strlen(path->GetOrderFieldName())
-                                 ? path->GetOrderFieldName() : "idx");
-
-   sqlQuery = "SELECT ";
-   sqlQuery += fSelectFieldList;
-   if(path->IsOrderArray())
-      sqlQuery.AppendFormatted(",%s",orderField.Data());
-   sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
-   if(fWherePhrase.Length())
-      sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
-   if(orderField.Length()){
-      if(sqlQuery.Contains("WHERE"))
-         sqlQuery += " AND ";
-      else
-         sqlQuery += " WHERE ";
-      sqlQuery.AppendFormatted("(%s BETWEEN %d AND %d)"
-                               ,orderField.Data()
-                               ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
-                               ,TMath::Max(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1)));
-      if(path->GetOrderIndexAt(2)!=1){
-         sqlQuery.AppendFormatted(" AND ((%s-%d) %% %d)=0 "
-                                  ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+   // check cache
+   for (iCount = 0; iCount < kNumberOfReadCache; iCount++) {
+      if ( pathCache[iCount] == dataBasePath ) {
+         cacheFound = kTRUE;
+         sqlQuery = pathCache[iCount];
+         break;
       }
-      sqlQuery.AppendFormatted(" ORDER BY %s ",orderField.Data());
-      if(path->GetOrderIndexAt(2)<0)
-         sqlQuery += " DESC ";
    }
-   sqlQuery += ";";
+
+   if (!cacheFound) {
+      ROMEString pathString = dataBasePath;
+      pathString.ReplaceAll("##", kEventNumberReplace);
+      pathString.ReplaceAll("#", kRunNumberReplace);
+
+      if (!path->Decode(pathString.Data(),runNumber,eventNumber)) {
+         cout << "Path decode error : " << dataBasePath << endl;
+         delete path;
+         return false;
+      }
+
+      this->ResetPhrase();
+      if(!MakePhrase(path,runNumber,eventNumber)){
+         cout<<"Invalid input for database read."<<endl;
+         delete path;
+         return false;
+      }
+      if(!fFromPhrase.Contains(path->GetOrderTableName())){
+         cout<<"Invalid path for database read."<<endl
+             <<"order tabele("<<path->GetOrderTableName()<<") should be in path"<<endl;
+         delete path;
+         return false;
+      }
+      if(path->IsOrderArray())
+         orderField.AppendFormatted("%s.%s",
+                                    strlen(path->GetOrderTableName())
+                                    ? path->GetOrderTableName() : path->GetTableNameAt(path->GetNumberOfTables()-1),
+                                    strlen(path->GetOrderFieldName())
+                                    ? path->GetOrderFieldName() : "idx");
+
+      sqlQuery = "SELECT ";
+      sqlQuery += fSelectFieldList;
+      if(path->IsOrderArray())
+         sqlQuery.AppendFormatted(",%s",orderField.Data());
+      sqlQuery.AppendFormatted(" FROM %s",fFromPhrase.Data());
+      if(fWherePhrase.Length())
+         sqlQuery.AppendFormatted(" WHERE %s",fWherePhrase.Data());
+      if(orderField.Length()){
+         if(sqlQuery.Contains("WHERE"))
+            sqlQuery += " AND ";
+         else
+            sqlQuery += " WHERE ";
+         sqlQuery.AppendFormatted("(%s BETWEEN %d AND %d)"
+                                  ,orderField.Data()
+                                  ,TMath::Min(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
+                                  ,TMath::Max(path->GetOrderIndexAt(0),path->GetOrderIndexAt(1)));
+         if(path->GetOrderIndexAt(2)!=1){
+            sqlQuery.AppendFormatted(" AND ((%s-%d) %% %d)=0 "
+                                     ,orderField.Data(),path->GetOrderIndexAt(0),path->GetOrderIndexAt(2));
+         }
+         sqlQuery.AppendFormatted(" ORDER BY %s ",orderField.Data());
+         if(path->GetOrderIndexAt(2)<0)
+            sqlQuery += " DESC ";
+      }
+      sqlQuery += ";";
+      // store cache
+      pathCache[iCache] = dataBasePath;
+      queryCache[iCache] = sqlQuery;
+      iCache = (iCache+1) % kNumberOfReadCache;
+   }
+
+   // replace ## with the current run number
+   ROMEString tmpString;
+#if defined( R__VISUAL_CPLUSPLUS )
+   tmpString.SetFormatted("%I64d",eventNumber);
+#else
+   tmpString.SetFormatted("%lld",eventNumber);
+#endif
+   sqlQuery.ReplaceAll(kEventNumberReplace, tmpString);
+   // replace # with the current run number
+#if defined( R__VISUAL_CPLUSPLUS )
+   tmpString.SetFormatted("%I64d",runNumber);
+#else
+   tmpString.SetFormatted("%lld",runNumber);
+#endif
+   sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
 
    if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
       cout<<"Invalid input for database read."<<endl;
