@@ -1,20 +1,31 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Wed Jun 15 13:10:30 2005 -->
+<!-- created by MXML on Fri Feb 17 22:35:10 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>false</Active>
+    </ARGUS>
+  </ProgramConfiguration>
   <MainConfiguration>
     <RunNumbers>1</RunNumbers>
     <EventNumbers></EventNumbers>
+    <InputFileNames></InputFileNames>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
       <BatchMode>false</BatchMode>
+      <QuitMode>false</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
     </Modes>
     <DataBases>
       <DataBase>
         <Name>mydatabase</Name>
         <Type>sql</Type>
-        <Connection>sqlite3://../sqlDataBase/RDBDataBase.sqlite3</Connection>
+        <Connection>sqlite3://sqlDataBase/RDBDataBase.sqlite3</Connection>
+        <EventBased>false</EventBased>
       </DataBase>
     </DataBases>
     <Online>
@@ -29,6 +40,10 @@
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Histograms>
+      <Read>false</Read>
+      <Run>0</Run>
+    </Histograms>
     <Tasks>
       <Task>
         <TaskName>PrintFolders</TaskName>

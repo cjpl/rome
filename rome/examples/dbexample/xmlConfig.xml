@@ -14,7 +14,7 @@
       <DataBase>
         <Name>mydatabase</Name>
         <Type>xml</Type>
-        <Connection>../xmlDataBase;RDBDataBase</Connection>
+        <Connection>xmlDataBase;RDBDataBase</Connection>
       </DataBase>
     </DataBases>
     <Online>

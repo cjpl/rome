@@ -14,7 +14,7 @@
       <DataBase>
         <Name>mydatabase</Name>
         <Type>sql</Type>
-        <Connection>sqlite://../sqlDataBase/RDBDataBase.sqlite</Connection>
+        <Connection>sqlite://sqlDataBase/RDBDataBase.sqlite</Connection>
       </DataBase>
     </DataBases>
     <Online>
