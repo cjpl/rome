@@ -20,7 +20,7 @@ const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 const char* const kRunNumberReplace = "R_UN_NUMBE_R";
 const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
-const Int_t kNumberOfReadCache = 10;
+const Int_t kNumberOfReadCache = 1000;
 
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
@@ -457,7 +457,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    for (iCount = 0; iCount < kNumberOfReadCache; iCount++) {
       if ( pathCache[iCount] == dataBasePath ) {
          cacheFound = kTRUE;
-         sqlQuery = pathCache[iCount];
+         sqlQuery = queryCache[iCount];
          break;
       }
    }
