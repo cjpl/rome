@@ -40,7 +40,8 @@ Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* conn
 
 Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    Ssiz_t     ps,pe;
-   int        iRow,iCol;
+   int        iRow;
+   int        iCol = 0;
    ROMEString lineBuffer = "";
    ROMEString fileName;
    ROMEString valueName;
@@ -78,6 +79,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
    // read data
    bool start = false;
    bool end = false;
+   bool lineEndsWithComma = false;
 
    iRow = 0;
    while(lineBuffer.ReadLine(fileStream)){
@@ -92,7 +94,13 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
          start = true;
 
       if(start){
-         iCol=0;
+         lineBuffer.StripSpaces();
+         if (lineEndsWithComma) {
+            lineEndsWithComma = false;
+         }
+         else {
+            iCol=0;
+         }
          ps = pe = 0;
          // skip start mark
          lineBuffer.ReplaceAll(StartMark(valueName.Data()),"");
@@ -105,16 +113,22 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
             continue;
 
         while((ps=lineBuffer.Index(",",1,pe,TString::kExact))!=-1){
-            tmp = lineBuffer(pe,ps-pe);
-            tmp.StripSpaces();
-            values->SetAt(tmp,iRow,iCol);
-            pe = ps+1;
-            iCol++;
-         }
-         tmp = lineBuffer(pe,lineBuffer.Length()-pe);
-         tmp.StripSpaces();
-         values->SetAt(tmp,iRow,iCol);
-         iRow++;
+           tmp = lineBuffer(pe,ps-pe);
+           tmp.StripSpaces();
+           values->SetAt(tmp,iRow,iCol);
+           pe = ps+1;
+           iCol++;
+           if (ps == lineBuffer.Length()-1) {
+              lineEndsWithComma = true;
+              break;
+           }
+        }
+        if (!lineEndsWithComma) {
+           tmp = lineBuffer(pe,lineBuffer.Length()-pe);
+           tmp.StripSpaces();
+           values->SetAt(tmp,iRow,iCol);
+           iRow++;
+        }
       }
    }
 
@@ -172,13 +186,15 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
       }
    }
 
+   const int kColPerLine = 5;
+
    // count field length
    for(iRow=0;iRow<values->GetEntries();iRow++){
       if(values->GetEntriesAt(iRow)>fieldLen.GetSize())
          fieldLen.Set(values->GetEntriesAt(iRow));
       for(iCol=0;iCol<values->GetEntriesAt(iRow);iCol++){
-         if(fieldLen.At(iCol)<(Ssiz_t)strlen(values->At(iRow,iCol)))
-            fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol);
+         if(fieldLen.At(iCol%kColPerLine)<(Ssiz_t)strlen(values->At(iRow,iCol)))
+            fieldLen.AddAt(strlen(values->At(iRow,iCol)),iCol%kColPerLine);
       }
    }
 
@@ -191,7 +207,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
       buffer += "\n";
    for(iRow=0;iRow<values->GetEntries();iRow++){
       for(iCol=0;iCol<fieldLen.GetSize();iCol++){
-         format.SetFormatted(" %%%ds",fieldLen.At(iCol));
+         format.SetFormatted(" %%%ds",fieldLen.At(iCol%kColPerLine));
          if(iCol<values->GetEntriesAt(iRow))
             buffer.AppendFormatted(format.Data(),values->At(iRow,iCol).Data());
          else
@@ -199,10 +215,10 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
          if(iCol == fieldLen.GetSize()-1){
             if(values->GetEntries()>numbering)
                buffer.AppendFormatted("        //%5d",iRow);
-            if(values->GetEntries()>1)
-               buffer += "\n";
-            else
-               buffer += " ";
+            buffer += "\n";
+         }
+         else if ((iCol+1) % kColPerLine == 0) {
+            buffer += ",\n";
          }
          else{
             buffer += ",";
