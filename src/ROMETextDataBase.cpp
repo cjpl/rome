@@ -225,6 +225,8 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
          }
       }
    }
+   if (values->GetEntries() == 1)
+      buffer.Resize(buffer.Length()-1); // remove the last '\n'
    buffer.AppendFormatted("%s\n",EndMark(valueName.Data()));
    buffer.AppendFormatted("\n");
 
