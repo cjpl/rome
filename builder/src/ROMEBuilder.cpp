@@ -7230,6 +7230,16 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    }
 
    // midas banks
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("   xml->GetPathValue(path+\"/Midas/ByteSwap\",fConfigData[index]->fMidasByteSwap,\"\");\n");
+      buffer.AppendFormatted("   if (fConfigData[index]->fMidasByteSwap==\"\") {\n");
+      buffer.AppendFormatted("      fConfigData[index]->fMidasByteSwapModified = false;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   else {\n");
+      buffer.AppendFormatted("      fConfigData[index]->fMidasByteSwapModified = true;\n");
+      buffer.AppendFormatted("      fConfigData[index]->fMidasModified = true;\n");
+      buffer.AppendFormatted("   }\n");
+   }
    for (i=0;i<numOfEvent;i++) {
       // Active
       buffer.AppendFormatted("   // %s Event\n",eventName[i].Data());
@@ -7830,6 +7840,14 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    // midas banks
    buffer.AppendFormatted("   // midas banks\n");
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("   if (fConfigData[modIndex]->fMidasByteSwapModified) {\n");
+      buffer.AppendFormatted("      if (fConfigData[modIndex]->fMidasByteSwap==\"true\")\n");
+      buffer.AppendFormatted("         gAnalyzer->GetMidasDAQ()->SetByteSwap(true);\n",eventName[i].Data());
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         gAnalyzer->GetMidasDAQ()->SetByteSwap(false);\n",eventName[i].Data());
+      buffer.AppendFormatted("   }\n");
+   }
    for (i=0;i<numOfEvent;i++) {
       buffer.AppendFormatted("   // %s event\n",eventName[i].Data());
       buffer.AppendFormatted("   if (fConfigData[modIndex]->f%sEventModified) {\n",eventName[i].Data());
@@ -8368,9 +8386,15 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    }
 
    // Midas banks
-   buffer.AppendFormatted("   // midas banks\n");
-   buffer.AppendFormatted("   if (fConfigData[index]->fMidasModified || index==0) {\n");
-   buffer.AppendFormatted("      xml->StartElement(\"Midas\");\n");
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("   // midas banks\n");
+      buffer.AppendFormatted("   if (fConfigData[index]->fMidasModified || index==0) {\n");
+      buffer.AppendFormatted("      xml->StartElement(\"Midas\");\n");
+      buffer.AppendFormatted("      if (gAnalyzer->GetMidasDAQ()->GetByteSwap())\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",\"true\");\n");
+      buffer.AppendFormatted("      else\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",\"false\");\n");
+   }
    for (i=0;i<numOfEvent;i++) {
       buffer.AppendFormatted("      if (fConfigData[index]->f%sEventModified || index==0) {\n",eventName[i].Data());
       buffer.AppendFormatted("         xml->StartElement(\"Event\");\n");
@@ -8421,8 +8445,10 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         xml->EndElement();\n");
       buffer.AppendFormatted("      }\n");
    }
-   buffer.AppendFormatted("      xml->EndElement();\n");
-   buffer.AppendFormatted("   }\n");
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("      xml->EndElement();\n");
+      buffer.AppendFormatted("   }\n");
+   }
    // end
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
@@ -8790,7 +8816,11 @@ Bool_t ROMEBuilder::WriteConfigH() {
       buffer.AppendFormatted("      %sEvent *f%sEvent;\n",eventName[i].Data(),eventName[i].Data());
       buffer.AppendFormatted("      Bool_t f%sEventModified;\n",eventName[i].Data());
    }
-   buffer.AppendFormatted("      Bool_t fMidasModified;\n");
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("      ROMEString fMidasByteSwap;\n");
+      buffer.AppendFormatted("      Bool_t     fMidasByteSwapModified;\n");
+      buffer.AppendFormatted("      Bool_t     fMidasModified;\n");
+   }
    // Constructor
    buffer.AppendFormatted("   public:\n");
    buffer.AppendFormatted("      ConfigData() {\n");
@@ -8844,7 +8874,10 @@ Bool_t ROMEBuilder::WriteConfigH() {
       buffer.AppendFormatted("         f%sEventModified = false;\n",eventName[i].Data());
       buffer.AppendFormatted("         f%sEvent = new %sEvent();\n",eventName[i].Data(),eventName[i].Data());
    }
-   buffer.AppendFormatted("         fMidasModified = false;\n");
+   if (numOfEvent>0) {
+      buffer.AppendFormatted("         fMidasByteSwapModified = false;\n");
+      buffer.AppendFormatted("         fMidasModified = false;\n");
+   }
    buffer.AppendFormatted("      };\n");
    buffer.AppendFormatted("   };\n");
    buffer.AppendFormatted("\n");
@@ -8965,7 +8998,6 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    // Initialize ODB
    buffer.AppendFormatted("// InitODB\n");
    buffer.AppendFormatted("Bool_t %sMidasDAQ::InitODB() {\n",shortCut.Data());
-#if !defined( __ARGUS__ )  // Argus does not make switches in ODB.
    if (this->midas){
       buffer.AppendFormatted("   HNDLE hKey;\n");
       buffer.AppendFormatted("   ROMEString str;\n");
@@ -8994,7 +9026,6 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
    }
-#endif // __ARGUS__
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
@@ -9150,7 +9181,6 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("}\n");
 
    // -- Append method for byte swapping bank structures that are defined ----------
-#if !defined( R__BYTESWAP )
    buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
    buffer.AppendFormatted( "void* %sMidasDAQ::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
    buffer.AppendFormatted( "{\n" );
@@ -9208,7 +9238,6 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
 
    buffer.AppendFormatted( "    return( pData );\n" );
    buffer.AppendFormatted( "}\n" );
-#endif // R__BYTESWAP
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);

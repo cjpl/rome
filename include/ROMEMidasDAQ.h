@@ -34,6 +34,7 @@ const Int_t CM_SUCCESS = 1;
 #   define EVENTID_BOR      ((short) 0x8000)  /**< Begin-of-run      */
 #   define EVENTID_EOR      ((short) 0x8001)  /**< End-of-run        */
 #   define EVENTID_MESSAGE  ((short) 0x8002)  /**< Message events    */
+
 typedef struct {
    Short_t event_id;
    Short_t trigger_mask;
@@ -41,20 +42,24 @@ typedef struct {
    DWORD   time_stamp;
    DWORD   data_size;
 } EVENT_HEADER;
+
 typedef struct {
    DWORD   data_size;
    DWORD   flags;
 } BANK_HEADER;
+
 typedef struct {
    char    name[4];
    WORD    type;
    WORD    data_size;
 } BANK;
+
 typedef struct {
    char    name[4];
    DWORD   type;
    DWORD   data_size;
 } BANK32;
+
 #   define ALIGN8(x)  (((x)+7) & ~7)
 //Data types Definition                         min      max
 const UShort_t TID_BYTE      = 1;       //< unsigned byte         0       255
@@ -80,6 +85,7 @@ const Int_t kMaxMidasEventTypes = 5;
 
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
+   Bool_t        fByteSwap;
    char          fRawDataEvent[2][0x80000];                //! Midas Inputdata Stack for the current Event and the last Event
    Int_t         fCurrentRawDataEvent;                     //! Index of the current event buffer
 
@@ -123,6 +129,10 @@ public:
    void           SetEventRequestMask(Int_t i,Short_t value)  { fEventRequestMask[i] = value; };
    void           SetEventRequestRate(Int_t i,Int_t value)  { fEventRequestRate[i] = value; };
 
+   // Byte swap flag
+   void           SetByteSwap(Bool_t flag = kTRUE) { fByteSwap = flag; }
+   Bool_t         GetByteSwap() { return fByteSwap; }
+
    // Additional Getters
    Int_t          GetTimeStamp() { return fTimeStamp; };
    const char    *GetName() { return "midas"; };
@@ -139,12 +149,10 @@ public:
    virtual void   InitMidasBanks() = 0;
 
    //byte swapping
-#ifndef R__BYTESWAP
-#   ifndef HAVE_MIDAS
+#ifndef HAVE_MIDAS
    INT            bk_swap(void *event, BOOL force);
-#   endif
-   virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
 #endif
+   virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
 #ifndef HAVE_MIDAS
    BOOL           bk_is32(void *event);
    INT            bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);

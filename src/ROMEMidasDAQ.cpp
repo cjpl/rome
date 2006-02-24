@@ -42,6 +42,11 @@ void ProcessMessage(Int_t hBuf, Int_t id, EVENT_HEADER *pheader, void *message)
 ROMEMidasDAQ::ROMEMidasDAQ() {
    fStopRequest = false;
    fCurrentRawDataEvent = 0;
+#if defined( R__BYTESWAP )
+   fByteSwap = false;
+#else
+   fByteSwap = true;
+#endif
 }
 
 Bool_t ROMEMidasDAQ::Init() {
@@ -292,14 +297,14 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
       gROME->SetEventID(((EVENT_HEADER*)mEvent)->event_id);
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
-#if !defined( R__BYTESWAP )
-      //byte swapping
-      if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
-         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
-         ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
-         if(IsActiveEventID(((EVENT_HEADER*)mEvent)->event_id ))
-            bk_swap((EVENT_HEADER*)mEvent + 1, 0);
-#endif
+      if (fByteSwap) {
+         //byte swapping
+         if(((EVENT_HEADER*)mEvent)->event_id != EVENTID_BOR &&
+            ((EVENT_HEADER*)mEvent)->event_id != EVENTID_EOR &&
+            ((EVENT_HEADER*)mEvent)->event_id != EVENTID_MESSAGE)
+            if(IsActiveEventID(((EVENT_HEADER*)mEvent)->event_id ))
+               bk_swap((EVENT_HEADER*)mEvent + 1, 0);
+      }
       this->InitMidasBanks();
 #endif
    }
@@ -316,14 +321,14 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
       if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
       else {
-#if !defined( R__BYTESWAP )
-         //byte swapping
-         ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
-         ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
-         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
-         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
-         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
-#endif
+         if (fByteSwap) {
+            //byte swapping
+            ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
+            ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
+         }
          n = 0;
          if (pevent->data_size <= 0) readError = true;
          else {
@@ -359,14 +364,14 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          this->SetEndOfRun();
          return true;
       }
-#if !defined( R__BYTESWAP )
-      //byte swapping
-      if(pevent->event_id != EVENTID_BOR &&
-         pevent->event_id != EVENTID_EOR &&
-         pevent->event_id != EVENTID_MESSAGE)
-         if(IsActiveEventID( pevent->event_id ))
-            bk_swap(pevent + 1, 0);
-#endif
+      if (fByteSwap) {
+         //byte swapping
+         if(pevent->event_id != EVENTID_BOR &&
+            pevent->event_id != EVENTID_EOR &&
+            pevent->event_id != EVENTID_MESSAGE)
+            if(IsActiveEventID( pevent->event_id ))
+               bk_swap(pevent + 1, 0);
+      }
       if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
          this->SetContinue();
          return true;
@@ -403,8 +408,7 @@ Bool_t ROMEMidasDAQ::Terminate() {
 }
 
 
-#if !defined( R__BYTESWAP )
-#   if !defined( HAVE_MIDAS )
+#if !defined( HAVE_MIDAS )
 /**
 Swaps bytes from little endian to big endian or vice versa for a whole event.
 
@@ -508,8 +512,6 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
    }
    return CM_SUCCESS;
 }
-#   endif
-
 #endif
 #if !defined( HAVE_MIDAS )
 BOOL ROMEMidasDAQ::bk_is32(void *event)
