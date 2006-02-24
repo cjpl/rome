@@ -119,22 +119,19 @@ void ROMETask::TimeReset()
 void ROMETask::TimeStart()
 {
    // Starts the Tasks stopwatch
-   fWatch.Start(false);
+   fWatch.Start();
 }
 
 void ROMETask::TimeEnd()
 {
    // Ends the Tasks stopwatch
    fWatch.Stop();
+   fWatch.GetRealTime(fTimeString);
 }
 
 const char* ROMETask::GetTime()
 {
    // Returns the elapsed time in a readable format
-   int runTime = (int)fWatch.RealTime();
-   int milli = (int)((fWatch.RealTime()-runTime)*1000);
-   fTimeString.SetFormatted("%d%d:%d%d:%d%d:%d", (int)(runTime / 36000), (int)((runTime % 36000) / 3600),
-           (int)((runTime % 3600) / 600), (int)((runTime % 600) / 60), (int)((runTime % 60) / 10),
-           (int)(runTime % 10),milli);
+   fWatch.GetRealTime(fTimeString);
    return fTimeString.Data();
 }
