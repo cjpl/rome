@@ -13121,7 +13121,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    }
    if(linkDefName)
       buffer.AppendFormatted(" %s",linkDefName);
-   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted(" $(%sDep)\n", dictionaryName);
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
@@ -13187,7 +13187,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
       buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
-      buffer.AppendFormatted("obj/%s.obj: %s obj/%s.d\n",name.Data(),sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("obj/%s.obj: %s obj/%s.d $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
       buffer.AppendFormatted("\tg++ -c $(Flags) $(Includes) %s -o obj/%s.obj\n",sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
