@@ -12943,7 +12943,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell  $(ROOTSYS)/bin/root-config --cflags)\n");
-   buffer.AppendFormatted("rootthreadlibs := -lThread -lpthread\n");
+   buffer.AppendFormatted("rootthreadlibs := -lThread\n");
    buffer.AppendFormatted("sqllibs :=");
    if (this->mysql)
       buffer.AppendFormatted(" $(shell mysql_config --libs)");
@@ -13041,7 +13041,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(rootlibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries := $(sqllibs) $(midaslibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(oslibs)\n");
    for (i=0;i<numOfMFUnixLibs;i++) {
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
          buffer.AppendFormatted("ifdef %s\n",mfUnixLibFlag[i][j].Data());
