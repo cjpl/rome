@@ -27,6 +27,8 @@
 #include <ROMEString.h>
 #include <ROMEPath.h>
 
+const Int_t kNumberOfReadCache = 1000;
+
 class ROMESQLDataBase : public ROMEDataBase
 {
 protected:
@@ -39,6 +41,10 @@ protected:
   ROMEString  fAdInsertValues;
   ROMESQL    *fSQL;
   TString     fDBMSType;
+  ROMEString  fQueryCache[kNumberOfReadCache];
+  ROMEString  fDBPathCache[kNumberOfReadCache];
+  ROMEPath   *fPathCache[kNumberOfReadCache];
+  Int_t       fCurrentCache;
 
 public:
    ROMESQLDataBase();
