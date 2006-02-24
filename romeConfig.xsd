@@ -835,6 +835,11 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
+						<xs:element name="ByteSwap" type="xs:boolean">
+							<xs:annotation>
+							<xs:documentation>When it is true, framework does byte swapping when reading MIDAS files.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
 						<xs:element name="Event" type="EventDesc" minOccurs="0" maxOccurs="unbounded">
 							<xs:annotation>
 								<xs:documentation>Describes a midas event. (optional)</xs:documentation>
