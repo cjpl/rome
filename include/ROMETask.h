@@ -9,12 +9,12 @@
 
 #include <TTask.h>
 #include <ROMEString.h>
-#include <TStopwatch.h>
+#include <ROMEStopwatch.h>
 #include <ROMEAnalyzer.h>
 
 class ROMETask : public TTask {
 private:
-   TStopwatch     fWatch;              // Stopwatch
+   ROMEStopwatch  fWatch;              // Stopwatch
    ROMEString     fTitle;              // Task title
    ROMEString     fName;               // Task name
    ROMEString     fTimeString;         // Elapsed Time in a readable format
