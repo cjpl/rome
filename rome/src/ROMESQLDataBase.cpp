@@ -20,10 +20,13 @@ const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 const char* const kRunNumberReplace = "R_UN_NUMBE_R";
 const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
-const Int_t kNumberOfReadCache = 1000;
 
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
+   Int_t i;
+   for (i = 0; i < kNumberOfReadCache; i++)
+      fPathCache[i] = 0;
+   fCurrentCache = 0;
 }
 
 ROMESQLDataBase::~ROMESQLDataBase() {
@@ -444,45 +447,45 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    int iArray,jArray;
    int iCount;
    bool keepCursor=false;
-   ROMEPath *path = new ROMEPath();
+   ROMEPath *path;
    ROMEString fieldName;
    ROMEString sqlQuery;
    ROMEString orderField;
-   static ROMEString queryCache[kNumberOfReadCache];
-   static ROMEString pathCache[kNumberOfReadCache];
-   static Int_t iCache = 0;
    Bool_t cacheFound = kFALSE;
 
    // check cache
    for (iCount = 0; iCount < kNumberOfReadCache; iCount++) {
-      if ( pathCache[iCount] == dataBasePath ) {
+      if ( fDBPathCache[iCount] == dataBasePath ) {
          cacheFound = kTRUE;
-         sqlQuery = queryCache[iCount];
+         sqlQuery = fQueryCache[iCount];
+         path = fPathCache[iCount];
          break;
       }
    }
 
    if (!cacheFound) {
+      // store cache
+      fDBPathCache[fCurrentCache] = dataBasePath;
+      delete fPathCache[fCurrentCache];
+      path = fPathCache[fCurrentCache] = new ROMEPath();
+
       ROMEString pathString = dataBasePath;
       pathString.ReplaceAll("##", kEventNumberReplace);
       pathString.ReplaceAll("#", kRunNumberReplace);
 
       if (!path->Decode(pathString.Data(),runNumber,eventNumber)) {
          cout << "Path decode error : " << dataBasePath << endl;
-         delete path;
          return false;
       }
 
       this->ResetPhrase();
       if(!MakePhrase(path,runNumber,eventNumber)){
          cout<<"Invalid input for database read."<<endl;
-         delete path;
          return false;
       }
       if(!fFromPhrase.Contains(path->GetOrderTableName())){
          cout<<"Invalid path for database read."<<endl
              <<"order tabele("<<path->GetOrderTableName()<<") should be in path"<<endl;
-         delete path;
          return false;
       }
       if(path->IsOrderArray())
@@ -518,9 +521,8 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
       }
       sqlQuery += ";";
       // store cache
-      pathCache[iCache] = dataBasePath;
-      queryCache[iCache] = sqlQuery;
-      iCache = (iCache+1) % kNumberOfReadCache;
+      fQueryCache[fCurrentCache] = sqlQuery;
+      fCurrentCache = (fCurrentCache+1) % kNumberOfReadCache;
    }
 
    // replace ## with the current run number
@@ -542,14 +544,12 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    if(!fSQL->MakeQuery((char*)sqlQuery.Data(),true)){
       cout<<"Invalid input for database read."<<endl;
       fSQL->FreeResult();
-      delete path;
       return false;
    }
    if(!fSQL->GetNumberOfRows()){
       cout << "Warning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName();
       cout<<" was not found. Default value will be used."<<endl;
       fSQL->FreeResult();
-      delete path;
       return true;
    }
 
@@ -560,7 +560,6 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          if(!fSQL->NextRow()){
             cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
             fSQL->FreeResult();
-            delete path;
             return true;
          }
       }
@@ -574,7 +573,6 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
             if(!fSQL->NextRow()){
                cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
                fSQL->FreeResult();
-               delete path;
                return true;
             }
             iCount++ ;
@@ -607,7 +605,6 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    }
 
    fSQL->FreeResult();
-   delete path;
    return true;
 }
 
