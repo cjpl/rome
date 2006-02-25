@@ -213,7 +213,6 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
                else if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())
                   tree->SetDirectory(fRootFiles[fInputFileNameIndex]);
                tree->GetEntry(fTreePosition[j]);
-               cout << "read" << endl;
                fTreePosition[j]++;
             }
          }
