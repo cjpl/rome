@@ -11341,7 +11341,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             buffer.AppendFormatted("      }\n");
          }
          else {
-            buffer.AppendFormatted("      for (i=0;i<gAnalyzer->Get%ss()->GetEntries()&&!write;i++) {\n",branchFolder[i][j].Data());
+            buffer.AppendFormatted("      for (i=0;!write && i<gAnalyzer->Get%ss()->GetEntries();i++) {\n",branchFolder[i][j].Data());
             buffer.AppendFormatted("         if (((%s%s*)gAnalyzer->Get%sAt(i))->isModified()) {\n",shortCut.Data(),branchFolder[i][j].Data(),branchFolder[i][j].Data());
             buffer.AppendFormatted("            write = true;\n");
             buffer.AppendFormatted("            break;\n");
