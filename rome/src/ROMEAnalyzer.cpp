@@ -312,8 +312,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       ROMEUtilities::SearchXMLFiles(foundFiles, dirName.Data(), "/Configuration");
       dirName += "/config";
       ROMEUtilities::SearchXMLFiles(foundFiles, dirName.Data(), "/Configuration");
-      for (i = 0; i < foundFiles.GetEntries(); i++) {
-         if(foundFiles.At(i).BeginsWith(curDir.Data()))
+      const int nFile = foundFiles.GetEntries();
+      for (i = 0; i < nFile; i++) {
+         if (foundFiles.At(i).BeginsWith(curDir.Data()))
             foundFiles.AddAt(foundFiles.At(i).Remove(0, curDir.Length()+1), i);
       }
 
@@ -325,9 +326,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       else {
          i = -1;
-         while (i < 0 || i >= foundFiles.GetEntries()) {
+         while (i < 0 || i >= nFile) {
             gROME->PrintLine("Please select a configuration file.");
-            for (i = 0; i < foundFiles.GetEntries(); i++) {
+            for (i = 0; i < nFile; i++) {
                printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
                gROME->PrintLine(printString.Data());
             }
@@ -335,11 +336,11 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             gROME->PrintFlush("File number: ");
             cin.getline(answerLine, sizeof(answerLine));
             answerString = answerLine;
-            if(answerString == "q" || answerString == "Q") {
+            if (answerString == "q" || answerString == "Q") {
                return false;
             }
             i = answerString.ToInteger();
-            if (!answerString.IsDigit() || i < 0 || i >= foundFiles.GetEntries()) {
+            if (!answerString.IsDigit() || i < 0 || i >= nFile) {
                printString.SetFormatted("File number %s is not found.", answerString.Data());
                gROME->PrintLine(printString.Data());
                gROME->PrintLine();
@@ -352,8 +353,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    char answer = 0;
    bool overwrite = true;
-   if( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
-      if(configFile.Length()) {
+   if ( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
+      if (configFile.Length()) {
          gROME->PrintText("Configuration file '");
          gROME->PrintText(configFile.Data());
          gROME->PrintLine("' not found.");
@@ -389,9 +390,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          printString.SetFormatted("Please specify file name (default='%s'): ", configFile.Data());
          gROME->PrintFlush(printString.Data());
          cin.getline(answerLine, sizeof(answerLine));
-         if(strlen(answerLine))
+         if (strlen(answerLine))
             configFile = answerLine;
-         if(!configFile.EndsWith(".xml") && !configFile.EndsWith(".XML"))
+         if (!configFile.EndsWith(".xml") && !configFile.EndsWith(".XML"))
             configFile += ".xml";
          if (!gSystem->AccessPathName(configFile.Data(), kFileExists)) {
             printString.SetFormatted("overwrite '%s'? ", configFile.Data());
@@ -406,7 +407,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             gROME->ss_getchar(1);
 */
             cin>>answer;
-            if(answer != 'y' && answer != 'Y')
+            if (answer != 'y' && answer != 'Y')
                overwrite = false;
          }
          if (overwrite) {
@@ -465,7 +466,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-i")) {
          i++;
       }
-      else if(!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)){
+      else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {
          gROME->PrintText("Input line parameter '");
          gROME->PrintText(argv[i]);
          gROME->PrintLine("' not available.");
@@ -489,9 +490,10 @@ Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber)
 }
 Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
 {
-   if (numbers.GetSize()==0)
+   const int nNumbers = numbers.GetSize();
+   if (nNumbers==0)
       return 1;
-   for (Int_t i=0;i<numbers.GetSize();i++) {
+   for (Int_t i=0;i<nNumbers;i++) {
       if (TMath::Abs(numbers.At(i))>number) {
          return 0;
       }
@@ -508,16 +510,17 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
    }
    return -1;
 }
-Long64_t ROMEAnalyzer::GetNextRunNumber(Long64_t runNumber)
+Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
 {
-   for (Int_t i=0;i<fRunNumber.GetSize();i++) {
+   const Int_t nRunNumber = fRunNumber.GetSize();
+   for (Int_t i=0;i<nRunNumber;i++) {
       if (fRunNumber.At(i)<0) {
          if (TMath::Abs(fRunNumber.At(i))<=runNumber && TMath::Abs(fRunNumber.At(i+1))>runNumber) {
             return runNumber+1;
          }
       }
       else {
-         if (fRunNumber.At(i)==runNumber && i<fRunNumber.GetSize()-1) {
+         if (fRunNumber.At(i)==runNumber && i<nRunNumber-1) {
             return TMath::Abs(fRunNumber.At(i+1));
          }
       }
@@ -534,12 +537,13 @@ void ROMEAnalyzer::DecodeNumbers(ROMEString& str,TArrayL64& arr)
    char ccomma=',';
    char csemi =';';
    char *pstr = (char*)str.Data();
+   char *pend = (char*)str.Data()+str.Length();
    Long64_t num;
    Int_t na=0;
    Int_t nat=1;
    arr.Set(10);
    Int_t arraySize = arr.GetSize();
-   while (pstr<str.Data()+str.Length()) {
+   while (pstr<pend) {
       if (na>=arraySize*nat) {
          nat++;
          arr.Set(arraySize*nat);
@@ -895,7 +899,7 @@ void ROMEAnalyzer::redirectOutput() {
 }
 
 void ROMEAnalyzer::restoreOutput() {
-   if(fOldbuf)
+   if (fOldbuf)
       cout.rdbuf(fOldbuf);
 }
 

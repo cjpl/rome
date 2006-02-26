@@ -19,8 +19,9 @@ ROMEStrArray::ROMEStrArray(Int_t s, Int_t lowerBound)
 
 ROMEStrArray::ROMEStrArray(ROMEStrArray& strArray)
 {
-   array = new TObjArray(strArray.GetEntriesFast());
-   for (int i=0;i<strArray.GetEntriesFast();i++) {
+   const Int_t nStr = strArray.GetEntriesFast();
+   array = new TObjArray(nStr);
+   for (int i=0;i<nStr;i++) {
       this->AddAt(strArray[i],i);
    }
 }
@@ -33,7 +34,8 @@ ROMEStrArray::~ROMEStrArray()
 
 void ROMEStrArray::Delete(Option_t *option)
 {
-   for (int i=0;i<array->GetEntriesFast();i++) {
+   const Int_t nStr = array->GetEntriesFast(); 
+   for (int i=0;i<nStr;i++) {
       delete array->At(i);
    }
    array->RemoveAll();

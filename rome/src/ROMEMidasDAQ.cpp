@@ -79,7 +79,8 @@ Bool_t ROMEMidasDAQ::Init() {
          gROME->PrintLine("\nPlace Events Requests into the ROME configuration file.");
          return false;
       }
-      for (i=0;i<this->GetNumberOfEventRequests();i++) {
+      const int nRequest = this->GetNumberOfEventRequests();
+      for (i=0;i<nRequest;i++) {
          bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
             this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
@@ -152,7 +153,8 @@ Bool_t ROMEMidasDAQ::Init() {
       }
 
       // Tree Switches
-      for (i=0;i<gROME->GetTreeObjectEntries();i++) {
+      const Int_t nTree = gROME->GetTreeObjectEntries();
+      for (i=0;i<nTree;i++) {
          str="//Tree switches/";
          str.Insert(1,gROME->GetProgramName());
          str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
@@ -450,7 +452,8 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
    pbk32 = (BANK32 *) pbk;
 
    // scan event
-   while ((size_t) pbk - (size_t) pbh < pbh->data_size + sizeof(BANK_HEADER)) {
+   const size_t pend = pbh->data_size + sizeof(BANK_HEADER);
+   while ((size_t) pbk - (size_t) pbh < pend) {
       // swap bank header
       if (b32) {
          ROMEUtilities::ByteSwap((UInt_t*)&pbk32->type);
