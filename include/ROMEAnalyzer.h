@@ -374,7 +374,7 @@ public:
    void            SetRunNumbers(const char *numbers) {
                    fRunNumberString = numbers;
                    DecodeNumbers(fRunNumberString,fRunNumber); }
-   Long64_t        GetNextRunNumber(Long64_t runNumber);
+   Long64_t        GetNextRunNumber(const Long64_t runNumber);
 
    // Event Number
    Long64_t        GetCurrentEventNumber() { return fCurrentEventNumber; }

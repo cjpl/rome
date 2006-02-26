@@ -118,7 +118,8 @@ void ROMEStr2DArray::RemoveAllAt(Int_t idx)
    if (array->At(idx)==NULL)
       return;
    TObjArray *subArray = (TObjArray*)array->At(idx);
-   for (int i=0;i<subArray->GetEntriesFast();i++) {
+   const Int_t nStr = subArray->GetEntriesFast(); 
+   for (int i=0;i<nStr;i++) {
       delete subArray->At(i);
    }
    subArray->RemoveAll();
@@ -128,11 +129,14 @@ void ROMEStr2DArray::RemoveAllAt(Int_t idx)
 
 void ROMEStr2DArray::RemoveAll()
 {
-   for (int i=0;i<array->GetEntriesFast();i++) {
+   const Int_t nArray = array->GetEntriesFast();
+   Int_t nStr;
+   for (int i=0;i<nArray;i++) {
       TObjArray *subArray = (TObjArray*)array->At(i);
       if (subArray==NULL)
          continue;
-      for (int j=0;j<subArray->GetEntriesFast();j++) {
+      nStr = subArray->GetEntriesFast();
+      for (int j=0;j<nStr;j++) {
          delete subArray->At(j);
       }
       subArray->RemoveAll();

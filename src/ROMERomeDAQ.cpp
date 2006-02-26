@@ -26,10 +26,11 @@ Bool_t ROMERomeDAQ::Init() {
    if (gROME->isOffline()) {
       int i;
       ROMEString filename;
+      const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
       gROME->PrintLine("Program is running offline.\n");
       if ((gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
-         fRootFiles = new TFile*[gROME->GetNumberOfInputFileNames()];
-         for (i=0;i<gROME->GetNumberOfInputFileNames();i++) {
+         fRootFiles = new TFile*[nInputFile];
+         for (i=0;i<nInputFile;i++) {
             filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
             fRootFiles[i] = new TFile(filename.Data(),"READ");
             if (fRootFiles[i]->IsZombie()) {
@@ -45,6 +46,9 @@ Bool_t ROMERomeDAQ::Init() {
 }
 
 Bool_t ROMERomeDAQ::BeginOfRun() {
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
+   Int_t nKey;
    if (gROME->isOffline()) {
       this->SetRunning();
       // Read Trees
@@ -52,16 +56,16 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
       ROMEString filename;
       ROMEString treename;
       if (gROME->IsRunNumberBasedIO())
-         fRootFiles = new TFile*[gROME->GetTreeObjectEntries()];
+         fRootFiles = new TFile*[nTree];
       TTree *tree;
       ROMETree *romeTree;
       ROMEString runNumberString;
       if ((gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO()))
          gROME->GetCurrentRunNumberString(runNumberString);
       bool treeRead = false;
-      fTreePosition = new Long64_t[gROME->GetTreeObjectEntries()];
-      fTreeNextSeqNumber = new Long64_t[gROME->GetTreeObjectEntries()];
-      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
+      fTreePosition = new Long64_t[nTree];
+      fTreeNextSeqNumber = new Long64_t[nTree];
+      for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
@@ -93,7 +97,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                if (fTreeIndex==0) {
                   fInputFileNameIndex++;
-                  if (gROME->GetNumberOfInputFileNames()<=fInputFileNameIndex) {
+                  if (nInputFile<=fInputFileNameIndex) {
                      this->SetTerminate();
                      return true;
                   }
@@ -110,8 +114,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
             else if (gROME->IsRunNumberAndFileNameBasedIO()) {
                fInputFileNameIndex = -1;
                fCurrentTreeName = tree->GetName();
-               for (i=0;i<gROME->GetNumberOfInputFileNames();i++) {
-                  for (k=0;k<fRootFiles[i]->GetNkeys();k++) {
+               for (i=0;i<nInputFile;i++) {
+                  nKey = fRootFiles[i]->GetNkeys();
+                  for (k=0;k<nKey;k++) {
                      treename.SetFormatted("%s",fCurrentTreeName.Data());
                      if (k>0)
                         treename.AppendFormatted("_%d",k);
@@ -158,7 +163,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
       this->ConnectTrees();
 
       // Get sequential number
-      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
+      for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
@@ -183,8 +188,9 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
       TTree *tree;
       bool found = false;
       bool endfound = true;
+      const Int_t nTree = gROME->GetTreeObjectEntries();
       // read event
-      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
+      for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
@@ -217,7 +223,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
             }
          }
       }
-      for (j=0;j<gROME->GetTreeObjectEntries();j++) {
+      for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead())
@@ -240,7 +246,8 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
 Bool_t ROMERomeDAQ::EndOfRun() {
    if (gROME->isOffline()) {
       if (gROME->IsRunNumberBasedIO()) {
-         for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+         const Int_t nTree = gROME->GetTreeObjectEntries();
+         for (int j=0;j<nTree;j++) {
             if (gROME->GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
          }
          delete [] fRootFiles;

@@ -360,7 +360,8 @@ Bool_t ROMEEventLoop::DAQInit()
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
-   for (j=0;j<gROME->GetTreeObjectEntries();j++) {
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   for (j=0;j<nTree;j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
@@ -444,7 +445,8 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    ROMETree *romeTree;
    TTree *tree;
    gROME->GetCurrentRunNumberString(runNumberString);
-   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   for (int j=0;j<nTree;j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
@@ -730,7 +732,8 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    ROMEString treename;
    ROMETree *romeTree;
    TTree *tree;
-   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   for (int j=0;j<nTree;j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
@@ -781,7 +784,8 @@ Bool_t ROMEEventLoop::DAQTerminate()
    gROME->GetCurrentRunNumberString(runNumberString);
    ROMETree *romeTree;
    TTree *tree;
-   for (int j=0;j<gROME->GetTreeObjectEntries();j++) {
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   for (int j=0;j<nTree;j++) {
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {

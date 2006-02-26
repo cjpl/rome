@@ -297,8 +297,9 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
 }
 
 void ROMEPath::Print() {
+   const int nTable = this->GetNumberOfTables();
    cout << "Tables : " << endl;
-   for (int i=0;i<this->GetNumberOfTables();i++) {
+   for (int i=0;i<nTable;i++) {
       cout << "   Name : " << this->GetTableNameAt(i) << endl;
       cout << "      Constraint     : " << this->GetTableConstraintAt(i) << endl;
       cout << "      DB Constraint  : " << this->GetTableDBConstraintAt(i) << endl;
@@ -327,10 +328,11 @@ void ROMEPath::Print() {
    }
 }
 
-void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ){
+void ROMEPath::GetAbsolutePath( ROMEString& path, const char* tablename ) {
    int i;
-   for(i=1;i<fTableNames->GetEntriesFast();i++){
-      if(fTableNames->At(i)==tablename){
+   const int nTableName = fTableNames->GetEntriesFast();
+   for (i=1;i<nTableName;i++) {
+      if(fTableNames->At(i)==tablename) {
          path = fTableAbsolutePaths->At(i-1).Data();
          path += "/";
          path += tablename;
