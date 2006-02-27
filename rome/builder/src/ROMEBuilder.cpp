@@ -13021,7 +13021,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("MACOSX_DEPLOYMENT_TARGET := $(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("MACOSXTARGET := MACOSX_DEPLOYMENT_TARGET=$(MACOSX_MAJOR).$(MACOSX_MINOR)\n");
    buffer.AppendFormatted("oscflags := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
-   buffer.AppendFormatted("oslibs := -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
+   buffer.AppendFormatted("oslibs := -bind_at_load -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
    buffer.AppendFormatted("soflags := -dynamiclib -single_module -undefined suppress\n");
    buffer.AppendFormatted("endif\n");
@@ -13077,7 +13077,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(sqllibs) $(midaslibs) $(rootglibs) $(rootthreadlibs) $(clibs) $(oslibs)\n");
+   buffer.AppendFormatted("Libraries := $(oslibs) $(sqllibs) $(midaslibs) $(rootglibs) $(rootthreadlibs) $(clibs)\n");
    for (i=0;i<numOfMFUnixLibs;i++) {
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
          buffer.AppendFormatted("ifdef %s\n",mfUnixLibFlag[i][j].Data());
