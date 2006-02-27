@@ -29,6 +29,22 @@
 					</Tab>
 				</Argus>
 			</Histogram>
+			<Histogram>
+				<HistName>MyOtherHisto</HistName>
+				<HistFolderName>myotherhistos</HistFolderName>
+				<HistType>TH1F</HistType>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+				<Argus>
+					<Tab>
+						<TabName>GeneratedHisto</TabName>
+						<Index>3</Index>
+					</Tab>
+				</Argus>
+			</Histogram>
 		</Task>
 	</Tasks>
 </ROMEFrameworkDefinition>

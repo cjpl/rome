@@ -13,6 +13,7 @@
 // 
 // This task contains the following histgrams :
 //    MyHisto
+//    MyOtherHisto
 //
 // The histograms are created and saved automaticaly by the task.
 //
@@ -54,6 +55,7 @@ void HGUITFillHisto::Event()
    GetMyHistoAt(0)->Fill(gRandom->Gaus(0,10));
    GetMyHistoAt(1)->Fill(gRandom->Gaus(0,20));
    GetMyHistoAt(2)->Fill(gRandom->Gaus(0,30));
+   GetMyOtherHisto()->Fill(gRandom->Gaus(0,40));
 }
 
 void HGUITFillHisto::EndOfRun()
