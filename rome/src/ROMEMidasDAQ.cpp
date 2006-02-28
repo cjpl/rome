@@ -44,6 +44,7 @@ void ProcessMessage(Int_t hBuf, Int_t id, EVENT_HEADER *pheader, void *message)
 ROMEMidasDAQ::ROMEMidasDAQ() {
    fStopRequest = false;
    fCurrentRawDataEvent = 0;
+   fLastEventRead = -1;
 #if defined( R__BYTESWAP )
    fByteSwap = false;
 #else
@@ -318,54 +319,58 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       bool readError = false;
 
       // read event
-      Long_t n;
-      if(!fGZippedMidasFile)
-         n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-      else
-         n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-      if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
-      else {
-         if (fByteSwap) {
-            //byte swapping
-            ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
-            ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
-            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
-            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
-            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
-         }
-         n = 0;
-         if (pevent->data_size <= 0) readError = true;
+      while (fLastEventRead<event) {
+         fLastEventRead++;
+         fEventFilePositions.AddAt(tell(fMidasFileHandle),fLastEventRead);
+         Long_t n;
+         if(!fGZippedMidasFile)
+            n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+         else
+            n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
+         if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
          else {
-            if(!fGZippedMidasFile)
-               n = read(fMidasFileHandle,pevent+1,pevent->data_size);
-            else
-               n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
-            if (n != static_cast<Long_t>(pevent->data_size)) readError = true;
-//            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
+            if (fByteSwap) {
+               //byte swapping
+               ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
+               ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
+               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
+               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
+               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
+            }
+            n = 0;
+            if (pevent->data_size <= 0) readError = true;
+            else {
+               if(!fGZippedMidasFile)
+                  n = read(fMidasFileHandle,pevent+1,pevent->data_size);
+               else
+                  n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
+               if (n != static_cast<Long_t>(pevent->data_size)) readError = true;
+   //            if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
+            }
          }
-      }
-      // check input
-      if (readError) {
-         if (n > 0) gROME->PrintLine("Unexpected end of file");
-         this->SetEndOfRun();
-         return true;
-      }
-      // Get Handle to ODB header
-      if (pevent->event_id == EVENTID_BOR) {
-         if (gROME->isDataBaseActive("odb"))
-            ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
-         this->SetBeginOfRun();
-         if (!gROME->IsRunNumberBasedIO()) {
-            gROME->SetCurrentRunNumber(pevent->serial_number);
+         // check input
+         if (readError) {
+            if (n > 0) gROME->PrintLine("Unexpected end of file");
+            this->SetEndOfRun();
+            return true;
          }
-         return true;
+         // Get Handle to ODB header
+         if (pevent->event_id == EVENTID_BOR) {
+            if (gROME->isDataBaseActive("odb"))
+               ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
+            this->SetBeginOfRun();
+            if (!gROME->IsRunNumberBasedIO()) {
+               gROME->SetCurrentRunNumber(pevent->serial_number);
+            }
+            return true;
+         }
+         if (pevent->event_id == EVENTID_EOR) {
+            this->SetEndOfRun();
+            return true;
+         }
       }
       if (pevent->event_id < 0) {
          this->SetContinue();
-         return true;
-      }
-      if (pevent->event_id == EVENTID_EOR) {
-         this->SetEndOfRun();
          return true;
       }
       if (fByteSwap) {
