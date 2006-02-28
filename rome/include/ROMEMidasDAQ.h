@@ -8,11 +8,10 @@
 #define ROMEMidasDAQ_H
 
 
-#include <RConfig.h>
 #include <zlib.h>
-#include <ROMEAnalyzer.h>
+#include <RConfig.h>
+#include <TArrayL.h>
 #include <ROMEDAQSystem.h>
-#include <ROMEODBOfflineDataBase.h>
 
 #ifdef HAVE_MIDAS
 #   include <midas.h>
@@ -104,6 +103,8 @@ protected:
    EVENT_HEADER *fOdbOffline;                              //! Handle to the Midas Online Data Base (Offline)
 
    Int_t         fTimeStamp;                               //! Current time stamp
+
+   TArrayL       fEventPositions;                          //! File pointer
 
 public:
    ROMEMidasDAQ::ROMEMidasDAQ();

@@ -7,7 +7,9 @@
 #ifndef ROMERomeDAQ_H
 #define ROMERomeDAQ_H
 
-#include <ROMEAnalyzer.h>
+#include <TFile.h>
+#include <ROMEString.h>
+#include <ROMETreeInfo.h>
 #include <ROMEDAQSystem.h>
 
 class ROMERomeDAQ : public ROMEDAQSystem {

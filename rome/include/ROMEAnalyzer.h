@@ -12,7 +12,6 @@
 #include <TFile.h>
 #include <TArrayI.h>
 #include <TArrayL.h>
-#include <ROMEString.h>
 #include <TArrayL64.h>
 #include <TList.h>
 #include <TTask.h>

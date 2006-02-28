@@ -65,6 +65,7 @@
 #include <TROOT.h>
 #include <TBrowser.h>
 #include <THtml.h>
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS

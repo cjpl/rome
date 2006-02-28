@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <ROMEODBOfflineDataBase.h>
+#include <ROMEString.h>
+#include <Riostream.h>
 
 ROMEODBOfflineDataBase::ROMEODBOfflineDataBase() {
    xml = new ROMEXML();

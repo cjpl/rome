@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <ROMEODBOnlineDataBase.h>
+#include <Riostream.h>
 
 ROMEODBOnlineDataBase::ROMEODBOnlineDataBase() {
 }

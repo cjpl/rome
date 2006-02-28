@@ -26,6 +26,9 @@
 #include <time.h>
 #include <stdio.h>
 
+#include <TObjArray.h>
+#include <Riostream.h>
+
 #include <ROMEXML.h>
 
 

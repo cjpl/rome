@@ -10,7 +10,10 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <TMath.h>
+#include <TObjArray.h>
+#include <ROMEStr2DArray.h>
 #include <ROMEPath.h>
+#include <Riostream.h>
 
 ROMEPath::ROMEPath() {
    fOrderArray = false;

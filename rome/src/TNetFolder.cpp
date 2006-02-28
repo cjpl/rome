@@ -7,7 +7,10 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include "TObjString.h"
+#include "TSystem.h"
 #include "TNetFolder.h"
+#include "Riostream.h"
 
 ClassImp(TNetFolder)
 
