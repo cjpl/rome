@@ -16,9 +16,6 @@ extern "C" {
 }
 #endif
 
-#include <TObjArray.h>
-#include <Riostream.h>
-
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
 

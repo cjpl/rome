@@ -8,11 +8,8 @@
 #define ROMEPath_H
 
 #include <TArrayI.h>
-#include <TObjArray.h>
-#include <Riostream.h>
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
-#include <ROMEStr2DArray.h>
 
 class ROMEPath
 {

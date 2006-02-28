@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEString.h>
 #include <TObjString.h>
+#include <Riostream.h>
 
 #include <ROMEXMLDataBase.h>
 

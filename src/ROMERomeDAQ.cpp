@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <TBranchElement.h>
+#include <ROMEAnalyzer.h>
 #include <ROMERomeDAQ.h>
 
 ROMERomeDAQ::ROMERomeDAQ() {

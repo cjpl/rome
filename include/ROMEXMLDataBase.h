@@ -13,7 +13,6 @@
 #include <ROMEXML.h>
 #include <ROMEPath.h>
 #include <ROMEDataBase.h>
-#include <Riostream.h>
 
 class ROMEXMLDataBase : public ROMEDataBase
 {

@@ -14,16 +14,11 @@
 #   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include "TNamed.h"
-#include "TObjArray.h"
-#include "TUrl.h"
 #include "TSocket.h"
 #include "TCollection.h"
 #include "TObjArray.h"
-#include "TObjString.h"
 #include "TFolder.h"
 #include "TMessage.h"
-#include "TSystem.h"
-#include "Riostream.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS

@@ -8,9 +8,9 @@
 #define ROMETask_H
 
 #include <TTask.h>
+#include <TFolder.h>
 #include <ROMEString.h>
 #include <ROMEStopwatch.h>
-#include <ROMEAnalyzer.h>
 
 class ROMETask : public TTask {
 private:

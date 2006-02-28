@@ -10,7 +10,7 @@
 #include <ROMEAnalyzer.h>
 #include <ROMEDAQSystem.h>
 
-class ROMENoDAQSystem : public ROMEDAQSystem{
+class ROMENoDAQSystem : public ROMEDAQSystem {
 public:
    ROMENoDAQSystem::ROMENoDAQSystem() {};
 
