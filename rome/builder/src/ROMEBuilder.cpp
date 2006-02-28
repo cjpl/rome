@@ -8416,17 +8416,21 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   // midas banks\n");
       buffer.AppendFormatted("   if (fConfigData[index]->fMidasModified || index==0) {\n");
       buffer.AppendFormatted("      xml->StartElement(\"Midas\");\n");
-      buffer.AppendFormatted("      if (gAnalyzer->GetMidasDAQ()->GetByteSwap())\n");
-      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",\"true\");\n");
-      buffer.AppendFormatted("      else\n");
-      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",\"false\");\n");
+      buffer.AppendFormatted("      if (index==0 && gAnalyzer->GetMidasDAQ()!=NULL) {\n");
+      buffer.AppendFormatted("         if (gAnalyzer->GetMidasDAQ()->GetByteSwap())\n");
+      buffer.AppendFormatted("            xml->WriteElement(\"ByteSwap\",\"true\");\n");
+      buffer.AppendFormatted("         else\n");
+      buffer.AppendFormatted("            xml->WriteElement(\"ByteSwap\",\"false\");\n");
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      else if (fConfigData[index]->fByteSwapModified)\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",fConfigData[index]->fByteSwap.Data());\n");
    }
    for (i=0;i<numOfEvent;i++) {
       buffer.AppendFormatted("      if (fConfigData[index]->f%sEventModified || index==0) {\n",eventName[i].Data());
       buffer.AppendFormatted("         xml->StartElement(\"Event\");\n");
       buffer.AppendFormatted("         xml->WriteElement(\"EventName\",\"%s\");\n",eventName[i].Data());
       // active
-      buffer.AppendFormatted("         if (index==0) {\n");
+      buffer.AppendFormatted("         if (index==0 && gAnalyzer->GetMidasDAQ()!=NULL) {\n");
       buffer.AppendFormatted("            if (!strcmp(gAnalyzer->GetNameOfActiveDAQ(),\"midas\")) {\n");
       buffer.AppendFormatted("               if (gAnalyzer->GetMidasDAQ()->is%sEventActive())\n",eventName[i].Data());
       buffer.AppendFormatted("                  xml->WriteElement(\"Active\",\"true\");\n");
@@ -8448,7 +8452,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
          buffer.AppendFormatted("            xml->StartElement(\"Bank\");\n");
          buffer.AppendFormatted("            xml->WriteElement(\"BankName\",\"%s\");\n",bankName[i][j].Data());
          // active
-         buffer.AppendFormatted("            if (index==0) {\n");
+         buffer.AppendFormatted("            if (index==0 && gAnalyzer->GetMidasDAQ()!=NULL) {\n");
          buffer.AppendFormatted("               if (!strcmp(gAnalyzer->GetNameOfActiveDAQ(),\"midas\")) {\n");
          buffer.AppendFormatted("                  if (gAnalyzer->GetMidasDAQ()->is%sBankActive())\n",bankName[i][j].Data());
          buffer.AppendFormatted("                     xml->WriteElement(\"Active\",\"true\");\n");
