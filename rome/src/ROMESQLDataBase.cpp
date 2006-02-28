@@ -27,6 +27,10 @@ ROMESQLDataBase::ROMESQLDataBase() {
    for (i = 0; i < kNumberOfReadCache; i++)
       fPathCache[i] = 0;
    fCurrentCache = 0;
+   fLastRunNumber = 0;
+   fLastEventNumber = 0;
+   sprintf(fLastRunNumberString, "0");
+   sprintf(fLastEventNumberString, "0");
 }
 
 ROMESQLDataBase::~ROMESQLDataBase() {
@@ -526,20 +530,25 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    }
 
    // replace ## with the current run number
-   ROMEString tmpString;
+   if (fLastRunNumber != runNumber) {
 #if defined( R__VISUAL_CPLUSPLUS )
-   tmpString.SetFormatted("%I64d",eventNumber);
+      sprintf(fLastRunNumberString, "%I64d", runNumber);
 #else
-   tmpString.SetFormatted("%lld",eventNumber);
+      sprintf(fLastRunNumberString, "%lld", runNumber);
 #endif
-   sqlQuery.ReplaceAll(kEventNumberReplace, tmpString);
-   // replace # with the current run number
+      fLastRunNumber = runNumber;
+   }
+   sqlQuery.ReplaceAll(kRunNumberReplace, fLastRunNumberString);
+
+   if (fLastEventNumber != eventNumber) {
 #if defined( R__VISUAL_CPLUSPLUS )
-   tmpString.SetFormatted("%I64d",runNumber);
+      sprintf(fLastEventNumberString, "%I64d", eventNumber);
 #else
-   tmpString.SetFormatted("%lld",runNumber);
+      sprintf(fLastEventNumberString, "%lld", eventNumber);
 #endif
-   sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
+      fLastEventNumber = eventNumber;
+   }
+   sqlQuery.ReplaceAll(kEventNumberReplace, fLastEventNumberString);
 
    if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
       cout<<"Invalid input for database read."<<endl;
@@ -553,9 +562,12 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
       return true;
    }
 
-   for (iOrder=path->GetOrderIndexAt(0),iArray=0
-          ;!path->IsOrderArray() || InRange(iOrder,path->GetOrderIndexAt(0),path->GetOrderIndexAt(1))
-          ;iOrder+=path->GetOrderIndexAt(2),iArray++) {
+   const Int_t orderIndex[3] = {path->GetOrderIndexAt(0), path->GetOrderIndexAt(1), path->GetOrderIndexAt(2)};
+   const Int_t fieldIndex[3] = {path->GetFieldIndexAt(0), path->GetFieldIndexAt(1), path->GetFieldIndexAt(2)};
+
+   for (iOrder=orderIndex[0],iArray=0
+           ;!path->IsOrderArray() || InRange(iOrder,orderIndex[0],orderIndex[1])
+           ;iOrder+=orderIndex[2],iArray++) {
       if (!keepCursor) {
          if (!fSQL->NextRow()) {
             cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
@@ -568,8 +580,8 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
       if (path->IsOrderArray()) {
          // check number of records which have the same order number.
          iCount = 0;
-         while (TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)),path->GetOrderIndexAt(2))
-               < TMath::Sign(iOrder,path->GetOrderIndexAt(2))) {
+         while (TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)), orderIndex[2])
+                < TMath::Sign(iOrder, orderIndex[2])) {
             if (!fSQL->NextRow()) {
                cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
                fSQL->FreeResult();
@@ -582,8 +594,8 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
                  <<" records which satisfy "<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iLastOrder<<endl;
 
          // check if the record exists
-         if (TMath::Sign(iOrder,path->GetOrderIndexAt(2))
-            < TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)),path->GetOrderIndexAt(2))) {
+         if (TMath::Sign(iOrder,orderIndex[2])
+             < TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)),orderIndex[2])) {
             cout << "Warning: "
                  <<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName()
                  <<"("<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iOrder<<")"
@@ -592,9 +604,11 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
             continue;
          }
       }
-      for (iField=path->GetFieldIndexAt(0),jArray=0
-             ;!path->IsFieldArray() || InRange(iField,path->GetFieldIndexAt(0),path->GetFieldIndexAt(1))
-             ;iField+=path->GetFieldIndexAt(2),jArray++) {
+
+      // Fill result
+      for (iField=fieldIndex[0],jArray=0
+             ;!path->IsFieldArray() || InRange(iField,fieldIndex[0],fieldIndex[1])
+             ;iField+=fieldIndex[2],jArray++) {
          values->SetAt(fSQL->GetField(jArray),iArray,jArray);
          iLastOrder = iOrder;
          if (!path->IsFieldArray())
