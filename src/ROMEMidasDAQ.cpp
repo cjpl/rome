@@ -45,6 +45,7 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
    fStopRequest = false;
    fCurrentRawDataEvent = 0;
    fLastEventRead = -1;
+   fEventFilePositions = new TArrayL(100000);
 #if defined( R__BYTESWAP )
    fByteSwap = false;
 #else
@@ -321,7 +322,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // read event
       while (fLastEventRead<event) {
          fLastEventRead++;
-         fEventFilePositions.AddAt(tell(fMidasFileHandle),fLastEventRead);
+//         fEventFilePositions->AddAt(tell(fMidasFileHandle),fLastEventRead);
          Long_t n;
          if(!fGZippedMidasFile)
             n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
@@ -388,7 +389,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 
       // initalize event
       gROME->SetEventID(pevent->event_id);
-      gROME->SetCurrentEventNumber(pevent->serial_number);
+      gROME->SetCurrentEventNumber(event);
       fTimeStamp = pevent->time_stamp;
 
       this->InitMidasBanks();
@@ -513,11 +514,6 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
             }
             break;
 
-         case TID_STRUCT:
-            while ( (size_t) pdata < (size_t) pbk ) {
-                pdata = ByteSwapStruct( &name[ 0 ], pdata );
-            }
-            break;
       }
    }
    return CM_SUCCESS;
