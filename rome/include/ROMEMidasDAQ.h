@@ -104,7 +104,7 @@ protected:
 
    Int_t         fTimeStamp;                               //! Current time stamp
 
-   TArrayL       fEventFilePositions;                      //! File pointer to event
+   TArrayL*      fEventFilePositions;                      //! File pointer to event
    Long64_t      fLastEventRead;                           //! Last event read
 
 public:
