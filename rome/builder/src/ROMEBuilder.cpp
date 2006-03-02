@@ -13230,7 +13230,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
       buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s obj/%s.d $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\tg++ -c $(Flags) $(Includes) %s -o obj/%s.obj\n",sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("\tg++ -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
