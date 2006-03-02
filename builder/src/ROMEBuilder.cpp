@@ -8422,8 +8422,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("         else\n");
       buffer.AppendFormatted("            xml->WriteElement(\"ByteSwap\",\"false\");\n");
       buffer.AppendFormatted("      }\n");
-      buffer.AppendFormatted("      else if (fConfigData[index]->fByteSwapModified)\n");
-      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",fConfigData[index]->fByteSwap.Data());\n");
+      buffer.AppendFormatted("      else if (fConfigData[index]->fMidasByteSwapModified)\n");
+      buffer.AppendFormatted("         xml->WriteElement(\"ByteSwap\",fConfigData[index]->fMidasByteSwap.Data());\n");
    }
    for (i=0;i<numOfEvent;i++) {
       buffer.AppendFormatted("      if (fConfigData[index]->f%sEventModified || index==0) {\n",eventName[i].Data());
