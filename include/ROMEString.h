@@ -8,7 +8,7 @@
 #define ROMEString_H
 
 #include <TString.h>
-#include <Varargs.h>
+//#include <Varargs.h>
 
 class ROMEString : public TString
 {
@@ -30,6 +30,8 @@ public:
    void         WriteLine();
    Int_t        ToInteger();
    Double_t     ToDouble();
+   Float_t      ToFloat();
+   Bool_t       ToBool();
    void         ToLower();
    const char*  ToLower(ROMEString& destination);
    void         ToUpper();

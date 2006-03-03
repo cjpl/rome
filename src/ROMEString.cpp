@@ -122,6 +122,20 @@ Double_t ROMEString::ToDouble()
    return strtod(this->Data(),&cstop);
 }
 
+Float_t ROMEString::ToFloat()
+{
+   char *cstop;
+   return (Float_t)strtod(this->Data(),&cstop);
+}
+Bool_t ROMEString::ToBool()
+{
+   if (this->CompareTo("true",TString::kIgnoreCase))
+      return true;
+   if (this->CompareTo("false",TString::kIgnoreCase))
+      return false;
+   return this->ToInteger()!=0;
+}
+
 void ROMEString::ToLower() {
    ((TString*)this)->ToLower();
 }
@@ -170,7 +184,7 @@ static const int fld_size = 2048;
 static char gFormbuf[cb_size];       // some slob for form overflow
 static char *gBfree  = gFormbuf;
 static char *gEndbuf = &gFormbuf[cb_size-1];
-char *ROMEString::SlowFormat(const char *format, va_list ap, int hint)
+char* ROMEString::SlowFormat(const char *format, va_list ap, int hint)
 {
    // Format a string in a formatting buffer (using a printf style
    // format descriptor).

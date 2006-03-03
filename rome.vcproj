@@ -120,6 +120,18 @@
 				RelativePath=".\builder\src\ROMEBuilder.cpp">
 			</File>
 			<File
+				RelativePath=".\builder\src\ROMEBuildMakeFile.cpp">
+			</File>
+			<File
+				RelativePath=".\builder\src\ROMEBuildReadXML.cpp">
+			</File>
+			<File
+				RelativePath=".\builder\src\ROMEBuildVisualProject.cpp">
+			</File>
+			<File
+				RelativePath=".\builder\src\ROMEBuildWriteCode.cpp">
+			</File>
+			<File
 				RelativePath=".\src\ROMEStrArray.cpp">
 			</File>
 			<File
@@ -141,6 +153,9 @@
 			</File>
 			<File
 				RelativePath=".\builder\include\ROMEBuilder.h">
+			</File>
+			<File
+				RelativePath=".\builder\include\ROMEConfigParameter.h">
 			</File>
 			<File
 				RelativePath=".\include\ROMEStrArray.h">

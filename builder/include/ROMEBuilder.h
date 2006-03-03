@@ -10,6 +10,7 @@
 
 #include <ROMEXML.h>
 #include <ROMEString.h>
+#include <ROMEConfigParameter.h>
 
 const Int_t maxNumberOfTasks = 300;
 const Int_t maxNumberOfFolders = 200;
@@ -63,11 +64,11 @@ const char* const kHeaderEndMark = "/////////////////////////////////////----///
 
 class ROMEBuilder
 {
-protected:
-   Bool_t        haveFortranTask;
-
 public:
    ROMEString    romeVersion;
+
+protected:
+   Bool_t        haveFortranTask;
 
    ROMEString    outDir;
    ROMEString    xmlFile;
@@ -83,7 +84,6 @@ public:
    Bool_t        noVP;
    ROMEStrArray  flags;
 
-protected:
    ROMEXML*      xml;
 
    ROMEString    shortCut;
@@ -369,20 +369,37 @@ protected:
    ROMEStrArray* mysqlLibraries;
    ROMEStrArray* midasLibraries;
 
+// Configuration
+   ROMEConfigParameterGroup* mainParGroup;
+
 public:
    ROMEBuilder() { haveFortranTask = false; };
    ~ROMEBuilder() {};
 
+   void    StartBuilder();
+   Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
+   Bool_t  CheckFileAndPath();
+
+private:
+   // XML Read Methods
+   Bool_t  ReadXMLDefinitionFile() ;
    Bool_t  ReadXMLFolder();
-   Bool_t  WriteFolderCpp();
-   Bool_t  WriteFolderH();
    Bool_t  ReadXMLNetFolder();
    Bool_t  ReadXMLTask();
+   Bool_t  ReadXMLTab();
+   Bool_t  ReadXMLMenu(Int_t currentNumberOfTabs);
+   Bool_t  ReadXMLTree();
+   Bool_t  ReadXMLDAQ();
+   Bool_t  ReadXMLDB();
+   Bool_t  ReadXMLMidasBanks();
+   Bool_t  ReadXMLSteering(Int_t iTask);
+   Bool_t  ReadXMLUserMakefile();
+   void    ParseSVNKeyword(ROMEString& str);
+
+   // Code Write Methods
+   Bool_t  WriteFolderCpp();
+   Bool_t  WriteFolderH();
    Bool_t  WriteSteeringClass(ROMEString& buffer,Int_t numOfTaskSteer,Int_t numTask,Int_t tab);
-   Bool_t  WriteSteeringConfigClass(ROMEString& buffer,Int_t numOfTaskSteer,Int_t numTask,Int_t tab);
-   Bool_t  WriteSteeringConfigRead(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEXML *xml,ROMEString& path,ROMEString& pointer,ROMEString& classPath,ROMEString& index,ROMEString& blank,Int_t *indexCounter);
-   Bool_t  WriteSteeringConfigSet(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer,ROMEString& blank,Int_t *indexCounter);
-   Bool_t  WriteSteeringConfigWrite(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer,Int_t tab,Int_t *indexCounter);
    Bool_t  WriteSteeringReadParameters(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;
    Bool_t  WriteSteeringParameterUsage(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;
    Int_t   WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& path,Int_t tab);
@@ -390,23 +407,11 @@ public:
    void    WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void    WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type);
    void    WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl,Int_t nameLen,Int_t typeLen);
-   Bool_t  WriteTaskConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
-   Bool_t  WriteTaskConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
-   Bool_t  WriteTabConfigWrite(ROMEString &buffer,Int_t parentIndex,ROMEString& pointer,Int_t tab);
-   Bool_t  WriteTabConfigClass(ROMEString &buffer,Int_t parentIndex,Int_t tab);
    Bool_t  WriteTaskCpp();
    Bool_t  WriteTaskF();
    Bool_t  WriteTaskH();
-   Bool_t  ReadXMLTab();
-   Bool_t  ReadXMLMenu(Int_t currentNumberOfTabs);
    Bool_t  WriteTabCpp();
    Bool_t  WriteTabH();
-   Bool_t  ReadXMLTree();
-   Bool_t  ReadXMLDAQ();
-   Bool_t  ReadXMLDB();
-   Bool_t  ReadXMLMidasBanks();
-   Bool_t  ReadXMLSteering(Int_t iTask);
-   Bool_t  ReadXMLUserMakefile();
    Bool_t  WriteSteering(Int_t iTask);
    Bool_t  WriteAnalyzerCpp();
    Bool_t  WriteAnalyzerH();
@@ -417,6 +422,14 @@ public:
    Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfigH();
+   Bool_t  AddConfigParameters();
+   Bool_t  AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
+   Bool_t  AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
+   Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer);
+   Bool_t  WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab);
+   Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes);
+   Bool_t  WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer);
+   Bool_t  WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer);
    Bool_t  WriteMidasDAQCpp();
    Bool_t  WriteMidasDAQH();
    Bool_t  WriteRomeDAQCpp();
@@ -433,6 +446,8 @@ public:
    Bool_t  WriteReadTreesC();
    Bool_t  WriteLinkDefHs();
    Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* filename);
+
+   // Makefile Methods
    void    AddIncludeDirectories();
    void    AddRomeHeaders();
    void    AddRomeDictHeaders();
@@ -473,6 +488,19 @@ public:
    void    WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
    void    WriteRootCintCall(ROMEString& buffer);
    void    WriteUserMakeFile();
+   void    WriteHTMLDoku();
+   void    WriteHTMLStyle(ROMEString &buffer);
+   void    WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group);
+   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0, const char* str1 = 0, const char* str2 = 0);
+   void    WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite);
+   void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark);
+   Bool_t  BackUpFile(const char* filename);
+   Bool_t  accessFolder(ROMEString &fileBuffer, Int_t numFolder);
+   Bool_t  RemoveFile(const char* filename, const char* str = 0);
+   void    RemoveDepFiles(const char* str = 0);
+   void    RelativeWindowsPath(ROMEString &path,const char *referencePath);
+
+   // Visual Project Methods
    void    WriteVisualProjects(Int_t version);
    void    WriteVisualProjectSln(Int_t version,ROMEString& projectGUID);
    void    WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROMEString& projectGUID);
@@ -480,13 +508,8 @@ public:
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
    void    WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
-   void    WriteHTMLDoku();
-   void    WriteHTMLStyle(ROMEString &buffer);
-   void    WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group);
-   Bool_t  ReplaceHeader(const char* filename,const char* header,const char* content,Int_t nspace = 0, const char* str1 = 0, const char* str2 = 0);
-   Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
-   Bool_t  BackUpFile(const char* filename);
-   void    StartBuilder();
+
+   // Type Utility Methods
    void    GetFormat(ROMEString *buf,const char *type);
    void    setValue(ROMEString *buf,const char *destination,const char *source,const char *type,Int_t version);
    Bool_t  isFloatingType(const char *type);
@@ -502,19 +525,12 @@ public:
    Bool_t  isRootClassType(TString &type) { ROMEString tmp=type; tmp.StripSpaces(); return tmp(0)=='T'; };
    Bool_t  isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
    Bool_t  isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
-   Bool_t  accessFolder(ROMEString &fileBuffer, Int_t numFolder);
-   Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
-   void    Usage();
-   Bool_t  CheckFileAndPath();
-   void    AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
-   void    WriteHeader(ROMEString& buffer, const char* author, Bool_t overwrite);
-   void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark);
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
-   void    ParseSVNKeyword(ROMEString& str);
-   Bool_t  RemoveFile(const char* filename, const char* str = 0);
-   void    RemoveDepFiles(const char* str = 0);
-   void    RelativeWindowsPath(ROMEString &path,const char *referencePath);
 
+   // General Utility Methods
+   void    Usage();
+   void    AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
+   Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
 };
 
 #endif   // ROMEBuilder_H

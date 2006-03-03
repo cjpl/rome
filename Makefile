@@ -35,7 +35,7 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-objects :=  obj/strlcpy.o obj/mxml.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEXML.o obj/ROMEBuilder.o
+objects :=  obj/ROMEBuilder.o obj/ROMEBuildReadXML.o obj/ROMEBuildWriteCode.o obj/ROMEBuildMakeFile.o obj/ROMEXML.o obj/mxml.o obj/strlcpy.o obj/ROMEString.o obj/ROMEStrArray.o
 
 all: obj $(ROMESYS)/bin/romebuilder.exe
 
@@ -48,6 +48,15 @@ $(ROMESYS)/bin/romebuilder.exe: builder/src/main.cpp $(objects)
 	g++ $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(objects) $(LIBRARY)
 
 obj/ROMEBuilder.o: builder/src/ROMEBuilder.cpp builder/include/ROMEBuilder.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEBuildReadXML.o: builder/src/ROMEBuildReadXML.cpp builder/include/ROMEBuilder.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEBuildWriteCode.o: builder/src/ROMEBuildWriteCode.cpp builder/include/ROMEBuilder.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEBuildMakeFile.o: builder/src/ROMEBuildMakeFile.cpp builder/include/ROMEBuilder.h
 	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/ROMEXML.o: src/ROMEXML.cpp include/ROMEXML.h

@@ -136,14 +136,14 @@
 					<xs:documentation>The name of the data base connection. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Type" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The type of the data base. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="Connection" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename". For text: "your/database/directory". (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Type" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of the data base. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="EventBased" type="xs:string" default="false" minOccurs="0">
@@ -226,7 +226,7 @@
 					<xs:documentation>Read flag. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Run" type="xs:integer">
+			<xs:element name="RunNumber" type="xs:integer">
 				<xs:annotation>
 					<xs:documentation>Run number of the required histogram file. (required)</xs:documentation>
 				</xs:annotation>
@@ -835,9 +835,9 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="ByteSwap" type="xs:boolean">
+						<xs:element name="ByteSwap" type="xs:boolean" minOccurs="0">
 							<xs:annotation>
-							<xs:documentation>When it is true, framework does byte swapping when reading MIDAS files.</xs:documentation>
+								<xs:documentation>When it is true, framework does byte swapping when reading MIDAS files. Default is false.</xs:documentation>
 							</xs:annotation>
 						</xs:element>
 						<xs:element name="Event" type="EventDesc" minOccurs="0" maxOccurs="unbounded">
