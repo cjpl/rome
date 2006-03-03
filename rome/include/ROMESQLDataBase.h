@@ -9,18 +9,6 @@
 
 #include <ROMEStr2DArray.h>
 #include <ROMESQL.h>
-#if defined( HAVE_MYSQL )
-#   include <ROMEMySQL.h>
-#endif
-#if defined( HAVE_PGSQL )
-#   include <ROMEPgSQL.h>
-#endif
-#if defined( HAVE_SQLITE )
-#   include <ROMESQLite.h>
-#endif
-#if defined( HAVE_SQLITE3 )
-#   include <ROMESQLite3.h>
-#endif
 #include <Riostream.h>
 
 #include <ROMEDataBase.h>

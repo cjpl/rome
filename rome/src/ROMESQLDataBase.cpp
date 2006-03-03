@@ -13,6 +13,18 @@
 #if defined( R__UNIX )
 #   include <unistd.h>
 #endif
+#if defined( HAVE_MYSQL )
+#   include <ROMEMySQL.h>
+#endif
+#if defined( HAVE_PGSQL )
+#   include <ROMEPgSQL.h>
+#endif
+#if defined( HAVE_SQLITE )
+#   include <ROMESQLite.h>
+#endif
+#if defined( HAVE_SQLITE3 )
+#   include <ROMESQLite3.h>
+#endif
 
 #include <ROMESQLDataBase.h>
 

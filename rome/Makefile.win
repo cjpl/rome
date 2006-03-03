@@ -13,7 +13,7 @@ Includes = /I$(ROOTSYS)/include/ /I$(ROMESYS)/include/ /I$(ROMESYS)/builder/incl
 Libraries = $(ROOTSYS)/lib/libCore.lib
 Flags = /GX /GR 
 
-Objects = obj/ROMEBuilder.obj obj/main.obj obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj
+Objects = obj/ROMEBuilder.obj obj/ROMEBuildReadXML.obj obj/ROMEBuildWriteCode.obj obj/ROMEBuildMakeFile.obj obj/ROMEBuildVisualProject.obj obj/main.obj obj/ROMEXML.obj obj/mxml.obj obj/strlcpy.obj obj/ROMEString.obj obj/ROMEStrArray.obj
 
 
 all:startecho obj ROMEBuilder.exe endecho
@@ -35,6 +35,18 @@ ROMEBuilder.exe: $(Objects)
 
 obj/ROMEBuilder.obj: Builder/src/ROMEBuilder.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
+
+obj/ROMEBuildReadXML.obj: Builder/src/ROMEBuildReadXML.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildReadXML.cpp /Foobj/ROMEBuildReadXML.obj
+
+obj/ROMEBuildWriteCode.obj: Builder/src/ROMEBuildWriteCode.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildWriteCode.cpp /Foobj/ROMEBuildWriteCode.obj
+
+obj/ROMEBuildMakeFile.obj: Builder/src/ROMEBuildMakeFile.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildMakeFile.cpp /Foobj/ROMEBuildMakeFile.obj
+
+obj/ROMEBuildVisualProject.obj: Builder/src/ROMEBuildVisualProject.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildVisualProject.cpp /Foobj/ROMEBuildVisualProject.obj
 
 obj/main.obj: Builder/src/main.cpp Builder/include/ROMEBuilder.h include/ROMEStrArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj
