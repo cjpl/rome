@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "ROME"
-!define PRODUCT_VERSION "1.00"
+!define PRODUCT_VERSION "2.4"
 !define PRODUCT_PUBLISHER "Matthias Schneebeli (PSI)"
 !define PRODUCT_WEB_SITE "http://midas.psi.ch/rome/"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -20,13 +20,13 @@ ShowInstDetails show
 ShowUnInstDetails show
 BrandingText /TRIMCENTER "Paul Scherrer Institute (PSI)"
 SetFont "Times New Roman" 10
-AddBrandingImage top 120 10
+AddBrandingImage top 160 20
 
 Page directory showImage
 
 Function showImage
   GetTempFileName $0
-  File /oname=$0 icons\rome_simple.bmp
+  File /oname=$0 icons\rome_setup.bmp
   SetBrandingImage $0
   Delete $0
 FunctionEnd
@@ -37,60 +37,157 @@ Section "rome" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "*.xsd"
-  SetOutPath "$INSTDIR"
+  File "*.dtd"
+  File "*.sln"
+  File "*.vcproj"
   File "Makefile*"
+  File "Makefile.win"
 SectionEnd
 
 Section "builder" SEC02
-  SetOutPath "$INSTDIR\builder\src"
   SetOverwrite ifnewer
-  File "builder\src\ROMEBuilder.cpp"
+  SetOutPath "$INSTDIR\builder\src"
+  File "builder\src\*.cpp"
   SetOutPath "$INSTDIR\builder\include"
-  File "builder\include\ROMEBuilder.h"
+  File "builder\include\*"
 SectionEnd
 
 Section "src" SEC03
   SetOutPath "$INSTDIR\src"
   SetOverwrite ifnewer
   File "src\*.cpp"
+  File "src\*.c"
 SectionEnd
 
 Section "include" SEC04
   SetOutPath "$INSTDIR\include"
   SetOverwrite ifnewer
   File "include\*.h"
-  SetOutPath "$INSTDIR\include\libxml"
-  File "include\libxml\*.h"
   SetOutPath "$INSTDIR\include\mysql"
-  File "include\mysql\*.h"
+  File "include\mysql\*"
 SectionEnd
 
 Section "library" SEC05
   SetOutPath "$INSTDIR\lib_win"
   SetOverwrite ifnewer
   File "lib_win\*.lib"
+SectionEnd
+
+Section "bin" SEC06
+  SetOverwrite ifnewer
   SetOutPath "$INSTDIR\bin"
   File "bin\*.dll"
+  File "bin\ReplaceInFile.exe"
 SectionEnd
 
-Section "icons" SEC06
-  SetOutPath "$INSTDIR\icons"
+Section "icons" SEC07
   SetOverwrite ifnewer
+  SetOutPath "$INSTDIR\icons"
   File "icons\rome.bmp"
-  SetOutPath "$INSTDIR\icons"
   File "icons\rome.ico"
+  File "icons\rome_simple.bmp"
 SectionEnd
 
-Section "documentation" SEC07
-  SetOutPath "$INSTDIR\documentation"
+Section "examples" SEC08
   SetOverwrite ifnewer
-  File "documentation\*.*"
+  SetOutPath "$INSTDIR\examples\histoGUI"
+  File "examples\histoGUI\histoGUI.xml"
+  File "examples\histoGUI\histoReadConfig.xml"
+  File "examples\histoGUI\romeConfig.xml"
+  SetOutPath "$INSTDIR\examples\histoGUI\src\tasks"
+  File "examples\histoGUI\src\tasks\HGUITFillHisto.cpp"
+
+  SetOutPath "$INSTDIR\examples\multirun"
+  File "examples\multirun\multirun.xml"
+  File "examples\multirun\romeConfig.xml"
+  SetOutPath "$INSTDIR\examples\multirun\src\tasks"
+  File "examples\multirun\src\tasks\XYZTFillHisto.cpp"
+
+  SetOutPath "$INSTDIR\examples\netfolder"
+  File "examples\netfolder\netfolder.xml"
+  File "examples\netfolder\romeOnly.xml"
+  File "examples\netfolder\argusOnly.xml"
+  File "examples\netfolder\romeAndArgus.xml"
+  SetOutPath "$INSTDIR\examples\netfolder\include\tabs"
+  File "examples\netfolder\include\tabs\NFTHistos.h"
+  SetOutPath "$INSTDIR\examples\netfolder\src\tabs"
+  File "examples\netfolder\src\tabs\NFTHistos.cpp"
+  SetOutPath "$INSTDIR\examples\netfolder\src\tasks"
+  File "examples\netfolder\src\tasks\NFTFillHistoAndFolder.cpp"
+
+  SetOutPath "$INSTDIR\examples\stepbystep"
+  File "examples\stepbystep\stepbystep.xml"
+  File "examples\stepbystep\romeConfig.xml"
+  SetOutPath "$INSTDIR\examples\stepbystep\src\tasks"
+  File "examples\stepbystep\src\tasks\XYZTPrintADCValues.cpp"
+
+  SetOutPath "$INSTDIR\examples\stepbystephisto"
+  File "examples\stepbystephisto\stepbystephisto.xml"
+  File "examples\stepbystephisto\romeConfig.xml"
+  SetOutPath "$INSTDIR\examples\stepbystephisto\src\tasks"
+  File "examples\stepbystephisto\src\tasks\XYZTPrintADCValues.cpp"
+
+  SetOutPath "$INSTDIR\examples\taskhierarchy"
+  File "examples\taskhierarchy\taskhierarchy.xml"
+  File "examples\taskhierarchy\romeConfig.xml"
+  SetOutPath "$INSTDIR\examples\taskhierarchy\src\tasks"
+  File "examples\taskhierarchy\src\tasks\THTTaskA.cpp"
+  File "examples\taskhierarchy\src\tasks\THTTaskB.cpp"
+
+  SetOutPath "$INSTDIR\examples\tree_write_read"
+  File "examples\tree_write_read\tree_write_read.xml"
+  File "examples\tree_write_read\readTreeConfig.xml"
+  File "examples\tree_write_read\writeTreeConfig.xml"
+  SetOutPath "$INSTDIR\examples\tree_write_read\src\tasks"
+  File "examples\tree_write_read\src\tasks\TWRTFillTree.cpp"
+  File "examples\tree_write_read\src\tasks\TWRTPrintValue.cpp"
 SectionEnd
+
+;Section "argus" SEC09
+;  SetOverwrite ifnewer
+;  SetOutPath "$INSTDIR\argus\icons"
+;  File "argus\icons\*.xpm"
+;  SetOutPath "$INSTDIR\argus\include"
+;  File "argus\include\*.h"
+;  SetOutPath "$INSTDIR\argus\src"
+;  File "argus\src\*.cpp"
+;  SetOutPath "$INSTDIR\argus\examples"
+;  File "argus\examples\readme.txt"
+;
+;  SetOutPath "$INSTDIR\argus\examples\analyzerControl"
+;  File "argus\examples\analyzerControl\analyzerControl.xml"
+;  SetOutPath "$INSTDIR\argus\examples\analyzerControl\include\tabs"
+;  File "argus\examples\analyzerControl\include\tabs\ACTTab.h"
+;  SetOutPath "$INSTDIR\argus\examples\analyzerControl\src\tabs"
+;  File "argus\examples\analyzerControl\src\tabs\ACTTab.cpp"
+;
+;  SetOutPath "$INSTDIR\argus\examples\file"
+;  File "argus\examples\file\data00001.root"
+;  File "argus\examples\file\data00002.root"
+;  File "argus\examples\file\file.xml"
+;  File "argus\examples\file\README.txt"
+;  SetOutPath "$INSTDIR\argus\examples\file\include\tabs"
+;  File "argus\examples\file\include\tabs\FLTTab1.h"
+;  SetOutPath "$INSTDIR\argus\examples\file\src\tabs"
+;  File "argus\examples\file\src\tabs\FLTTab1.cpp"
+;  SetOutPath "$INSTDIR\argus\examples\file\src\daqs"
+;  File "argus\examples\file\src\daqs\FLuser.cpp"
+;
+;  SetOutPath "$INSTDIR\argus\examples\folders"
+;  File "argus\examples\folders\argusConfig.xml"
+;  File "argus\examples\folders\folders.xml"
+;  File "argus\examples\folders\Makefile.usr"
+;  File "argus\examples\folders\RunCatalog.xml"
+;  SetOutPath "$INSTDIR\argus\examples\folders\include\tabs"
+;  File "argus\examples\folders\include\tabs\FOTTab.h"
+;  SetOutPath "$INSTDIR\argus\examples\folders\src\tabs"
+;  File "argus\examples\folders\src\tabs\FOTTab.cpp"
+;SectionEnd
 
 ${StrStr}
 VAR ind
 VAR reg
-Section "registry" SEC08
+Section "registry" SEC09
   ReadRegStr $reg HKCU "Environment" "path"
   WriteRegStr HKCU "Environment" "ROMESYS" "$INSTDIR\"
   ${StrStr} $ind $reg "%ROMESYS%\bin"
@@ -132,11 +229,25 @@ Section Uninstall
   Delete "$INSTDIR\src\*.*"
   Delete "$INSTDIR\include\*.*"
   Delete "$INSTDIR\include\mysql\*.*"
-  Delete "$INSTDIR\include\libxml\*.*"
   Delete "$INSTDIR\lib_win\*.*"
   Delete "$INSTDIR\bin\*.*"
-  Delete "$INSTDIR\documentation\*.*"
   Delete "$INSTDIR\icons\*.*"
+  Delete "$INSTDIR\examples\histoGUI\src\tasks\*.*"
+  Delete "$INSTDIR\examples\histoGUI\*.*"
+  Delete "$INSTDIR\examples\multirun\src\tasks\*.*"
+  Delete "$INSTDIR\examples\multirun\*.*"
+  Delete "$INSTDIR\examples\netfolder\include\tabs\*.*"
+  Delete "$INSTDIR\examples\netfolder\src\tabs\*.*"
+  Delete "$INSTDIR\examples\netfolder\src\tasks\*.*"
+  Delete "$INSTDIR\examples\netfolder\*.*"
+  Delete "$INSTDIR\examples\stepbystep\src\tasks\*.*"
+  Delete "$INSTDIR\examples\stepbystep\*.*"
+  Delete "$INSTDIR\examples\stepbystephisto\src\tasks\*.*"
+  Delete "$INSTDIR\examples\stepbystephisto\*.*"
+  Delete "$INSTDIR\examples\taskhierarchy\src\tasks\*.*"
+  Delete "$INSTDIR\examples\taskhierarchy\*.*"
+  Delete "$INSTDIR\examples\tree_write_read\src\tasks\*.*"
+  Delete "$INSTDIR\examples\tree_write_read\*.*"
   Delete "$INSTDIR\*.*"
 
   Delete "$SMPROGRAMS\ROME\Uninstall.lnk"
@@ -145,13 +256,36 @@ Section Uninstall
   RMDir "$INSTDIR\builder\include"
   RMDir "$INSTDIR\builder"
   RMDir "$INSTDIR\src"
-  RMDir "$INSTDIR\include\libxml"
   RMDir "$INSTDIR\include\mysql"
   RMDir "$INSTDIR\include"
   RMDir "$INSTDIR\lib_win"
   RMDir "$INSTDIR\bin"
-  RMDir "$INSTDIR\documentation"
   RMDir "$INSTDIR\icons"
+  RMDir "$INSTDIR\examples\histoGUI\src\tasks"
+  RMDir "$INSTDIR\examples\histoGUI\src"
+  RMDir "$INSTDIR\examples\histoGUI"
+  RMDir "$INSTDIR\examples\multirun\src\tasks"
+  RMDir "$INSTDIR\examples\multirun\src"
+  RMDir "$INSTDIR\examples\multirun"
+  RMDir "$INSTDIR\examples\netfolder\include\tabs"
+  RMDir "$INSTDIR\examples\netfolder\include"
+  RMDir "$INSTDIR\examples\netfolder\src\tabs"
+  RMDir "$INSTDIR\examples\netfolder\src\tasks"
+  RMDir "$INSTDIR\examples\netfolder\src"
+  RMDir "$INSTDIR\examples\netfolder"
+  RMDir "$INSTDIR\examples\stepbystep\src\tasks"
+  RMDir "$INSTDIR\examples\stepbystep\src"
+  RMDir "$INSTDIR\examples\stepbystep"
+  RMDir "$INSTDIR\examples\stepbystephisto\src\tasks"
+  RMDir "$INSTDIR\examples\stepbystephisto\src"
+  RMDir "$INSTDIR\examples\stepbystephisto"
+  RMDir "$INSTDIR\examples\taskhierarchy\src\tasks"
+  RMDir "$INSTDIR\examples\taskhierarchy\src"
+  RMDir "$INSTDIR\examples\taskhierarchy"
+  RMDir "$INSTDIR\examples\tree_write_read\src\tasks"
+  RMDir "$INSTDIR\examples\tree_write_read\src"
+  RMDir "$INSTDIR\examples\tree_write_read"
+  RMDir "$INSTDIR\examples"
   RMDir "$INSTDIR"
   RMDir "$SMPROGRAMS\ROME"
 
