@@ -64,9 +64,9 @@ class ROMEConfigParameterGroup : public TObject {
 private:
    ROMEString         fGroupName;
    ROMEString         fArraySize;
-   ROMEString         fGroupIdetifier;
-   ROMEString         fNameIdetifier;
-   ROMEString         fArrayIdetifier;
+   ROMEString         fGroupIdentifier;
+   ROMEString         fNameIdentifier;
+   ROMEString         fArrayIdentifier;
    ROMEString         fTagName;
    int                fMultiplicity;
    TObjArray*         fParameters;
@@ -76,19 +76,19 @@ private:
    ROMEStrArray*      fWriteEndLines;
    int                fHierarchyLevel;
 public:
-   ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdetifier = "",ROMEString nameIdetifier = "",ROMEString arrayIdetifier = "",ROMEString tagName = "",int multiplicity = 1) 
+   ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdentifier = "",ROMEString nameIdentifier = "",ROMEString arrayIdentifier = "",ROMEString tagName = "",int multiplicity = 1) 
    { 
       fGroupName = groupName;
       fArraySize = arraySize;
-      fGroupIdetifier = groupIdetifier;
-      if (nameIdetifier.Length()==0)
-         fNameIdetifier = fGroupIdetifier+"Name";
+      fGroupIdentifier = groupIdentifier;
+      if (nameIdentifier.Length()==0)
+         fNameIdentifier = fGroupIdentifier+"Name";
       else
-         fNameIdetifier = nameIdetifier;
-      if (arrayIdetifier.Length()==0)
-         fArrayIdetifier = arrayIdetifier;
+         fNameIdentifier = nameIdentifier;
+      if (arrayIdentifier.Length()==0)
+         fArrayIdentifier = arrayIdentifier;
       else
-         fArrayIdetifier = arrayIdetifier+"=";
+         fArrayIdentifier = arrayIdentifier+"=";
       if (tagName.Length()==0)
          fTagName = fGroupName;
       else
@@ -103,9 +103,9 @@ public:
    };
    ROMEString&                   GetGroupName() { return fGroupName; };
    ROMEString&                   GetArraySize() { return fArraySize; };
-   ROMEString&                   GetGroupIdetifier() { return fGroupIdetifier; };
-   ROMEString&                   GetNameIdetifier() { return fNameIdetifier; };
-   ROMEString&                   GetArrayIdetifier() { return fArrayIdetifier; };
+   ROMEString&                   GetGroupIdentifier() { return fGroupIdentifier; };
+   ROMEString&                   GetNameIdentifier() { return fNameIdentifier; };
+   ROMEString&                   GetArrayIdentifier() { return fArrayIdentifier; };
    ROMEString&                   GetTagName() { return fTagName; };
    int                           GetMultiplicity() { return fMultiplicity; };
    int                           GetHierarchyLevel() { return fHierarchyLevel; };
