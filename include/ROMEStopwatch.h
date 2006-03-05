@@ -14,7 +14,7 @@ class ROMEStopwatch : public TStopwatch
 {
 public:
    ROMEStopwatch():TStopwatch() {};
-   const char* GetRealTime(ROMEString& time) {
+   const char* GetRealTimeString(ROMEString& time) {
                   Int_t runTime = (Int_t)this->RealTime();
                   Int_t milli = (Int_t)((this->RealTime()-runTime)*1000);
                   time.SetFormatted("%d%d:%d%d:%d%d:%03d", (Int_t)(runTime / 36000), (Int_t)((runTime % 36000) / 3600),
