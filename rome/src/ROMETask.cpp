@@ -76,7 +76,7 @@ void ROMETask::Exec(Option_t *option)
 
       gROME->PrintText("Task '");
       gROME->PrintText(fName.Data());
-      gROME->PrintText("' : run time = ");
+      gROME->PrintText("'\t: run time = ");
       gROME->PrintLine(GetTime());
    }
    else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
@@ -120,19 +120,19 @@ void ROMETask::TimeReset()
 void ROMETask::TimeStart()
 {
    // Starts the Tasks stopwatch
-   fWatch.Start();
+   fWatch.Start(kFALSE);
 }
 
 void ROMETask::TimeEnd()
 {
    // Ends the Tasks stopwatch
    fWatch.Stop();
-   fWatch.GetRealTime(fTimeString);
+   fWatch.GetRealTimeString(fTimeString);
 }
 
 const char* ROMETask::GetTime()
 {
    // Returns the elapsed time in a readable format
-   fWatch.GetRealTime(fTimeString);
+   fWatch.GetRealTimeString(fTimeString);
    return fTimeString.Data();
 }
