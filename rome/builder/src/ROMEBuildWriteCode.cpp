@@ -5713,9 +5713,15 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       }
       else
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
-      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-         buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",str.Data());\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Length()) {
+         if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
+            buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
+         else
+            buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         temp = parGroup->GetSubGroupAt(i)->GetArrayIdentifier();
+         if (temp.EndsWith("="))
+            temp.Resize(temp.Length()-1);
+         buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",str.Data());\n",sTabT.Data(),temp.Data());
       }
       WriteConfigWrite(buffer,parGroup->GetSubGroupAt(i),tabT+1,groupNameT,pointerT);
       buffer.AppendFormatted("%s   xml->EndElement();\n",sTabT.Data());
