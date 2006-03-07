@@ -21,6 +21,7 @@
 #include "ROME.h"
 #include <ROMEConfig.h>
 #include <ROMETree.h>
+#include <ROMETask.h>
 #include <ROMETreeInfo.h>
 #include <ROMEDataBase.h>
 #include <ROMEString.h>
@@ -136,6 +137,7 @@ protected:
    Bool_t         fFillEvent;                    //! Fill Event Flag
 
    // Object Handles
+   TObjArray     *fTaskObjects;                  //! Handle to Task Objects
    TTask         *fMainTask;                     //! Handle to Main Task
    TFolder       *fMainFolder;                   //! Handle to Main Folder
    TFile         *fHistoFiles;                   //! Handle to Histogram Files
@@ -328,6 +330,11 @@ public:
    // Tree IO
    Bool_t          isTreeAccumulation()  { return fTreeAccumulation;  };
    void            SetTreeAccumulation(Bool_t flag = true) { fTreeAccumulation = flag;  };
+
+   // Tasks
+   void            AddTask(TTask *task) { fTaskObjects->AddLast(task); };
+   ROMETask       *GetTaskObjectAt(Int_t index) { return (ROMETask*)fTaskObjects->At(index); };
+   Int_t           GetTaskObjectEntries() { return fTaskObjects->GetEntries(); };
 
    // Trees
    void            AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); };

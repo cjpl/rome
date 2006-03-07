@@ -551,6 +551,11 @@
 						<xs:documentation>If this value is 'true', the task will have a class file (.h), that can be modified by the user. Therefore the romebuilder will not overwrite the class file. Default is false.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Affiliation of the task. This is used for selecting a subgroup of all tasks for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the tasks belonging to that group will be linked into the project. The task can have multiple affiliations, then the task is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Author" type="AuthorDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Defines the auther of the task. (optional)</xs:documentation>
