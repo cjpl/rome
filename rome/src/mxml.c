@@ -270,6 +270,10 @@ void mxml_decode(char *str)
          strcpy(p, p+5);
       }
    }
+/*   if (str[0] == '\"' && str[strlen(str)-1] == '\"') {
+      strcpy(str, str+1);
+      str[strlen(str)-1] = 0;
+   }*/
 }
 
 /*------------------------------------------------------------------*/
@@ -727,7 +731,7 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
    char cond_name[MXML_MAX_CONDITION][256], cond_value[MXML_MAX_CONDITION][256];
    int  cond_type[MXML_MAX_CONDITION];
    int i, j, k, index, num_cond;
-   int cond_satisfied;
+   int cond_satisfied,cond_index;
    size_t len;
 
    p1 = xml_path;
@@ -804,6 +808,7 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
          }
       }
 
+      cond_index = 0;
       for (i=j=0 ; i<pnode->n_children ; i++) {
          if (num_cond) {
             cond_satisfied = 0;
@@ -823,9 +828,13 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
                            cond_satisfied++;
                }
             }
-            if (cond_satisfied==num_cond)
-               if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
-                  return 0;
+            if (cond_satisfied==num_cond) {
+               cond_index++;
+               if (index == 0 || cond_index == index) {
+                  if (!mxml_add_resultnode(pnode->child+i, p2, nodelist, found))
+                     return 0;
+               }
+            }
          } else {
             if (strcmp(pnode->child[i].name, node_name) == 0)
                if (index == 0 || ++j == index)
@@ -1991,10 +2000,10 @@ void mxml_debug_tree(PMXML_NODE tree, int level)
 
    for (i=0 ; i<level ; i++)
       printf("  ");
-   printf("Addr: %0*lX\n", (int)sizeof(void*)*2, (unsigned long)tree);
+   printf("Addr: %08zX\n", (size_t)tree);
    for (i=0 ; i<level ; i++)
       printf("  ");
-   printf("Prnt: %0*lX\n", (int)sizeof(void*)*2, (unsigned long)tree->parent);
+   printf("Prnt: %08zX\n", (size_t)tree->parent);
    for (i=0 ; i<level ; i++)
       printf("  ");
    printf("NCld: %d\n", tree->n_children);

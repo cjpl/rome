@@ -83,6 +83,7 @@ protected:
    Bool_t        sqlite3;
    Bool_t        noVP;
    ROMEStrArray  flags;
+   ROMEStrArray  affiliations;
 
    ROMEXML*      xml;
 
@@ -154,6 +155,8 @@ protected:
    Int_t         numOfHistos[maxNumberOfTasks];
    Int_t         numOfTaskInclude[maxNumberOfTasks];
    ROMEString    taskName[maxNumberOfTasks];
+   ROMEString    taskAffiliation[maxNumberOfTasks];
+   Bool_t        taskUsed[maxNumberOfTasks];
    ROMEString    taskEventID[maxNumberOfTasks];
    ROMEString    taskDescription[maxNumberOfTasks];
    Bool_t        taskFortran[maxNumberOfTasks];

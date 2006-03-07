@@ -308,6 +308,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
       }
+      else if (!strcmp(argv[i],"-taskhierarchy")) {
+         noLink = true;
+         outDir = "C:/rome/examples/taskhierarchy/";
+         xmlFile = "C:/rome/examples/taskhierarchy/taskhierarchy.xml";
+      }
       else if (!strcmp(argv[i],"-netfolder")) {
          noLink = true;
          outDir = "C:/rome/examples/netfolder/";
@@ -365,12 +370,9 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
-         int j=0;
          while (argv[i][0]!='-') {
-            flags.AddAtAndExpand((const char*)argv[i],j);
-            if (flags[j][0]=='-' || flags[j][0]=='/')
-               flags[j] = flags[j](2,flags[j].Length());
-            i++;j++;
+            flags.AddLast((const char*)argv[i]);
+            i++;
             if (i>argc-1)
                break;
          }
@@ -385,6 +387,16 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\') 
             outDir.Append("/");
          i++;
+      }
+      else if (!strcmp(argv[i],"-a")&&i<argc-1) {
+         i++;
+         while (argv[i][0]!='-') {
+            affiliations.AddLast((const char*)argv[i]);
+            i++;
+            if (i>argc-1)
+               break;
+         }
+         i--;
       }
       else if (argv[i][0]=='-') {
          Usage();

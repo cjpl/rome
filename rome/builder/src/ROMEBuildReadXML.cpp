@@ -253,6 +253,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                                taskHierarchyParentIndex[i]==taskHierarchyParentIndex[numOfTaskHierarchy])
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
+                        if (!taskUsed[taskHierarchyClassIndex[numOfTaskHierarchy]])
+                           numOfTaskHierarchy--;
                      }
                      if (type == 1 && !strcmp((const char*)name,"Task")) {
                         depth++;
@@ -811,6 +813,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    int type,i,j;
    ROMEString currentTaskName = "";
    int currentNumberOfTasks;
+   bool found;
 
    // count tasks
    numOfTask++;
@@ -822,6 +825,8 @@ Bool_t ROMEBuilder::ReadXMLTask()
    }
    // initialisation
    taskName[numOfTask] = "";
+   taskAffiliation[numOfTask] = "";
+   taskUsed[numOfTask] = true;
    taskEventID[numOfTask] = "a";
    taskFortran[numOfTask] = false;
    taskUserCode[numOfTask] = false;
@@ -863,6 +868,19 @@ Bool_t ROMEBuilder::ReadXMLTask()
          // output
          if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
          if (makeOutput) taskName[numOfTask].WriteLine();
+      }
+      // task affiliation
+      if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+         xml->GetValue(taskAffiliation[numOfTask],"");
+         if (affiliations.GetEntriesFast()>0) {
+            taskUsed[numOfTask] = false;
+            for (i=0;i<affiliations.GetEntriesFast();i++) {
+               if (affiliations.At(i)==taskAffiliation[numOfTask]) {
+                  taskUsed[numOfTask] = true;
+                  break;
+               }
+            }
+         }
       }
       // task event id
       if (type == 1 && !strcmp((const char*)name,"TaskEventId"))
@@ -2239,6 +2257,8 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
                   cout << "Terminating program." << endl;
                   return false;
                }
+               if (steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]=="FileName")
+                  cout << endl;
                xml->GetValue(steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldInit[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter field comment
