@@ -2129,8 +2129,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("\n");
       // Header
-      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
+      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("\nClassImp(%sT%s)\n\n", shortCut.Data(), tabName[iTab].Data());
 
       // Functions
@@ -2146,6 +2146,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu *menu,Long_t param)\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
+      if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("   %sT%s::MenuClicked(menu,param);\n",shortCut.Data(),tabName[iTab].Data());
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
@@ -2213,6 +2215,8 @@ Bool_t ROMEBuilder::WriteTabH()
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+      if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"Riostream.h\"\n");
       buffer.AppendFormatted("\n");
@@ -2224,7 +2228,10 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("};\n");
 
       // Class
-      buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("\nclass %sT%s_Base : public %sT%s\n", shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
+      else
+         buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("protected:\n");
 
@@ -2245,11 +2252,13 @@ Bool_t ROMEBuilder::WriteTabH()
          for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
             buffer.AppendFormatted("   %s f%sArgument_%d; //!\n", threadFunctionArgument[iTab][i][j].Data(), threadFunctionName[iTab][i].Data(), j);
       }
-      buffer.AppendFormatted("   Int_t    fVersion;              //! Version number\n");
-      buffer.AppendFormatted("   Bool_t   fActive;               //! is Active\n");
-      buffer.AppendFormatted("   Int_t    fUpdateFrequency;      //! Update Frequency\n");
-      buffer.AppendFormatted("   TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function\n");
-      buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
+      if (tabHeredity[iTab].Length()==0) {
+         buffer.AppendFormatted("   Int_t    fVersion;              //! Version number\n");
+         buffer.AppendFormatted("   Bool_t   fActive;               //! is Active\n");
+         buffer.AppendFormatted("   Int_t    fUpdateFrequency;      //! Update Frequency\n");
+         buffer.AppendFormatted("   TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function\n");
+         buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
+      }
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
          for (i=0;i<numOfTabHistos[iTab];i++) {
@@ -2268,7 +2277,10 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // Constructor
       buffer.AppendFormatted("   // Constructor\n");
-      buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(NULL,1,1) {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("   %sT%s_Base():%sT%s() {\n", shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
+      else
+         buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(NULL,1,1) {\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n", tabVersion[iTab].Data());
       buffer.AppendFormatted("      fActive  = kFALSE;\n");
       buffer.AppendFormatted("      fUpdateFrequency  = 0;\n");
@@ -3865,6 +3877,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title) : ArgusWindow(p,title)\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
 
    for (i = 0; i < numOfTab; i++) {
@@ -3876,8 +3889,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          index = tabParentIndex[index];
       }
       buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
-      for (j = 0; j < numOfMenu[i]; j++) {
-         buffer.AppendFormatted("   f%sMenu[%d] = NULL;\n", tabName[i].Data(), j);
+
+      if (tabHeredity[i].Length()>0) {
+         if (numOfMenu[tabHeredityIndex[i]] > 0) {
+            buffer.AppendFormatted("   for (i=%d;i<%d+%d;i++)\n", numOfMenu[i],numOfMenu[i],numOfMenu[tabHeredityIndex[i]]);
+            buffer.AppendFormatted("      f%sMenu[i] = NULL;\n", tabName[i].Data());
+         }
+      }
+      if (numOfMenu[i] > 0) {
+         buffer.AppendFormatted("   for (i=0;i<%d;i++)\n", numOfMenu[i]);
+         buffer.AppendFormatted("      f%sMenu[i] = NULL;\n", tabName[i].Data());
       }
    }
 
@@ -3904,6 +3925,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    // ProcessMessage
    buffer.AppendFormatted("Bool_t %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
    buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
    buffer.AppendFormatted("   case kC_COMMAND:    \n");
@@ -3911,9 +3933,19 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("      case kCM_MENU:\n");
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
-      for (j = 0; j < numOfMenu[i]; j++) {
-         buffer.AppendFormatted("            if (f%sMenu[%d]->GetEntry(param1)!=0)\n", tabName[i].Data(), j);
-         buffer.AppendFormatted("               f%s%03dTab->MenuClicked(f%sMenu[%d],param1);\n", tabName[i].Data(), i, tabName[i].Data(), j);
+      if (tabHeredity[i].Length()>0) {
+         if (numOfMenu[tabHeredityIndex[i]] > 0) {
+            buffer.AppendFormatted("            for (i=%d;i<%d+%d;i++) {\n", numOfMenu[i],numOfMenu[i],numOfMenu[tabHeredityIndex[i]]);
+            buffer.AppendFormatted("               if (f%sMenu[i]->GetEntry(param1)!=0)\n", tabName[i].Data());
+            buffer.AppendFormatted("                  f%s%03dTab->MenuClicked(f%sMenu[i],param1);\n", tabName[i].Data(), i, tabName[i].Data());
+            buffer.AppendFormatted("            }\n");
+         }
+      }
+      if (numOfMenu[i] > 0) {
+         buffer.AppendFormatted("            for (i=0;i<%d;i++) {\n", numOfMenu[i]);
+         buffer.AppendFormatted("               if (f%sMenu[i]->GetEntry(param1)!=0)\n", tabName[i].Data());
+         buffer.AppendFormatted("                  f%s%03dTab->MenuClicked(f%sMenu[i],param1);\n", tabName[i].Data(), i, tabName[i].Data());
+         buffer.AppendFormatted("            }\n");
       }
       buffer.AppendFormatted("         }\n");
    }
@@ -3936,6 +3968,13 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
+      if (tabHeredity[i].Length()>0) {
+         for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
+            menu_title = menuTitle[tabHeredityIndex[i]][j];
+            menu_title.ReplaceAll("&", "");
+            buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n", menu_title.Data());
+         }
+      }
       for (j = 0; j < numOfMenu[i]; j++) {
          menu_title = menuTitle[i][j];
          menu_title.ReplaceAll("&", "");
@@ -3947,13 +3986,27 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
       buffer.AppendFormatted("         if (param1 == f%sTabID) {\n", tabName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n", tabName[i].Data(), i);
+      if (tabHeredity[i].Length()>0) {
+         for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
+            buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n", tabName[i].Data(), numOfMenu[i]+j);
+            buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n", tabName[i].Data(), numOfMenu[i]+j);
+         }
+         for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
+            if (menuDepth[tabHeredityIndex[i]][j] == 1) {
+               if (!AddMenuItems(buffer, tabHeredityIndex[i], j,i,j+numOfMenu[i]))
+                  return kFALSE;
+               buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[tabHeredityIndex[i]][j].Data(), tabName[i].Data(), numOfMenu[i]+j);
+               buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
+            }
+         }
+      }
       for (j = 0; j < numOfMenu[i]; j++) {
          buffer.AppendFormatted("            f%sMenu[%d] = new TGPopupMenu(fClient->GetRoot());\n", tabName[i].Data(), j);
          buffer.AppendFormatted("            f%sMenu[%d]->Associate(this);\n", tabName[i].Data(), j);
       }
       for (j = 0; j < numOfMenu[i]; j++) {
          if (menuDepth[i][j] == 1) {
-            if (!AddMenuItems(buffer, i, j))
+            if (!AddMenuItems(buffer, i, j,i,j))
                return kFALSE;
             buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[i][j].Data(), tabName[i].Data(), j);
             buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
@@ -4000,6 +4053,12 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("{\n");
    for (i = 0; i < numOfTab; i++) {
       buffer.AppendFormatted("   if (fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
+      if (tabHeredity[i].Length()>0) {
+         for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
+            buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\"))\n", menuTitle[tabHeredityIndex[i]][j].Data());
+            buffer.AppendFormatted("         return f%sMenu[%d];\n", tabName[i].Data(), j+numOfMenu[i]);
+         }
+      }
       for (j = 0; j < numOfMenu[i]; j++) {
          buffer.AppendFormatted("      if (!strcmp(menuName,\"%s\"))\n", menuTitle[i][j].Data());
          buffer.AppendFormatted("         return f%sMenu[%d];\n", tabName[i].Data(), j);
@@ -4140,8 +4199,11 @@ Bool_t ROMEBuilder::WriteWindowH()
          buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n", tabName[i].Data(), i);
    }
    for (i = 0; i < numOfTab; i++) {
-      if (numOfMenu[i] > 0)
-         buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n", tabName[i].Data(), numOfMenu[i]);
+      int numMenu = numOfMenu[i];
+      if (tabHeredity[i].Length()>0)
+         numMenu += numOfMenu[tabHeredityIndex[i]];
+      if (numMenu > 0)
+         buffer.AppendFormatted("   TGPopupMenu         *f%sMenu[%d];\n", tabName[i].Data(), numMenu);
       buffer.AppendFormatted("   Int_t               f%sTabID;\n", tabName[i].Data());
    }
    buffer.AppendFormatted("\n");
@@ -4278,22 +4340,22 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    return kTRUE;
 }
 
-Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j)
+Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHeredity,Int_t jHeredity)
 {
    Int_t k;
 
    for (k = 0; k < numOfMenuItem[i][j]; k++) {
       if (menuItemTitle[i][j][k] == LINE_TITLE) {
-         buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[i].Data(), j);
+         buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[iHeredity].Data(), jHeredity);
       }
       else if (menuItemChildMenuIndex[i][j][k]) {
-         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k]))
+         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity,jHeredity))
             return kFALSE;
-         buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[i].Data(), j, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
+         buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[iHeredity].Data(), jHeredity, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
                                 , tabName[i].Data(), menuItemChildMenuIndex[i][j][k]);
       }
       else {
-         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[i].Data(), j, menuItemTitle[i][j][k].Data()
+         buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[iHeredity].Data(), jHeredity, menuItemTitle[i][j][k].Data()
                                 , menuItemEnumName[i][j][k].Data());
       }
    }

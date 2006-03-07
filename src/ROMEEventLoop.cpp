@@ -195,18 +195,20 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 
          // User Input
-         if (!firstUserInput) {
-            if (!this->UserInput()) {
-               this->DAQTerminate();
-               gROME->SetTerminationFlag();
-               gROME->PrintLine("\n\nTerminating Program !");
-               return;
+         if (!gROME->IsStandAloneARGUS()) {
+            if (!firstUserInput) {
+               if (!this->UserInput()) {
+                  this->DAQTerminate();
+                  gROME->SetTerminationFlag();
+                  gROME->PrintLine("\n\nTerminating Program !");
+                  return;
+               }
+               if (this->isTerminate()) {
+                  break;
+               }
             }
-            if (this->isTerminate()) {
-               break;
-            }
+            firstUserInput = false;
          }
-         firstUserInput = false;
 
          // Set Fill Event equal true
          gROME->SetFillEvent();
