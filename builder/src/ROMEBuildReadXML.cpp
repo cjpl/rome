@@ -813,7 +813,6 @@ Bool_t ROMEBuilder::ReadXMLTask()
    int type,i,j;
    ROMEString currentTaskName = "";
    int currentNumberOfTasks;
-   bool found;
 
    // count tasks
    numOfTask++;
@@ -2544,4 +2543,3 @@ void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
    str.Remove(str.Length()-2, 2);
    return;
 }
-
