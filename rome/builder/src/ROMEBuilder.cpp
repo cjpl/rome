@@ -297,11 +297,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          mysql = true;
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
-/*         flags.AddAtAndExpand("HAVE_DRS",0);
+         flags.AddAtAndExpand("HAVE_DRS",0);
          flags.AddAtAndExpand("HAVE_MSCB",1);
          flags.AddAtAndExpand("HAVE_USB",2);
          flags.AddAtAndExpand("HAVE_AFG3251",3);
-         flags.AddAtAndExpand("HAVE_VME",4);*/
+         flags.AddAtAndExpand("HAVE_VME",4);
       }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;

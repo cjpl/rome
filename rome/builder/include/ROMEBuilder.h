@@ -226,6 +226,8 @@ protected:
    ROMEString    tabAuthorCollaboration[maxNumberOfTabs];
    ROMEString    tabAuthorEmail[maxNumberOfTabs];
    ROMEString    tabVersion[maxNumberOfTabs];
+   ROMEString    tabHeredity[maxNumberOfTabs];
+   Int_t         tabHeredityIndex[maxNumberOfTabs];
    Int_t         tabParentIndex[maxNumberOfTabs];
    Int_t         tabNumOfChildren[maxNumberOfTabs];
    Int_t         numOfMenu[maxNumberOfTabs];
@@ -419,7 +421,7 @@ private:
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindowH();
    Bool_t  AddTab(ROMEString& buffer,Int_t& i);
-   Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j);
+   Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();

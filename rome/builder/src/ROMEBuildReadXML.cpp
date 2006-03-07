@@ -206,6 +206,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         break;
                      }
                   }
+                  // count tasks
+                  numOfTask++;
                   // check input
                   for (i=0;i<numOfTask;i++) {
                      for (j=i+1;j<numOfTask;j++) {
@@ -216,8 +218,6 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         }
                      }
                   }
-                  // count tasks
-                  numOfTask++;
                   // default task hierarchy
                   for (i=0;i<numOfTask;i++) {
                      taskHierarchyName[i] = taskName[i];
@@ -293,6 +293,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         break;
                      }
                   }
+                  // count tabs
+                  numOfTab++;
                   // check input
                   for (i = 0; i < numOfTab; i++) {
                      for (j = i + 1; j < numOfTab; j++) {
@@ -301,10 +303,11 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                            cout << "Terminating program." << endl;
                            return false;
                         }
+                        if (tabName[i] == tabHeredity[j]) {
+                           tabHeredityIndex[j] = i;
+                        }
                      }
                   }
-                  // count tabs
-                  numOfTab++;
                }
 
                if (!strcmp((const char*)name,"NetFolders")) {
@@ -1134,6 +1137,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabAuthor[currentNumberOfTabs] = mainAuthor;
    tabVersion[currentNumberOfTabs] = "1";
    tabDescription[currentNumberOfTabs] = "";
+   tabHeredity[currentNumberOfTabs] = "";
+   tabHeredityIndex[currentNumberOfTabs] = 0;
    numOfSteering[currentNumberOfTabs+numOfTaskHierarchy+1] = -1;
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
@@ -1209,6 +1214,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab description
       if (type == 1 && !strcmp(name, "TabDescription"))
          xml->GetValue(tabDescription[currentNumberOfTabs], tabDescription[currentNumberOfTabs]);
+      // tab heredity
+      if (type == 1 && !strcmp(name, "InheritedFrom"))
+         xml->GetValue(tabHeredity[currentNumberOfTabs], tabHeredity[currentNumberOfTabs]);
 
       // tab steering parameters
       if (type == 1 && !strcmp(name, "SteeringParameters")) {
