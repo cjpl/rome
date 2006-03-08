@@ -1888,6 +1888,7 @@ Bool_t ROMEBuilder::WriteTaskH()
       }
       if (array) {
          buffer.AppendFormatted("   int j;\n");
+         buffer.AppendFormatted("   int nentry;\n");
       }
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]=="1") {
@@ -7689,6 +7690,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !breaking;j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]!="1") {
             buffer.AppendFormatted("   int i;\n");
+            buffer.AppendFormatted("   int nentry;\n");
             breaking = true;
          }
       }
