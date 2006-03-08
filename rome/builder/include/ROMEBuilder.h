@@ -47,6 +47,7 @@ const Int_t maxNumberOfMenuItems = 50;
 const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
 const Int_t maxNumberOfNetFolders = 10;
+const Int_t maxNumberOfAffiliations = 5;
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
@@ -155,7 +156,8 @@ protected:
    Int_t         numOfHistos[maxNumberOfTasks];
    Int_t         numOfTaskInclude[maxNumberOfTasks];
    ROMEString    taskName[maxNumberOfTasks];
-   ROMEString    taskAffiliation[maxNumberOfTasks];
+   Int_t         numOfTaskAffiliations[maxNumberOfTasks];
+   ROMEString    taskAffiliation[maxNumberOfTasks][maxNumberOfAffiliations];
    Bool_t        taskUsed[maxNumberOfTasks];
    ROMEString    taskEventID[maxNumberOfTasks];
    ROMEString    taskDescription[maxNumberOfTasks];
@@ -223,6 +225,9 @@ protected:
    Int_t         numOfTab;
    ROMEString    tabName[maxNumberOfTabs];
    ROMEString    tabTitle[maxNumberOfTabs];
+   Int_t         numOfTabAffiliations[maxNumberOfTabs];
+   ROMEString    tabAffiliation[maxNumberOfTabs][maxNumberOfAffiliations];
+   Bool_t        tabUsed[maxNumberOfTabs];
    ROMEString    tabDescription[maxNumberOfTabs];
    ROMEString    tabAuthor[maxNumberOfTabs];
    ROMEString    tabAuthorInstitute[maxNumberOfTabs];
@@ -301,9 +306,13 @@ protected:
    ROMEString    bankHeaderTimeStamp;
 
 // user makefile
-   Int_t         numOfIncludeDirectories;
    Int_t         numOfMFDictHeaders;
    ROMEString    mfDictHeaderName[maxNumberOfMFDictHeaders];
+   Int_t         numOfMFDictHeaderAffiliations[maxNumberOfMFDictHeaders];
+   ROMEString    mfDictHeaderAffiliation[maxNumberOfMFDictHeaders][maxNumberOfAffiliations];
+   Bool_t        mfDictHeaderUsed[maxNumberOfMFDictHeaders];
+
+   Int_t         numOfIncludeDirectories;
    Int_t         numOfMFDictIncDirs;
    ROMEString    mfDictIncDir[maxNumberOfMFDictIncDirs];
 
@@ -319,8 +328,10 @@ protected:
 
    Int_t         numOfMFIncDirs;
    ROMEString    mfIncDir[maxNumberOfMFIncDirs];
+
    Int_t         numOfMFPreDefs;
    ROMEString    mfPreDefName[maxNumberOfMFPreDefs];
+
    Int_t         numOfMFSources;
    ROMEString    mfSourceFileName[maxNumberOfMFSources];
    ROMEString    mfSourceFilePath[maxNumberOfMFSources];
@@ -328,6 +339,9 @@ protected:
    ROMEString    mfHeaderFilePath[maxNumberOfMFSources];
    Int_t         numOfMFSourceFlags[maxNumberOfMFSources];
    ROMEString    mfSourceFileFlag[maxNumberOfMFSources][maxNumberOfMFSourceFlags];
+   Int_t         numOfMFSourceAffiliations[maxNumberOfMFSources];
+   ROMEString    mfSourceFileAffiliation[maxNumberOfMFSources][maxNumberOfAffiliations];
+   Bool_t        mfSourceFileUsed[maxNumberOfMFSources];
 
 // main
    ROMEString    mainAuthor;

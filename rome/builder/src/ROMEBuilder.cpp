@@ -302,6 +302,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_USB",2);
          flags.AddAtAndExpand("HAVE_AFG3251",3);
          flags.AddAtAndExpand("HAVE_VME",4);
+         affiliations.AddAtAndExpand("drs",0);
       }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;

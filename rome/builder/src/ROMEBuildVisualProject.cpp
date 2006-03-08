@@ -327,6 +327,8 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
       xml->WriteAttribute("Name","User Classes");
       xml->WriteAttribute("Filter","cpp;c;cxx");
       for (i=0;i<numOfMFSources;i++) {
+         if (!mfSourceFileUsed[i])
+            continue;
          addFile = true;
          for (j=0;j<numOfMFSourceFlags[i];j++) {
             addFile = false;

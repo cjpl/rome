@@ -1124,6 +1124,8 @@ Bool_t ROMEBuilder::WriteTaskCpp()
 
    if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      if (!taskUsed[iTask])
+         continue;
       header.Resize(0);
       buffer.Resize(0);
       // File name
@@ -1311,6 +1313,8 @@ Bool_t ROMEBuilder::WriteTaskF()
 
    if (makeOutput) cout << "\n   Output F-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      if (!taskUsed[iTask])
+         continue;
       if (taskFortran[iTask]) {
          // File name
          fFile.SetFormatted("%ssrc/tasks/%sTF%s.F",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
@@ -1359,6 +1363,8 @@ Bool_t ROMEBuilder::WriteTaskH()
 
    if (makeOutput) cout << "\n   Output H-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
+      if (!taskUsed[iTask])
+         continue;
       changeableFlagChanged = false;
 
       //back up old files
@@ -2106,6 +2112,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      if (!tabUsed[iTab])
+         continue;
       header.Resize(0);
       buffer.Resize(0);
       // File name
@@ -2188,6 +2196,8 @@ Bool_t ROMEBuilder::WriteTabH()
       cout << "\n   Output H-Files:" << endl;
 
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      if (!tabUsed[iTab])
+         continue;
       // File name
       hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       // Description
@@ -2708,6 +2718,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskUserCode[i])
          buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
       else
@@ -2760,6 +2772,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       same = false;
       for (j=0;j<i+1;j++) {
          if (authors[j]==tabAuthor[i]) {
@@ -2837,18 +2851,16 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   fMainFolder->Add(fMainTask);\n");
    buffer.AppendFormatted("   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
 
-   int taskLen=0;
    int suffixNumber;
    int multiplicity;
    ROMEString suffix;
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (taskLen<(int)taskHierarchyName[i].Length()) taskLen = taskHierarchyName[i].Length();
-   }
 
    buffer.AppendFormatted("   fMainHistoFolder = fMainFolder->AddFolder(\"histos\",\"Histogram Folder\");\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fTaskObjects = new TObjArray(%d);\n",numOfTaskHierarchy);
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       // create suffix
       suffixNumber = 0;
       multiplicity = 0;
@@ -3002,6 +3014,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    // Task steering parameter
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
       int index = i;
       pointer.Resize(0);
@@ -3019,6 +3033,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    // Tab steering parameter
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
       Int_t index = i;
       pointer.Resize(0);
@@ -3050,6 +3066,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    // Task steering parameter
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       buffer.AppendFormatted("   // %s task\n",taskHierarchyName[i].Data());
       int index = i;
       pointer.Resize(0);
@@ -3067,6 +3085,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    // Tab steering parameter
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("   // %s tab\n", tabName[i].Data());
       Int_t index = i;
       pointer.Resize(0);
@@ -3177,6 +3197,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Histo Getters
    buffer.AppendFormatted("// Histo\n");
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       for (j=0;j<numOfHistos[i];j++) {
          if (histoArraySize[i][j]=="1") {
             buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
@@ -3338,21 +3360,13 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          }
       }
    }
-   // max task name length
-   int taskLen=0;
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (taskLen<(int)taskHierarchyName[i].Length()) taskLen = taskHierarchyName[i].Length();
-   }
-   // max tree name length
-   int treeLen=0;
-   for (i=0;i<numOfTree;i++) {
-      if (treeLen<(int)treeName[i].Length()) treeLen = treeName[i].Length();
-   }
 
    // max task switch name length
    int switchLen = -1;
    ROMEString switchString;
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       int index = taskHierarchyParentIndex[i];
       switchString = taskHierarchyName[i].Data();
       while (index!=-1) {
@@ -3426,6 +3440,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("// Task Switches Structure\n");
    buffer.AppendFormatted("typedef struct{\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       int index = taskHierarchyParentIndex[i];
       switchString.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (index!=-1) {
@@ -3547,6 +3563,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Histo Getters
    buffer.AppendFormatted("   // Histo\n");
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       for (j=0;j<numOfHistos[i];j++) {
          if (histoArraySize[i][j]=="1")
             buffer.AppendFormatted("   %s* Get%s();\n",histoType[i][j].Data(),histoName[i][j].Data());
@@ -3560,8 +3578,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Tree Getters
    buffer.AppendFormatted("   // Trees\n");
    for (i=0;i<numOfTree;i++) {
-      format.SetFormatted("   TTree* Get%%sTree()%%%ds { return ((ROMETree*)fTreeObjects->At(%%d))->GetTree(); };\n",treeLen-treeName[i].Length());
-      buffer.AppendFormatted(format.Data(),treeName[i].Data(),"",i);
+      buffer.AppendFormatted("   TTree* Get%sTree() { return ((ROMETree*)fTreeObjects->At(%d))->GetTree(); };\n",treeName[i].Data(),i);
    }
    buffer.AppendFormatted("\n");
 
@@ -3736,6 +3753,8 @@ Bool_t ROMEBuilder::WriteAnalyzerF()
 
    bool writeFortran = false;
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskFortran[i]) {
          writeFortran = true;
          break;
@@ -3850,6 +3869,11 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ArgusTextDialog.h\"\n");
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[i].Data());
+   }
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n", shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -3866,6 +3890,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
 
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       Int_t index = tabParentIndex[i];
       ROMEString switchString = tabName[i].Data();
       while (index != -1) {
@@ -3888,6 +3914,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
 
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n");
       buffer.AppendFormatted(const_cast<char*>(format.Data()), tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
    }
@@ -3899,6 +3927,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   Int_t tabID = 0;\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       recursiveTabDepth = 0;
       if (!AddTab(buffer, i))
          return kFALSE;
@@ -3917,6 +3947,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("      switch (GET_SUBMSG(msg)) {\n");
    buffer.AppendFormatted("      case kCM_MENU:\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
       if (tabHeredity[i].Length()>0) {
          if (numOfMenu[tabHeredityIndex[i]] > 0) {
@@ -3952,6 +3984,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("      case kCM_TAB:\n");
 
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
       if (tabHeredity[i].Length()>0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
@@ -3968,6 +4002,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         }\n");
    }
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
       buffer.AppendFormatted("         if (param1 == f%sTabID) {\n", tabName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->SetActive(kTRUE);\n", tabName[i].Data(), i);
@@ -4010,6 +4046,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         }\n");
    }
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
       buffer.AppendFormatted("            f%s%03dTab->TabUnSelected();\n", tabName[i].Data(), i);
@@ -4037,6 +4075,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("TGPopupMenu* %sWindow::GetMenuHandle(const char* menuName)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       buffer.AppendFormatted("   if (fCurrentTabID == f%sTabID) {\n", tabName[i].Data());
       if (tabHeredity[i].Length()>0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
@@ -4094,10 +4134,12 @@ Bool_t ROMEBuilder::WriteWindowH()
    Int_t typeLen = -1;
    Int_t scl = shortCut.Length();
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("f000Tab")));
       nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("tT")));
       nameLen = TMath::Max(nameLen, static_cast<Int_t>(tabName[i].Length() + strlen("Get000Tab()")));
-      typeLen = TMath::Max(typeLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("T*")));
+      typeLen = TMath::Max(typeLen, static_cast<Int_t>(tabName[i].Length() + scl + strlen("T*_Base")));
    }
    typeLen = TMath::Max(typeLen, static_cast<Int_t>(strlen("TGCompositeFrame*")));
 
@@ -4105,6 +4147,8 @@ Bool_t ROMEBuilder::WriteWindowH()
    Int_t switchLen = -1;
    ROMEString switchString;
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       Int_t index = tabParentIndex[i];
       switchString = tabName[i].Data();
       while (index != -1) {
@@ -4129,7 +4173,9 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    // Header
    for (i = 0; i < numOfTab; i++) {
-      buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[i].Data());
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[i].Data());
    }
    buffer.AppendFormatted("#include \"ArgusWindow.h\"\n");
    buffer.AppendFormatted("\n");
@@ -4139,6 +4185,8 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("typedef struct{\n");
 
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       Int_t index = tabParentIndex[i];
       switchString = tabName[i].Data();
       while (index != -1) {
@@ -4167,6 +4215,8 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   enum MenuEnumeration {\n");
    buffer.AppendFormatted("      M_ROOT = 1000,\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       for (j = 0; j < numOfMenu[i]; j++) {
          for (k = 0; k < numOfMenuItem[i][j]; k++) {
             if (menuItemEnumName[i][j][k].Length() > 0)
@@ -4180,10 +4230,14 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    buffer.AppendFormatted("private:\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       if (tabNumOfChildren[i])
          buffer.AppendFormatted("   TGTab               *f%s%03dTabSubTab;\n", tabName[i].Data(), i);
    }
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       int numMenu = numOfMenu[i];
       if (tabHeredity[i].Length()>0)
          numMenu += numOfMenu[tabHeredityIndex[i]];
@@ -4201,8 +4255,10 @@ Bool_t ROMEBuilder::WriteWindowH()
    // Tab Fields
    buffer.AppendFormatted("   // Tab Fields\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       // cast to int to avoid inconsistency between format and argument
-      format.SetFormatted("   %%sT%%s*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n", (int)(typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*")), (int)(nameLen - tabName[i].Length() - strlen("f000Tab")));
+      format.SetFormatted("   %%sT%%s_Base*%%%ds f%%s%%03dTab;%%%ds  // Handle to %%s Tab\n", (int)(typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*_Base")), (int)(nameLen - tabName[i].Length() - strlen("f000Tab")));
       buffer.AppendFormatted(const_cast<char*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data());
       format.SetFormatted("   TGCompositeFrame*%%%ds t%%sT%%s;%%%ds  // Container of %%s Tab\n", (int)(typeLen - strlen("TGCompositeFrame*")), (int)(nameLen - tabName[i].Length() - scl - strlen("tT")));
       buffer.AppendFormatted(const_cast<char*>(format.Data()), "", shortCut.Data(), tabName[i].Data(), "", tabName[i].Data());
@@ -4223,8 +4279,10 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Tabs\n");
    for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
       // cast to avoid inconsistency between format and arguments.
-      format.SetFormatted("   %%sT%%s*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds }\n", (int)(typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*")), (int)(nameLen - tabName[i].Length() - strlen("Get000Tab()")), (int)(nameLen - tabName[i].Length() - strlen("f000Tab")));
+      format.SetFormatted("   %%sT%%s_Base*%%%ds Get%%s%%03dTab()%%%ds { return f%%s%%03dTab;%%%ds }\n", (int)(typeLen - tabName[i].Length() - shortCut.Length() - strlen("T*_Base")), (int)(nameLen - tabName[i].Length() - strlen("Get000Tab()")), (int)(nameLen - tabName[i].Length() - strlen("f000Tab")));
       buffer.AppendFormatted(const_cast<char*>(format.Data()), shortCut.Data(), tabName[i].Data(), "", tabName[i].Data(), i, "", tabName[i].Data(), i, "");
    }
    buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
@@ -4397,6 +4455,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("#include \"include/daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
 
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskUserCode[i])
          buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
       else
@@ -4814,8 +4874,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // Argus/UpdateFrequency
    subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
    subGroup->GetLastParameter()->AddSetLine("gWindow->SetUpdateFrequency(##.ToInteger());");
-   for (i=0;i<numOfTab;i++)
+   for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       subGroup->GetLastParameter()->AddSetLine("gWindow->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
+   }
    subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gWindow->GetUpdateFrequency());");
    mainParGroup->AddSubGroup(subGroup);
    // Argus/AnalyzerController
@@ -5218,6 +5281,8 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       if (taskHierarchyParentIndex[i]!=parentIndex)
          continue;
       name.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
@@ -5302,6 +5367,8 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
    ROMEString steerPointerT;
    ROMEConfigParameterGroup* subGroup;
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       if (tabParentIndex[i] != parentIndex)
          continue;
       switchString = tabName[i].Data();
@@ -5871,6 +5938,8 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       buffer.AppendFormatted("   ROMEString taskSwitchesString =  \"");
       ROMEString switchString;
       for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
          int index = taskHierarchyParentIndex[i];
          switchString.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
          while (index!=-1) {
@@ -7579,6 +7648,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    int parentInd;
    buffer.AppendFormatted("void %sEventLoop::InitTaskSwitches() {\n",shortCut.Data());
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       parentInd = taskHierarchyParentIndex[i];
       taskNameT.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (parentInd!=-1) {
@@ -7593,6 +7664,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    // Update Task Switches
    buffer.AppendFormatted("void %sEventLoop::UpdateTaskSwitches() {\n",shortCut.Data());
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       parentInd = taskHierarchyParentIndex[i];
       taskNameT.SetFormatted("%s%03d",taskHierarchyName[i].Data(),i);
       while (parentInd!=-1) {
@@ -7611,6 +7684,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("void %sEventLoop::ReadHistograms() {\n",shortCut.Data());
    breaking = false;
    for (i=0;i<numOfTaskHierarchy && !breaking;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !breaking;j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]!="1") {
             buffer.AppendFormatted("   int i;\n");
@@ -7629,6 +7704,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   file->FindObjectAny(\"histos\");\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("   %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
@@ -7876,6 +7953,8 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<H2><a name=steers>Steering Parameters</a> </H2>\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<=numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (numOfSteering[i] < 1)
          continue;
       if (i<numOfTask)
@@ -7902,6 +7981,8 @@ void ROMEBuilder::WriteHTMLDoku()
    int ddelta;
    buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
       index = i;
       depth=0;
       while (index!=-1) {
@@ -7928,6 +8009,8 @@ void ROMEBuilder::WriteHTMLDoku()
    fstream *fileStream;
    ROMEString fileBuffer;
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       buffer.AppendFormatted("<a name=%s class=\"object\">%s</a><br>\n",taskName[i].Data(),taskName[i].Data());
       buffer.AppendFormatted("%s<p>\n",taskDescription[i].Data());
       if (numOfHistos[i]>0) {

@@ -209,6 +209,8 @@ void ROMEBuilder::AddGeneratedHeaders()
       }
    }
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskUserCode[i]) {
          generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
       }
@@ -217,6 +219,8 @@ void ROMEBuilder::AddGeneratedHeaders()
       }
    }
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
    }
 }
@@ -256,6 +260,8 @@ void ROMEBuilder::AddGeneratedTaskDictHeaders()
    generatedTaskDictHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
    generatedTaskLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTask,0));
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskUserCode[i]) {
          generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
          generatedTaskLinkDefSuffix->Add("");
@@ -273,6 +279,8 @@ void ROMEBuilder::AddGeneratedTabDictHeaders()
    generatedTabDictHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
    generatedTabLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTab,0));
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       generatedTabDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
       generatedTabLinkDefSuffix->Add("");
    }
@@ -333,6 +341,8 @@ void ROMEBuilder::AddTaskHeaders()
    taskHeaders = new ROMEStrArray(TMath::Max(numOfTask,0));
    taskLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTask,0));
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       if (taskUserCode[i]) {
          taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
          taskLinkDefSuffix->Add("");
@@ -345,6 +355,8 @@ void ROMEBuilder::AddTaskSources()
    int i;
    taskSources = new ROMEStrArray(numOfTask+1);
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       taskSources->AddFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data());
    }
    if (taskHeaders->GetEntriesFast()>0)
@@ -357,6 +369,8 @@ void ROMEBuilder::AddTabHeaders()
    tabHeaders = new ROMEStrArray(TMath::Max(numOfTab,0));
    tabLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfTab,0));
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       tabHeaders->AddFormatted("include/tabs/%sT%s.h",shortCut.Data(),tabName[i].Data());
       tabLinkDefSuffix->Add("");
    }
@@ -367,6 +381,8 @@ void ROMEBuilder::AddTabSources()
    int i;
    tabSources = new ROMEStrArray(numOfTab+1);
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       tabSources->AddFormatted("src/tabs/%sT%s.cpp",shortCut.Data(),tabName[i].Data());
    }
    if (tabHeaders->GetEntriesFast()>0)
@@ -704,7 +720,15 @@ void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
 void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
 {
 #if defined( R__UNIX )
-   if (numOfMFDictHeaders==0) {
+   int i;
+   bool haveDict = false;
+   for (i=0;i<numOfMFDictHeaders;i++) {
+      if (mfDictHeaderUsed[i]) {
+         haveDict = true;
+         break;
+      }
+   }
+   if (!haveDict) {
       buffer.AppendFormatted("ifdef DictionaryHeaders\n");
       buffer.AppendFormatted("objects += obj/%sUserDict.obj\n",shortCut.Data());
       buffer.AppendFormatted("endif\n");
@@ -756,8 +780,11 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    int i;
    ROMEString str;
    buffer.AppendFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(),shortCut.Data());
-   for (i=0;i<numOfMFDictHeaders;i++)
+   for (i=0;i<numOfMFDictHeaders;i++) {
+      if (!mfDictHeaderUsed[i])
+         continue;
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   }
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
@@ -773,8 +800,11 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    for (i=0;i<numOfMFDictIncDirs;i++)
       buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
    buffer.AppendFormatted(" $(DictionaryHeaders)");
-   for (i=0;i<numOfMFDictHeaders;i++)
+   for (i=0;i<numOfMFDictHeaders;i++) {
+      if (!mfDictHeaderUsed[i])
+         continue;
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   }
    buffer.Append("\n\n");
 }
 
@@ -858,6 +888,8 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
    ROMEString ext;
 
    for (i=0;i<numOfMFSources;i++) {
+      if (!mfSourceFileUsed[i])
+         continue;
       bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
       for (j=0;j<numOfMFSourceFlags[i];j++) {
          commandLineFlag[j] = false;
@@ -897,6 +929,8 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString&
    // Write Additional Source Files Compile Commands
    int i,j,k;
    for (i=0;i<numOfMFSources;i++) {
+      if (!mfSourceFileUsed[i])
+         continue;
       bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
       for (j=0;j<numOfMFSourceFlags[i];j++) {
          commandLineFlag[j] = false;

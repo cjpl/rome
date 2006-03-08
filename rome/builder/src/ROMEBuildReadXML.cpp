@@ -824,7 +824,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    }
    // initialisation
    taskName[numOfTask] = "";
-   taskAffiliation[numOfTask] = "";
+   numOfTaskAffiliations[numOfTask] = 0;
    taskUsed[numOfTask] = true;
    taskEventID[numOfTask] = "a";
    taskFortran[numOfTask] = false;
@@ -857,6 +857,17 @@ Bool_t ROMEBuilder::ReadXMLTask()
             cout << "Terminating program." << endl;
             return false;
          }
+         if (affiliations.GetEntriesFast()>0) {
+            taskUsed[numOfTask] = false;
+            for (i=0;i<affiliations.GetEntriesFast() && !taskUsed[numOfTask];i++) {
+               for (j=0;j<numOfTaskAffiliations[numOfTask];j++) {
+                  if (affiliations.At(i)==taskAffiliation[numOfTask][j]) {
+                     taskUsed[numOfTask] = true;
+                     break;
+                  }
+               }
+            }
+         }
          recursiveDepth--;
          return true;
       }
@@ -870,16 +881,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
       }
       // task affiliation
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
-         xml->GetValue(taskAffiliation[numOfTask],"");
-         if (affiliations.GetEntriesFast()>0) {
-            taskUsed[numOfTask] = false;
-            for (i=0;i<affiliations.GetEntriesFast();i++) {
-               if (affiliations.At(i)==taskAffiliation[numOfTask]) {
-                  taskUsed[numOfTask] = true;
-                  break;
-               }
-            }
-         }
+         taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]] = "";
+         xml->GetValue(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]],taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]]);
+         numOfTaskAffiliations[numOfTask]++;
       }
       // task event id
       if (type == 1 && !strcmp((const char*)name,"TaskEventId"))
@@ -1151,6 +1155,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
    // initialisation
    tabName[currentNumberOfTabs] = "";
    tabTitle[currentNumberOfTabs] = "";
+   numOfTabAffiliations[numOfTab] = 0;
+   tabUsed[numOfTab] = true;
    tabAuthor[currentNumberOfTabs] = mainAuthor;
    tabVersion[currentNumberOfTabs] = "1";
    tabDescription[currentNumberOfTabs] = "";
@@ -1186,6 +1192,17 @@ Bool_t ROMEBuilder::ReadXMLTab()
             cout << "Terminating program." << endl;
             return kFALSE;
          }
+         if (affiliations.GetEntriesFast()>0) {
+            tabUsed[numOfTab] = false;
+            for (i=0;i<affiliations.GetEntriesFast() && !tabUsed[numOfTab];i++) {
+               for (j=0;j<numOfTabAffiliations[numOfTab];j++) {
+                  if (affiliations.At(i)==tabAffiliation[numOfTab][j]) {
+                     tabUsed[numOfTab] = true;
+                     break;
+                  }
+               }
+            }
+         }
          recursiveTabDepth--;
          return kTRUE;
       }
@@ -1203,6 +1220,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab title
       if (type == 1 && !strcmp(name, "TabTitle"))
          xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
+      // tab affiliation
+      if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+         tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]] = "";
+         xml->GetValue(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]],tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]]);
+         numOfTabAffiliations[numOfTab]++;
+      }
 
       // tab author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
@@ -2313,6 +2336,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
 
 Bool_t ROMEBuilder::ReadXMLUserMakefile()
 {
+   int i,j;
    char *name;
    int type;
    ROMEString temp;
@@ -2325,14 +2349,42 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
-            // header name
-            if (type == 1 && !strcmp((const char*)name,"HeaderName")) {
+            // header
+            if (type == 1 && !strcmp((const char*)name,"Header")) {
+               numOfMFDictHeaderAffiliations[numOfMFDictHeaders] = 0;
                mfDictHeaderName[numOfMFDictHeaders] = "";
-               xml->GetValue(mfDictHeaderName[numOfMFDictHeaders],mfDictHeaderName[numOfMFDictHeaders]);
-               if (mfDictHeaderName[numOfMFDictHeaders].Length()>0) {
-                  if (mfDictHeaderName[numOfMFDictHeaders].Index(".")==-1)
-                     mfDictHeaderName[numOfMFDictHeaders].Append(".h");
-                  numOfMFDictHeaders++;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // header name
+                  if (type == 1 && !strcmp((const char*)name,"HeaderName")) {
+                     xml->GetValue(mfDictHeaderName[numOfMFDictHeaders],mfDictHeaderName[numOfMFDictHeaders]);
+                     if (mfDictHeaderName[numOfMFDictHeaders].Length()>0) {
+                        if (mfDictHeaderName[numOfMFDictHeaders].Index(".")==-1)
+                           mfDictHeaderName[numOfMFDictHeaders].Append(".h");
+                     }
+                  }
+                  // affiliation
+                  if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+                     mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]] = "";
+                     xml->GetValue(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]);
+                     numOfMFDictHeaderAffiliations[numOfMFDictHeaders]++;
+                  }
+                  if (type == 15 && !strcmp((const char*)name,"Header")) {
+                     if (affiliations.GetEntriesFast()>0) {
+                        mfDictHeaderUsed[numOfMFDictHeaders] = false;
+                        for (i=0;i<affiliations.GetEntriesFast() && !mfDictHeaderUsed[numOfMFDictHeaders];i++) {
+                           for (j=0;j<numOfMFDictHeaderAffiliations[numOfMFDictHeaders];j++) {
+                              if (affiliations.At(i)==mfDictHeaderAffiliation[numOfMFDictHeaders][j]) {
+                                 mfDictHeaderUsed[numOfMFDictHeaders] = true;
+                                 break;
+                              }
+                           }
+                        }
+                     }
+                     numOfMFDictHeaders++;
+                     break;
+                  }
                }
             }
             if (type == 15 && !strcmp((const char*)name,"DictionaryHeaders"))
@@ -2467,6 +2519,8 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
             // source file
             if (type == 1 && !strcmp((const char*)name,"File")) {
                numOfMFSourceFlags[numOfMFSources] = 0;
+               numOfMFSourceAffiliations[numOfMFSources] = 0;
+               mfSourceFileUsed[numOfMFSources] = true;
                mfSourceFileName[numOfMFSources] = "";
                mfSourceFilePath[numOfMFSources] = "";
                mfHeaderFileName[numOfMFSources] = "";
@@ -2507,8 +2561,25 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]] = "";
                      xml->GetValue(mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]],mfSourceFileFlag[numOfMFSources][numOfMFSourceFlags[numOfMFSources]]);
                      numOfMFSourceFlags[numOfMFSources]++;
-                  }   
+                  }
+                  // affiliation
+                  if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+                     mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]] = "";
+                     xml->GetValue(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]);
+                     numOfMFSourceAffiliations[numOfMFSources]++;
+                  }
                   if (type == 15 && !strcmp((const char*)name,"File")) {
+                     if (affiliations.GetEntriesFast()>0) {
+                        mfSourceFileUsed[numOfMFSources] = false;
+                        for (i=0;i<affiliations.GetEntriesFast() && !mfSourceFileUsed[numOfMFSources];i++) {
+                           for (j=0;j<numOfMFSourceAffiliations[numOfMFSources];j++) {
+                              if (affiliations.At(i)==mfSourceFileAffiliation[numOfMFSources][j]) {
+                                 mfSourceFileUsed[numOfMFSources] = true;
+                                 break;
+                              }
+                           }
+                        }
+                     }
                      numOfMFSources++;
                      break;
                   }
