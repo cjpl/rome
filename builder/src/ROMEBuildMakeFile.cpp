@@ -1004,6 +1004,10 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
    int i;
    for (i=0;i<flags.GetEntriesFast();i++)
       buffer.AppendFormatted(" %s",flags.At(i).Data());
+   if (affiliations.GetEntriesFast())
+      buffer.AppendFormatted(" -a");
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      buffer.AppendFormatted(" %s",affiliations.At(i).Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted(" -nvp");
 #endif
