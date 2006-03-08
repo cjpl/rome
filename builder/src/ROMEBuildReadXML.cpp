@@ -2353,6 +2353,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
             if (type == 1 && !strcmp((const char*)name,"Header")) {
                numOfMFDictHeaderAffiliations[numOfMFDictHeaders] = 0;
                mfDictHeaderName[numOfMFDictHeaders] = "";
+               mfDictHeaderUsed[numOfMFDictHeaders] = true;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
