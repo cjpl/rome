@@ -721,6 +721,11 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Affiliation of the tab. This is used for selecting a subgroup of all tabs for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the tabs belonging to that group will be linked into the project. The tab can have multiple affiliations, then the tab is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Author" type="AuthorDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Defines the auther of the Tab.</xs:documentation>
@@ -1042,14 +1047,31 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="HeaderDesc">
+		<xs:annotation>
+			<xs:documentation>Additional header file added to the rootcint command.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HeaderName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name of the header file.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Affiliation of the additional header file. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the files belonging to that group will be added to the rootcint command. The file can have multiple affiliations, then the file is added to the rootcint command when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="DictionaryHeadersDesc">
 		<xs:annotation>
 			<xs:documentation>Additional header files to be added to the rootcint command.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="HeaderName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Header" type="HeaderDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Name of the header file. (optional)</xs:documentation>
+					<xs:documentation>Additional header file added to the rootcint command. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -1137,6 +1159,11 @@
 			<xs:element name="NeededFlag" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Precompiler flag needed for this file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Affiliation of the additional source file. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the files belonging to that group will be linked into the project. The file can have multiple affiliations, then the file is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
