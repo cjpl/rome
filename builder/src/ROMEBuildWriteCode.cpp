@@ -4468,6 +4468,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fXMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
+   buffer.AppendFormatted("   xml->GetPathAttribute(\"/Configuration\",\"xsi:noNamespaceSchemaLocation\",fXSDFile,\"romeConfig.xsd\");\n");
    buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml))\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
@@ -4612,7 +4613,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->SetTranslate(0);\n");
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
-   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",\"c:/rome/romeConfig.xsd\");\n");
+   buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",fXSDFile.Data());\n");
    buffer.AppendFormatted("   WriteProgramConfiguration(xml);\n");
    buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
@@ -4703,6 +4704,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("\n");
 
    // Fields
+   buffer.AppendFormatted("   ROMEString fXSDFile;\n");
    buffer.AppendFormatted("   ROMEString fXMLFile;\n");
    buffer.AppendFormatted("   Int_t fNumberOfRunConfigs;\n");
    buffer.AppendFormatted("   Int_t fActiveConfiguration;\n");

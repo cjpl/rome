@@ -271,16 +271,18 @@ Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& v
 }
 
 Bool_t ROMEXML::GetPathAttribute(const char* path,const char* name,ROMEString& value,const char* defaultValue) {
+   char *tmp;
    PMXML_NODE node = mxml_find_node(rootNode,(char*)path);
    if (node==NULL) {
       value = defaultValue;
       return false;
    }
-   value = mxml_get_attribute(node,(char*)name);
-   if (value==NULL) {
+   tmp = mxml_get_attribute(node,(char*)name);
+   if (tmp==NULL) {
       value = defaultValue;
       return false;
    }
+   value = tmp;
    return true;
 }
 
