@@ -4812,7 +4812,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"none\";");
    // Modes/BatchMode
    subGroup->AddParameter(new ROMEConfigParameter("BatchMode"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"online\")");
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetBatchMode(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetBatchMode(false);");
@@ -4822,7 +4822,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/QuitMode
    subGroup->AddParameter(new ROMEConfigParameter("QuitMode"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"online\")");
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(false);");
@@ -4832,7 +4832,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/ShowSplashScreen
    subGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"online\")");
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSplashScreen(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSplashScreen(false);");
@@ -5224,6 +5224,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("   else");
       subGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
       subGroup->GetLastParameter()->AddWriteLine("}");
+      subGroup->GetLastParameter()->AddWriteLine("else {");
+      subGroup->GetLastParameter()->AddWriteLine("   if (##Modified)");
+      subGroup->GetLastParameter()->AddWriteLine("      writeString = ##;");
+      subGroup->GetLastParameter()->AddWriteLine("   else");
+      subGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
+      subGroup->GetLastParameter()->AddWriteLine("}");
    }
    for (i=0;i<numOfEvent;i++) {
       subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
@@ -5240,6 +5246,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subSubGroup->GetLastParameter()->AddWriteLine("   else");
       subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
       subSubGroup->GetLastParameter()->AddWriteLine("}");
+      subSubGroup->GetLastParameter()->AddWriteLine("else {");
+      subSubGroup->GetLastParameter()->AddWriteLine("   if (##Modified)");
+      subSubGroup->GetLastParameter()->AddWriteLine("      writeString = ##;");
+      subSubGroup->GetLastParameter()->AddWriteLine("   else");
+      subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
+      subSubGroup->GetLastParameter()->AddWriteLine("}");
       subGroup->AddSubGroup(subSubGroup);
       for (j=0;j<numOfBank[i];j++) {
          subSubSubGroup = new ROMEConfigParameterGroup(bankName[i][j],"1","Bank");
@@ -5255,6 +5267,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
          subSubSubGroup->GetLastParameter()->AddWriteLine("   else");
          subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("}");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("else {");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("   if (##Modified)");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = ##;");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("   else");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
          subSubSubGroup->GetLastParameter()->AddWriteLine("}");
          subSubGroup->AddSubGroup(subSubSubGroup);
       }
@@ -5764,7 +5782,10 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       if (parGroup->GetParameterAt(i)->GetNumberOfWriteLines()>0) {
          buffer.AppendFormatted("%sif (index==0) {\n",sTab.Data());
          for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfWriteLines();j++) {
-            buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetParameterAt(i)->GetWriteLineAt(j));
+            buf = parGroup->GetParameterAt(i)->GetWriteLineAt(j);
+            temp.SetFormatted("fConfigData[index]->%sf%s",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+            buf.ReplaceAll("##",temp);
+            buffer.AppendFormatted("%s   %s\n",sTab.Data(),buf.Data());
          }
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",writeString.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());

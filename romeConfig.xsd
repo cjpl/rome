@@ -835,7 +835,7 @@
 				</xs:annotation>
 				<xs:complexType>
 					<xs:sequence>
-						<xs:element name="ByteSwap" type="xs:boolean" minOccurs="0">
+						<xs:element name="MidasByteSwap" type="xs:boolean" minOccurs="0">
 							<xs:annotation>
 								<xs:documentation>When it is true, framework does byte swapping when reading MIDAS files. Default is false.</xs:documentation>
 							</xs:annotation>
