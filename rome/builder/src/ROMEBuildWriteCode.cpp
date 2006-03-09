@@ -1543,9 +1543,9 @@ Bool_t ROMEBuilder::WriteTaskH()
       // Constructor and Event Methods
       buffer.AppendFormatted("   // Constructor\n");
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
       else
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
       if (numOfSteering[iTask]>0) {
@@ -1639,9 +1639,9 @@ Bool_t ROMEBuilder::WriteTaskH()
       // Histo Inline Methods
       // Constructor
       if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline %sT%s_Base::%sT%s_Base(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline %sT%s_Base::%sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
       else
-         buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   fHistoSuffix = histoSuffix;\n");
       buffer.AppendFormatted("   fHistoFolder = histoFolder;\n");
       buffer.AppendFormatted("   fEventID = '%s';\n",taskEventID[iTask].Data());
@@ -2848,7 +2848,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Task
    buffer.AppendFormatted("   // Task initialisation\n");
-   buffer.AppendFormatted("   fMainTask = new %sEventLoop(\"mainTask\",\"Main Task of %s%s\");\n",shortCut.Data(),shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("   fMainTask = new %sEventLoop(\"program\",\"Main Task of %s%s\");\n",shortCut.Data(),shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("   fMainFolder->Add(fMainTask);\n");
    buffer.AppendFormatted("   gROOT->GetListOfTasks()->Add(fMainTask);\n\n");
 
@@ -2888,7 +2888,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       else
          buffer.AppendFormatted("   fHistoFolders->AddAtAndExpand(GetHistoFolderAt(%d)->AddFolder(\"%sHistos%s\",\"Histograms of Task '%s%s'\"),%d);\n",taskHierarchyParentIndex[i],taskHierarchyName[i].Data(),suffix.Data(),taskHierarchyName[i].Data(),suffix.Data(),i);
       // create task
-      buffer.AppendFormatted("   AddTask(new %sT%s(\"%s%d\",\"%s\",\"%s\",GetHistoFolderAt(%d)));\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),i,"",suffix.Data(),i);
+      buffer.AppendFormatted("   AddTask(new %sT%s(\"%s_%d\",\"%s\",%d,\"%s\",GetHistoFolderAt(%d)));\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),i,"",taskHierarchyLevel[i],suffix.Data(),i);
       buffer.AppendFormatted("   GetTaskObjectAt(%d)->SetActive(false);\n",i);
       if (taskHierarchyParentIndex[i]==-1)
          parentt = "GetMainTask()";

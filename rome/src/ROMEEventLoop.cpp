@@ -45,7 +45,7 @@ TTask *TTask::fgBreakPoint = 0;
 // Task switches handle initialization
 bool ROMEEventLoop::fTaskSwitchesChanged = false;
 
-ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title)
+ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title,0)
 {
    fTreeInfo = new ROMETreeInfo();
    fSequentialNumber = 0;
@@ -280,10 +280,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             text.SetFormatted("%lld events processed\n",(Long64_t)(gROME->GetProcessedEvents()+0.5));
             gROME->PrintLine(text.Data());
 #endif
-
-            gROME->PrintText("run time = ");
-            gROME->PrintLine(GetTime());
-            gROME->PrintLine();
          }
 
          // End of Run Tasks
@@ -303,8 +299,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Terminate Tasks
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      ExecuteTasks("t");
-      CleanTasks();
+      if (gROME->IsShowRunStat()) {
+
+         gROME->PrintLine("run times :                       h: m: s: ms");
+         gROME->PrintLine("-----------                      ------------");
+         Exec("t");
+         ExecuteTasks("t");
+         CleanTasks();
+         gROME->PrintLine("");
+      }
    }
 
    // Terminate

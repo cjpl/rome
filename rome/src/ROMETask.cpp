@@ -29,12 +29,13 @@
 
 ClassImp(ROMETask)
 
-ROMETask::ROMETask(const char *name,const char *title):TTask(name,title)
+ROMETask::ROMETask(const char *name,const char *title,int level):TTask(name,title)
 {
    // Initialisation of Class
    fTitle = title;
    fName = name;
    fEventID = 'a';
+   fLevel = level;
 }
 
 void ROMETask::Exec(Option_t *option)
@@ -45,6 +46,9 @@ void ROMETask::Exec(Option_t *option)
    // Event
    // EndOfRun
    // Terminate
+   int i;
+   ROMEString name;
+   int nchars;
    if (gROME->isTerminationFlag())
       return;
    if (!strncmp(option,"i",1)) {
@@ -74,9 +78,24 @@ void ROMETask::Exec(Option_t *option)
       Terminate();
       TimeEnd();
 
-      gROME->PrintText("Task '");
-      gROME->PrintText(fName.Data());
-      gROME->PrintText("'\t: run time = ");
+      nchars = 0;
+      for (i=0;i<fLevel;i++)
+         gROME->PrintText(" ");
+      if (fLevel==1) {
+         gROME->PrintText("Task ");
+         nchars = 5;
+      }
+      else if (fLevel>1) {
+         gROME->PrintText("SubTask ");
+         nchars = 8;
+      }
+      name = fName;
+      if (name.Last('_')>0)
+         name = name(0,name.Last('_'));
+      gROME->PrintText(name.Data());
+      for (i=0;i<30-name.Length()-fLevel-nchars;i++)
+         gROME->PrintText(".");
+      gROME->PrintText(" : ");
       gROME->PrintLine(GetTime());
    }
    else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
