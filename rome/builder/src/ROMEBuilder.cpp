@@ -193,8 +193,6 @@ void ROMEBuilder::StartBuilder()
    if (!WriteMidasDAQH()) return;
    if (!WriteRomeDAQCpp()) return;
    if (!WriteRomeDAQH()) return;
-   if (!WriteDataBaseDAQCpp()) return;
-   if (!WriteDataBaseDAQH()) return;
    if (!WriteEventLoopCpp()) return;
    if (!WriteEventLoopH()) return;
    if (!WriteMain()) return;

@@ -506,7 +506,7 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
 
    WriteVisualProjectProjFiles(xml,rootLibraries,"ROOT","lib");
    WriteVisualProjectProjFiles(xml,mysqlLibraries,"MySQL","lib");
-   WriteVisualProjectProjFiles(xml,midasLibraries,"MIDAS","lib");
+   WriteVisualProjectProjFiles(xml,daqLibraries,"MIDAS","lib");
 
    // user
    xml->StartElement("Filter");

@@ -198,7 +198,6 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
-   generatedHeaders->AddFormatted("include/generated/%sDataBaseDAQ.h",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
@@ -297,7 +296,6 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
-   generatedSources->AddFormatted("src/generated/%sDataBaseDAQ.cpp",shortCut.Data());
    if (generatedDictHeaders->GetEntriesFast()>0)
       generatedSources->AddFormatted("dict/%sGeneratedDict.cpp",shortCut.Data());
    if (generatedFolderDictHeaders->GetEntriesFast()>0)
@@ -458,11 +456,70 @@ void ROMEBuilder::AddMysqlLibraries()
    mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysys.lib");
 #endif
 }
-void ROMEBuilder::AddMidasLibraries()
+void ROMEBuilder::AddDAQLibraries()
 {
+   daqLibraries = new ROMEStrArray(2);
 #if defined( R__VISUAL_CPLUSPLUS )
-   midasLibraries = new ROMEStrArray(1);
-   midasLibraries->AddFormatted("$(MIDASSYS)\\nt\\lib\\midas.lib");
+   if (this->midas)
+      daqLibraries->AddFormatted("$(MIDASSYS)\\nt\\lib\\midas.lib");
+#endif
+#if defined( R__UNIX )
+#if defined( R__ALPHA )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/osf1/lib -lmidas");
+#elif defined( R__SGI )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/ultrix/lib -lmidas");
+#elif defined( R__FBSD )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/freeBSD/lib -lmidas");
+#elif defined( R__MACOSX )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/darwin/lib -lmidas");
+#elif defined( R__LINUX )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/linux/lib -lmidas");
+#elif defined( R__SOLARIS )
+   if (this->midas)
+      daqLibraries->AddFormatted("-L$(MIDASSYS)/solaris/lib -lmidas");
+#else
+   if (this->midas)
+      daqLibraries->AddFormatted("-lmidas");
+#endif
+#endif
+}
+void ROMEBuilder::AddDAQFlags()
+{
+   daqFlags = new ROMEStrArray(2);
+#if defined( R__VISUAL_CPLUSPLUS )
+   if (this->midas)
+      daqFlags->AddFormatted("/DHAVE_MIDAS");
+   if (this->orca)
+      daqFlags->AddFormatted("/DHAVE_ORCA");
+#endif
+#if defined( R__UNIX )
+#if defined( R__ALPHA )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOSF1 -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#elif defined( R__SGI )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOS_ULTRIX -DNO_PTY -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#elif defined( R__FBSD )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOS_FREEBSD -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#elif defined( R__MACOSX )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOS_LINUX -DOS_DARWIN -DHAVE_STRLCPY -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#elif defined( R__LINUX )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOS_LINUX -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#elif defined( R__SOLARIS )
+   if (this->midas)
+      daqFlags->AddFormatted("-DOS_SOLARIS -I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#else
+   if (this->midas)
+      daqFlags->AddFormatted("-I$(MIDASSYS)/include/ -DHAVE_MIDAS");
+#endif
 #endif
 }
 
@@ -506,12 +563,14 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    if (this->sqlite3)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/sqlite3.lib");
    buffer.AppendFormatted("\n");
-   if (this->midas)
-      buffer.AppendFormatted("midaslibs = $(MIDASSYS)/nt/lib/midas.lib\n");
-   else
-      buffer.AppendFormatted("midaslibs = \n");
+
+   buffer.AppendFormatted("daqlibs =");
+   for (i=0;i<daqLibraries->GetEntriesFast();i++) {
+      buffer.AppendFormatted(" %s",daqLibraries->At(i).Data());
+   }
+   buffer.AppendFormatted("\n\n");
    buffer.AppendFormatted("clibs = wsock32.lib gdi32.lib user32.lib kernel32.lib\n");
-   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(midaslibs)\n");
+   buffer.AppendFormatted("Libraries = $(rootlibs) $(clibs) $(sqllibs) $(daqlibs)\n");
    bool addLib = true;
    bool flagMatched = false;
    int k;
@@ -539,10 +598,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 
    // flags
    buffer.AppendFormatted("Flags = /GX /GR /MD $(%suserflags)",shortCut.ToLower(tmp));
-   if (this->midas)
-      buffer.AppendFormatted(" /DHAVE_MIDAS");
-   if (this->orca)
-      buffer.AppendFormatted(" /DHAVE_ORCA");
+   for (i=0;i<daqFlags->GetEntriesFast();i++) {
+      buffer.AppendFormatted(" %s",daqFlags->At(i).Data());
+   }
    if (this->sql)
       buffer.AppendFormatted(" /DHAVE_SQL");
    if (this->mysql)
@@ -629,33 +687,15 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("oslibs :=\n");
    buffer.AppendFormatted("soflags := -shared\n");
 #endif
-   if (this->midas) {
-#if defined( R__ALPHA )
-      buffer.AppendFormatted("midascflags := -DOSF1 -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/osf1/lib -lmidas\n");
-#elif defined( R__SGI )
-      buffer.AppendFormatted("midascflags := -DOS_ULTRIX -DNO_PTY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/ultrix/lib -lmidas\n");
-#elif defined( R__FBSD )
-      buffer.AppendFormatted("midascflags := -DOS_FREEBSD -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/freeBSD/lib -lmidas\n");
-#elif defined( R__MACOSX )
-      buffer.AppendFormatted("midascflags := -DOS_LINUX -DOS_DARWIN -DHAVE_STRLCPY -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/darwin/lib -lmidas\n");
-#elif defined( R__LINUX )
-      buffer.AppendFormatted("midascflags := -DOS_LINUX -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/linux/lib -lmidas\n");
-#elif defined( R__SOLARIS )
-      buffer.AppendFormatted("midascflags := -DOS_SOLARIS -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -L$(MIDASSYS)/solaris/lib -lmidas\n");
-#else
-      buffer.AppendFormatted("midascflags := -I$(MIDASSYS)/include/ -DHAVE_MIDAS\n");
-      buffer.AppendFormatted("midaslibs := -lmidas\n");
-#endif
+   buffer.AppendFormatted("daqlibs := \n");
+   buffer.AppendFormatted("daqcflags := \n");
+   // DAQ Flaqs
+   for (i=0;i<daqFlags->GetEntriesFast();i++) {
+      buffer.AppendFormatted("daqcflags += %s\n",daqFlags->At(i).Data());
    }
-   else{
-      buffer.AppendFormatted("midaslibs := \n");
-      buffer.AppendFormatted("midascflags := \n");
+   // DAQ Libraries
+   for (i=0;i<daqLibraries->GetEntriesFast();i++) {
+      buffer.AppendFormatted("daqlibs += %s\n",daqLibraries->At(i).Data());
    }
    buffer.AppendFormatted("clibs := -lHtml -lz $(SYSLIBS)");
    if (haveFortranTask)
@@ -663,7 +703,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(sqllibs) $(midaslibs) $(rootglibs) $(rootthreadlibs) $(clibs)\n");
+   buffer.AppendFormatted("Libraries := $(oslibs) $(sqllibs) $(daqlibs) $(rootglibs) $(rootthreadlibs) $(clibs)\n");
    for (i=0;i<numOfMFUnixLibs;i++) {
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
          buffer.AppendFormatted("ifdef %s\n",mfUnixLibFlag[i][j].Data());
@@ -673,7 +713,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    }
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(midascflags)",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToLower(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
@@ -1044,7 +1084,8 @@ void ROMEBuilder::WriteMakefile() {
    AddDatabaseSources();
    AddRootLibraries();
    AddMysqlLibraries();
-   AddMidasLibraries();
+   AddDAQLibraries();
+   AddDAQFlags();
 
    WriteMakefileHeader(buffer);
    WriteMakefileLibsAndFlags(buffer);

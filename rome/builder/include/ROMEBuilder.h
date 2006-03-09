@@ -386,7 +386,8 @@ protected:
    ROMEStrArray* databaseSources;
    ROMEStrArray* rootLibraries;
    ROMEStrArray* mysqlLibraries;
-   ROMEStrArray* midasLibraries;
+   ROMEStrArray* daqLibraries;
+   ROMEStrArray* daqFlags;
 
 // Configuration
    ROMEConfigParameterGroup* mainParGroup;
@@ -453,8 +454,6 @@ private:
    Bool_t  WriteMidasDAQH();
    Bool_t  WriteRomeDAQCpp();
    Bool_t  WriteRomeDAQH();
-   Bool_t  WriteDataBaseDAQCpp();
-   Bool_t  WriteDataBaseDAQH();
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();
    Bool_t  WriteDBCpp();
@@ -491,7 +490,8 @@ private:
    void    AddDatabaseSources();
    void    AddRootLibraries();
    void    AddMysqlLibraries();
-   void    AddMidasLibraries();
+   void    AddDAQLibraries();
+   void    AddDAQFlags();
    void    WriteMakefile();
    void    WriteMakefileHeader(ROMEString& buffer);
    void    WriteMakefileLibsAndFlags(ROMEString& buffer);
