@@ -3420,7 +3420,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // DAQ includes
    buffer.AppendFormatted("#include \"include/generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sRomeDAQ.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"include/generated/%sDataBaseDAQ.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
    if (this->orca)
       buffer.AppendFormatted("#include \"ROMEOrcaDAQ.h\"\n");
    for (i=0;i<numOfDAQ;i++)
@@ -3511,7 +3511,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   // DAQ Handle\n");
    buffer.AppendFormatted("   %sMidasDAQ* fMidasDAQ; // Handle to the Midas DAQ Class\n",shortCut.Data());
    buffer.AppendFormatted("   %sRomeDAQ*  fRomeDAQ; // Handle to the Rome DAQ Class\n",shortCut.Data());
-   buffer.AppendFormatted("   %sDataBaseDAQ*  fDataBaseDAQ; // Handle to the DataBase DAQ Class\n",shortCut.Data());
+   buffer.AppendFormatted("   ROMEDataBaseDAQ*  fDataBaseDAQ; // Handle to the DataBase DAQ Class\n",shortCut.Data());
    if (this->orca)
       buffer.AppendFormatted("   ROMEOrcaDAQ* fOrcaDAQ; // Handle to the Orca DAQ Class\n");
    for (i=0;i<numOfDAQ;i++)
@@ -3674,46 +3674,33 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
 
    // DAQ Access Methods
-   buffer.AppendFormatted("   // DAQ Access Methods\n");
-   buffer.AppendFormatted("   %sMidasDAQ* GetMidas() { return GetMidasDAQ(); };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sMidasDAQ* GetMidasDAQ() {\n",shortCut.Data());
-   buffer.AppendFormatted("      if (fMidasDAQ==NULL) {\n");
-   buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the midas DAQ system over a gAnalyzer->GetMidasDAQ()\\nhandle but the current DAQ system is not 'Midas'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
-   buffer.AppendFormatted("         return NULL;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      return fMidasDAQ;\n");
-   buffer.AppendFormatted("   };\n");
-   buffer.AppendFormatted("   void     SetMidasDAQ(%sMidasDAQ* handle) { fMidasDAQ = handle; };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRomeDAQ*  GetRome() { return GetRomeDAQ(); };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRomeDAQ*  GetRomeDAQ() {\n",shortCut.Data());
-   buffer.AppendFormatted("      if (fRomeDAQ==NULL) {\n");
-   buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the rome DAQ system over a gAnalyzer->GetRomeDAQ()\\nhandle but the current DAQ system is not 'Rome'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
-   buffer.AppendFormatted("         return NULL;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      return fRomeDAQ;\n");
-   buffer.AppendFormatted("   };\n");
-   buffer.AppendFormatted("   void     SetRomeDAQ (%sRomeDAQ*  handle) { fRomeDAQ  = handle; };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sDataBaseDAQ*  GetDataBaseDAQ() {\n",shortCut.Data());
-   buffer.AppendFormatted("      if (fDataBaseDAQ==NULL) {\n");
-   buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the database DAQ system over a gAnalyzer->GetDataBaseDAQ()\\nhandle but the current DAQ system is not 'Database'.\\n\\nShutting down the program.\\n\");\n");
-   buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
-   buffer.AppendFormatted("         return NULL;\n");
-   buffer.AppendFormatted("      }\n");
-   buffer.AppendFormatted("      return fDataBaseDAQ;\n");
-   buffer.AppendFormatted("   };\n");
-   buffer.AppendFormatted("   void     SetDataBaseDAQ (%sDataBaseDAQ*  handle) { fDataBaseDAQ  = handle; };\n",shortCut.Data());
+   ROMEStrArray daqName(3);
+   ROMEStrArray daqType(3);
+   daqName.AddLast("Midas");
+   daqType.AddLast(shortCut.Data());
+   daqName.AddLast("Rome");
+   daqType.AddLast(shortCut.Data());
+   daqName.AddLast("DataBase");
+   daqType.AddLast("ROME");
    if (this->orca) {
-      buffer.AppendFormatted("   ROMEOrcaDAQ*  GetOrcaDAQ() {\n");
-      buffer.AppendFormatted("      if (fOrcaDAQ==NULL) {\n");
-      buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the orca DAQ system over a gAnalyzer->GetOrcaDAQ()\\nhandle but the current DAQ system is not 'Orca'.\\n\\nShutting down the program.\\n\");\n");
+      daqName.AddLast("Orca");
+      daqType.AddLast("ROME");
+   }
+   buffer.AppendFormatted("   // Deprecated DAQ Access Methods\n");
+   buffer.AppendFormatted("   %sMidasDAQ* GetMidas() { return GetMidasDAQ(); };\n",shortCut.Data());
+   buffer.AppendFormatted("   %sRomeDAQ* GetRome() { return GetRomeDAQ(); };\n",shortCut.Data());
+   for (i=0;i<daqName.GetEntriesFast();i++) {
+      buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqName.At(i).Data());
+      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ!=NULL; };\n",daqName.At(i).Data(),daqName.At(i).Data());
+      buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ() {\n",daqType.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
+      buffer.AppendFormatted("      if (f%sDAQ==NULL) {\n",daqName.At(i).Data());
+      buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqName.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
       buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
-      buffer.AppendFormatted("      return fOrcaDAQ;\n");
+      buffer.AppendFormatted("      return f%sDAQ;\n",daqName.At(i).Data());
       buffer.AppendFormatted("   };\n");
-      buffer.AppendFormatted("   void     SetOrcaDAQ (ROMEOrcaDAQ*  handle) { fOrcaDAQ  = handle; };\n");
+      buffer.AppendFormatted("   void     Set%sDAQ(%s%sDAQ* handle) { f%sDAQ = handle; };\n",daqName.At(i).Data(),daqType.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
    }
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("   %s%s*  Get%s()                 { return f%s;    };\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
@@ -4448,7 +4435,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    buffer.AppendFormatted("#include \"include/generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sRomeDAQ.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"include/generated/%sDataBaseDAQ.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
    if (this->orca)
       buffer.AppendFormatted("#include \"ROMEOrcaDAQ.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
@@ -4801,7 +4788,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetRomeDAQ());");
    subGroup->GetLastParameter()->AddSetLine("}");
    subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"database\",TString::kIgnoreCase)) {");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDAQ(new %sDataBaseDAQ());",shortCut.Data());
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDAQ(new ROMEDataBaseDAQ());");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetDataBaseDAQ());");
    subGroup->GetLastParameter()->AddSetLine("}");
    if (this->orca) {
@@ -5225,13 +5212,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
    mainParGroup->AddSubGroup(subGroup);
    if (numOfEvent>0) {
       subGroup->AddParameter(new ROMEConfigParameter("MidasByteSwap"));
-      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
       subGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->SetByteSwap(true);");
       subGroup->GetLastParameter()->AddSetLine("   else");
       subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->SetByteSwap(false);");
       subGroup->GetLastParameter()->AddSetLine("}");
-      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
       subGroup->GetLastParameter()->AddWriteLine("   if (gAnalyzer->GetMidasDAQ()->GetByteSwap())");
       subGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("   else");
@@ -5241,13 +5228,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
    for (i=0;i<numOfEvent;i++) {
       subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
       subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
-      subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+      subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
       subSubGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
       subSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sEventActive(true);",eventName[i].Data());
       subSubGroup->GetLastParameter()->AddSetLine("   else");
       subSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sEventActive(false);",eventName[i].Data());
       subSubGroup->GetLastParameter()->AddSetLine("}");
-      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
       subSubGroup->GetLastParameter()->AddWriteLine("   if (gAnalyzer->GetMidasDAQ()->is%sEventActive())",eventName[i].Data());
       subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
       subSubGroup->GetLastParameter()->AddWriteLine("   else");
@@ -5257,13 +5244,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
       for (j=0;j<numOfBank[i];j++) {
          subSubSubGroup = new ROMEConfigParameterGroup(bankName[i][j],"1","Bank");
          subSubSubGroup->AddParameter(new ROMEConfigParameter("Active"));
-         subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+         subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
          subSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sBankActive(true);",bankName[i][j].Data());
          subSubSubGroup->GetLastParameter()->AddSetLine("   else");
          subSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sBankActive(false);",bankName[i][j].Data());
          subSubSubGroup->GetLastParameter()->AddSetLine("}");
-         subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetMidasDAQ()!=NULL) {");
+         subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddWriteLine("   if (gAnalyzer->GetMidasDAQ()->is%sBankActive())",bankName[i][j].Data());
          subSubSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
          subSubSubGroup->GetLastParameter()->AddWriteLine("   else");
@@ -6491,79 +6478,6 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sRomeDAQ_H\n",shortCut.Data());
-
-   // Write File
-   WriteFile(hFile.Data(),buffer.Data(),6);
-
-   return true;
-}
-
-Bool_t ROMEBuilder::WriteDataBaseDAQCpp() {
-   ROMEString cppFile;
-   ROMEString buffer;
-
-   ROMEString format;
-
-   // File name
-   cppFile.SetFormatted("%ssrc/generated/%sDataBaseDAQ.cpp",outDir.Data(),shortCut.Data());
-   // Description
-   buffer.Resize(0);
-   buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("// *** This file will be overwritten by the ROMEBuilder *** //\n");
-   buffer.AppendFormatted("// ***      Don't make manual changes to this file      *** //\n");
-   buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
-
-   // Header
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"include/generated/%sDataBaseDAQ.h\"\n",shortCut.Data());
-
-   // Constructor
-   buffer.AppendFormatted("\n// Constructor\n");
-   buffer.AppendFormatted("%sDataBaseDAQ::%sDataBaseDAQ() { }\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("\n");
-
-   // Write File
-   WriteFile(cppFile.Data(),buffer.Data(),6);
-
-   return true;
-}
-
-Bool_t ROMEBuilder::WriteDataBaseDAQH() {
-   ROMEString hFile;
-   ROMEString buffer;
-
-   // File name
-   hFile.SetFormatted("%sinclude/generated/%sDataBaseDAQ.h",outDir.Data(),shortCut.Data());
-
-   // Description
-   buffer.Resize(0);
-   buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n");
-   buffer.AppendFormatted("// *** This file will be overwritten by the ROMEBuilder *** //\n");
-   buffer.AppendFormatted("// ***      Don't make manual changes to this file      *** //\n");
-   buffer.AppendFormatted("//////////////////////////////////////////////////////////////\n\n");
-
-   // Header
-   buffer.AppendFormatted("#ifndef %sDataBaseDAQ_H\n",shortCut.Data());
-   buffer.AppendFormatted("#define %sDataBaseDAQ_H\n\n",shortCut.Data());
-
-   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
-
-   // Class
-   buffer.AppendFormatted("\nclass %sDataBaseDAQ : public ROMEDataBaseDAQ\n",shortCut.Data());
-   buffer.AppendFormatted("{\n");
-
-   // Methods
-   buffer.AppendFormatted("public:\n");
-   // Constructor
-   buffer.AppendFormatted("   %sDataBaseDAQ();\n",shortCut.Data());
-
-   buffer.AppendFormatted("\n");
-   // Footer
-
-   buffer.AppendFormatted("};\n\n");
-
-   buffer.AppendFormatted("#endif   // %sDataBaseDAQ_H\n",shortCut.Data());
 
    // Write File
    WriteFile(hFile.Data(),buffer.Data(),6);
