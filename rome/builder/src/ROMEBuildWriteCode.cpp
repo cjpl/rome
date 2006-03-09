@@ -3674,33 +3674,33 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
 
    // DAQ Access Methods
-   ROMEStrArray daqName(3);
-   ROMEStrArray daqType(3);
-   daqName.AddLast("Midas");
-   daqType.AddLast(shortCut.Data());
-   daqName.AddLast("Rome");
-   daqType.AddLast(shortCut.Data());
-   daqName.AddLast("DataBase");
-   daqType.AddLast("ROME");
+   ROMEStrArray daqNameArray(3);
+   ROMEStrArray daqTypeArray(3);
+   daqNameArray.AddLast("Midas");
+   daqTypeArray.AddLast(shortCut.Data());
+   daqNameArray.AddLast("Rome");
+   daqTypeArray.AddLast(shortCut.Data());
+   daqNameArray.AddLast("DataBase");
+   daqTypeArray.AddLast("ROME");
    if (this->orca) {
-      daqName.AddLast("Orca");
-      daqType.AddLast("ROME");
+      daqNameArray.AddLast("Orca");
+      daqTypeArray.AddLast("ROME");
    }
    buffer.AppendFormatted("   // Deprecated DAQ Access Methods\n");
    buffer.AppendFormatted("   %sMidasDAQ* GetMidas() { return GetMidasDAQ(); };\n",shortCut.Data());
    buffer.AppendFormatted("   %sRomeDAQ* GetRome() { return GetRomeDAQ(); };\n",shortCut.Data());
-   for (i=0;i<daqName.GetEntriesFast();i++) {
-      buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqName.At(i).Data());
-      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ!=NULL; };\n",daqName.At(i).Data(),daqName.At(i).Data());
-      buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ() {\n",daqType.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
-      buffer.AppendFormatted("      if (f%sDAQ==NULL) {\n",daqName.At(i).Data());
-      buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqName.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
+   for (i=0;i<daqNameArray.GetEntriesFast();i++) {
+      buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqNameArray.At(i).Data());
+      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ!=NULL; };\n",daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
+      buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ() {\n",daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
+      buffer.AppendFormatted("      if (f%sDAQ==NULL) {\n",daqNameArray.At(i).Data());
+      buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
       buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
-      buffer.AppendFormatted("      return f%sDAQ;\n",daqName.At(i).Data());
+      buffer.AppendFormatted("      return f%sDAQ;\n",daqNameArray.At(i).Data());
       buffer.AppendFormatted("   };\n");
-      buffer.AppendFormatted("   void     Set%sDAQ(%s%sDAQ* handle) { f%sDAQ = handle; };\n",daqName.At(i).Data(),daqType.At(i).Data(),daqName.At(i).Data(),daqName.At(i).Data());
+      buffer.AppendFormatted("   void     Set%sDAQ(%s%sDAQ* handle) { f%sDAQ = handle; };\n",daqNameArray.At(i).Data(),daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
    }
    for (i=0;i<numOfDAQ;i++) {
       buffer.AppendFormatted("   %s%s*  Get%s()                 { return f%s;    };\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
