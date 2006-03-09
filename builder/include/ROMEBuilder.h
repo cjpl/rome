@@ -202,6 +202,7 @@ protected:
    Int_t         taskHierarchyParentIndex[2*maxNumberOfTasks];
    Int_t         taskHierarchyClassIndex[2*maxNumberOfTasks];
    Int_t         taskHierarchyMultiplicity[2*maxNumberOfTasks];
+   Int_t         taskHierarchyLevel[2*maxNumberOfTasks];
 
 // steering
    Int_t         numOfSteering[maxNumberOfTasks+1];

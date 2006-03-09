@@ -18,6 +18,7 @@ private:
    ROMEString     fTitle;              // Task title
    ROMEString     fName;               // Task name
    ROMEString     fTimeString;         // Elapsed Time in a readable format
+   Int_t          fLevel;              // Level in Task tree
 protected:
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
@@ -26,7 +27,7 @@ protected:
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
 public:
    ROMETask() { ; }
-   ROMETask(const char *name,const char *title);
+   ROMETask(const char *name,const char *title,int level);
    void         Exec(Option_t *option="");
    Bool_t       hasHistograms()  { return fHasHistograms; };
    Int_t        GetVersion()     { return fVersion; };

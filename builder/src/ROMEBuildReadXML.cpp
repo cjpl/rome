@@ -224,6 +224,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      taskHierarchyParentIndex[i] = -1;
                      taskHierarchyClassIndex[i] = i;
                      taskHierarchyMultiplicity[i] = 1;
+                     taskHierarchyLevel[i] = 0;
                   }
                   numOfTaskHierarchy = numOfTask;
                }
@@ -262,6 +263,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         parentIndex[depth] = numOfTaskHierarchy;
                         taskHierarchyName[numOfTaskHierarchy] = "";
                         taskHierarchyParentIndex[numOfTaskHierarchy] = parentIndex[depth-1];
+                        taskHierarchyLevel[numOfTaskHierarchy] = depth;
                      }
                      if (type == 15 && !strcmp((const char*)name,"Task")) {
                         depth--;
