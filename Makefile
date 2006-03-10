@@ -35,7 +35,7 @@ ifeq ($(OSTYPE),soralis)
 LIBRARY += -lsocket -lnsl
 endif
 
-objects :=  obj/ROMEBuilder.o obj/ROMEBuildReadXML.o obj/ROMEBuildWriteCode.o obj/ROMEBuildMakeFile.o obj/ROMEXML.o obj/mxml.o obj/strlcpy.o obj/ROMEString.o obj/ROMEStrArray.o
+objects :=  obj/ROMEBuilder.o obj/ROMEBuildReadXML.o obj/ROMEBuildWriteCode.o obj/ROMEBuildMakeFile.o obj/ROMEXML.o obj/mxml.o obj/strlcpy.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEStr2DArray.o
 
 all: obj $(ROMESYS)/bin/romebuilder.exe
 
@@ -66,6 +66,9 @@ obj/ROMEString.o: src/ROMEString.cpp include/ROMEString.h
 	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/ROMEStrArray.o: src/ROMEStrArray.cpp include/ROMEStrArray.h
+	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEStr2DArray.o: src/ROMEStr2DArray.cpp include/ROMEStr2DArray.h
 	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/mxml.o: src/mxml.c include/mxml.h

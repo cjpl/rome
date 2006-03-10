@@ -53,6 +53,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    numOfMFPreDefs = 0;
    numOfMFSources = 0;
    xml = new ROMEXML();
+   affiliationList.RemoveAll();
+
    if (!xml->OpenFileForRead(xmlFile.Data())) return false;
    // read in configuration file
    while (xml->NextLine()&&!finished) {
@@ -885,6 +887,13 @@ Bool_t ROMEBuilder::ReadXMLTask()
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
          taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]] = "";
          xml->GetValue(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]],taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]]);
+         for (i=0;i<affiliationList.GetEntries();i++) {
+            if (affiliationList.At(i,0) == taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]])
+               break;
+         }
+         affiliationList.SetAt(taskAffiliation[numOfTask][numOfTaskAffiliations[numOfTask]], i, 0);
+         affiliationList.SetAt("Task", i, affiliationList.GetEntriesAt(i));
+         affiliationList.SetAt(taskName[numOfTask], i, affiliationList.GetEntriesAt(i));
          numOfTaskAffiliations[numOfTask]++;
       }
       // task event id
@@ -1226,6 +1235,13 @@ Bool_t ROMEBuilder::ReadXMLTab()
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
          tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]] = "";
          xml->GetValue(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]],tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]]);
+         for (i=0;i<affiliationList.GetEntries();i++) {
+            if (affiliationList.At(i,0) == tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]])
+               break;
+         }
+         affiliationList.SetAt(tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]], i, 0);
+         affiliationList.SetAt("Tab", i, affiliationList.GetEntriesAt(i));
+         affiliationList.SetAt(tabName[numOfTab], i, affiliationList.GetEntriesAt(i));
          numOfTabAffiliations[numOfTab]++;
       }
 
@@ -2371,6 +2387,13 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
                      mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]] = "";
                      xml->GetValue(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]],mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]]);
+                     for (i=0;i<affiliationList.GetEntries();i++) {
+                        if (affiliationList.At(i,0) == mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]])
+                           break;
+                     }
+                     affiliationList.SetAt(mfDictHeaderAffiliation[numOfMFDictHeaders][numOfMFDictHeaderAffiliations[numOfMFDictHeaders]], i, 0);
+                     affiliationList.SetAt("Class", i, affiliationList.GetEntriesAt(i));
+                     affiliationList.SetAt(mfDictHeaderName[numOfMFDictHeaders], i, affiliationList.GetEntriesAt(i));
                      numOfMFDictHeaderAffiliations[numOfMFDictHeaders]++;
                   }
                   if (type == 15 && !strcmp((const char*)name,"Header")) {
@@ -2569,6 +2592,19 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                   if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
                      mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]] = "";
                      xml->GetValue(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]],mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]]);
+                     for (i=0;i<affiliationList.GetEntries();i++) {
+                        if (affiliationList.At(i,0) == mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]])
+                           break;
+                     }
+                     affiliationList.SetAt(mfSourceFileAffiliation[numOfMFSources][numOfMFSourceAffiliations[numOfMFSources]], i, 0);
+                     if (mfSourceFileName[numOfMFSources].Length()) {
+                        affiliationList.SetAt("Source", i, affiliationList.GetEntriesAt(i));
+                        affiliationList.SetAt(mfSourceFileName[numOfMFSources], i, affiliationList.GetEntriesAt(i));
+                     }
+                     if (mfHeaderFileName[numOfMFSources].Length()) {
+                        affiliationList.SetAt("Header", i, affiliationList.GetEntriesAt(i));
+                        affiliationList.SetAt(mfHeaderFileName[numOfMFSources], i, affiliationList.GetEntriesAt(i));
+                     }
                      numOfMFSourceAffiliations[numOfMFSources]++;
                   }
                   if (type == 15 && !strcmp((const char*)name,"File")) {
