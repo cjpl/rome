@@ -365,6 +365,9 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             }
             return true;
          }
+         if (pevent->event_id < 0) {
+            continue;
+         }
          if (pevent->event_id == EVENTID_EOR) {
             this->SetEndOfRun();
             return true;
