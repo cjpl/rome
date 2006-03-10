@@ -513,7 +513,11 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
                pdata = (void *) (((ULong64_t*) pdata) + 1);
             }
             break;
-
+         case TID_STRUCT:
+            while ( (size_t) pdata < (size_t) pbk ) {
+                pdata = ByteSwapStruct( &name[ 0 ], pdata );
+            }
+            break;
       }
    }
    return CM_SUCCESS;
