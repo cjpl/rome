@@ -11,6 +11,7 @@
 #include <RConfig.h>
 #include <ROMEUtilities.h>
 #include <ROMEXML.h>
+#include <Riostream.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #  pragma warning( push )
 #  pragma warning( disable : 4800 )
