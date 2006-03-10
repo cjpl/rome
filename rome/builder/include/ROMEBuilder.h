@@ -10,6 +10,7 @@
 
 #include <ROMEXML.h>
 #include <ROMEString.h>
+#include <ROMEStr2DArray.h>
 #include <ROMEConfigParameter.h>
 
 const Int_t maxNumberOfTasks = 300;
@@ -85,6 +86,7 @@ protected:
    Bool_t        noVP;
    ROMEStrArray  flags;
    ROMEStrArray  affiliations;
+   ROMEStr2DArray affiliationList;
 
    ROMEXML*      xml;
 

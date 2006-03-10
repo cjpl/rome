@@ -7873,8 +7873,11 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<li><a href=\"#taskobjects\">Tasks</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#folderobjects\">Folders</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#treeobjects\">Trees</a></li>\n");
-   buffer.AppendFormatted("<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
+   if (numOfEvent > 0)
+      buffer.AppendFormatted("<li><a href=\"#midasbankobjects\">Midas Banks</a></li>\n");
    buffer.AppendFormatted("</ul>\n");
+   if (affiliationList.GetEntries() > 0)
+      buffer.AppendFormatted("<li><a href=\"#affiliations\">Affiliations</a></li>\n");
    buffer.AppendFormatted("<li><a href=\"#accessmethods\">Access Methods to Objects in the %s%s</a></li>\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("<li><A TARGET=_top HREF=\"htmldoc/ClassIndex.html\">Class Overview</A></li>\n");
 //   buffer.AppendFormatted("<li><A TARGET=_top HREF=\"%s/%sUserHTML.html\">Additional Info</A></li>\n",outDir.Data(),shortCut.Data());
@@ -7909,7 +7912,10 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("\n");
    // Objects
    buffer.AppendFormatted("<H2><a name=objects>Objects in the %s%s</a> </H2>\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a>, <a href=\"#treeobjects\">Trees</a> and <a href=\"#midasbankobjects\">Midas Banks</a> are described here.\n");
+   buffer.AppendFormatted("All <a href=\"#taskobjects\">Tasks</a>, <a href=\"#folderobjects\">Folders</a>");
+   if (numOfEvent > 0)
+      buffer.AppendFormatted(", <a href=\"#midasbankobjects\">Midas Banks</a>");
+   buffer.AppendFormatted(" and <a href=\"#treeobjects\">Trees</a> are described here.\n");
    // Tasks
    buffer.AppendFormatted("<h3><a name=taskobjects>Tasks</a></h3>\n");
    buffer.AppendFormatted("\n");
@@ -8056,7 +8062,6 @@ void ROMEBuilder::WriteHTMLDoku()
          trodd = !trodd;
       }
       buffer.AppendFormatted("</table><br>\n");
-
    }
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("<hr>\n");
@@ -8085,35 +8090,62 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<p>\n");
 
    // Midas Banks
-   buffer.AppendFormatted("<h3><a name=midasbankobjects>Midas Banks</a></h3>\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The %s%s incorporates the following midas banks :\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("<ul>\n");
-   for (i=0;i<numOfEvent;i++) {
-      for (j=0;j<numOfBank[i];j++) {
-         if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
-            buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
-            buffer.AppendFormatted("<ul>\n");
-            for (k=0;k<numOfStructFields[i][j];k++) {
-               if (bankFieldArraySize[i][j][k]=="1") {
-                  buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",structFieldName[i][j][k].Data());
+   if (numOfEvent > 0 ) {
+      buffer.AppendFormatted("<h3><a name=midasbankobjects>Midas Banks</a></h3>\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("The %s%s incorporates the following midas banks :\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("<ul>\n");
+      for (i=0;i<numOfEvent;i++) {
+         for (j=0;j<numOfBank[i];j++) {
+            if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
+               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
+               buffer.AppendFormatted("<ul>\n");
+               for (k=0;k<numOfStructFields[i][j];k++) {
+                  if (bankFieldArraySize[i][j][k]=="1") {
+                     buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",structFieldName[i][j][k].Data());
+                  }
+                  else {
+                     buffer.AppendFormatted("<li type=\"disc\">%s[%s]</li>\n",structFieldName[i][j][k].Data(),bankFieldArraySize[i][j][k].Data());
+                  }
                }
-               else {
-                  buffer.AppendFormatted("<li type=\"disc\">%s[%s]</li>\n",structFieldName[i][j][k].Data(),bankFieldArraySize[i][j][k].Data());
-               }
+               buffer.AppendFormatted("</ul>\n");
             }
-            buffer.AppendFormatted("</ul>\n");
-         }
-         else {
-            buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
+            else {
+               buffer.AppendFormatted("<li type=\"disc\">%s</li>\n",bankName[i][j].Data());
+            }
          }
       }
+      buffer.AppendFormatted("</ul>\n");
+      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("<hr>\n");
+      buffer.AppendFormatted("<p>\n");
    }
-   buffer.AppendFormatted("</ul>\n");
-   buffer.AppendFormatted("<p>\n");
-   buffer.AppendFormatted("<hr>\n");
-   buffer.AppendFormatted("<p>\n");
+
+   // Affiliations
+   if (affiliationList.GetEntries() > 0 ) {
+      buffer.AppendFormatted("<h3><a name=affiliations>Affiliations</a></h3>\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("The %s%s incorporates the following affiliations: ",shortCut.Data(),mainProgName.Data());
+      for (i=0;i<affiliationList.GetEntries();i++) {
+         buffer.AppendFormatted("<a href=\"#%saff\">%s</a>, ", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+      }
+      buffer.Resize(buffer.Length()-2);
+      buffer.AppendFormatted("<br>\n");
+      for (i=0;i<affiliationList.GetEntries();i++) {
+         buffer.AppendFormatted("<a name=\"%saff\" class=\"object\">%s</a><br>\n", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+         buffer.AppendFormatted("<table>\n");
+         buffer.AppendFormatted("<tr class=\"cont\"><td>Type</td><td>Name</td></tr>\n");
+         for (j=1;j<affiliationList.GetEntriesAt(i);j+=2) {
+            buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even", affiliationList.At(i, j).Data(), affiliationList.At(i, j+1).Data());
+            trodd = !trodd;
+         }
+         buffer.AppendFormatted("</table><br>\n");
+      }
+      buffer.AppendFormatted("<p>\n");
+      buffer.AppendFormatted("<hr>\n");
+      buffer.AppendFormatted("<p>\n");
+   }
 
    // Access Methods
    buffer.AppendFormatted("<p>\n");
