@@ -8126,12 +8126,39 @@ void ROMEBuilder::WriteHTMLDoku()
    if (affiliationList.GetEntries() > 0 ) {
       buffer.AppendFormatted("<h3><a name=affiliations>Affiliations</a></h3>\n");
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("The %s%s incorporates the following affiliations: ",shortCut.Data(),mainProgName.Data());
-      for (i=0;i<affiliationList.GetEntries();i++) {
-         buffer.AppendFormatted("<a href=\"#%saff\">%s</a>, ", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+      buffer.AppendFormatted("The %s%s incorporates the following affiliations.\n",shortCut.Data(),mainProgName.Data());
+      buffer.AppendFormatted("<ul>\n");      
+      if (affiliations.GetEntries() == 0) {
+         buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
+         for (i=0;i<affiliationList.GetEntries();i++)
+            buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+         buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
+         buffer.AppendFormatted("</ul>\n");
       }
-      buffer.Resize(buffer.Length()-2);
-      buffer.AppendFormatted("<br>\n");
+      else {
+         buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
+         for (i=0;i<affiliationList.GetEntries();i++) {
+            for (j=0;j<affiliations.GetEntries();j++) {
+               if (affiliationList.At(i,0)==affiliations.At(j)) {
+                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+                  break;
+               }
+            }
+         }
+         buffer.AppendFormatted("</ul><li>Disabled affiliations</li><ul>\n");
+         if (affiliations.GetEntries()) {
+            for (i=0;i<affiliationList.GetEntries();i++) {
+               for (j=0;j<affiliations.GetEntries();j++) {
+                  if (affiliationList.At(i,0) == affiliations.At(j))
+                     break;
+               }
+               if (j == affiliations.GetEntries())
+                  buffer.AppendFormatted("<li><a href=\"#%saff\">%s</a></li>\n", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
+            }
+         }
+         buffer.AppendFormatted("</ul>\n");
+      }
+      buffer.AppendFormatted("</ul>\n");
       for (i=0;i<affiliationList.GetEntries();i++) {
          buffer.AppendFormatted("<a name=\"%saff\" class=\"object\">%s</a><br>\n", affiliationList.At(i, 0).Data(), affiliationList.At(i, 0).Data());
          buffer.AppendFormatted("<table>\n");
