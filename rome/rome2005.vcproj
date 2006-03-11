@@ -204,6 +204,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\src\ROMEStr2DArray.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\src\ROMEStrArray.cpp"
 				>
 			</File>
@@ -235,6 +239,10 @@
 			</File>
 			<File
 				RelativePath=".\builder\include\ROMEConfigParameter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEStr2DArray.h"
 				>
 			</File>
 			<File
