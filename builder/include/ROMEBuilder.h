@@ -205,22 +205,23 @@ protected:
    Int_t         taskHierarchyClassIndex[2*maxNumberOfTasks];
    Int_t         taskHierarchyMultiplicity[2*maxNumberOfTasks];
    Int_t         taskHierarchyLevel[2*maxNumberOfTasks];
+   Int_t         taskHierarchyObjectIndex[2*maxNumberOfTasks];
 
 // steering
-   Int_t         numOfSteering[maxNumberOfTasks+1];
-   Int_t         numOfSteerFields[maxNumberOfTasks+1][maxNumberOfSteering];
-   Int_t         numOfSteerChildren[maxNumberOfTasks+1][maxNumberOfSteering];
-   ROMEString    steerName[maxNumberOfTasks+1][maxNumberOfSteering];
-   ROMEString    steerArraySize[maxNumberOfTasks+1][maxNumberOfSteering];
-   Int_t         steerParent[maxNumberOfTasks+1][maxNumberOfSteering];
-   Int_t         steerChildren[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteering];
-   ROMEString    steerFieldName[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldType[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldArraySize[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldInit[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldComment[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldCLOption[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldCLDescription[maxNumberOfTasks+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   Int_t         numOfSteering[maxNumberOfTasks+maxNumberOfTabs+1];
+   Int_t         numOfSteerFields[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t         numOfSteerChildren[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   ROMEString    steerName[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   ROMEString    steerArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t         steerParent[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   Int_t         steerChildren[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteering];
+   ROMEString    steerFieldName[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldType[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldInit[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldComment[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldCLOption[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldCLDescription[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
 
    ROMEString    usedCLO;
 
