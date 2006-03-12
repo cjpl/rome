@@ -277,8 +277,8 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   continue;
                }
                if (!strcmp((const char*)name,"Tabs")) {
-                  if (numOfTaskHierarchy==-1)
-                     numOfTaskHierarchy++;
+                  if (numOfTask==-1)
+                     numOfTask++;
                   // initialization
                   numOfTab = -1;
                   // output
@@ -289,7 +289,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      name = xml->GetName();
                      // tab
                      if (type == 1 && !strcmp(name, "Tab")) {
-                        tabParentIndex[numOfTab + 1] = taskHierarchyParentIndex[numOfTab + 1] = -1;
+                        tabParentIndex[numOfTab + 1] = -1;
                         recursiveTabDepth = 0;
                         if (!ReadXMLTab())
                            return false;
@@ -366,19 +366,19 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   if (!ReadXMLMidasBanks()) return false;
                }
                if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
-                  if (numOfTaskHierarchy==-1)
-                     numOfTaskHierarchy++;
+                  if (numOfTask==-1)
+                     numOfTask++;
                   readGlobalSteeringParameters = true;
                   // output
                   if (makeOutput) cout << "\n\nGlobal Steering Parameters:" << endl;
                   // initialisation
-                  steerName[numOfTaskHierarchy][0] = "GlobalSteering";
+                  steerName[numOfTask][0] = "GlobalSteering";
                   actualSteerIndex = 0;
                   recursiveSteerDepth = 0;
-                  steerParent[numOfTaskHierarchy][0] = -1;
-                  numOfSteering[numOfTaskHierarchy] = -1;
-                  if (!ReadXMLSteering(numOfTaskHierarchy)) return false;
-                  numOfSteering[numOfTaskHierarchy]++;
+                  steerParent[numOfTask][0] = -1;
+                  numOfSteering[numOfTask] = -1;
+                  if (!ReadXMLSteering(numOfTask)) return false;
+                  numOfSteering[numOfTask]++;
                }
                if (!strcmp((const char*)name,"UserMakeFile")) {
                   if (!ReadXMLUserMakefile()) return false;
@@ -1173,7 +1173,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabDescription[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
    tabHeredityIndex[currentNumberOfTabs] = 0;
-   numOfSteering[currentNumberOfTabs+numOfTaskHierarchy+1] = -1;
+   numOfSteering[currentNumberOfTabs+numOfTask+1] = -1;
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
@@ -1279,13 +1279,13 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab steering parameters
       if (type == 1 && !strcmp(name, "SteeringParameters")) {
          // read steering parameter
-         steerName[currentNumberOfTabs+numOfTaskHierarchy+1][0] = "Steering";
-         steerParent[currentNumberOfTabs+numOfTaskHierarchy+1][0] = -1;
+         steerName[currentNumberOfTabs+numOfTask+1][0] = "Steering";
+         steerParent[currentNumberOfTabs+numOfTask+1][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
-         if (!ReadXMLSteering(currentNumberOfTabs+numOfTaskHierarchy+1))
+         if (!ReadXMLSteering(currentNumberOfTabs+numOfTask+1))
             return kFALSE;
-         numOfSteering[currentNumberOfTabs+numOfTaskHierarchy+1]++;
+         numOfSteering[currentNumberOfTabs+numOfTask+1]++;
       }
       // tab threadFunctions
       if (type == 1 && !strcmp(name, "ThreadFunctions")) {
@@ -1376,9 +1376,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
       }
-
    }
-
    return kTRUE;
 }
 

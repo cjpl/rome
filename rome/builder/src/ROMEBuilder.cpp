@@ -185,7 +185,7 @@ void ROMEBuilder::StartBuilder()
    if (!WriteDBH()) return;
    if (makeOutput) 
       cout << "\n\nFramework:" << endl;
-   if (!WriteSteering(numOfTaskHierarchy)) return;
+   if (!WriteSteering(numOfTask)) return;
    if (!AddConfigParameters()) return;
    if (!WriteConfigCpp()) return;
    if (!WriteConfigH()) return;
