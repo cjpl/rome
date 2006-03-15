@@ -115,7 +115,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    //----------------
    for (ii=0;!this->isTerminate();ii++) {
       if (!this->DAQBeginOfRun(eventLoopIndex)) {
-         this->DAQTerminate();
+         this->DAQTerminate(true);
          gROME->SetTerminationFlag();
          gROME->PrintLine("\n\nTerminating Program !");
          return;
@@ -165,7 +165,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
          if (gROME->IsWindowClosed()) {
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-               this->DAQTerminate();
+               this->DAQTerminate(true);
                gROME->SetTerminationFlag();
                gROME->PrintLine("\n\nTerminating Program !");
                return;
@@ -198,7 +198,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!gROME->IsStandAloneARGUS()) {
             if (!firstUserInput) {
                if (!this->UserInput()) {
-                  this->DAQTerminate();
+                  this->DAQTerminate(true);
                   gROME->SetTerminationFlag();
                   gROME->PrintLine("\n\nTerminating Program !");
                   return;
@@ -302,7 +302,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->PrintLine("run times :                      All Methods   Event Methods");
          gROME->PrintLine("-----------                      ------------  -------------");
          Exec("t");
-         if (!this->DAQTerminate()) {
+         if (!this->DAQTerminate(false)) {
             gROME->SetTerminationFlag();
             gROME->PrintLine("\n\nTerminating Program !");
             return;
@@ -776,7 +776,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    return true;
 }
 
-Bool_t ROMEEventLoop::DAQTerminate()
+Bool_t ROMEEventLoop::DAQTerminate(Bool_t quit)
 {
    // Clean up the analyzer. Called after the Terminate tasks.
    // Write accumulative output tree files
@@ -803,7 +803,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
       }
    }
 
-   if (!gROME->GetActiveDAQ()->TerminateDAQ())
+   if (!gROME->GetActiveDAQ()->TerminateDAQ(quit))
       return false;
 
    return true;

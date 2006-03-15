@@ -86,7 +86,7 @@ protected:
    Bool_t       WriteEvent();
    Bool_t       Update();
    Bool_t       DAQEndOfRun();
-   Bool_t       DAQTerminate();
+   Bool_t       DAQTerminate(Bool_t quit);
 
    // virtual methods
    virtual void InitSingleFolders() = 0;

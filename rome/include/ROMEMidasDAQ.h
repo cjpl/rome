@@ -105,8 +105,7 @@ protected:
    Int_t         fTimeStamp;                               //! Current time stamp
 
    TArrayL*      fEventFilePositions;                      //! File pointer to event
-   Long64_t      fLastEventRead;                           //! Last event read
-
+   Long64_t      fLastEventRead;                           //! Last events read
 public:
    ROMEMidasDAQ::ROMEMidasDAQ();
 

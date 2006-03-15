@@ -40,7 +40,7 @@ public:
    Bool_t         BeginOfRunDAQ();
    Bool_t         EventDAQ(Long64_t event);
    Bool_t         EndOfRunDAQ();
-   Bool_t         TerminateDAQ();
+   Bool_t         TerminateDAQ(Bool_t quit);
    virtual Bool_t Init() = 0;
    virtual Bool_t BeginOfRun() = 0;
    virtual Bool_t Event(Long64_t event) = 0;
