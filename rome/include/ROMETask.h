@@ -14,12 +14,14 @@
 
 class ROMETask : public TTask {
 private:
-   ROMEStopwatch  fWatch;              // Stopwatch
    ROMEString     fTitle;              // Task title
    ROMEString     fName;               // Task name
-   ROMEString     fTimeString;         // Elapsed Time in a readable format
    Int_t          fLevel;              // Level in Task tree
 protected:
+   ROMEStopwatch  fWatchEvent;         //! Records time used by Task Events
+   ROMEStopwatch  fWatchAll;           //! Records time used by Task
+   ROMEString     fTimeEventString;    //! Elapsed Time of events in a readable format
+   ROMEString     fTimeAllString;      //! Elapsed Time of all in a readable format
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
    char           fEventID;            // TriggerID for event method
@@ -43,10 +45,8 @@ protected:
 
    void         StartRootInterpreter(const char* message = NULL);
 
-   void         TimeReset();
-   void         TimeStart();
-   void         TimeEnd();
-   const char  *GetTime();
+   const char  *GetTimeOfEvents();
+   const char  *GetTimeOfAll();
 
    ClassDef(ROMETask,1)
 };

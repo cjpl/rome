@@ -125,6 +125,7 @@ void ROMEBuilder::AddRomeSources()
    romeSources = new ROMEStrArray(28);
    romeSources->Add("$(ROMESYS)/src/mxml.c");
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEDataBaseDAQ.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");

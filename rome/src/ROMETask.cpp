@@ -53,30 +53,27 @@ void ROMETask::Exec(Option_t *option)
       return;
    if (!strncmp(option,"i",1)) {
       fCurrentEventMethod = "Init";
-      TimeReset();
+      fWatchEvent.Reset();
+      fWatchAll.Reset();
       BookHisto();
-      TimeStart();
       Init();
-      TimeEnd();
    }
    else if (!strncmp(option,"b",1)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
-      TimeStart();
+      fWatchAll.Start(false);
       BeginOfRun();
-      TimeEnd();
+      fWatchAll.Stop();
    }
    else if (!strncmp(option,"e",1)) {
       fCurrentEventMethod = "EndOfRun";
-      TimeStart();
+      fWatchAll.Start(false);
       EndOfRun();
-      TimeEnd();
+      fWatchAll.Stop();
    }
    else if (!strncmp(option,"t",1)) {
       fCurrentEventMethod = "Terminate";
-      TimeStart();
       Terminate();
-      TimeEnd();
 
       nchars = 0;
       for (i=0;i<fLevel;i++)
@@ -96,16 +93,24 @@ void ROMETask::Exec(Option_t *option)
       for (i=0;i<30-name.Length()-fLevel-nchars;i++)
          gROME->PrintText(".");
       gROME->PrintText(" : ");
-      gROME->PrintLine(GetTime());
+      gROME->PrintText(GetTimeOfAll());
+      if (fWatchEvent.RealTime()>0) {
+         gROME->PrintText("  ");
+         gROME->PrintLine(GetTimeOfEvents());
+      }
+      else
+         gROME->PrintLine("");
    }
    else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
              ( !strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1) )
       ) {
       fCurrentEventMethod = "Event";
-      TimeStart();
+      fWatchAll.Start(false);
+      fWatchEvent.Start(false);
       if (gROME->isFillEvent())
          Event();
-      TimeEnd();
+      fWatchEvent.Stop();
+      fWatchAll.Stop();
    }
 }
 
@@ -129,29 +134,15 @@ void ROMETask::StartRootInterpreter(const char* message) {
 }
 
 // Time methods
-
-void ROMETask::TimeReset()
-{
-   // Reset the Tasks stopwatch
-   fWatch.Reset();
-}
-
-void ROMETask::TimeStart()
-{
-   // Starts the Tasks stopwatch
-   fWatch.Start(kFALSE);
-}
-
-void ROMETask::TimeEnd()
-{
-   // Ends the Tasks stopwatch
-   fWatch.Stop();
-   fWatch.GetRealTimeString(fTimeString);
-}
-
-const char* ROMETask::GetTime()
+const char* ROMETask::GetTimeOfEvents()
 {
    // Returns the elapsed time in a readable format
-   fWatch.GetRealTimeString(fTimeString);
-   return fTimeString.Data();
+   fWatchEvent.GetRealTimeString(fTimeEventString);
+   return fTimeEventString.Data();
+}
+const char* ROMETask::GetTimeOfAll()
+{
+   // Returns the elapsed time in a readable format
+   fWatchAll.GetRealTimeString(fTimeAllString);
+   return fTimeAllString.Data();
 }

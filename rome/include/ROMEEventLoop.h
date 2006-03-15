@@ -38,6 +38,8 @@ protected:
    // Histo File
    TFile        *fHistoFile;                       //! Histo file
 
+   ROMEStopwatch fFileIOWatch;                     //! Records Time used by File IO
+
 public:
    // Static Task Switches Changes Flag
    static Bool_t fTaskSwitchesChanged;               //! Flag Task Switches Changes
