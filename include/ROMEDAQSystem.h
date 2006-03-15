@@ -7,6 +7,7 @@
 #ifndef ROMEDAQSystem_H
 #define ROMEDAQSystem_H
 #include <Rtypes.h>
+#include <ROMEStopwatch.h>
 
 class ROMEDAQSystem {
    // Run Status
@@ -23,8 +24,11 @@ class ROMEDAQSystem {
       kTerminate   = 4
    };
 
-   Int_t      fRunStatus;                       //! Run Status flag
-   Int_t      fEventStatus;                     //! Event Status flag
+   Int_t         fRunStatus;                       //! Run Status flag
+   Int_t         fEventStatus;                     //! Event Status flag
+   ROMEStopwatch fWatchEvent;                      //! Records time used by DAQ Events
+   ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
+
 public:
    ROMEDAQSystem::ROMEDAQSystem() {};
    virtual ROMEDAQSystem::~ROMEDAQSystem() {};
@@ -32,11 +36,16 @@ public:
    virtual Int_t       GetTimeStamp() = 0;
    virtual const char *GetName() = 0;
 
-   virtual Bool_t      Init() = 0;
-   virtual Bool_t      BeginOfRun() = 0;
-   virtual Bool_t      Event(Long64_t event) = 0;
-   virtual Bool_t      EndOfRun() = 0;
-   virtual Bool_t      Terminate() = 0;
+   Bool_t         InitDAQ();
+   Bool_t         BeginOfRunDAQ();
+   Bool_t         EventDAQ(Long64_t event);
+   Bool_t         EndOfRunDAQ();
+   Bool_t         TerminateDAQ();
+   virtual Bool_t Init() = 0;
+   virtual Bool_t BeginOfRun() = 0;
+   virtual Bool_t Event(Long64_t event) = 0;
+   virtual Bool_t EndOfRun() = 0;
+   virtual Bool_t Terminate() = 0;
 public:
    // Run Status
    Bool_t              isRunning()  { return fRunStatus==kRunning; };

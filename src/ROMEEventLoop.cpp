@@ -38,7 +38,6 @@
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
 
-
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
@@ -66,6 +65,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
 // Event loop
+   fWatchEvent.Reset();
+   fWatchAll.Reset();
+   fWatchAll.Start(false);
    if (fgBeginTask) {
       Error("ExecuteTask","Cannot execute task:%s, already running task: %s",GetName(),fgBeginTask->GetName());
       this->Terminate();
@@ -141,8 +143,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          eventLoopIndex++;
 
          // Output
-         TimeReset();
-         TimeStart();
          if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
             text.SetFormatted("\n\nRun %I64d started",gROME->GetCurrentRunNumber());
@@ -265,8 +265,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (this->isEndOfRun())
             this->SetBeginOfRun();
 
-         TimeEnd();
-
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -297,25 +295,24 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       }
    }
 
-   // Terminate Tasks
+   // Terminate
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
-
-         gROME->PrintLine("run times :                       h: m: s: ms");
-         gROME->PrintLine("-----------                      ------------");
+         gROME->PrintLine("run times :                      All Methods   Event Methods");
+         gROME->PrintLine("-----------                      ------------  -------------");
          Exec("t");
+         if (!this->DAQTerminate()) {
+            gROME->SetTerminationFlag();
+            gROME->PrintLine("\n\nTerminating Program !");
+            return;
+         }
          ExecuteTasks("t");
          CleanTasks();
          gROME->PrintLine("");
       }
    }
 
-   // Terminate
-   if (!this->DAQTerminate()) {
-      gROME->SetTerminationFlag();
-      gROME->PrintLine("\n\nTerminating Program !");
-      return;
-   }
    // Root Interpreter
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEString prompt = gROME->GetProgramName();
@@ -358,7 +355,7 @@ Bool_t ROMEEventLoop::DAQInit()
    }
 
    // Initialize DAQ System
-   if (!gROME->GetActiveDAQ()->Init())
+   if (!gROME->GetActiveDAQ()->InitDAQ())
       return false;
 
    // Open Output Files
@@ -406,7 +403,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    }
 
    // Begin Of Run Of Active DAQ
-   if (!gROME->GetActiveDAQ()->BeginOfRun())
+   if (!gROME->GetActiveDAQ()->BeginOfRunDAQ())
       return false;
    if (this->isEndOfRun())
       return true;
@@ -490,7 +487,7 @@ Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
       return true;
    }
 
-   if (!gROME->GetActiveDAQ()->Event(event))
+   if (!gROME->GetActiveDAQ()->EventDAQ(event))
       return false;
    if (this->isContinue()) {
       return true;
@@ -773,7 +770,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    folder->Write();
    fHistoFile->Close();
 
-   if (!gROME->GetActiveDAQ()->EndOfRun())
+   if (!gROME->GetActiveDAQ()->EndOfRunDAQ())
       return false;
 
    return true;
@@ -806,7 +803,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
       }
    }
 
-   if (!gROME->GetActiveDAQ()->Terminate())
+   if (!gROME->GetActiveDAQ()->TerminateDAQ())
       return false;
 
    return true;
