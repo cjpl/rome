@@ -17,10 +17,10 @@
 #   include <unistd.h>
 #endif
 #include <fcntl.h>
-#include <ROMEMidasDAQ.h>
 #include <ROMEUtilities.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEODBOfflineDataBase.h>
+#include <ROMEMidasDAQ.h>
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define O_RDONLY_BINARY O_RDONLY | O_BINARY
@@ -319,8 +319,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
 
-      // read event
-      while (fLastEventRead<event) {
+      while (fLastEventRead<=event) {
          fLastEventRead++;
 //         fEventFilePositions->AddAt(tell(fMidasFileHandle),fLastEventRead);
          Long_t n;
@@ -337,7 +336,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
                ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
                ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
                ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
-            }
+      	    }
             n = 0;
             if (pevent->data_size <= 0) readError = true;
             else {
@@ -357,6 +356,8 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          }
          // Get Handle to ODB header
          if (pevent->event_id == EVENTID_BOR) {
+            if (fLastEventRead<event)
+               continue;
             if (gROME->isDataBaseActive("odb"))
                ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
             this->SetBeginOfRun();
@@ -366,28 +367,29 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             return true;
          }
          if (pevent->event_id < 0) {
-            continue;
+            if (fLastEventRead<event)
+               continue;
+            this->SetContinue();
+            return true;
          }
          if (pevent->event_id == EVENTID_EOR) {
             this->SetEndOfRun();
             return true;
          }
-      }
-      if (pevent->event_id < 0) {
-         this->SetContinue();
-         return true;
-      }
-      if (fByteSwap) {
-         //byte swapping
-         if(pevent->event_id != EVENTID_BOR &&
-            pevent->event_id != EVENTID_EOR &&
-            pevent->event_id != EVENTID_MESSAGE)
-            if(IsActiveEventID( pevent->event_id ))
-               bk_swap(pevent + 1, 0);
-      }
-      if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
-         this->SetContinue();
-         return true;
+         if (fByteSwap) {
+            //byte swapping
+            if(pevent->event_id != EVENTID_BOR &&
+               pevent->event_id != EVENTID_EOR &&
+               pevent->event_id != EVENTID_MESSAGE)
+               if(IsActiveEventID( pevent->event_id ))
+                  bk_swap(pevent + 1, 0);
+         }
+         if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
+            if (fLastEventRead<event)
+               continue;
+            this->SetContinue();
+            return true;
+         }
       }
 
       // initalize event
@@ -516,6 +518,7 @@ INT ROMEMidasDAQ::bk_swap(void *event, BOOL force)
                pdata = (void *) (((ULong64_t*) pdata) + 1);
             }
             break;
+
          case TID_STRUCT:
             while ( (size_t) pdata < (size_t) pbk ) {
                 pdata = ByteSwapStruct( &name[ 0 ], pdata );

@@ -226,7 +226,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                      taskHierarchyParentIndex[i] = -1;
                      taskHierarchyClassIndex[i] = i;
                      taskHierarchyMultiplicity[i] = 1;
-                     taskHierarchyLevel[i] = 0;
+                     taskHierarchyLevel[i] = 1;
                   }
                   numOfTaskHierarchy = numOfTask;
                }
