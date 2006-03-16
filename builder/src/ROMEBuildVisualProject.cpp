@@ -388,6 +388,8 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml)
       xml->WriteAttribute("Name","User Classes");
       xml->WriteAttribute("Filter","h");
       for (i=0;i<numOfMFSources;i++) {
+         if (!mfSourceFileUsed[i])
+            continue;
          if (mfHeaderFileName[i].Length()==0)
             continue;
          addFile = true;
