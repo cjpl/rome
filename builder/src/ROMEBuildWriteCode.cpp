@@ -5144,68 +5144,70 @@ Bool_t ROMEBuilder::AddConfigParameters()
    mainParGroup->AddSubGroup(subGroup);
    AddTabConfigParameters(subGroup,-1);
    // Trees
-   subGroup = new ROMEConfigParameterGroup("Trees");
-   mainParGroup->AddSubGroup(subGroup);
-   // Trees/Accumulate
-   subGroup->AddParameter(new ROMEConfigParameter("Accumulate"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetTreeAccumulation(true);");
-   subGroup->GetLastParameter()->AddSetLine("else");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetTreeAccumulation(false);");
-   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isTreeAccumulation())");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-   subGroup->GetLastParameter()->AddWriteLine("else");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   for (i=0;i<numOfTree;i++) {
-      subSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
-      // Tree/Read
-      subSubGroup->AddParameter(new ROMEConfigParameter("Read"));
-      subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(true);",i);
-      subSubGroup->GetLastParameter()->AddSetLine("else");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(false);",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isRead())",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-      subSubGroup->GetLastParameter()->AddWriteLine("else");
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-      // Tree/Write
-      subSubGroup->AddParameter(new ROMEConfigParameter("Write"));
-      subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(true);",i);
-      subSubGroup->GetLastParameter()->AddSetLine("else");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(false);",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isWrite())",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-      subSubGroup->GetLastParameter()->AddWriteLine("else");
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-      // Tree/Fill
-      subSubGroup->AddParameter(new ROMEConfigParameter("Fill"));
-      subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(true);",i);
-      subSubGroup->GetLastParameter()->AddSetLine("else");
-      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(false);",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isFill())",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-      subSubGroup->GetLastParameter()->AddWriteLine("else");
-      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-      // Tree/CompressionLevel
-      subSubGroup->AddParameter(new ROMEConfigParameter("CompressionLevel"));
-      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(##.ToInteger());",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",i);
-      // Tree/MaxNumberOfEntries
-      subSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
-      subSubGroup->GetLastParameter()->AddSetLine("Long_t maxNumOfEntries = ##.ToInteger();");
-      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);",i);
-#if defined( R__VISUAL_CPLUSPLUS )
-      subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-#else
-      subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-#endif
-      // Tree/TreeOutputFileName
-      subSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
-      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
-      subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
-      subGroup->AddSubGroup(subSubGroup);
+   if (numOfTree>0) {
+      subGroup = new ROMEConfigParameterGroup("Trees");
+      mainParGroup->AddSubGroup(subGroup);
+      // Trees/Accumulate
+      subGroup->AddParameter(new ROMEConfigParameter("Accumulate"));
+      subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetTreeAccumulation(true);");
+      subGroup->GetLastParameter()->AddSetLine("else");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetTreeAccumulation(false);");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isTreeAccumulation())");
+      subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+      subGroup->GetLastParameter()->AddWriteLine("else");
+      subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      for (i=0;i<numOfTree;i++) {
+         subSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
+         // Tree/Read
+         subSubGroup->AddParameter(new ROMEConfigParameter("Read"));
+         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(true);",i);
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(false);",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isRead())",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Tree/Write
+         subSubGroup->AddParameter(new ROMEConfigParameter("Write"));
+         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(true);",i);
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(false);",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isWrite())",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Tree/Fill
+         subSubGroup->AddParameter(new ROMEConfigParameter("Fill"));
+         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(true);",i);
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(false);",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isFill())",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+         // Tree/CompressionLevel
+         subSubGroup->AddParameter(new ROMEConfigParameter("CompressionLevel"));
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(##.ToInteger());",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",i);
+         // Tree/MaxNumberOfEntries
+         subSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
+         subSubGroup->GetLastParameter()->AddSetLine("Long_t maxNumOfEntries = ##.ToInteger();");
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);",i);
+   #if defined( R__VISUAL_CPLUSPLUS )
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
+   #else
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
+   #endif
+         // Tree/TreeOutputFileName
+         subSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
+         subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
+         subGroup->AddSubGroup(subSubGroup);
+      }
    }
    // Global Steering Parameters
    subGroup = new ROMEConfigParameterGroup("GlobalSteeringParameters");
