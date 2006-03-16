@@ -48,7 +48,7 @@ const Int_t maxNumberOfMenuItems = 50;
 const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
 const Int_t maxNumberOfNetFolders = 10;
-const Int_t maxNumberOfAffiliations = 5;
+const Int_t maxNumberOfAffiliations = 20;
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
