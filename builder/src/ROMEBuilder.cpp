@@ -35,10 +35,14 @@ void ROMEBuilder::StartBuilder()
    int is,ie,ind;
    // Check Histos & Tabs
    for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
       for (j=0;j<numOfHistos[i];j++) {
          for (k=0;k<numOfHistoTabs[i][j];k++) {
             found = false;
             for (l=0;l<numOfTab;l++) {
+               if (!tabUsed[l])
+                  continue;
                if (histoTabName[i][j][k]==tabName[l]) {
                   found = true;
                   tabNumber = l;
@@ -63,6 +67,7 @@ void ROMEBuilder::StartBuilder()
                tabNumber = numOfTab;
                histoNumber = 0;
                numOfTabHistos[numOfTab] = 0;
+               tabUsed[numOfTab] = true;
                numOfTab++;
             }
             is = histoTabArrayIndex[i][j][k].ToInteger(); ie = is;
@@ -84,6 +89,8 @@ void ROMEBuilder::StartBuilder()
    }
 
    for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
       tabHistoIndexMax[i] = 0;
       for (j=0;j<numOfTabHistos[i];j++) {
          tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1+tabHistoArrayIndexEnd[i][j]-tabHistoArrayIndexStart[i][j],tabHistoIndexMax[i]);
