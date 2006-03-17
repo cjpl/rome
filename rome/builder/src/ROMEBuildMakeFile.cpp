@@ -533,13 +533,13 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("## ***      Don't make manual changes to this file      *** ##\n");
    buffer.AppendFormatted("##############################################################\n");
    buffer.AppendFormatted("#\n");
-   buffer.AppendFormatted("# make           : compile executable\n");
-   buffer.AppendFormatted("# make build     : execute romebuilder\n");
-   buffer.AppendFormatted("# make so        : build shared library\n");
-   buffer.AppendFormatted("# make clean     : remove intermediate files\n");
-   buffer.AppendFormatted("# make distclean : remove following directries and files\n");
-   buffer.AppendFormatted("#                  src/generated include/generated obj dict Makefile\n");
-   buffer.AppendFormatted("# make %sclean   : remove %s specific intermediate files\n", shortCut.ToLower(tmp), shortCut.Data());
+   buffer.AppendFormatted("# make              : compile executable\n");
+   buffer.AppendFormatted("# make build        : execute romebuilder\n");
+   buffer.AppendFormatted("# make so           : build shared library\n");
+   buffer.AppendFormatted("# make -k clean     : remove intermediate files\n");
+   buffer.AppendFormatted("# make -k distclean : remove following directries and files\n");
+   buffer.AppendFormatted("#                     src/generated include/generated obj dict Makefile\n");
+   buffer.AppendFormatted("# make -k %sclean   : remove %s specific intermediate files\n", shortCut.ToLower(tmp), shortCut.Data());
    buffer.AppendFormatted("\n");
 }
 
