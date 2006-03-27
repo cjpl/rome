@@ -179,7 +179,8 @@ TString ROMEStrArray::Last() const
 
 TString ROMEStrArray::operator[](Int_t i) const
 {
-   return ((TObjString*)array->At(i))->GetString();
+   TObjString* objstr = (TObjString*)(array->At(i));
+   return objstr->GetString();
 }
 
 Int_t ROMEStrArray::LowerBound() const
