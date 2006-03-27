@@ -1,14 +1,23 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Dec 16 14:03:11 2005 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/romeConfig.xsd">
+<!-- created by MXML on Mon Mar 27 07:57:19 2006 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>false</Active>
+    </ARGUS>
+  </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers></RunNumbers>
-    <EventNumbers></EventNumbers>
+    <RunNumbers>1</RunNumbers>
+    <EventNumbers>1-100000</EventNumbers>
     <InputFileNames></InputFileNames>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
       <BatchMode>false</BatchMode>
+      <QuitMode>false</QuitMode>
       <ShowSplashScreen>false</ShowSplashScreen>
     </Modes>
     <DataBases/>
@@ -22,12 +31,21 @@
     </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
-      <OutputFilePath>./data/</OutputFilePath>
+      <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Histograms>
+      <Read>false</Read>
+      <RunNumber>0</RunNumber>
+    </Histograms>
+    <Folders/>
     <Tasks>
       <Task>
         <TaskName>PrintADCValues</TaskName>
         <Active>true</Active>
+        <Histogram>
+          <HistName>ADC</HistName>
+          <HistAccumulate>true</HistAccumulate>
+        </Histogram>
       </Task>
     </Tasks>
     <Trees>
