@@ -2079,7 +2079,7 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,histoSuffix,histoFolder) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,level,histoSuffix,histoFolder) {};\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
