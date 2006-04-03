@@ -16,7 +16,11 @@ Bool_t XYZmydaq::BeginOfRun()
 {
    //-- Open data file
    char filename[100];
-   sprintf(filename, "%s/data%05d.txt", gAnalyzer->GetInputDir(), gAnalyzer->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+   sprintf(filename, "%s/data%05I64d.txt", gAnalyzer->GetInputDir(), gAnalyzer->GetCurrentRunNumber());
+#else
+   sprintf(filename, "%s/data%05lld.txt", gAnalyzer->GetInputDir(), gAnalyzer->GetCurrentRunNumber());
+#endif
    fFile.open(filename);
    if(!fFile.good()) {
       cerr<<"Failed to open "<<filename<<" !"<<endl;
