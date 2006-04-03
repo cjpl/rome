@@ -89,6 +89,7 @@ Bool_t TNetFolder::Recv(TMessage *&mess)
 
 size_t TNetFolder::GetPointer()
 {
+// Get Pointer to the Servers Folder
    TMessage *m;
    TString str = "GetPointer ";
    str.Append(this->GetName());
@@ -109,6 +110,7 @@ size_t TNetFolder::GetPointer()
 
 TObjArray *TNetFolder::GetListOfFolders()
 {
+// Get List of Folders
    if (!Send("GetListOfFolders"))
       return GetListOfFolders();
 
@@ -130,6 +132,19 @@ TObjArray *TNetFolder::GetListOfFolders()
 
 TObject *TNetFolder::FindObject(const char *name) const
 {
+// search object identified by name in the tree of folders inside
+// this folder.
+// name may be of the forms:
+//   A, specify a full pathname starting at the top ROOT folder
+//     //root/xxx/yyy/name
+//
+//   B, specify a pathname starting with a single slash. //root is assumed
+//     /xxx/yyy/name
+//
+//   C, Specify a pathname relative to this folder
+//     xxx/yyy/name
+//     name
+
    TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObject ";
    str.Append(name);
@@ -158,6 +173,8 @@ TObject *TNetFolder::FindObject(const char *name) const
 
 TObject *TNetFolder::FindObjectAny(const char *name) const
 {
+// return a pointer to the first object with name starting at this folder
+
    TNetFolder* const localThis = const_cast<TNetFolder* const>(this);
    TString str = "FindObjectAny ";
    str.Append(name);
@@ -186,6 +203,9 @@ TObject *TNetFolder::FindObjectAny(const char *name) const
 
 const char *TNetFolder::FindFullPathName(const char *name)
 {
+// return the full pathname corresponding to subpath name
+// The returned path will be re-used by the next call to GetPath().
+
    TString str = "FindFullPathName ";
    str.Append(name);
    if (!Send(str.Data()))
@@ -213,6 +233,10 @@ const char *TNetFolder::FindFullPathName(const char *name)
 
 Int_t TNetFolder::Occurence(const TObject *obj)
 {
+// Return occurence number of object in the list of objects of this folder.
+// The function returns the number of objects with the same name as object
+// found in the list of objects in this folder before object itself.
+// If only one object is found, return 0;
    if (!Send("Occurence"))
       return Occurence(obj);
 
