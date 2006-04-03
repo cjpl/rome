@@ -51,8 +51,8 @@ public:
   virtual Int_t       Occurence( TObject const * );
   virtual void        RecursiveRemove( TObject * ) { Error("RecursiveRemove","Not available for TNetFolders"); }
   virtual void        Remove( TObject * ) { Error("Remove","Not available for TNetFolders"); }    
-  size_t              GetPointer();
   void                ExecuteCommand(const char *line);
+  size_t              GetPointer();
 
 protected:
 
