@@ -5197,11 +5197,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
          subSubGroup->GetLastParameter()->AddSetLine("Long_t maxNumOfEntries = ##.ToInteger();");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(maxNumOfEntries);",i);
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-   #else
+#else
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%lld\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
-   #endif
+#endif
          // Tree/TreeOutputFileName
          subSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
