@@ -1,14 +1,14 @@
 There are some example. Before compiling exmaples, you need to compile
-argusbuilder. To know more details, please see ARGUS web page.
+romebuilder. For details, please visit ROME web page.
 
-http://midas.psi.ch/argus 
+http://midas.psi.ch/rome
 
-After you compile argusbuilder, you can have an executable which shows
-hello world with following commands.
+After you compile romebuilder, you can have an executable which shows
+'hello world' with following commands.
 
 shell> cd examples/helloWorld/
-shell> ../../bin/argusbuilder HelloWorld.xml
-shell> hwmonitor
+shell> ../../bin/romebuilder HelloWorld.xml
+shell> hwmonitor.exe
 
 
 
@@ -31,8 +31,7 @@ thread
 folders
       This show how you create and update folders. Folders can have
       several variables in it, and they are accessible from all
-      tabs. This example shows how you get informations from SQL/XML
-      database, ODB and ROME over network.
+      tabs.
 
 histogram
       This shows how you get ROOT object from ROME or MIDAS analyzer.
@@ -43,6 +42,6 @@ processMessage
 
 analyzerControl
       This example shows how you control analysis program such as
-      ROME. Analyzer controller is still under development.
+      ROME.
 
 Ryu, Sawada
