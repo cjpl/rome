@@ -830,7 +830,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskName[numOfTask] = "";
    numOfTaskAffiliations[numOfTask] = 0;
    taskUsed[numOfTask] = true;
-   taskEventID[numOfTask] = "a";
+   taskEventID[numOfTask] = "-1";
    taskFortran[numOfTask] = false;
    taskUserCode[numOfTask] = false;
    taskAuthor[numOfTask] = mainAuthor;

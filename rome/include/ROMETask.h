@@ -24,7 +24,7 @@ protected:
    ROMEString     fTimeAllString;      //! Elapsed Time of all in a readable format
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
-   char           fEventID;            // TriggerID for event method
+   int            fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
 public:

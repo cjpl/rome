@@ -34,7 +34,7 @@ ROMETask::ROMETask(const char *name,const char *title,int level):TTask(name,titl
    // Initialisation of Class
    fTitle = title;
    fName = name;
-   fEventID = 'a';
+   fEventID = -1;
    fLevel = level;
 }
 
@@ -46,32 +46,33 @@ void ROMETask::Exec(Option_t *option)
    // Event
    // EndOfRun
    // Terminate
-   int i;
-   ROMEString name;
-   int nchars;
+   char *cstop;
    if (gROME->isTerminationFlag())
       return;
-   if (!strncmp(option,"i",1)) {
+   if (!strncmp(option,"Init",4)) {
       fCurrentEventMethod = "Init";
       fWatchEvent.Reset();
       fWatchAll.Reset();
       BookHisto();
       Init();
    }
-   else if (!strncmp(option,"b",1)) {
+   else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
       fWatchAll.Start(false);
       BeginOfRun();
       fWatchAll.Stop();
    }
-   else if (!strncmp(option,"e",1)) {
+   else if (!strncmp(option,"EndOfRun",8)) {
       fCurrentEventMethod = "EndOfRun";
       fWatchAll.Start(false);
       EndOfRun();
       fWatchAll.Stop();
    }
-   else if (!strncmp(option,"t",1)) {
+   else if (!strncmp(option,"Terminate",9)) {
+      int i;
+      ROMEString name;
+      int nchars;
       fCurrentEventMethod = "Terminate";
       Terminate();
 
@@ -101,9 +102,7 @@ void ROMETask::Exec(Option_t *option)
       else
          gROME->PrintLine("");
    }
-   else if ( strncmp(gROME->GetNameOfActiveDAQ(),"midas",5) ||
-             ( !strncmp(&fEventID,"a",1) || !strncmp(option,&fEventID,1) )
-      ) {
+   else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1)) {
       fCurrentEventMethod = "Event";
       fWatchAll.Start(false);
       fWatchEvent.Start(false);

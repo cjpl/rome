@@ -97,7 +97,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      ExecuteTasks("i");
+      ExecuteTasks("Init");
       CleanTasks();
    }
 
@@ -137,7 +137,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // Begin of Run Tasks
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-            ExecuteTasks("b");
+            ExecuteTasks("BeginOfRun");
             CleanTasks();
          }
          eventLoopIndex++;
@@ -240,9 +240,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->UpdateTaskSwitches();
             ROMEEventLoop::fTaskSwitchesChanged = false;
          }
-         char eventID = gROME->GetEventIDChar();
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-            ExecuteTasks(&eventID);
+            text.SetFormatted("Event%d",gROME->GetEventID());
+            ExecuteTasks(text.Data());
             CleanTasks();
          }
          if (gROME->isTerminationFlag()) {
@@ -282,7 +282,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          // End of Run Tasks
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-            ExecuteTasks("e");
+            ExecuteTasks("EndOfRun");
             CleanTasks();
          }
          // Disconnect
@@ -307,7 +307,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             gROME->PrintLine("\n\nTerminating Program !");
             return;
          }
-         ExecuteTasks("t");
+         ExecuteTasks("Terminate");
          CleanTasks();
          gROME->PrintLine("");
       }
