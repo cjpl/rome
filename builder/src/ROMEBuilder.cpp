@@ -302,6 +302,15 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          mysql = true;
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+      }
+      if (!strcmp(argv[i],"-drs")) {
+         makeOutput = false;
+         midas = false;
+         noLink = true;
+         sql = false;
+         mysql = false;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          flags.AddAtAndExpand("HAVE_DRS",0);
          flags.AddAtAndExpand("HAVE_MSCB",1);
          flags.AddAtAndExpand("HAVE_USB",2);

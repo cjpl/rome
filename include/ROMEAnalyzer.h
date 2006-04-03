@@ -130,7 +130,7 @@ protected:
    Bool_t         fUserEventI;                   //! Flag for User Event of Type I
 
    // Event ID
-   char           fEventID;                      //! Event ID of current Event
+   int            fEventID;                      //! Event ID of current Event
 
    // Flags
    Bool_t         fTerminate;                    //! Termination flag
@@ -459,10 +459,8 @@ public:
    Bool_t          IsUserEventI() { return fUserEventI; };
 
    // Event ID
-   Int_t           GetEventID() { return fEventID-48; }
-   char            GetEventIDChar() { return fEventID; }
-   void            SetEventID(char eventID) { fEventID = eventID; }
-   void            SetEventID(Int_t eventID) { fEventID = 48+eventID; }
+   Int_t           GetEventID() { return fEventID; }
+   void            SetEventID(Int_t eventID) { fEventID = eventID; }
 
   // Processed Events
    Double_t        GetProcessedEvents() { return fTriggerStatistics.processedEvents; }

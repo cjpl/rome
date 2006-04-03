@@ -1644,7 +1644,7 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   fHistoSuffix = histoSuffix;\n");
       buffer.AppendFormatted("   fHistoFolder = histoFolder;\n");
-      buffer.AppendFormatted("   fEventID = '%s';\n",taskEventID[iTask].Data());
+      buffer.AppendFormatted("   fEventID = %s;\n",taskEventID[iTask].Data());
       buffer.AppendFormatted("   fVersion = %s;\n",taskVersion[iTask].Data());
       if (numOfHistos[iTask]>0)
          buffer.AppendFormatted("   fHasHistograms = true;\n");
@@ -4382,10 +4382,10 @@ Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHer
          buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[iHeredity].Data(), jHeredity);
       }
       else if (menuItemChildMenuIndex[i][j][k]) {
-         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity,jHeredity))
+         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity, jHeredity+menuItemChildMenuIndex[i][j][k]))
             return kFALSE;
          buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[iHeredity].Data(), jHeredity, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
-                                , tabName[i].Data(), menuItemChildMenuIndex[i][j][k]);
+                                , tabName[iHeredity].Data(), jHeredity+menuItemChildMenuIndex[i][j][k]);
       }
       else {
          buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[iHeredity].Data(), jHeredity, menuItemTitle[i][j][k].Data()
