@@ -318,6 +318,16 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_VME",4);
          affiliations.AddAtAndExpand("drs",0);
       }
+      if (!strcmp(argv[i],"-dch")) {
+         makeOutput = false;
+         midas = true;
+         noLink = true;
+         sql = false;
+         mysql = false;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("dch",0);
+      }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
          outDir = "C:/rome/examples/multirun/";

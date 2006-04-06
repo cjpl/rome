@@ -29,6 +29,7 @@ Bool_t ROMEDAQSystem::BeginOfRunDAQ()
 Bool_t ROMEDAQSystem::EventDAQ(Long64_t event) 
 { 
    Bool_t ret;
+   gROME->SetEventID(-1);
    fWatchAll.Start(false); 
    fWatchEvent.Start(false); 
    ret = Event(event); 
