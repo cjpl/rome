@@ -102,7 +102,7 @@ void ROMETask::Exec(Option_t *option)
       else
          gROME->PrintLine("");
    }
-   else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1)) {
+   else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
       fCurrentEventMethod = "Event";
       fWatchAll.Start(false);
       fWatchEvent.Start(false);
