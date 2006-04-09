@@ -5,7 +5,7 @@
 //
 //  Interface to a database used as the main input.
 //
-//  $Id: ROMEDataBaseDAQ.cpp 680 2005-10-31 11:32:46Z ritt $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 

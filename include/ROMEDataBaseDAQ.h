@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEDataBaseDAQ.h, M. Schneebeli PSI
 
-  $Id: ROMEDataBaseDAQ.h 480 2005-10-17 12:12:54Z schneebeli_m $
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEDataBaseDAQ_H
