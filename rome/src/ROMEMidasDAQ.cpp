@@ -5,7 +5,7 @@
 //
 //  Interface to the Midas System.
 //
-//  $Id: ROMEMidasDAQ.cpp 689 2005-11-04 10:23:49Z schneebeli_m $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
