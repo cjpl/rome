@@ -7931,19 +7931,13 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("The %s%s has the following task hierarchy :\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
 
-   int index;
    int ddelta;
+   depthold=1;
    buffer.AppendFormatted("<ul>\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      index = i;
-      depth=0;
-      while (index!=-1) {
-         depth++;
-         index = taskHierarchyParentIndex[index];
-      }
-      depth--;
+      depth=taskHierarchyLevel[i];
       ddelta = depth-depthold;
       if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
       if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
