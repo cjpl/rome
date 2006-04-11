@@ -1,4 +1,4 @@
-// $Id: ArgusWindow.h 785 2005-12-18 18:43:19Z sawada $
+// $Id$
 // Author: Ryu Sawada
 #ifndef ArgusWindow_H
 #define ArgusWindow_H
@@ -25,6 +25,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 
 #include <ArgusAnalyzerController.h>
+#include <ArgusTab.h>
 #include <ROMEAnalyzer.h>
 #include <ROMEString.h>
 
@@ -39,6 +40,7 @@ protected:
    TGPopupMenu* fMenuNetFolder;    //! file menu, net folder
    TGTab*       fTab;              //! tabs
    Int_t        fCurrentTabID;     //! ID number of top tab
+   TObjArray   *fTabObjects;       //! Handle to Tab Objects
 
    // Analyzer Controller
    bool fControllerActive;
@@ -80,7 +82,7 @@ public:
    TGStatusBar*   GetStatusBar() { return fStatusBar; };
 
    // Update Frequency
-   void           SetUpdateFrequency(Int_t duration) { fUpdateFrequency = duration; };
+   void           SetUpdateFrequency(Int_t duration) { fUpdateFrequency = duration; for (int i=0;i<GetTabObjectEntries();i++) GetTabObjectAt(i)->SetUpdateFrequency(duration); };
    Int_t          GetUpdateFrequency() { return fUpdateFrequency; };
    
    // Menu
@@ -88,6 +90,11 @@ public:
    void           CloseWindow();
    void           ClearStatusBar();
    
+   // Tabs
+   void            AddTab(ArgusTab *tab) { fTabObjects->AddLast(tab); };
+   ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); };
+   Int_t           GetTabObjectEntries() { return fTabObjects->GetEntries(); };
+
    ClassDef(ArgusWindow,1)
 };
 

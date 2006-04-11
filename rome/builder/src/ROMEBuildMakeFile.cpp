@@ -2,7 +2,7 @@
 
   ROMEBuildMakeFile.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "RConfig.h"
@@ -168,13 +168,15 @@ void ROMEBuilder::AddRomeSources()
 
 void ROMEBuilder::AddArgusHeaders()
 {
-   argusHeaders = new ROMEStrArray(3);
-   argusLinkDefSuffix = new ROMEStrArray(3);
+   argusHeaders = new ROMEStrArray(4);
+   argusLinkDefSuffix = new ROMEStrArray(4);
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
    argusLinkDefSuffix->Add("");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
    argusLinkDefSuffix->Add("");
    argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
+   argusLinkDefSuffix->Add("");
+   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTab.h");
    argusLinkDefSuffix->Add("");
 }
 
@@ -184,6 +186,7 @@ void ROMEBuilder::AddArgusSources()
    argusSources->Add("$(ROMESYS)/argus/src/ArgusWindow.cpp");
    argusSources->Add("$(ROMESYS)/argus/src/ArgusTextDialog.cpp");
    argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
+   argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
    if (argusHeaders->GetEntriesFast()>0)
       argusSources->AddFormatted("dict/ARGUSDict.cpp");
 }

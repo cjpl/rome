@@ -2,7 +2,7 @@
 
   ROMEBuildWriteCode.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "RConfig.h"
@@ -2217,7 +2217,6 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      buffer.AppendFormatted("#include \"TGFrame.h\"\n");
       buffer.AppendFormatted("#include \"TGMenu.h\"\n");
       buffer.AppendFormatted("#include \"TThread.h\"\n");
       buffer.AppendFormatted("#include \"TRootEmbeddedCanvas.h\"\n");
@@ -2229,6 +2228,7 @@ Bool_t ROMEBuilder::WriteTabH()
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
       buffer.AppendFormatted("#include \"Riostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
@@ -2242,7 +2242,7 @@ Bool_t ROMEBuilder::WriteTabH()
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("\nclass %sT%s_Base : public %sT%s\n", shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
       else
-         buffer.AppendFormatted("\nclass %sT%s_Base : public TGCompositeFrame\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("\nclass %sT%s_Base : public ArgusTab\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("protected:\n");
 
@@ -2265,10 +2265,6 @@ Bool_t ROMEBuilder::WriteTabH()
       }
       if (tabHeredity[iTab].Length()==0) {
          buffer.AppendFormatted("   Int_t    fVersion;              //! Version number\n");
-         buffer.AppendFormatted("   Bool_t   fActive;               //! is Active\n");
-         buffer.AppendFormatted("   Int_t    fUpdateFrequency;      //! Update Frequency\n");
-         buffer.AppendFormatted("   TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function\n");
-         buffer.AppendFormatted("   Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler\n");
       }
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
@@ -2291,11 +2287,8 @@ Bool_t ROMEBuilder::WriteTabH()
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("   %sT%s_Base():%sT%s() {\n", shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
       else
-         buffer.AppendFormatted("   %sT%s_Base():TGCompositeFrame(NULL,1,1) {\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   %sT%s_Base():ArgusTab() {\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("      fVersion = %s;\n", tabVersion[iTab].Data());
-      buffer.AppendFormatted("      fActive  = kFALSE;\n");
-      buffer.AppendFormatted("      fUpdateFrequency  = 0;\n");
-      buffer.AppendFormatted("      fEventHandlerUserStop  = false;\n");
       if (numOfSteering[iTab+numOfTask+1] > 0) {
          buffer.AppendFormatted("      fSteering = new Steering();\n");
       }
@@ -2355,13 +2348,7 @@ Bool_t ROMEBuilder::WriteTabH()
             }
          }
       }
-      buffer.AppendFormatted("      // Init EventHandler\n");
-      buffer.AppendFormatted("      fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);\n");
-      buffer.AppendFormatted("      fEventHandlerTimer->Connect(\"Timeout()\", \"%sT%s\", this, \"TabEventHandler()\");\n",shortCut.Data(),tabName[iTab].Data());
-      buffer.AppendFormatted("      Init();\n");
-      buffer.AppendFormatted("      if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {\n");
-      buffer.AppendFormatted("         fEventHandlerTimer->TurnOn();\n");
-      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("      ArgusTab::InitTab();\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   virtual void Init() = 0;\n");
       buffer.AppendFormatted("\n");
@@ -2393,28 +2380,10 @@ Bool_t ROMEBuilder::WriteTabH()
             }
          }
       }
-      buffer.AppendFormatted("      EventHandler();\n");
+      buffer.AppendFormatted("      ArgusTab::TabEventHandler();\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual void EventHandler() = 0;\n");
-      buffer.AppendFormatted("\n");
-
-      // StartEventHandler
-      buffer.AppendFormatted("   void StartEventHandler(Int_t milliSeconds) {\n");
-      buffer.AppendFormatted("      fUpdateFrequency = milliSeconds;\n");
-      buffer.AppendFormatted("      StartEventHandler();\n");
-      buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   void StartEventHandler() {\n");
-      buffer.AppendFormatted("      fEventHandlerTimer->SetTime(fUpdateFrequency);\n");
-      buffer.AppendFormatted("      fEventHandlerTimer->TurnOn();\n");
-      buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("\n");
-
-      // StopEventHandler
-      buffer.AppendFormatted("   void StopEventHandler() {\n");
-      buffer.AppendFormatted("      fEventHandlerTimer->TurnOff();\n");
-      buffer.AppendFormatted("      fEventHandlerUserStop  = true;\n");
-      buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
 
       // Thread
@@ -2550,10 +2519,6 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("          <<\"      cout<<\\\"param = \\\"<< param <<endl;\"<<endl\n");
       buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
       buffer.AppendFormatted("   }\n");
-
-      // Update Frequency
-      buffer.AppendFormatted("   void  SetUpdateFrequency(Int_t duration) { fUpdateFrequency = duration; };\n");
-      buffer.AppendFormatted("   Int_t GetUpdateFrequency() { return fUpdateFrequency; };\n");
       buffer.AppendFormatted("\n");
 
       // Footer
@@ -2748,8 +2713,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    authors[0] = mainAuthor;
    for (i=0;i<numOfFolder;i++) {
       same = false;
-      for (j=0;j<i+1;j++) {
-         if (authors[j]==folderAuthor[i]) {
+      for (j=0;j<numAuthors;j++) {
+         if (!authors[j].CompareTo(folderAuthor[i],TString::kIgnoreCase)) {
             same = true;
             break;
          }
@@ -2761,8 +2726,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    for (i=0;i<numOfTask;i++) {
       same = false;
-      for (j=0;j<i+1;j++) {
-         if (authors[j]==taskAuthor[i]) {
+      for (j=0;j<numAuthors;j++) {
+         if (!authors[j].CompareTo(taskAuthor[i],TString::kIgnoreCase)) {
             same = true;
             break;
          }
@@ -2776,8 +2741,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!tabUsed[i])
          continue;
       same = false;
-      for (j=0;j<i+1;j++) {
-         if (authors[j]==tabAuthor[i]) {
+      for (j=0;j<numAuthors;j++) {
+         if (!authors[j].CompareTo(tabAuthor[i],TString::kIgnoreCase)) {
             same = true;
             break;
          }
@@ -2960,7 +2925,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("Bool_t %sAnalyzer::StartWindow() {\n", shortCut.Data());
    buffer.AppendFormatted("   return gWindow->Start();\n");
    buffer.AppendFormatted("}\n");
-
+   buffer.AppendFormatted("Int_t %sAnalyzer::GetUpdateFrequency() {\n", shortCut.Data());
+   buffer.AppendFormatted("   return gWindow->GetUpdateFrequency();\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("void %sAnalyzer::SetUpdateFrequency(Int_t frequency) {\n", shortCut.Data());
+   buffer.AppendFormatted("   gWindow->SetUpdateFrequency(frequency);\n");
+   buffer.AppendFormatted("}\n");
 
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) if (folderDataBase[i]) ndb++;
@@ -3713,6 +3683,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Private
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   Bool_t StartWindow();\n");
+   buffer.AppendFormatted("   Int_t  GetUpdateFrequency();\n");
+   buffer.AppendFormatted("   void   SetUpdateFrequency(Int_t frequency);\n");
    buffer.AppendFormatted("   Bool_t ReadUserParameter(const char* opt, const char *value, Int_t& i);\n");
    buffer.AppendFormatted("   void   UserParameterUsage();\n");
    buffer.AppendFormatted("   void   startSplashScreen();\n");
@@ -3879,6 +3851,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
 
+   buffer.AppendFormatted("   fTabObjects = new TObjArray(%d);\n",numOfTab);
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -3908,6 +3881,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          continue;
       format.SetFormatted("   f%%s%%03dTab = new %%sT%%s();\n");
       buffer.AppendFormatted(const_cast<char*>(format.Data()), tabName[i].Data(), i, shortCut.Data(), tabName[i].Data());
+      buffer.AppendFormatted("   AddTab(f%s%03dTab);\n",tabName[i].Data(),i);
    }
    buffer.AppendFormatted("}\n\n");
    buffer.AppendFormatted("\n");
