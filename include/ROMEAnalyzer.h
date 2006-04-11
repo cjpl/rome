@@ -561,8 +561,10 @@ public:
    Bool_t          DisconnectNetFolders();
    void            InitNetFolders(Int_t number);
 
-   // Start Monitor
+   // Monitor
    virtual Bool_t  StartWindow() = 0;
+   virtual Int_t   GetUpdateFrequency() = 0;
+   virtual void    SetUpdateFrequency(Int_t frequency) = 0;
 
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;

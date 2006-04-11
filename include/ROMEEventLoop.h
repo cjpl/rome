@@ -40,6 +40,7 @@ protected:
 
    ROMEStopwatch fFileIOWatch;                     //! Records Time used by File IO
 
+   Int_t         fSavedUpdateFrequency;            //! Saved update frequency for wait
 public:
    // Static Task Switches Changes Flag
    static Bool_t fTaskSwitchesChanged;               //! Flag Task Switches Changes

@@ -53,6 +53,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fTreeUpdateIndex = 0;
    fStopAtRun = -1;
    fStopAtEvent = -1;
+   fSavedUpdateFrequency = -1;
 }
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
@@ -542,13 +543,14 @@ Bool_t ROMEEventLoop::Update()
          fProgressWrite = true;
       }
       else {
-         if (time(NULL) > fProgressTimeOfLastEvent+1)
+         if (time(NULL) > fProgressTimeOfLastEvent+1) {
             fProgressDelta /= 10;
+         }
       }
    }
 
-   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      if (!fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite))) {
+   if (!fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite))) {
+      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
          text.SetFormatted("%I64d events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);
 #else
@@ -556,15 +558,13 @@ Bool_t ROMEEventLoop::Update()
 #endif
          gROME->PrintFlush(text.Data());
       }
-   }
-
-   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
-      if (((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite))) {
+      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
+      fProgressWrite = false;
    }
-   fProgressWrite = false;
+
 
    // ODB update
 #if defined( HAVE_MIDAS )
@@ -710,8 +710,18 @@ Bool_t ROMEEventLoop::UserInput()
       }
 
       if (wait) {
+         if (fSavedUpdateFrequency==-1) {
+            fSavedUpdateFrequency = gROME->GetUpdateFrequency();
+            gROME->SetUpdateFrequency(0);
+         }
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
+      }
+      else {
+         if (fSavedUpdateFrequency!=-1) {
+            gROME->SetUpdateFrequency(fSavedUpdateFrequency);
+            fSavedUpdateFrequency = -1;
+         }
       }
       if (gROME->IsWindowClosed()) {
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())
