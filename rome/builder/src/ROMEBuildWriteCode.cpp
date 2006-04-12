@@ -2331,18 +2331,20 @@ Bool_t ROMEBuilder::WriteTabH()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
+                  buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
                   if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
-                     buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-                     buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
-                     buffer.AppendFormatted("      f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                     buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                     buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                     buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
                   }
                   else {
                      for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
-                        buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
-                        buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("      f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                        buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                        buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                        buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
                      }
                   }
+                  buffer.AppendFormatted("      }\n");
                   break;
                }
             }
@@ -2358,24 +2360,26 @@ Bool_t ROMEBuilder::WriteTabH()
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
+               buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
                if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
-                  buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
-                  buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-                  buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
-                  buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
-                  buffer.AppendFormatted("      gPad->Modified();\n");
-                  buffer.AppendFormatted("      gPad->Update();\n");
+                  buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                  buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                  buffer.AppendFormatted("            f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  buffer.AppendFormatted("         gPad->Modified();\n");
+                  buffer.AppendFormatted("         gPad->Update();\n");
                }
                else {
                   for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
-                     buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
-                     buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
-                     buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
-                     buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
-                     buffer.AppendFormatted("      gPad->Modified();\n");
-                     buffer.AppendFormatted("      gPad->Update();\n");
+                     buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                     buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                     buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                     buffer.AppendFormatted("            f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                     buffer.AppendFormatted("         gPad->Modified();\n");
+                     buffer.AppendFormatted("         gPad->Update();\n");
                   }
                }
+               buffer.AppendFormatted("      }\n");
                break;
             }
          }
@@ -3203,6 +3207,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("}\n");
          }
+         buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[i][j].Data());
+         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i]);
+         buffer.AppendFormatted("}\n");
       }
    }
    buffer.AppendFormatted("\n");
@@ -3544,6 +3551,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
             buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[i][j].Data());
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index);\n",histoType[i][j].Data(),histoName[i][j].Data());
          }
+         buffer.AppendFormatted("   bool Is%sActive();\n",histoName[i][j].Data());
       }
    }
    buffer.AppendFormatted("\n");
