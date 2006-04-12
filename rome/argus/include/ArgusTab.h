@@ -28,6 +28,7 @@ public:
    void InitTab();
    virtual void Init() = 0;
    void TabEventHandler();
+   virtual void BaseTabEventHandler() = 0;
    virtual void EventHandler() = 0;
    void StartEventHandler(Int_t milliSeconds);
    void StartEventHandler();
