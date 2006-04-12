@@ -23,7 +23,7 @@ ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
 void ArgusTab::InitTab() {
    // Init EventHandler
    fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);
-   fEventHandlerTimer->Connect("Timeout()", "MEGTDRS", this, "TabEventHandler()");
+   fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "TabEventHandler()");
    Init();
    if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {
       fEventHandlerTimer->TurnOn();
@@ -31,6 +31,7 @@ void ArgusTab::InitTab() {
 }
 
 void ArgusTab::TabEventHandler() {
+   BaseTabEventHandler();
    EventHandler();
 }
 

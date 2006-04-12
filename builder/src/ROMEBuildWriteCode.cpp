@@ -2353,8 +2353,8 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("   virtual void Init() = 0;\n");
       buffer.AppendFormatted("\n");
 
-      // TabEventHandler
-      buffer.AppendFormatted("   void TabEventHandler() {\n");
+      // BaseTabEventHandler
+      buffer.AppendFormatted("   void BaseTabEventHandler() {\n");
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
@@ -2380,7 +2380,6 @@ Bool_t ROMEBuilder::WriteTabH()
             }
          }
       }
-      buffer.AppendFormatted("      ArgusTab::TabEventHandler();\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual void EventHandler() = 0;\n");
