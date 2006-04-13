@@ -203,6 +203,8 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             generatedHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
@@ -245,6 +247,8 @@ void ROMEBuilder::AddGeneratedFolderDictHeaders()
    generatedFolderDictHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
    generatedFolderLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfFolder,0));
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             generatedFolderDictHeaders->AddFormatted("include/generated/%s%s_Base.h",shortCut.Data(),folderName[i].Data());
@@ -316,6 +320,8 @@ void ROMEBuilder::AddFolderHeaders()
    folderHeaders = new ROMEStrArray(TMath::Max(numOfFolder,0));
    folderLinkDefSuffix = new ROMEStrArray(TMath::Max(numOfFolder,0));
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
       if (numOfValue[i] > 0) {
          if (folderUserCode[i]) {
             folderHeaders->AddFormatted("include/folders/%s%s.h",shortCut.Data(),folderName[i].Data());
@@ -330,6 +336,8 @@ void ROMEBuilder::AddFolderSources()
    int i;
    folderSources = new ROMEStrArray(numOfFolder+1);
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
       if (folderUserCode[i]) {
          folderSources->AddFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[i].Data());
       }
@@ -397,6 +405,8 @@ void ROMEBuilder::AddDAQHeaders()
    int i;
    daqHeaders = new ROMEStrArray(TMath::Max(numOfDAQ,0));
    for (i=0;i<numOfDAQ;i++) {
+      if (!daqUsed[i])
+         continue;
       daqHeaders->AddFormatted("include/daqs/%s%s.h",shortCut.Data(),daqName[i].Data());
    }
 }
@@ -406,6 +416,8 @@ void ROMEBuilder::AddDAQSources()
    int i;
    daqSources = new ROMEStrArray(3+TMath::Max(numOfDAQ,0));
    for (i=0;i<numOfDAQ;i++) {
+      if (!daqUsed[i])
+         continue;
       daqSources->AddFormatted("src/daqs/%s%s.cpp",shortCut.Data(),daqName[i].Data());
    }
 }
@@ -615,8 +627,10 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted(" /DHAVE_SQLITE");
    if (this->sqlite3)
       buffer.AppendFormatted(" /DHAVE_SQLITE3");
-   for (i=0;i<this->flags.GetEntriesFast();i++)
-      buffer.AppendFormatted(" /D%s",this->flags.At(i).Data());
+   for (i=0;i<flags.GetEntriesFast();i++)
+      buffer.AppendFormatted(" /D%s",flags.At(i).Data());
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      buffer.AppendFormatted(" /DHAVE_%s_AFFILIATION",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" /D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");

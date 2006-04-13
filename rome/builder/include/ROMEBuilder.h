@@ -118,6 +118,9 @@ protected:
    Int_t         numOfValue[maxNumberOfFolders];
    Int_t         numOfFolderInclude[maxNumberOfFolders];
 
+   Int_t         numOfFolderAffiliations[maxNumberOfFolders];
+   ROMEString    folderAffiliation[maxNumberOfFolders][maxNumberOfAffiliations];
+   Bool_t        folderUsed[maxNumberOfFolders];
    ROMEString    folderName[maxNumberOfFolders];
    ROMEString    folderDescription[maxNumberOfFolders];
    ROMEString    folderParentName[maxNumberOfFolders];
@@ -215,6 +218,9 @@ protected:
    ROMEString    steerArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
    Int_t         steerParent[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
    Int_t         steerChildren[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteering];
+   Int_t         numOfSteerAffiliations[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
+   ROMEString    steerAffiliation[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfAffiliations];
+   Bool_t        steerUsed[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
    ROMEString    steerFieldName[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString    steerFieldType[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString    steerFieldArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
@@ -222,6 +228,9 @@ protected:
    ROMEString    steerFieldComment[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString    steerFieldCLOption[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
    ROMEString    steerFieldCLDescription[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   Int_t         numOfSteerFieldAffiliations[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   ROMEString    steerFieldAffiliation[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField][maxNumberOfAffiliations];
+   Bool_t        steerFieldUsed[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
 
    ROMEString    usedCLO;
 
@@ -279,6 +288,9 @@ protected:
 // daq
    Int_t         numOfDAQ;
    ROMEString    daqName[maxNumberOfDAQ];
+   Int_t         numOfDAQAffiliations[maxNumberOfDAQ];
+   ROMEString    daqAffiliation[maxNumberOfDAQ][maxNumberOfAffiliations];
+   Bool_t        daqUsed[maxNumberOfDAQ];
 
 // database
    Int_t         numOfDB;

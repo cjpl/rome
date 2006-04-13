@@ -2,7 +2,7 @@
 
   ROMEBuildReadXML.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "ROMEBuilder.h"
@@ -416,6 +416,8 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    }
    // initialisation
    folderName[numOfFolder] = "";
+   numOfFolderAffiliations[numOfFolder] = 0;
+   folderUsed[numOfFolder] = true;
    folderTitle[numOfFolder] = "";
    folderArray[numOfFolder] = "1";
    folderDataBase[numOfFolder] = false;
@@ -453,6 +455,17 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             cout << "Terminating program." << endl;
             return false;
          }
+         if (affiliations.GetEntriesFast()>0) {
+            folderUsed[currentNumberOfFolders] = false;
+            for (i=0;i<affiliations.GetEntriesFast() && !folderUsed[currentNumberOfFolders];i++) {
+               for (j=0;j<numOfFolderAffiliations[currentNumberOfFolders];j++) {
+                  if (affiliations.At(i)==folderAffiliation[currentNumberOfFolders][j]) {
+                     folderUsed[currentNumberOfFolders] = true;
+                     break;
+                  }
+               }
+            }
+         }
          parent[recursiveDepth+1] = "";
          recursiveDepth--;
          return true;
@@ -464,6 +477,19 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          // output
          if (makeOutput) for (i=0;i<recursiveDepth;i++) cout << "   ";
          if (makeOutput) folderName[numOfFolder].WriteLine();
+      }
+      // folder affiliation
+      if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+         folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]] = "";
+         xml->GetValue(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]],folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]]);
+         for (i=0;i<affiliationList.GetEntries();i++) {
+            if (affiliationList.At(i,0) == folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]])
+               break;
+         }
+         affiliationList.SetAt(folderAffiliation[numOfFolder][numOfFolderAffiliations[numOfFolder]], i, 0);
+         affiliationList.SetAt("Folder", i, affiliationList.GetEntriesAt(i));
+         affiliationList.SetAt(folderName[numOfFolder], i, affiliationList.GetEntriesAt(i));
+         numOfFolderAffiliations[numOfFolder]++;
       }
       // folder title
       if (type == 1 && !strcmp((const char*)name,"FolderTitle"))
@@ -1697,6 +1723,8 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
          }
          // daq initialisation
          daqName[numOfDAQ] = "";
+         numOfDAQAffiliations[numOfDAQ] = 0;
+         daqUsed[numOfDAQ] = true;
 
          while (xml->NextLine()) {
             type = xml->GetType();
@@ -1707,12 +1735,36 @@ Bool_t ROMEBuilder::ReadXMLDAQ()
                // output
                if (makeOutput) cout << "   " << daqName[numOfDAQ].Data() << endl;
             }
+            // daq affiliation
+            if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+               daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]] = "";
+               xml->GetValue(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]],daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]]);
+               for (i=0;i<affiliationList.GetEntries();i++) {
+                  if (affiliationList.At(i,0) == daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]])
+                     break;
+               }
+               affiliationList.SetAt(daqAffiliation[numOfDAQ][numOfDAQAffiliations[numOfDAQ]], i, 0);
+               affiliationList.SetAt("DAQ", i, affiliationList.GetEntriesAt(i));
+               affiliationList.SetAt(daqName[numOfDAQ], i, affiliationList.GetEntriesAt(i));
+               numOfDAQAffiliations[numOfDAQ]++;
+            }
             if (type == 15 && !strcmp((const char*)name,"UserDAQSystem")) {
                // input check
                if (daqName[numOfDAQ]=="") {
                   cout << "User DAQ system without a name !" << endl;
                   cout << "Terminating program." << endl;
                   return false;
+               }
+               if (affiliations.GetEntriesFast()>0) {
+                  daqUsed[numOfDAQ] = false;
+                  for (i=0;i<affiliations.GetEntriesFast() && !daqUsed[numOfDAQ];i++) {
+                     for (j=0;j<numOfDAQAffiliations[numOfDAQ];j++) {
+                        if (affiliations.At(i)==daqAffiliation[numOfDAQ][j]) {
+                           daqUsed[numOfDAQ] = true;
+                           break;
+                        }
+                     }
+                  }
                }
                break;
             }
@@ -2179,7 +2231,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
    // read the steering parameter definitions out of the xml file
    ROMEString tmp;
    char* name;
-   int type,i;
+   int type,i,j;
    ROMEString currentSteeringName = "";
    int currentNumberOfSteerings;
 
@@ -2198,6 +2250,8 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
    }
    numOfSteerFields[iTask][numOfSteering[iTask]] = 0;
    numOfSteerChildren[iTask][numOfSteering[iTask]] = 0;
+   numOfSteerAffiliations[iTask][numOfSteering[iTask]] = 0;
+   steerUsed[iTask][numOfSteering[iTask]] = true;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -2226,6 +2280,17 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
             cout << "Terminating program." << endl;
             return false;
          }
+         if (affiliations.GetEntriesFast()>0) {
+            steerUsed[iTask][actualSteerIndex] = false;
+            for (i=0;i<affiliations.GetEntriesFast() && !steerUsed[iTask][actualSteerIndex];i++) {
+               for (j=0;j<numOfSteerAffiliations[iTask][actualSteerIndex];j++) {
+                  if (affiliations.At(i)==steerAffiliation[iTask][actualSteerIndex][j]) {
+                     steerUsed[iTask][actualSteerIndex] = true;
+                     break;
+                  }
+               }
+            }
+         }
          actualSteerIndex = steerParent[iTask][actualSteerIndex];
          recursiveSteerDepth--;
          return true;
@@ -2242,6 +2307,20 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          if (makeOutput) for (i=0;i<recursiveSteerDepth;i++) cout << "   ";
          if (makeOutput) steerName[iTask][actualSteerIndex].WriteLine();
       }
+      // group affiliation
+      if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+         steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]] = "";
+         xml->GetValue(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]],steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]]);
+         for (i=0;i<affiliationList.GetEntries();i++) {
+            if (affiliationList.At(i,0) == steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]])
+               break;
+         }
+         affiliationList.SetAt(steerAffiliation[iTask][actualSteerIndex][numOfSteerAffiliations[iTask][actualSteerIndex]], i, 0);
+         affiliationList.SetAt("SteerGroup", i, affiliationList.GetEntriesAt(i));
+         affiliationList.SetAt(steerName[iTask][actualSteerIndex], i, affiliationList.GetEntriesAt(i));
+         numOfSteerAffiliations[iTask][actualSteerIndex]++;
+      }
+      // group array size
       if (type == 1 && !strcmp((const char*)name,"SPGroupArraySize"))
          xml->GetValue(steerArraySize[iTask][actualSteerIndex],steerArraySize[iTask][actualSteerIndex]);
       // steering parameter field
@@ -2255,6 +2334,8 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = 0;
+         steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = true;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -2266,6 +2347,20 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
                if (makeOutput) for (i=0;i<recursiveSteerDepth+1;i++) cout << "   ";
                if (makeOutput) steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].WriteLine();
             }
+            // steering parameter field affiliation
+            if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+               steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]] = "";
+               xml->GetValue(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]);
+               for (i=0;i<affiliationList.GetEntries();i++) {
+                  if (affiliationList.At(i,0) == steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]])
+                     break;
+               }
+               affiliationList.SetAt(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]], i, 0);
+               affiliationList.SetAt("SteerField", i, affiliationList.GetEntriesAt(i));
+               affiliationList.SetAt(steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]], i, affiliationList.GetEntriesAt(i));
+               numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]++;
+            }
+
             // steering parameter field type
             if (type == 1 && !strcmp((const char*)name,"SPFieldType")) {
                readType = true;
@@ -2327,6 +2422,17 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
                   cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
+               }
+               if (affiliations.GetEntriesFast()>0) {
+                  steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = false;
+                  for (i=0;i<affiliations.GetEntriesFast() && !steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];i++) {
+                     for (j=0;j<numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];j++) {
+                        if (affiliations.At(i)==steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][j]) {
+                           steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = true;
+                           break;
+                        }
+                     }
+                  }
                }
                break;
             }
