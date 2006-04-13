@@ -2,7 +2,7 @@
 
   ROMEBuildVisualProject.cpp, M. Schneebeli PSI
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #include "ROMEBuilder.h"
@@ -144,20 +144,22 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
       includeDirs.AppendFormatted(";\"%s\"",includeDirectories->At(i).Data());
    for (i=0;i<numOfMFIncDirs;i++)
       includeDirs.AppendFormatted(";\"%s\"",mfIncDir[i].Data());
-   ROMEString preDrocDefs = "WIN32;_DEBUG";
+   ROMEString preProcDefs = "WIN32;_DEBUG";
    if (version>2003)
-      preDrocDefs += ";_CRT_SECURE_NO_DEPRECATE";
+      preProcDefs += ";_CRT_SECURE_NO_DEPRECATE";
    if (mysql)
-      preDrocDefs += ";HAVE_MYSQL";
+      preProcDefs += ";HAVE_MYSQL";
    if (midas)
-      preDrocDefs += ";HAVE_MIDAS";
+      preProcDefs += ";HAVE_MIDAS";
    for (i=0;i<flags.GetEntriesFast();i++)
-      preDrocDefs.AppendFormatted(";%s",flags.At(i).Data());
+      preProcDefs.AppendFormatted(";%s",flags.At(i).Data());
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      preProcDefs.AppendFormatted(";HAVE_%s_AFFILIATION",((ROMEString)affiliations.At(i)).ToUpper(str));
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCCLCompilerTool");
    xml->WriteAttribute("Optimization","0");
    xml->WriteAttribute("AdditionalIncludeDirectories",includeDirs.Data());
-   xml->WriteAttribute("PreprocessorDefinitions",preDrocDefs.Data());
+   xml->WriteAttribute("PreprocessorDefinitions",preProcDefs.Data());
    xml->WriteAttribute("MinimalRebuild","FALSE");
    xml->WriteAttribute("BasicRuntimeChecks","2");
    xml->WriteAttribute("RuntimeLibrary","2");
