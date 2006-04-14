@@ -6685,7 +6685,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("Bool_t %s%s::Event(Long64_t even)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%s::Event(Long64_t event)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
