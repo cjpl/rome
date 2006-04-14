@@ -8,11 +8,15 @@
 #define ArgusTab_H
 
 #include "RConfig.h"
-#pragma warning( push )
-#pragma warning( disable : 4800 )
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif
 #include "TGFrame.h"
 #include "TTimer.h"
-#pragma warning( pop )
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif
 
 class ArgusTab : public TGCompositeFrame {
 
