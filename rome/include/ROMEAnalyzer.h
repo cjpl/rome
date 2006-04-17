@@ -564,6 +564,10 @@ public:
    Bool_t          DisconnectNetFolders();
    void            InitNetFolders(Int_t number);
 
+   // Folder dump and load
+   virtual Bool_t  DumpFolders(const char* filename, Bool_t only_database) = 0;
+   virtual Bool_t  LoadFolders(const char* filename, Bool_t only_database) = 0;
+
    // Monitor
    virtual Bool_t  StartWindow() = 0;
    virtual Int_t   GetUpdateFrequency() = 0;
