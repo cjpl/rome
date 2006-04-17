@@ -46,13 +46,15 @@ void ArgusTab::InitTab() {
 }
 
 void ArgusTab::TabEventHandler() {
-   if (fEventHandlerWaitTimer==NULL)
-      return;
-   if (!gROME->IsEventFilled()) {
-      fEventHandlerWaitTimer->TurnOn();
-      return;
+   if (gROME->IsROMEAndARGUS()) {
+      if (fEventHandlerWaitTimer==NULL)
+         return;
+      if (!gROME->IsEventFilled()) {
+         fEventHandlerWaitTimer->TurnOn();
+         return;
+      }
+      fEventHandlerWaitTimer->TurnOff();
    }
-   fEventHandlerWaitTimer->TurnOff();
    fBusy = true;
    BaseTabEventHandler();
    EventHandler();
