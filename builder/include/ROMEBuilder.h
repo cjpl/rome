@@ -144,6 +144,7 @@ protected:
    ROMEString    valueComment[maxNumberOfFolders][maxNumberOfValues];
    Int_t         valueDimension[maxNumberOfFolders][maxNumberOfValues];
    ROMEString    valueArray[maxNumberOfFolders][maxNumberOfValues][maxNumberOfValueDimension];
+   ROMEString    valueArraySpecifier[maxNumberOfFolders][maxNumberOfValues];
    ROMEString    valueDBName[maxNumberOfFolders][maxNumberOfValues];
    ROMEString    valueDBPath[maxNumberOfFolders][maxNumberOfValues];
    Bool_t        valueNoBoundChech[maxNumberOfFolders][maxNumberOfValues];

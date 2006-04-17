@@ -600,6 +600,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
          for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
             valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
+         valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
          while (xml->NextLine()) {
@@ -728,6 +729,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             for (i=0;i<numOfValue[numOfFolder];i++) {
                tmp.SetFormatted("[%s]",valueName[numOfFolder][i].Data());
                if (valueComment[numOfFolder][numOfValue[numOfFolder]].Contains(tmp) && isIntType(valueType[numOfFolder][i].Data())) {
+                  valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = valueName[numOfFolder][i];
                   break;
                }
             }

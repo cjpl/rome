@@ -313,9 +313,16 @@ Bool_t ROMEBuilder::WriteFolderH()
             if (valueDimension[iFold][i]==0)
                buffer.AppendFormatted("      %s = %s_value;\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
             else if (valueArray[iFold][i][0]=="variable") {
-               buffer.AppendFormatted("      %s = NULL;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %sActualSize = 0;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %sSize = 0;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      if (%s > 0) {\n",valueArraySpecifier[iFold][i].Data());
+               buffer.AppendFormatted("         %s = new %s[%s];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
+               buffer.AppendFormatted("         %sActualSize = %s;\n",valueName[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
+               buffer.AppendFormatted("         %sSize = %s;\n",valueName[iFold][i].Data(),valueArraySpecifier[iFold][i].Data());
+               buffer.AppendFormatted("      }\n");
+               buffer.AppendFormatted("      else {\n");
+               buffer.AppendFormatted("         %s = NULL;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         %sActualSize = 0;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("         %sSize = 0;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      }\n");
             }
             else{
                for (iDm=0;iDm<valueDimension[iFold][i];iDm++) {
@@ -3356,6 +3363,64 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
 
+   // Folder dump and load
+   buffer.AppendFormatted("Bool_t %sAnalyzer::DumpFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
+   buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
+   buffer.AppendFormatted("   TFile out(filename, \"RECREATE\");\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            if (!folderDataBase[i])
+               buffer.AppendFormatted("   if (!only_database) {\n");
+            else
+               buffer.AppendFormatted("   {\n");
+            if (folderArray[i]=="1")
+               buffer.AppendFormatted("      out.WriteTObject(f%sFolder, \"%s\");\n",folderName[i].Data(),folderName[i].Data());
+            else
+               buffer.AppendFormatted("      out.WriteTObject(f%sFolders, \"%ss\", \"SingleKey\");\n",folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   }\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("   out.Write();\n");
+   buffer.AppendFormatted("   out.Close();\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("Bool_t %sAnalyzer::LoadFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
+   buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
+   buffer.AppendFormatted("   TFile in(filename);\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            if (!folderDataBase[i])
+               buffer.AppendFormatted("   if (!only_database) {\n");
+            else
+               buffer.AppendFormatted("   {\n");
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("      %s%s* p%s = (%s%s*)in.FindObjectAny(\"%s\");\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data()
+                                      ,shortCut.Data(),folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      if (p%s)\n",folderName[i].Data());
+               buffer.AppendFormatted("         *f%sFolder = *p%s;\n",folderName[i].Data(),folderName[i].Data());
+            }
+            else {
+               buffer.AppendFormatted("      TClonesArray *p%s = (TClonesArray*)in.FindObjectAny(\"%ss\");\n",folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      if (p%s)\n",folderName[i].Data());
+               buffer.AppendFormatted("          p%s->Copy(*f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
+            }
+            buffer.AppendFormatted("   }\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -3766,6 +3831,11 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("   %s%s*  Get%s()                 { return f%s;    };\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
       buffer.AppendFormatted("   void     Set%s (%s%s*  handle) { f%s  = handle; };\n",daqName[i].Data(),shortCut.Data(),daqName[i].Data(),daqName[i].Data());
    }
+
+   // Folder dump and load
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   Bool_t   DumpFolders(const char* filename, Bool_t only_database = kFALSE);\n");
+   buffer.AppendFormatted("   Bool_t   LoadFolders(const char* filename, Bool_t only_database = kFALSE);\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("   Bool_t IsWindowBusy();\n");
@@ -6575,12 +6645,14 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          if (!folderUsed[iFold])
             continue;
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         buffer.AppendFormatted("   if (bb) {\n");
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("      bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          else {
-            buffer.AppendFormatted("   bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("      bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
+         buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
          buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
       }
