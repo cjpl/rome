@@ -24,7 +24,9 @@ protected:
    Bool_t   fActive;               //! is Active
    Int_t    fUpdateFrequency;      //! Update Frequency
    TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function
+   TTimer  *fEventHandlerWaitTimer;//! Timer for the EventHandler function while waiting
    Bool_t   fEventHandlerUserStop; //! True if the user stopped the EventHandler
+   Bool_t   fBusy;                 //! Busy flag
 public:
    ArgusTab();
    ~ArgusTab() {};
@@ -43,6 +45,7 @@ public:
    void      SetActive(Bool_t active) { fActive = active; };
    Int_t     GetUpdateFrequency();
    void      SetUpdateFrequency(Int_t duration);
+   Bool_t    IsBusy() { return fBusy; };
 
    ClassDef(ArgusTab,1)
 };

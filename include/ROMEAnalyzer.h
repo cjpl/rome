@@ -199,6 +199,9 @@ protected:
    ROMEString    *fNetFolderHost;                //! server host name
    ROMEString    *fNetFolderRoot;                //! root directory name
 
+   // Monitor
+   Bool_t         fEventFilled;                  //! Event filled flag
+
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
 
@@ -565,6 +568,9 @@ public:
    virtual Bool_t  StartWindow() = 0;
    virtual Int_t   GetUpdateFrequency() = 0;
    virtual void    SetUpdateFrequency(Int_t frequency) = 0;
+   virtual Bool_t  IsWindowBusy() = 0;
+   Bool_t          IsEventFilled() { return fEventFilled; };
+   void            SetEventFilled(Bool_t flag) { fEventFilled = flag; };
 
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;

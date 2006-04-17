@@ -226,6 +226,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    return true;
 }
+
 void ROMEAnalyzer::PrintText(char text)
 {
    cout << text;
