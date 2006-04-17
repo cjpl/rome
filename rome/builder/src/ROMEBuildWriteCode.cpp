@@ -2962,6 +2962,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   gWindow->SetUpdateFrequency(frequency);\n");
    buffer.AppendFormatted("}\n");
 
+   buffer.AppendFormatted("Bool_t %sAnalyzer::IsWindowBusy() {\n", shortCut.Data());
+   buffer.AppendFormatted("   Bool_t busy = false;\n");
+   buffer.AppendFormatted("   for (int i=0;i<gWindow->GetTabObjectEntries();i++)\n");
+   buffer.AppendFormatted("      if (gWindow->GetTabObjectAt(i)->IsBusy())\n");
+   buffer.AppendFormatted("         busy = true;\n");
+   buffer.AppendFormatted("   return busy;\n");
+   buffer.AppendFormatted("}\n");
+
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -3214,43 +3222,43 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Histo Getters
    buffer.AppendFormatted("// Histo\n");
-   for (i=0;i<numOfTask;i++) {
-      if (!taskUsed[i])
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      for (j=0;j<numOfHistos[i];j++) {
-         if (histoArraySize[i][j]=="1") {
-            buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
+            buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[taskHierarchyClassIndex[i]][j].Data(),shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoType[i][j].Data(),histoName[i][j].Data());
+            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i],histoName[i][j].Data());
+            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("}\n");
          }
          else {
-            buffer.AppendFormatted("TObjArray* %sAnalyzer::Get%s() {\n",shortCut.Data(),histoName[i][j].Data());
+            buffer.AppendFormatted("TObjArray* %sAnalyzer::Get%s() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("      return (TObjArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoName[i][j].Data());
+            buffer.AppendFormatted("      return (TObjArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i],histoName[i][j].Data());
+            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("}\n");
-            buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[i][j].Data(),shortCut.Data(),histoName[i][j].Data());
+            buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[taskHierarchyClassIndex[i]][j].Data(),shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive()) {\n");
             buffer.AppendFormatted("      ROMEString name;\n");
             buffer.AppendFormatted("      Int_t arrayStartIndex = 0;\n");
 // FIX ME
-//            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)GetTaskObjectAt(%d))->GetObjectInterpreterIntValue(f%sArrayStartIndexCode,arrayStartIndex);\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i],histoName[i][j].Data());
+//            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)GetTaskObjectAt(%d))->GetObjectInterpreterIntValue(f%sArrayStartIndexCode,arrayStartIndex);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      arrayStartIndex = 0;\n");
             buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,index+arrayStartIndex);\n");
-            buffer.AppendFormatted("      name.Insert(0,\"%s\");\n",histoName[i][j].Data());
-            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(name.Data()));\n",histoType[i][j].Data());
+            buffer.AppendFormatted("      name.Insert(0,\"%s\");\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(name.Data()));\n",histoType[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   else {\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%sAt(index);\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i],histoName[i][j].Data());
+            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%sAt(index);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("}\n");
          }
-         buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[i][j].Data());
-         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskName[i].Data(),taskHierarchyObjectIndex[i]);
+         buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
          buffer.AppendFormatted("}\n");
       }
    }
@@ -3760,6 +3768,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    buffer.AppendFormatted("\n");
 
+   buffer.AppendFormatted("   Bool_t IsWindowBusy();\n");
    // Private
    buffer.AppendFormatted("private:\n");
    buffer.AppendFormatted("   Bool_t StartWindow();\n");

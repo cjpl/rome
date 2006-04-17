@@ -480,6 +480,7 @@ Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
    // Reads an event. Called before the Event tasks.
    Statistics *stat = gROME->GetTriggerStatistics();
 
+   gROME->SetEventFilled(false);
    this->SetAnalyze();
    this->ResetFolders();
 
@@ -493,6 +494,7 @@ Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
    if (this->isContinue()) {
       return true;
    }
+   gROME->SetEventFilled(true);
 
    if (gROME->IsEventBasedDataBase()) {
       if (!gROME->ReadSingleDataBaseFolders()) {
