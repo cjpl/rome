@@ -1,4 +1,4 @@
-// $Id: ArgusAnalyzerController.h 785 2005-12-18 18:43:19Z sawada $
+// $Id$
 // Author: Ryu Sawada
 #ifndef ArgusAnalyzerController_H
 #define ArgusAnalyzerController_H
