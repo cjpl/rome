@@ -439,6 +439,7 @@ void ROMEBuilder::AddDatabaseSources()
       databaseSources->AddFormatted("src/databases/%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
    }
 }
+
 void ROMEBuilder::AddRootLibraries()
 {
    rootLibraries = new ROMEStrArray(30);
@@ -463,6 +464,7 @@ void ROMEBuilder::AddRootLibraries()
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeom.lib");
    rootLibraries->AddFormatted("$(ROOTSYS)\\lib\\libGeomPainter.lib");
 }
+
 void ROMEBuilder::AddMysqlLibraries()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -472,6 +474,7 @@ void ROMEBuilder::AddMysqlLibraries()
    mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysys.lib");
 #endif
 }
+
 void ROMEBuilder::AddDAQLibraries()
 {
    daqLibraries = new ROMEStrArray(2);
@@ -504,6 +507,7 @@ void ROMEBuilder::AddDAQLibraries()
 #endif
 #endif
 }
+
 void ROMEBuilder::AddDAQFlags()
 {
    daqFlags = new ROMEStrArray(2);
@@ -538,7 +542,6 @@ void ROMEBuilder::AddDAQFlags()
 #endif
 #endif
 }
-
 
 void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
 {

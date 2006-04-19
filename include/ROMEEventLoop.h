@@ -58,6 +58,7 @@ public:
    void         Terminate() {};
 
    void         SetContinuousMode(Bool_t mode) { fContinuous = mode; };
+   Bool_t       isContinuousMode() { return fContinuous; };
 protected:
    // Run Status
    Bool_t       isRunning()  { return gROME->GetActiveDAQ()->isRunning(); };
