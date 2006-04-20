@@ -5245,7 +5245,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(i,kTRUE);");
       subGroup->GetLastParameter()->AddSetLine("else");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(i,kFALSE);");
-      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderActive(%d)",i);
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderActive(%d))",i);
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
@@ -5255,7 +5255,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(i,kTRUE);");
       subGroup->GetLastParameter()->AddSetLine("else");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(i,kFALSE);");
-      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderReconnect(%d)",i);
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderReconnect(%d))",i);
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
@@ -5458,8 +5458,6 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       parGroup->AddSubGroup(subGroup);
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         if (valueDimension[i][j]>1)
-            continue;
          subSubGroup = new ROMEConfigParameterGroup(histoName[taskHierarchyClassIndex[i]][j],"1","Histogram","HistName");
          subSubGroup->AddParameter(new ROMEConfigParameter("HistTitle"));
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s*)gAnalyzer->GetTaskObjectAt(%d))->Set%sTitle(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());

@@ -18,6 +18,223 @@
 #include "Riostream.h"
 #include "ROMEBuilder.h"
 
+ROMEBuilder::~ROMEBuilder()
+{
+   // Free memory
+   delete [] parent;
+
+   delete [] numOfValue;
+   delete [] numOfFolderInclude;
+
+   delete [] numOfFolderAffiliations;
+   delete [] folderAffiliation;
+   delete [] folderUsed;
+   delete [] folderName;
+   delete [] folderDescription;
+   delete [] folderParentName;
+   delete [] folderTitle;
+   delete [] folderArray;
+   delete [] folderAuthor;
+   delete [] folderVersion;
+   delete [] folderInclude;
+   delete [] folderNet;
+   delete [] folderLocalFlag;
+   delete [] folderDataBase;
+   delete [] folderUserCode;
+   delete [] folderSupport;
+   delete [] folderNoReset;
+
+   delete [] valueName;
+   delete [] valueType;
+   delete [] valueInit;
+   delete [] valueComment;
+   delete [] valueDimension;
+   delete [] valueArray;
+   delete [] valueArraySpecifier;
+   delete [] valueDBName;
+   delete [] valueDBPath;
+   delete [] valueNoBoundChech;
+
+   // net folder
+   delete [] netFolderName;
+   delete [] netFolderTitle;
+   delete [] netFolderHost;
+   delete [] netFolderPort;
+   delete [] netFolderRoot;
+
+   // task
+   delete [] numOfHistos;
+   delete [] numOfTaskInclude;
+   delete [] taskName;
+   delete [] numOfTaskAffiliations;
+   delete [] taskAffiliation;
+   delete [] taskUsed;
+   delete [] taskEventID;
+   delete [] taskDescription;
+   delete [] taskFortran;
+   delete [] taskUserCode;
+   delete [] taskAuthor;
+   delete [] taskAuthorInstitute;
+   delete [] taskAuthorCollaboration;
+   delete [] taskAuthorEmail;
+   delete [] taskVersion;
+   delete [] taskInclude;
+   delete [] taskLocalFlag;
+   delete [] histoName;
+   delete [] histoTitle;
+   delete [] histoFolderName;
+   delete [] histoFolderTitle;
+   delete [] histoType;
+   delete [] histoArraySize;
+   delete [] histoArrayStartIndex;
+   delete [] histoXLabel;
+   delete [] histoYLabel;
+   delete [] histoZLabel;
+   delete [] histoXNbins;
+   delete [] histoXmin;
+   delete [] histoXmax;
+   delete [] histoYNbins;
+   delete [] histoYmin;
+   delete [] histoYmax;
+   delete [] histoZNbins;
+   delete [] histoZmin;
+   delete [] histoZmax;
+   delete [] numOfHistoTabs;
+   delete [] histoTabName;
+   delete [] histoTabIndex;
+   delete [] histoTabArrayIndex;
+
+   // task hierarchy
+   delete [] taskHierarchyName;
+   delete [] taskHierarchyParentIndex;
+   delete [] taskHierarchyClassIndex;
+   delete [] taskHierarchyMultiplicity;
+   delete [] taskHierarchyLevel;
+   delete [] taskHierarchyObjectIndex;
+
+   // steering
+   delete [] numOfSteering;
+   delete [] numOfSteerFields;
+   delete [] numOfSteerChildren;
+   delete [] steerName;
+   delete [] steerArraySize;
+   delete [] steerParent;
+   delete [] steerChildren;
+   delete [] numOfSteerAffiliations;
+   delete [] steerAffiliation;
+   delete [] steerUsed;
+   delete [] steerFieldName;
+   delete [] steerFieldType;
+   delete [] steerFieldArraySize;
+   delete [] steerFieldInit;
+   delete [] steerFieldComment;
+   delete [] steerFieldCLOption;
+   delete [] steerFieldCLDescription;
+   delete [] numOfSteerFieldAffiliations;
+   delete [] steerFieldAffiliation;
+   delete [] steerFieldUsed;
+
+   // tab
+   delete [] tabName;
+   delete [] tabTitle;
+   delete [] numOfTabAffiliations;
+   delete [] tabAffiliation;
+   delete [] tabUsed;
+   delete [] tabDescription;
+   delete [] tabAuthor;
+   delete [] tabAuthorInstitute;
+   delete [] tabAuthorCollaboration;
+   delete [] tabAuthorEmail;
+   delete [] tabVersion;
+   delete [] tabHeredity;
+   delete [] tabHeredityIndex;
+   delete [] tabParentIndex;
+   delete [] tabNumOfChildren;
+   delete [] numOfMenu;
+   delete [] numOfMenuItem;
+   delete [] menuTitle;
+   delete [] menuDepth;
+   delete [] menuItemChildMenuIndex;
+   delete [] menuItemEnumName;
+   delete [] menuItemTitle;
+   delete [] numOfTabHistos;
+   delete [] tabHistoName;
+   delete [] tabHistoIndex;
+   delete [] tabHistoArrayIndexStart;
+   delete [] tabHistoArrayIndexEnd;
+   delete [] tabHistoTaskIndex;
+   delete [] tabHistoHistoIndex;
+   delete [] tabHistoIndexMax;
+
+   // tree
+   delete [] numOfBranch;
+   delete [] treeName;
+   delete [] treeTitle;
+   delete [] treeFileName;
+   delete [] treeDescription;
+   delete [] branchName;
+   delete [] branchFolder;
+   delete [] branchBufferSize;
+   delete [] branchSplitLevel;
+
+   // thread functions
+   delete [] numOfThreadFunctions;
+   delete [] numOfThreadFunctionArguments;
+   delete [] threadFunctionName;
+   delete [] threadFunctionArgument;
+
+   // daq
+   delete [] daqName;
+   delete [] numOfDAQAffiliations;
+   delete [] daqAffiliation;
+   delete [] daqUsed;
+
+   // database
+   delete [] dbName;
+   delete [] dbDescription;
+
+   // midas
+   delete [] numOfBank;
+   delete [] numOfStructFields;
+   delete [] eventName;
+   delete [] eventID;
+   delete [] eventTriggerMask;
+   delete [] eventSamplingRate;
+   delete [] bankName;
+   delete [] bankType;
+   delete [] bankArraySize;
+   delete [] bankArrayStart;
+   delete [] bankArrayDigit;
+   delete [] structFieldName;
+   delete [] structFieldType;
+   delete [] structFieldSize;
+   delete [] bankFieldArraySize;
+
+   // user makefile
+   delete [] mfDictHeaderName;
+   delete [] numOfMFDictHeaderAffiliations;
+   delete [] mfDictHeaderAffiliation;
+   delete [] mfDictHeaderUsed;
+   delete [] mfDictIncDir;
+   delete [] mfWinLibName;
+   delete [] numOfMFWinLibFlags;
+   delete [] mfWinLibFlag;
+   delete [] mfUnixLibName;
+   delete [] numOfMFUnixLibFlags;
+   delete [] mfUnixLibFlag;
+   delete [] mfIncDir;
+   delete [] mfPreDefName;
+   delete [] mfSourceFileName;
+   delete [] mfSourceFilePath;
+   delete [] mfHeaderFileName;
+   delete [] mfHeaderFilePath;
+   delete [] numOfMFSourceFlags;
+   delete [] mfSourceFileFlag;
+   delete [] numOfMFSourceAffiliations;
+   delete [] mfSourceFileAffiliation;
+   delete [] mfSourceFileUsed;
+}
+
 void ROMEBuilder::StartBuilder()
 {
 
@@ -28,6 +245,7 @@ void ROMEBuilder::StartBuilder()
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
 
+   AllocateMemorySpace();
    ReadXMLDefinitionFile();
 
    int tabNumber;
@@ -110,6 +328,8 @@ void ROMEBuilder::StartBuilder()
       steerName[numOfTaskHierarchy][0] = "GlobalSteering";
       steerParent[numOfTaskHierarchy][0] = -1;
       numOfSteering[numOfTaskHierarchy] = 0;
+      numOfSteerFields[numOfTaskHierarchy][0] = 0;
+      numOfSteerChildren[numOfTaskHierarchy][0] = 0;
    }
 
    // make directories
@@ -815,3 +1035,185 @@ const char* ROMEBuilder::TArray2StandardType(const char *type,ROMEString &standa
    return type;
 }
 
+void* ROMEBuilder::AllocateInt(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
+   Int_t n = 0;
+
+   Int_t *p1;
+   Int_t **p2;
+   Int_t ***p3;
+   Int_t ****p4;
+   Int_t *****p5;
+   Int_t ******p6;
+   Int_t i;
+
+   while(1) {
+      if(x1) n++; else break;
+      if(x2) n++; else break;
+      if(x3) n++; else break;
+      if(x4) n++; else break;
+      if(x5) n++; else break;
+      if(x6) n++; else break;
+      break;
+   }
+
+   switch(n) {
+      case 1:
+         p1 = new Int_t[x1];
+         return p1;
+
+      case 2:
+         p2 = new Int_t*[x1];
+         for (i=0;i<x1;i++)
+            p2[i] = static_cast<Int_t*>(AllocateInt(x2));
+         return p2;
+
+      case 3:
+         p3 = new Int_t**[x1];
+         for (i=0;i<x1;i++)
+            p3[i] = static_cast<Int_t**>(AllocateInt(x2, x3));
+         return p3;
+
+      case 4:
+         p4 = new Int_t***[x1];
+         for (i=0;i<x1;i++)
+            p4[i] = static_cast<Int_t***>(AllocateInt(x2, x3, x4));
+         return p4;
+
+      case 5:
+         p5 = new Int_t****[x1];
+         for (i=0;i<x1;i++)
+            p5[i] = static_cast<Int_t****>(AllocateInt(x2, x3, x4, x5));
+         return p5;
+
+      case 6:
+         p6 = new Int_t*****[x1];
+         for (i=0;i<x1;i++)
+            p6[i] = static_cast<Int_t*****>(AllocateInt(x2, x3, x4, x5, x6));
+         return p6;
+   };
+
+   return 0;
+}
+
+void* ROMEBuilder::AllocateBool(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
+   Int_t n = 0;
+
+   Bool_t *p1;
+   Bool_t **p2;
+   Bool_t ***p3;
+   Bool_t ****p4;
+   Bool_t *****p5;
+   Bool_t ******p6;
+   Int_t i;
+
+   while(1) {
+      if(x1) n++; else break;
+      if(x2) n++; else break;
+      if(x3) n++; else break;
+      if(x4) n++; else break;
+      if(x5) n++; else break;
+      if(x6) n++; else break;
+      break;
+   }
+
+   switch(n) {
+      case 1:
+         p1 = new Bool_t[x1];
+         return p1;
+
+      case 2:
+         p2 = new Bool_t*[x1];
+         for (i=0;i<x1;i++)
+            p2[i] = static_cast<Bool_t*>(AllocateBool(x2));
+         return p2;
+
+      case 3:
+         p3 = new Bool_t**[x1];
+         for (i=0;i<x1;i++)
+            p3[i] = static_cast<Bool_t**>(AllocateBool(x2, x3));
+         return p3;
+
+      case 4:
+         p4 = new Bool_t***[x1];
+         for (i=0;i<x1;i++)
+            p4[i] = static_cast<Bool_t***>(AllocateBool(x2, x3, x4));
+         return p4;
+
+      case 5:
+         p5 = new Bool_t****[x1];
+         for (i=0;i<x1;i++)
+            p5[i] = static_cast<Bool_t****>(AllocateBool(x2, x3, x4, x5));
+         return p5;
+
+      case 6:
+         p6 = new Bool_t*****[x1];
+         for (i=0;i<x1;i++)
+            p6[i] = static_cast<Bool_t*****>(AllocateBool(x2, x3, x4, x5, x6));
+         return p6;
+   };
+
+   return 0;
+}
+
+void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, Int_t x5, Int_t x6)
+{
+   Int_t n = 0;
+
+   ROMEString *p1;
+   ROMEString **p2;
+   ROMEString ***p3;
+   ROMEString ****p4;
+   ROMEString *****p5;
+   ROMEString ******p6;
+   Int_t i;
+
+   while(1) {
+      if(x1) n++; else break;
+      if(x2) n++; else break;
+      if(x3) n++; else break;
+      if(x4) n++; else break;
+      if(x5) n++; else break;
+      if(x6) n++; else break;
+      break;
+   }
+
+   switch(n) {
+      case 1:
+         p1 = new ROMEString[x1];
+         return p1;
+
+      case 2:
+         p2 = new ROMEString*[x1];
+         for (i=0;i<x1;i++)
+            p2[i] = static_cast<ROMEString*>(AllocateROMEString(x2));
+         return p2;
+
+      case 3:
+         p3 = new ROMEString**[x1];
+         for (i=0;i<x1;i++)
+            p3[i] = static_cast<ROMEString**>(AllocateROMEString(x2, x3));
+         return p3;
+
+      case 4:
+         p4 = new ROMEString***[x1];
+         for (i=0;i<x1;i++)
+            p4[i] = static_cast<ROMEString***>(AllocateROMEString(x2, x3, x4));
+         return p4;
+
+      case 5:
+         p5 = new ROMEString****[x1];
+         for (i=0;i<x1;i++)
+            p5[i] = static_cast<ROMEString****>(AllocateROMEString(x2, x3, x4, x5));
+         return p5;
+
+      case 6:
+         p6 = new ROMEString*****[x1];
+         for (i=0;i<x1;i++)
+            p6[i] = static_cast<ROMEString*****>(AllocateROMEString(x2, x3, x4, x5, x6));
+         return p6;
+   };
+
+   return 0;
+}
