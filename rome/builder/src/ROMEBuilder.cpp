@@ -429,7 +429,6 @@ void ROMEBuilder::StartBuilder()
    gSystem->ChangeDirectory(outDir.Data());
 
 // Linking
-   if (makeOutput && !noLink) cout << "\nLinking " << shortCut.Data() << " Project." << endl;
    WriteMakefile();
    if (!WriteLinkDefHs()) return;
    if (noLink) {
@@ -456,14 +455,6 @@ void ROMEBuilder::StartBuilder()
       if (numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
       gSystem->Exec(tempStr.Data());
-   }
-   else {
-#if defined( R__UNIX )
-      gSystem->Exec("make -e");
-#endif
-#if defined( R__VISUAL_CPLUSPLUS )
-      gSystem->Exec("nmake -f Makefile.win");
-#endif
    }
 // Documentation
    if (makeOutput) cout << "\nWrite HTML Documentation." << endl;

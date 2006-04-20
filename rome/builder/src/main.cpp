@@ -19,6 +19,7 @@
 #endif
 #include <ROMEBuilder.h>
 #include <Riostream.h>
+#include <TSystem.h>
 
 int main(int argc, char *argv[])
 {
@@ -46,6 +47,22 @@ int main(int argc, char *argv[])
       return 0;
 
    romeb->StartBuilder();
+
+   bool noLink = romeb->GetNoLink();
+   bool makeOutput = romeb->GetMakeOutput();
+
+   delete romeb;
+
+   if (!noLink) {
+      if(makeOutput)
+         cout<<"Linking the executable binary."<<endl;
+#if defined( R__UNIX )
+      gSystem->Exec("make -e");
+#endif
+#if defined( R__VISUAL_CPLUSPLUS )
+      gSystem->Exec("nmake -f Makefile.win");
+#endif
+   }
 
    return 0;
 }

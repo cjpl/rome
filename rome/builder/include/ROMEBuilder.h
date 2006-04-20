@@ -419,6 +419,8 @@ public:
    void    StartBuilder();
    Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
    Bool_t  CheckFileAndPath();
+   Bool_t  GetNoLink() { return noLink; }
+   Bool_t  GetMakeOutput() { return makeOutput; }
 
 private:
    // XML Read Methods
