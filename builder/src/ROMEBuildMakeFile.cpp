@@ -808,6 +808,12 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 {
    ROMEString str;
    int i;
+   // depend file
+   buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
+#if defined( R__UNIX )
+   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp $<\n",dictionaryName);
+#endif
+
    buffer.AppendFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
    for (i=0;i<headers->GetEntriesFast();i++) {
       buffer.AppendFormatted(" %s",headers->At(i).Data());
@@ -841,6 +847,13 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
    int i;
    ROMEString str;
+
+   // dictionary depend file
+   buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
+#if defined( R__UNIX )
+   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp $<\n",shortCut.Data());
+#endif
+
    buffer.AppendFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfMFDictHeaders;i++) {
       if (!mfDictHeaderUsed[i])
@@ -1128,6 +1141,21 @@ void ROMEBuilder::WriteMakefile() {
 
 // all
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted(" obj/ROMEDictionary.d obj/ARGUSDictionary.d obj/%sGeneratedDictionary.d",shortCut.Data());
+   if (hasFolderGenerated)
+      buffer.AppendFormatted(" obj/%sGeneratedFolderDictionary.d",shortCut.Data());
+   if (hasFolderUserCode)
+      buffer.AppendFormatted(" obj/%sFolderDictionary.d",shortCut.Data());
+   if (hasTaskGenerated)
+      buffer.AppendFormatted(" obj/%sGeneratedTaskDictionary.d",shortCut.Data());
+   if (hasTaskUserCode)
+      buffer.AppendFormatted(" obj/%sTaskDictionary.d",shortCut.Data());
+   if (numOfTab>0)
+      buffer.AppendFormatted(" obj/%sGeneratedTabDictionary.d",shortCut.Data());
+   if (numOfTab>0)
+      buffer.AppendFormatted(" obj/%sTabDictionary.d",shortCut.Data());
+   if (numOfMFDictHeaders>0)
+      buffer.AppendFormatted(" obj/%sUserDictionary.d",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
