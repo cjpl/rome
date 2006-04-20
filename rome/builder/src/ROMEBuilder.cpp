@@ -62,7 +62,7 @@ void ROMEBuilder::StartBuilder()
                numOfMenu[numOfTab] = -1;
                tabNumOfChildren[numOfTab] = 0;
                numOfThreadFunctions[numOfTab] = 0;
-               tabParentIndex[numOfTab] = taskHierarchyParentIndex[numOfTab] = -1;
+               tabParentIndex[numOfTab] = -1;
 
                tabNumber = numOfTab;
                histoNumber = 0;
