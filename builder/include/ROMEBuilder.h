@@ -13,47 +13,32 @@
 #include <ROMEStr2DArray.h>
 #include <ROMEConfigParameter.h>
 
-const Int_t maxNumberOfTasks = 300;
-const Int_t maxNumberOfFolders = 200;
-const Int_t maxNumberOfTrees = 50;
-const Int_t maxNumberOfDAQ = 10;
-const Int_t maxNumberOfDB = 10;
-const Int_t maxNumberOfBranches = 20;
-const Int_t maxNumberOfBanks = 50;
-const Int_t maxNumberOfEvents = 5;
-const Int_t maxNumberOfSteering = 50;
-const Int_t maxNumberOfSteeringField = 100;
+const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
+const Int_t maxNumberOfInclude = 10;
 const Int_t maxNumberOfValues = 50;
 const Int_t maxNumberOfValueDimension = 3;
-const Int_t maxNumberOfInclude = 10;
 const Int_t maxNumberOfHistos = 50;
 const Int_t maxNumberOfHistoTabs = 5;
-const Int_t maxNumberOfStructFields = 50;
-const Int_t maxNumberOfMFDictHeaders = 100;
-const Int_t maxNumberOfMFDictIncDirs = 20;
-const Int_t maxNumberOfMFWinLibs = 20;
-const Int_t maxNumberOfMFWinLibFlags = 5;
-const Int_t maxNumberOfMFUnixLibs = 20;
-const Int_t maxNumberOfMFUnixLibFlags = 5;
-const Int_t maxNumberOfMFIncDirs = 20;
-const Int_t maxNumberOfMFPreDefs = 20;
-const Int_t maxNumberOfMFSources = 100;
-const Int_t maxNumberOfMFSourceFlags = 5;
-const Int_t maxNumberOfEventRequests = 5;
-const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
-const Int_t maxNumberOfTabs = 200;
 const Int_t maxNumberOfTabHistos = 20;
 const Int_t maxNumberOfMenus = 20;
 const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
-const Int_t maxNumberOfNetFolders = 10;
+const Int_t maxNumberOfBranches = 20;
+const Int_t maxNumberOfBanks = 50;
+const Int_t maxNumberOfStructFields = 50;
+const Int_t maxNumberOfSteering = 50;
+const Int_t maxNumberOfSteeringField = 100;
+const Int_t maxNumberOfMFWinLibFlags = 5;
+const Int_t maxNumberOfMFUnixLibFlags = 5;
+const Int_t maxNumberOfMFSourceFlags = 5;
 const Int_t maxNumberOfAffiliations = 20;
+
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
 
-const char  valueCounter[maxNumberOfValueDimension] = {'i','j','k'};
-const char* const ROMECommandLineOptions = ":i:b:q:ns:m:r:e:o:docu:";
+const char  valueCounter[] = {'i','j','k'};
+const char* const ROMECommandLineOptions = ":a:i:b:q:ns:m:r:e:o:docu:";
 const char* const cloSeparator = ":";
 #if defined( R__VISUAL_CPLUSPLUS )
 const char* const kEqualSign = "=";
@@ -74,6 +59,7 @@ protected:
 
    ROMEString    outDir;
    ROMEString    xmlFile;
+   ROMEString    xsdFile;
    Bool_t        makeOutput;
    Bool_t        noLink;
    Bool_t        midas;
@@ -103,7 +89,24 @@ protected:
 
    Bool_t        hasStructuredBank;
 
-   ROMEString    parent[maxNumberOfTasks];
+   // max numbers
+   Int_t maxNumberOfTasks;
+   Int_t maxNumberOfFolders;
+   Int_t maxNumberOfTrees;
+   Int_t maxNumberOfDAQ;
+   Int_t maxNumberOfDB;
+   Int_t maxNumberOfEvents;
+   Int_t maxNumberOfMFDictHeaders;
+   Int_t maxNumberOfMFDictIncDirs;
+   Int_t maxNumberOfMFWinLibs;
+   Int_t maxNumberOfMFUnixLibs;
+   Int_t maxNumberOfMFIncDirs;
+   Int_t maxNumberOfMFPreDefs;
+   Int_t maxNumberOfMFSources;
+   Int_t maxNumberOfTabs;
+   Int_t maxNumberOfNetFolders;
+
+   ROMEString   *parent;
    Int_t         recursiveDepth;
    Int_t         recursiveSteerDepth;
    Int_t         actualSteerIndex;
@@ -115,206 +118,206 @@ protected:
    
 // folders
    Int_t         numOfFolder;
-   Int_t         numOfValue[maxNumberOfFolders];
-   Int_t         numOfFolderInclude[maxNumberOfFolders];
+   Int_t        *numOfValue;
+   Int_t        *numOfFolderInclude;
 
-   Int_t         numOfFolderAffiliations[maxNumberOfFolders];
-   ROMEString    folderAffiliation[maxNumberOfFolders][maxNumberOfAffiliations];
-   Bool_t        folderUsed[maxNumberOfFolders];
-   ROMEString    folderName[maxNumberOfFolders];
-   ROMEString    folderDescription[maxNumberOfFolders];
-   ROMEString    folderParentName[maxNumberOfFolders];
-   ROMEString    folderTitle[maxNumberOfFolders];
-   ROMEString    folderArray[maxNumberOfFolders];
-   ROMEString    folderAuthor[maxNumberOfFolders];
-   ROMEString    folderVersion[maxNumberOfFolders];
-   ROMEString    folderInclude[maxNumberOfFolders][maxNumberOfInclude];
-   Bool_t        folderNet[maxNumberOfFolders];
-   Bool_t        folderLocalFlag[maxNumberOfFolders][maxNumberOfInclude];
-   Bool_t        folderDataBase[maxNumberOfFolders];
-   Bool_t        folderUserCode[maxNumberOfFolders];
-   Bool_t        folderSupport[maxNumberOfFolders];
-   Bool_t        folderNoReset[maxNumberOfFolders];
+   Int_t        *numOfFolderAffiliations;
+   ROMEString  **folderAffiliation;
+   Bool_t       *folderUsed;
+   ROMEString   *folderName;
+   ROMEString   *folderDescription;
+   ROMEString   *folderParentName;
+   ROMEString   *folderTitle;
+   ROMEString   *folderArray;
+   ROMEString   *folderAuthor;
+   ROMEString   *folderVersion;
+   ROMEString  **folderInclude;
+   Bool_t       *folderNet;
+   Bool_t      **folderLocalFlag;
+   Bool_t       *folderDataBase;
+   Bool_t       *folderUserCode;
+   Bool_t       *folderSupport;
+   Bool_t       *folderNoReset;
    Bool_t        hasFolderUserCode;
    Bool_t        hasFolderGenerated;
 
-   ROMEString    valueName[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueType[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueInit[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueComment[maxNumberOfFolders][maxNumberOfValues];
-   Int_t         valueDimension[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueArray[maxNumberOfFolders][maxNumberOfValues][maxNumberOfValueDimension];
-   ROMEString    valueArraySpecifier[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueDBName[maxNumberOfFolders][maxNumberOfValues];
-   ROMEString    valueDBPath[maxNumberOfFolders][maxNumberOfValues];
-   Bool_t        valueNoBoundChech[maxNumberOfFolders][maxNumberOfValues];
+   ROMEString  **valueName;
+   ROMEString  **valueType;
+   ROMEString  **valueInit;
+   ROMEString  **valueComment;
+   Int_t       **valueDimension;
+   ROMEString ***valueArray;
+   ROMEString  **valueArraySpecifier;
+   ROMEString  **valueDBName;
+   ROMEString  **valueDBPath;
+   Bool_t      **valueNoBoundChech;
 
 // net folder
    Int_t         numOfNetFolder;
-   ROMEString    netFolderName[maxNumberOfNetFolders];
-   ROMEString    netFolderTitle[maxNumberOfNetFolders];
-   ROMEString    netFolderHost[maxNumberOfNetFolders];
-   ROMEString    netFolderPort[maxNumberOfNetFolders];
-   ROMEString    netFolderRoot[maxNumberOfNetFolders];
+   ROMEString   *netFolderName;
+   ROMEString   *netFolderTitle;
+   ROMEString   *netFolderHost;
+   ROMEString   *netFolderPort;
+   ROMEString   *netFolderRoot;
 
 // task
    Int_t         numOfTask;
-   Int_t         numOfHistos[maxNumberOfTasks];
-   Int_t         numOfTaskInclude[maxNumberOfTasks];
-   ROMEString    taskName[maxNumberOfTasks];
-   Int_t         numOfTaskAffiliations[maxNumberOfTasks];
-   ROMEString    taskAffiliation[maxNumberOfTasks][maxNumberOfAffiliations];
-   Bool_t        taskUsed[maxNumberOfTasks];
-   ROMEString    taskEventID[maxNumberOfTasks];
-   ROMEString    taskDescription[maxNumberOfTasks];
-   Bool_t        taskFortran[maxNumberOfTasks];
-   Bool_t        taskUserCode[maxNumberOfTasks];
-   ROMEString    taskAuthor[maxNumberOfTasks];
-   ROMEString    taskAuthorInstitute[maxNumberOfTasks];
-   ROMEString    taskAuthorCollaboration[maxNumberOfTasks];
-   ROMEString    taskAuthorEmail[maxNumberOfTasks];
-   ROMEString    taskVersion[maxNumberOfTasks];
-   ROMEString    taskInclude[maxNumberOfTasks][maxNumberOfInclude];
-   Bool_t        taskLocalFlag[maxNumberOfTasks][maxNumberOfInclude];
-   ROMEString    histoName[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoTitle[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoFolderName[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoFolderTitle[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoType[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoArraySize[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoArrayStartIndex[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoXLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoYLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoZLabel[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoXNbins[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoXmin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoXmax[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoYNbins[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoYmin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoYmax[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoZNbins[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoZmin[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoZmax[maxNumberOfTasks][maxNumberOfHistos];
-   Int_t         numOfHistoTabs[maxNumberOfTasks][maxNumberOfHistos];
-   ROMEString    histoTabName[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
-   ROMEString    histoTabIndex[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
-   ROMEString    histoTabArrayIndex[maxNumberOfTasks][maxNumberOfHistos][maxNumberOfHistoTabs];
+   Int_t        *numOfHistos;
+   Int_t        *numOfTaskInclude;
+   ROMEString   *taskName;
+   Int_t        *numOfTaskAffiliations;
+   ROMEString  **taskAffiliation;
+   Bool_t       *taskUsed;
+   ROMEString   *taskEventID;
+   ROMEString   *taskDescription;
+   Bool_t       *taskFortran;
+   Bool_t       *taskUserCode;
+   ROMEString   *taskAuthor;
+   ROMEString   *taskAuthorInstitute;
+   ROMEString   *taskAuthorCollaboration;
+   ROMEString   *taskAuthorEmail;
+   ROMEString   *taskVersion;
+   ROMEString  **taskInclude;
+   Bool_t      **taskLocalFlag;
+   ROMEString  **histoName;
+   ROMEString  **histoTitle;
+   ROMEString  **histoFolderName;
+   ROMEString  **histoFolderTitle;
+   ROMEString  **histoType;
+   ROMEString  **histoArraySize;
+   ROMEString  **histoArrayStartIndex;
+   ROMEString  **histoXLabel;
+   ROMEString  **histoYLabel;
+   ROMEString  **histoZLabel;
+   ROMEString  **histoXNbins;
+   ROMEString  **histoXmin;
+   ROMEString  **histoXmax;
+   ROMEString  **histoYNbins;
+   ROMEString  **histoYmin;
+   ROMEString  **histoYmax;
+   ROMEString  **histoZNbins;
+   ROMEString  **histoZmin;
+   ROMEString  **histoZmax;
+   Int_t       **numOfHistoTabs;
+   ROMEString ***histoTabName;
+   ROMEString ***histoTabIndex;
+   ROMEString ***histoTabArrayIndex;
    Bool_t        hasTaskUserCode;
    Bool_t        hasTaskGenerated;
 
 // task hierarchy
    Int_t         numOfTaskHierarchy;
-   ROMEString    taskHierarchyName[2*maxNumberOfTasks];
-   Int_t         taskHierarchyParentIndex[2*maxNumberOfTasks];
-   Int_t         taskHierarchyClassIndex[2*maxNumberOfTasks];
-   Int_t         taskHierarchyMultiplicity[2*maxNumberOfTasks];
-   Int_t         taskHierarchyLevel[2*maxNumberOfTasks];
-   Int_t         taskHierarchyObjectIndex[2*maxNumberOfTasks];
+   ROMEString   *taskHierarchyName;
+   Int_t        *taskHierarchyParentIndex;
+   Int_t        *taskHierarchyClassIndex;
+   Int_t        *taskHierarchyMultiplicity;
+   Int_t        *taskHierarchyLevel;
+   Int_t        *taskHierarchyObjectIndex;
 
 // steering
-   Int_t         numOfSteering[maxNumberOfTasks+maxNumberOfTabs+1];
-   Int_t         numOfSteerFields[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   Int_t         numOfSteerChildren[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   ROMEString    steerName[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   ROMEString    steerArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   Int_t         steerParent[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   Int_t         steerChildren[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteering];
-   Int_t         numOfSteerAffiliations[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   ROMEString    steerAffiliation[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfAffiliations];
-   Bool_t        steerUsed[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering];
-   ROMEString    steerFieldName[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldType[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldArraySize[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldInit[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldComment[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldCLOption[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldCLDescription[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   Int_t         numOfSteerFieldAffiliations[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
-   ROMEString    steerFieldAffiliation[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField][maxNumberOfAffiliations];
-   Bool_t        steerFieldUsed[maxNumberOfTasks+maxNumberOfTabs+1][maxNumberOfSteering][maxNumberOfSteeringField];
+   Int_t        *numOfSteering;
+   Int_t       **numOfSteerFields;
+   Int_t       **numOfSteerChildren;
+   ROMEString  **steerName;
+   ROMEString  **steerArraySize;
+   Int_t       **steerParent;
+   Int_t      ***steerChildren;
+   Int_t       **numOfSteerAffiliations;
+   ROMEString ***steerAffiliation;
+   Bool_t      **steerUsed;
+   ROMEString ***steerFieldName;
+   ROMEString ***steerFieldType;
+   ROMEString ***steerFieldArraySize;
+   ROMEString ***steerFieldInit;
+   ROMEString ***steerFieldComment;
+   ROMEString ***steerFieldCLOption;
+   ROMEString ***steerFieldCLDescription;
+   Int_t      ***numOfSteerFieldAffiliations;
+   ROMEString ****steerFieldAffiliation;
+   Bool_t     ***steerFieldUsed;
 
    ROMEString    usedCLO;
 
 // tab
    Int_t         numOfTab;
-   ROMEString    tabName[maxNumberOfTabs];
-   ROMEString    tabTitle[maxNumberOfTabs];
-   Int_t         numOfTabAffiliations[maxNumberOfTabs];
-   ROMEString    tabAffiliation[maxNumberOfTabs][maxNumberOfAffiliations];
-   Bool_t        tabUsed[maxNumberOfTabs];
-   ROMEString    tabDescription[maxNumberOfTabs];
-   ROMEString    tabAuthor[maxNumberOfTabs];
-   ROMEString    tabAuthorInstitute[maxNumberOfTabs];
-   ROMEString    tabAuthorCollaboration[maxNumberOfTabs];
-   ROMEString    tabAuthorEmail[maxNumberOfTabs];
-   ROMEString    tabVersion[maxNumberOfTabs];
-   ROMEString    tabHeredity[maxNumberOfTabs];
-   Int_t         tabHeredityIndex[maxNumberOfTabs];
-   Int_t         tabParentIndex[maxNumberOfTabs];
-   Int_t         tabNumOfChildren[maxNumberOfTabs];
-   Int_t         numOfMenu[maxNumberOfTabs];
-   Int_t         numOfMenuItem[maxNumberOfTabs][maxNumberOfMenus];
-   ROMEString    menuTitle[maxNumberOfTabs][maxNumberOfMenus];
-   Int_t         menuDepth[maxNumberOfTabs][maxNumberOfMenus];
-   Int_t         menuItemChildMenuIndex[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
-   ROMEString    menuItemEnumName[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
-   ROMEString    menuItemTitle[maxNumberOfTabs][maxNumberOfMenus][maxNumberOfMenuItems];
-   Int_t         numOfTabHistos[maxNumberOfTabs];
-   ROMEString    tabHistoName[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoArrayIndexStart[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoArrayIndexEnd[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoTaskIndex[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoHistoIndex[maxNumberOfTabs][maxNumberOfTabHistos];
-   Int_t         tabHistoIndexMax[maxNumberOfTabs];
+   ROMEString   *tabName;
+   ROMEString   *tabTitle;
+   Int_t        *numOfTabAffiliations;
+   ROMEString  **tabAffiliation;
+   Bool_t       *tabUsed;
+   ROMEString   *tabDescription;
+   ROMEString   *tabAuthor;
+   ROMEString   *tabAuthorInstitute;
+   ROMEString   *tabAuthorCollaboration;
+   ROMEString   *tabAuthorEmail;
+   ROMEString   *tabVersion;
+   ROMEString   *tabHeredity;
+   Int_t        *tabHeredityIndex;
+   Int_t        *tabParentIndex;
+   Int_t        *tabNumOfChildren;
+   Int_t        *numOfMenu;
+   Int_t       **numOfMenuItem;
+   ROMEString  **menuTitle;
+   Int_t       **menuDepth;
+   Int_t      ***menuItemChildMenuIndex;
+   ROMEString ***menuItemEnumName;
+   ROMEString ***menuItemTitle;
+   Int_t        *numOfTabHistos;
+   ROMEString  **tabHistoName;
+   Int_t       **tabHistoIndex;
+   Int_t       **tabHistoArrayIndexStart;
+   Int_t       **tabHistoArrayIndexEnd;
+   Int_t       **tabHistoTaskIndex;
+   Int_t       **tabHistoHistoIndex;
+   Int_t        *tabHistoIndexMax;
 
 // tree
    Int_t         numOfTree;
-   Int_t         numOfBranch[maxNumberOfTrees];
-   ROMEString    treeName[maxNumberOfTrees];
-   ROMEString    treeTitle[maxNumberOfTrees];
-   ROMEString    treeFileName[maxNumberOfTrees];
-   ROMEString    treeDescription[maxNumberOfTrees];
-   ROMEString    branchName[maxNumberOfTrees][maxNumberOfBranches];
-   ROMEString    branchFolder[maxNumberOfTrees][maxNumberOfBranches];
-   ROMEString    branchBufferSize[maxNumberOfTrees][maxNumberOfBranches];
-   ROMEString    branchSplitLevel[maxNumberOfTrees][maxNumberOfBranches];
+   Int_t        *numOfBranch;
+   ROMEString   *treeName;
+   ROMEString   *treeTitle;
+   ROMEString   *treeFileName;
+   ROMEString   *treeDescription;
+   ROMEString  **branchName;
+   ROMEString  **branchFolder;
+   ROMEString  **branchBufferSize;
+   ROMEString  **branchSplitLevel;
 
 // thread functions
-   Int_t         numOfThreadFunctions[maxNumberOfTabs];
-   Int_t         numOfThreadFunctionArguments[maxNumberOfTabs][maxNumberOfThreadFunctions];
-   ROMEString    threadFunctionName[maxNumberOfTabs][maxNumberOfThreadFunctions];
-   ROMEString    threadFunctionArgument[maxNumberOfTabs][maxNumberOfThreadFunctions][maxNumberOfThreadFunctionArguments];
+   Int_t        *numOfThreadFunctions;
+   Int_t       **numOfThreadFunctionArguments;
+   ROMEString  **threadFunctionName;
+   ROMEString ***threadFunctionArgument;
 
 // daq
    Int_t         numOfDAQ;
-   ROMEString    daqName[maxNumberOfDAQ];
-   Int_t         numOfDAQAffiliations[maxNumberOfDAQ];
-   ROMEString    daqAffiliation[maxNumberOfDAQ][maxNumberOfAffiliations];
-   Bool_t        daqUsed[maxNumberOfDAQ];
+   ROMEString   *daqName;
+   Int_t        *numOfDAQAffiliations;
+   ROMEString  **daqAffiliation;
+   Bool_t       *daqUsed;
 
 // database
    Int_t         numOfDB;
-   ROMEString    dbName[maxNumberOfDB];
-   ROMEString    dbDescription[maxNumberOfDB];
+   ROMEString   *dbName;
+   ROMEString   *dbDescription;
 
 // midas
    Int_t         numOfEvent;
-   Int_t         numOfBank[maxNumberOfEvents];
-   Int_t         numOfStructFields[maxNumberOfEvents][maxNumberOfBanks];
-   ROMEString    eventName[maxNumberOfEvents];
-   ROMEString    eventID[maxNumberOfEvents];
-   ROMEString    eventTriggerMask[maxNumberOfEvents];
-   ROMEString    eventSamplingRate[maxNumberOfEvents];
-   ROMEString    bankName[maxNumberOfEvents][maxNumberOfBanks];
-   ROMEString    bankType[maxNumberOfEvents][maxNumberOfBanks];
-   Int_t         bankArraySize[maxNumberOfEvents][maxNumberOfBanks];
-   Int_t         bankArrayStart[maxNumberOfEvents][maxNumberOfBanks];
-   Int_t         bankArrayDigit[maxNumberOfEvents][maxNumberOfBanks];
-   ROMEString    structFieldName[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   ROMEString    structFieldType[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   ROMEString    structFieldSize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
-   ROMEString    bankFieldArraySize[maxNumberOfEvents][maxNumberOfBanks][maxNumberOfStructFields];
+   Int_t        *numOfBank;
+   Int_t       **numOfStructFields;
+   ROMEString   *eventName;
+   ROMEString   *eventID;
+   ROMEString   *eventTriggerMask;
+   ROMEString   *eventSamplingRate;
+   ROMEString  **bankName;
+   ROMEString  **bankType;
+   Int_t       **bankArraySize;
+   Int_t       **bankArrayStart;
+   Int_t       **bankArrayDigit;
+   ROMEString ***structFieldName;
+   ROMEString ***structFieldType;
+   ROMEString ***structFieldSize;
+   ROMEString ***bankFieldArraySize;
    Bool_t        bankHasHeader;
    ROMEString    bankHeaderFolder;
    ROMEString    bankHeaderEventID;
@@ -324,41 +327,41 @@ protected:
 
 // user makefile
    Int_t         numOfMFDictHeaders;
-   ROMEString    mfDictHeaderName[maxNumberOfMFDictHeaders];
-   Int_t         numOfMFDictHeaderAffiliations[maxNumberOfMFDictHeaders];
-   ROMEString    mfDictHeaderAffiliation[maxNumberOfMFDictHeaders][maxNumberOfAffiliations];
-   Bool_t        mfDictHeaderUsed[maxNumberOfMFDictHeaders];
+   ROMEString   *mfDictHeaderName;
+   Int_t        *numOfMFDictHeaderAffiliations;
+   ROMEString  **mfDictHeaderAffiliation;
+   Bool_t       *mfDictHeaderUsed;
 
    Int_t         numOfIncludeDirectories;
    Int_t         numOfMFDictIncDirs;
-   ROMEString    mfDictIncDir[maxNumberOfMFDictIncDirs];
+   ROMEString   *mfDictIncDir;
 
    Int_t         numOfMFWinLibs;
-   ROMEString    mfWinLibName[maxNumberOfMFWinLibs];
-   Int_t         numOfMFWinLibFlags[maxNumberOfMFWinLibs];
-   ROMEString    mfWinLibFlag[maxNumberOfMFWinLibs][maxNumberOfMFWinLibFlags];
+   ROMEString   *mfWinLibName;
+   Int_t        *numOfMFWinLibFlags;
+   ROMEString  **mfWinLibFlag;
 
    Int_t         numOfMFUnixLibs;
-   ROMEString    mfUnixLibName[maxNumberOfMFUnixLibs];
-   Int_t         numOfMFUnixLibFlags[maxNumberOfMFUnixLibs];
-   ROMEString    mfUnixLibFlag[maxNumberOfMFUnixLibs][maxNumberOfMFUnixLibFlags];
+   ROMEString   *mfUnixLibName;
+   Int_t        *numOfMFUnixLibFlags;
+   ROMEString  **mfUnixLibFlag;
 
    Int_t         numOfMFIncDirs;
-   ROMEString    mfIncDir[maxNumberOfMFIncDirs];
+   ROMEString   *mfIncDir;
 
    Int_t         numOfMFPreDefs;
-   ROMEString    mfPreDefName[maxNumberOfMFPreDefs];
+   ROMEString   *mfPreDefName;
 
    Int_t         numOfMFSources;
-   ROMEString    mfSourceFileName[maxNumberOfMFSources];
-   ROMEString    mfSourceFilePath[maxNumberOfMFSources];
-   ROMEString    mfHeaderFileName[maxNumberOfMFSources];
-   ROMEString    mfHeaderFilePath[maxNumberOfMFSources];
-   Int_t         numOfMFSourceFlags[maxNumberOfMFSources];
-   ROMEString    mfSourceFileFlag[maxNumberOfMFSources][maxNumberOfMFSourceFlags];
-   Int_t         numOfMFSourceAffiliations[maxNumberOfMFSources];
-   ROMEString    mfSourceFileAffiliation[maxNumberOfMFSources][maxNumberOfAffiliations];
-   Bool_t        mfSourceFileUsed[maxNumberOfMFSources];
+   ROMEString   *mfSourceFileName;
+   ROMEString   *mfSourceFilePath;
+   ROMEString   *mfHeaderFileName;
+   ROMEString   *mfHeaderFilePath;
+   Int_t        *numOfMFSourceFlags;
+   ROMEString  **mfSourceFileFlag;
+   Int_t        *numOfMFSourceAffiliations;
+   ROMEString  **mfSourceFileAffiliation;
+   Bool_t       *mfSourceFileUsed;
 
 // main
    ROMEString    mainAuthor;
@@ -411,7 +414,7 @@ protected:
 
 public:
    ROMEBuilder() { haveFortranTask = false; };
-   ~ROMEBuilder() {};
+   ~ROMEBuilder();
 
    void    StartBuilder();
    Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
@@ -419,7 +422,8 @@ public:
 
 private:
    // XML Read Methods
-   Bool_t  ReadXMLDefinitionFile() ;
+   Bool_t  AllocateMemorySpace();
+   Bool_t  ReadXMLDefinitionFile();
    Bool_t  ReadXMLFolder();
    Bool_t  ReadXMLNetFolder();
    Bool_t  ReadXMLTask();
@@ -567,6 +571,10 @@ private:
    void    Usage();
    void    AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
    Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
+
+   void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
+   void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
+   void* AllocateROMEString(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
 };
 
 #endif   // ROMEBuilder_H

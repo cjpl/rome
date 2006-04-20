@@ -8,6 +8,358 @@
 #include "ROMEBuilder.h"
 #include "Riostream.h"
 
+Bool_t ROMEBuilder::AllocateMemorySpace()
+{
+   xml = new ROMEXML();
+   xml->OpenFileForPath(xmlFile.Data());
+   xml->GetPathAttribute("ROMEFrameworkDefinition", "xsi:noNamespaceSchemaLocation",xsdFile,"rome.xsd");
+
+   Int_t nfound;
+   Int_t nfound2;
+   Int_t tmp;
+   Int_t tmp2;
+   ROMEString path;
+   ROMEString path2;
+
+   // Folders
+   maxNumberOfFolders = 0;
+   path = "ROMEFrameworkDefinition/Folders";
+   while(1) {
+      path.AppendFormatted("/Folder");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      if (nfound)
+         maxNumberOfFolders += nfound;
+      else
+         break;
+   }
+   path = "ROMEFrameworkDefinition/SupportFolders";
+   while(1) {
+      path.AppendFormatted("/SupportFolder");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      if (nfound)
+         maxNumberOfFolders += nfound;
+      else
+         break;
+   }
+
+   // Tasks
+   tmp = 0;
+   path = "ROMEFrameworkDefinition/Tasks";
+   while(1) {
+      path.AppendFormatted("/Task");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      if (nfound)
+         tmp += nfound;
+      else
+         break;
+   }
+   tmp2 = 0;
+   path = "ROMEFrameworkDefinition/TaskHierarchy";
+   while(1) {
+      path.AppendFormatted("/Task");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      if (nfound)
+         tmp2 += nfound;
+      else
+         break;
+   }
+   maxNumberOfTasks = TMath::Max(tmp, tmp2);
+
+   // Tab
+   maxNumberOfTabs = 0;
+   path = "ROMEFrameworkDefinition/Tabs";
+   while(1) {
+      path.AppendFormatted("/Tab");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      if (nfound)
+         maxNumberOfTabs += nfound;
+      else
+         break;
+   }
+   path = "ROMEFrameworkDefinition/Tasks";
+   while(1) {
+      path.AppendFormatted("/Task");
+      path2 = path;
+      path2.AppendFormatted("/Histogram/Argus/Tab");
+      nfound = xml->NumberOfOccurrenceOfPath(path);
+      nfound2 = xml->NumberOfOccurrenceOfPath(path2);
+      if (nfound) {
+         if (nfound2)
+            maxNumberOfTabs += nfound2;
+      }
+      else
+         break;
+   }
+
+   // Net folders
+   path = "ROMEFrameworkDefinition/NetFolders/NetFolder";
+   maxNumberOfNetFolders = xml->NumberOfOccurrenceOfPath(path);
+
+   // Trees
+   path = "ROMEFrameworkDefinition/Trees/Tree";
+   maxNumberOfTrees = xml->NumberOfOccurrenceOfPath(path);
+
+   // User DAQ system
+   path = "ROMEFrameworkDefinition/UserDAQSystems/UserDAQSystem";
+   maxNumberOfDAQ = xml->NumberOfOccurrenceOfPath(path);
+
+   // Use database
+   path = "ROMEFrameworkDefinition/UserDataBasess/UserDataBase";
+   maxNumberOfDB = xml->NumberOfOccurrenceOfPath(path);
+
+   // Midas banks
+   path = "ROMEFrameworkDefinition/MidasBanks/EventDefinition";
+   maxNumberOfEvents = xml->NumberOfOccurrenceOfPath(path);
+
+   // User makefile
+   {
+      // Dict headers
+      path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryHeaders/Header";
+      maxNumberOfMFDictHeaders = xml->NumberOfOccurrenceOfPath(path);
+      // Dict include directories
+      path = "ROMEFrameworkDefinition/UserMakeFile/DictionaryIncludesDirectories/IncludeDirectory";
+      maxNumberOfMFDictIncDirs = xml->NumberOfOccurrenceOfPath(path);
+      // Windows libraries
+      path = "ROMEFrameworkDefinition/UserMakeFile/WindowsLibraries/Library";
+      maxNumberOfMFWinLibs = xml->NumberOfOccurrenceOfPath(path);
+      // UNIX libraries
+      path = "ROMEFrameworkDefinition/UserMakeFile/UnixLibraries/Library";
+      maxNumberOfMFUnixLibs = xml->NumberOfOccurrenceOfPath(path);
+      // Include directories
+      path = "ROMEFrameworkDefinition/UserMakeFile/IncludeDirectories/IncludeDirectory";
+      maxNumberOfMFIncDirs = xml->NumberOfOccurrenceOfPath(path);
+      // Preprocessor
+      path = "ROMEFrameworkDefinition/UserMakeFile/PreprocessorDefinition/Name";
+      maxNumberOfMFPreDefs = xml->NumberOfOccurrenceOfPath(path);
+      // Source
+      path = "ROMEFrameworkDefinition/UserMakeFile/AdditionalFiles/File";
+      maxNumberOfMFSources = xml->NumberOfOccurrenceOfPath(path);
+   }
+
+   // Allocate memory
+   parent = static_cast<ROMEString*>(AllocateROMEString(TMath::Max(maxNumberOfTasks,maxNumberOfFolders)+1));
+
+   numOfValue = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
+   numOfFolderInclude = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
+
+   numOfFolderAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfFolders));
+   folderAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfAffiliations));
+   folderUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderParentName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderArray = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfInclude));
+   folderNet = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfInclude));
+   folderDataBase = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderSupport = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderNoReset = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+
+   valueName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueInit = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueComment = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueDimension = static_cast<Int_t**>(AllocateInt(maxNumberOfFolders,maxNumberOfValues));
+   valueArray = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues,maxNumberOfValueDimension));
+   valueArraySpecifier = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueDBName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueDBPath = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueNoBoundChech = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfValues));
+
+   // net folder
+   netFolderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
+   netFolderTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
+   netFolderHost = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
+   netFolderPort = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
+   netFolderRoot = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
+
+   // task
+   numOfHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   numOfTaskInclude = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   taskName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   numOfTaskAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   taskAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfAffiliations));
+   taskUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
+   taskEventID = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskFortran = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
+   taskUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
+   taskAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfInclude));
+   taskLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks,maxNumberOfInclude));
+   histoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoFolderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoFolderTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoArrayStartIndex = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoXLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoYLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoZLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoXNbins = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoXmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoXmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoYNbins = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoYmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoYmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoZNbins = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   histoZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
+   numOfHistoTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfHistos));
+   histoTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
+   histoTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
+   histoTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
+
+   // task hierarchy
+   taskHierarchyName = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
+   taskHierarchyParentIndex = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchyClassIndex = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchyMultiplicity = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchyLevel = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchyObjectIndex = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+
+   // steering
+   numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1));
+   numOfSteerFields = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering+1));
+   numOfSteerChildren = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering+1));
+   steerName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
+   steerArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
+   steerParent = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
+   steerChildren = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteering));
+   numOfSteerAffiliations = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
+   steerAffiliation = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfAffiliations));
+   steerUsed = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering));
+   steerFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldInit = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldComment = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldCLOption = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldCLDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   numOfSteerFieldAffiliations = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldAffiliation = static_cast<ROMEString****>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField,maxNumberOfAffiliations));
+   steerFieldUsed = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+
+   // tab
+   tabName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   numOfTabAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfAffiliations));
+   tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
+   tabDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabAuthorEmail = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabHeredity = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabHeredityIndex = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabParentIndex = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabNumOfChildren = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   numOfMenu = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   numOfMenuItem = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus));
+   menuTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus));
+   menuDepth = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus));
+   menuItemChildMenuIndex = static_cast<Int_t***>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
+   menuItemEnumName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
+   menuItemTitle = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
+   numOfTabHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabHistoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoArrayIndexStart = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoArrayIndexEnd = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+
+   // tree
+   numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
+   treeName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
+   treeTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
+   treeFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
+   treeDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
+   branchName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+   branchFolder = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+   branchBufferSize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+   branchSplitLevel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+
+   // thread functions
+   numOfThreadFunctions = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   numOfThreadFunctionArguments = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfThreadFunctions));
+   threadFunctionName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfThreadFunctions));
+   threadFunctionArgument = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfThreadFunctions,maxNumberOfThreadFunctionArguments));
+
+   // daq
+   daqName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfDAQ));
+   numOfDAQAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfDAQ));
+   daqAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfDAQ,maxNumberOfAffiliations));
+   daqUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfDAQ));
+
+   // database
+   dbName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfDB));
+   dbDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfDB));
+
+   // midas
+   numOfBank = static_cast<Int_t*>(AllocateInt(maxNumberOfEvents));
+   numOfStructFields = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
+   eventName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
+   eventID = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
+   eventTriggerMask = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
+   eventSamplingRate = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfEvents));
+   bankName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks));
+   bankType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks));
+   bankArraySize = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
+   bankArrayStart = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
+   bankArrayDigit = static_cast<Int_t**>(AllocateInt(maxNumberOfEvents,maxNumberOfBanks));
+   structFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
+   structFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
+   structFieldSize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
+   bankFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
+
+   // user makefile
+   mfDictHeaderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
+   numOfMFDictHeaderAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFDictHeaders));
+   mfDictHeaderAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFDictHeaders,maxNumberOfAffiliations));
+   mfDictHeaderUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFDictHeaders));
+
+   mfDictIncDir = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictIncDirs));
+
+   mfWinLibName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFWinLibs));
+   numOfMFWinLibFlags = static_cast<Int_t*>(AllocateInt(maxNumberOfMFWinLibs));
+   mfWinLibFlag = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFWinLibs,maxNumberOfMFWinLibFlags));
+
+   mfUnixLibName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFUnixLibs));
+   numOfMFUnixLibFlags = static_cast<Int_t*>(AllocateInt(maxNumberOfMFUnixLibs));
+   mfUnixLibFlag = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFUnixLibs,maxNumberOfMFUnixLibFlags));
+
+   mfIncDir = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFIncDirs));
+
+   mfPreDefName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFPreDefs));
+
+   mfSourceFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
+   mfSourceFilePath = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
+   mfHeaderFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
+   mfHeaderFilePath = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFSources));
+   numOfMFSourceFlags = static_cast<Int_t*>(AllocateInt(maxNumberOfMFSources));
+   mfSourceFileFlag = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,maxNumberOfMFSourceFlags));
+   numOfMFSourceAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFSources));
+   mfSourceFileAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,maxNumberOfAffiliations));
+   mfSourceFileUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFSources));
+
+   delete xml;
+   return true;
+}
+
 Bool_t ROMEBuilder::ReadXMLDefinitionFile() 
 {
    int i,j;
@@ -395,6 +747,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    delete xml;
    return true;
 }
+
 Bool_t ROMEBuilder::ReadXMLFolder()
 {
    // read the folder definitions out of the xml file
@@ -867,6 +1220,8 @@ Bool_t ROMEBuilder::ReadXMLTask()
    numOfHistos[numOfTask] = 0;
    numOfTaskInclude[numOfTask] = 0;
    numOfSteering[numOfTask] = -1;
+   numOfSteerFields[numOfTask][0] = 0;
+   numOfSteerChildren[numOfTask][0] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -1206,6 +1561,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
    numOfTabHistos[currentNumberOfTabs] = 0;
+   numOfSteering[currentNumberOfTabs+numOfTask+1] = 0;
+   numOfSteerFields[currentNumberOfTabs+numOfTask+1][0] = 0;
+   numOfSteerChildren[currentNumberOfTabs+numOfTask+1][0] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
