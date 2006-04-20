@@ -21,6 +21,14 @@
 ROMEBuilder::~ROMEBuilder()
 {
    // Free memory
+
+   // FIX ME !
+   // multiple dimensional arrays are not freed yet.
+   // I counld implement similar function as AllocateInt....
+   // But specifing array size explictly might be dangerous
+   // when there is an inconsistency between actual size and arguments.
+   // So for the moment I only free the first dimension.
+   // Ryu.
    delete [] parent;
 
    delete [] numOfValue;
