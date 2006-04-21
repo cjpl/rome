@@ -523,6 +523,7 @@ private:
    void    WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileUserDictObject(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
+   void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);

@@ -811,8 +811,10 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp $<\n",dictionaryName);
+   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp dict/%sDummy.cpp\n",dictionaryName,dictionaryName);
 #endif
+   //dummy source file
+   WriteMakefileDictDummyCpp(dictionaryName);
 
    buffer.AppendFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
    for (i=0;i<headers->GetEntriesFast();i++) {
@@ -843,16 +845,29 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.Append("\n\n");
 }
 
+void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
+{
+
+   ROMEString cppFile;
+   cppFile.SetFormatted("dict/%sDummy.cpp", dictionaryName);
+   ROMEString buffer;
+   buffer.SetFormatted("#include \"dict/%s.h\"\n", dictionaryName);
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+}
+
 void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
    int i;
    ROMEString str;
+   ROMEString dictionaryName;
+   dictionaryName.SetFormatted("%sUserDict",shortCut.Data());
 
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp $<\n",shortCut.Data());
+   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp dict/%sUserDictDummy.cpp\n",shortCut.Data(),shortCut.Data());
 #endif
+   WriteMakefileDictDummyCpp(dictionaryName.Data());
 
    buffer.AppendFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(),shortCut.Data());
    for (i=0;i<numOfMFDictHeaders;i++) {
