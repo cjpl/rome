@@ -179,6 +179,8 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    if (!ReadParameters(argc,argv)) return false;
 
+   static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
+
    if (IsStandAloneARGUS()) {
       ConnectSocketToROME();
    }

@@ -59,6 +59,8 @@ public:
 
    void         SetContinuousMode(Bool_t mode) { fContinuous = mode; };
    Bool_t       isContinuousMode() { return fContinuous; };
+
+   virtual void AddTreeBranches() = 0;
 protected:
    // Run Status
    Bool_t       isRunning()  { return gROME->GetActiveDAQ()->isRunning(); };
