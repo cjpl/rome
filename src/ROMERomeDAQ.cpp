@@ -72,7 +72,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          if (romeTree->isRead()) {
             treeRead = true;
             if (gROME->IsRunNumberBasedIO()) {
-               filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),tree->GetName(),runNumberString.Data());
+               filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
                fRootFiles[j] = new TFile(filename.Data(),"READ");
                if (fRootFiles[j]->IsZombie()) {
                   gROME->PrintText("Inputfile '");
@@ -82,7 +82,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                }
                gROME->PrintText("Reading ");
                gROME->PrintLine(filename.Data());
-               tree->Read(tree->GetName());
+               tree->Read(romeTree->GetName());
             }
             else if (gROME->IsFileNameBasedIO()) {
                if (fTreeIndex>0) {
@@ -107,14 +107,14 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   gROME->PrintText("Reading ");
                   gROME->PrintText(gROME->GetInputDir());
                   gROME->PrintLine(gROME->GetCurrentInputFileName().Data());
-                  tree->Read(tree->GetName());
-                  fCurrentTreeName = tree->GetName();
+                  tree->Read(romeTree->GetName());
+                  fCurrentTreeName = romeTree->GetName();
                   fTreeIndex++;
                }
             }
             else if (gROME->IsRunNumberAndFileNameBasedIO()) {
                fInputFileNameIndex = -1;
-               fCurrentTreeName = tree->GetName();
+               fCurrentTreeName = romeTree->GetName();
                for (i=0;i<nInputFile;i++) {
                   nKey = fRootFiles[i]->GetNkeys();
                   for (k=0;k<nKey;k++) {
@@ -249,7 +249,11 @@ Bool_t ROMERomeDAQ::EndOfRun() {
       if (gROME->IsRunNumberBasedIO()) {
          const Int_t nTree = gROME->GetTreeObjectEntries();
          for (int j=0;j<nTree;j++) {
-            if (gROME->GetTreeObjectAt(j)->isRead()) fRootFiles[j]->Close();
+            if (gROME->GetTreeObjectAt(j)->isRead()) {
+               gROME->GetTreeObjectAt(j)->GetTree()->Delete("");
+               fRootFiles[j]->Close();
+               gROME->GetTreeObjectAt(j)->SetTree(new TTree());
+            }
          }
          delete [] fRootFiles;
       }
