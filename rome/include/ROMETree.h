@@ -12,7 +12,7 @@
 #include<TTree.h>
 #include<TFile.h>
 
-class ROMETree : public TObject
+class ROMETree : public TNamed
 {
 private:
    // File Options

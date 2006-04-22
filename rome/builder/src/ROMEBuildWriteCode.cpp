@@ -3393,6 +3393,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("Bool_t %sAnalyzer::LoadFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
    buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
    buffer.AppendFormatted("   TFile in(filename);\n");
+   buffer.AppendFormatted("   if(in.IsZombie()) {\n");
+   buffer.AppendFormatted("      Error(\"LoadFolders\", \"%s not found\", filename);\n");
+   buffer.AppendFormatted("      return kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -7651,6 +7656,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
       buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
       buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->AllocateBranchActive(%d);\n",i,numOfBranch[i]);
+      buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->SetName(\"%s\");\n",i,treeName[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
 
