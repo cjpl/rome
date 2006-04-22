@@ -5349,6 +5349,20 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
          subGroup->AddSubGroup(subSubGroup);
+         for (j=0;j<numOfBranch[i];j++) {
+            subSubSubGroup = new ROMEConfigParameterGroup(branchName[i][j],"1","Branch");
+            //Tree/Branch/Active
+            subSubSubGroup->AddParameter(new ROMEConfigParameter("Active"));
+            subSubSubGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, false);",i,j);
+            subSubSubGroup->GetLastParameter()->AddSetLine("else");
+            subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, true);",i,j);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d))",i,j);
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("else");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+            subSubGroup->AddSubGroup(subSubSubGroup);
+         }
       }
    }
    // Global Steering Parameters
@@ -6644,12 +6658,17 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
             continue;
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
          buffer.AppendFormatted("   if (bb) {\n");
+         buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)) {\n",i,j);
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("      bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("         bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          else {
-            buffer.AppendFormatted("      bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("         bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      else {\n");
+         buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetTree()->SetBranchStatus(\"%s*\", 0);\n",i,branchName[i][j].Data());
+         buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
          buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
@@ -7619,7 +7638,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("}\n");
 
-
    // Tree Initialization
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
@@ -7630,6 +7648,20 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = new TTree(\"%s\",\"%s\");\n",treeName[i].Data(),treeTitle[i].Data());
+      buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
+      buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
+      buffer.AppendFormatted("   gAnalyzer->GetTreeObjectAt(%d)->AllocateBranchActive(%d);\n",i,numOfBranch[i]);
+   }
+   buffer.AppendFormatted("}\n\n");
+
+   // Add Tree Branches
+   buffer.AppendFormatted("// Add branches\n");
+   buffer.AppendFormatted("void %sEventLoop::AddTreeBranches()\n{\n",shortCut.Data());
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   TTree *tree;\n");
+   }
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   tree = gAnalyzer->GetTreeObjectAt(%d)->GetTree();\n",i);
       buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
@@ -7638,15 +7670,14 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          }
          if (!folderUsed[iFold])
             continue;
+      buffer.AppendFormatted("   if(gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d))\n",i,j);
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
+            buffer.AppendFormatted("      tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
          else {
-            buffer.AppendFormatted("   tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
+            buffer.AppendFormatted("      tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
       }
-      buffer.AppendFormatted("   gAnalyzer->AddTree(tree);\n");
-      buffer.AppendFormatted("   treeFolder->Add(tree);\n\n");
    }
    buffer.AppendFormatted("}\n\n");
 
@@ -7985,6 +8016,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sEventLoop(const char *name,const char *title);\n",shortCut.Data());
+   buffer.AppendFormatted("   void AddTreeBranches();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
 

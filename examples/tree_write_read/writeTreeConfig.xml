@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Tue Feb 07 07:41:09 2006 -->
+<!-- created by MXML on Sat Apr 22 20:08:06 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
@@ -33,6 +33,11 @@
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Histograms>
+      <Read>false</Read>
+      <RunNumber>0</RunNumber>
+    </Histograms>
+    <Folders/>
     <Tasks>
       <Task>
         <TaskName>FillTree</TaskName>
@@ -53,8 +58,13 @@
         <CompressionLevel>0</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
         <TreeOutputFileName></TreeOutputFileName>
+        <Branch>
+          <BranchName>DataBranch</BranchName>
+          <Active>true</Active>
+        </Branch>
       </Tree>
     </Trees>
+    <GlobalSteeringParameters/>
     <Midas/>
   </MainConfiguration>
   <RunConfiguration>

@@ -10,6 +10,7 @@
 #include<TObject.h>
 #include<ROMEString.h>
 #include<TTree.h>
+#include<TFile.h>
 
 class ROMETree : public TObject
 {
@@ -29,7 +30,7 @@ private:
    } fSwitches;                    //!   Switches Structure
 
    ROMEString  fSwitchesString;    //!   Switches String
-
+   Bool_t     *fBranchActive;      //!   Flag if brahch is active
 protected:
    TTree      *fTree;              //    Tree
    ROMEString  fFileName;          //!   Name of the File for the Tree Object
@@ -57,8 +58,13 @@ public:
       for (Int_t i=0;i<branches->GetEntriesFast();i++)
          ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
       fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
+      fBranchActive = 0;
+   }
+   ~ROMETree() {
+      delete [] fBranchActive;
    }
 
+   void        AllocateBranchActive(Int_t n) { fBranchActive = new Bool_t[n]; for(int i=0;i<n;i++) fBranchActive[i]=kTRUE; };
    TTree      *GetTree() { return fTree; };
    ROMEString &GetFileName() { return fFileName; };
    ROMEString &GetConfigFileName() { return fConfigFileName; };
@@ -81,6 +87,7 @@ public:
    Switches   *GetSwitches() { return &fSwitches; };
    Int_t       GetSwitchesSize() { return sizeof(Switches); };
    const char *GetSwitchesString() { return fSwitchesString.Data(); };
+   Bool_t      GetBranchActiveAt(Int_t i) { return fBranchActive[i]; };
    void        SetTree(TTree *tree) { fTree = tree; };
    void        SetFileName(ROMEString &fileName) { fFileName = fileName; };
    void        SetConfigFileName(ROMEString &configFileName) { fConfigFileName = configFileName; };
@@ -95,13 +102,14 @@ public:
                   TObjArray *branches = fTree->GetListOfBranches();
                   for (Int_t i=0;i<branches->GetEntriesFast();i++) ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
                };
-   void         SetMaxEntries(Long64_t maxEntries) {
-                   fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
-		   /* note: use 4byte integer for odb */
+   void        SetMaxEntries(Long64_t maxEntries) {
+                  fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
+		  /* note: use 4byte integer for odb */
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-                   if (maxEntries>0) fTree->SetCircular(maxEntries);
+                  if (maxEntries>0) fTree->SetCircular(maxEntries);
 #endif 
-                };
+               };
+   void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; };
 };
 
 #endif   // ROMETree_H
