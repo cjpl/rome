@@ -3394,7 +3394,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
    buffer.AppendFormatted("   TFile in(filename);\n");
    buffer.AppendFormatted("   if(in.IsZombie()) {\n");
-   buffer.AppendFormatted("      Error(\"LoadFolders\", \"%s not found\", filename);\n");
+   buffer.AppendFormatted("      Error(\"LoadFolders\", \"%%s not found\", filename);\n");
    buffer.AppendFormatted("      return kFALSE;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
