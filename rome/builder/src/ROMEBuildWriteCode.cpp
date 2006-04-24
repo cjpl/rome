@@ -8199,12 +8199,12 @@ void ROMEBuilder::WriteHTMLDoku()
    // Steering parameters
    buffer.AppendFormatted("<H2><a name=steers>Steering Parameters</a> </H2>\n");
    buffer.AppendFormatted("\n");
-   for (i=0;i<=numOfTask+numOfTab+1;i++) {
+   for (i=0;i<numOfTask+numOfTab+1;i++) {
       if (i<numOfTask && !taskUsed[i])
          continue;
       if (i>numOfTask && !tabUsed[i-numOfTask-1])
          continue;
-      if (i==numOfTask && numOfSteering[i] < 1)
+      if (numOfSteering[i] < 1)
          continue;
       if (i<numOfTask)
          buffer.AppendFormatted("<a class=\"object\">%s</a><br>\n",taskName[i].Data());
@@ -8616,6 +8616,7 @@ void ROMEBuilder::WriteHTMLStyle(ROMEString& buffer)
 Bool_t ROMEBuilder::WriteReadTreesC()
 {
    // Write sample macro to read output trees
+   int i;
    int iFold;
    int iValue;
    int iTree;
@@ -8672,8 +8673,11 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
 
    // check if branch
-   Bool_t isBranch[maxNumberOfFolders];
-   int branchFolderNum[maxNumberOfTrees][maxNumberOfBranches];
+   Bool_t *isBranch = new Bool_t[maxNumberOfFolders];
+   int **branchFolderNum = new int*[maxNumberOfTrees];
+   for (i=0;i<maxNumberOfTrees;i++) {
+      branchFolderNum[i] = new int[maxNumberOfBranches];
+   }
    for (iFold = 0; iFold < numOfFolder; iFold++) {
       isBranch[iFold] = false;
       for (iTree = 0; iTree < numOfTree; iTree++) {
@@ -8846,6 +8850,11 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    // Write File
    WriteFile(cFile.Data(),buffer.Data(),6);
 
+   delete isBranch;
+   for (i=0;i<maxNumberOfTrees;i++) {
+      delete branchFolderNum[i];
+   }
+   delete branchFolderNum;
    return true;
 }
 

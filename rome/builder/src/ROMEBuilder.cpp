@@ -522,7 +522,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
       }
-      if (!strcmp(argv[i],"-drs")) {
+      else if (!strcmp(argv[i],"-drs")) {
          makeOutput = false;
          midas = false;
          noLink = true;
@@ -537,7 +537,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_VME",4);
          affiliations.AddAtAndExpand("drs",0);
       }
-      if (!strcmp(argv[i],"-dch")) {
+      else if (!strcmp(argv[i],"-dch")) {
          makeOutput = false;
          midas = true;
          noLink = true;
