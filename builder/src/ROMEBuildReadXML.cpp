@@ -584,7 +584,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                }
                if (!strcmp((const char*)name,"TaskHierarchy")) {
                   int depth = 0;
-                  int parentIndex[2*maxNumberOfTasks];
+                  int *parentIndex = new int[2*maxNumberOfTasks];
                   parentIndex[0] = -1;
                   numOfTaskHierarchy = -1;
                   while (xml->NextLine()&&!finished) {
@@ -626,6 +626,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         break;
                   }
                   numOfTaskHierarchy++;
+                  delete parentIndex;
                   continue;
                }
                if (!strcmp((const char*)name,"Tabs")) {
