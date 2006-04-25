@@ -57,10 +57,10 @@ int main(int argc, char *argv[])
       if(makeOutput)
          cout<<"Linking the executable binary."<<endl;
 #if defined( R__UNIX )
-      gSystem->Exec("make -e");
+      return gSystem->Exec("make -e");
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      gSystem->Exec("nmake -f Makefile.win");
+      return gSystem->Exec("nmake -f Makefile.win");
 #endif
    }
 

@@ -1271,9 +1271,9 @@ void ROMEBuilder::WriteMakefile() {
 
    buffer.AppendFormatted("clean: userclean\n");
    buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d\n");
-   buffer.AppendFormatted("distclean:\n");
+   buffer.AppendFormatted("distclean: userclean\n");
    buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj dict Makefile\n");
-   buffer.AppendFormatted("%sclean:\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d\n",shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
