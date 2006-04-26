@@ -243,7 +243,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] mfSourceFileUsed;
 }
 
-void ROMEBuilder::StartBuilder()
+Bool_t ROMEBuilder::StartBuilder()
 {
 
    int i,j,k,l;
@@ -253,8 +253,10 @@ void ROMEBuilder::StartBuilder()
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
 
-   AllocateMemorySpace();
-   ReadXMLDefinitionFile();
+   if (!AllocateMemorySpace())
+      return false;
+   if (!ReadXMLDefinitionFile())
+      return false;
 
    int tabNumber;
    int histoNumber;
@@ -390,55 +392,55 @@ void ROMEBuilder::StartBuilder()
    // write classes
    if (makeOutput) 
       cout << "\n\nAnalyzer:" << endl;
-   if (!WriteAnalyzerCpp()) return;
-   if (!WriteAnalyzerH()) return;
-   if (!WriteAnalyzerF()) return;
+   if (!WriteAnalyzerCpp()) return false;
+   if (!WriteAnalyzerH()) return false;
+   if (!WriteAnalyzerF()) return false;
    if (makeOutput) 
       cout << "\n\nWindow:" << endl;
-   if (!WriteWindowCpp()) return;
-   if (!WriteWindowH()) return;
+   if (!WriteWindowCpp()) return false;
+   if (!WriteWindowH()) return false;
    if (makeOutput) 
       cout << "\n\nFolders:" << endl;
-   if (!WriteFolderCpp()) return;
-   if (!WriteFolderH()) return;
+   if (!WriteFolderCpp()) return false;
+   if (!WriteFolderH()) return false;
    if (makeOutput) 
       cout << "\n\nTasks:" << endl;
-   if (!WriteTaskCpp()) return;
-   if (!WriteTaskF()) return;
-   if (!WriteTaskH()) return;
+   if (!WriteTaskCpp()) return false;
+   if (!WriteTaskF()) return false;
+   if (!WriteTaskH()) return false;
    if (makeOutput)
       cout << "\n\nTabs:" << endl;
-   if (!WriteTabCpp()) return;
-   if (!WriteTabH()) return;
+   if (!WriteTabCpp()) return false;
+   if (!WriteTabH()) return false;
    if (makeOutput) 
       cout << "\n\nUser DAQ Systems:" << endl;
-   if (!WriteDAQCpp()) return;
-   if (!WriteDAQH()) return;
+   if (!WriteDAQCpp()) return false;
+   if (!WriteDAQH()) return false;
    if (makeOutput) 
       cout << "\n\nUser Database Interfaces:" << endl;
-   if (!WriteDBCpp()) return;
-   if (!WriteDBH()) return;
+   if (!WriteDBCpp()) return false;
+   if (!WriteDBH()) return false;
    if (makeOutput) 
       cout << "\n\nFramework:" << endl;
-   if (!WriteSteering(numOfTask)) return;
-   if (!AddConfigParameters()) return;
-   if (!WriteConfigCpp()) return;
-   if (!WriteConfigH()) return;
-   if (!WriteMidasDAQCpp()) return;
-   if (!WriteMidasDAQH()) return;
-   if (!WriteRomeDAQCpp()) return;
-   if (!WriteRomeDAQH()) return;
-   if (!WriteEventLoopCpp()) return;
-   if (!WriteEventLoopH()) return;
-   if (!WriteMain()) return;
-   if (!WriteReadTreesC()) return;
+   if (!WriteSteering(numOfTask)) return false;
+   if (!AddConfigParameters()) return false;
+   if (!WriteConfigCpp()) return false;
+   if (!WriteConfigH()) return false;
+   if (!WriteMidasDAQCpp()) return false;
+   if (!WriteMidasDAQH()) return false;
+   if (!WriteRomeDAQCpp()) return false;
+   if (!WriteRomeDAQH()) return false;
+   if (!WriteEventLoopCpp()) return false;
+   if (!WriteEventLoopH()) return false;
+   if (!WriteMain()) return false;
+   if (!WriteReadTreesC()) return false;
 
    ROMEString buffer;
    gSystem->ChangeDirectory(outDir.Data());
 
 // Linking
    WriteMakefile();
-   if (!WriteLinkDefHs()) return;
+   if (!WriteLinkDefHs()) return false;
    if (noLink) {
       ROMEString tempStr;
 #if defined( R__UNIX )
@@ -485,7 +487,7 @@ void ROMEBuilder::StartBuilder()
 #endif // 4.01/00
    cout << endl;
 #endif // ROOT_VERSION
-
+   return true;
 }
 
 Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])

@@ -26,12 +26,12 @@ int main(int argc, char *argv[])
    char* romesys = getenv("ROMESYS");
    if (romesys==NULL) {
       cout << "Please set the environment variable ROMESYS to the ROME root-directory." << endl;
-      return 1;
+      return 0;
    }
    char* rootsys = getenv("ROOTSYS");
    if (rootsys==NULL) {
       cout << "Please set the environment variable ROOTSYS to the ROOT root-directory." << endl;
-      return 1;
+      return 0;
    }
 
    ROMEBuilder* romeb = new ROMEBuilder();
@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
    if (!romeb->CheckFileAndPath())
       return 0;
 
-   romeb->StartBuilder();
+   if (!romeb->StartBuilder())
+      return 0;
 
    bool noLink = romeb->GetNoLink();
    bool makeOutput = romeb->GetMakeOutput();
@@ -64,5 +65,5 @@ int main(int argc, char *argv[])
 #endif
    }
 
-   return 0;
+   return 1;
 }
