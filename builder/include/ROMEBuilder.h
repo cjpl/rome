@@ -416,7 +416,7 @@ public:
    ROMEBuilder() { haveFortranTask = false; };
    ~ROMEBuilder();
 
-   void    StartBuilder();
+   Bool_t  StartBuilder();
    Bool_t  ReadCommandLineParameters(Int_t argc, char *argv[]);
    Bool_t  CheckFileAndPath();
    Bool_t  GetNoLink() { return noLink; }
