@@ -1,4 +1,4 @@
-// $Id: ArgusWindow.cpp 785 2005-12-18 18:43:19Z sawada $
+// $Id$
 // Author: Ryu Sawada
 
 //////////////////////////////////////////////////////////////////////////
@@ -89,3 +89,10 @@ void ArgusWindow::CloseWindow()
 {
    gROME->WindowClosed();
 }
+ArgusTab* ArgusWindow::GetTabObject(const char* tabName) 
+{ 
+   for (int i=0;i<fTabObjects->GetEntries();i++) {
+      cout << ((ArgusTab*)fTabObjects->At(i))->GetName() << endl;
+      return (ArgusTab*)fTabObjects->At(i);
+   }
+};

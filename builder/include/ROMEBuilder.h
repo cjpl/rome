@@ -462,7 +462,7 @@ private:
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindowH();
    Bool_t  AddTab(ROMEString& buffer,Int_t& i);
-   Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity);
+   Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();

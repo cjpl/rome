@@ -73,12 +73,15 @@
 #include <ROMEAnalyzer.h>
 #include <ROMEEventLoop.h>
 #include <ROMEUtilities.h>
+#include <ArgusWindow.h>
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 void *gPassToROME;  // void ROMEAnalyzer Handle
+ArgusWindow *gArgus;  // global ArgusWindow Handle
+void *gPassToArgus;  // void ArgusWindow Handle
 
 ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
@@ -1057,4 +1060,23 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
    fNetFolderHost = new ROMEString[number];
    fNetFolderRoot = new ROMEString[number];
    fNumberOfNetFolders = number;
+}
+Bool_t ROMEAnalyzer::StartWindow() 
+{ 
+   return fWindow->Start(); 
+};
+Int_t ROMEAnalyzer::GetUpdateFrequency() 
+{ 
+   return fWindow->GetUpdateFrequency(); 
+};
+void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency) 
+{ 
+   fWindow->SetUpdateFrequency(frequency); 
+};
+Bool_t ROMEAnalyzer::IsWindowBusy() {
+   Bool_t busy = false;
+   for (int i=0;i<fWindow->GetTabObjectEntries();i++)
+      if (fWindow->GetTabObjectAt(i)->IsBusy())
+         busy = true;
+   return busy;
 }

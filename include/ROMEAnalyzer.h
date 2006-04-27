@@ -44,6 +44,7 @@ typedef struct {
 
 class ROMEAnalyzer : public TObject
 {
+friend class ArgusWindow;
 private:
    // Analysis Mode
    enum {
@@ -200,6 +201,7 @@ protected:
    ROMEString    *fNetFolderRoot;                //! root directory name
 
    // Monitor
+   ArgusWindow   *fWindow;                       //! Handle to Argus Window
    Bool_t         fEventFilled;                  //! Event filled flag
 
    // Midas
@@ -569,10 +571,11 @@ public:
    virtual Bool_t  LoadFolders(const char* filename, Bool_t only_database) = 0;
 
    // Monitor
-   virtual Bool_t  StartWindow() = 0;
-   virtual Int_t   GetUpdateFrequency() = 0;
-   virtual void    SetUpdateFrequency(Int_t frequency) = 0;
-   virtual Bool_t  IsWindowBusy() = 0;
+   ArgusWindow    *GetWindow() { return fWindow; };
+   Bool_t          StartWindow();
+   Int_t           GetUpdateFrequency();
+   void            SetUpdateFrequency(Int_t frequency);
+   Bool_t          IsWindowBusy();
    Bool_t          IsEventFilled() { return fEventFilled; };
    void            SetEventFilled(Bool_t flag) { fEventFilled = flag; };
 
@@ -607,5 +610,7 @@ protected:
 
 extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 extern void *gPassToROME;  // void ROMEAnalyzer Handle
+//extern ArgusWindow *gArgus;  // global ArgusWindow Handle
+//extern void *gPassToArgus;  // void ArgusWindow Handle
 
 #endif   // ROMEAnalyzer_H
