@@ -549,6 +549,22 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
       }
+      else if (!strcmp(argv[i],"-drsdch")) {
+         makeOutput = false;
+         midas = true;
+         noLink = true;
+         sql = false;
+         mysql = false;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("dch",0);
+         affiliations.AddAtAndExpand("drs",1);
+         flags.AddAtAndExpand("HAVE_DRS",0);
+         flags.AddAtAndExpand("HAVE_MSCB",1);
+         flags.AddAtAndExpand("HAVE_USB",2);
+         flags.AddAtAndExpand("HAVE_AFG3251",3);
+         flags.AddAtAndExpand("HAVE_VME",4);
+      }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
          outDir = "C:/rome/examples/multirun/";

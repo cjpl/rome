@@ -93,6 +93,7 @@ public:
    // Tabs
    void            AddTab(ArgusTab *tab) { fTabObjects->AddLast(tab); };
    ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); };
+   ArgusTab       *GetTabObject(const char* tabName);
    Int_t           GetTabObjectEntries() { return fTabObjects->GetEntries(); };
 
    ClassDef(ArgusWindow,1)

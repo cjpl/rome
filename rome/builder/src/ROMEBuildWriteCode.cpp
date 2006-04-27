@@ -2794,6 +2794,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TApplication *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   char str[200];\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   sprintf(str,\"ARGUS - %%s\",fProgramName.Data());\n");
+   buffer.AppendFormatted("   fWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
@@ -2901,9 +2907,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("\n");
-
    // Database Folder Fields
    buffer.AppendFormatted("   // Database Folder Fields\n");
    for (i=0;i<numOfFolder;i++) {
@@ -2958,24 +2961,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // End of Constructor
    buffer.AppendFormatted("}\n\n");
-
-   buffer.AppendFormatted("Bool_t %sAnalyzer::StartWindow() {\n", shortCut.Data());
-   buffer.AppendFormatted("   return gWindow->Start();\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("Int_t %sAnalyzer::GetUpdateFrequency() {\n", shortCut.Data());
-   buffer.AppendFormatted("   return gWindow->GetUpdateFrequency();\n");
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("void %sAnalyzer::SetUpdateFrequency(Int_t frequency) {\n", shortCut.Data());
-   buffer.AppendFormatted("   gWindow->SetUpdateFrequency(frequency);\n");
-   buffer.AppendFormatted("}\n");
-
-   buffer.AppendFormatted("Bool_t %sAnalyzer::IsWindowBusy() {\n", shortCut.Data());
-   buffer.AppendFormatted("   Bool_t busy = false;\n");
-   buffer.AppendFormatted("   for (int i=0;i<gWindow->GetTabObjectEntries();i++)\n");
-   buffer.AppendFormatted("      if (gWindow->GetTabObjectAt(i)->IsBusy())\n");
-   buffer.AppendFormatted("         busy = true;\n");
-   buffer.AppendFormatted("   return busy;\n");
-   buffer.AppendFormatted("}\n");
 
    int ndb = 0;
    for (i=0;i<numOfFolder;i++) {
@@ -3075,7 +3060,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          ROMEString pointerT;
          ROMEString steerPointerT;
          pointerT.SetFormatted("%s->fSteering", pointer.Data());
-         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
+         steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
          WriteSteeringReadParameters(buffer, 0, i+numOfTask+1, pointerT, steerPointerT);
       }
    }
@@ -3565,6 +3550,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Class
    buffer.AppendFormatted("\nclass %sAnalyzer : public ROMEAnalyzer\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("friend class %sWindow;\n",shortCut.Data());
    buffer.AppendFormatted("friend class %sEventLoop;\n",shortCut.Data());
    buffer.AppendFormatted("friend class %sConfig;\n",shortCut.Data());
    buffer.AppendFormatted("friend class %sGlobalSteering;\n",shortCut.Data());
@@ -3843,12 +3829,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   Bool_t   LoadFolders(const char* filename, Bool_t only_database = kFALSE);\n");
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("   Bool_t IsWindowBusy();\n");
+   buffer.AppendFormatted("   %sWindow *GetWindow() { return (%sWindow*)fWindow; };\n",shortCut.Data(),shortCut.Data());
    // Private
    buffer.AppendFormatted("private:\n");
-   buffer.AppendFormatted("   Bool_t StartWindow();\n");
-   buffer.AppendFormatted("   Int_t  GetUpdateFrequency();\n");
-   buffer.AppendFormatted("   void   SetUpdateFrequency(Int_t frequency);\n");
    buffer.AppendFormatted("   Bool_t ReadUserParameter(const char* opt, const char *value, Int_t& i);\n");
    buffer.AppendFormatted("   void   UserParameterUsage();\n");
    buffer.AppendFormatted("   void   startSplashScreen();\n");
@@ -4008,15 +3991,13 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    buffer.AppendFormatted("ClassImp(%sWindow);\n", shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("%sWindow *gWindow;\n", shortCut.Data());
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title) : ArgusWindow(p,title)\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
-
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fTabObjects = new TObjArray(%d);\n",numOfTab);
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -4144,7 +4125,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          }
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
             if (menuDepth[tabHeredityIndex[i]][j] == 1) {
-               if (!AddMenuItems(buffer, tabHeredityIndex[i], j,i,j+numOfMenu[i]))
+               if (!AddMenuItems(buffer, tabHeredityIndex[i], j,i,j+numOfMenu[i],j+numOfMenu[i]))
                   return kFALSE;
                buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[tabHeredityIndex[i]][j].Data(), tabName[i].Data(), numOfMenu[i]+j);
                buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
@@ -4157,7 +4138,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       }
       for (j = 0; j < numOfMenu[i]; j++) {
          if (menuDepth[i][j] == 1) {
-            if (!AddMenuItems(buffer, i, j,i,j))
+            if (!AddMenuItems(buffer, i, j,i,j,0))
                return kFALSE;
             buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[i][j].Data(), tabName[i].Data(), j);
             buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
@@ -4422,7 +4403,6 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   ClassDef(%sWindow,1)\n", shortCut.Data());
    buffer.AppendFormatted("};\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("extern %sWindow *gWindow;\n", shortCut.Data());
    buffer.AppendFormatted("#endif\n");
 
    // Write File
@@ -4513,7 +4493,7 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    return kTRUE;
 }
 
-Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHeredity,Int_t jHeredity)
+Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset)
 {
    Int_t k;
 
@@ -4522,10 +4502,10 @@ Bool_t ROMEBuilder::AddMenuItems(ROMEString &buffer, Int_t i, Int_t j,Int_t iHer
          buffer.AppendFormatted("            f%sMenu[%d]->AddSeparator();\n", tabName[iHeredity].Data(), jHeredity);
       }
       else if (menuItemChildMenuIndex[i][j][k]) {
-         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity, jHeredity+menuItemChildMenuIndex[i][j][k]))
+         if (!AddMenuItems(buffer, i, menuItemChildMenuIndex[i][j][k],iHeredity, jOffset+menuItemChildMenuIndex[i][j][k],jOffset+menuItemChildMenuIndex[i][j][k]))
             return kFALSE;
          buffer.AppendFormatted("            f%sMenu[%d]->AddPopup(\"%s\", f%sMenu[%d]);\n", tabName[iHeredity].Data(), jHeredity, menuTitle[i][menuItemChildMenuIndex[i][j][k]].Data()
-                                , tabName[iHeredity].Data(), jHeredity+menuItemChildMenuIndex[i][j][k]);
+                                , tabName[iHeredity].Data(), jOffset+menuItemChildMenuIndex[i][j][k]);
       }
       else {
          buffer.AppendFormatted("            f%sMenu[%d]->AddEntry(\"%s\", %s);\n", tabName[iHeredity].Data(), jHeredity, menuItemTitle[i][j][k].Data()
@@ -4996,46 +4976,46 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->AddWriteEndLine("}");
    // Argus/WindowScale
    subGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
-   subGroup->GetLastParameter()->AddSetLine("gWindow->SetWindowScale(##.ToFloat());");
-   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gWindow->GetWindowScale());");
+   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
+   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
    // Argus/StatusBar
    subGroup->AddParameter(new ROMEConfigParameter("StatusBar"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
-   subGroup->GetLastParameter()->AddSetLine("   gWindow->SetStatusBarSwitch(kFALSE);");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kFALSE);");
    subGroup->GetLastParameter()->AddSetLine("else");
-   subGroup->GetLastParameter()->AddSetLine("   gWindow->SetStatusBarSwitch(kTRUE);");
-   subGroup->GetLastParameter()->AddWriteLine("if (gWindow->GetStatusBarSwitch())");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kTRUE);");
+   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetStatusBarSwitch())");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Argus/UpdateFrequency
    subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
-   subGroup->GetLastParameter()->AddSetLine("gWindow->SetUpdateFrequency(##.ToInteger());");
+   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
    for (i=0;i<numOfTab;i++) {
       if (!tabUsed[i])
          continue;
-      subGroup->GetLastParameter()->AddSetLine("gWindow->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
    }
-   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gWindow->GetUpdateFrequency());");
+   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetUpdateFrequency());");
    mainParGroup->AddSubGroup(subGroup);
    // Argus/AnalyzerController
    subSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
    // Argus/AnalyzerController/Active
    subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
    subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subSubGroup->GetLastParameter()->AddSetLine("   gWindow->SetControllerActive(kTRUE);");
+   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kTRUE);");
    subSubGroup->GetLastParameter()->AddSetLine("else");
-   subSubGroup->GetLastParameter()->AddSetLine("   gWindow->SetControllerActive(kFALSE);");
-   subSubGroup->GetLastParameter()->AddWriteLine("if (gWindow->IsControllerActive())");
+   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kFALSE);");
+   subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->IsControllerActive())");
    subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subSubGroup->GetLastParameter()->AddWriteLine("else");
    subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Argus/AnalyzerController/NetFolderName
    subSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
-   subSubGroup->GetLastParameter()->AddSetLine("gWindow->SetControllerNetFolder(##.Data());");
+   subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
    subSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
-   subSubGroup->GetLastParameter()->AddWriteLine("if (gWindow->GetControllerNetFolder()!=NULL)");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = gWindow->GetControllerNetFolder()->GetName();");
+   subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder()!=NULL)");
+   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
    subGroup->AddSubGroup(subSubGroup);
    // Argus/SocketToROME
    subSubGroup = new ROMEConfigParameterGroup("SocketToROME");
@@ -5553,16 +5533,16 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active"));
       subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
-      subGroup->GetLastParameter()->AddSetLine("   gWindow->GetTabSwitches()->%s = kFALSE;",switchString.Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s = kFALSE;",switchString.Data());
       subGroup->GetLastParameter()->AddSetLine("else");
-      subGroup->GetLastParameter()->AddSetLine("   gWindow->GetTabSwitches()->%s = kTRUE;",switchString.Data());
-      subGroup->GetLastParameter()->AddWriteLine("if (gWindow->GetTabSwitches()->%s)",switchString.Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s = kTRUE;",switchString.Data());
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetTabSwitches()->%s)",switchString.Data());
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       parGroup->AddSubGroup(subGroup);
       if (numOfSteering[i+numOfTask+1]>0) {
-         steerPointerT.SetFormatted("gWindow->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
+         steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%03dTab()->GetSP()", tabName[i].Data(), i);
          AddSteeringConfigParameters(subGroup,0,i+numOfTask+1,steerPointerT);
       }
       AddTabConfigParameters(subGroup,i);
@@ -6645,11 +6625,19 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
 
    // Connect Trees
    int iFold=0,j,k;
+   bool found = false;
    buffer.AppendFormatted("// Connect Trees\n");
    buffer.AppendFormatted("void %sRomeDAQ::ConnectTrees()\n{\n",shortCut.Data());
-   for (i=0;i<numOfTree;i++) {
-      if (numOfBranch[i]>0) {
+   for (i=0;i<numOfTree && !found;i++) {
+      for (j=0;j<numOfBranch[i];j++) {
+         for (k=0;k<numOfFolder;k++) {
+            if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
+               iFold = k;
+         }
+         if (!folderUsed[iFold])
+            continue;
          buffer.AppendFormatted("   TBranchElement *bb;\n");
+         found = true;
          break;
       }
    }
@@ -8110,9 +8098,6 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   SetConsoleTitle(str);\n");
    buffer.AppendFormatted("\n");
 #endif
-   buffer.AppendFormatted("   sprintf(str,\"ARGUS - %%s\", gAnalyzer->GetProgramName());\n");
-   buffer.AppendFormatted("   gWindow = new %sWindow(gClient->GetRoot(), str);\n", shortCut.Data());
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   TFolder *fMainFolder = gROOT->GetRootFolder()->AddFolder(\"ROME\",\"ROME Folder\");\n");
    buffer.AppendFormatted("   fMainFolder->Add(gAnalyzer);\n");
    buffer.AppendFormatted("   gAnalyzer->SetCintInitialisation(\"%sAnalyzer* gAnalyzer = ((%sAnalyzer*)((TFolder*)gROOT->FindObjectAny(\\\"ROME\\\"))->GetListOfFolders()->MakeIterator()->Next());\");\n",shortCut.Data(),shortCut.Data());
