@@ -89,10 +89,13 @@ void ArgusWindow::CloseWindow()
 {
    gROME->WindowClosed();
 }
+
 ArgusTab* ArgusWindow::GetTabObject(const char* tabName) 
 { 
    for (int i=0;i<fTabObjects->GetEntries();i++) {
       cout << ((ArgusTab*)fTabObjects->At(i))->GetName() << endl;
       return (ArgusTab*)fTabObjects->At(i);
    }
+   Error("GetTabObject", "%s was not found.", tabName);
+   return 0;
 };
