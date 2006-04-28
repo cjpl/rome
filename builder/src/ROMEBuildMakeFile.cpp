@@ -480,7 +480,7 @@ void ROMEBuilder::AddDAQLibraries()
    daqLibraries = new ROMEStrArray(2);
 #if defined( R__VISUAL_CPLUSPLUS )
    if (this->midas)
-      daqLibraries->AddFormatted("$(MIDASSYS)\\nt\\lib\\midas.lib");
+      daqLibraries->AddFormatted("$(ROMESYS)\\lib_win\\midas.lib");
 #endif
 #if defined( R__UNIX )
 #if defined( R__ALPHA )
