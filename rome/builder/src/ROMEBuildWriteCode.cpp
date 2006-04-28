@@ -2159,6 +2159,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("\n");
       // Header
+      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("\nClassImp(%sT%s)\n\n", shortCut.Data(), tabName[iTab].Data());
@@ -2248,7 +2249,6 @@ Bool_t ROMEBuilder::WriteTabH()
 #endif // R__VISUAL_CPLUSPLUS
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
-      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
       buffer.AppendFormatted("#include \"Riostream.h\"\n");
       buffer.AppendFormatted("\n");
@@ -2798,10 +2798,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   gAnalyzer = this;\n");
+   buffer.AppendFormatted("   gROME = static_cast<ROMEAnalyzer*>(this);\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   sprintf(str,\"ARGUS - %%s\",fProgramName.Data());\n");
    buffer.AppendFormatted("   fWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   gPassToROME = (void*)this; // Pass the handle to the framework\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -8093,7 +8094,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   gAnalyzer = new %sAnalyzer(app);\n",shortCut.Data());
+   buffer.AppendFormatted("   new %sAnalyzer(app);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("   sprintf(str,\"ROME - %%s\", gAnalyzer->GetProgramName());\n");
