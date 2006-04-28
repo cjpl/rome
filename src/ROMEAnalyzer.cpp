@@ -79,9 +79,6 @@
 ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
-void *gPassToROME;  // void ROMEAnalyzer Handle
-ArgusWindow *gArgus;  // global ArgusWindow Handle
-void *gPassToArgus;  // void ArgusWindow Handle
 
 ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
 {
@@ -166,7 +163,6 @@ ROMEAnalyzer::~ROMEAnalyzer() {
    restoreOutput();
 }
 
-
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
 // Starts the ROME Analyzer
@@ -175,8 +171,6 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 #if defined( HAVE_MIDAS )
    cm_set_msg_print(0,0,NULL);
 #endif
-
-   gROME = (ROMEAnalyzer*)gPassToROME;
 
    fMainTask->ExecuteTask("init");
 

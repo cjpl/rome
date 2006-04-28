@@ -42,6 +42,9 @@ typedef struct {
    Double_t writtenEvents;     //! Written Events
 } Statistics;
 
+class ROMEAnalyzer;
+extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
+
 class ROMEAnalyzer : public TObject
 {
 friend class ArgusWindow;
@@ -607,10 +610,5 @@ protected:
 
    ClassDef(ROMEAnalyzer,0)
 };
-
-extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
-extern void *gPassToROME;  // void ROMEAnalyzer Handle
-//extern ArgusWindow *gArgus;  // global ArgusWindow Handle
-//extern void *gPassToArgus;  // void ArgusWindow Handle
 
 #endif   // ROMEAnalyzer_H
