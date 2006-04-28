@@ -25,20 +25,20 @@ void SBTTab1::Init()
 void SBTTab1::TabSelected()
 {
    Int_t parts[] = { 15, 15, 23, 47 };
-   gWindow->GetStatusBar()->SetParts(parts, sizeof(parts) / sizeof(Int_t));
+   gAnalyzer->GetWindow()->GetStatusBar()->SetParts(parts, sizeof(parts) / sizeof(Int_t));
    //Fixed text
-   gWindow->GetStatusBar()->SetText("Fixed Text", 0);
+   gAnalyzer->GetWindow()->GetStatusBar()->SetText("Fixed Text", 0);
    //Program name
-   gWindow->GetStatusBar()->SetText(gAnalyzer->GetProgramName(), 1);
+   gAnalyzer->GetWindow()->GetStatusBar()->SetText(gAnalyzer->GetProgramName(), 1);
    //Steering parameter
-   gWindow->GetStatusBar()->SetText(GetSP()->Gettext(), 2);
+   gAnalyzer->GetWindow()->GetStatusBar()->SetText(GetSP()->Gettext(), 2);
    // Time
    TTimeStamp ts;
    ts.Set();
-   gWindow->GetStatusBar()->SetText(ts.AsString("s"), 3);
+   gAnalyzer->GetWindow()->GetStatusBar()->SetText(ts.AsString("s"), 3);
 }
 
 void SBTTab1::TabUnSelected()
 {
-   gWindow->ClearStatusBar();
+   gAnalyzer->GetWindow()->ClearStatusBar();
 }

@@ -18,10 +18,10 @@ ClassImp(TMTT2)
 void TMTT2::Init()
 {
    // Create a vertical frame containing buttons and canvas 
-   fVert = new TGVerticalFrame(fParent, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
+   fVert = new TGVerticalFrame(fParent, (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    // Create an embedded canvas and add to the main frame, centered in x and y 
-   fCanvas = new TRootEmbeddedCanvas("Tab2", fVert, (UInt_t) (600 * gWindow->GetWindowScale()), (UInt_t) (600 * gWindow->GetWindowScale()));
+   fCanvas = new TRootEmbeddedCanvas("Tab2", fVert, (UInt_t) (600 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (600 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    // Create a text
    fText = new TLatex(0.5, 0.5, "Menu Tab 2.");
