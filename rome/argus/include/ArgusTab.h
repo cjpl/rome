@@ -17,10 +17,12 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
+#include "ROMEString.h"
 
 class ArgusTab : public TGCompositeFrame {
 
 protected:
+   ROMEString fTitle;              //! Tab Title
    Bool_t   fActive;               //! is Active
    Int_t    fUpdateFrequency;      //! Update Frequency
    TTimer  *fEventHandlerTimer;    //! Timer for the EventHandler function
@@ -41,6 +43,8 @@ public:
    void StopEventHandler();
 
    // User Methods
+   const char* GetTitle() { return fTitle.Data(); };
+   void      SetTitle(const char* title) { fTitle = title; };
    Bool_t    GetActive() { return fActive; };
    void      SetActive(Bool_t active) { fActive = active; };
    Int_t     GetUpdateFrequency();

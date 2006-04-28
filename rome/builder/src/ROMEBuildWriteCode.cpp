@@ -4445,6 +4445,10 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
       buffer += "   ";
    buffer.AppendFormatted("      f%s%03dTab->InitTab();\n", tabName[i].Data(), i);
 
+   for (depth = 0; depth < recursiveTabDepth; depth++)
+      buffer += "   ";
+   buffer.AppendFormatted("      f%s%03dTab->SetTitle(\"%s\");\n", tabName[i].Data(), i,tabTitle[i].Data());
+
    if (!tabNumOfChildren[i]) {
       for (depth = 0; depth < recursiveTabDepth; depth++)
          buffer += "   ";
@@ -4971,73 +4975,73 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    mainParGroup->AddSubGroup(subGroup);
    // Argus
-   subGroup = new ROMEConfigParameterGroup("Argus");
-   subGroup->AddWriteStartLine("if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && index==0) {");
-   subGroup->AddWriteEndLine("}");
-   // Argus/WindowScale
-   subGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
-   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
-   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
-   // Argus/StatusBar
-   subGroup->AddParameter(new ROMEConfigParameter("StatusBar"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kFALSE);");
-   subGroup->GetLastParameter()->AddSetLine("else");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kTRUE);");
-   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetStatusBarSwitch())");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-   subGroup->GetLastParameter()->AddWriteLine("else");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   // Argus/UpdateFrequency
-   subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
-   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
-   for (i=0;i<numOfTab;i++) {
-      if (!tabUsed[i])
-         continue;
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
+   if (numOfTab>0) {
+      subGroup = new ROMEConfigParameterGroup("Argus");
+      // Argus/WindowScale
+      subGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
+      subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
+      // Argus/StatusBar
+      subGroup->AddParameter(new ROMEConfigParameter("StatusBar"));
+      subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kFALSE);");
+      subGroup->GetLastParameter()->AddSetLine("else");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kTRUE);");
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetStatusBarSwitch())");
+      subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+      subGroup->GetLastParameter()->AddWriteLine("else");
+      subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      // Argus/UpdateFrequency
+      subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
+      for (i=0;i<numOfTab;i++) {
+         if (!tabUsed[i])
+            continue;
+         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
+      }
+      subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetUpdateFrequency());");
+      mainParGroup->AddSubGroup(subGroup);
+      // Argus/AnalyzerController
+      subSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
+      // Argus/AnalyzerController/Active
+      subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
+      subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kTRUE);");
+      subSubGroup->GetLastParameter()->AddSetLine("else");
+      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kFALSE);");
+      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->IsControllerActive())");
+      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+      subSubGroup->GetLastParameter()->AddWriteLine("else");
+      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      // Argus/AnalyzerController/NetFolderName
+      subSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
+      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
+      subSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
+      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder()!=NULL)");
+      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
+      subGroup->AddSubGroup(subSubGroup);
+      // Argus/SocketToROME
+      subSubGroup = new ROMEConfigParameterGroup("SocketToROME");
+      // Argus/SocketToROME/Active
+      subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
+      subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketToROMEActive(kTRUE);");
+      subSubGroup->GetLastParameter()->AddSetLine("else");
+      subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketToROMEActive(kFALSE);");
+      subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsSocketToROMEActive())");
+      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+      subSubGroup->GetLastParameter()->AddWriteLine("else");
+      subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      // Argus/SocketToROME/Host
+      subSubGroup->AddParameter(new ROMEConfigParameter("Host"));
+      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEHost(##.Data());");
+      subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetSocketToROMEHost();");
+      // Argus/SocketToROME/Port
+      subSubGroup->AddParameter(new ROMEConfigParameter("Port"));
+      subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEPort(##.Data());");
+      subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketToROMEPort());");
+      subGroup->AddSubGroup(subSubGroup);
    }
-   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetUpdateFrequency());");
-   mainParGroup->AddSubGroup(subGroup);
-   // Argus/AnalyzerController
-   subSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
-   // Argus/AnalyzerController/Active
-   subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
-   subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kTRUE);");
-   subSubGroup->GetLastParameter()->AddSetLine("else");
-   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kFALSE);");
-   subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->IsControllerActive())");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-   subSubGroup->GetLastParameter()->AddWriteLine("else");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   // Argus/AnalyzerController/NetFolderName
-   subSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
-   subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
-   subSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
-   subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder()!=NULL)");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetWindow()->GetControllerNetFolder()->GetName();");
-   subGroup->AddSubGroup(subSubGroup);
-   // Argus/SocketToROME
-   subSubGroup = new ROMEConfigParameterGroup("SocketToROME");
-   // Argus/SocketToROME/Active
-   subSubGroup->AddParameter(new ROMEConfigParameter("Active"));
-   subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketToROMEActive(kTRUE);");
-   subSubGroup->GetLastParameter()->AddSetLine("else");
-   subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketToROMEActive(kFALSE);");
-   subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->IsSocketToROMEActive())");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-   subSubGroup->GetLastParameter()->AddWriteLine("else");
-   subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   // Argus/SocketToROME/Host
-   subSubGroup->AddParameter(new ROMEConfigParameter("Host"));
-   subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEHost(##.Data());");
-   subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetSocketToROMEHost();");
-   // Argus/SocketToROME/Port
-   subSubGroup->AddParameter(new ROMEConfigParameter("Port"));
-   subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEPort(##.Data());");
-   subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketToROMEPort());");
-   subGroup->AddSubGroup(subSubGroup);
    // DataBase
    subGroup = new ROMEConfigParameterGroup("DataBase","unknown");
    subGroup->AddReadGroupArrayInitLine("gAnalyzer->InitDataBases(fConfigData[index]->fDataBaseArraySize);");
@@ -5222,8 +5226,6 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // NetFolder
    for (i=0;i<numOfNetFolder;i++) {
       subGroup = new ROMEConfigParameterGroup(netFolderName[i],"1","NetFolder");
-      subGroup->AddWriteStartLine("if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && index==0) {");
-      subGroup->AddWriteEndLine("}");
       // NetFolder/Active
       subGroup->AddParameter(new ROMEConfigParameter("Active"));
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
@@ -5259,17 +5261,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
       mainParGroup->AddSubGroup(subGroup);
    }
    // Tasks
-   subGroup = new ROMEConfigParameterGroup("Tasks");
-   subGroup->AddWriteStartLine("if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneROME()) && index==0) {");
-   subGroup->AddWriteEndLine("}");
-   mainParGroup->AddSubGroup(subGroup);
-   AddTaskConfigParameters(subGroup,-1);
+   if (numOfTask>0) {
+      subGroup = new ROMEConfigParameterGroup("Tasks");
+      mainParGroup->AddSubGroup(subGroup);
+      AddTaskConfigParameters(subGroup,-1);
+   }
    // Tabs
-   subGroup = new ROMEConfigParameterGroup("Tabs");
-   subGroup->AddWriteStartLine("if ((gAnalyzer->IsROMEAndARGUS() || gAnalyzer->IsStandAloneARGUS()) && index==0) {");
-   subGroup->AddWriteEndLine("}");
-   mainParGroup->AddSubGroup(subGroup);
-   AddTabConfigParameters(subGroup,-1);
+   if (numOfTab>0) {
+      subGroup = new ROMEConfigParameterGroup("Tabs");
+      mainParGroup->AddSubGroup(subGroup);
+      AddTabConfigParameters(subGroup,-1);
+   }
    // Trees
    if (numOfTree>0) {
       subGroup = new ROMEConfigParameterGroup("Trees");
