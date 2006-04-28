@@ -17,7 +17,7 @@ ClassImp(PMTMixed)
 
 void PMTMixed::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    fButton1 = new TGTextButton(fHorz, "w/o Thread", 0);
    fButton2 = new TGTextButton(fHorz, "w/  Thread", 1);

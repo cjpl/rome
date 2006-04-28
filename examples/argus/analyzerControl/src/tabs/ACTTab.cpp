@@ -17,7 +17,7 @@ ClassImp(ACTTab)
 
 void ACTTab::Init()
 {
-   fController = new ArgusAnalyzerController(gClient->GetRoot(), gWindow, 100, 100, fNetFolder);
+   fController = new ArgusAnalyzerController(gClient->GetRoot(), gAnalyzer->GetWindow(), 100, 100, fNetFolder);
 }
 
 void ACTTab::MenuClicked(TGPopupMenu *menu, Long_t param)

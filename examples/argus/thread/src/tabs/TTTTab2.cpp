@@ -22,7 +22,7 @@ ClassImp(TTTTab2)
 
 void TTTTab2::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    fBStart_2_1 = new TGTextButton(fHorz, "Start 2_1", B_START_2_1);
    fBStop_2_1 = new TGTextButton(fHorz, "Stop 2_1", B_STOP_2_1);

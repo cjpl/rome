@@ -17,7 +17,7 @@ ClassImp(PMTThread)
 
 void PMTThread::Init()
 {
-   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gWindow->GetWindowScale()), (UInt_t) (700 * gWindow->GetWindowScale()));
+   fHorz = new TGHorizontalFrame(this, (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()), (UInt_t) (700 * gAnalyzer->GetWindow()->GetWindowScale()));
 
    fButton = new TGTextButton(fHorz, "w/ Thread", 0);
    fButton->Associate(this);
