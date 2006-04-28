@@ -2159,7 +2159,6 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("\n");
       // Header
-      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("\nClassImp(%sT%s)\n\n", shortCut.Data(), tabName[iTab].Data());
@@ -2247,6 +2246,7 @@ Bool_t ROMEBuilder::WriteTabH()
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
