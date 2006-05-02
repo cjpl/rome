@@ -4126,7 +4126,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          }
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
             if (menuDepth[tabHeredityIndex[i]][j] == 1) {
-               if (!AddMenuItems(buffer, tabHeredityIndex[i], j,i,j+numOfMenu[i],j+numOfMenu[i]))
+               if (!AddMenuItems(buffer, tabHeredityIndex[i], j,i,j+numOfMenu[i],numOfMenu[i]))
                   return kFALSE;
                buffer.AppendFormatted("            fMenuBar->AddPopup(\"%s\", f%sMenu[%d],\n", menuTitle[tabHeredityIndex[i]][j].Data(), tabName[i].Data(), numOfMenu[i]+j);
                buffer.AppendFormatted("                               new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));\n");
