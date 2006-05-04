@@ -1,7 +1,7 @@
 //// Author: 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTFillHisto                                                              //
+// MRTFillHisto                                                              //
 //                                                                            //
 // 
 // 
@@ -35,30 +35,30 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "include/generated/XYZTFillHisto.h"
+#include "include/generated/MRTFillHisto.h"
 #include <TRandom.h>
 #include <Riostream.h>
 
-ClassImp(XYZTFillHisto)
+ClassImp(MRTFillHisto)
 
-void XYZTFillHisto::Init()
+void MRTFillHisto::Init()
 {
 }
 
-void XYZTFillHisto::BeginOfRun()
+void MRTFillHisto::BeginOfRun()
 {
 }
 
-void XYZTFillHisto::Event()
+void MRTFillHisto::Event()
 {
    GetMyHisto()->Fill(gRandom->Gaus(0,20/((double)gAnalyzer->GetCurrentRunNumber()*gAnalyzer->GetCurrentRunNumber())));
 }
 
-void XYZTFillHisto::EndOfRun()
+void MRTFillHisto::EndOfRun()
 {
 }
 
-void XYZTFillHisto::Terminate()
+void MRTFillHisto::Terminate()
 {
    GetMyHisto()->Draw();
 }

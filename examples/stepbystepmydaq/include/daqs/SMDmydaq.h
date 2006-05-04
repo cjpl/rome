@@ -1,17 +1,17 @@
-#ifndef XYZmydaq_H
-#define XYZmydaq_H
+#ifndef SMDmydaq_H
+#define SMDmydaq_H
 
 #include "ROMEDAQSystem.h"
 #include "Riostream.h"
 
-class XYZmydaq : public ROMEDAQSystem
+class SMDmydaq : public ROMEDAQSystem
 {
 protected:
    fstream fFile;
    Long64_t fNumberOfEvent;
 
 public:
-   XYZmydaq();
+   SMDmydaq();
    Int_t  GetTimeStamp() { return 0; };
    const char* GetName() { return "mydaq"; };
 
@@ -22,4 +22,4 @@ public:
    Bool_t Terminate();
 };
 
-#endif   // XYZmydaq_H
+#endif   // SMDmydaq_H

@@ -1,7 +1,7 @@
 //// Author: 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTPrintADCValues                                                         //
+// SMDTPrintADCValues                                                         //
 //                                                                            //
 // 
 // 
@@ -17,24 +17,21 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/generated/XYZTPrintADCValues.h>
+#include <include/generated/SMDTPrintADCValues.h>
 #include <Riostream.h>
 
-ClassImp(XYZTPrintADCValues)
+ClassImp(SMDTPrintADCValues)
 
-void XYZTPrintADCValues::Init()
+void SMDTPrintADCValues::Init()
 {
 }
 
-void XYZTPrintADCValues::BeginOfRun()
+void SMDTPrintADCValues::BeginOfRun()
 {
 }
 
-void XYZTPrintADCValues::Event()
+void SMDTPrintADCValues::Event()
 {
-   for (int i=0;i<10;i++)
-      gAnalyzer->GetPMTDataAt(i)->SetADC(i);
-
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
       for (int i=0;i<10;i++)
          cout << gAnalyzer->GetPMTDataAt(i)->GetADC() << endl;
@@ -42,11 +39,11 @@ void XYZTPrintADCValues::Event()
    }
 }
 
-void XYZTPrintADCValues::EndOfRun()
+void SMDTPrintADCValues::EndOfRun()
 {
 }
 
-void XYZTPrintADCValues::Terminate()
+void SMDTPrintADCValues::Terminate()
 {
 }
 

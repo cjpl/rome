@@ -1,6 +1,6 @@
 <ROMEFrameworkDefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome.xsd">
 	<Experiment>
-		<ExperimentShortCut>XYZ</ExperimentShortCut>
+		<ExperimentShortCut>SBS</ExperimentShortCut>
 		<ProgramName>Analyzer</ProgramName>
 	</Experiment>
 	<Folders>

@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEConfigParameter.h, M.Schneebeli
 
-  $Id:$
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEConfigParameter_H
@@ -15,20 +15,29 @@ class ROMEConfigParameter : public TObject {
 private:
    ROMEString            fName;
    ROMEString            fArraySize;
+   ROMEString            fWidgetType;
    ROMEStrArray*         fReadModifiedTrueLines;
    ROMEStrArray*         fSetLines;
    ROMEStrArray*         fWriteLines;
+   ROMEStrArray*         fAdditionalWriteLines;
+   ROMEStrArray*         fComboBoxEntries;
+   bool                  fWriteLinesAlways;
 public:
-   ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1") 
+   ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox") 
    { 
       fName = name; 
       fArraySize = arraySize;
+      fWidgetType = widgetType;
       fReadModifiedTrueLines = new ROMEStrArray(1);
       fSetLines = new ROMEStrArray(1);
       fWriteLines = new ROMEStrArray(1);
+      fAdditionalWriteLines = new ROMEStrArray(1);
+      fComboBoxEntries = new ROMEStrArray(1);
+      fWriteLinesAlways = true;
    };
    ROMEString&    GetName() { return fName; };
    ROMEString&    GetArraySize() { return fArraySize; };
+   ROMEString&    GetWidgetType() { return fWidgetType; };
 
    int            GetNumberOfReadModifiedTrueLines() { return fReadModifiedTrueLines->GetEntriesFast(); };
    const char*    GetReadModifiedTrueLineAt(int i) { return fReadModifiedTrueLines->At(i).Data(); };
@@ -42,6 +51,16 @@ public:
    const char*    GetWriteLineAt(int i) { return fWriteLines->At(i).Data(); };
    void AddWriteLine(const char* line,...);
 
+   int            GetNumberOfAdditionalWriteLines() { return fAdditionalWriteLines->GetEntriesFast(); };
+   const char*    GetAdditionalWriteLineAt(int i) { return fAdditionalWriteLines->At(i).Data(); };
+   void AddAdditionalWriteLine(const char* line,...);
+
+   int            GetNumberOfComboBoxEntries() { return fComboBoxEntries->GetEntriesFast(); };
+   const char*    GetComboBoxEntryAt(int i) { return fComboBoxEntries->At(i).Data(); };
+   void AddComboBoxEntry(const char* line,...);
+
+   bool           IsWriteLinesAlways() { return fWriteLinesAlways; };
+   void           DontWriteLinesAlways() { fWriteLinesAlways = false; };
 };
 inline void ROMEConfigParameter::AddSetLine(const char* va_(fmt),...) {
    if (va_(fmt)==NULL)
@@ -57,6 +76,24 @@ inline void ROMEConfigParameter::AddWriteLine(const char* va_(fmt),...) {
    va_list ap;
    va_start(ap,va_(fmt));
    fWriteLines->AddLast(ROMEString::Format(va_(fmt), ap));
+   va_end(ap);
+}
+
+inline void ROMEConfigParameter::AddAdditionalWriteLine(const char* va_(fmt),...) {
+   if (va_(fmt)==NULL)
+      return;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   fAdditionalWriteLines->AddLast(ROMEString::Format(va_(fmt), ap));
+   va_end(ap);
+}
+
+inline void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
+   if (va_(fmt)==NULL)
+      return;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   fComboBoxEntries->AddLast(ROMEString::Format(va_(fmt), ap));
    va_end(ap);
 }
 

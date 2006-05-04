@@ -10,9 +10,11 @@
     </ARGUS>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers>1-2</RunNumbers>
-    <EventNumbers>1-1000</EventNumbers>
-    <InputFileNames></InputFileNames>
+    <RunParameters>
+		<RunNumbers>1-2</RunNumbers>
+		<EventNumbers>1-1000</EventNumbers>
+		<InputFileNames></InputFileNames>
+    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>

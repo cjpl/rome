@@ -52,7 +52,7 @@ void ROMEBuilder::AddIncludeDirectories()
 
 void ROMEBuilder::AddRomeHeaders()
 {
-   romeHeaders = new ROMEStrArray(34);
+   romeHeaders = new ROMEStrArray(50);
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/ROME.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
@@ -86,6 +86,9 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
+   romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
+   romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
    if (this->mysql)
@@ -106,8 +109,6 @@ void ROMEBuilder::AddRomeDictHeaders()
 {
    romeDictHeaders = new ROMEStrArray(6);
    romeLinkDefSuffix = new ROMEStrArray(6);
-   romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
-   romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
@@ -118,11 +119,15 @@ void ROMEBuilder::AddRomeDictHeaders()
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
    romeLinkDefSuffix->Add("-!");
+   romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
+   romeLinkDefSuffix->Add("");
+   romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
+   romeLinkDefSuffix->Add("");
 }
 
 void ROMEBuilder::AddRomeSources()
 {
-   romeSources = new ROMEStrArray(28);
+   romeSources = new ROMEStrArray(50);
    romeSources->Add("$(ROMESYS)/src/mxml.c");
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
@@ -148,6 +153,9 @@ void ROMEBuilder::AddRomeSources()
    romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMENetFolderServer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMENetFolder.cpp");
+   romeSources->Add("$(ROMESYS)/src/ROMEConfigToForm.cpp");
+   romeSources->Add("$(ROMESYS)/src/XMLToForm.cpp");
+   romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");
    if (this->mysql)
@@ -194,7 +202,7 @@ void ROMEBuilder::AddArgusSources()
 void ROMEBuilder::AddGeneratedHeaders()
 {
    int i;
-   generatedHeaders = new ROMEStrArray(8+TMath::Max(numOfFolder,0)+TMath::Max(numOfTask,0)+TMath::Max(numOfTab,0));
+   generatedHeaders = new ROMEStrArray(9+TMath::Max(numOfFolder,0)+TMath::Max(numOfTask,0)+TMath::Max(numOfTab,0));
    generatedHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
@@ -202,6 +210,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -304,6 +313,7 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sConfigToForm.cpp",shortCut.Data());
    if (generatedDictHeaders->GetEntriesFast()>0)
       generatedSources->AddFormatted("dict/%sGeneratedDict.cpp",shortCut.Data());
    if (generatedFolderDictHeaders->GetEntriesFast()>0)

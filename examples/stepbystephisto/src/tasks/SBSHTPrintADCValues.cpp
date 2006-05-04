@@ -1,7 +1,7 @@
 //// Author: 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTPrintADCValues                                                         //
+// SBSHTPrintADCValues                                                         //
 //                                                                            //
 // 
 // 
@@ -38,7 +38,7 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/generated/XYZTPrintADCValues.h>
+#include <include/generated/SBSHTPrintADCValues.h>
 #include <TRandom.h>
 #include <Riostream.h>
 #include "TF1.h" 
@@ -59,17 +59,17 @@ Double_t lognormal(Double_t *x, Double_t *par) {
    return temp1/temp2;
 } 
 
-ClassImp(XYZTPrintADCValues)
+ClassImp(SBSHTPrintADCValues)
 
-void XYZTPrintADCValues::Init()
+void SBSHTPrintADCValues::Init()
 {
 }
 
-void XYZTPrintADCValues::BeginOfRun()
+void SBSHTPrintADCValues::BeginOfRun()
 {
 }
 
-void XYZTPrintADCValues::Event()
+void SBSHTPrintADCValues::Event()
 {
    gAnalyzer->GetPMTData()->SetADC((int)gRandom->Gaus(50,10));
    GetADC()->Fill(gAnalyzer->GetPMTData()->GetADC());
@@ -80,7 +80,7 @@ void XYZTPrintADCValues::Event()
    }
 }
 
-void XYZTPrintADCValues::EndOfRun()
+void SBSHTPrintADCValues::EndOfRun()
 {
    TF1 *fitFcn = new TF1("fitFcn",lognormal,0,1,4); 
 
@@ -96,7 +96,7 @@ void XYZTPrintADCValues::EndOfRun()
 
 }
 
-void XYZTPrintADCValues::Terminate()
+void SBSHTPrintADCValues::Terminate()
 {
 }
 

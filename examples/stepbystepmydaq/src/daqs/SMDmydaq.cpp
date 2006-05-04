@@ -1,18 +1,18 @@
-#include "include/daqs/XYZmydaq.h"
-#include "include/generated/XYZAnalyzer.h"
-#include "include/generated/XYZConfig.h"
+#include "include/daqs/SMDmydaq.h"
+#include "include/generated/SMDAnalyzer.h"
+#include "include/generated/SMDConfig.h"
 
-XYZmydaq::XYZmydaq()
+SMDmydaq::SMDmydaq()
 {
 }
 
 
-Bool_t XYZmydaq::Init()
+Bool_t SMDmydaq::Init()
 {
    return true;
 }
 
-Bool_t XYZmydaq::BeginOfRun()
+Bool_t SMDmydaq::BeginOfRun()
 {
    //-- Open data file
    char filename[100];
@@ -32,7 +32,7 @@ Bool_t XYZmydaq::BeginOfRun()
    return true;
 }
 
-Bool_t XYZmydaq::Event(Long64_t event)
+Bool_t SMDmydaq::Event(Long64_t event)
 {
    //-- Check event number
    if (gAnalyzer->GetCurrentEventNumber() >= fNumberOfEvent) {
@@ -54,14 +54,14 @@ Bool_t XYZmydaq::Event(Long64_t event)
    return true;
 }
 
-Bool_t XYZmydaq::EndOfRun()
+Bool_t SMDmydaq::EndOfRun()
 {
    //-- Close file
    fFile.close();
    return true;
 }
 
-Bool_t XYZmydaq::Terminate()
+Bool_t SMDmydaq::Terminate()
 {
    //-- Close file
    fFile.close();
