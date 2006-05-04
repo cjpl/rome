@@ -1,4 +1,4 @@
-// $Id: XMLToFormWindow.h 3357 2006-04-25 08:35:57Z schneebeli_m $
+// $Id$
 #ifndef XMLToFormWindow_H
 #define XMLToFormWindow_H
 

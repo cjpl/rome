@@ -1,4 +1,4 @@
-// $Id: ArgusTextDialog.h 785 2005-12-18 18:43:19Z sawada $
+// $Id$
 // Author: Ryu Sawada
 #ifndef  ArgusTextDialog_H
 #define  ArgusTextDialog_H
