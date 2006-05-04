@@ -5,7 +5,7 @@
 //                                                                      //
 //  The Base Class for all Tabs in ARGUS.
 //                                                                      //
-//  $Id: ARGUSTab.cpp 1005 2006-04-06 08:18:31Z schneebeli_m $
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>

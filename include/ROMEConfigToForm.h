@@ -1,4 +1,4 @@
-// $Id: ROMEConfigToForm.h 3357 2006-04-25 08:35:57Z schneebeli_m $
+// $Id$
 #ifndef ROMEConfigToForm_H
 #define ROMEConfigToForm_H
 

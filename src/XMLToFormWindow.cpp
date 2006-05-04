@@ -7,7 +7,7 @@
 //                                                                            //
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
-// $Id: XMLToFormWindow.cpp 3402 2006-04-30 13:10:16Z Matthias Schneebeli $
+// $Id$
 
 #include "XMLToFormWindow.h"
 

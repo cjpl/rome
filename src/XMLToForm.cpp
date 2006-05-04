@@ -7,7 +7,7 @@
 //                                                                            //
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
-// $Id: XMLToForm.cpp 3402 2006-04-30 13:10:16Z Matthias Schneebeli $
+// $Id$
 
 #include "XMLToForm.h"
 #include "XMLToFormWindow.h"
@@ -673,7 +673,9 @@ XMLToForm::~XMLToForm()
 {
    if (fMainFrame != NULL)
       DeleteFrame(fMainFrame);
+#if defined( R__VISUAL_CPLUSPLUS )
    delete fWindow;
+#endif
    delete fSubstitutes;
    delete fPlaceHolders;
    delete fXML;

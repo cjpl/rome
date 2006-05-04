@@ -1,4 +1,4 @@
-// $Id: XMLToForm.h 3402 2006-04-30 13:10:16Z Matthias Schneebeli $
+// $Id$
 #ifndef XMLToForm_H
 #define XMLToForm_H
 
