@@ -93,6 +93,7 @@ protected:
    Bool_t         fBatchMode;                    //! Batch mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
    Bool_t         fSplashScreen;                 //! Splash screen flag
+   Bool_t         fGraphicalConfigEdit;          //! Configuration edit flag
 
    Bool_t         fDontReadNextEvent;            //! Don't read the next event from file/buffer
 
@@ -296,10 +297,12 @@ public:
    Bool_t          isSplashScreen() { return fSplashScreen; };
    Bool_t          isBatchMode() { return fBatchMode; };
    Bool_t          isQuitMode() { return fQuitMode; };
+   Bool_t          isGraphicalConfigEdit() { return fGraphicalConfigEdit; };
 
    void            SetSplashScreen(Bool_t flag=true)  { fSplashScreen = flag; };
    void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; };
    void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; };
+   void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; };
 
    // Analysis Mode
    Bool_t          isOnline() { return fAnalysisMode==kAnalyzeOnline; };
@@ -514,6 +517,7 @@ public:
 
    // Configuration
    ROMEConfig     *GetConfiguration() { return fConfiguration; };
+   virtual Bool_t  ShowConfigurationFile() = 0;
 
    // Statistics
    Statistics     *GetTriggerStatistics() { return &fTriggerStatistics; };

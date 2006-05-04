@@ -324,6 +324,13 @@ Bool_t ROMEBuilder::StartBuilder()
          tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1+tabHistoArrayIndexEnd[i][j]-tabHistoArrayIndexStart[i][j],tabHistoIndexMax[i]);
       }
    }
+   // fill task hierarchy index
+   Int_t taskIndex = 0;
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      taskHierarchyObjectIndex[i] = taskIndex++;
+   }
 
    // test for fortran
    for (i=0;i<numOfTask;i++) {
@@ -390,6 +397,7 @@ Bool_t ROMEBuilder::StartBuilder()
    }
 
    // write classes
+   if (!AddConfigParameters()) return false;
    if (makeOutput) 
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
@@ -423,7 +431,8 @@ Bool_t ROMEBuilder::StartBuilder()
    if (makeOutput) 
       cout << "\n\nFramework:" << endl;
    if (!WriteSteering(numOfTask)) return false;
-   if (!AddConfigParameters()) return false;
+   if (!WriteConfigToFormCpp()) return false;
+   if (!WriteConfigToFormH()) return false;
    if (!WriteConfigCpp()) return false;
    if (!WriteConfigH()) return false;
    if (!WriteMidasDAQCpp()) return false;
@@ -523,6 +532,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          mysql = true;
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("meg",0);
       }
       else if (!strcmp(argv[i],"-drs")) {
          makeOutput = false;
@@ -564,6 +574,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_USB",2);
          flags.AddAtAndExpand("HAVE_AFG3251",3);
          flags.AddAtAndExpand("HAVE_VME",4);
+      }
+      else if (!strcmp(argv[i],"-stepbystep")) {
+         noLink = true;
+         outDir = "C:/rome/examples/stepbystep/";
+         xmlFile = "C:/rome/examples/stepbystep/stepbystep.xml";
       }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;

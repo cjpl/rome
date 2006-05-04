@@ -463,6 +463,10 @@ private:
    Bool_t  WriteWindowH();
    Bool_t  AddTab(ROMEString& buffer,Int_t& i);
    Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset);
+   Bool_t  WriteConfigToFormCpp();
+   Bool_t  WriteConfigToFormH();
+   Bool_t  WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer);
+   Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();

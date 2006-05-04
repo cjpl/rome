@@ -1,7 +1,7 @@
 //// Author: 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTPrintADCValues                                                         //
+// SDAQTPrintADCValues                                                         //
 //                                                                            //
 // 
 // 
@@ -17,20 +17,20 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/generated/XYZTPrintADCValues.h>
+#include <include/generated/SDAQTPrintADCValues.h>
 #include <Riostream.h>
 
-ClassImp(XYZTPrintADCValues)
+ClassImp(SDAQTPrintADCValues)
 
-void XYZTPrintADCValues::Init()
+void SDAQTPrintADCValues::Init()
 {
 }
 
-void XYZTPrintADCValues::BeginOfRun()
+void SDAQTPrintADCValues::BeginOfRun()
 {
 }
 
-void XYZTPrintADCValues::Event()
+void SDAQTPrintADCValues::Event()
 {
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
       for (int i=0;i<10;i++)
@@ -39,11 +39,11 @@ void XYZTPrintADCValues::Event()
    }
 }
 
-void XYZTPrintADCValues::EndOfRun()
+void SDAQTPrintADCValues::EndOfRun()
 {
 }
 
-void XYZTPrintADCValues::Terminate()
+void SDAQTPrintADCValues::Terminate()
 {
 }
 

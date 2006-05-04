@@ -1,7 +1,7 @@
 //// Author: 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// XYZTPrintADCValues                                                         //
+// SBSTPrintADCValues                                                         //
 //                                                                            //
 // 
 // 
@@ -17,21 +17,24 @@
 //                                                                            //
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/generated/XYZTPrintADCValues.h>
+#include <include/generated/SBSTPrintADCValues.h>
 #include <Riostream.h>
 
-ClassImp(XYZTPrintADCValues)
+ClassImp(SBSTPrintADCValues)
 
-void XYZTPrintADCValues::Init()
+void SBSTPrintADCValues::Init()
 {
 }
 
-void XYZTPrintADCValues::BeginOfRun()
+void SBSTPrintADCValues::BeginOfRun()
 {
 }
 
-void XYZTPrintADCValues::Event()
+void SBSTPrintADCValues::Event()
 {
+   for (int i=0;i<10;i++)
+      gAnalyzer->GetPMTDataAt(i)->SetADC(i);
+
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
       for (int i=0;i<10;i++)
          cout << gAnalyzer->GetPMTDataAt(i)->GetADC() << endl;
@@ -39,11 +42,11 @@ void XYZTPrintADCValues::Event()
    }
 }
 
-void XYZTPrintADCValues::EndOfRun()
+void SBSTPrintADCValues::EndOfRun()
 {
 }
 
-void XYZTPrintADCValues::Terminate()
+void SBSTPrintADCValues::Terminate()
 {
 }
 

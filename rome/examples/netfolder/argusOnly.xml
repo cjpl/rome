@@ -10,9 +10,11 @@
     </ARGUS>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers></RunNumbers>
-    <EventNumbers></EventNumbers>
-    <InputFileNames></InputFileNames>
+    <RunParameters>
+		<RunNumbers></RunNumbers>
+		<EventNumbers></EventNumbers>
+		<InputFileNames></InputFileNames>
+    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
@@ -48,7 +50,7 @@
     </Paths>
     <Histograms>
       <Read>false</Read>
-      <Run>0</Run>
+      <RunNumber>0</RunNumber>
     </Histograms>
     <Tabs>
       <Tab>

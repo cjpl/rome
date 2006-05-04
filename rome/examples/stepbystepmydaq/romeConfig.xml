@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <!-- created by MXML on Mon Apr  3 21:49:50 2006 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/rome/romeConfig.xsd">
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
       <Active>true</Active>
@@ -10,9 +10,11 @@
     </ARGUS>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers></EventNumbers>
-    <InputFileNames></InputFileNames>
+    <RunParameters>
+		<RunNumbers>1</RunNumbers>
+		<EventNumbers></EventNumbers>
+		<InputFileNames></InputFileNames>
+    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>mydaq</DAQSystem>

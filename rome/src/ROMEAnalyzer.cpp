@@ -92,6 +92,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fBatchMode = false;
    fQuitMode = false;
    fSplashScreen = true;
+   fGraphicalConfigEdit = true;
    fDontReadNextEvent = false;
    fInputDir = "./";
    fOutputDir = "./";
@@ -431,9 +432,15 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       gROME->PrintLine("\nTerminate program.\n");
       return false;
    }
-   if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-      gROME->PrintLine("\nTerminate program.\n");
-      return false;
+   if (isGraphicalConfigEdit()) {
+      if (!this->ShowConfigurationFile()) {
+         gROME->PrintLine("\nTerminate program.\n");
+         return false;
+      }
+      if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
+         gROME->PrintLine("\nTerminate program.\n");
+         return false;
+      }
    }
 
    for (i=1;i<argc;i++) {
