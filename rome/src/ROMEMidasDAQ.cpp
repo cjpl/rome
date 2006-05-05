@@ -329,14 +329,13 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
          if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
          else {
-            if (fByteSwap) {
-               //byte swapping
-               ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
-               ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
-               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
-               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
-               ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
-      	    }
+#if !defined( R__BYTESWAP )
+            ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
+            ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
+            ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
+#endif
             n = 0;
             if (pevent->data_size <= 0) readError = true;
             else {
