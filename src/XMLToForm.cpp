@@ -673,9 +673,6 @@ XMLToForm::~XMLToForm()
 {
    if (fMainFrame != NULL)
       DeleteFrame(fMainFrame);
-#if defined( R__VISUAL_CPLUSPLUS )
-   delete fWindow;
-#endif
    delete fSubstitutes;
    delete fPlaceHolders;
    delete fXML;
