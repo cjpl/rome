@@ -411,6 +411,7 @@ protected:
 
 // Configuration
    ROMEConfigParameterGroup* mainParGroup;
+   int maxConfigParameterHierarchyLevel;
 
 public:
    ROMEBuilder() { haveFortranTask = false; };
