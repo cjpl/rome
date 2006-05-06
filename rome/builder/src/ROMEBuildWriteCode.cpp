@@ -9148,10 +9148,10 @@ Bool_t ROMEBuilder::WriteLinkDefHs()
 {
    ROMEString filename;
 
+/*
    filename = "dict/ROMELinkDef.h";
    if (!WriteLinkDefH(romeDictHeaders, romeLinkDefSuffix, filename.Data()))
       return false;
-/*
    filename = "dict/ARGUSLinkDef.h";
    if (!WriteLinkDefH(argusHeaders, argusLinkDefSuffix, filename.Data()))
       return false;
