@@ -14,6 +14,8 @@
 
 #include <ROMEXMLDataBase.h>
 
+ClassImp(ROMEXMLDataBase)
+
 ROMEXMLDataBase::ROMEXMLDataBase() {
    xml = new ROMEXML();
 }

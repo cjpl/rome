@@ -26,6 +26,8 @@ public:
    char   *GetType() { return "odb"; };
    char   *GetDescription() { return "Midas ODB database for offline use"; };
    Bool_t  SetBuffer(char *buffer);
+
+   ClassDef(ROMEODBOfflineDataBase, 0) // Interface to ODB in offline
 };
 
 #endif   // ROMEXMLDataBase_H

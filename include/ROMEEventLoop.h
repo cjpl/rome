@@ -106,6 +106,8 @@ protected:
    virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex,const char* runNumber="") = 0;
 
    virtual void ReadHistograms() = 0;
+
+   ClassDef(ROMEEventLoop, 0) // Base event loop class
 };
 
 #endif   // ROMEEventLoop_H

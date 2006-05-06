@@ -11,7 +11,7 @@
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
 
-class ROMEPath
+class ROMEPath : public TObject
 {
 protected:
    // decode
@@ -103,6 +103,8 @@ protected:
 
    // internal methods
    Int_t   MinPosition(Int_t i1=-1,Int_t i2=-1,Int_t i3=-1,Int_t i4=-1);
+
+   ClassDef(ROMEPath, 0) // Class for analysing database path
 };
 
 #endif   // ROMEPath_H

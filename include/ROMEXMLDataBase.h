@@ -39,6 +39,8 @@ public:
    Bool_t Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
    char  *GetType() { return "xml"; }
    char  *GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
+
+   ClassDef(ROMEXMLDataBase, 0) // XML database access
 };
 
 #endif   // ROMEXMLDataBase_H

@@ -13,6 +13,8 @@
 #include <ROMEAnalyzer.h>
 #include <ROMERomeDAQ.h>
 
+ClassImp(ROMERomeDAQ)
+
 ROMERomeDAQ::ROMERomeDAQ() {
    fTreeInfo = new ROMETreeInfo();
    fTreeIndex = 0;

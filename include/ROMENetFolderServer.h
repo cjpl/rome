@@ -18,6 +18,8 @@ protected:
    static int CheckCommand(TSocket *socket,char *str);
    static THREADTYPE Server(void *arg);
    static THREADTYPE ServerLoop(void *arg);
+
+   ClassDef(ROMENetFolderServer, 0) // Customized TNetFolder for ROME
 };
 
 #endif   // ROMENetFolderServer_H

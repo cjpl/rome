@@ -36,6 +36,8 @@ public:
              TRint::Run(retrn);
              fRunning = false;
           }
+
+   ClassDef(ROMERint, 0) // Customized TRint for ROME
 };
 
 #endif   // ROMERint_H

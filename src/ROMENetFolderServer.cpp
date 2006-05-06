@@ -24,6 +24,8 @@
 #include <ROMEAnalyzer.h>
 #include <ROMENetFolderServer.h>
 
+ClassImp(ROMENetFolderServer)
+
 int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    // Read Command

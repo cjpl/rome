@@ -19,7 +19,7 @@ extern "C" {
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
 
-class ROMEXML
+class ROMEXML : public TObject
 {
 protected:
    // read & path
@@ -38,7 +38,7 @@ protected:
    Int_t   IndexOfChildNode(PMXML_NODE node,PMXML_NODE childNode);
 public:
    ROMEXML();
-   ~ROMEXML();
+   virtual ~ROMEXML();
 
    const char *GetFileName() { return fFileName.Data(); };
    const char *GetPath() { return fPath.Data(); };
@@ -111,6 +111,10 @@ public:
    Double_t    GetNodeDoubleValue(PMXML_NODE node);
    const char *GetNodeName(PMXML_NODE node);
    const char *GetNodeAttribute(PMXML_NODE node,const char* name);
+
+#if !defined(BUILDER)
+   ClassDef(ROMEXML, 0) // Interface to XML files
+#endif
 };
 
 #endif   // ROMEXML_H

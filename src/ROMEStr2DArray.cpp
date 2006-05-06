@@ -11,6 +11,8 @@
 #include <ROMEStr2DArray.h>
 #include "Riostream.h"
 
+ClassImp(ROMEStr2DArray)
+
 ROMEStr2DArray::ROMEStr2DArray(Int_t sizeX,Int_t sizeY)
 {
    fSizeX = sizeX;

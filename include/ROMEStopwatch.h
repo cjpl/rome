@@ -21,7 +21,8 @@ public:
                                     (Int_t)((runTime % 3600) / 600), (Int_t)((runTime % 600) / 60), (Int_t)((runTime % 60) / 10),
                                     (Int_t)(runTime % 10),milli);
                   return time.Data();
-               }
+   }
+   ClassDef(ROMEStopwatch, 0) // Customized TStopwatch for ROME
 };
 
 #endif   // ROMEStopwatch_H

@@ -61,7 +61,7 @@ protected:
   Bool_t              Send(const Char_t* mess, Int_t kind = kMESS_STRING);
   Bool_t              Recv(TMessage*& mess);
 
-  ClassDef( TNetFolder, 0 )
+  ClassDef( TNetFolder, 0 ) // Client for socket connection
 };
 
 #endif   // TNetFolder_H

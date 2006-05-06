@@ -23,6 +23,8 @@ public:
    Bool_t  Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
    char   *GetType() { return "odb"; };
    char   *GetDescription() { return "Midas ODB database for online use"; };
+
+   ClassDef(ROMEODBOnlineDataBase, 0) // Interface to ODB in online
 };
 
 #endif   // ROMEXMLDataBase_H

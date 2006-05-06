@@ -11,7 +11,8 @@
 #include <ROMEString.h>
 #include <ROMEStrArray.h>
 
-class ROMEUtilities {
+class ROMEUtilities : public TObject
+{
 public:
    ROMEUtilities() {};
    static void ByteSwap( UShort_t *aValue );
@@ -24,6 +25,8 @@ public:
    static void ByteSwap( Double_t *aValue );
    static void GetMidasTID(ROMEString *buf,Char_t *type);
    static void SearchXMLFiles(ROMEStrArray& files, const char* filepath, const char* xmlpath);
+
+   ClassDef(ROMEUtilities, 0) // Utilities for ROME
 };
 
 #endif // ROMEUtilities_H

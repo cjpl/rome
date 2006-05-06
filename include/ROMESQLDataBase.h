@@ -81,6 +81,8 @@ protected:
    Bool_t       DecodeDBConstraint(const char* currentTableName,const char* nextTableName,const char* dbConstraint,Long64_t runNumber,Long64_t eventNumber,const char* currentIdName,const char* currentIdxName);
    void         ResetPhrase();
    Bool_t       InRange(Int_t value,Int_t b1,Int_t b2){return TMath::Min(b1,b2)<=value && value<=TMath::Max(b1,b2);}
+
+   ClassDef(ROMESQLDataBase, 0) // DBMS independent class for SQL database access
 };
 
 #endif   // ROMESQLDataBase_H

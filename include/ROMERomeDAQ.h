@@ -41,6 +41,7 @@ public:
 
    virtual void ConnectTrees() = 0;
 
+   ClassDef(ROMERomeDAQ, 0) // Base DAQ class for trees
 };
 
 #endif   // ROMERomeDAQ_H

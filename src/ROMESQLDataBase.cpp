@@ -10,19 +10,19 @@
 //////////////////////////////////////////////////////////////////////////
 #include <RConfig.h>
 #include <TObjString.h>
-#if defined( R__UNIX )
+#if defined ( R__UNIX )
 #   include <unistd.h>
 #endif
-#if defined( HAVE_MYSQL )
+#if defined ( HAVE_MYSQL )
 #   include <ROMEMySQL.h>
 #endif
-#if defined( HAVE_PGSQL )
+#if defined ( HAVE_PGSQL )
 #   include <ROMEPgSQL.h>
 #endif
-#if defined( HAVE_SQLITE )
+#if defined ( HAVE_SQLITE )
 #   include <ROMESQLite.h>
 #endif
-#if defined( HAVE_SQLITE3 )
+#if defined ( HAVE_SQLITE3 )
 #   include <ROMESQLite3.h>
 #endif
 
@@ -32,6 +32,8 @@ const char RSQLDB_STR[]="RomeWasNotBuiltInADay";
 const int  RSQLDB_STR_LEN = strlen(RSQLDB_STR);
 const char* const kRunNumberReplace = "R_UN_NUMBE_R";
 const char* const kEventNumberReplace = "E_VENT_NUMBE_R";
+
+ClassImp(ROMESQLDataBase)
 
 ROMESQLDataBase::ROMESQLDataBase() {
    fSQL = NULL;
@@ -265,14 +267,14 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
          sqlQuery += " LIMIT 1;";
 
          ROMEString tmpString;
-#if defined( R__VISUAL_CPLUSPLUS )
+#if defined ( R__VISUAL_CPLUSPLUS )
          tmpString.SetFormatted("%I64d",eventNumber);
 #else
          tmpString.SetFormatted("%lld",eventNumber);
 #endif
          sqlQuery.ReplaceAll(kEventNumberReplace, tmpString);
          // replace # with the current run number
-#if defined( R__VISUAL_CPLUSPLUS )
+#if defined ( R__VISUAL_CPLUSPLUS )
          tmpString.SetFormatted("%I64d",runNumber);
 #else
          tmpString.SetFormatted("%lld",runNumber);
@@ -398,7 +400,7 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* c
    }
 
    if (passwd.Length()==1 && passwd(0) == '?') {
-#if defined( R__UNIX )
+#if defined ( R__UNIX )
       prompt.SetFormatted("%s@%s's password: ",user.Data(),server.Data());
       passwd = getpass(prompt.Data());
 #endif
@@ -543,7 +545,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
 
    // replace ## with the current run number
    if (fLastRunNumber != runNumber) {
-#if defined( R__VISUAL_CPLUSPLUS )
+#if defined ( R__VISUAL_CPLUSPLUS )
       sprintf(fLastRunNumberString, "%I64d", runNumber);
 #else
       sprintf(fLastRunNumberString, "%lld", runNumber);
@@ -553,7 +555,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    sqlQuery.ReplaceAll(kRunNumberReplace, fLastRunNumberString);
 
    if (fLastEventNumber != eventNumber) {
-#if defined( R__VISUAL_CPLUSPLUS )
+#if defined ( R__VISUAL_CPLUSPLUS )
       sprintf(fLastEventNumberString, "%I64d", eventNumber);
 #else
       sprintf(fLastEventNumberString, "%lld", eventNumber);

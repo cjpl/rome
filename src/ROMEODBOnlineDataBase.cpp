@@ -12,6 +12,8 @@
 #include <ROMEODBOnlineDataBase.h>
 #include <Riostream.h>
 
+ClassImp(ROMEODBOnlineDataBase)
+
 ROMEODBOnlineDataBase::ROMEODBOnlineDataBase() {
 }
 

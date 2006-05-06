@@ -10,7 +10,8 @@
 #include <ROMEStr2DArray.h>
 #include <ROMEString.h>
 
-class ROMEDataBase {
+class ROMEDataBase : public TObject
+{
 protected:
    ROMEString fName;
 public:
@@ -22,6 +23,8 @@ public:
    virtual char   *GetType() = 0;
    const char     *GetName() { return fName.Data(); };
    virtual char   *GetDescription() = 0;
+
+   ClassDef(ROMEDataBase, 0) // Base class for database access
 };
 
 #endif   // ROMEDataBase_H

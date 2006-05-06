@@ -33,6 +33,8 @@ public:
    virtual void     RemoveAll();
 
    TString          At(Int_t idx, Int_t idy);
+
+   ClassDef(ROMEStr2DArray, 1) // Two dimensional ROMEString array
 };
 
 #endif   // ROMEStr2DArray_H

@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQL.h>
 
+ClassImp(ROMESQL)
+
 Bool_t ROMESQL::CreateDataBase(const char* database)
 {
    ROMEString sqlquery;

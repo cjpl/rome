@@ -12,6 +12,8 @@
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 
+ClassImp(ROMEStrArray)
+
 ROMEStrArray::ROMEStrArray(Int_t s, Int_t lowerBound)
 {
    array = new TObjArray(s,lowerBound);

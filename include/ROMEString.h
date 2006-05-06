@@ -19,9 +19,11 @@ public:
    ROMEString(const char* s) : TString(s) {};
    ROMEString(const TString& s) : TString(s) {};
    ROMEString(const TSubString& s) : TString(s) {};
+#ifndef __MAKECINT__
    ROMEString&  AppendFormatted(const char* format=NULL,...);
    ROMEString&  InsertFormatted(Ssiz_t position,const char* format=NULL,...);
    ROMEString&  SetFormatted(const char* format=NULL,...);
+#endif
    static char* Format(const char *format, va_list ap);
    static char* SlowFormat(const char *format, va_list ap, int hint);
    Int_t        NumberOfOccurrence(ROMEString& subString);
@@ -39,6 +41,8 @@ public:
    istream&     ReadFile(istream& str);
    istream&     ReadLine(istream& str);
    ROMEString&  StripSpaces();
+
+   ClassDef(ROMEString, 1) // Functional TString for ROME
 };
 
 #endif   // ROMEString_H

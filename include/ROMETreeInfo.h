@@ -31,7 +31,7 @@ public:
    void     SetEventNumber     (Long64_t EventNumber     ) { event     = EventNumber;      };
    void     SetTimeStamp       (Int_t    TimeStamp       ) { time      = TimeStamp;        };
 
-   ClassDef(ROMETreeInfo,2)
+   ClassDef(ROMETreeInfo,2) // Event header of trees
 };
 
 #endif   // ROMETreeInfo_H

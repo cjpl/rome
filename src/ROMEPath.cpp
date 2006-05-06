@@ -15,6 +15,8 @@
 #include <ROMEPath.h>
 #include <Riostream.h>
 
+ClassImp(ROMEPath)
+
 ROMEPath::ROMEPath() {
    fOrderArray = false;
    fFieldArray = false;

@@ -40,6 +40,7 @@ public:
    Bool_t  CommitTransaction( const char* option );
    Bool_t  RollbackTransaction( const char* option );
 
+   ClassDef(ROMEPgSQL, 0) // Interface to PostgreSQL database
 };
 
 #endif   // ROMEPGSQL_H

@@ -21,6 +21,8 @@
 #  pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
+ClassImp(ROMEUtilities)
+
 // Byte swapping big endian <-> little endian
 void ROMEUtilities::ByteSwap( UShort_t *aValue ) 
 {
@@ -75,6 +77,11 @@ void ROMEUtilities::ByteSwap( ULong64_t *aValue )
    _tmp = *( ( (Byte_t *)( aValue ) ) + 3 );
    *( ( (Byte_t *)( aValue ) ) + 3 ) = *(((Byte_t *)( aValue ) ) + 4 );
    *( ( (Byte_t *)( aValue ) ) + 4 ) = _tmp;
+}
+
+void ROMEUtilities::ByteSwap( Long64_t *aValue )
+{
+    ByteSwap( (ULong64_t *)aValue );
 }
 
 void ROMEUtilities::ByteSwap( Double_t *aValue )

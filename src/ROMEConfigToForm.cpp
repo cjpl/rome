@@ -12,6 +12,8 @@
 
 #include "ROMEConfigToForm.h"
 
+ClassImp(ROMEConfigToForm)
+
 ROMEConfigToForm::ROMEConfigToForm()
 {
    fWindow = NULL;
@@ -102,7 +104,6 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
 }
 void ROMEConfigToForm::FillButtonFrame(XMLToFormFrame *frame)
 {
-   int nElement = 0;
    ROMEConfigToFormElements *elements = new ROMEConfigToFormElements();
    // Ok
    elements->AddElement("Button","Ok","","",1);

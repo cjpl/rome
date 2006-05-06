@@ -6,77 +6,164 @@
 # $Id$
 #
 #####################################################################
+
+# Switch for creating librome.a
+#  If yes, ROME classes are packed in librome.a and linked to each projects
+#  instead of compiling in each projects.
+LIBROME = yes
+
+# Compile mode
+DEBUG = no
+
+#####################################################################
+# Nothing needs to be modified after this line 
+#####################################################################
+INCLUDE := -I. -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
+LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
+TARGET :=  obj bin/romebuilder.exe
+
+ifeq ($(DEBUG), yes)
+  OPT = -g
+else
+  OPT = -O2
+endif
+
+ifeq ($(LIBROME), yes)
+  INCLUDE += -DHAVE_LIBROME
+  TARGET += librome.a
+endif
+
+-include Makefile.arch
+
+BldObjects := obj/ROMEBuilder.o \
+              obj/ROMEBuildReadXML.o \
+              obj/ROMEBuildWriteCode.o \
+              obj/ROMEBuildMakeFile.o \
+              obj/ROMEStr2DArray.o \
+              obj/ROMEStrArray.o \
+              obj/ROMEString.o \
+              obj/ROMEXML.o \
+              obj/ROMEBuilderDict.o \
+              obj/mxml.o \
+              obj/strlcpy.o
+
+BldDictHeaders := include/ROMEString.h \
+                  include/ROMEStrArray.h \
+                  include/ROMEStr2DArray.h \
+                  include/ROMEXML.h
+
+LibObjects := obj/ROMEStr2DArray.o \
+              obj/ROMEStrArray.o \
+              obj/ROMEString.o \
+              obj/ROMEXML.o \
+              obj/ROMELibDict.o \
+              obj/ROMEConfigToForm.o \
+              obj/ROMEDAQSystem.o \
+              obj/ROMEDataBaseDAQ.o \
+              obj/ROMENetFolder.o \
+              obj/ROMENetFolderServer.o \
+              obj/ROMEODBOfflineDataBase.o \
+              obj/ROMEODBOnlineDataBase.o \
+              obj/ROMEOrcaDAQ.o \
+              obj/ROMEPath.o \
+              obj/ROMERomeDAQ.o \
+              obj/ROMETask.o \
+              obj/ROMETextDataBase.o \
+              obj/ROMEUtilities.o \
+              obj/ROMEXMLDataBase.o \
+              obj/TArrayL64.o \
+              obj/TNetFolder.o \
+              obj/TNetFolderServer.o \
+              obj/XMLToForm.o \
+              obj/XMLToFormWindow.o \
+              obj/ArgusAnalyzerController.o \
+              obj/ArgusTab.o \
+              obj/ArgusTextDialog.o \
+              obj/ArgusWindow.o \
+              obj/mxml.o \
+              obj/strlcpy.o
+
+LibDictHeaders := include/ROMEString.h \
+                  include/ROMEStrArray.h \
+                  include/ROMEStr2DArray.h \
+                  include/ROMEXML.h \
+                  include/ROMETask.h \
+                  include/ROMERint.h \
+                  include/ROMETreeInfo.h \
+                  include/ROMENetFolder.h \
+                  include/ROMENetFolderServer.h \
+                  include/ROMEConfig.h \
+                  include/ROMEDataBase.h \
+                  include/ROMENoDataBase.h \
+                  include/ROMEODBOfflineDataBase.h \
+                  include/ROMEODBOnlineDataBase.h \
+                  include/ROMETextDataBase.h \
+                  include/ROMEXMLDataBase.h \
+                  include/ROMETree.h \
+                  include/ROMEPath.h \
+                  include/ROMEStopwatch.h \
+                  include/ROMEDAQSystem.h \
+                  include/ROMEUtilities.h \
+                  include/ROMEConfigToForm.h \
+                  include/ROMEConfigToFormElements.h \
+                  include/ROMEDataBaseDAQ.h \
+                  include/ROMENoDAQSystem.h \
+                  include/ROMERomeDAQ.h \
+                  include/ROMEDataBase.h \
+                  include/TNetFolder.h \
+                  include/TNetFolderServer.h \
+                  include/XMLToFormWindow.h \
+                  include/XMLToForm.h \
+                  include/XMLToFormFrame.h \
+                  include/XMLToFormWindow.h \
+                  include/TArrayL64.h \
+                  argus/include/ArgusWindow.h \
+                  argus/include/ArgusTextDialog.h \
+                  argus/include/ArgusAnalyzerController.h \
+                  argus/include/ArgusTab.h
+
 #
-INCLUDE :=  -I. -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
-LIBRARY := $(shell $(ROOTSYS)/bin/root-config --libs)
+# Compile and linking
+#
 
-
-OSTYPE = $(shell uname |  tr '[A-Z]' '[a-z]')
-
-ifeq ($(OSTYPE),osf1)
-LIBRARY += -lc -lbsd
-endif
-
-ifeq ($(OSTYPE),freebsd)
-LIBRARY += -lbsd -lcompat
-endif
-
-ifeq ($(OSTYPE),darwin)
-FINK_DIR := $(shell which fink 2>&1 | sed -ne "s/\/bin\/fink//p")
-INCLUDE += -DHAVE_STRLCPY $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)
-LIBRARY += -multiply_defined suppress $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib) -lpthread
-endif
-
-ifeq ($(OSTYPE),linux)
-LIBRARY += -lpthread
-endif
-
-ifeq ($(OSTYPE),soralis)
-LIBRARY += -lsocket -lnsl
-endif
-
-objects :=  obj/ROMEBuilder.o obj/ROMEBuildReadXML.o obj/ROMEBuildWriteCode.o obj/ROMEBuildMakeFile.o obj/ROMEXML.o obj/mxml.o obj/strlcpy.o obj/ROMEString.o obj/ROMEStrArray.o obj/ROMEStr2DArray.o
-
-all: obj $(ROMESYS)/bin/romebuilder.exe
+all: $(TARGET)
 
 obj:
 	@if [ ! -d  obj ] ; then \
 		echo "Making directory obj" ; \
 		mkdir obj; \
 	fi;
-$(ROMESYS)/bin/romebuilder.exe: builder/src/main.cpp $(objects)
-	g++ $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(objects) $(LIBRARY)
 
-obj/ROMEBuilder.o: builder/src/ROMEBuilder.cpp builder/include/ROMEBuilder.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
-obj/ROMEBuildReadXML.o: builder/src/ROMEBuildReadXML.cpp builder/include/ROMEBuilder.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEBuildWriteCode.o: builder/src/ROMEBuildWriteCode.cpp builder/include/ROMEBuilder.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEBuildMakeFile.o: builder/src/ROMEBuildMakeFile.cpp builder/include/ROMEBuilder.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEXML.o: src/ROMEXML.cpp include/ROMEXML.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEString.o: src/ROMEString.cpp include/ROMEString.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEStrArray.o: src/ROMEStrArray.cpp include/ROMEStrArray.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
-
-obj/ROMEStr2DArray.o: src/ROMEStr2DArray.cpp include/ROMEStr2DArray.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+librome.a: $(LibObjects)
+	rm -f $@
+	ar -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	g++ $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
+obj/%Dict.o: %Dict.cpp %Dict.h
+	g++ $(CFLAGS) -c $(INCLUDE) -o $@ $<
+
+ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders) include/LinkDef.h
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders) include/LinkDef.h
+
+ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
+
+obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/%.o: src/%.cpp include/%.h
+	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 clean:
-	rm -f $(objects)
+	-rm -f $(BldObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
