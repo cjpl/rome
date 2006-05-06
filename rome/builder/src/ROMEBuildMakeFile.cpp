@@ -1332,7 +1332,8 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
-   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders,"dict/ROMELinkDef.h");
+//   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders,"dict/ROMELinkDef.h");
+   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
    WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);

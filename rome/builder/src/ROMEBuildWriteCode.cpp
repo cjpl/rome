@@ -2334,7 +2334,7 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
       }
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   ~%sT%s_Base() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   virtual ~%sT%s_Base() {\n", shortCut.Data(), tabName[iTab].Data());
       for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
       }
@@ -2599,7 +2599,7 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("   {\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   virtual ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
          buffer.AppendFormatted("   {\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("\n");
@@ -4422,7 +4422,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    // Method
    buffer.AppendFormatted("public:\n");
    buffer.AppendFormatted("   %sWindow(const TGWindow *p, char *title);\n", shortCut.Data());
-   buffer.AppendFormatted("   ~%sWindow() {}\n", shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sWindow() {};\n", shortCut.Data());
    buffer.AppendFormatted("   Bool_t CreateTabs();\n");
    buffer.AppendFormatted("   Bool_t AddMenuNetFolder(TGPopupMenu* menu);\n");
    buffer.AppendFormatted("\n");
@@ -7292,7 +7292,7 @@ Bool_t ROMEBuilder::WriteDBH()
          buffer.AppendFormatted("public:\n");
          // Constructor and Methods
          buffer.AppendFormatted("   %s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
-         buffer.AppendFormatted("   ~%s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
+         buffer.AppendFormatted("   virtual ~%s%sDataBase();\n",shortCut.Data(),dbName[iDB].Data());
 
          // Methods
          buffer.AppendFormatted("\n");
@@ -7467,8 +7467,6 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
    }
 
    // Footer
-   if (steerName[numTask][numSteer] == "GlobalSteering")
-      buffer.AppendFormatted("   ClassDef(%sGlobalSteering, 0);\n",shortCut.Data());
    buffer.AppendFormatted("%s};\n\n",blank.Data());
 
    return true;

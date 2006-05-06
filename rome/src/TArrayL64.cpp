@@ -131,6 +131,7 @@ void TArrayL64::Set(Int_t n, const Long64_t *array)
    memcpy(fArray,array, n*sizeof(Long64_t));
 }
 
+#if 0
 //_______________________________________________________________________
 void TArrayL64::Streamer(TBuffer &b)
 {
@@ -146,4 +147,5 @@ void TArrayL64::Streamer(TBuffer &b)
       b.WriteFastArray(fArray, fN);
    }
 }
+#endif
 

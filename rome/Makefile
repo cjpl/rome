@@ -10,6 +10,7 @@
 # Switch for creating librome.a
 #  If yes, ROME classes are packed in librome.a and linked to each projects
 #  instead of compiling in each projects.
+#  When you changed this key, you need to do "make clean" before recompile.
 LIBROME = no
 
 # Compile mode for librome.a and romebuilder
@@ -150,8 +151,8 @@ obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
 obj/%Dict.o: %Dict.cpp %Dict.h
 	g++ $(CFLAGS) -c $(INCLUDE) -o $@ $<
 
-ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders) include/LinkDef.h
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders) include/LinkDef.h
+ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders)
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
