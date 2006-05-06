@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMESQLite3.h>
 
+ClassImp(ROMESQLite3)
+
 ROMESQLite3::ROMESQLite3() {
    db   = NULL;
    stmt = NULL;

@@ -13,6 +13,8 @@
 #include <ROMEString.h>
 #include <Riostream.h>
 
+ClassImp(ROMEODBOfflineDataBase)
+
 ROMEODBOfflineDataBase::ROMEODBOfflineDataBase() {
    xml = new ROMEXML();
 }

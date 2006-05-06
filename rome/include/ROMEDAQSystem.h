@@ -7,9 +7,11 @@
 #ifndef ROMEDAQSystem_H
 #define ROMEDAQSystem_H
 #include <Rtypes.h>
+#include <TObject.h>
 #include <ROMEStopwatch.h>
 
-class ROMEDAQSystem {
+class ROMEDAQSystem : public TObject
+{
    // Run Status
    enum {
       kRunning   = 0,
@@ -30,8 +32,8 @@ class ROMEDAQSystem {
    ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
 
 public:
-   ROMEDAQSystem::ROMEDAQSystem() {};
-   virtual ROMEDAQSystem::~ROMEDAQSystem() {};
+   ROMEDAQSystem() {};
+   virtual ~ROMEDAQSystem() {};
 
    virtual Int_t       GetTimeStamp() = 0;
    virtual const char *GetName() = 0;
@@ -66,6 +68,8 @@ public:
    void                SetBeginOfRun() { fEventStatus = kBeginOfRun; };
    void                SetEndOfRun()   { fEventStatus = kEndOfRun;   };
    void                SetTerminate()  { fEventStatus = kTerminate;  };
+
+   ClassDef(ROMEDAQSystem, 0) // Base DAQ class
 };
 
 #endif   // ROMEDAQSystem_H

@@ -41,7 +41,7 @@ protected:
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
-   ClassDef(XMLToFormWindow, 0)
+   ClassDef(XMLToFormWindow, 0) // Window for XMLToForm
 };
 
 #endif   // XMLToFormWindow_H

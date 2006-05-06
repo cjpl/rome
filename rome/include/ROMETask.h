@@ -48,7 +48,7 @@ protected:
    const char  *GetTimeOfEvents();
    const char  *GetTimeOfAll();
 
-   ClassDef(ROMETask,1)
+   ClassDef(ROMETask,1) // Customized TTask for ROME
 };
 
 #endif   // ROMETask_H

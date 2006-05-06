@@ -18,6 +18,8 @@ public:
    Bool_t  Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber) { return true; };
    char   *GetType() { return "none"; }
    char   *GetDescription() { return "No data base connected"; }
+
+   ClassDef(ROMENoDataBase, 0) // Empty database class
 };
 
 #endif   // ROMEDataBase_H

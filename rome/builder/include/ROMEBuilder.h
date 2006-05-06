@@ -70,6 +70,7 @@ protected:
    Bool_t        sqlite;
    Bool_t        sqlite3;
    Bool_t        noVP;
+   Bool_t        librome;
    ROMEStrArray  flags;
    ROMEStrArray  affiliations;
    ROMEStr2DArray affiliationList;

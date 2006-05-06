@@ -4594,6 +4594,8 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
 
+   buffer.AppendFormatted("\nClassImp(%sConfigToForm)\n",shortCut.Data());
+
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
    buffer.AppendFormatted("%sConfigToForm::%sConfigToForm():ROMEConfigToForm()\n",shortCut.Data(),shortCut.Data());
@@ -4729,6 +4731,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
 
    buffer.AppendFormatted("\n");
    // Footer
+   buffer.AppendFormatted("   ClassDef(%sConfigToForm, 0)\n",shortCut.Data());
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sConfigToForm_H\n",shortCut.Data());
@@ -4763,7 +4766,6 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    // Header
    buffer.AppendFormatted("\n");
-
 
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
@@ -4800,6 +4802,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
+
+   buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
@@ -5088,6 +5092,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    // Footer
 
    buffer.AppendFormatted("#endif\n");
+   buffer.AppendFormatted("   ClassDef(%sConfig, 0)\n",shortCut.Data());
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sConfig_H\n",shortCut.Data());
@@ -6328,6 +6333,8 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("#include \"include/generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted( " #include \"ROMEUtilities.h\"\n" );
 
+   buffer.AppendFormatted("\nClassImp(%sMidasDAQ)\n",shortCut.Data());
+
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
    buffer.AppendFormatted("%sMidasDAQ::%sMidasDAQ() {\n",shortCut.Data(),shortCut.Data());
@@ -6862,7 +6869,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
 
    buffer.AppendFormatted("\n");
    // Footer
-
+   buffer.AppendFormatted("   ClassDef(%sMidasDAQ, 0)\n",shortCut.Data());
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sMidasDAQ_H\n",shortCut.Data());
@@ -6903,6 +6910,8 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sRomeDAQ.h\"\n",shortCut.Data());
+
+   buffer.AppendFormatted("\nClassImp(%sRomeDAQ)\n",shortCut.Data());
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
@@ -6996,7 +7005,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    buffer.AppendFormatted("\n");
    // Footer
-
+   buffer.AppendFormatted("   ClassDef(%sRomeDAQ, 0)\n",shortCut.Data());
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sRomeDAQ_H\n",shortCut.Data());
@@ -7046,6 +7055,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
          buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
          buffer.AppendFormatted("\n");
 
+         buffer.AppendFormatted("ClassImp(%s%s)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),daqName[iDAQ].Data(),shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("}\n");
@@ -7146,6 +7156,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   Bool_t EndOfRun();\n");
          buffer.AppendFormatted("   Bool_t Terminate();\n");
 
+         buffer.AppendFormatted("   ClassDef(%s%s, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("};\n\n");
 
 
@@ -7194,6 +7205,8 @@ Bool_t ROMEBuilder::WriteDBCpp() {
 
          buffer.AppendFormatted("#include \"include/databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("\n");
+
+         buffer.AppendFormatted("ClassImp(%s%sDataBase)\n",shortCut.Data(),dbName[iDB].Data());
 
          buffer.AppendFormatted("%s%sDataBase::%s%sDataBase()\n",shortCut.Data(),dbName[iDB].Data(),shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("{\n");
@@ -7289,6 +7302,7 @@ Bool_t ROMEBuilder::WriteDBH()
          buffer.AppendFormatted("   char   *GetType() { return \"%s\"; }\n",dbName[iDB].Data());
          buffer.AppendFormatted("   char   *GetDescription() { return \"%s\"; }\n",dbDescription[iDB].Data());
 
+         buffer.AppendFormatted("   ClassDef(%s%sDataBase, 0)\n",shortCut.Data(),dbName[iDB].Data());
          buffer.AppendFormatted("};\n\n");
 
 
@@ -7453,6 +7467,8 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
    }
 
    // Footer
+   if (steerName[numTask][numSteer] == "GlobalSteering")
+      buffer.AppendFormatted("   ClassDef(%sGlobalSteering, 0);\n",shortCut.Data());
    buffer.AppendFormatted("%s};\n\n",blank.Data());
 
    return true;
@@ -7913,6 +7929,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("\n");
 
+   buffer.AppendFormatted("\nClassImp(%sEventLoop)\n",shortCut.Data());
+
    // Constructor
    buffer.AppendFormatted("%sEventLoop::%sEventLoop(const char *name,const char *title):ROMEEventLoop(name,title) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("}\n");
@@ -8324,9 +8342,8 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   void ReadHistograms();\n");
    buffer.AppendFormatted("\n");
 
-//   buffer.AppendFormatted("   ClassDef(%sEventLoop,0);\n",shortCut.Data());
-
    // Footer
+   buffer.AppendFormatted("   ClassDef(%sEventLoop, 0)\n",shortCut.Data());
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sEventLoop_H\n",shortCut.Data());

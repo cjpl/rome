@@ -43,6 +43,7 @@ public:
    Bool_t  CommitTransaction( const char* option );
    Bool_t  RollbackTransaction( const char* option );
 
+   ClassDef(ROMESQLite, 0) // Interface to SQLite version 2.
 };
 
 #endif   // ROMESQLITE_H

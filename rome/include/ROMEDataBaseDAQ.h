@@ -9,7 +9,8 @@
 
 #include <ROMEDAQSystem.h>
 
-class ROMEDataBaseDAQ : public ROMEDAQSystem {
+class ROMEDataBaseDAQ : public ROMEDAQSystem
+{
 protected:
 
    Int_t         fTimeStamp;                       //! Current time stamp
@@ -26,6 +27,8 @@ public:
    Bool_t      Event(Long64_t event);
    Bool_t      EndOfRun();
    Bool_t      Terminate();
+
+   ClassDef(ROMEDataBaseDAQ, 0) // Database DAQ class
 };
 
 #endif   // ROMEDataBaseDAQ_H

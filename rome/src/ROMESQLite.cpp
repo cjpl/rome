@@ -14,6 +14,8 @@
 #   include <windows.h>
 #endif
 
+ClassImp(ROMESQLite)
+
 ROMESQLite::ROMESQLite() {
    db = NULL;
    vm = NULL;

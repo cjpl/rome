@@ -14,6 +14,8 @@
 const char* EndOfHeader = "/////////////////////////////////////----///////////////////////////////////////";
 const int   numbering = 10;
 
+ClassImp(ROMETextDataBase)
+
 ROMETextDataBase::ROMETextDataBase() {
    fTime = new TTimeStamp();
 }

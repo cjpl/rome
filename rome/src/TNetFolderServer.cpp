@@ -30,6 +30,8 @@
 
 TApplication *TNetFolderServer::fApplication;
 
+ClassImp(TNetFolderServer)
+
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))

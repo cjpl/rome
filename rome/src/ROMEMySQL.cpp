@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEMySQL.h>
 
+ClassImp(ROMEMySQL)
+
 ROMEMySQL::ROMEMySQL() {
    mysql_init(&mysql);
 }

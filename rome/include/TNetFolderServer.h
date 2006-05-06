@@ -35,6 +35,7 @@ protected:
    static THREADTYPE  Server(void *arg);
    static THREADTYPE  ServerLoop(void *arg);
 
+   ClassDef(TNetFolderServer, 0) // Server for socket connection
 };
 
 #endif   // TNetFolderServer_H

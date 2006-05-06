@@ -53,15 +53,15 @@ void ROMEBuilder::AddIncludeDirectories()
 void ROMEBuilder::AddRomeHeaders()
 {
    romeHeaders = new ROMEStrArray(50);
+   romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/ROME.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBaseDAQ.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEODBOfflineDataBase.h");
@@ -87,7 +87,9 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
+   romeHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
@@ -107,55 +109,141 @@ void ROMEBuilder::AddRomeHeaders()
 
 void ROMEBuilder::AddRomeDictHeaders()
 {
-   romeDictHeaders = new ROMEStrArray(6);
-   romeLinkDefSuffix = new ROMEStrArray(6);
-   romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
-   romeLinkDefSuffix->Add("");
-   romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
-   romeLinkDefSuffix->Add("");
-   romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
-   romeLinkDefSuffix->Add("");
-   romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
-   romeLinkDefSuffix->Add("");
-   romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
-   romeLinkDefSuffix->Add("-!");
-   romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
-   romeLinkDefSuffix->Add("");
+   romeDictHeaders = new ROMEStrArray(21);
+   romeLinkDefSuffix = new ROMEStrArray(21);
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeLinkDefSuffix->Add("");
+   romeDictHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
+   romeLinkDefSuffix->Add("");
+   romeDictHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
+   romeLinkDefSuffix->Add("");
+   if (!librome) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMERint.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETreeInfo.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+      romeLinkDefSuffix->Add("-!");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMENoDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEODBOfflineDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEODBOnlineDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETextDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEXMLDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEXML.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMETree.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEPath.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEDAQSystem.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBaseDAQ.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEUtilities.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
+      romeLinkDefSuffix->Add("");
+   }
+   if (this->sql) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMESQLDataBase.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMESQL.h");
+      romeLinkDefSuffix->Add("");
+   }
+   if (this->mysql) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEMySQL.h");
+      romeLinkDefSuffix->Add("");
+   }
+   if (this->pgsql) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEPgSQL.h");
+      romeLinkDefSuffix->Add("");
+   }
+   if (this->sqlite) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMESQLite.h");
+      romeLinkDefSuffix->Add("");
+   }
+   if (this->sqlite3) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMESQLite3.h");
+      romeLinkDefSuffix->Add("");
+   }
 }
 
 void ROMEBuilder::AddRomeSources()
 {
    romeSources = new ROMEStrArray(50);
-   romeSources->Add("$(ROMESYS)/src/mxml.c");
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEDataBaseDAQ.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMERomeDAQ.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMESplashScreen.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEStr2DArray.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEStrArray.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEString.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMETask.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMETextDataBase.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEUtilities.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
-   romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
-   romeSources->Add("$(ROMESYS)/src/strlcpy.c");
-   romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
-   romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMENetFolderServer.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMENetFolder.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEConfigToForm.cpp");
-   romeSources->Add("$(ROMESYS)/src/XMLToForm.cpp");
-   romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
+   if (!librome) {
+      romeSources->Add("$(ROMESYS)/src/mxml.c");
+      romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEDataBaseDAQ.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMERomeDAQ.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMESplashScreen.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEStr2DArray.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEStrArray.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEString.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETask.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETextDataBase.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEUtilities.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
+      romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
+      romeSources->Add("$(ROMESYS)/src/strlcpy.c");
+      romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
+      romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMENetFolderServer.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMENetFolder.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEConfigToForm.cpp");
+      romeSources->Add("$(ROMESYS)/src/XMLToForm.cpp");
+      romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
+   }
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");
    if (this->mysql)
@@ -178,23 +266,27 @@ void ROMEBuilder::AddArgusHeaders()
 {
    argusHeaders = new ROMEStrArray(4);
    argusLinkDefSuffix = new ROMEStrArray(4);
-   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
-   argusLinkDefSuffix->Add("");
-   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
-   argusLinkDefSuffix->Add("");
-   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
-   argusLinkDefSuffix->Add("");
-   argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTab.h");
-   argusLinkDefSuffix->Add("");
+   if (!librome) {
+      argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
+      argusLinkDefSuffix->Add("");
+      argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTextDialog.h");
+      argusLinkDefSuffix->Add("");
+      argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
+      argusLinkDefSuffix->Add("");
+      argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTab.h");
+      argusLinkDefSuffix->Add("");
+   }
 }
 
 void ROMEBuilder::AddArgusSources()
 {
    argusSources = new ROMEStrArray(6);
-   argusSources->Add("$(ROMESYS)/argus/src/ArgusWindow.cpp");
-   argusSources->Add("$(ROMESYS)/argus/src/ArgusTextDialog.cpp");
-   argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
-   argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
+   if (!librome) {
+      argusSources->Add("$(ROMESYS)/argus/src/ArgusWindow.cpp");
+      argusSources->Add("$(ROMESYS)/argus/src/ArgusTextDialog.cpp");
+      argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
+      argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
+   }
    if (argusHeaders->GetEntriesFast()>0)
       argusSources->AddFormatted("dict/ARGUSDict.cpp");
 }
@@ -242,11 +334,23 @@ void ROMEBuilder::AddGeneratedHeaders()
 
 void ROMEBuilder::AddGeneratedDictHeaders()
 {
-   generatedDictHeaders = new ROMEStrArray(2);
-   generatedLinkDefSuffix = new ROMEStrArray(2);
+   generatedDictHeaders = new ROMEStrArray(4);
+   generatedLinkDefSuffix = new ROMEStrArray(4);
    generatedDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
 }
 
@@ -734,7 +838,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
-   buffer.AppendFormatted("Libraries := $(oslibs) $(sqllibs) $(daqlibs) $(rootglibs) $(rootthreadlibs) $(clibs)\n");
+   if (librome)
+      buffer.AppendFormatted("Libraries := -L$(ROMESYS) -lrome\n");
+   else
+      buffer.AppendFormatted("Libraries :=\n");
+   buffer.AppendFormatted("Libraries += $(oslibs) $(sqllibs) $(daqlibs) $(rootglibs) $(rootthreadlibs) $(clibs)\n");
    for (i=0;i<numOfMFUnixLibs;i++) {
       for (j=0;j<numOfMFUnixLibFlags[i];j++)
          buffer.AppendFormatted("ifdef %s\n",mfUnixLibFlag[i][j].Data());
@@ -1233,6 +1341,8 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionary(buffer,shortCut+"FolderDict",folderHeaders);
    WriteMakefileDictionary(buffer,shortCut+"TaskDict",taskHeaders);
    WriteMakefileDictionary(buffer,shortCut+"TabDict",tabHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"DAQDict",daqHeaders);
+   WriteMakefileDictionary(buffer,shortCut+"DBDict",databaseHeaders);
    WriteMakefileUserDictionary(buffer);
 	
 

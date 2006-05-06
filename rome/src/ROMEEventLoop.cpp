@@ -44,6 +44,8 @@ TTask *TTask::fgBreakPoint = 0;
 // Task switches handle initialization
 bool ROMEEventLoop::fTaskSwitchesChanged = false;
 
+ClassImp(ROMEEventLoop)
+
 ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title,0)
 {
    fTreeInfo = new ROMETreeInfo();

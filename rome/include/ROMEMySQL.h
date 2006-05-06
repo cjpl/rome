@@ -40,6 +40,8 @@ public:
    Bool_t  RollbackTransaction( const char* option );
 
    bool  DataSeek(my_ulonglong offset);
+
+   ClassDef(ROMEMySQL, 0) // Interface to MySQL database
 };
 
 #endif   // ROMEMYSQL_H

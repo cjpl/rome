@@ -20,7 +20,7 @@ public:
    Long64_t GetCurrentRunNumber();
    Long64_t GetCurrentEventNumber();
 
-   ClassDef( ROMENetFolder, 0 )
+   ClassDef(ROMENetFolder, 0) // Customized TNetFolder for ROME
 };
 
 #endif   // ROMENetFolder_H

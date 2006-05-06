@@ -43,6 +43,8 @@ public:
    Bool_t          DeleteRow(const char* table,const char* constraint);
    Bool_t          ReplaceField(const char* table,const char* field,const char* value,const char* constraint);
    Bool_t           ExistField(const char* table,const char* field);
+
+   ClassDef(ROMESQL, 0) // DBMS independent interface to SQL database
 };
 
 #endif   // ROMESQL_H

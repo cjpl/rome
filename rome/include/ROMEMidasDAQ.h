@@ -13,7 +13,7 @@
 #include <TArrayL.h>
 #include <ROMEDAQSystem.h>
 
-#ifdef HAVE_MIDAS
+#if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
 #   include <midas.h>
 #else
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -107,7 +107,7 @@ protected:
    TArrayL*      fEventFilePositions;                      //! File pointer to event
    Long64_t      fLastEventRead;                           //! Last events read
 public:
-   ROMEMidasDAQ::ROMEMidasDAQ();
+   ROMEMidasDAQ();
 
    // Online Database
 //   HNDLE          GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
@@ -152,12 +152,12 @@ public:
    //byte swapping
 #ifndef HAVE_MIDAS
    INT            bk_swap(void *event, BOOL force);
-#endif
-   virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
-#ifndef HAVE_MIDAS
    BOOL           bk_is32(void *event);
    INT            bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
+   virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; };       // Must be overwritten by analyzermidas code.
+
+   ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };
 
 #endif   // ROMEMidasDAQ_H

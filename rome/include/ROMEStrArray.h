@@ -49,6 +49,8 @@ public:
    virtual TString  operator[](Int_t i) const;
    Int_t            LowerBound() const;
    virtual void     Expand(Int_t newSize);
+
+   ClassDef(ROMEStrArray,1) // 1 dimensional ROMEString array
 };
 
 #endif   // ROMEStrArray_H

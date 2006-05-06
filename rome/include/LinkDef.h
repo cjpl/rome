@@ -1,0 +1,42 @@
+#ifdef __CINT__
+#pragma link C++ class ROMEString;
+#pragma link C++ class ROMEStrArray;
+#pragma link C++ class ROMEStr2DArray;
+#pragma link C++ class ROMEXML;
+#if defined ( HAVE_LIBROME )
+#pragma link C++ class ROMETask;
+#pragma link C++ class ROMERint;
+#pragma link C++ class ROMETreeInfo;
+#pragma link C++ class TNetFolder;
+#pragma link C++ class TNetFolderServer;
+#pragma link C++ class ROMENetFolder;
+#pragma link C++ class ROMENetFolderServer;
+#pragma link C++ class TArrayL64-!;
+#pragma link C++ class XMLToFormWindow;
+#pragma link C++ class ROMEConfig;
+#pragma link C++ class ROMEDataBase;
+#pragma link C++ class ROMENoDataBase;
+#pragma link C++ class ROMEODBOfflineDataBase;
+#pragma link C++ class ROMEODBOnlineDataBase;
+#pragma link C++ class ROMETextDataBase;
+#pragma link C++ class ROMEXMLDataBase;
+#pragma link C++ class ROMETree;
+#pragma link C++ class ROMEPath;
+#pragma link C++ class ROMEStopwatch;
+#pragma link C++ class ROMEDAQSystem;
+#pragma link C++ class ROMEDataBaseDAQ;
+#pragma link C++ class ROMENoDAQSystem;
+#pragma link C++ class ROMERomeDAQ;
+#pragma link C++ class ROMEDataBase;
+#pragma link C++ class XMLToForm;
+#pragma link C++ class XMLToFormFrame;
+#pragma link C++ class XMLToFormWindow;
+#pragma link C++ class ROMEUtilities;
+#pragma link C++ class ROMEConfigToForm;
+#pragma link C++ class ROMEConfigToFormElements;
+#pragma link C++ class ArgusWindow;
+#pragma link C++ class ArgusTextDialog;
+#pragma link C++ class ArgusAnalyzerController;
+#pragma link C++ class ArgusTab;
+#endif
+#endif

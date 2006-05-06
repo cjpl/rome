@@ -10,6 +10,8 @@
 //////////////////////////////////////////////////////////////////////////
 #include <ROMEPgSQL.h>
 
+ClassImp(ROMEPgSQL)
+
 ROMEPgSQL::ROMEPgSQL() {
    connection = 0;
    result = 0;

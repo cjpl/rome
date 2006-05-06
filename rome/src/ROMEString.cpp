@@ -18,6 +18,8 @@
 #include <Riostream.h>
 #include "ROMEString.h"
 
+ClassImp(ROMEString)
+
 ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
 {
    if (va_(fmt)==NULL)

@@ -12,6 +12,8 @@
 #include <ROMEDAQSystem.h>
 #include <ROMEAnalyzer.h>
 
+ClassImp(ROMEDAQSystem)
+
 Bool_t ROMEDAQSystem::InitDAQ() 
 { 
    fWatchEvent.Reset(); 

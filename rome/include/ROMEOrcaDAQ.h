@@ -24,6 +24,8 @@ public:
    Bool_t      Event(Long64_t event);
    Bool_t      EndOfRun();
    Bool_t      Terminate();
+
+   ClassDef(ROMEOrcaDAQ, 0) // Orca DAQ system
 };
 
 #endif   // ROMEOrcaDAQ_H

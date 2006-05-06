@@ -110,6 +110,8 @@ public:
 #endif 
                };
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; };
+
+   ClassDef(ROMETree,0) // TTree container for ROME
 };
 
 #endif   // ROMETree_H

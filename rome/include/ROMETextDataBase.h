@@ -72,6 +72,8 @@ protected:
    const char *EndMark(const char* valueName);
    void        AddHeader(ROMEString &buffer,const char* fileName);
    void        RemoveHeader(ROMEString &buffer);
+
+   ClassDef(ROMETextDataBase, 0) // Simple database class
 };
 
 #endif   // ROMETexDataBase_H

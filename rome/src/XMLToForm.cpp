@@ -12,6 +12,8 @@
 #include "XMLToForm.h"
 #include "XMLToFormWindow.h"
 
+ClassImp(XMLToForm)
+
 void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
    int i;
    ROMEString value;

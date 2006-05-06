@@ -292,7 +292,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       if (!strcmp(argv[i],"-docu")) {
          THtml html;
-         html.MakeAll(true);
+         html.MakeAll(false);
          return false;
       }
       if (!strcmp(argv[i],"-i")&&i<argc-1) {

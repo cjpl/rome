@@ -30,7 +30,7 @@
 #if defined ( HAVE_SQL )
 #   include <ROMESQL.h>
 #endif
-#if defined ( HAVE_MIDAS )
+#if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
 #   include <midas.h>
 #else
 typedef Int_t HNDLE;
@@ -612,7 +612,7 @@ protected:
    Bool_t          ConnectSocketToROME();
    virtual Bool_t  ConnectSocketToROMENetFolder() = 0;
 
-   ClassDef(ROMEAnalyzer,0)
+   ClassDef(ROMEAnalyzer,0) // Base analyzer class
 };
 
 #endif   // ROMEAnalyzer_H

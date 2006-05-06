@@ -12,6 +12,8 @@
 #include <ROMEDataBaseDAQ.h>
 #include <ROMEAnalyzer.h>
 
+ClassImp(ROMEDataBaseDAQ)
+
 ROMEDataBaseDAQ::ROMEDataBaseDAQ() {
 }
 

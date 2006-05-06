@@ -511,6 +511,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    sqlite = false;
    sqlite3 = false;
    noVP = false;
+#if defined (HAVE_LIBROME)
+   librome = true;
+#else
+   librome = false;
+#endif
 
    char workDir[kMAXPATHLEN];
    strcpy(workDir,gSystem->WorkingDirectory());

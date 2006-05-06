@@ -11,6 +11,8 @@
 
 #include <ROMEOrcaDAQ.h>
 
+ClassImp(ROMEOrcaDAQ)
+
 ROMEOrcaDAQ::ROMEOrcaDAQ() {
 }
 

@@ -12,7 +12,7 @@
 
 class ROMENoDAQSystem : public ROMEDAQSystem {
 public:
-   ROMENoDAQSystem::ROMENoDAQSystem() {};
+   ROMENoDAQSystem() {};
 
    Int_t       GetTimeStamp() { return -1; };
    const char *GetName() { return "none"; };
@@ -29,6 +29,8 @@ public:
                };
    Bool_t      EndOfRun() { return true; };
    Bool_t      Terminate() { return true; };
+
+   ClassDef(ROMENoDAQSystem, 0) // Empty DAQSystem class
 };
 
 #endif   // ROMENoDAQSystem_H

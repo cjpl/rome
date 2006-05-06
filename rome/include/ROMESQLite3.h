@@ -43,6 +43,7 @@ public:
    bool  CommitTransaction( const char* option );
    bool  RollbackTransaction( const char* option );
 
+   ClassDef(ROMESQLite3, 0) // Interface to SQLite3 database
 };
 
 #endif   // ROMESQLITE3_H
