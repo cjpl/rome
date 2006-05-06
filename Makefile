@@ -10,7 +10,7 @@
 # Switch for creating librome.a
 #  If yes, ROME classes are packed in librome.a and linked to each projects
 #  instead of compiling in each projects.
-LIBROME = yes
+LIBROME = no
 
 # Compile mode
 DEBUG = no
