@@ -534,6 +534,8 @@ void ROMEBuilder::AddDAQSources()
          continue;
       daqSources->AddFormatted("src/daqs/%s%s.cpp",shortCut.Data(),daqName[i].Data());
    }
+   if (daqHeaders->GetEntriesFast() > 0)
+      daqSources->AddFormatted("dict/%sDAQDict.cpp", shortCut.Data());
 }
 
 void ROMEBuilder::AddDatabaseHeaders()
@@ -552,6 +554,8 @@ void ROMEBuilder::AddDatabaseSources()
    for (i=0;i<numOfDB;i++) {
       databaseSources->AddFormatted("src/databases/%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
    }
+   if (databaseHeaders->GetEntriesFast() > 0)
+      databaseSources->AddFormatted("dict/%sDBDict.cpp", shortCut.Data());
 }
 
 void ROMEBuilder::AddRootLibraries()
@@ -1274,7 +1278,11 @@ void ROMEBuilder::WriteMakefile() {
 
 // all
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted(" obj/ROMEDictionary.d obj/ARGUSDictionary.d obj/%sGeneratedDictionary.d",shortCut.Data());
+   buffer.AppendFormatted(" obj/%sGeneratedDictionary.d",shortCut.Data());
+   if (romeDictHeaders->GetEntries() > 0)
+      buffer.AppendFormatted(" obj/ROMEDictionary.d");
+   if (argusHeaders->GetEntries() > 0)
+      buffer.AppendFormatted(" obj/ARGUSDictionary.d");
    if (hasFolderGenerated)
       buffer.AppendFormatted(" obj/%sGeneratedFolderDictionary.d",shortCut.Data());
    if (hasFolderUserCode)
