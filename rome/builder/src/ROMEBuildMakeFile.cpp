@@ -1268,7 +1268,22 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
    // root cint includes
-   buffer.AppendFormatted("DictionaryIncludes %s\n",kEqualSign);
+   buffer.AppendFormatted("DictionaryIncludes %s",kEqualSign);
+#if defined( R__VISUAL_CPLUSPLUS )
+   if (this->midas)
+      buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
+   if (this->mysql)
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
+   if (this->sqlite)
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite/");
+   if (this->sqlite3)
+      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite3/");
+#else
+   if (this->midas)
+      buffer.AppendFormatted(" -I$(MIDASSYS)/include -DHAVE_MIDAS");
+   if (this->sql)
+      buffer.AppendFormatted(" $(sqlcflags)");
+#endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
 
 #if defined( R__VISUAL_CPLUSPLUS )
