@@ -112,9 +112,7 @@ public:
    const char *GetNodeName(PMXML_NODE node);
    const char *GetNodeAttribute(PMXML_NODE node,const char* name);
 
-#if !defined(BUILDER)
    ClassDef(ROMEXML, 0) // Interface to XML files
-#endif
 };
 
 #endif   // ROMEXML_H
