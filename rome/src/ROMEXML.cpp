@@ -31,9 +31,7 @@
 
 #include <ROMEXML.h>
 
-#if !defined(BUILDER)
 ClassImp(ROMEXML)
-#endif
 
 ROMEXML::ROMEXML() {
    rootNode=NULL;
