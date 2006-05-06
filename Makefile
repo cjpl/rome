@@ -12,8 +12,8 @@
 #  instead of compiling in each projects.
 LIBROME = no
 
-# Compile mode
-DEBUG = no
+# Compile mode for librome.a and romebuilder
+ROMEDEBUG = no
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -22,7 +22,7 @@ INCLUDE := -I. -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj bin/romebuilder.exe
 
-ifeq ($(DEBUG), yes)
+ifeq ($(ROMEDEBUG), yes)
   OPT = -g
 else
   OPT = -O2
