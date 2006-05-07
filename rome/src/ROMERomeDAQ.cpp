@@ -216,6 +216,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
                else {
                   fTreeNextSeqNumber[j] = -1;
                }
+               tree->GetBranch("Info")->GetEntry(fTreePosition[j]);
                gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
                if (gROME->IsRunNumberBasedIO())
                   tree->SetDirectory(fRootFiles[j]);

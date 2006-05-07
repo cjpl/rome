@@ -133,7 +133,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
-      romeLinkDefSuffix->Add("-!");
+      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
@@ -258,8 +258,12 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMESQL.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMESQLDataBase.cpp");
    }
-   if (romeDictHeaders->GetEntriesFast()>0)
-      romeSources->AddFormatted("dict/ROMEDict.cpp");
+   if (romeDictHeaders->GetEntriesFast()>0) {
+      if (!librome)
+         romeSources->AddFormatted("dict/ROMEDict.cpp");
+      else
+         romeSources->AddFormatted("dict/ROMESDict.cpp");
+   }
 }
 
 void ROMEBuilder::AddArgusHeaders()
@@ -1294,8 +1298,12 @@ void ROMEBuilder::WriteMakefile() {
 // all
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted(" obj/%sGeneratedDictionary.d",shortCut.Data());
-   if (romeDictHeaders->GetEntries() > 0)
-      buffer.AppendFormatted(" obj/ROMEDictionary.d");
+   if (romeDictHeaders->GetEntries() > 0) {
+      if (!librome)
+         buffer.AppendFormatted(" obj/ROMEDictionary.d");
+      else
+         buffer.AppendFormatted(" obj/ROMESDictionary.d");
+   }
    if (argusHeaders->GetEntries() > 0)
       buffer.AppendFormatted(" obj/ARGUSDictionary.d");
    if (hasFolderGenerated)
@@ -1355,8 +1363,10 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 
 // Dictionary
-//   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders,"dict/ROMELinkDef.h");
-   WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
+   if (!librome)
+      WriteMakefileDictionary(buffer,"ROMEDict",romeDictHeaders);
+   else
+      WriteMakefileDictionary(buffer,"ROMESDict",romeDictHeaders);
    WriteMakefileDictionary(buffer,"ARGUSDict",argusHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedDict",generatedDictHeaders);
    WriteMakefileDictionary(buffer,shortCut+"GeneratedFolderDict",generatedFolderDictHeaders);
