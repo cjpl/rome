@@ -10,7 +10,8 @@
 # Switch for creating librome.a
 #  If yes, ROME classes are packed in librome.a and linked to each projects
 #  instead of compiling in each projects.
-#  When you changed this key, you need to do "make clean" before recompile.
+#  When you changed this key, you need to do "make -k clean" for ROME and
+#  "make -k distclean" for your project.
 LIBROME = no
 
 # Compile mode for librome.a and romebuilder
