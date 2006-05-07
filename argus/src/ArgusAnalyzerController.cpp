@@ -147,9 +147,19 @@ ClassImp(ArgusAnalyzerController)
 //   fClient->WaitFor(this);
 }
 
-Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+void ArgusAnalyzerController::Update()
 {
    char str[100];
+#if defined( R__VISUAL_CPLUSPLUS )
+   sprintf(str, "%I64d", gROME->GetCurrentEventNumber());
+#else
+   sprintf(str, "%lld", gROME->GetCurrentEventNumber());
+#endif
+   fEventNumberEntry->SetText(str);
+}
+
+Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+{
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
@@ -171,12 +181,6 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                }
             }
             else {
-#if defined( R__VISUAL_CPLUSPLUS )
-               sprintf(str, "%I64d", gROME->GetCurrentEventNumber()-1);
-#else
-               sprintf(str, "%lld", gROME->GetCurrentEventNumber()-1);
-#endif
-               fEventNumberEntry->SetText(str);
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
                if (gROME->IsStandAloneARGUS()) {
@@ -197,12 +201,6 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                }
             }
             else {
-#if defined( R__VISUAL_CPLUSPLUS )
-               sprintf(str, "%I64d", gROME->GetCurrentEventNumber()-1);
-#else
-               sprintf(str, "%lld", gROME->GetCurrentEventNumber()-1);
-#endif
-               fEventNumberEntry->SetText(str);
                gROME->SetUserEventO();
                gROME->SetUserEventR();
             }

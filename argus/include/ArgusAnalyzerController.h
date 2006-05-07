@@ -66,6 +66,7 @@ public:
    virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
    void CloseWindow();
+   void Update();
 
    ClassDef(ArgusAnalyzerController,1)
 };

@@ -37,6 +37,7 @@
 
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
+#include "ArgusWindow.h"
 
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
@@ -563,12 +564,13 @@ Bool_t ROMEEventLoop::Update()
          gROME->PrintFlush(text.Data());
       }
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+         if (gROME->GetWindow()->IsControllerActive())
+            gROME->GetWindow()->GetAnalyzerController()->Update();
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
       fProgressWrite = false;
    }
-
 
    // ODB update
 #if defined( HAVE_MIDAS )
