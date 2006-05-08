@@ -185,12 +185,6 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (!ConnectNetFolders())
       return false;
 
-   char sss[100];
-   if (IsStandAloneARGUS()) {
-   gROME->GetSocketToROMENetFolder()->GetServerName(sss,100);
-   cout << sss << endl;
-   }
-
    if (this->isBatchMode())
       redirectOutput();
    else

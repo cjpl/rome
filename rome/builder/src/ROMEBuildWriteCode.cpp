@@ -3274,9 +3274,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive()) {\n");
             buffer.AppendFormatted("      ROMEString name;\n");
             buffer.AppendFormatted("      Int_t arrayStartIndex = 0;\n");
-// FIX ME
-//            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)GetTaskObjectAt(%d))->GetObjectInterpreterIntValue(f%sArrayStartIndexCode,arrayStartIndex);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      arrayStartIndex = 0;\n");
+            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)GetTaskObjectAt(%d))->Get%sArrayStartIndex();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,index+arrayStartIndex);\n");
             buffer.AppendFormatted("      name.Insert(0,\"%s\");\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(name.Data()));\n",histoType[taskHierarchyClassIndex[i]][j].Data());
