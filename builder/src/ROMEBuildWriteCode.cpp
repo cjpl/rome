@@ -2306,11 +2306,14 @@ Bool_t ROMEBuilder::WriteTabH()
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   TRootEmbeddedCanvas *fGeneratedCanvas; //!\n");
          for (i=0;i<numOfTabHistos[iTab];i++) {
-            if (histoArraySize[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]]=="1")
+            if (histoArraySize[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]]=="1") {
                buffer.AppendFormatted("   %s* f%sHisto%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i);
+               buffer.AppendFormatted("   TPad* f%sPad%d; //!\n",tabHistoName[iTab][i].Data(),i);
+            }
             else {
                for (j=tabHistoArrayIndexStart[iTab][i];j<=tabHistoArrayIndexEnd[iTab][i];j++) {
                   buffer.AppendFormatted("   %s* f%sHisto%d_%d; //!\n",histoType[tabHistoTaskIndex[iTab][i]][tabHistoHistoIndex[iTab][i]].Data(),tabHistoName[iTab][i].Data(),i,j);
+                  buffer.AppendFormatted("   TPad* f%sPad%d_%d; //!\n",tabHistoName[iTab][i].Data(),i,j);
                }
             }
          }
@@ -2371,12 +2374,14 @@ Bool_t ROMEBuilder::WriteTabH()
                   buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
                   if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                      buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                     buffer.AppendFormatted("         f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
                      buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
                      buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
                   }
                   else {
                      for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
                         buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                        buffer.AppendFormatted("         f%sPad%d_%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j,k);
                         buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
                         buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
                      }
@@ -2400,22 +2405,21 @@ Bool_t ROMEBuilder::WriteTabH()
                buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
                if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                   buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
-                  buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                   buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
                   buffer.AppendFormatted("            f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
-                  buffer.AppendFormatted("         gPad->Modified();\n");
-                  buffer.AppendFormatted("         gPad->Update();\n");
+                  buffer.AppendFormatted("         f%sPad%d->Modified();\n",tabHistoName[iTab][j].Data(),j);
                }
                else {
                   for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
                      buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
-                     buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
                      buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
                      buffer.AppendFormatted("            f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
-                     buffer.AppendFormatted("         gPad->Modified();\n");
-                     buffer.AppendFormatted("         gPad->Update();\n");
+                     buffer.AppendFormatted("         f%sPad%d_%d->Modified();\n",tabHistoName[iTab][j].Data(),j,k);
                   }
                }
+               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(1);\n");
+               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->Modified();\n");
+               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->Update();\n");
                buffer.AppendFormatted("      }\n");
                break;
             }
