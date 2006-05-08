@@ -26,6 +26,6 @@ ifeq ($(OSTYPE),linux)
 LIBRARY += -lpthread
 endif
 
-ifeq ($(OSTYPE),soralis)
+ifeq ($(OSTYPE),solaris)
 LIBRARY += -lsocket -lnsl
 endif
