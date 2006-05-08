@@ -185,6 +185,12 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (!ConnectNetFolders())
       return false;
 
+   char sss[100];
+   if (IsStandAloneARGUS()) {
+   gROME->GetSocketToROMENetFolder()->GetServerName(sss,100);
+   cout << sss << endl;
+   }
+
    if (this->isBatchMode())
       redirectOutput();
    else
@@ -196,7 +202,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
       if (gROME->isOnline() || gROME->isSocketOffline()) {
          ROMENetFolderServer *tnet = new ROMENetFolderServer();
-         tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber());
+         tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber(),"ROME");
          text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
          gROME->PrintLine(text.Data());
       }

@@ -53,6 +53,7 @@ public:
   virtual void        Remove( TObject * ) { Error("Remove","Not available for TNetFolders"); }    
   void                ExecuteCommand(const char *line);
   size_t              GetPointer();
+  void                GetServerName(char* serverName,int serverNameSize);
 
 protected:
 
