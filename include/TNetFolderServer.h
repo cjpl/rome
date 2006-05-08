@@ -13,6 +13,7 @@
 #   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TNamed.h>
+#include <TString.h>
 #include <TApplication.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
@@ -26,8 +27,9 @@ class TNetFolderServer : public TNamed
 protected:
    static TApplication *fApplication;
    Int_t                fPort;
+   static TString       fServerName;
 public:
-   void               StartServer(TApplication *app,Int_t port);
+   void               StartServer(TApplication *app,Int_t port,const char* serverName);
    static int         ResponseFunction(TSocket *socket);
 protected:
    static int         CheckCommand(TSocket *socket,char *str);

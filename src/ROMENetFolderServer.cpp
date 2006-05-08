@@ -99,12 +99,13 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
    return THREADRETURN;
 }
 
-void ROMENetFolderServer::StartServer(TApplication *app,Int_t port)
+void ROMENetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // start Socket server loop
    fApplication = app;
    fPort = port;
+   fServerName = serverName;
    TThread *thread = new TThread("server_loop", ROMENetFolderServer::ServerLoop, &fPort);
    thread->Run();
 #endif // ROOT_VERSION

@@ -29,6 +29,7 @@
 #include <Riostream.h>
 
 TApplication *TNetFolderServer::fApplication;
+TString TNetFolderServer::fServerName;
 
 ClassImp(TNetFolderServer)
 
@@ -180,6 +181,15 @@ int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
       return 1;
    }
 
+   else if (strncmp(str, "GetServerName", 13) == 0) {
+      //write name
+      TMessage message(kMESS_STRING);
+      message.WriteString(fServerName.Data());
+      cout << fServerName.Data() << endl;
+      socket->Send(message);
+
+      return 1;
+   }
    else if (strncmp(str, "GetPointer", 10) == 0) {
       //find object
       TMessage message(kMESS_OBJECT);
@@ -238,12 +248,13 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 }
 
 
-void TNetFolderServer::StartServer(TApplication *app,Int_t port)
+void TNetFolderServer::StartServer(TApplication *app,Int_t port,const char* serverName)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 // start Socket server loop
    fApplication = app;
    fPort = port;
+   fServerName = serverName;
    TThread *thread = new TThread("server_loop", TNetFolderServer::ServerLoop, &fPort);
    thread->Run();
 #endif // ROOT_VERSION

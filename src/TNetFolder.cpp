@@ -108,6 +108,24 @@ size_t TNetFolder::GetPointer()
    return p;
 }
 
+void TNetFolder::GetServerName(char* serverName,int serverNameSize)
+{
+// Get the Name of the Server
+   TMessage *m;
+   TString str = "GetServerName";
+   if (!Send(str.Data()))
+      return GetServerName(serverName,serverNameSize);
+   if (!Recv(m))
+      return GetServerName(serverName,serverNameSize);
+
+   if (m == NULL) {
+      delete m;
+      return;
+   }
+   *m->ReadString(serverName,serverNameSize);
+   delete m;
+}
+
 TObjArray *TNetFolder::GetListOfFolders()
 {
 // Get List of Folders

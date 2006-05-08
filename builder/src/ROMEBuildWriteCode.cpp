@@ -3285,12 +3285,33 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%sAt(index);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("int %sAnalyzer::GetNumberOf%s() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   return Get%s()->GetEntriesFast();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("}\n");
          }
          buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
          buffer.AppendFormatted("}\n");
       }
    }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("bool %sAnalyzer::ResetAllHistos() {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
+            buffer.AppendFormatted("   Get%s()->Reset();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+         }
+         else {
+            buffer.AppendFormatted("   for (i=0;i<GetNumberOf%s();i++)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      Get%sAt(i)->Reset();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+         }
+      }
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
    // Connect SocketToROME NetFolder
@@ -3704,7 +3725,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    buffer.AppendFormatted("\n");
    // Histo Getters
-   buffer.AppendFormatted("   // Histo\n");
+   buffer.AppendFormatted("   // Histos\n");
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
@@ -3714,10 +3735,13 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          else {
             buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[i][j].Data());
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index);\n",histoType[i][j].Data(),histoName[i][j].Data());
+            buffer.AppendFormatted("   int GetNumberOf%s();\n",histoName[i][j].Data());
          }
          buffer.AppendFormatted("   bool Is%sActive();\n",histoName[i][j].Data());
       }
    }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   bool ResetAllHistos();\n");
    buffer.AppendFormatted("\n");
    // Tree Getters
    buffer.AppendFormatted("   // Trees\n");
@@ -7810,7 +7834,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl
          if (folderNet[numFolder]) {
 
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("     if (f%sFolders->GetEntries()<=index)\n",folderName[numFolder].Data());
          buffer.AppendFormatted("        for (int i=f%sFolders->GetEntries();i<=index;i++)\n",folderName[numFolder].Data());
@@ -7819,13 +7843,13 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl
          buffer.AppendFormatted("   TClonesArray* Get%ss() {\n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return f%sFolders; };\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress() {;\n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return &f%sFolders; };\n",folderName[numFolder].Data());
       }
@@ -7833,7 +7857,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl
          buffer.AppendFormatted("   %s%s* Get%sAt(Int_t index) {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          if (folderNet[numFolder]) {
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("     if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
          buffer.AppendFormatted("        ROMEString str;str.SetFormatted(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
@@ -7844,13 +7868,13 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl
          buffer.AppendFormatted("   TClonesArray* Get%ss() { \n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return f%sFolders; };\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress() { \n",folderName[numFolder].Data());
          if (folderNet[numFolder]) {
             buffer.AppendFormatted("      if (IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%s\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
+            buffer.AppendFormatted("         f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("      return &f%sFolders; };\n",folderName[numFolder].Data());
       }

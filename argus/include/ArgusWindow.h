@@ -68,7 +68,7 @@ public:
    bool IsControllerActive() { return fControllerActive; };
    void SetControllerActive(bool flag) { fControllerActive = flag; };
    ROMENetFolder *GetControllerNetFolder() { return fControllerNetFolder; };
-   void        SetControllerNetFolder(const char* folderName) { fControllerNetFolder = gROME->GetNetFolder(folderName); };
+   void        SetControllerNetFolder(const char* folderName) { if (!gROME->IsNetFolderActive(folderName)) return; fControllerNetFolder = gROME->GetNetFolder(folderName); };
 
    // Window Scale
    Float_t         GetWindowScale() { return fWindowScale; }
