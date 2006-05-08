@@ -12,14 +12,18 @@
 #   include <Windows4root.h>
 //typedef UINT_PTR        SOCKET;
 #endif
+#if !defined (__CINT__)
 #include <mysql.h>
+#endif // __CINT__
 
 class ROMEMySQL : public ROMESQL
 {
 protected:
+#if !defined (__CINT__)
    MYSQL      mysql;
    MYSQL_RES *result;
    MYSQL_ROW  row;
+#endif // __CINT__
 
 public:
    ROMEMySQL();
@@ -39,7 +43,9 @@ public:
    Bool_t  CommitTransaction( const char* option );
    Bool_t  RollbackTransaction( const char* option );
 
+#if !defined (__CINT__)
    bool  DataSeek(my_ulonglong offset);
+#endif // __CINT__
 
    ClassDef(ROMEMySQL, 0) // Interface to MySQL database
 };
