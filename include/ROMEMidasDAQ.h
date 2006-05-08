@@ -150,7 +150,7 @@ public:
    virtual void   InitMidasBanks() = 0;
 
    //byte swapping
-#ifndef HAVE_MIDAS
+#if !defined HAVE_MIDAS && !defined ( __MAKECINT__ )
    INT            bk_swap(void *event, BOOL force);
    BOOL           bk_is32(void *event);
    INT            bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);

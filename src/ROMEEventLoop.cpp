@@ -31,13 +31,14 @@
 #include <fcntl.h>
 #include <time.h>
 
+#include "ArgusWindow.h"
+
 #if defined( HAVE_MIDAS )
 #   include <midas.h>
 #endif
 
 #include <ROMEEventLoop.h>
 #include <Riostream.h>
-#include "ArgusWindow.h"
 
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;

@@ -111,6 +111,18 @@ void ROMEBuilder::AddRomeDictHeaders()
 {
    romeDictHeaders = new ROMEStrArray(21);
    romeLinkDefSuffix = new ROMEStrArray(21);
+   if (!librome) {
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
+      romeLinkDefSuffix->Add("");
+   }
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
@@ -133,8 +145,6 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
       romeLinkDefSuffix->Add("");
@@ -174,17 +184,7 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
       romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
-      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEUtilities.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
       romeLinkDefSuffix->Add("");
    }
    if (this->sql) {
