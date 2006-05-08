@@ -766,7 +766,11 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             gROME->PrintLine(romeTree->GetFileName());
             romeTree->UpdateFilePointer();
             romeTree->GetFile()->cd();
-            tree->Write(0,TObject::kOverwrite);
+            if (tree->Write(0,TObject::kOverwrite)==0) {
+               gROME->PrintLine("--> Please check if you have write access to the directory.");
+               gROME->PrintLine("--> If you have activated the read flag for this tree you must");
+               gROME->PrintLine("    have different input and output directories.");
+            }
             tree->SetDirectory(0);
             romeTree->GetFile()->Close();
             romeTree->GetFile()->Delete();
@@ -810,9 +814,13 @@ Bool_t ROMEEventLoop::DAQTerminate(Bool_t quit)
          if (gROME->isTreeAccumulation()) {
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
-            tree->Write(0,TObject::kOverwrite);
             gROME->PrintText("\nWriting Root-File ");
             gROME->PrintLine(romeTree->GetFileName());
+            if (tree->Write(0,TObject::kOverwrite)==0) {
+               gROME->PrintLine("--> Please check if you have write access to the directory.");
+               gROME->PrintLine("--> If you have activated the read flag for this tree you must");
+               gROME->PrintLine("    have different input and output directories.");
+            }
          }
          if (romeTree->GetFile()!=NULL) {
             romeTree->GetFile()->Close();
