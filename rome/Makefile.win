@@ -47,8 +47,9 @@ obj:
 	@echo making directory bin ...
 	@mkdir obj
 
-ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
-	$(ROOTSYS)\bin\rootcint -f ROMEBuilderDict.cpp -c -p $(DictIncludes) $(BldDictHeaders)
+ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) 
+	@echo creating ROOT dictonary ...
+	@-%ROOTSYS%\bin\rootcint -f ROMEBuilderDict.cpp -c -p $(DictIncludes) $(BldDictHeaders)
 
 ROMEBuilder.exe: $(BldObjects)
 	@echo linking ROMEBuilder ...

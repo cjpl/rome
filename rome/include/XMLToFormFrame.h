@@ -78,6 +78,7 @@ public:
    bool *fCheckButtonChecked;
    TGLayoutHints *fLCheckButton;
    ROMEString **fCheckButtonPaths;
+   int *fCheckButtonID;
    int *fCheckButtonWidth;
    int *fCheckButtonElementIndex;
    int fNumberOfCheckButtons;

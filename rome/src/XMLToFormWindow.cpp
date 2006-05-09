@@ -250,7 +250,10 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                frame->fCheckButtonLabel[nCheckButton] = new TGLabel(frame->fCheckButtonVFrames[nCheckButton], frame->fCheckButtonLabelHotString[nCheckButton]);
                frame->fCheckButtonVFrames[nCheckButton]->AddFrame(frame->fCheckButtonLabel[nCheckButton], frame->fLCheckButtonLabel);
                // button
-               frame->fCheckButton[nCheckButton] = new TGCheckButton(frame->fCheckButtonVFrames[nCheckButton]);
+               if (frame->fCheckButtonID[nCheckButton]!=-1)
+                  frame->fCheckButton[nCheckButton] = new TGCheckButton(frame->fCheckButtonVFrames[nCheckButton],"",frame->fCheckButtonID[nCheckButton]);
+               else
+                  frame->fCheckButton[nCheckButton] = new TGCheckButton(frame->fCheckButtonVFrames[nCheckButton]);
                if (frame->fCheckButtonChecked[nCheckButton])
                   frame->fCheckButton[nCheckButton]->SetState(kButtonDown);
                frame->fCheckButton[nCheckButton]->Associate(this);
@@ -259,13 +262,6 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             }
          }
       }
-/*      index = frame->fNumberOfHHFrames%frame->fNumberOfVFrames;
-      while (index>0) {
-         frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-         frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
-         frame->fNumberOfHHFrames++;
-         index = frame->fNumberOfHHFrames%frame->fNumberOfVFrames;
-      }*/
    }
 
    // subframes
@@ -390,7 +386,7 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
    MapWindow();
 }
 
-Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
+Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

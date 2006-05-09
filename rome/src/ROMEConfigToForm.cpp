@@ -11,6 +11,7 @@
 // $Id$
 
 #include "ROMEConfigToForm.h"
+#include "ROMEAnalyzer.h"
 
 ClassImp(ROMEConfigToForm)
 
@@ -80,9 +81,18 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    AddElements(frame,elements);
    delete elements;
 
-   frame->fNumberOfSubFrames = 2;
+   frame->fNumberOfSubFrames = 3;
    frame->fNumberOfElements = 0;
    frame->fSubFrames = new XMLToFormFrame*[frame->fNumberOfSubFrames];
+   // Run Mode Frame
+   frame->fSubFrames[nFrames] = new XMLToFormFrame();
+   frame->fSubFrames[nFrames]->fFramePath = new ROMEString(frame->fFramePath->Data());
+   frame->fSubFrames[nFrames]->fIsTab = false;
+   frame->fSubFrames[nFrames]->fTabIndex = nFrames;
+   frame->fSubFrames[nFrames]->fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
+   frame->fSubFrames[nFrames]->fTitleLabelHotString = NULL;
+   FillRunModeFrame(frame->fSubFrames[nFrames]);
+   nFrames++;
    // Tab Frame
    frame->fSubFrames[nFrames] = new XMLToFormFrame();
    frame->fSubFrames[nFrames]->fFramePath = new ROMEString(frame->fFramePath->Data());
@@ -102,6 +112,27 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    FillButtonFrame(frame->fSubFrames[nFrames]);
    nFrames++;
 }
+void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
+{
+   int nElement = 0;
+   ROMEConfigToFormElements *elements = new ROMEConfigToFormElements();
+
+   ROMEString rome = "false";
+   ROMEString argus = "false";
+   if (gROME->IsROMEAndARGUS() || gROME->IsStandAloneROME())
+      rome = "true";
+   if (gROME->IsROMEAndARGUS() || gROME->IsStandAloneARGUS())
+      argus = "true";
+   // ROME
+   elements->AddElement("CheckButton","ROME",rome.Data(),"",0);
+   // ARGUS
+   elements->AddElement("CheckButton","ARGUS",argus.Data(),"",1);
+
+   frame->fNumberOfSubFrames = 0;
+   AddElements(frame,elements);
+   delete elements;
+}
+
 void ROMEConfigToForm::FillButtonFrame(XMLToFormFrame *frame)
 {
    ROMEConfigToFormElements *elements = new ROMEConfigToFormElements();
@@ -163,6 +194,7 @@ void ROMEConfigToForm::AddElements(XMLToFormFrame *frame,ROMEConfigToFormElement
    frame->fCheckButtonLabelHotString = new TGHotString*[frame->fNumberOfCheckButtons];
    frame->fCheckButtonChecked = new bool[frame->fNumberOfCheckButtons];
    frame->fCheckButtonPaths = new ROMEString*[frame->fNumberOfCheckButtons];
+   frame->fCheckButtonID = new int[frame->fNumberOfCheckButtons];
    frame->fCheckButtonWidth = new int[frame->fNumberOfCheckButtons];
    frame->fCheckButtonElementIndex = new int[frame->fNumberOfCheckButtons];
    frame->fCheckButton = NULL;
@@ -181,9 +213,7 @@ void ROMEConfigToForm::AddElements(XMLToFormFrame *frame,ROMEConfigToFormElement
       if (elements->GetTypeAt(j)=="Button") {
          // button
          frame->fButtonHotString[nButton] = new TGHotString(elements->GetTitleAt(j).Data());
-         // ID
          frame->fButtonID[nButton] = elements->GetButtonIDAt(j);
-         // path
          frame->fButtonPaths[nButton] = new ROMEString(elements->GetPathAt(j).Data());
          frame->fButtonWidth[nButton] = 0;
          frame->fButtonElementIndex[nButton] = j;
@@ -212,6 +242,7 @@ void ROMEConfigToForm::AddElements(XMLToFormFrame *frame,ROMEConfigToFormElement
          else
             frame->fCheckButtonChecked[nCheckButton] = false;
          frame->fCheckButtonPaths[nCheckButton] = new ROMEString(elements->GetPathAt(j).Data());
+         frame->fCheckButtonID[nCheckButton] = elements->GetButtonIDAt(j);
          frame->fCheckButtonWidth[nCheckButton] = 0;
          frame->fCheckButtonElementIndex[nCheckButton] = j;
          nCheckButton++;

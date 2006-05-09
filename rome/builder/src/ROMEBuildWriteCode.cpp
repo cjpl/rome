@@ -3152,6 +3152,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL))==1) {\n");
+   buffer.AppendFormatted("      if (dialog->IsCheckButtonChecked(\"ROME\") && dialog->IsCheckButtonChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("         gAnalyzer->SetROMEAndARGUS();\n");
+   buffer.AppendFormatted("      else if (dialog->IsCheckButtonChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("         gAnalyzer->SetStandAloneARGUS();\n");
+   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("         gAnalyzer->SetStandAloneROME();\n");
    WriteConfigToFormSave(buffer,mainParGroup,"","");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   delete dialog;\n");

@@ -259,6 +259,7 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
       frame->fCheckButtonPaths = new ROMEString*[frame->fNumberOfCheckButtons];
       frame->fCheckButtonWidth = new int[frame->fNumberOfCheckButtons];
       frame->fCheckButtonElementIndex = new int[frame->fNumberOfCheckButtons];
+      frame->fCheckButtonID = new int[frame->fNumberOfCheckButtons];
       frame->fCheckButton = NULL;
       for (j=0;j<frame->fNumberOfCheckButtons;j++) {
          // label
@@ -279,6 +280,14 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath = path;
          currentPath.AppendFormatted("/CheckButton[%d]",j+1);
          frame->fCheckButtonPaths[j] = new ROMEString(currentPath.Data());
+         // ID
+         currentPath = path;
+         currentPath.AppendFormatted("/CheckButton[%d]/ID",j+1);
+         fXML->GetPathValue(currentPath,value);
+         if (value.Length()>0)
+            frame->fCheckButtonID[j] = value.ToInteger();
+         else
+            frame->fCheckButtonID[j] = -1;
          // width
          currentPath = path;
          currentPath.AppendFormatted("/CheckButton[%d]/Width",j+1);
@@ -742,6 +751,7 @@ void XMLToForm::DeleteFrame(XMLToFormFrame *frame)
       delete [] frame->fCheckButton;
       delete [] frame->fCheckButtonPaths;
       delete [] frame->fCheckButtonVFrames;
+      delete frame->fCheckButtonID;
       delete frame->fCheckButtonWidth;
       delete frame->fCheckButtonElementIndex;
       delete frame->fCheckButtonChecked;      
