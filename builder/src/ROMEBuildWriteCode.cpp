@@ -7991,6 +7991,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = gAnalyzer->GetTreeObjectAt(%d)->GetTree();\n",i);
       buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
+      buffer.AppendFormatted("   tree->GetBranch(\"Info\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",i);
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
@@ -8005,6 +8006,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          else {
             buffer.AppendFormatted("      tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
+      buffer.AppendFormatted("   tree->GetBranch(\"%s\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),i);
       }
    }
    buffer.AppendFormatted("}\n\n");
