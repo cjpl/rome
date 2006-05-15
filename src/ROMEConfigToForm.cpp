@@ -114,7 +114,6 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
 }
 void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
 {
-   int nElement = 0;
    ROMEConfigToFormElements *elements = new ROMEConfigToFormElements();
 
    ROMEString rome = "false";
