@@ -1418,11 +1418,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d\n");
+   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d G__auto*LinkDef.h\n");
    buffer.AppendFormatted("distclean: userclean\n");
-   buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj dict Makefile\n");
+   buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj dict G__auto*LinkDef.h Makefile\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
    WriteMakefileBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder.exe");
