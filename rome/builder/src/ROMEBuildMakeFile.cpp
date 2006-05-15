@@ -1376,7 +1376,10 @@ void ROMEBuilder::WriteMakefile() {
 
 // Link Statement
 // --------------
-   buffer.AppendFormatted("%s%s.exe: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("%s%s.exe: $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   if (librome)
+      buffer.AppendFormatted(" $(ROMESYS)/librome.a");
+   buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
    if (haveFortranTask)
