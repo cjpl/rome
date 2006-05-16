@@ -230,6 +230,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEStrArray.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEString.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETask.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETextDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEUtilities.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");

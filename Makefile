@@ -69,6 +69,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEPath.o \
               obj/ROMERomeDAQ.o \
               obj/ROMETask.o \
+              obj/ROMERint.o \
               obj/ROMETextDataBase.o \
               obj/ROMEUtilities.o \
               obj/ROMEXMLDataBase.o \

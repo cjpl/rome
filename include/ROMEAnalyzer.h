@@ -17,6 +17,7 @@
 #include <TTree.h>
 #include <TROOT.h>
 #include <TFolder.h>
+#include <Riostream.h>
 #include "ROME.h"
 #include <ROMEConfig.h>
 #include <ROMETree.h>
@@ -214,6 +215,7 @@ protected:
 #ifndef __CINT__
    // stream
    streambuf     *fOldbuf;                       //! original buffer of stdout
+   ofstream      *fRomeOutputFile;               //! Redirected output in batch mode
 #endif // __CINT__
 
 public:
