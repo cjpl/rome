@@ -325,8 +325,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       prompt += " [%d]";
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
       if (!gROME->isBatchMode() && !gROME->isQuitMode()) {
-         ((TRint*)gROME->GetApplication())->Run(true);
+         gROME->GetApplication()->SwitchInterruptHandler(kTRUE);
+         gROME->GetApplication()->Run(true);
          gROME->PrintLine();
+         gROME->GetApplication()->SwitchInterruptHandler(kFALSE);
       }
    }
 
@@ -710,10 +712,12 @@ Bool_t ROMEEventLoop::UserInput()
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();
          prompt += " [%d]";
-         ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
-         ((TRint*)gROME->GetApplication())->Run(true);
+         gROME->GetApplication()->SetPrompt(prompt.Data());
+         gROME->GetApplication()->SwitchInterruptHandler(kTRUE);
+         gROME->GetApplication()->Run(true);
          gSystem->Init();
-         ((TRint*)gROME->GetApplication())->ProcessLine(gROME->GetCintInitialisation());
+         gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
+         gROME->GetApplication()->SwitchInterruptHandler(kFALSE);
       }
 
       if (wait) {

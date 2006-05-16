@@ -80,7 +80,7 @@ ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
-ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
+ROMEAnalyzer::ROMEAnalyzer(ROMERint *app)
 {
 // Initialisations
    fProgramMode = kStandAloneROME;
@@ -158,6 +158,7 @@ ROMEAnalyzer::ROMEAnalyzer(TApplication *app)
    fSocketToROMEPort = 9090;
    fHistoRead = false;
    fHistoRun = 0;
+   app->SwitchInterruptHandler(kFALSE);
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -491,10 +492,12 @@ Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
 {
    return CheckNumber(eventNumber,fEventNumber);
 }
+
 Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber) 
 {
    return CheckNumber(runNumber,fRunNumber);
 }
+
 Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
 {
    const int nNumbers = numbers.GetSize();
@@ -517,6 +520,7 @@ Int_t ROMEAnalyzer::CheckNumber(Long64_t number,TArrayL64 &numbers)
    }
    return -1;
 }
+
 Long64_t ROMEAnalyzer::GetNextRunNumber(const Long64_t runNumber)
 {
    const Int_t nRunNumber = fRunNumber.GetSize();
@@ -1062,18 +1066,22 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
    fNetFolderRoot = new ROMEString[number];
    fNumberOfNetFolders = number;
 }
+
 Bool_t ROMEAnalyzer::StartWindow() 
 { 
    return fWindow->Start(); 
 };
+
 Int_t ROMEAnalyzer::GetUpdateFrequency() 
 { 
    return fWindow->GetUpdateFrequency(); 
 };
+
 void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency) 
 { 
    fWindow->SetUpdateFrequency(frequency); 
 };
+
 Bool_t ROMEAnalyzer::IsWindowBusy() {
    Bool_t busy = false;
    for (int i=0;i<fWindow->GetTabObjectEntries();i++)

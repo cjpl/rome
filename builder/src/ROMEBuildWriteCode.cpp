@@ -2849,7 +2849,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(TApplication *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   char str[200];\n");
@@ -3590,7 +3590,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include \"TRint.h\"\n");
    buffer.AppendFormatted("#include \"TTask.h\"\n");
    buffer.AppendFormatted("#include \"TTree.h\"\n");
    buffer.AppendFormatted("#include \"TFolder.h\"\n");
@@ -3728,7 +3727,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-   buffer.AppendFormatted("   %sAnalyzer(TApplication *app);\n",shortCut.Data());
+   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app);\n",shortCut.Data());
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
    for (i=0;i<numOfFolder;i++) {
@@ -3914,7 +3913,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ() {\n",daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
       buffer.AppendFormatted("      if (f%sDAQ==NULL) {\n",daqNameArray.At(i).Data());
       buffer.AppendFormatted("         this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
-      buffer.AppendFormatted("         ((TRint*)fApplication)->Terminate(1);\n");
+      buffer.AppendFormatted("         fApplication->Terminate(1);\n");
       buffer.AppendFormatted("         return NULL;\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("      return f%sDAQ;\n",daqNameArray.At(i).Data());
@@ -7919,7 +7918,7 @@ void ROMEBuilder::WriteFolderGetter(ROMEString &buffer,Int_t numFolder,Int_t scl
          buffer.AppendFormatted("     if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
          buffer.AppendFormatted("        ROMEString str;str.SetFormatted(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
          buffer.AppendFormatted("        this->PrintLine(str.Data());\n");
-         buffer.AppendFormatted("        ((TRint*)fApplication)->Terminate(1);\n");
+         buffer.AppendFormatted("        fApplication->Terminate(1);\n");
          buffer.AppendFormatted("        return NULL; }\n");
          buffer.AppendFormatted("     return (%s%s*)f%sFolders->At(index); };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ss() { \n",folderName[numFolder].Data());
