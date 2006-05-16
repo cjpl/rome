@@ -8,7 +8,6 @@
 #define ROMEAnalyzer_H
 
 #include <time.h>
-#include <TRint.h>
 #include <TFile.h>
 #include <TArrayI.h>
 #include <TArrayL.h>
@@ -27,6 +26,7 @@
 #include <ROMEString.h>
 #include <ROMEDAQSystem.h>
 #include <ROMENetFolder.h>
+#include <ROMERint.h>
 #if defined ( HAVE_SQL )
 #   include <ROMESQL.h>
 #endif
@@ -80,7 +80,7 @@ protected:
    Bool_t         fWindowClosed;                 //! Window closed flag
 
    // Application
-   TApplication  *fApplication;                  //! Application Handle
+   ROMERint      *fApplication;                  //! Application Handle
 
    // Cint
    ROMEString     fCintInitialisation;           //! Initialization String for the Cint
@@ -218,7 +218,7 @@ protected:
 
 public:
    ROMEAnalyzer() {};
-   ROMEAnalyzer(TApplication *app);
+   ROMEAnalyzer(ROMERint *app);
    ~ROMEAnalyzer();
 
    // Program Mode
@@ -240,7 +240,7 @@ public:
    void            PrintFlush(const char *text="");
 
    // Application Handle
-   TApplication   *GetApplication() { return fApplication; };
+   ROMERint       *GetApplication() { return fApplication; };
 
    // Cint
    const char     *GetCintInitialisation() { return fCintInitialisation.Data(); };
@@ -252,7 +252,7 @@ public:
                        if (fActiveDAQ!=NULL)
                           return fActiveDAQ;
                        this->PrintLine("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
-                       ((TRint*)fApplication)->Terminate(1);
+                       fApplication->Terminate(1);
                        return NULL;
                    }
    Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; };
@@ -265,7 +265,7 @@ public:
                       if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
                          return fDataBaseHandle[i];
                       this->PrintLine("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
-                      ((TRint*)fApplication)->Terminate(1);
+                      fApplication->Terminate(1);
                       return NULL;
                    }
    ROMEDataBase   *GetDataBase(const char *name) {
@@ -275,7 +275,7 @@ public:
                       ROMEString str;
                       str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
                       this->PrintLine(str.Data());
-                      ((TRint*)fApplication)->Terminate(1);
+                      fApplication->Terminate(1);
                       return NULL;
                    }
    Bool_t          isDataBaseActive(const char *name) {

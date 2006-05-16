@@ -82,7 +82,16 @@ public:
    TGStatusBar*   GetStatusBar() { return fStatusBar; };
 
    // Update Frequency
-   void           SetUpdateFrequency(Int_t duration) { fUpdateFrequency = duration; for (int i=0;i<GetTabObjectEntries();i++) GetTabObjectAt(i)->SetUpdateFrequency(duration); };
+   void           SetUpdateFrequency(Int_t duration)
+   {
+      fUpdateFrequency = duration;
+      ArgusTab *tab;
+      for (int i=0;i<GetTabObjectEntries();i++) {
+         tab = GetTabObjectAt(i);
+         if (tab)
+            tab->SetUpdateFrequency(duration);
+      }
+   };
    Int_t          GetUpdateFrequency() { return fUpdateFrequency; };
    
    // Menu
@@ -94,7 +103,11 @@ public:
    void            AddTab(ArgusTab *tab) { fTabObjects->AddLast(tab); };
    ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); };
    ArgusTab       *GetTabObject(const char* tabName);
-   Int_t           GetTabObjectEntries() { return fTabObjects->GetEntries(); };
+   Int_t           GetTabObjectEntries() {
+      if(fTabObjects)
+         return fTabObjects->GetEntries();
+      return 0;
+   };
 
    ClassDef(ArgusWindow,1)
 };
