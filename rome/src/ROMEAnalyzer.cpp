@@ -158,7 +158,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app)
    fSocketToROMEPort = 9090;
    fHistoRead = false;
    fHistoRun = 0;
-   app->SwitchInterruptHandler(kFALSE);
+   fRomeOutputFile = NULL;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -902,11 +902,11 @@ Bool_t ROMEAnalyzer::strtobool(const char* str)
 }
 
 void ROMEAnalyzer::redirectOutput() {
-   ofstream *romeOutputFile;
    if (!fOldbuf)
       fOldbuf = cout.rdbuf();
-   romeOutputFile = new ofstream("romeOutput.txt");
-   cout.rdbuf(romeOutputFile->rdbuf());
+   if (!fRomeOutputFile)
+      fRomeOutputFile = new ofstream("romeOutput.txt");
+   cout.rdbuf(fRomeOutputFile->rdbuf());
 }
 
 void ROMEAnalyzer::restoreOutput() {

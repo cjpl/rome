@@ -168,6 +168,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       //------------------
       firstUserInput = true;
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
+         // set terminal in every events because it is necessary when
+         // program resumes from suspend.
+         if (gROME->isBatchMode())
+            gROME->redirectOutput();
+         else
+            gROME->ss_getchar(0);
+
          if (gROME->IsWindowClosed()) {
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
                this->DAQTerminate(true);
@@ -325,10 +332,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       prompt += " [%d]";
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
       if (!gROME->isBatchMode() && !gROME->isQuitMode()) {
-         gROME->GetApplication()->SwitchInterruptHandler(kTRUE);
          gROME->GetApplication()->Run(true);
          gROME->PrintLine();
-         gROME->GetApplication()->SwitchInterruptHandler(kFALSE);
       }
    }
 
@@ -713,11 +718,9 @@ Bool_t ROMEEventLoop::UserInput()
          prompt.ToLower();
          prompt += " [%d]";
          gROME->GetApplication()->SetPrompt(prompt.Data());
-         gROME->GetApplication()->SwitchInterruptHandler(kTRUE);
          gROME->GetApplication()->Run(true);
          gSystem->Init();
          gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
-         gROME->GetApplication()->SwitchInterruptHandler(kFALSE);
       }
 
       if (wait) {
