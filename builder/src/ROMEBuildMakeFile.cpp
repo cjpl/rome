@@ -261,9 +261,9 @@ void ROMEBuilder::AddRomeSources()
    }
    if (romeDictHeaders->GetEntriesFast()>0) {
       if (!librome)
-         romeSources->AddFormatted("dict/ROMEDict.cpp");
+         romeSources->Add("dict/ROMEDict.cpp");
       else
-         romeSources->AddFormatted("dict/ROMESDict.cpp");
+         romeSources->Add("dict/ROMESDict.cpp");
    }
 }
 
@@ -293,7 +293,7 @@ void ROMEBuilder::AddArgusSources()
       argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
    }
    if (argusHeaders->GetEntriesFast()>0)
-      argusSources->AddFormatted("dict/ARGUSDict.cpp");
+      argusSources->Add("dict/ARGUSDict.cpp");
 }
 
 void ROMEBuilder::AddGeneratedHeaders()
@@ -304,7 +304,8 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
-   generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
@@ -345,8 +346,10 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
-   generatedDictHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
-   generatedLinkDefSuffix->Add("");
+   if (readGlobalSteeringParameters) {
+      generatedDictHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
+      generatedLinkDefSuffix->Add("");
+   }
    generatedDictHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());

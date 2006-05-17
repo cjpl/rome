@@ -430,7 +430,8 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteDBH()) return false;
    if (makeOutput) 
       cout << "\n\nFramework:" << endl;
-   if (!WriteSteering(numOfTask)) return false;
+   if (readGlobalSteeringParameters)
+      if (!WriteSteering(numOfTask)) return false;
    if (!WriteConfigToFormCpp()) return false;
    if (!WriteConfigToFormH()) return false;
    if (!WriteConfigCpp()) return false;
