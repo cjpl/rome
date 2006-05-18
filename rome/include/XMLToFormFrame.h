@@ -65,7 +65,6 @@ public:
       fLInnerCheckButtonFrame = NULL;
       fParentFrame = NULL;
       fFrame = NULL;
-      fFramePath = NULL;
       fTab = NULL;
       if (strlen(title)>0 && visible) {
          fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);

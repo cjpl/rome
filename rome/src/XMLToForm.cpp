@@ -103,7 +103,6 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
    int nButton = 0;
    int nEditBox = 0;
    int nComboBox = 0;
-   int nCheckButton = 0;
    PMXML_NODE node = fXML->GetPathNode(xmlPath);
    for (j=0;j<node->n_children;j++) {
       if (!strcmp(node->child[j].name,"EditBox")) {

@@ -471,7 +471,6 @@ void XMLToFormWindow::SignalHandler()
 void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
 {
    bool senderState;
-   int recvElementIndex = 0;
    XMLToFormFrame *recvFrame;
    int i,j;
    for (i=0;i<frame->GetNumberOfElements();i++) {
