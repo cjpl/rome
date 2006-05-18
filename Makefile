@@ -107,7 +107,6 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEDAQSystem.h \
                   include/ROMEUtilities.h \
                   include/ROMEConfigToForm.h \
-                  include/ROMEConfigToFormElements.h \
                   include/ROMEDataBaseDAQ.h \
                   include/ROMENoDAQSystem.h \
                   include/ROMERomeDAQ.h \
@@ -116,6 +115,8 @@ LibDictHeaders := include/ROMEString.h \
                   include/TNetFolderServer.h \
                   include/XMLToFormWindow.h \
                   include/XMLToForm.h \
+                  include/XMLToFormElement.h \
+                  include/XMLToFormElementSignal.h \
                   include/XMLToFormFrame.h \
                   include/XMLToFormWindow.h \
                   include/TArrayL64.h \
