@@ -2779,6 +2779,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
    buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("\n");
 
@@ -3188,12 +3193,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL))==1) {\n");
-   buffer.AppendFormatted("      if (dialog->IsCheckButtonChecked(\"ROME\") && dialog->IsCheckButtonChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("      if (dialog->IsChecked(\"ROME\") && dialog->IsChecked(\"ARGUS\"))\n");
    buffer.AppendFormatted("         gAnalyzer->SetROMEAndARGUS();\n");
-   buffer.AppendFormatted("      else if (dialog->IsCheckButtonChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("      else if (dialog->IsChecked(\"ARGUS\"))\n");
    buffer.AppendFormatted("         gAnalyzer->SetStandAloneARGUS();\n");
    buffer.AppendFormatted("      else\n");
    buffer.AppendFormatted("         gAnalyzer->SetStandAloneROME();\n");
+   buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(dialog->GetValue(\"RunParameters/RunNumbers\"));\n");
+   buffer.AppendFormatted("      gAnalyzer->SetInputFileNames(dialog->GetValue(\"RunParameters/InputFileNames\"));\n");
    WriteConfigToFormSave(buffer,mainParGroup,"","","");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   delete dialog;\n");
@@ -4660,6 +4667,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    }
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
 
    buffer.AppendFormatted("\nClassImp(%sConfigToForm)\n",shortCut.Data());
 
@@ -4672,14 +4680,14 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    buffer.AppendFormatted("void %sConfigToForm::AddTabs(XMLToFormFrame *frame)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
    buffer.AppendFormatted("   int nTabs=0;\n");
+   buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   ROMEConfigToFormElements *elements = new ROMEConfigToFormElements();\n");
    WriteConfigToFormTabs(buffer,mainParGroup,"frame","","");
-   buffer.AppendFormatted("   delete elements;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("}\n");
@@ -4698,39 +4706,32 @@ Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameter
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
       if (parGroup->GetParameterAt(i)->GetArraySize()=="1") {
          buffer.AppendFormatted("   // %s%s\n",tabPointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
-         buffer.AppendFormatted("   path.SetFormatted(\"%%s/%s\",%s->fFramePath->Data());\n",parGroup->GetParameterAt(i)->GetName().Data(),pointer.Data());
+         buffer.AppendFormatted("   path.SetFormatted(\"%%s/%s\",%s->GetFramePath().Data());\n",parGroup->GetParameterAt(i)->GetName().Data(),pointer.Data());
          for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfWriteLines();j++) {
             buffer.AppendFormatted("   %s\n",parGroup->GetParameterAt(i)->GetWriteLineAt(j));
          }
          buffer.AppendFormatted("   entries.RemoveAll();\n");
          for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfComboBoxEntries();j++)
             buffer.AppendFormatted("   entries.AddLast(\"%s\");\n",parGroup->GetParameterAt(i)->GetComboBoxEntryAt(j));
-         buffer.AppendFormatted("   elements->AddElement(\"%s\",\"%s\",writeString.Data(),path.Data(),&entries);\n",parGroup->GetParameterAt(i)->GetWidgetType().Data(),parGroup->GetParameterAt(i)->GetName().Data());
-      }
-      else {
+         buffer.AppendFormatted("   %s->AddElement(new XMLToFormElement(\"%s\",\"%s\",writeString.Data(),path.Data(),0,&entries));\n",pointer.Data(),parGroup->GetParameterAt(i)->GetWidgetType().Data(),parGroup->GetParameterAt(i)->GetName().Data());
       }
    }
-   buffer.AppendFormatted("   AddElements(%s,elements);\n",pointer.Data());
 
-   buffer.AppendFormatted("   %s->fNumberOfSubFrames = %d;\n",pointer.Data(),parGroup->GetNumberOfSubGroups());
-   buffer.AppendFormatted("   %s->fSubFrames = new XMLToFormFrame*[%s->fNumberOfSubFrames];\n",pointer.Data(),pointer.Data());
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       buffer.AppendFormatted("   // %s%s\n",tabPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      buffer.AppendFormatted("   %s->fSubFrames[%d] = new XMLToFormFrame();\n",pointer.Data(),i);
-      buffer.AppendFormatted("   %s->fSubFrames[%d]->fFramePath = new ROMEString(%s->fFramePath->Data());\n",pointer.Data(),i,pointer.Data());
-      buffer.AppendFormatted("   %s->fSubFrames[%d]->fIsTab = true;\n",pointer.Data(),i);
-      buffer.AppendFormatted("   %s->fSubFrames[%d]->fTabIndex = %d;\n",pointer.Data(),i,i);
-      buffer.AppendFormatted("   %s->fSubFrames[%d]->fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);\n",pointer.Data(),i);
-      buffer.AppendFormatted("   %s->fSubFrames[%d]->fTitleLabelHotString = new TGHotString(\"%s\");\n",pointer.Data(),i,parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-      buffer.AppendFormatted("   elements->Reset();\n");
-      newPointer.SetFormatted("%s->fSubFrames[%d]",pointer.Data(),i);
+      buffer.AppendFormatted("   %s->AddSubFrame(new XMLToFormFrame(\"%s\",%s->GetFramePath().Data(),true,true,true,%d));\n",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),pointer.Data(),i);
       newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       if (parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
+         newPointer.SetFormatted("%s->GetSubFrameAt(%d)",pointer.Data(),i);
          WriteConfigToFormTabs(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
-      }
-      else {
+         newPointer.SetFormatted("%s->GetSubFrameAt(%d)->GetSubFrameAt(i)",pointer.Data(),i);
+         buffer.AppendFormatted("   for (i=0;i<((%sConfig*)gAnalyzer->GetConfiguration())->fConfigData[0]->%sf%sArraySize;i++) {\n",shortCut.Data(),configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("      str.SetFormatted(\"%s %%d\",i);\n",parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("      %s->GetSubFrameAt(%d)->AddSubFrame(new XMLToFormFrame(str.Data(),\"\",true,false,true,0));\n",pointer.Data(),i);
+         WriteConfigToFormTabs(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data());
+         buffer.AppendFormatted("   }\n");
       }
    }
 
@@ -4745,7 +4746,12 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
       if (parGroup->GetParameterAt(i)->GetArraySize()=="1") {
          buffer.AppendFormatted("      // %s%s\n",tabPointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
-         buffer.AppendFormatted("      str = dialog->Get%sValue(\"%s%s\");\n",parGroup->GetParameterAt(i)->GetWidgetType().Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+         if (parGroup->GetArraySize()=="unknown") {
+            buffer.AppendFormatted("      str.SetFormatted(\"%s %%d/%s\",i);\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+            buffer.AppendFormatted("      str = dialog->GetValue(str.Data());\n");
+         }
+         else
+            buffer.AppendFormatted("      str = dialog->GetValue(\"%s%s\");\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          if (!parGroup->GetParameterAt(i)->IsWriteLinesAlways()) {
             for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfWriteLines();j++) {
                buffer.AppendFormatted("      %s\n",parGroup->GetParameterAt(i)->GetWriteLineAt(j));
@@ -4758,21 +4764,22 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfSetLines();j++) {
             temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
             temp.ReplaceAll("##","str");
+            temp.ReplaceAll("fConfigData[index]","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
             buffer.AppendFormatted("      %s\n",temp.Data());
          }
       }
-      else {
-      }
    }
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
-      newPointer.SetFormatted("%s%s/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       if (parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
+         newPointer.SetFormatted("%s%s/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
-      }
-      else {
+         buffer.AppendFormatted("   for (i=0;i<((%sConfig*)gAnalyzer->GetConfiguration())->fConfigData[0]->%sf%sArraySize;i++) {\n",shortCut.Data(),configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         newPointer.SetFormatted("%s%s/%s",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data());
+         buffer.AppendFormatted("   }\n");
       }
    }
 
@@ -6005,6 +6012,22 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
    return true;
 }
 
+Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
+{
+   int i;
+   for (i=0;i<parGroup->GetNumberOfParameters();i++) {
+      if (parGroup->GetParameterAt(i)->IsWriteLinesAlways() && parGroup->GetParameterAt(i)->GetNumberOfWriteLines()>0) {
+         parGroup->SetWriteAlways();
+         break;
+      }
+   }
+   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
+      CheckConfigParameters(parGroup->GetSubGroupAt(i));
+      if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
+         parGroup->SetWriteAlways();
+   }
+   return true;
+}
 Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab)
 {
    int i;
@@ -6331,7 +6354,10 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       pointerT.SetFormatted("%sf%s->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       buffer.AppendFormatted("%s// %s%s\n",sTab.Data(),groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
-         buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sArrayModified || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
+            buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sArrayModified || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         else
+            buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sArrayModified) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s   xml->StartElement(\"%ss\");\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
          buffer.AppendFormatted("%s   for (i=0;i<fConfigData[index]->%sf%sArraySize;i++) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      if (fConfigData[index]->%sf%sModified[i]) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -6341,13 +6367,20 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
          buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[i%d] || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
+            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[i%d] || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         else
+            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[i%d]) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          tabT += 1;
          sTabT += "   ";
          pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
       }
-      else
-         buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sModified || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      else {
+         if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
+            buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sModified || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         else
+            buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sModified) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
       for (j=0;j<parGroup->GetSubGroupAt(i)->GetNumberOfWriteStartLines();j++) {
          buffer.AppendFormatted("%s   %s\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetWriteStartLineAt(j));
       }

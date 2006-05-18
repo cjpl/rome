@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Mon Feb 27 10:58:09 2006 -->
+<!-- created by MXML on Thu May 18 15:35:56 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
@@ -11,9 +11,9 @@
   </ProgramConfiguration>
   <MainConfiguration>
     <RunParameters>
-		<RunNumbers>1</RunNumbers>
-		<EventNumbers>1-400000</EventNumbers>
-		<InputFileNames></InputFileNames>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers>1-400000</EventNumbers>
+      <InputFileNames></InputFileNames>
     </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
@@ -21,6 +21,7 @@
       <BatchMode>false</BatchMode>
       <QuitMode>false</QuitMode>
       <ShowSplashScreen>false</ShowSplashScreen>
+      <GraphicalConfigEdit>true</GraphicalConfigEdit>
     </Modes>
     <Argus>
       <WindowScale>1.0</WindowScale>
@@ -28,7 +29,13 @@
       <UpdateFrequency>100</UpdateFrequency>
       <AnalyzerController>
         <Active>false</Active>
+        <NetFolderName></NetFolderName>
       </AnalyzerController>
+      <SocketToROME>
+        <Active>true</Active>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketToROME>
     </Argus>
     <DataBases/>
     <Online>
@@ -47,10 +54,19 @@
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </Histograms>
+    <Folders/>
     <Tasks>
       <Task>
         <TaskName>FillHisto</TaskName>
         <Active>true</Active>
+        <Histogram>
+          <HistName>MyHisto</HistName>
+          <HistAccumulate>true</HistAccumulate>
+        </Histogram>
+        <Histogram>
+          <HistName>MyOtherHisto</HistName>
+          <HistAccumulate>true</HistAccumulate>
+        </Histogram>
       </Task>
     </Tasks>
     <Tabs>
@@ -59,5 +75,6 @@
         <Active>true</Active>
       </Tab>
     </Tabs>
+    <GlobalSteeringParameters/>
   </MainConfiguration>
 </Configuration>

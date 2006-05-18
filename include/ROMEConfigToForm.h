@@ -5,7 +5,6 @@
 #include <ROMEStr2DArray.h>
 #include <XMLToFormWindow.h>
 #include <XMLToForm.h>
-#include "ROMEConfigToFormElements.h"
 
 class ROMEConfigToForm : public XMLToForm{
 protected:
@@ -19,7 +18,6 @@ protected:
    bool Init();
    bool XMLToRootClass();
    void XMLToClass(XMLToFormFrame *frame);
-   void AddElements(XMLToFormFrame *frame,ROMEConfigToFormElements *elements);
    virtual void AddTabs(XMLToFormFrame *frame) = 0;
    void FillButtonFrame(XMLToFormFrame *frame);
    void FillRunModeFrame(XMLToFormFrame *frame);
