@@ -22,20 +22,10 @@
 #include <ROMEXML.h>
 #include "XMLToFormFrame.h"
 
-const int framePad = 3;
-const int innerFramePad = 0;
-const int elementPad = 3;
-
 class XMLToForm : public TObject
 {
+   friend class XMLToFormWindow;
 protected:
-   enum WidgetTypes {
-      EDIT_BOX,
-      COMBO_BOX,
-      CHECK_BUTTON,
-      BUTTON
-   };
-
    XMLToFormWindow  *fWindow;
    int fMaximalWindowWidth;
    ROMEXML *fXML;
@@ -50,15 +40,11 @@ public:
    virtual ~ XMLToForm();
 
    void SaveForm();
-   const char* GetEditBoxValue(const char* editBoxLabel);
-   int         GetEditBoxIntValue(const char* editBoxLabel);
-   double      GetEditBoxDoubleValue(const char* editBoxLabel);
-   const char* GetComboBoxValue(const char* comboBoxLabel);
-   int         GetComboBoxIntValue(const char* comboBoxLabel);
-   double      GetComboBoxDoubleValue(const char* comboBoxLabel);
-   int         GetComboBoxSelectedIndex(const char* comboBoxLabel);
-   const char* GetCheckButtonValue(const char* checkButtonLabel);
-   bool        IsCheckButtonChecked(const char* checkButtonLabel);
+   const char* GetValue(const char* label);
+   int         GetIntValue(const char* label);
+   double      GetDoubleValue(const char* label);
+   int         GetSelectedIndex(const char* label);
+   bool        IsChecked(const char* label);
 protected:
    bool Init(const char* xmlFileName,ROMEStrArray* substitutes=NULL);
    void InitSubstitutes(ROMEStrArray* substitutes);
@@ -68,12 +54,9 @@ protected:
    void FillClass(XMLToFormFrame *frame);
    void InitSubFrames(XMLToFormFrame *frame);
    bool ReadTitle(ROMEString &path,ROMEString &value);
-   bool SearchWidget(const char* path,int type,XMLToFormFrame** frame,int *index);
-   const char* GetValue(const char* label,int type);
-   int  GetIndex(const char* label,int type);
+   int  GetIndex(const char* label);
    void SaveFrame(XMLToFormFrame *frame);
    void DeleteFrame(XMLToFormFrame *frame);
-   XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);
    void PrintFrame(XMLToFormFrame *frame,int tab=0);
 
    ClassDef(XMLToForm, 0) // Create GUI form from XML file

@@ -398,6 +398,7 @@ Bool_t ROMEBuilder::StartBuilder()
 
    // write classes
    if (!AddConfigParameters()) return false;
+   if (!CheckConfigParameters(mainParGroup)) return false;
    if (makeOutput) 
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
@@ -472,6 +473,10 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
       if (numOfTab>0)
          tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
+      if (numOfDAQ>0)
+         tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
+      if (numOfDB>0)
+         tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
       if (numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
       gSystem->Exec(tempStr.Data());
@@ -600,6 +605,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
          outDir = "C:/rome/examples/netfolder/";
          xmlFile = "C:/rome/examples/netfolder/netfolder.xml";
+      }
+      else if (!strcmp(argv[i],"-database")) {
+         noLink = true;
+         outDir = "C:/rome/examples/dbexample/";
+         xmlFile = "C:/rome/examples/dbexample/RDBframework.xml";
       }
       else if (!strcmp(argv[i],"-histogui")) {
          noLink = true;

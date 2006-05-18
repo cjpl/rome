@@ -25,6 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				Description="Root Dictionary Generation"
+				CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -62,7 +64,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="libCore.lib"
+				AdditionalDependencies="libCore.lib libCint.lib"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(ROOTSYS)\lib"
@@ -185,6 +187,10 @@
 			</File>
 			<File
 				RelativePath=".\builder\src\ROMEBuilder.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ROMEBuilderDict.cpp"
 				>
 			</File>
 			<File

@@ -1,20 +1,40 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Wed Jun 15 13:05:28 2005 -->
+<!-- created by MXML on Thu May 18 18:06:22 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>false</Active>
+    </ARGUS>
+  </ProgramConfiguration>
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers></EventNumbers>
+    <RunParameters>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
+    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
       <BatchMode>false</BatchMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
+      <QuitMode>false</QuitMode>
+      <ShowSplashScreen>false</ShowSplashScreen>
+      <GraphicalConfigEdit>true</GraphicalConfigEdit>
     </Modes>
     <DataBases>
       <DataBase>
         <Name>mydatabase</Name>
-        <Type>xml</Type>
         <Connection>xmlDataBase;RDBDataBase</Connection>
+        <Type>xml</Type>
+        <EventBased>false</EventBased>
+      </DataBase>
+      <DataBase>
+        <Name>myotherdatabase</Name>
+        <Connection>xmlDataBase;RDBDataBase</Connection>
+        <Type>xml</Type>
+        <EventBased>false</EventBased>
       </DataBase>
     </DataBases>
     <Online>
@@ -29,12 +49,15 @@
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Histograms>
+      <Read>false</Read>
+      <RunNumber>0</RunNumber>
+    </Histograms>
     <Tasks>
       <Task>
         <TaskName>PrintFolders</TaskName>
         <Active>true</Active>
       </Task>
     </Tasks>
-    <Midas/>
   </MainConfiguration>
 </Configuration>

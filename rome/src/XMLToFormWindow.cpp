@@ -16,20 +16,22 @@ ClassImp(XMLToFormWindow)
 void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
 {
    int i,j,k;
-   int maxWidth,index;
+   int maxWidth,index,additionalWidth;
    TGLabel *tempLabel;
    XMLToFormFrame *currentSubFrame;
    ROMEString value;
    ROMEString currentPath;
    ROMEString savePath;
+   ROMEString str;
 
    // create title
-   if (frame->fTitleLabelHotString) {
-      if (frame->fIsTab) {
-         frame->fParentFrame->fTab->GetTabTab(frame->fTabIndex)->SetText(frame->fTitleLabelHotString);
+   if (frame->GetFrameTitle().Length()>0) {
+      if (frame->IsFrameTab()) {
+         frame->fTitleString = new TGHotString(frame->GetFrameTitle().Data());
+         frame->fParentFrame->fTab->GetTabTab(frame->GetFrameTabIndex())->SetText(frame->fTitleString);
       }
       else {
-         frame->fTitleLabel = new TGLabel(frame->fFrame, frame->fTitleLabelHotString);
+         frame->fTitleLabel = new TGLabel(frame->fFrame, frame->GetFrameTitle().Data());
          frame->fTitleLabel->SetTextFont("arial bold",true);
          frame->fFrame->AddFrame(frame->fTitleLabel, frame->fLTitleLabel);
       }
@@ -37,257 +39,209 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
 
    // create elements
 
-   if (frame->fNumberOfElements>0) {
+   if (frame->GetNumberOfElements()>0) {
       // calculate number of vframes
       maxWidth = 0;
       // editboxes
-      for (j=0;j<frame->fNumberOfEditBoxes;j++) {
-         tempLabel = new TGLabel(0,frame->fEditLabelHotString[j]->GetString());
-         if (frame->fEditBoxWidth[j]<(int)tempLabel->GetSize().fWidth)
-            frame->fEditBoxWidth[j] = tempLabel->GetSize().fWidth;
-         if (maxWidth<frame->fEditBoxWidth[j])
-            maxWidth = frame->fEditBoxWidth[j]+2*elementPad;
+      for (j=0;j<frame->GetNumberOfElements();j++) {
+         if (frame->GetElementAt(j)->GetType()=="Button" || frame->GetElementAt(j)->GetType()=="ComboBox")
+            additionalWidth = 8;
+         else
+            additionalWidth = 0;
+         tempLabel = new TGLabel(0,frame->GetElementAt(j)->GetTitle().Data());
+         if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth+additionalWidth)
+            frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth+additionalWidth);
+         if (maxWidth<frame->GetElementAt(j)->GetWidth())
+            maxWidth = frame->GetElementAt(j)->GetWidth()+2*frame->elementPad;
          delete tempLabel;
-      }
-      // buttons
-      for (j=0;j<frame->fNumberOfButtons;j++) {
-         tempLabel = new TGLabel(0,frame->fButtonHotString[j]->GetString());
-         if (frame->fButtonWidth[j]<(int)tempLabel->GetSize().fWidth+8)
-            frame->fButtonWidth[j] = tempLabel->GetSize().fWidth+8;
-         if (maxWidth<frame->fButtonWidth[j])
-            maxWidth = frame->fButtonWidth[j]+2*elementPad;
-         delete tempLabel;
-      }
-      // comboboxes
-      for (j=0;j<frame->fNumberOfComboBoxes;j++) {
-         tempLabel = new TGLabel(0,frame->fComboLabelHotString[j]->GetString());
-         if (frame->fComboBoxWidth[j]<(int)tempLabel->GetSize().fWidth+8)
-            frame->fComboBoxWidth[j] = tempLabel->GetSize().fWidth+8;
-         if (maxWidth<frame->fComboBoxWidth[j])
-            maxWidth = frame->fComboBoxWidth[j]+2*elementPad;
-         delete tempLabel;
-         for (k=0;k<frame->fComboBoxEntries[j]->GetEntriesFast();k++) {
-            tempLabel = new TGLabel(0,frame->fComboBoxEntries[j]->At(k).Data());
-            if (frame->fComboBoxWidth[j]<(int)tempLabel->GetSize().fWidth)
-               frame->fComboBoxWidth[j] = tempLabel->GetSize().fWidth;
-            if (maxWidth<frame->fComboBoxWidth[j])
-               maxWidth = frame->fComboBoxWidth[j]+2*elementPad;
+         for (k=0;k<frame->GetElementAt(j)->GetNumberOfEntries();k++) {
+            tempLabel = new TGLabel(0,frame->GetElementAt(j)->GetEntryAt(k).Data());
+            if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth)
+               frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth);
+            if (maxWidth<frame->GetElementAt(j)->GetWidth())
+               maxWidth = frame->GetElementAt(j)->GetWidth()+2*frame->elementPad;
             delete tempLabel;
          }
       }
-      // checkbuttons
-      for (j=0;j<frame->fNumberOfCheckButtons;j++) {
-         tempLabel = new TGLabel(0,frame->fCheckButtonLabelHotString[j]->GetString());
-         if (frame->fCheckButtonWidth[j]<(int)tempLabel->GetSize().fWidth)
-            frame->fCheckButtonWidth[j] = tempLabel->GetSize().fWidth;
-         if (maxWidth<frame->fCheckButtonWidth[j])
-            maxWidth = frame->fCheckButtonWidth[j]+2*elementPad;
-         delete tempLabel;
-      }
-
 
       // create hframes
       frame->fHFrame = new TGHorizontalFrame(frame->fFrame,0,0);
       frame->fFrame->AddFrame(frame->fHFrame, frame->fLInnerFrame);
       // create hhframes
-      frame->fHHFrames = new TGHorizontalFrame*[2*frame->fNumberOfElements];
+      frame->fHHFrames = new TGHorizontalFrame*[2*frame->GetNumberOfElements()];
       // create vframes
-      frame->fNumberOfVFrames = (fMaximalWindowWidth+2*framePad)/(maxWidth);
+      frame->fNumberOfVFrames = (fMaximalWindowWidth+2*frame->framePad)/(maxWidth);
       if (frame->fNumberOfVFrames<1)
          frame->fNumberOfVFrames = 1;
-      if (frame->fNumberOfVFrames>frame->fNumberOfElements)
-         frame->fNumberOfVFrames=frame->fNumberOfElements;
+      if (frame->fNumberOfVFrames>frame->GetNumberOfElements())
+         frame->fNumberOfVFrames=frame->GetNumberOfElements();
       frame->fVFrames = new TGVerticalFrame*[frame->fNumberOfVFrames];
       for (j=0;j<frame->fNumberOfVFrames;j++) {
          frame->fVFrames[j] = new TGVerticalFrame(frame->fHFrame,0,0);
          frame->fHFrame->AddFrame(frame->fVFrames[j], frame->fLInnerFrame);
       }
 
-      // define elements
-
-      // editbox
-      frame->fEditVFrames = new TGVerticalFrame*[frame->fNumberOfEditBoxes];
-      frame->fEditLabel = new TGLabel*[frame->fNumberOfEditBoxes];
-      frame->fLEditLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-      frame->fEditBox = new TGTextEntry*[frame->fNumberOfEditBoxes];
-      frame->fLEditBox = new TGLayoutHints(kLHintsTop | kLHintsExpandX, elementPad, elementPad, elementPad, elementPad);
-      // define buttons
-      frame->fButton = new TGTextButton*[frame->fNumberOfButtons];
-      frame->fLButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsCenterX, elementPad, elementPad, elementPad, elementPad);
-      // define comboboxes
-      frame->fComboVFrames = new TGVerticalFrame*[frame->fNumberOfComboBoxes];
-      frame->fComboLabel = new TGLabel*[frame->fNumberOfComboBoxes];
-      frame->fLComboLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-      frame->fComboBox = new TGComboBox*[frame->fNumberOfComboBoxes];
-      frame->fLComboBox = new TGLayoutHints(kLHintsTop | kLHintsExpandX, elementPad, elementPad, elementPad, elementPad);
-      // checkbuttons
-      frame->fCheckButtonVFrames = new TGVerticalFrame*[frame->fNumberOfCheckButtons];
-      frame->fCheckButtonLabel = new TGLabel*[frame->fNumberOfCheckButtons];
-      frame->fLCheckButtonLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-      frame->fCheckButton = new TGCheckButton*[frame->fNumberOfCheckButtons];
-      frame->fLCheckButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-
       // create elements
-      int nButton = 0;
-      int nEditBox = 0;
-      int nComboBox = 0;
-      int nCheckButton = 0;
       int nDiv = 1;
       int nPart = 1;
       frame->fNumberOfHHFrames = 0;
-      for (j=0;j<frame->fNumberOfElements;j++) {
+      for (j=0;j<frame->GetNumberOfElements();j++) {
          index = frame->fNumberOfHHFrames%frame->fNumberOfVFrames;
          // editbox
-         if (frame->fNumberOfEditBoxes>0) {
-            if (frame->fEditBoxElementIndex[nEditBox]==j) {
-               nDiv = TMath::Min(maxWidth/(frame->fEditBoxWidth[nEditBox]+10),nDiv);
-               if (nDiv>nPart && frame->fNumberOfElements>frame->fNumberOfVFrames) {
-                  nPart++;
-               }
-               else {
-                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-                  frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
-                  frame->fNumberOfHHFrames++;
-                  nPart = 1;
-                  nDiv = maxWidth/(frame->fEditBoxWidth[nEditBox]+10);
-               }
-               // vframe
-               frame->fEditVFrames[nEditBox] = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
-               frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->fEditVFrames[nEditBox], frame->fLInnerFrame);
-               // label
-               frame->fEditLabel[nEditBox] = new TGLabel(frame->fEditVFrames[nEditBox], frame->fEditLabelHotString[nEditBox]);
-               frame->fEditVFrames[nEditBox]->AddFrame(frame->fEditLabel[nEditBox], frame->fLEditLabel);
-               // edit
-               frame->fEditBox[nEditBox] = new TGTextEntry(frame->fEditVFrames[nEditBox], frame->fEditBoxBuffer[nEditBox]);
-               frame->fEditBox[nEditBox]->Associate(this);
-               frame->fEditBox[nEditBox]->Resize(frame->fEditBoxWidth[nEditBox], 22);
-               frame->fEditVFrames[nEditBox]->AddFrame(frame->fEditBox[nEditBox], frame->fLEditBox);
-               if (fFirstEdit) {
-   //               frame->fEditBox[nEditBox]->SelectAll();
-                  frame->fEditBox[nEditBox]->SetFocus();
-                  fFirstEdit = false;
-               }
-               nEditBox++;
+         if (frame->GetElementAt(j)->GetType()=="EditBox") {
+            nDiv = TMath::Min(maxWidth/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
+            if (nDiv>nPart && frame->GetNumberOfElements()>frame->fNumberOfVFrames) {
+               nPart++;
+            }
+            else {
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
+               frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
+               frame->fNumberOfHHFrames++;
+               nPart = 1;
+               nDiv = maxWidth/(frame->GetElementAt(j)->GetWidth()+10);
+            }
+            // hints
+            frame->GetElementAt(j)->fLEditLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            frame->GetElementAt(j)->fLEditBox = new TGLayoutHints(kLHintsTop | kLHintsExpandX, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            // vframe
+            frame->GetElementAt(j)->fEditVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
+            frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->GetElementAt(j)->fEditVFrames, frame->fLInnerFrame);
+            // label
+            frame->GetElementAt(j)->fEditLabel = new TGLabel(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fEditVFrames->AddFrame(frame->GetElementAt(j)->fEditLabel, frame->GetElementAt(j)->fLEditLabel);
+            // edit
+            frame->GetElementAt(j)->fEditBoxBuffer = new TGTextBuffer(50);
+            frame->GetElementAt(j)->fEditBoxBuffer->AddText(0, frame->GetElementAt(j)->GetValue().Data());
+            frame->GetElementAt(j)->fEditBox = new TGTextEntry(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->fEditBoxBuffer);
+            frame->GetElementAt(j)->fEditBox->Associate(this);
+            frame->GetElementAt(j)->fEditBox->Resize(frame->GetElementAt(j)->GetWidth(), 22);
+            frame->GetElementAt(j)->fEditVFrames->AddFrame(frame->GetElementAt(j)->fEditBox, frame->GetElementAt(j)->fLEditBox);
+            if (fFirstEdit) {
+//               frame->fEditBox[nEditBox]->SelectAll();
+               frame->GetElementAt(j)->fEditBox->SetFocus();
+               fFirstEdit = false;
             }
          }
          // buttons
-         if (frame->fNumberOfButtons>0) {
-            if (frame->fButtonElementIndex[nButton]==j) {
-               nDiv = TMath::Min(maxWidth/(frame->fButtonWidth[nButton]+10),nDiv);
-               if (nDiv>nPart && frame->fNumberOfElements>frame->fNumberOfVFrames) {
-                  nPart++;
-               }
-               else {
-                  if (frame->fNumberOfButtons!=frame->fNumberOfElements)
-                     frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-                  else
-                     frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,0);
-                  frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
-                  frame->fNumberOfHHFrames++;
-                  nPart = 1;
-                  nDiv = maxWidth/(frame->fButtonWidth[nButton]+10);
-               }
-               if (frame->fButtonID[nButton]!=-1)
-                  frame->fButton[nButton] = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->fButtonHotString[nButton],frame->fButtonID[nButton]);
-               else
-                  frame->fButton[nButton] = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->fButtonHotString[nButton]);
-               frame->fButton[nButton]->Associate(this);
-               frame->fButton[nButton]->Resize(frame->fButtonWidth[nButton], 22);
-               frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->fButton[nButton], frame->fLButton);
-               nButton++;
+         if (frame->GetElementAt(j)->GetType()=="Button") {
+            nDiv = TMath::Min(maxWidth/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
+            if (nDiv>nPart && frame->GetNumberOfElements()>frame->fNumberOfVFrames) {
+               nPart++;
             }
+            else {
+//               if (frame->fNumberOfButtons!=frame->fNumberOfElements)
+                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
+//               else
+//                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,0);
+               frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
+               frame->fNumberOfHHFrames++;
+               nPart = 1;
+               nDiv = maxWidth/(frame->GetElementAt(j)->GetWidth()+10);
+            }
+            // hints
+            frame->GetElementAt(j)->fLButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsCenterX, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            // button
+            if (frame->GetElementAt(j)->GetButtonID()!=-1)
+               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle().Data(),frame->GetElementAt(j)->GetButtonID());
+            else
+               frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fButton->Associate(this);
+            frame->GetElementAt(j)->fButton->Resize(frame->GetElementAt(j)->GetWidth(), 22);
+            frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->GetElementAt(j)->fButton, frame->GetElementAt(j)->fLButton);
          }
          // combobox
-         if (frame->fNumberOfComboBoxes>0) {
-            if (frame->fComboBoxElementIndex[nComboBox]==j) {
-               nDiv = TMath::Min(maxWidth/(frame->fComboBoxWidth[nComboBox]+10),nDiv);
-               if (nDiv>nPart && frame->fNumberOfElements>frame->fNumberOfVFrames) {
-                  nPart++;
-               }
-               else {
-                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
-                  frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
-                  frame->fNumberOfHHFrames++;
-                  nPart = 1;
-                  nDiv = maxWidth/(frame->fComboBoxWidth[nComboBox]+10);
-               }
-               // vframe
-               frame->fComboVFrames[nComboBox] = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
-               frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->fComboVFrames[nComboBox], frame->fLInnerFrame);
-               // label
-               frame->fComboLabel[nComboBox] = new TGLabel(frame->fComboVFrames[nComboBox], frame->fComboLabelHotString[nComboBox]);
-               frame->fComboVFrames[nComboBox]->AddFrame(frame->fComboLabel[nComboBox], frame->fLComboLabel);
-               // edit
-               frame->fComboBox[nComboBox] = new TGComboBox(frame->fComboVFrames[nComboBox]);
-               frame->fComboBox[nComboBox]->Associate(this);
-               frame->fComboBox[nComboBox]->Resize(0, 22);
-               for (k=0;k<frame->fComboBoxEntries[nComboBox]->GetEntriesFast();k++) {
-                  frame->fComboBox[nComboBox]->AddEntry(frame->fComboBoxEntries[nComboBox]->At(k).Data(),k);
-               }
-               frame->fComboBox[nComboBox]->Select(frame->fComboBoxSelectedEntry[nComboBox]);
-               frame->fComboVFrames[nComboBox]->AddFrame(frame->fComboBox[nComboBox], frame->fLEditBox);
-               nComboBox++;
+         if (frame->GetElementAt(j)->GetType()=="ComboBox") {
+            nDiv = TMath::Min(maxWidth/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
+            if (nDiv>nPart && frame->GetNumberOfElements()>frame->fNumberOfVFrames) {
+               nPart++;
             }
+            else {
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight);
+               frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerFrame);
+               frame->fNumberOfHHFrames++;
+               nPart = 1;
+               nDiv = maxWidth/(frame->GetElementAt(j)->GetWidth()+10);
+            }
+            // hints
+            frame->GetElementAt(j)->fLComboLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            frame->GetElementAt(j)->fLComboBox = new TGLayoutHints(kLHintsTop | kLHintsExpandX, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            // vframe
+            frame->GetElementAt(j)->fComboVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
+            frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->GetElementAt(j)->fComboVFrames, frame->fLInnerFrame);
+            // label
+            frame->GetElementAt(j)->fComboLabel = new TGLabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fComboVFrames->AddFrame(frame->GetElementAt(j)->fComboLabel, frame->GetElementAt(j)->fLComboLabel);
+            // edit
+            frame->GetElementAt(j)->fComboBox = new TGComboBox(frame->GetElementAt(j)->fComboVFrames);
+            frame->GetElementAt(j)->fComboBox->Associate(this);
+            frame->GetElementAt(j)->fComboBox->Resize(0, 22);
+            for (k=0;k<frame->GetElementAt(j)->GetNumberOfEntries();k++) {
+               frame->GetElementAt(j)->fComboBox->AddEntry(frame->GetElementAt(j)->GetEntryAt(k).Data(),k);
+            }
+            frame->GetElementAt(j)->fComboBox->Select(frame->GetElementAt(j)->GetSelectedEntry());
+            frame->GetElementAt(j)->fComboVFrames->AddFrame(frame->GetElementAt(j)->fComboBox, frame->GetElementAt(j)->fLComboBox);
          }
          // checkbuttons
-         if (frame->fNumberOfCheckButtons>0) {
-            if (frame->fCheckButtonElementIndex[nCheckButton]==j) {
-               nDiv = TMath::Min(maxWidth/(frame->fCheckButtonWidth[nCheckButton]+10),nDiv);
-               if (nDiv>nPart && frame->fNumberOfElements>frame->fNumberOfVFrames) {
-                  nPart++;
-               }
-               else {
-                  frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight | kChildFrame);
-                  frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerCheckButtonFrame);
-                  frame->fNumberOfHHFrames++;
-                  nPart = 1;
-                  nDiv = maxWidth/(frame->fCheckButtonWidth[nCheckButton]+10);
-               }
-               // vframe
-               frame->fCheckButtonVFrames[nCheckButton] = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
-               frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->fCheckButtonVFrames[nCheckButton], frame->fLInnerFrame);
-               // label
-               frame->fCheckButtonLabel[nCheckButton] = new TGLabel(frame->fCheckButtonVFrames[nCheckButton], frame->fCheckButtonLabelHotString[nCheckButton]);
-               frame->fCheckButtonVFrames[nCheckButton]->AddFrame(frame->fCheckButtonLabel[nCheckButton], frame->fLCheckButtonLabel);
-               // button
-               if (frame->fCheckButtonID[nCheckButton]!=-1)
-                  frame->fCheckButton[nCheckButton] = new TGCheckButton(frame->fCheckButtonVFrames[nCheckButton],"",frame->fCheckButtonID[nCheckButton]);
-               else
-                  frame->fCheckButton[nCheckButton] = new TGCheckButton(frame->fCheckButtonVFrames[nCheckButton]);
-               if (frame->fCheckButtonChecked[nCheckButton])
-                  frame->fCheckButton[nCheckButton]->SetState(kButtonDown);
-               frame->fCheckButton[nCheckButton]->Associate(this);
-               frame->fCheckButtonVFrames[nCheckButton]->AddFrame(frame->fCheckButton[nCheckButton], frame->fLCheckButton);
-               nCheckButton++;
+         if (frame->GetElementAt(j)->GetType()=="CheckButton") {
+            nDiv = TMath::Min(maxWidth/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
+            if (nDiv>nPart && frame->GetNumberOfElements()>frame->fNumberOfVFrames) {
+               nPart++;
             }
+            else {
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight | kChildFrame);
+               frame->fVFrames[index]->AddFrame(frame->fHHFrames[frame->fNumberOfHHFrames], frame->fLInnerCheckButtonFrame);
+               frame->fNumberOfHHFrames++;
+               nPart = 1;
+               nDiv = maxWidth/(frame->GetElementAt(j)->GetWidth()+10);
+            }
+            // hints
+            frame->GetElementAt(j)->fLCheckButtonLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            frame->GetElementAt(j)->fLCheckButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            // vframe
+            frame->GetElementAt(j)->fCheckButtonVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
+            frame->fHHFrames[frame->fNumberOfHHFrames-1]->AddFrame(frame->GetElementAt(j)->fCheckButtonVFrames, frame->fLInnerFrame);
+            // label
+            frame->GetElementAt(j)->fCheckButtonLabel = new TGLabel(frame->GetElementAt(j)->fCheckButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fCheckButtonVFrames->AddFrame(frame->GetElementAt(j)->fCheckButtonLabel, frame->GetElementAt(j)->fLCheckButtonLabel);
+            // button
+            if (frame->GetElementAt(j)->GetButtonID()!=-1)
+               frame->GetElementAt(j)->fCheckButton = new TGCheckButton(frame->GetElementAt(j)->fCheckButtonVFrames,"",frame->GetElementAt(j)->GetButtonID());
+            else
+               frame->GetElementAt(j)->fCheckButton = new TGCheckButton(frame->GetElementAt(j)->fCheckButtonVFrames);
+            if (frame->GetElementAt(j)->GetButtonChecked())
+               frame->GetElementAt(j)->fCheckButton->SetState(kButtonDown);
+            if (frame->GetElementAt(j)->GetSignal()!=NULL)
+               frame->GetElementAt(j)->fCheckButton->Connect(frame->GetElementAt(j)->GetSignal()->GetSignal().Data(),"XMLToFormWindow",this,"SignalHandler()");
+            frame->GetElementAt(j)->fCheckButton->Associate(this);
+            frame->GetElementAt(j)->fCheckButtonVFrames->AddFrame(frame->GetElementAt(j)->fCheckButton, frame->GetElementAt(j)->fLCheckButton);
          }
       }
    }
 
    // subframes
 
-   for (i=0;i<frame->fNumberOfSubFrames;i++) {
-      if (frame->fSubFrames[i]->fVisible) {
-         if (frame->fSubFrames[i]->fIsTab) {
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
+         if (frame->GetSubFrameAt(i)->IsFrameTab()) {
             frame->fTab = new TGTab(frame->fFrame);
             frame->fFrame->AddFrame(frame->fTab,frame->fLFrame);
             break;
          }
       }
    }
-   for (i=0;i<frame->fNumberOfSubFrames;i++) {
-      if (frame->fSubFrames[i]->fVisible) {
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
          // create subframe
-         currentSubFrame = frame->fSubFrames[i];
+         currentSubFrame = frame->GetSubFrameAt(i);
          currentSubFrame->fIndex = i+1;
-         currentSubFrame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, framePad, framePad, framePad, framePad);
-         currentSubFrame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, innerFramePad, innerFramePad, innerFramePad, innerFramePad);
-         currentSubFrame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, innerFramePad, innerFramePad, innerFramePad, innerFramePad);
-         if (currentSubFrame->fIsTab) {
+         currentSubFrame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
+         currentSubFrame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
+         currentSubFrame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
+         if (currentSubFrame->IsFrameTab()) {
             currentSubFrame->fFrame = frame->fTab->AddTab("");
          }
          else {
-            if (currentSubFrame->fVerticalFrame)
+            if (currentSubFrame->IsFrameVertical())
                currentSubFrame->fFrame = new TGVerticalFrame(frame->fFrame,0,0,kRaisedFrame);
             else
                currentSubFrame->fFrame = new TGHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
@@ -306,27 +260,28 @@ void XMLToFormWindow::CreateFrame(XMLToFormFrame *frame)
    BuildFrame(frame);
 
    // create subframes
-   for (i=0;i<frame->fNumberOfSubFrames;i++) {
-      if (frame->fSubFrames[i]->fVisible)
-         CreateFrame(frame->fSubFrames[i]);
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      if (frame->GetSubFrameAt(i)->IsFrameVisible())
+         CreateFrame(frame->GetSubFrameAt(i));
    }
 }
 
 void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
 {
    // Frame
-   if (frame->fVerticalFrame)
+   if (frame->IsFrameVertical())
       frame->fFrame = new TGVerticalFrame(this,0,0,kRaisedFrame);
    else
       frame->fFrame = new TGHorizontalFrame(this,0,0,kRaisedFrame);
-   frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, framePad, framePad, framePad, framePad);
-   frame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, innerFramePad, innerFramePad, innerFramePad, innerFramePad);
-   frame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, innerFramePad, innerFramePad, innerFramePad, innerFramePad);
+   frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
+   frame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
+   frame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    AddFrame(frame->fFrame,frame->fLFrame);
    frame->fIndex = 1;
    frame->fParentFrame = NULL;
-   frame->fIsTab = false;
+/*   frame->fIsTab = false;
    frame->fTabIndex = -1;
+   todo*/
 }
 
 bool XMLToFormWindow::CreateForm(XMLToFormFrame *frame)
@@ -343,6 +298,7 @@ XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLT
    fFirstEdit = true;
    fExitID = exitButtonID;
    fMaximalWindowWidth = windowWidth;
+   fMainFrame = frame;
 
    CreateForm(frame);
 
@@ -393,6 +349,7 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       switch (GET_SUBMSG(msg)) {
       case kCM_BUTTON:
          *fExitID = parm1;
+         SaveCurrentValues(fMainFrame);
          CloseWindow();
          break;
       default:
@@ -405,6 +362,7 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
       case kTE_TEXTCHANGED:
          break;
       case kTE_ENTER:
+         SaveCurrentValues(fMainFrame);
          CloseWindow();
          break;
       case kTE_TAB:
@@ -422,3 +380,128 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
    return kTRUE;
 }
 
+void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
+{
+   int i;
+   for (i=0;i<frame->GetNumberOfElements();i++) {
+      if (frame->GetElementAt(i)->GetType()=="EditBox") {
+         frame->GetElementAt(i)->SetValue(frame->GetElementAt(i)->fEditBoxBuffer->GetString());
+      }
+      if (frame->GetElementAt(i)->GetType()=="ComboBox") {
+         frame->GetElementAt(i)->SetValue(frame->GetElementAt(i)->fComboBox->GetSelectedEntry()->GetTitle());
+         frame->GetElementAt(i)->SetSelectedEntry(frame->GetElementAt(i)->fComboBox->GetSelected());
+      }
+      if (frame->GetElementAt(i)->GetType()=="CheckButton") {
+         if (frame->GetElementAt(i)->fCheckButton->GetState()==kButtonDown) {
+            frame->GetElementAt(i)->SetValue("true");
+            frame->GetElementAt(i)->SetButtonChecked(true);
+         }
+         else {
+            frame->GetElementAt(i)->SetValue("false");
+            frame->GetElementAt(i)->SetButtonChecked(false);
+         }
+      }
+   }
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      if (frame->GetSubFrameAt(i)->IsFrameVisible())
+         SaveCurrentValues(frame->GetSubFrameAt(i));
+   }
+}
+
+XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* title,const char* label)
+{
+   XMLToFormFrame *returnFrame;
+   int i;
+   if (title!=NULL) {
+      if (!strcmp(frame->GetFrameTitle().Data(),title))
+         return frame;
+   }
+   if (label!=NULL) {
+      for (i=0;i<frame->GetNumberOfElements();i++) {
+         if (!strcmp(frame->GetElementAt(i)->GetTitle().Data(),label))
+            return frame;
+      }
+   }
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      returnFrame = SearchFrame(frame->GetSubFrameAt(i),title,label);
+      if (returnFrame!=NULL)
+         return returnFrame;
+   }
+   return NULL;
+}
+
+bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index)
+{
+   int i,ind;
+   ROMEString editName = path;
+   ROMEString tempString = path;
+   int numberOfFrames = editName.NumberOfOccurrence("/");
+   ROMEString **frameNames = new ROMEString*[numberOfFrames];
+   // decode
+   for (i=0;i<numberOfFrames;i++) {
+      ind = editName.Index("/");
+      tempString = editName(0,ind);
+      frameNames[i] = new ROMEString(tempString.Data());
+      editName = editName(ind+1,editName.Length()-ind-1);
+   }
+   // search frame
+   *frame = fMainFrame;
+   for (i=0;i<numberOfFrames;i++) {
+      *frame = SearchFrame(*frame,frameNames[i]->Data(),NULL);
+      if (*frame==NULL)
+         return false;
+   }
+   delete [] frameNames;
+   // search value
+   *frame = SearchFrame(*frame,NULL,editName.Data());
+   if (*frame!=NULL) {
+      for (i=0;i<(*frame)->GetNumberOfElements();i++) {
+         if (!strcmp((*frame)->GetElementAt(i)->GetTitle().Data(),editName.Data())) {
+            *index = i;
+            return true;
+         }
+      }
+   }
+   return true;
+}
+void XMLToFormWindow::SignalHandler()
+{
+   CheckSignals(fMainFrame);
+}
+void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
+{
+   bool senderState;
+   int recvElementIndex = 0;
+   XMLToFormFrame *recvFrame;
+   int i,j;
+   for (i=0;i<frame->GetNumberOfElements();i++) {
+      if (frame->GetElementAt(i)->GetSignal()!=NULL) {
+         if (frame->GetElementAt(i)->GetType()=="CheckButton") {
+            if (frame->GetElementAt(i)->fCheckButton->GetState()==kButtonDown)
+               senderState = true;
+            else
+               senderState = false;
+         }
+         for (j=0;j<frame->GetElementAt(i)->GetSignal()->GetNumberOfReceivers();j++) {
+            recvFrame = SearchFrame(fMainFrame,frame->GetElementAt(i)->GetSignal()->GetReceiverPathAt(j).Data(),NULL);
+            if (recvFrame==NULL)
+               return;
+            if (frame->GetElementAt(i)->GetSignal()->GetReceiverTypeAt(j)=="Enable") {
+               if (recvFrame->IsFrameTab()) {
+                  if (senderState != recvFrame->fParentFrame->fTab->GetTabTab(recvFrame->GetFrameTabIndex())->IsEnabled()) {
+                     recvFrame->fParentFrame->fTab->GetTabTab(recvFrame->GetFrameTabIndex())->SetEnabled(senderState);
+                     recvFrame->fParentFrame->fTab->GetTabTab(recvFrame->GetFrameTabIndex())->SetEnabled(senderState);
+                     recvFrame->fParentFrame->fTab->HideFrame(recvFrame->fParentFrame->fTab->GetTabTab(recvFrame->GetFrameTabIndex()));
+                     recvFrame->fParentFrame->fTab->ShowFrame(recvFrame->fParentFrame->fTab->GetTabTab(recvFrame->GetFrameTabIndex()));
+                  }
+               }
+            }
+            else {
+            }
+         }
+      }
+   }
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      CheckSignals(frame->GetSubFrameAt(i));
+   }
+}

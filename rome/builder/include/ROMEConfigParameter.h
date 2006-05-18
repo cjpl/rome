@@ -113,6 +113,7 @@ private:
    ROMEStrArray*      fWriteStartLines;
    ROMEStrArray*      fWriteEndLines;
    int                fHierarchyLevel;
+   bool               fWriteAlways;
 public:
    ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdentifier = "",ROMEString nameIdentifier = "",ROMEString arrayIdentifier = "",ROMEString tagName = "",int multiplicity = 1) 
    { 
@@ -138,6 +139,7 @@ public:
       fWriteStartLines = new ROMEStrArray(1);
       fWriteEndLines = new ROMEStrArray(1);
       fHierarchyLevel = 0;
+      fWriteAlways = false;
    };
    ROMEString&                   GetGroupName() { return fGroupName; };
    ROMEString&                   GetArraySize() { return fArraySize; };
@@ -147,6 +149,8 @@ public:
    ROMEString&                   GetTagName() { return fTagName; };
    int                           GetMultiplicity() { return fMultiplicity; };
    int                           GetHierarchyLevel() { return fHierarchyLevel; };
+   bool                          IsWriteAlways() { return fWriteAlways; };
+   void                          SetWriteAlways() { fWriteAlways = true; };
 
    void SetHierarchyLevel(int level) { fHierarchyLevel = level; };
 

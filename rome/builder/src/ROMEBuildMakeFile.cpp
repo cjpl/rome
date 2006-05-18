@@ -87,9 +87,10 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
+   romeHeaders->Add("$(ROMESYS)/include/XMLToFormElement.h");
+   romeHeaders->Add("$(ROMESYS)/include/XMLToFormElementSignal.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
@@ -116,11 +117,13 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
       romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormElement.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormElementSignal.h");
+      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
-      romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToFormElements.h");
       romeLinkDefSuffix->Add("");
    }
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
