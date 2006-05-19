@@ -170,10 +170,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
          // set terminal in every events because it is necessary when
          // program resumes from suspend.
-         if (gROME->isBatchMode())
+/*         if (gROME->isBatchMode())
             gROME->redirectOutput();
          else
-            gROME->ss_getchar(0);
+            gROME->ss_getchar(0);*/
+// ---> This code killes ss_kbhit() please fix it   Matthias
 
          if (gROME->IsWindowClosed()) {
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -623,7 +624,13 @@ Bool_t ROMEEventLoop::UserInput()
             ch = getchar();
          }
          if (ch == 'q' || gROME->IsUserEventQ()) {
-            return false;
+            gROME->PrintFlush("                                  \r");
+            gROME->PrintText("Do you really want to quit [y/n] ?");
+            while (!gROME->ss_kbhit()) {}
+            ch = gROME->ss_getchar(0);
+            if (ch == 'y')
+               return false;
+            gROME->PrintFlush("                                  \r");
          }
          if (ch == 'e' || gROME->IsUserEventE()) {
             this->SetTerminate();
