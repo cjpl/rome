@@ -32,7 +32,17 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
       }
       else {
          frame->fTitleLabel = new TGLabel(frame->fFrame, frame->GetFrameTitle().Data());
-         frame->fTitleLabel->SetTextFont("arial bold",true);
+#if defined( R__VISUAL_CPLUSPLUS )
+         frame->fTitleLabel->SetTextFont("arial bold", kTRUE);
+#else
+         frame->fTitleLabel->SetTextFont("-adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1", kTRUE);
+         /* available fonts under UNIX by default
+            TGFont: -adobe-helvetica-medium-r-*-*-10-*-*-*-*-*-iso8859-1, prop, ref cnt = 2
+            TGFont: -adobe-helvetica-medium-r-*-*-12-*-*-*-*-*-iso8859-1, prop, ref cnt = 3
+            TGFont: -adobe-helvetica-bold-r-*-*-12-*-*-*-*-*-iso8859-1, prop, ref cnt = 1
+            TGFont: -adobe-courier-medium-r-*-*-12-*-*-*-*-*-iso8859-1, fixed, ref cnt = 1
+          */
+#endif
          frame->fFrame->AddFrame(frame->fTitleLabel, frame->fLTitleLabel);
       }
    }
