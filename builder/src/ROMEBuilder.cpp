@@ -410,8 +410,8 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteWindowH()) return false;
    if (makeOutput) 
       cout << "\n\nFolders:" << endl;
-   if (!WriteFolderCpp()) return false;
    if (!WriteFolderH()) return false;
+   if (!WriteFolderCpp()) return false;
    if (makeOutput) 
       cout << "\n\nTasks:" << endl;
    if (!WriteTaskCpp()) return false;
@@ -460,7 +460,14 @@ Bool_t ROMEBuilder::StartBuilder()
 #if defined( R__VISUAL_CPLUSPLUS )
       tempStr.SetFormatted("nmake -f Makefile.win");
 #endif
-      tempStr.AppendFormatted(" dict/ROMEDict.cpp dict/ARGUSDict.cpp dict/%sGeneratedDict.cpp",shortCut.Data());
+      tempStr.AppendFormatted(" dict/%sGeneratedDict.cpp",shortCut.Data());
+      if (librome) {
+         tempStr.AppendFormatted(" dict/ROMESDict.cpp");
+      }
+      else {
+         tempStr.AppendFormatted(" dict/ROMEDict.cpp");
+         tempStr.AppendFormatted(" dict/ARGUSDict.cpp"); // currently no header when librome mode.
+      }
       if (hasFolderGenerated)
          tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
       if (hasFolderUserCode)
