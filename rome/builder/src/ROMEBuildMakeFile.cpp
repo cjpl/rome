@@ -463,8 +463,14 @@ void ROMEBuilder::AddFolderSources()
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
-      if (folderUserCode[i]) {
-         folderSources->AddFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[i].Data());
+      if (numOfValue[i] > 0) {
+         if (folderUserCode[i]) {
+            folderSources->AddFormatted("src/generated/%s%s_Base.cpp",shortCut.Data(),folderName[i].Data());
+            folderSources->AddFormatted("src/folders/%s%s.cpp",shortCut.Data(),folderName[i].Data());
+         }
+         else {
+            folderSources->AddFormatted("src/generated/%s%s.cpp",shortCut.Data(),folderName[i].Data());
+         }
       }
    }
    if (folderHeaders->GetEntriesFast()>0)
@@ -939,6 +945,8 @@ void ROMEBuilder::WriteMakefileUserDictObject(ROMEString& buffer)
 
 void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName)
 {
+   if (!headers->GetEntriesFast())
+      return;
    ROMEString str;
    int i;
    // depend file
