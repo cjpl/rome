@@ -529,12 +529,15 @@ private:
    void    WriteMakefileIncludes(ROMEString& buffer);
    void    WriteMakefileDictIncludes(ROMEString& buffer);
    void    WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources);
+   void    WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileUserDictObject(ROMEString& buffer);
+   void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
+   void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer);
    void    WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
    void    WriteRootCintCall(ROMEString& buffer);
