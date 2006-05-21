@@ -1390,7 +1390,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 // all
-   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("all:startecho obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
@@ -1492,7 +1492,7 @@ void ROMEBuilder::WriteMakefile() {
 
 // Link Statement
 // --------------
-   buffer.AppendFormatted("%s%s.exe: dep $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("%s%s.exe: $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    if (librome)
       buffer.AppendFormatted(" $(ROMESYS)/librome.a");
    buffer.AppendFormatted("\n");
@@ -1506,7 +1506,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__UNIX )
    buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("lib%s%s.so: dep $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
