@@ -453,6 +453,7 @@ private:
    // Code Write Methods
    Bool_t  WriteFolderCpp();
    Bool_t  WriteFolderH();
+   Bool_t  WriteAllFoldersH();
    Bool_t  WriteSteeringClass(ROMEString& buffer,Int_t numOfTaskSteer,Int_t numTask,Int_t tab);
    Bool_t  WriteSteeringReadParameters(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;
    Bool_t  WriteSteeringParameterUsage(ROMEString &buffer,Int_t numSteer,Int_t numTask,ROMEString& pointer,ROMEString& steerPointer) ;

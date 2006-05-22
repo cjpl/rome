@@ -173,7 +173,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
             buffer.AppendFormatted("   delete %s;\n",valueName[iFold][i].Data());
-         else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].Contains("*")) 
+         else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].Contains("*"))
             buffer.AppendFormatted("   delete %s;\n",valueName[iFold][i].Data());
          else if (valueDimension[iFold][i]!=0 && valueArray[iFold][i][0]=="variable")
             buffer.AppendFormatted("   delete [] %s;\n",valueName[iFold][i].Data());
@@ -734,7 +734,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   return kFALSE;\n");
                buffer.AppendFormatted("}\n");
             }
-            else if (valueArray[iFold][i][0]=="variable") {               
+            else if (valueArray[iFold][i][0]=="variable") {
 #if 0 // disabled because no way to know array size when the folder is read from TFile.
                buffer.AppendFormatted("Bool_t %s::%sBoundsOk(const char* where, Int_t at)\n",clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
@@ -1308,7 +1308,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted("   Bool_t %sBoundsOk(const char* where, Int_t at);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   Bool_t %sOutOfBoundsError(const char* where, Int_t i);\n",valueName[iFold][i].Data());
             }
-            else if (valueArray[iFold][i][0]=="variable") {               
+            else if (valueArray[iFold][i][0]=="variable") {
                buffer.AppendFormatted("   Bool_t %sBoundsOk(const char* where, Int_t at);\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   Bool_t %sOutOfBoundsError(const char* where, Int_t i);\n",valueName[iFold][i].Data());
             }
@@ -1396,6 +1396,33 @@ Bool_t ROMEBuilder::WriteFolderH()
    return true;
 }
 
+Bool_t ROMEBuilder::WriteAllFoldersH() {
+   ROMEString hFile;
+   ROMEString buffer;
+   Int_t i;
+
+   buffer.Resize(0);
+   hFile.SetFormatted("%sinclude/generated/%sAllFolders.h", outDir.Data(), shortCut.Data());
+   WriteHeader(buffer, mainAuthor, true);
+
+   buffer.AppendFormatted("#ifndef %sAllFolders_H\n",shortCut.Data());
+   buffer.AppendFormatted("#define %sAllFolders_H\n\n",shortCut.Data());
+   // Folder includes
+   for (i=0;i<numOfFolder;i++) {
+      if (numOfValue[i] > 0 && !folderSupport[i]) {
+         if (folderUserCode[i])
+            buffer.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         else
+            buffer.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#endif\n");
+   // Write File
+   WriteFile(hFile.Data(),buffer.Data(),6);
+   return kTRUE;
+}
+
 Bool_t ROMEBuilder::WriteTaskCpp()
 {
    ROMEString cppFile;
@@ -1447,7 +1474,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                   cout << "        or modify the source code of the task." << endl;
                   cout << "Terminating program." << endl;
                   return false;
-               }                  
+               }
                clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
             }
          }
@@ -1483,6 +1510,20 @@ Bool_t ROMEBuilder::WriteTaskCpp()
             clsDescription.AppendFormatted("\n");
             clsDescription.AppendFormatted("Get<Histogram Name>At(Int_t index)\n");
          }
+         clsDescription.AppendFormatted("\n");
+         for (j=0;j<numOfFolder;j++) {
+            if (accessFolder(fileBuffer,j)) {
+               if (!folderUsed[j])
+                  continue;
+               if (numOfValue[j] > 0 && !folderSupport[j]) {
+                  if (folderUserCode[j])
+                     clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+                  else
+                     clsDescription.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               }
+            }
+         }
+         clsDescription.AppendFormatted("\n");
       }
 
       // fortran task
@@ -1556,6 +1597,10 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          else
             buffer.AppendFormatted("\n\n#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("#include \"Riostream.h\"\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
+         buffer.AppendFormatted("//#include \"%sAllFolders.h\"\n",shortCut.Data());
+         buffer.AppendFormatted("\n");
 
          buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -2431,10 +2476,11 @@ Bool_t ROMEBuilder::WriteTabCpp()
    ROMEString cppFile;
    ROMEString header;
    ROMEString buffer;
-   Int_t i;
+   Int_t i, j;
    ROMEString format;
    ROMEString clsDescription;
    ROMEString clsName;
+   ROMEString fileBuffer;
    ROMEString str;
 
    if (makeOutput)
@@ -2451,6 +2497,9 @@ Bool_t ROMEBuilder::WriteTabCpp()
       WriteHeader(header, tabAuthor[iTab].Data(), kFALSE);
       clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = tabDescription[iTab].Data();
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
       // Thread
       if (numOfThreadFunctions[iTab] > 0) {
          clsDescription.AppendFormatted("\n\n");
@@ -2459,6 +2508,20 @@ Bool_t ROMEBuilder::WriteTabCpp()
             clsDescription.AppendFormatted("   %s\n", threadFunctionName[iTab][i].Data());
          }
       }
+      clsDescription.AppendFormatted("\n");
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j)) {
+            if (!folderUsed[j])
+               continue;
+            if (numOfValue[j] > 0 && !folderSupport[j]) {
+               if (folderUserCode[j])
+                  clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               else
+                  clsDescription.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+            }
+         }
+      }
+      clsDescription.AppendFormatted("\n");
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
@@ -2467,6 +2530,12 @@ Bool_t ROMEBuilder::WriteTabCpp()
       // Header
       buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
+
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
+      buffer.AppendFormatted("//#include \"%sAllFolders.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("\n");
+
       buffer.AppendFormatted("\nClassImp(%sT%s)\n\n", shortCut.Data(), tabName[iTab].Data());
 
       // Functions
@@ -3200,6 +3269,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
+   buffer.AppendFormatted("#include \"include/generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("ClassImp(%sAnalyzer);\n",shortCut.Data());
@@ -3443,7 +3513,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
-      if (folderDataBase[i]) 
+      if (folderDataBase[i])
          ndb++;
    }
 
@@ -4015,6 +4085,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    ROMEString bankname;
    ROMEString format;
+   ROMEString tmp;
    if (makeOutput) cout << "\n   Output H-File:" << endl;
    // max folder name length
    int nameLen = -1;
@@ -4102,16 +4173,31 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          continue;
       buffer.AppendFormatted("#include \"include/daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
    }
-
-   // Folder includes
+   // Folder class declaration
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
       if (numOfValue[i] > 0 && !folderSupport[i]) {
-         if (folderUserCode[i])
-            buffer.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
-         else
-            buffer.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
+         for (j=0;j<numOfFolderInclude[i];j++) {
+            if (folderLocalFlag[i][j]) {
+               tmp.SetFormatted("#include \"%s\"\n",folderInclude[i][j].Data());
+            }
+            else {
+               tmp.SetFormatted("#include <%s>\n",folderInclude[i][j].Data());
+            }
+            if (!buffer.Contains(tmp))
+               buffer.AppendFormatted("%s\n",tmp.Data());
+         }
+      }
+   }
+   buffer.AppendFormatted("\n");
+
+   // Folder class declaration
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (numOfValue[i] > 0 && !folderSupport[i]) {
+         buffer.AppendFormatted("class %s%s;\n",shortCut.Data(),folderName[i].Data());
       }
    }
    buffer.AppendFormatted("\n");
@@ -6434,13 +6520,13 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
          continue;
       subGroup = new ROMEConfigParameterGroup(steerFieldName[numTask][numSteer][i].Data(),"1","SteeringParameterField","SPName");
       parGroup->AddSubGroup(subGroup);
-      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) 
-         maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel(); 
+      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+         maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
       if (steerFieldArraySize[numTask][numSteer][i]!="1") {
          subSubGroup = new ROMEConfigParameterGroup("SPFieldArray",steerFieldArraySize[numTask][numSteer][i].Data(),"","","SPFieldArrayIndex");
          subGroup->AddSubGroup(subSubGroup);
-         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) 
-            maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel(); 
+         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+            maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
          subSubGroup->AddParameter(new ROMEConfigParameter("SPFieldArrayValue","1"));
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          if (steerFieldType[numTask][numSteer][i]=="std::string")
@@ -6488,14 +6574,14 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
          continue;
       subGroup = new ROMEConfigParameterGroup(steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),"1","SteeringParameterGroup","SPGroupName");
       parGroup->AddSubGroup(subGroup);
-      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) 
-         maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel(); 
+      if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+         maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
       subSubGroup = subGroup;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]!="1") {
          subSubGroup = new ROMEConfigParameterGroup("SPGroupArray",steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),"","","SPGroupArrayIndex");
          subGroup->AddSubGroup(subSubGroup);
-         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel) 
-            maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel(); 
+         if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
+            maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
          steerPointerT.SetFormatted("%s->Get%sAt(i%d)",steerPointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),subSubGroup->GetHierarchyLevel());
       }
       else
@@ -7650,7 +7736,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
          delete fileStream;
          if (fileBuffer.Contains("Event(int event)")
              || fileBuffer.Contains("Event(Int_t event)")
-             || fileBuffer.Contains("Event(long event)")) { 
+             || fileBuffer.Contains("Event(long event)")) {
             cerr<<"type of event number was changed to Long64."<<endl
                 <<"Please modify "<<shortCut.Data()<<daqName[iDAQ].Data()<<".h and "
                 <<shortCut.Data()<<daqName[iDAQ].Data()<<".cpp"<<endl;
@@ -7822,7 +7908,7 @@ Bool_t ROMEBuilder::WriteDBCpp() {
             return false;
          }
       }
-      else { 
+      else {
 #else
       if (gSystem->AccessPathName(cppFile.Data(),kFileExists)) {
 #endif
@@ -8596,6 +8682,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
 
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
+   buffer.AppendFormatted("#include \"include/generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("\nClassImp(%sEventLoop)\n",shortCut.Data());
@@ -9396,7 +9483,7 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<h3><a name=affiliations>Affiliations</a></h3>\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("The %s%s incorporates the following affiliations.\n",shortCut.Data(),mainProgName.Data());
-      buffer.AppendFormatted("<ul>\n");      
+      buffer.AppendFormatted("<ul>\n");
       if (affiliations.GetEntries() == 0) {
          buffer.AppendFormatted("<li>Enabled affiliations</li><ul>\n");
          for (i=0;i<affiliationList.GetEntries();i++)
@@ -9659,16 +9746,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 
    // Folder includes
    buffer.AppendFormatted("#if !defined(__CINT__)\n");
-   for (iFold = 0; iFold < numOfFolder; iFold++) {
-      if (!folderUsed[iFold])
-         continue;
-      if (isBranch[iFold]) {
-         if (folderUserCode[iFold])
-            buffer.AppendFormatted("#   include \"include/folders/%s%s.h\"\n", shortCut.Data(), folderName[iFold].Data());
-         else
-            buffer.AppendFormatted("#   include \"include/generated/%s%s.h\"\n", shortCut.Data(), folderName[iFold].Data());
-      }
-   }
+   buffer.AppendFormatted("#   include \"include/generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("\n");
 
@@ -9875,7 +9953,6 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
 
    return true;
 }
-
 
 Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,const char* str1, const char* str2)
 {
@@ -10107,10 +10184,20 @@ void ROMEBuilder::WriteDescription(ROMEString& buffer, const char* className, co
       buffer.AppendFormatted("//                                                                            //\n");
       for (i = 0; i < descs.GetEntries(); i++) {
 #if defined ( ALIGN_DESC )
-         format.SetFormatted("// %%s%%%ds //\n", (int)(nc - strlen("//  //") - descs[i].Length()));
-         buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+         if (descs[i].BeginsWith("#include")) {
+            buffer.AppendFormatted("%s\n", descs[i].Data());
+         }
+         else {
+            format.SetFormatted("// %%s%%%ds //\n", (int)(nc - strlen("//  //") - descs[i].Length()));
+            buffer.AppendFormatted(format.Data(), descs[i].Data(), "");
+         }
 #else
-         buffer.AppendFormatted("// %s\n", descs[i].Data());
+         if (descs[i].BeginsWith("#include")) {
+            buffer.AppendFormatted("%s\n", descs[i].Data());
+         }
+         else {
+            buffer.AppendFormatted("// %s\n", descs[i].Data());
+         }
 #endif
       }
       buffer.AppendFormatted("//                                                                            //\n");
@@ -10137,7 +10224,7 @@ Bool_t ROMEBuilder::RemoveFile(const char* filename, const char* str)
    if (!gSystem->AccessPathName(filename,kFileExists)) {
       bool removeFile = false;
       ROMEString fileBuffer;
-      fstream *fileStream;  
+      fstream *fileStream;
       if (!str) {
          removeFile = true;
       }
