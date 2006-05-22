@@ -10048,6 +10048,24 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
    if (fileBuffer.Contains(str))
       return true;
 
+   // Get s
+   if (folderArray[numFolder]!="1") {
+      str = "Get";
+      str += folderName[numFolder];
+      str += "s";
+      str += "(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
+
+   // Get Address
+   str = "Get";
+   str += folderName[numFolder];
+   str += "Address";
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+
    // Get copy
    str = "Set";
    str += folderName[numFolder];
@@ -10072,6 +10090,16 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
    str += "(";
    if (fileBuffer.Contains(str))
       return true;
+
+   // Set s
+   if (folderArray[numFolder]!="1") {
+      str = "Set";
+      str += folderName[numFolder];
+      str += "s";
+      str += "(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
 
    // Set copy
    str = "Set";
