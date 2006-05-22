@@ -283,6 +283,7 @@ Bool_t ROMEBuilder::StartBuilder()
                   numOfTab = 0;
                tabName[numOfTab] = histoTabName[i][j][k];
                tabTitle[numOfTab] = histoTabName[i][j][k];
+               tabHistoDisplay[numOfTab] = false;
                tabAuthor[numOfTab] = mainAuthor;
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";

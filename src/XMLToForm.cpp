@@ -137,7 +137,7 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath.AppendFormatted("/Button[%d]/ID",nButton+1);
          fXML->GetPathValue(currentPath,temp);
          if (temp.Length()>0)
-            buttonID = value.ToInteger();
+            buttonID = temp.ToInteger();
          else
             buttonID = -1;
          // path
@@ -195,12 +195,12 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          fXML->GetPathValue(currentPath,temp);
          width = temp.ToInteger();
          nComboBox++;
-         frame->AddElement(new XMLToFormElement("ComboBox",title,value,path,width,entries));
+         frame->AddElement(new XMLToFormElement("ComboBox",title,entries->At(selectedEntry),path,width,entries));
       }
       if (!strcmp(node->child[j].name,"CheckButton")) {
          // label
          currentPath = xmlPath;
-         currentPath.AppendFormatted("/CheckButton[%d]/Text",nButton+1);
+         currentPath.AppendFormatted("/CheckButton[%d]/Label",nButton+1);
          fXML->GetPathValue(currentPath,temp);
          Substitute(temp,title);
          // value
@@ -320,7 +320,7 @@ const char* XMLToForm::GetValue(const char* label)
 {
    int index = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&index))
+   if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
       return "";
    return frame->GetElementAt(index)->GetValue().Data();
 }
@@ -328,7 +328,7 @@ int XMLToForm::GetIndex(const char* label)
 {
    int index = 0;
    XMLToFormFrame *frame;
-   if (!fWindow->SearchWidget(label,&frame,&index))
+   if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
       return -1;
    return frame->GetElementAt(index)->GetSelectedEntry();
 }

@@ -33,19 +33,19 @@ ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
    fBusy = false;
 }
 
-void ArgusTab::InitTab() {
+void ArgusTab::ArgusInit() {
    // Init EventHandler
    fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);
-   fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "TabEventHandler()");
+   fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
    fEventHandlerWaitTimer = new TTimer(1, kTRUE);
-   fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "TabEventHandler()");
-   Init();
+   fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
+   BaseInit();
    if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {
       fEventHandlerTimer->TurnOn();
    }
 }
 
-void ArgusTab::TabEventHandler() {
+void ArgusTab::ArgusEventHandler() {
    if (gROME->IsROMEAndARGUS()) {
       if (fEventHandlerWaitTimer==NULL)
          return;
@@ -56,8 +56,7 @@ void ArgusTab::TabEventHandler() {
       fEventHandlerWaitTimer->TurnOff();
    }
    fBusy = true;
-   BaseTabEventHandler();
-   EventHandler();
+   BaseEventHandler();
    fBusy = false;
 }
 
