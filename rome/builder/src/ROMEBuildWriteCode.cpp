@@ -4180,10 +4180,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       if (numOfValue[i] > 0 && !folderSupport[i]) {
          for (j=0;j<numOfFolderInclude[i];j++) {
             if (folderLocalFlag[i][j]) {
-               tmp.SetFormatted("#include \"%s\"\n",folderInclude[i][j].Data());
+               tmp.SetFormatted("#include \"%s\"",folderInclude[i][j].Data());
             }
             else {
-               tmp.SetFormatted("#include <%s>\n",folderInclude[i][j].Data());
+               tmp.SetFormatted("#include <%s>",folderInclude[i][j].Data());
             }
             if (!buffer.Contains(tmp))
                buffer.AppendFormatted("%s\n",tmp.Data());
