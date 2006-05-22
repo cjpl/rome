@@ -272,8 +272,8 @@ void ROMEBuilder::AddRomeSources()
 
 void ROMEBuilder::AddArgusHeaders()
 {
-   argusHeaders = new ROMEStrArray(4);
-   argusLinkDefSuffix = new ROMEStrArray(4);
+   argusHeaders = new ROMEStrArray(5);
+   argusLinkDefSuffix = new ROMEStrArray(5);
    if (!librome) {
       argusHeaders->Add("$(ROMESYS)/argus/include/ArgusWindow.h");
       argusLinkDefSuffix->Add("");
@@ -282,6 +282,8 @@ void ROMEBuilder::AddArgusHeaders()
       argusHeaders->Add("$(ROMESYS)/argus/include/ArgusAnalyzerController.h");
       argusLinkDefSuffix->Add("");
       argusHeaders->Add("$(ROMESYS)/argus/include/ArgusTab.h");
+      argusLinkDefSuffix->Add("");
+      argusHeaders->Add("$(ROMESYS)/argus/include/ArgusHistoDisplay.h");
       argusLinkDefSuffix->Add("");
    }
 }
@@ -294,6 +296,7 @@ void ROMEBuilder::AddArgusSources()
       argusSources->Add("$(ROMESYS)/argus/src/ArgusTextDialog.cpp");
       argusSources->Add("$(ROMESYS)/argus/src/ArgusAnalyzerController.cpp");
       argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
+      argusSources->Add("$(ROMESYS)/argus/src/ArgusHistoDisplay.cpp");
    }
    if (argusHeaders->GetEntriesFast()>0)
       argusSources->Add("dict/ARGUSDict.cpp");
@@ -1139,6 +1142,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
 
 void ROMEBuilder::WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sources)
 {
+#if defined( R__UNIX )
    int i;
    ROMEString path;
    ROMEString name;
@@ -1148,6 +1152,7 @@ void ROMEBuilder::WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sour
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
       buffer.AppendFormatted("dependfiles += obj/%s.d\n",name.Data());
    }
+#endif // R__UNIX
 }
 
 void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
@@ -1225,7 +1230,9 @@ void ROMEBuilder::WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer)
 #endif // R__UNIX
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
+#if defined( R__UNIX )
       buffer.AppendFormatted("dependfiles += obj/%s.d\n",name.Data());
+#endif // R__UNIX
       for (j=numOfMFSourceFlags[i]-1;j>=0;j--) {
          if (commandLineFlag[j])
             continue;
@@ -1418,6 +1425,7 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDependFiles(buffer,databaseSources);
    WriteMakefileAdditionalSourceDependFiles(buffer);
 
+#if defined( R__UNIX )
    if (romeDictHeaders->GetEntries() > 0) {
       if (!librome)
          buffer.AppendFormatted("dependfiles += obj/ROMEDictionary.d\n");
@@ -1442,6 +1450,7 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sTabDictionary.d\n",shortCut.Data());
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
+#endif // R__UNIX
 
 // user makefile
 #if defined( R__VISUAL_CPLUSPLUS )

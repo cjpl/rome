@@ -40,12 +40,12 @@ public:
    XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, int *exitButtonID, int windowWidth=200);
    virtual ~ XMLToFormWindow();
    void SignalHandler();
-   void CheckSignals(XMLToFormFrame *frame);
-   bool SearchWidget(const char* path,XMLToFormFrame** frame,int *index);
+   bool SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame);
 
 protected:
    XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);
 
+   void CheckSignals(XMLToFormFrame *frame);
    void PlaceWindow(const TGWindow * main);
    bool CreateForm(XMLToFormFrame *frame);
    void BuildForm(XMLToFormFrame *frame);

@@ -594,7 +594,8 @@ void ROMEAnalyzer::DecodeInputFileNames(ROMEString& str,ROMEStrArray& arr)
       num++;
       str2 = str2(ind+1,str2.Length()-ind-1);
    }
-   arr.AddAtAndExpand(str,num);
+   if (str.Length()>0)
+      arr.AddAtAndExpand(str,num);
 }
 
 Bool_t ROMEAnalyzer::toBool(Int_t value) {

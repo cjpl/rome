@@ -253,6 +253,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    // tab
    tabName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabHistoDisplay = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
    numOfTabAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfAffiliations));
    tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
@@ -281,6 +282,13 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabHistoTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   numOfTabObjects = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabObjectName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
 
    // tree
    numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
@@ -1537,7 +1545,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
    char *name;
    Int_t type, i, j;
    ROMEString currentTabName = "";
+   ROMEString tmp;
    Int_t currentNumberOfTabs = 0;
+   bool found;
 
    // count tabs
    numOfTab++;
@@ -1550,6 +1560,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    // initialisation
    tabName[currentNumberOfTabs] = "";
    tabTitle[currentNumberOfTabs] = "";
+   tabHistoDisplay[currentNumberOfTabs] = false;
    numOfTabAffiliations[numOfTab] = 0;
    tabUsed[numOfTab] = true;
    tabAuthor[currentNumberOfTabs] = mainAuthor;
@@ -1565,6 +1576,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfSteering[currentNumberOfTabs+numOfTask+1] = 0;
    numOfSteerFields[currentNumberOfTabs+numOfTask+1][0] = 0;
    numOfSteerChildren[currentNumberOfTabs+numOfTask+1][0] = 0;
+   numOfTabObjects[currentNumberOfTabs] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -1618,6 +1630,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab title
       if (type == 1 && !strcmp(name, "TabTitle"))
          xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
+      // tab histo display
+      if (type == 1 && !strcmp(name, "HistogramDisplay")) {
+         xml->GetValue(tmp,"false");
+         if (tmp == "true")
+            tabHistoDisplay[currentNumberOfTabs] = true;
+      }
       // tab affiliation
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
          tabAffiliation[numOfTab][numOfTabAffiliations[numOfTab]] = "";
@@ -1760,6 +1778,95 @@ Bool_t ROMEBuilder::ReadXMLTab()
                if (!ReadXMLMenu(currentNumberOfTabs))
                   return kFALSE;
                recursiveMenuDepth--;
+            }
+         }
+      }
+      // tab objects
+      if (type == 1 && !strcmp(name, "DisplayObjects")) {
+         if (makeOutput)
+            for (i = 0; i < recursiveTabDepth + 1; i++)
+               cout << "   ";
+         if (makeOutput)
+            cout << "Display Objects:" << endl;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+
+            // end
+            if (type == 15 && !strcmp(name, "DisplayObjects")) {
+               break;
+            }
+            // display object
+            if (type == 1 && !strcmp(name, "DisplayObject")) {
+               tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
+               tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
+               tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
+               tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+
+                  if (type == 1 && !strcmp(name, "ObjectName")) {
+                     xml->GetValue(tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                     if (makeOutput) {
+                        for (i = 0; i < recursiveTabDepth + 2; i++)
+                           cout << "   ";
+                        tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].WriteLine();
+                     }
+                  }
+                  if (type == 1 && !strcmp(name, "ObjectTitle"))
+                     xml->GetValue(tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp(name, "Object"))
+                     xml->GetValue(tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  // end
+                  if (type == 15 && !strcmp(name, "DisplayObject")) {
+                     // check input
+                     if (tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "") {
+                        cout << "A display object of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
+                        cout << "Terminating program." << endl;
+                        return kFALSE;
+                     }
+                     for (j = 0; j < numOfTabObjects[currentNumberOfTabs]; j++) {
+                        if (tabObjectName[currentNumberOfTabs][j] == tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
+                           cout << "Two display object of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
+                           cout << "Terminating program." << endl;
+                           return kFALSE;
+                        }
+                     }
+                     found = false;
+                     if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TH1F" ||
+                         tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TH2F" ||
+                         tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TGraph") {
+                        found = true;
+                        tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
+                        tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                        tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                     }
+                     for (i=0;i<numOfTask && !found;i++) {
+                        for (j=0;j<numOfHistos[i] && !found;j++) {
+                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == histoName[i][j]) {
+                              found = true;
+                              tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = histoType[i][j];
+                              tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = i;
+                              tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = j;
+                           }
+                        }
+                     }
+                     if (!found) {
+                        cout << "The object reference of a display object '" << tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
+                        cout << "Terminating program." << endl;
+                        return kFALSE;
+                     }
+                     // count thread functions
+                     numOfTabObjects[currentNumberOfTabs]++;
+                     if (numOfTabObjects[currentNumberOfTabs] >= maxNumberOfTabObjects) {
+                        cout << "Maximal number of display objects reached : " << maxNumberOfTabObjects << " !" << endl;
+                        cout << "Terminating program." << endl;
+                        return kFALSE;
+                     }
+                     break;
+                  }
+               }
             }
          }
       }

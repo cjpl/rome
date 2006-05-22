@@ -20,6 +20,7 @@ const Int_t maxNumberOfValueDimension = 3;
 const Int_t maxNumberOfHistos = 50;
 const Int_t maxNumberOfHistoTabs = 5;
 const Int_t maxNumberOfTabHistos = 20;
+const Int_t maxNumberOfTabObjects = 20;
 const Int_t maxNumberOfMenus = 20;
 const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
@@ -243,6 +244,7 @@ protected:
    Int_t         numOfTab;
    ROMEString   *tabName;
    ROMEString   *tabTitle;
+   Bool_t       *tabHistoDisplay;
    Int_t        *numOfTabAffiliations;
    ROMEString  **tabAffiliation;
    Bool_t       *tabUsed;
@@ -271,6 +273,13 @@ protected:
    Int_t       **tabHistoTaskIndex;
    Int_t       **tabHistoHistoIndex;
    Int_t        *tabHistoIndexMax;
+   Int_t        *numOfTabObjects;
+   ROMEString  **tabObjectName;
+   ROMEString  **tabObjectTitle;
+   ROMEString  **tabObject;
+   ROMEString  **tabObjectType;
+   Int_t       **tabObjectTaskIndex;
+   Int_t       **tabObjectHistoIndex;
 
 // tree
    Int_t         numOfTree;

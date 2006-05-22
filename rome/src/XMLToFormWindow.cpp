@@ -440,7 +440,7 @@ XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* t
    return NULL;
 }
 
-bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index)
+bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame)
 {
    int i,ind;
    ROMEString editName = path;
@@ -455,7 +455,7 @@ bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *
       editName = editName(ind+1,editName.Length()-ind-1);
    }
    // search frame
-   *frame = fMainFrame;
+   *frame = mainFrame;
    for (i=0;i<numberOfFrames;i++) {
       *frame = SearchFrame(*frame,frameNames[i]->Data(),NULL);
       if (*frame==NULL)
