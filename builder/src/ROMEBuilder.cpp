@@ -413,6 +413,7 @@ Bool_t ROMEBuilder::StartBuilder()
       cout << "\n\nFolders:" << endl;
    if (!WriteFolderH()) return false;
    if (!WriteFolderCpp()) return false;
+   if (!WriteAllFoldersH()) return false;
    if (makeOutput) 
       cout << "\n\nTasks:" << endl;
    if (!WriteTaskCpp()) return false;
