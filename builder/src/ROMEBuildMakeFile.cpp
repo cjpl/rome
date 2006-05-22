@@ -1548,10 +1548,10 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("dep: $(dependfiles)\n");
    buffer.AppendFormatted("depclean:\n");
    buffer.AppendFormatted("\t-rm -f obj/*.d\n");
-   buffer.AppendFormatted("clean: userclean\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.obj obj/*.d G__auto*LinkDef.h\n");
-   buffer.AppendFormatted("distclean: userclean\n");
-   buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj dict G__auto*LinkDef.h Makefile\n");
+   buffer.AppendFormatted("clean: depclean userclean\n");
+   buffer.AppendFormatted("\t-rm -f obj/*.obj G__auto*LinkDef.h\n");
+   buffer.AppendFormatted("distclean: clean\n");
+   buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
 
