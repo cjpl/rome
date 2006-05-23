@@ -1510,12 +1510,17 @@ Bool_t ROMEBuilder::WriteTaskCpp()
             clsDescription.AppendFormatted("\n");
             clsDescription.AppendFormatted("Get<Histogram Name>At(Int_t index)\n");
          }
-         clsDescription.AppendFormatted("\n");
+         bool folderIncludeFirst = true;
          for (j=0;j<numOfFolder;j++) {
             if (accessFolder(fileBuffer,j)) {
                if (!folderUsed[j])
                   continue;
                if (numOfValue[j] > 0 && !folderSupport[j]) {
+                  if (folderIncludeFirst) {
+                     folderIncludeFirst = false;
+                     clsDescription.AppendFormatted("\n");
+                     clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
+                  }
                   if (folderUserCode[j])
                      clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
                   else
@@ -1523,7 +1528,6 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                }
             }
          }
-         clsDescription.AppendFormatted("\n");
       }
 
       // fortran task
@@ -2508,12 +2512,17 @@ Bool_t ROMEBuilder::WriteTabCpp()
             clsDescription.AppendFormatted("   %s\n", threadFunctionName[iTab][i].Data());
          }
       }
-      clsDescription.AppendFormatted("\n");
+      bool folderIncludeFirst = true;
       for (j=0;j<numOfFolder;j++) {
          if (accessFolder(fileBuffer,j)) {
             if (!folderUsed[j])
                continue;
             if (numOfValue[j] > 0 && !folderSupport[j]) {
+               if (folderIncludeFirst) {
+                  folderIncludeFirst = false;
+                  clsDescription.AppendFormatted("\n");
+                  clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
+               }
                if (folderUserCode[j])
                   clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
                else
@@ -2521,7 +2530,6 @@ Bool_t ROMEBuilder::WriteTabCpp()
             }
          }
       }
-      clsDescription.AppendFormatted("\n");
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
@@ -2626,7 +2634,8 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
-      buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      if (readGlobalSteeringParameters)
+         buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       if (tabHistoDisplay[iTab])
@@ -4173,7 +4182,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          continue;
       buffer.AppendFormatted("#include \"include/daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
    }
-   // Folder class declaration
+   // Folder includes
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -10066,49 +10075,6 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
    if (fileBuffer.Contains(str))
       return true;
 
-   // Get copy
-   str = "Set";
-   str += folderName[numFolder];
-   str += "Copy";
-   str += "(";
-   if (fileBuffer.Contains(str))
-      return true;
-
-   // Get size
-   str = "Set";
-   str += folderName[numFolder];
-   str += "Size";
-   str += "(";
-   if (fileBuffer.Contains(str))
-      return true;
-
-   // Set
-   str = "Set";
-   str += folderName[numFolder];
-   if (folderArray[numFolder]!="1")
-      str += "At";
-   str += "(";
-   if (fileBuffer.Contains(str))
-      return true;
-
-   // Set s
-   if (folderArray[numFolder]!="1") {
-      str = "Set";
-      str += folderName[numFolder];
-      str += "s";
-      str += "(";
-      if (fileBuffer.Contains(str))
-         return true;
-   }
-
-   // Set copy
-   str = "Set";
-   str += folderName[numFolder];
-   str += "Copy";
-   str += "(";
-   if (fileBuffer.Contains(str))
-      return true;
-
    // Set size
    if (folderArray[numFolder]=="variable") {
       str = "Set";
@@ -10117,15 +10083,6 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
       if (fileBuffer.Contains(str))
          return true;
    }
-
-   // Add
-   str = "Add";
-   str += folderName[numFolder];
-   if (folderArray[numFolder]!="1")
-      str += "At";
-   str += "(";
-   if (fileBuffer.Contains(str))
-      return true;
 
    return false;
 }
