@@ -2601,6 +2601,8 @@ Bool_t ROMEBuilder::WriteTabH()
    ROMEString clsName;
    ROMEString clsDescription;
    ROMEString str;
+   ROMEString str1;
+   ROMEString str2;
 
    Int_t i, j,k;
    if (makeOutput)
@@ -2802,6 +2804,8 @@ Bool_t ROMEBuilder::WriteTabH()
                   buffer.AppendFormatted("         fNumberOfUserTH2F = %s;\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                }
             }
+         }
+         if (numOfTabObjects[iTab]>0) {
             buffer.AppendFormatted("      if (fNumberOfUserTH1F>0) {\n");
             buffer.AppendFormatted("         fUserTH1F = new TH1F*[fNumberOfUserTH1F+1];\n");
             buffer.AppendFormatted("         for (i=0;i<fNumberOfUserTH1F+1;i++) {\n");
@@ -2824,8 +2828,6 @@ Bool_t ROMEBuilder::WriteTabH()
             buffer.AppendFormatted("            fUserTGraph[i]->SetPoint(0,0,0);\n");
             buffer.AppendFormatted("         }\n");
             buffer.AppendFormatted("      }\n");
-         }
-         if (numOfTabObjects[iTab]>0) {
             buffer.AppendFormatted("      fDisplayType = k%sDisplay;\n",tabObjectType[iTab][0].Data());
             buffer.AppendFormatted("      fDisplayObjIndex = 0;\n");
          }
@@ -3051,7 +3053,7 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("      ArgusHistoDisplay::BaseTabSelected();\n");
          for (i=0;i<numOfTabObjects[iTab];i++)
             buffer.AppendFormatted("      fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str));
-         buffer.AppendFormatted("      fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str));
+         buffer.AppendFormatted("      fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
       }
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   virtual void TabSelected() = 0;\n");
@@ -3076,7 +3078,7 @@ Bool_t ROMEBuilder::WriteTabH()
             buffer.AppendFormatted("               fDisplayObjIndex = %d;\n",i);
             buffer.AppendFormatted("               fDisplayType = k%sDisplay;\n",tabObjectType[iTab][i].Data());
             buffer.AppendFormatted("               SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
-            buffer.AppendFormatted("               fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str));
+            buffer.AppendFormatted("               fMenuDisplay->RCheckEntry(M_DISPLAY_%s,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
             buffer.AppendFormatted("               break;\n");
             buffer.AppendFormatted("            }\n");
          }
@@ -4919,6 +4921,18 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
+   // Event Handler
+   buffer.AppendFormatted("// Event Handler\n");
+   buffer.AppendFormatted("void %sWindow::TriggerEventHandler()\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("   f%s%03dTab->BaseEventHandler();\n", tabName[i].Data(), i);
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Write File
    WriteFile(cppFile.Data(), buffer.Data(), 6);
    return kTRUE;
@@ -5097,6 +5111,11 @@ Bool_t ROMEBuilder::WriteWindowH()
    }
    buffer.AppendFormatted("   Bool_t       ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
    buffer.AppendFormatted("   TGPopupMenu* GetMenuHandle(const char* menuName);\n");
+   buffer.AppendFormatted("\n");
+
+   // Event Handler
+   buffer.AppendFormatted("   // Event Handler\n");
+   buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("   ClassDef(%sWindow,1)\n", shortCut.Data());

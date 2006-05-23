@@ -99,3 +99,4 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    Error("GetTabObject", "%s was not found.", tabName);
    return 0;
 };
+

@@ -109,6 +109,9 @@ public:
       return 0;
    };
 
+   // Event Handler
+   virtual void TriggerEventHandler() = 0;
+
    ClassDef(ArgusWindow,1)
 };
 

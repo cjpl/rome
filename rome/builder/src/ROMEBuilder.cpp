@@ -482,12 +482,13 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
       if (numOfTab>0)
          tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
-      if (numOfDAQ>0)
+      if (daqHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
-      if (numOfDB>0)
+      if (databaseHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
       if (numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
+      cout << tempStr.Data() << endl;
       gSystem->Exec(tempStr.Data());
    }
 // Documentation
