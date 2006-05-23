@@ -1409,6 +1409,8 @@ Bool_t ROMEBuilder::WriteAllFoldersH() {
    buffer.AppendFormatted("#define %sAllFolders_H\n\n",shortCut.Data());
    // Folder includes
    for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
       if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderUserCode[i])
             buffer.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[i].Data());
