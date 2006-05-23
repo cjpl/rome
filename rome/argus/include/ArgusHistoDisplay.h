@@ -78,7 +78,7 @@ protected:
    TGMenuBar*   fMenuBar;          //! menu bar
    TGPopupMenu* fMenuDisplay; //!
    TGPopupMenu* fMenuView; //!
-   TGPopupMenu* fMenuViewDevide; //!
+   TGPopupMenu* fMenuViewDivide; //!
    TGPopupMenu* fMenuView0_19; //!
    TGPopupMenu* fMenuView20_39; //!
    TGPopupMenu* fMenuView40_59; //!

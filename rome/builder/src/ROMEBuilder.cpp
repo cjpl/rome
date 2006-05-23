@@ -488,7 +488,6 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
       if (numOfMFDictHeaders>0)
          tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
-      cout << tempStr.Data() << endl;
       gSystem->Exec(tempStr.Data());
    }
 // Documentation
