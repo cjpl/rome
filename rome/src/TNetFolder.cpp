@@ -113,10 +113,14 @@ void TNetFolder::GetServerName(char* serverName,int serverNameSize)
 // Get the Name of the Server
    TMessage *m;
    TString str = "GetServerName";
-   if (!Send(str.Data()))
-      return GetServerName(serverName,serverNameSize);
-   if (!Recv(m))
-      return GetServerName(serverName,serverNameSize);
+   if (!Send(str.Data())) {
+      GetServerName(serverName,serverNameSize);
+      return;
+   }
+   if (!Recv(m)) {
+      GetServerName(serverName,serverNameSize);
+      return;
+   }
 
    if (m == NULL) {
       delete m;

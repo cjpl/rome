@@ -967,8 +967,6 @@ void ROMEBuilder::WriteMakefileUserDictDependFiles(ROMEString& buffer)
    else{
       buffer.AppendFormatted("dependfiles += obj/%sUserDict.d\n",shortCut.Data());
    }
-#else
-   buffer.AppendFormatted("dependfiles = $(objects) obj/%sUserDict.d\n",shortCut.Data());
 #endif // R__UNIX
    buffer.AppendFormatted("\n");
 }
@@ -980,8 +978,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    ROMEString str;
    int i;
    // depend file
-   buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
 #if defined( R__UNIX )
+   buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
    buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp src/generated/%sDummy.cpp\n",dictionaryName,dictionaryName);
 #endif
    //dummy source file
@@ -1397,7 +1395,11 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 
 // all
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#else
    buffer.AppendFormatted("all:startecho obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 
