@@ -80,6 +80,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/XMLToFormWindow.o \
               obj/ArgusAnalyzerController.o \
               obj/ArgusTab.o \
+              obj/ArgusHistoDisplay.o \
               obj/ArgusTextDialog.o \
               obj/ArgusWindow.o \
               obj/mxml.o \
@@ -123,7 +124,8 @@ LibDictHeaders := include/ROMEString.h \
                   argus/include/ArgusWindow.h \
                   argus/include/ArgusTextDialog.h \
                   argus/include/ArgusAnalyzerController.h \
-                  argus/include/ArgusTab.h
+                  argus/include/ArgusTab.h \
+                  argus/include/ArgusHistoDisplay.h
 
 #
 # Compile and linking
