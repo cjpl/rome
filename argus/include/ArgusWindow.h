@@ -32,6 +32,7 @@
 class ArgusWindow : public TGMainFrame 
 {
 protected:
+   Bool_t       fArgusActive;      //! active flag
    TGStatusBar* fStatusBar;        //! status bar
    Bool_t       fStatusBarSwitch;  //! status bar switch
    int          fUpdateFrequency;  //! update frequency
@@ -56,7 +57,7 @@ protected:
    };
       
 public:
-   ArgusWindow():TGMainFrame(NULL,1,1) {} 
+   ArgusWindow(); 
    ArgusWindow(const TGWindow* p, Char_t* title);
    virtual ~ArgusWindow() {};
    Bool_t         Start();
@@ -85,11 +86,13 @@ public:
    void           SetUpdateFrequency(Int_t duration)
    {
       fUpdateFrequency = duration;
-      ArgusTab *tab;
-      for (int i=0;i<GetTabObjectEntries();i++) {
-         tab = GetTabObjectAt(i);
-         if (tab)
-            tab->SetUpdateFrequency(duration);
+      if (fArgusActive) {
+         ArgusTab *tab;
+         for (int i=0;i<GetTabObjectEntries();i++) {
+            tab = GetTabObjectAt(i);
+            if (tab)
+               tab->SetUpdateFrequency(duration);
+         }
       }
    };
    Int_t          GetUpdateFrequency() { return fUpdateFrequency; };
@@ -108,9 +111,13 @@ public:
          return fTabObjects->GetEntries();
       return 0;
    };
+   // Active
+   Bool_t IsActive() { return fArgusActive; };
 
    // Event Handler
    virtual void TriggerEventHandler() = 0;
+protected:
+   void InitArgus();
 
    ClassDef(ArgusWindow,1)
 };

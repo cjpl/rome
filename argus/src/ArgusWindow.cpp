@@ -24,7 +24,17 @@
 #include "ROMEAnalyzer.h"
 
 ClassImp(ArgusWindow)
+ArgusWindow::ArgusWindow()
+{
+   fArgusActive = false;
+   InitArgus();
+}
 ArgusWindow::ArgusWindow(const TGWindow* p, Char_t* title) : TGMainFrame(p, 1, 1)
+{
+   fArgusActive = true;
+   InitArgus();
+}
+void ArgusWindow::InitArgus()
 {
    fWindowScale = 1;
    fStatusBarSwitch = true;
