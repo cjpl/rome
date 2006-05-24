@@ -220,7 +220,7 @@ protected:
 
 public:
    ROMEAnalyzer() {};
-   ROMEAnalyzer(ROMERint *app);
+   ROMEAnalyzer(ROMERint *app,Bool_t argus);
    ~ROMEAnalyzer();
 
    // Program Mode

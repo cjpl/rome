@@ -80,7 +80,7 @@ ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
-ROMEAnalyzer::ROMEAnalyzer(ROMERint *app)
+ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t argus)
 {
 // Initialisations
    fProgramMode = kStandAloneROME;
@@ -276,6 +276,7 @@ void ROMEAnalyzer::ParameterUsage()
    gROME->PrintLine("  -e       Eventnumbers");
    gROME->PrintLine("  -o       Start Analyzer in Step by Step Mode");
    gROME->PrintLine("  -docu    Generates a Root-Html-Documentation (no Argument)");
+   gROME->PrintLine("  -ng      No graphics is used");
    gROME->UserParameterUsage();
    return;
 }
@@ -472,6 +473,9 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if (!strcmp(argv[i],"-i")) {
+         i++;
+      }
+      else if (!strcmp(argv[i],"-ng")) {
          i++;
       }
       else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {

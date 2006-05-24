@@ -3352,7 +3352,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app):ROMEAnalyzer(app) {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t argus):ROMEAnalyzer(app,argus) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   char str[200];\n");
@@ -3362,8 +3362,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   gAnalyzer = this;\n");
    buffer.AppendFormatted("   gROME = static_cast<ROMEAnalyzer*>(this);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   sprintf(str,\"ARGUS - %%s\",fProgramName.Data());\n");
-   buffer.AppendFormatted("   fWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
+   buffer.AppendFormatted("   if (argus) {\n");
+   buffer.AppendFormatted("      sprintf(str,\"ARGUS - %%s\",fProgramName.Data());\n");
+   buffer.AppendFormatted("      fWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fWindow = new %sWindow();\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -3754,12 +3758,16 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL))==1) {\n");
-   buffer.AppendFormatted("      if (dialog->IsChecked(\"ROME\") && dialog->IsChecked(\"ARGUS\"))\n");
-   buffer.AppendFormatted("         gAnalyzer->SetROMEAndARGUS();\n");
-   buffer.AppendFormatted("      else if (dialog->IsChecked(\"ARGUS\"))\n");
-   buffer.AppendFormatted("         gAnalyzer->SetStandAloneARGUS();\n");
-   buffer.AppendFormatted("      else\n");
+   buffer.AppendFormatted("      if (!fWindow->IsActive())\n");
    buffer.AppendFormatted("         gAnalyzer->SetStandAloneROME();\n");
+   buffer.AppendFormatted("      else {\n");
+   buffer.AppendFormatted("         if (dialog->IsChecked(\"ROME\") && dialog->IsChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("            gAnalyzer->SetROMEAndARGUS();\n");
+   buffer.AppendFormatted("         else if (dialog->IsChecked(\"ARGUS\"))\n");
+   buffer.AppendFormatted("            gAnalyzer->SetStandAloneARGUS();\n");
+   buffer.AppendFormatted("         else\n");
+   buffer.AppendFormatted("            gAnalyzer->SetStandAloneROME();\n");
+   buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(dialog->GetValue(\"RunParameters/RunNumbers\"));\n");
    buffer.AppendFormatted("      gAnalyzer->SetInputFileNames(dialog->GetValue(\"RunParameters/InputFileNames\"));\n");
    WriteConfigToFormSave(buffer,mainParGroup,"","","");
@@ -4313,7 +4321,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app);\n",shortCut.Data());
+   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t argus);\n",shortCut.Data());
 
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
@@ -4665,6 +4673,23 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("ClassImp(%sWindow);\n", shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
+
+   buffer.AppendFormatted("%sWindow::%sWindow() : ArgusWindow()\n", shortCut.Data(), shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      Int_t index = tabParentIndex[i];
+      ROMEString switchString = tabName[i].Data();
+      while (index != -1) {
+         switchString.Insert(0, "_");
+         switchString.Insert(0, tabName[index].Data());
+         index = tabParentIndex[index];
+      }
+      buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
+   }
+   buffer.AppendFormatted("}\n\n");
 
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title) : ArgusWindow(p,title)\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("{\n");
@@ -5090,8 +5115,9 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    // Method
    buffer.AppendFormatted("public:\n");
+   buffer.AppendFormatted("   %sWindow();\n", shortCut.Data());
    buffer.AppendFormatted("   %sWindow(const TGWindow *p, char *title);\n", shortCut.Data());
-   buffer.AppendFormatted("   virtual ~%sWindow() {};\n", shortCut.Data());
+   buffer.AppendFormatted("   ~%sWindow() {};\n", shortCut.Data());
    buffer.AppendFormatted("   Bool_t CreateTabs();\n");
    buffer.AppendFormatted("   Bool_t AddMenuNetFolder(TGPopupMenu* menu);\n");
    buffer.AppendFormatted("\n");
@@ -5545,14 +5571,18 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->GetPathValue(\"/Configuration/ProgramConfiguration/ARGUS/Active\",argusBuffer,\"\");\n");
    buffer.AppendFormatted("   romeBuffer.ToLower();\n");
    buffer.AppendFormatted("   argusBuffer.ToLower();\n");
-   buffer.AppendFormatted("   if (romeBuffer==\"false\" && argusBuffer!=\"true\")\n");
-   buffer.AppendFormatted("      return false;\n");
-   buffer.AppendFormatted("   if (romeBuffer!=\"false\" && argusBuffer!=\"true\")\n");
+   buffer.AppendFormatted("   if (!gAnalyzer->GetWindow()->IsActive())\n");
    buffer.AppendFormatted("      gAnalyzer->SetStandAloneROME();\n");
-   buffer.AppendFormatted("   if (romeBuffer==\"false\" && argusBuffer==\"true\")\n");
-   buffer.AppendFormatted("      gAnalyzer->SetStandAloneARGUS();\n");
-   buffer.AppendFormatted("   if (romeBuffer!=\"false\" && argusBuffer==\"true\")\n");
-   buffer.AppendFormatted("      gAnalyzer->SetROMEAndARGUS();\n");
+   buffer.AppendFormatted("   else {\n");
+   buffer.AppendFormatted("      if (romeBuffer==\"false\" && argusBuffer!=\"true\")\n");
+   buffer.AppendFormatted("         return false;\n");
+   buffer.AppendFormatted("      if (romeBuffer!=\"false\" && argusBuffer!=\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetStandAloneROME();\n");
+   buffer.AppendFormatted("      if (romeBuffer==\"false\" && argusBuffer==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetStandAloneARGUS();\n");
+   buffer.AppendFormatted("      if (romeBuffer!=\"false\" && argusBuffer==\"true\")\n");
+   buffer.AppendFormatted("         gAnalyzer->SetROMEAndARGUS();\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
 
@@ -5942,11 +5972,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
       // Argus/UpdateFrequency
       subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
+      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetWindow()->IsActive()) {");
       for (i=0;i<numOfTab;i++) {
          if (!tabUsed[i])
             continue;
-         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%03dTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), i);
       }
+      subGroup->GetLastParameter()->AddSetLine("}");
       subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetUpdateFrequency());");
       mainParGroup->AddSubGroup(subGroup);
       // Argus/AnalyzerController
@@ -9173,6 +9205,8 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   bool graphics = true;\n");
    buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("   int argn = 1;\n");
    buffer.AppendFormatted("   char arg[1][100];\n");
@@ -9181,7 +9215,14 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   new %sAnalyzer(app);\n",shortCut.Data());
+   buffer.AppendFormatted("   for (i=1;i<argc;i++) {\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\")) {\n");
+   buffer.AppendFormatted("         graphics = false;\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   new %sAnalyzer(app,graphics);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("   sprintf(str,\"ROME - %%s\", gAnalyzer->GetProgramName());\n");
