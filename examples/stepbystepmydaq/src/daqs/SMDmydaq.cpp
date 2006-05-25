@@ -1,6 +1,7 @@
 #include "include/daqs/SMDmydaq.h"
 #include "include/generated/SMDAnalyzer.h"
 #include "include/generated/SMDConfig.h"
+#include "include/generated/SMDPMTData.h"
 
 SMDmydaq::SMDmydaq()
 {
