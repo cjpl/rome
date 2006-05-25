@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 17:06:51 2006 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
+<!-- created by MXML on Thu May 25 17:10:42 2006 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
       <Active>false</Active>
@@ -59,14 +59,56 @@
         <TabName>Tab1</TabName>
         <Active>true</Active>
         <SteeringParameterField>
-          <SPName>text</SPName>
-          <SPValue>written in argusConfig.xml</SPValue>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
         </SteeringParameterField>
+        <Tab>
+          <TabName>Tab1_1</TabName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>Color</SPName>
+            <SPValue>1</SPValue>
+          </SteeringParameterField>
+        </Tab>
+        <Tab>
+          <TabName>Tab1_2</TabName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>Color</SPName>
+            <SPValue>1</SPValue>
+          </SteeringParameterField>
+        </Tab>
       </Tab>
       <Tab>
         <TabName>Tab2</TabName>
         <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
+        </SteeringParameterField>
+        <Tab>
+          <TabName>Tab2_1</TabName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>Color</SPName>
+            <SPValue>1</SPValue>
+          </SteeringParameterField>
+        </Tab>
+        <Tab>
+          <TabName>Tab2_2</TabName>
+          <Active>true</Active>
+          <SteeringParameterField>
+            <SPName>Color</SPName>
+            <SPValue>1</SPValue>
+          </SteeringParameterField>
+        </Tab>
       </Tab>
     </Tabs>
+    <GlobalSteeringParameters>
+      <SteeringParameterField>
+        <SPName>Piedi</SPName>
+        <SPValue>false</SPValue>
+      </SteeringParameterField>
+    </GlobalSteeringParameters>
   </MainConfiguration>
 </Configuration>

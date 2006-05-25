@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 16:05:41 2006 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
+<!-- created by MXML on Thu May 25 17:00:50 2006 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
       <Active>false</Active>
@@ -32,7 +32,7 @@
         <NetFolderName></NetFolderName>
       </AnalyzerController>
       <SocketToROME>
-        <Active>true</Active>
+        <Active>false</Active>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketToROME>
@@ -54,18 +54,38 @@
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </Histograms>
- <NetFolder>
-      <NetFolderName>mynetfolder</NetFolderName>
-      <Active>true</Active>
-      <Reconnect>true</Reconnect>
-      <Root>HG</Root>
-      <Host>localhost</Host>
-      <Port>9090</Port> 
- </NetFolder>
     <Tabs>
       <Tab>
-        <TabName>Tab</TabName>
+        <TabName>English</TabName>
         <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
+        </SteeringParameterField>
+      </Tab>
+      <Tab>
+        <TabName>German</TabName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
+        </SteeringParameterField>
+      </Tab>
+      <Tab>
+        <TabName>Italian</TabName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
+        </SteeringParameterField>
+      </Tab>
+      <Tab>
+        <TabName>French</TabName>
+        <Active>true</Active>
+        <SteeringParameterField>
+          <SPName>Color</SPName>
+          <SPValue>1</SPValue>
+        </SteeringParameterField>
       </Tab>
     </Tabs>
   </MainConfiguration>

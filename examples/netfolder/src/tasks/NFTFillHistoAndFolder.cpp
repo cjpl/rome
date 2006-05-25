@@ -35,7 +35,7 @@
 // Get<Histogram Name>At(Int_t index)                                         //
 //                                                                            //
 // Followings are include files of folders. ROMEBuilder will update it with   //
-// reading this source code when you execute it next time.                    //
+// reading this source code when it is executed next time.                    //
 #include "include/generated/NFGaussData.h"
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////

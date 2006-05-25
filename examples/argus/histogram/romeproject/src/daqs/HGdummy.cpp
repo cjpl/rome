@@ -18,7 +18,7 @@ bool HGdummy::BeginOfRun()
    return true;
 }
 
-bool HGdummy::Event(int event)
+bool HGdummy::Event(Long64_t event)
 {
    gAnalyzer->SetCurrentEventNumber(gAnalyzer->GetCurrentEventNumber() + 1);
    if (gAnalyzer->GetCurrentEventNumber() > 10000)

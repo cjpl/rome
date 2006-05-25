@@ -26,23 +26,28 @@ ClassImp(FOTTab)
 void FOTTab::Init()
 {
    //ODB
+// connection to ODB is not supported yet.
+#if 0
    gAnalyzer->ReadODB();
    cout << gAnalyzer->GetODB()->GetRunNumber() << endl;
+#else
+   gAnalyzer->GetODB()->SetRunNumber(0);
+#endif
 
    //ROMEDataBase
    gAnalyzer->ReadROMEDataBase();
-   cout << gAnalyzer->GetROMEDataBase()->Getcomment() << endl;
+   cout << "comment " << gAnalyzer->GetROMEDataBase()->Getcomment() << endl;
 
    //ROMEFolder
    if (gAnalyzer->GetNetFolder("mynetfolder")) {
-      fRunInfo = (FORunInfo *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("RunInfo"))->FindObjectAny("LPRunInfo");
-      cout << fRunInfo->GetRunMode() << endl;
+      fRunInfo = (FORunInfo *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("RunInfo"))->FindObjectAny("FORunInfo");
+      cout << "run mode " << fRunInfo->GetName() << endl;
    }
 
    if (gAnalyzer->GetNetFolder("mynetfolder")) {
-      fPMTDatas = (TClonesArray *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("PMTData"))->FindObjectAny("LPPMTData");
+      fPMTDatas = (TClonesArray *) ((TFolder *) gAnalyzer->GetNetFolder("mynetfolder")->FindObjectAny("PMTData"))->FindObjectAny("FOPMTData");
       for (int i = 0; i < fPMTDatas->GetEntries(); i++) {
-         cout << i << " :" << ((FOPMTData *) (fPMTDatas->At(i)))->GetADC() << endl;
+         cout << "PMT data-ADC " << i << " :" << ((FOPMTData *) (fPMTDatas->At(i)))->GetADC() << endl;
       }
    }
 }

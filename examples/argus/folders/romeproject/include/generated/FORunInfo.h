@@ -1,11 +1,22 @@
-//////////////////////////////////////////////////////////////
-// *** This file will be overwritten by the ROMEBuilder *** //
-// ***      Don't make manual changes to this file      *** //
-//////////////////////////////////////////////////////////////
+// Author: Ryu Sawada
+
+/******************************************************************************
+ *         ***  This file will be overwritten by the ROMEBuilder  ***         *
+ *          ***      Don't make manual changes to this file      ***          *
+ ******************************************************************************/
 
 #ifndef FORunInfo_H
 #define FORunInfo_H
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+// FORunInfo                                                                  //
+//                                                                            //
+// Run information.                                                           //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+#include "RConfig.h"
 #include "TObject.h"
 #include "TClass.h"
 #include "TClonesArray.h"
@@ -21,29 +32,16 @@ protected:
    Bool_t        fModified; //! Modified Folder Flag
 
 public:
-   FORunInfo( Short_t RunMode_value=0,TString Comment_value="none",Int_t StartTime_value=0,Int_t StopTime_value=0 )
-   {
-      FORunInfo::Class()->IgnoreTObjectStreamer();
-      RunMode = RunMode_value;
-      Comment = Comment_value;
-      StartTime = StartTime_value;
-      StopTime = StopTime_value;
-      fModified = false;
-   };
+   FORunInfo( Short_t RunMode_value=0,TString Comment_value="none",Int_t StartTime_value=0,Int_t StopTime_value=0 );
 
-   virtual ~FORunInfo()
-   {
-   };
+   virtual ~FORunInfo();
 
    Short_t        GetRunMode()   { return RunMode;   };
    TString        GetComment()   { return Comment;   };
    Int_t          GetStartTime() { return StartTime; };
    Int_t          GetStopTime()  { return StopTime;  };
 
-   Bool_t         isModified()   {
-      if( fModified ) return true;
-      return false;
-   }
+   Bool_t         isModified();
 
    void SetRunMode  (Short_t       RunMode_value  ) { RunMode   = RunMode_value;   SetModified(true); };
    void SetComment  (TString       Comment_value  ) { Comment   = Comment_value;   SetModified(true); };
@@ -57,27 +55,14 @@ public:
 
    void SetModified (Bool_t        modified ) { fModified  = modified; };
 
-   void ResetModified() {
-      int i=0;
-      if(isModified()){
-         SetModified(false);
-      }
-   };
+   void ResetModified();
 
-   void SetAll( Short_t RunMode_value=0,TString Comment_value="none",Int_t StartTime_value=0,Int_t StopTime_value=0 )
-   { RunMode = RunMode_value; Comment = Comment_value; StartTime = StartTime_value; StopTime = StopTime_value; SetModified(true); };
+   void SetAll( Short_t RunMode_value=0,TString Comment_value="none",Int_t StartTime_value=0,Int_t StopTime_value=0 );
 
-   void Reset() {
-      if( !isModified() ) return;
-      int i=0;
-      RunMode = (Short_t)0;
-      Comment = (TString)"none";
-      StartTime = (Int_t)0;
-      StopTime = (Int_t)0;
-      fModified = false;
-   };
+   void Reset();
 
 private:
+
 
    ClassDef(FORunInfo,1)
 };
