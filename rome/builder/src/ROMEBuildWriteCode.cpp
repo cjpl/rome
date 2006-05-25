@@ -119,7 +119,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
             else {
                buffer.AppendFormatted("   %s = new TClonesArray(\"%s\");\n",valueName[iFold][i].Data(),tmp.Data());
-               buffer.AppendFormatted("   %s->SetName(\"%s%s\");\n",shortCut.Data(),tmp.Data());
+               buffer.AppendFormatted("   %s->SetName(\"%s%s\");\n",valueName[iFold][i].Data(),shortCut.Data(),tmp.Data());
                if (valueArray[iFold][i][0]!="variable")
                   buffer.AppendFormatted("   Set%sSize(%s);\n",valueName[iFold][i].Data(),valueArray[iFold][i][0].Data());
             }
