@@ -38,8 +38,11 @@
 					<FieldType>Int_t</FieldType>
 					<FieldComment>Run number</FieldComment>
 					<FieldInitialization>0</FieldInitialization>
+<!-- ODB access is not supported yet -->
+<!--
 					<DataBaseName>myodb</DataBaseName>
 					<DataBasePath>&quot;/Runinfo/Run number&quot;</DataBasePath>
+-->
 				</Field>
 			</Folder>
 			<Folder>
@@ -72,4 +75,27 @@
 			<NetFolderRoot>FO</NetFolderRoot>
 		</NetFolder>
 	</NetFolders>
+	<UserMakeFile>
+		<DictionaryHeaders>
+			<Header>
+				<HeaderName>romeproject/include/generated/FORunInfo.h</HeaderName>
+			</Header>
+			<Header>
+				<HeaderName>romeproject/include/generated/FOPMTData.h</HeaderName>
+			</Header>
+		</DictionaryHeaders>
+		<IncludeDirectories>
+			<IncludeDirectory>romeproject/include</IncludeDirectory>
+		</IncludeDirectories>
+		<AdditionalFiles>
+			<File>
+				<SourceFile>romeproject/src/generated/FORunInfo.cpp</SourceFile>
+				<HeaderFile>romeproject/include/generated/FORunInfo.h</HeaderFile>
+			</File>
+			<File>
+				<SourceFile>romeproject/src/generated/FOPMTData.cpp</SourceFile>
+				<HeaderFile>romeproject/include/generated/FOPMTData.h</HeaderFile>
+			</File>
+		</AdditionalFiles>
+	</UserMakeFile>
 </ROMEFrameworkDefinition>

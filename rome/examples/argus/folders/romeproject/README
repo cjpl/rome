@@ -1,0 +1,2 @@
+Please generate project with midas support.
+../../../../bin/romebuilder.exe FOframework.xml -midas

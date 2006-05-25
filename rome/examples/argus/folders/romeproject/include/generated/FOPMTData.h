@@ -1,11 +1,22 @@
-//////////////////////////////////////////////////////////////
-// *** This file will be overwritten by the ROMEBuilder *** //
-// ***      Don't make manual changes to this file      *** //
-//////////////////////////////////////////////////////////////
+// Author: Ryu Sawada
+
+/******************************************************************************
+ *         ***  This file will be overwritten by the ROMEBuilder  ***         *
+ *          ***      Don't make manual changes to this file      ***          *
+ ******************************************************************************/
 
 #ifndef FOPMTData_H
 #define FOPMTData_H
 
+////////////////////////////////////////////////////////////////////////////////
+//                                                                            //
+// FOPMTData                                                                  //
+//                                                                            //
+// PMT data.                                                                  //
+//                                                                            //
+////////////////////////////////////////////////////////////////////////////////
+
+#include "RConfig.h"
 #include "TObject.h"
 #include "TClass.h"
 #include "TClonesArray.h"
@@ -18,25 +29,14 @@ protected:
    Bool_t        fModified;  //! Modified Folder Flag
 
 public:
-   FOPMTData( Short_t ADC_value=0,Short_t TDC_value=0 )
-   {
-      FOPMTData::Class()->IgnoreTObjectStreamer();
-      ADC = ADC_value;
-      TDC = TDC_value;
-      fModified = false;
-   };
+   FOPMTData( Short_t ADC_value=0,Short_t TDC_value=0 );
 
-   virtual ~FOPMTData()
-   {
-   };
+   virtual ~FOPMTData();
 
    Short_t        GetADC()      { return ADC;      };
    Short_t        GetTDC()      { return TDC;      };
 
-   Bool_t         isModified()  {
-      if( fModified ) return true;
-      return false;
-   }
+   Bool_t         isModified();
 
    void SetADC     (Short_t       ADC_value     ) { ADC      = ADC_value;      SetModified(true); };
    void SetTDC     (Short_t       TDC_value     ) { TDC      = TDC_value;      SetModified(true); };
@@ -46,25 +46,14 @@ public:
 
    void SetModified(Bool_t        modified) { fModified = modified;};
 
-   void ResetModified() {
-      int i=0;
-      if(isModified()){
-         SetModified(false);
-      }
-   };
+   void ResetModified();
 
-   void SetAll( Short_t ADC_value=0,Short_t TDC_value=0 )
-   { ADC = ADC_value; TDC = TDC_value; SetModified(true); };
+   void SetAll( Short_t ADC_value=0,Short_t TDC_value=0 );
 
-   void Reset() {
-      if( !isModified() ) return;
-      int i=0;
-      ADC = (Short_t)0;
-      TDC = (Short_t)0;
-      fModified = false;
-   };
+   void Reset();
 
 private:
+
 
    ClassDef(FOPMTData,1)
 };

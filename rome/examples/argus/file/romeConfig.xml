@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 16:05:41 2006 -->
-<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
+<!-- created by MXML on Thu May 25 16:13:44 2006 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
       <Active>false</Active>
@@ -11,13 +11,13 @@
   </ProgramConfiguration>
   <MainConfiguration>
     <RunParameters>
-      <RunNumbers></RunNumbers>
+      <RunNumbers>1</RunNumbers>
       <EventNumbers></EventNumbers>
       <InputFileNames></InputFileNames>
     </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
-      <DAQSystem>none</DAQSystem>
+      <DAQSystem>user</DAQSystem>
       <BatchMode>false</BatchMode>
       <QuitMode>false</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
@@ -32,7 +32,7 @@
         <NetFolderName></NetFolderName>
       </AnalyzerController>
       <SocketToROME>
-        <Active>true</Active>
+        <Active>false</Active>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketToROME>
@@ -54,19 +54,27 @@
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </Histograms>
- <NetFolder>
-      <NetFolderName>mynetfolder</NetFolderName>
-      <Active>true</Active>
-      <Reconnect>true</Reconnect>
-      <Root>HG</Root>
-      <Host>localhost</Host>
-      <Port>9090</Port> 
- </NetFolder>
     <Tabs>
       <Tab>
-        <TabName>Tab</TabName>
+        <TabName>Tab1</TabName>
         <Active>true</Active>
       </Tab>
     </Tabs>
+    <Trees>
+      <Accumulate>false</Accumulate>
+      <Tree>
+        <TreeName>data</TreeName>
+        <Read>true</Read>
+        <Write>false</Write>
+        <Fill>false</Fill>
+        <CompressionLevel>0</CompressionLevel>
+        <MaxNumberOfEntries>0</MaxNumberOfEntries>
+        <TreeOutputFileName></TreeOutputFileName>
+        <Branch>
+          <BranchName>test</BranchName>
+          <Active>true</Active>
+        </Branch>
+      </Tree>
+    </Trees>
   </MainConfiguration>
 </Configuration>

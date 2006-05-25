@@ -119,6 +119,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
             else {
                buffer.AppendFormatted("   %s = new TClonesArray(\"%s\");\n",valueName[iFold][i].Data(),tmp.Data());
+               buffer.AppendFormatted("   %s->SetName(\"%s%s\");\n",shortCut.Data(),tmp.Data());
                if (valueArray[iFold][i][0]!="variable")
                   buffer.AppendFormatted("   Set%sSize(%s);\n",valueName[iFold][i].Data(),valueArray[iFold][i][0].Data());
             }
@@ -3411,6 +3412,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             }
             else {
                buffer.AppendFormatted("\n   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("\n   f%sFolders->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
             }
          }
@@ -6213,9 +6215,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
       // NetFolder/Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(i,kTRUE);");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(%d,kTRUE);",i);
       subGroup->GetLastParameter()->AddSetLine("else");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(i,kFALSE);");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(%d,kFALSE);",i);
       subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderActive(%d))",i);
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
@@ -6223,24 +6225,24 @@ Bool_t ROMEBuilder::AddConfigParameters()
       // NetFolder/Reconnect
       subGroup->AddParameter(new ROMEConfigParameter("Reconnect","1","CheckButton"));
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(i,kTRUE);");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(%d,kTRUE);",i);
       subGroup->GetLastParameter()->AddSetLine("else");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(i,kFALSE);");
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(%d,kFALSE);",i);
       subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetNetFolderReconnect(%d))",i);
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // NetFolder/Root
       subGroup->AddParameter(new ROMEConfigParameter("Root"));
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(i,const_cast<char*>(##.Data()));");
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderHost(%d);",i);
       // NetFolder/Host
       subGroup->AddParameter(new ROMEConfigParameter("Host"));
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(i,const_cast<char*>(##.Data()));");
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetNetFolderPort(%d));",i);
       // NetFolder/Port
       subGroup->AddParameter(new ROMEConfigParameter("Port"));
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(i,const_cast<char*>(##.Data()));");
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
       mainParGroup->AddSubGroup(subGroup);
    }

@@ -431,6 +431,23 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   cout << "Terminating program." << endl;
                   return false;
                }
+               if (numOfFolder < 0);
+               if (numOfTask < 0) numOfTask = 0;
+               if (numOfTaskHierarchy < 0) numOfTaskHierarchy = 0;
+               if (numOfTree < 0) numOfTree = 0;
+               if (numOfEvent < 0) numOfEvent = 0;
+               if (numOfDAQ < 0) numOfDAQ = 0;
+               if (numOfDB < 0) numOfDB = 0;
+               if (numOfIncludeDirectories < 0) numOfIncludeDirectories = 0;
+               if (numOfTab < 0) numOfTab = 0;
+               if (numOfNetFolder <0) numOfNetFolder = 0;
+               if (numOfMFDictHeaders < 0) numOfMFDictHeaders = 0;
+               if (numOfMFDictIncDirs < 0) numOfMFDictIncDirs = 0;
+               if (numOfMFWinLibs < 0) numOfMFWinLibs = 0;
+               if (numOfMFUnixLibs < 0) numOfMFUnixLibs = 0;
+               if (numOfMFIncDirs < 0) numOfMFIncDirs = 0;
+               if (numOfMFPreDefs < 0) numOfMFPreDefs = 0;
+               if (numOfMFSources < 0) numOfMFSources = 0;
                finished = true;
                break;
             }
