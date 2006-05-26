@@ -20,6 +20,7 @@ public:
    virtual Bool_t ReadConfigurationFile(const char *file) = 0;
    virtual Bool_t CheckConfiguration(Long64_t runNumber) = 0;
    virtual Bool_t CheckConfiguration(const char *file) = 0;
+   virtual Bool_t CheckConfigurationModified(Int_t index) = 0;
 
    ClassDef(ROMEConfig, 0) // Base configuration class
 };

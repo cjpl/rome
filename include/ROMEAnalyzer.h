@@ -182,6 +182,7 @@ protected:
 
    // Data base
    ROMEDataBase **fDataBaseHandle;               //! DataBase Handles
+   ROMEString    *fDataBaseName;                 //! DataBase name
    ROMEString    *fDataBaseConnection;           //! DataBase connection strings
    Int_t          fNumberOfDataBases;            //! Number of DataBases available
 
@@ -261,6 +262,8 @@ public:
    void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; };
 
    // Data Base Handle
+   const char     *GetDataBaseName(Int_t i) { return fDataBaseName[i].Data(); };
+   void            SetDataBaseName(Int_t i,const char *name) { fDataBaseName[i] = name; };
    const char     *GetDataBaseConnection(Int_t i) { return fDataBaseConnection[i].Data(); };
    void            SetDataBaseConnection(Int_t i,const char *connection) { fDataBaseConnection[i] = connection; };
    ROMEDataBase   *GetDataBase(Int_t i) {
@@ -291,6 +294,7 @@ public:
    void            InitDataBases(Int_t number) {
                       fDataBaseHandle = new ROMEDataBase*[number];
                       fDataBaseConnection = new ROMEString[number];
+                      fDataBaseName = new ROMEString[number];
                       fDataBaseDir = new ROMEString[number];
                       fNumberOfDataBases = number;
                    }

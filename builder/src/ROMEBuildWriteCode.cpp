@@ -2367,11 +2367,10 @@ Bool_t ROMEBuilder::WriteTaskH()
       else
          buffer.AppendFormatted("inline Int_t %sT%s::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   ROMEString path = objectPath;\n");
-      buffer.AppendFormatted("   if (path.Index(\"/\")!=0)\n");
-      buffer.AppendFormatted("      return -1;\n");
-      buffer.AppendFormatted("   if (path.Index(\"/SP\")==0) {\n");
-      ROMEString path = "/SP";
-      WriteSteeringInterpreterCode(buffer,codeNumber,0,iTask,path,1);
+      buffer.AppendFormatted("   if (path.Index(\"/SP\")==0 || path.Index(\"gAnalyzer->GetSP()\")==0) {\n");
+      ROMEString path1 = "/SP";
+      ROMEString path2 = "gAnalyzer->GetSP()";
+      WriteSteeringInterpreterCode(buffer,codeNumber,0,iTask,path1,path2,1);
       buffer.AppendFormatted("      gAnalyzer->PrintLine(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
       buffer.AppendFormatted("      gAnalyzer->PrintLine(\"   \"+path+\"\\n\");\n");
       buffer.AppendFormatted("      return -1;\n");
@@ -3598,7 +3597,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
    buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
    // ReadArrayDataBaseFolders
    buffer.AppendFormatted("Bool_t %sAnalyzer::ReadArrayDataBaseFolders() {\n",shortCut.Data());
@@ -3613,7 +3613,46 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
    buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // Database Folder Field Getters
+   buffer.AppendFormatted("// Database Folder Field Getters\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && !folderSupport[i]) {
+         for (j=0;j<numOfValue[i];j++) {
+            if (valueDimension[i][j]>1)
+               continue;
+            buffer.AppendFormatted("const char* %sAnalyzer::Get%s_%sDBName() {\n",shortCut.Data(),folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   if (f%s_%sDBName==\"\") {\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      return \"%s\";\n",valueDBName[i][j].Data());
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      return f%s_%sDBName.Data();\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("const char* %sAnalyzer::Get%s_%sDBPath(ROMEString& path) {\n",shortCut.Data(),folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   if (f%s_%sDBPath==\"\") {\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      path.SetFormatted(%s);\n",valueDBPath[i][j].Data());
+            buffer.AppendFormatted("      return path.Data();\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      return f%s_%sDBPath.Data();\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("}\n");
+            buffer.AppendFormatted("const char* %sAnalyzer::Get%s_%sDBPathOriginal() {\n",shortCut.Data(),folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   if (f%s_%sDBPath==\"\") {\n",folderName[i].Data(),valueName[i][j].Data());
+            str = valueDBPath[i][j];
+            str.ReplaceAll("\"","\\\"");
+            buffer.AppendFormatted("      return \"%s\";\n",str.Data());
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   else\n");
+            buffer.AppendFormatted("      return f%s_%sDBPath.Data();\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("}\n");
+         }
+      }
+   }
+   buffer.AppendFormatted("\n");
 
    // ReadUserParameter
    buffer.AppendFormatted("Bool_t %sAnalyzer::ReadUserParameter(const char* opt, const char* value, Int_t& i) {\n",shortCut.Data());
@@ -3751,7 +3790,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("Bool_t %sAnalyzer::ShowConfigurationFile()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   bool writeFlag = true;\n");
    buffer.AppendFormatted("   ROMEString str;\n");
+   buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
    buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
@@ -3773,6 +3814,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(dialog->GetValue(\"RunParameters/RunNumbers\"));\n");
    buffer.AppendFormatted("      gAnalyzer->SetInputFileNames(dialog->GetValue(\"RunParameters/InputFileNames\"));\n");
    WriteConfigToFormSave(buffer,mainParGroup,"","","");
+   buffer.AppendFormatted("      GetConfiguration()->CheckConfigurationModified(0);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   delete dialog;\n");
    buffer.AppendFormatted("   return exitID!=-1;\n");
@@ -3839,11 +3881,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    int codeNumber = 0;
    buffer.AppendFormatted("Int_t %sAnalyzer::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data());
    buffer.AppendFormatted("   ROMEString path = objectPath;\n");
-   buffer.AppendFormatted("   if (path.Index(\"/\")!=0)\n");
-   buffer.AppendFormatted("      return -1;\n");
-   buffer.AppendFormatted("   if (path.Index(\"/GSP\")==0) {\n");
-   ROMEString path = "/GSP";
-   codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,0,numOfTask,path,1);
+   buffer.AppendFormatted("   if (path.Index(\"/GSP\")==0 || path.Index(\"gAnalyzer->GetGSP()\")==0) {\n");
+   ROMEString path1 = "/GSP";
+   ROMEString path2 = "gAnalyzer->GetGSP()";
+   codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,0,numOfTask,path1,path2,1);
    buffer.AppendFormatted("      gAnalyzer->PrintLine(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
    buffer.AppendFormatted("      gAnalyzer->PrintLine(\"   \"+path+\"\\n\");\n");
    buffer.AppendFormatted("      return -1;\n");
@@ -3856,6 +3897,12 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             if (valueDimension[i][j]==0) {
                buffer.AppendFormatted("   if (path==\"/%s/%s\")\n",folderName[i].Data(),valueName[i][j].Data());
                buffer.AppendFormatted("      return %d;\n",codeNumber);
+               buffer.AppendFormatted("   if (path.Index(\"/%s/%s\")!=-1)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return -2;\n");
+               buffer.AppendFormatted("   if (path==\"gAnalyzer->Get%s()->Get%s()\")\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return %d;\n",codeNumber);
+               buffer.AppendFormatted("   if (path.Index(\"gAnalyzer->Get%s()->Get%s()\")!=-1)\n",folderName[i].Data(),valueName[i][j].Data());
+               buffer.AppendFormatted("      return -2;\n");
                codeNumber++;
             }
          }
@@ -4414,14 +4461,11 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          for (j=0;j<numOfValue[i];j++) {
             if (valueDimension[i][j]>1)
                continue;
-            format.SetFormatted("   const char* Get%%s_%%sDBName()%%%ds          { return f%%s_%%sDBName; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
-            buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
-            format.SetFormatted("   const char* Get%%s_%%sDBPath()%%%ds          { return f%%s_%%sDBPath; };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
-            buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
-            format.SetFormatted("   Int_t       Get%%s_%%sDBNumberOfCode()%%%ds  { return f%%s_%%sDBCode->GetSize(); };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
-            buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
-            format.SetFormatted("   Int_t       Get%%s_%%sDBCodeAt(Int_t i)%%%ds   { return f%%s_%%sDBCode->At(i); };\n",fieldLen+nameLen-folderName[i].Length()-valueName[i][j].Length());
-            buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   const char* Get%s_%sDBName();\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   const char* Get%s_%sDBPath(ROMEString& path);\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   const char* Get%s_%sDBPathOriginal();\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   Int_t       Get%s_%sDBNumberOfCode() { return f%s_%sDBCode->GetSize(); };\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   Int_t       Get%s_%sDBCodeAt(Int_t i) { return f%s_%sDBCode->At(i); };\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
          }
       }
    }
@@ -5336,7 +5380,10 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    buffer.AppendFormatted("void %sConfigToForm::AddTabs(XMLToFormFrame *frame)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   int ind = 0;\n");
+   buffer.AppendFormatted("   bool writeFlag = true;\n");
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
+   buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
@@ -5571,12 +5618,14 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
    buffer.AppendFormatted("   ROMEString path = \"/Configuration/MainConfiguration\";\n");
    buffer.AppendFormatted("   ReadConfiguration(xml,path,0);\n");
+   buffer.AppendFormatted("   CheckConfigurationModified(0);\n");
    buffer.AppendFormatted("   if (!SetConfiguration(0,0))\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   for (int i=0;i<fNumberOfRunConfigs;i++) {\n");
    buffer.AppendFormatted("      fConfigData[i+1] = new ConfigData();\n");
    buffer.AppendFormatted("      path.SetFormatted(\"/Configuration/RunConfiguration[%%d]\",i+1);\n");
    buffer.AppendFormatted("      ReadConfiguration(xml,path,i+1);\n");
+   buffer.AppendFormatted("      CheckConfigurationModified(i+1);\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   if (fConfigData[0]->fRunParameters->fRunNumbersModified)\n");
    buffer.AppendFormatted("      gAnalyzer->SetRunNumbers(fConfigData[0]->fRunParameters->fRunNumbers);\n");
@@ -5621,6 +5670,18 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
       buffer.AppendFormatted("   int i%d = 0;\n",i);
    }
    WriteConfigRead(buffer,mainParGroup,1,"","","","");
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Check Configuration Modified
+   buffer.AppendFormatted("\n// Check Configuration Modified\n");
+   buffer.AppendFormatted("Bool_t %sConfig::CheckConfigurationModified(Int_t index) {\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   ROMEString tempPath;\n");
+   for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
+      buffer.AppendFormatted("   int i%d = 0;\n",i);
+   }
+   WriteConfigCheckModified(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
 
@@ -5829,6 +5890,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("   Bool_t ReadConfigurationFile(const char *file);\n");
    buffer.AppendFormatted("   Bool_t CheckConfiguration(Long64_t runNumber);\n");
    buffer.AppendFormatted("   Bool_t CheckConfiguration(const char *file);\n");
+   buffer.AppendFormatted("   Bool_t CheckConfigurationModified(Int_t index);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   Bool_t ReadProgramConfiguration(ROMEXML *xml);\n");
@@ -6052,7 +6114,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->AddReadGroupArrayInitLine("gAnalyzer->InitDataBases(fConfigData[index]->fDataBaseArraySize);");
    // DataBase/Name
    subGroup->AddParameter(new ROMEConfigParameter("Name"));
-   subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBase(i)->GetName();");
+   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseName(i,##.Data());");
+   subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseName(i);");
    // DataBase/Connection
    subGroup->AddParameter(new ROMEConfigParameter("Connection"));
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseConnection(i,##.Data());");
@@ -6062,7 +6125,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("if (##==\"sql\") {");
    if (this->sql) {
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMESQLDataBase());");
-      subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))");
+      subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i)))");
       subGroup->GetLastParameter()->AddSetLine("      return false;");
    }
    else{
@@ -6073,7 +6136,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("else if (##==\"none\" ||");
    subGroup->GetLastParameter()->AddSetLine("         ##==\"\") {");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMENoDataBase());");
-   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))");
+   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\"))");
    subGroup->GetLastParameter()->AddSetLine("      return false;");
    subGroup->GetLastParameter()->AddSetLine("}");
    subGroup->GetLastParameter()->AddSetLine("else if (##==\"xml\") {");
@@ -6088,12 +6151,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("   if (path[path.Length()-1]!='/' && path[path.Length()-1]!='\\\\')");
    subGroup->GetLastParameter()->AddSetLine("      path += \"/\";");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDir(i,path.Data());");
-   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))");
+   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseDir(i),((TString)str(ind+1,str.Length()-ind-1)).Data()))");
    subGroup->GetLastParameter()->AddSetLine("      return false;");
    subGroup->GetLastParameter()->AddSetLine("}");
    subGroup->GetLastParameter()->AddSetLine("else if (##==\"text\") {");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMETextDataBase());");
-   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),gAnalyzer->GetDataBaseConnection(i),\"\"))");
+   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),gAnalyzer->GetDataBaseConnection(i),\"\"))");
    subGroup->GetLastParameter()->AddSetLine("      return false;");
    subGroup->GetLastParameter()->AddSetLine("}");
    subGroup->GetLastParameter()->AddSetLine("if (##==\"odb\") {");
@@ -6101,7 +6164,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOfflineDataBase());");
    subGroup->GetLastParameter()->AddSetLine("   else");
    subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->SetDataBase(i,new ROMEODBOnlineDataBase());");
-   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",\"\"))");
+   subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",\"\"))");
    subGroup->GetLastParameter()->AddSetLine("      return false;");
    subGroup->GetLastParameter()->AddSetLine("}");
    subGroup->GetLastParameter()->AddComboBoxEntry("none");
@@ -6112,7 +6175,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    for (i=0;i<numOfDB;i++) {
       subGroup->GetLastParameter()->AddSetLine("else if (##==\"%s\") {\n",dbName[i].Data());
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new %s%sDataBase());\n",shortCut.Data(),dbName[i].Data());
-      subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(fConfigData[index]->fDataBase[i]->fName.Data(),\"\",gAnalyzer->GetDataBaseConnection(i)))");
+      subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i)))");
       subGroup->GetLastParameter()->AddSetLine("      return false;");
       subGroup->GetLastParameter()->AddSetLine("}");
       subGroup->GetLastParameter()->AddComboBoxEntry(dbName[i].Data());
@@ -6205,6 +6268,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
             // DataBaseName
             subSubSubGroup->AddParameter(new ROMEConfigParameter("DataBaseName"));
             subSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->Set%s_%sDBName(##.Data());",folderName[i].Data(),valueName[i][j].Data());
+            subSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
+            subSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->Get%s_%sDBName();",folderName[i].Data(),valueName[i][j].Data());
             // DataBasePath
             subSubSubGroup->AddParameter(new ROMEConfigParameter("DataBasePath"));
             subSubSubGroup->GetLastParameter()->AddSetLine("path = ##.Data();");
@@ -6228,6 +6293,28 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubSubGroup->GetLastParameter()->AddSetLine("      path = path(ind+1,path.Length()-ind+1);");
             subSubSubGroup->GetLastParameter()->AddSetLine("   }");
             subSubSubGroup->GetLastParameter()->AddSetLine("}");
+            subSubSubGroup->GetLastParameter()->DontWriteLinesAlways(); 
+            subSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->Get%s_%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
+            subSubSubGroup->GetLastParameter()->AddWriteLine("ind = str.Last('\"');");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("writeFlag = true;");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (ind>-1 && ind<str.Length()-1) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   str = str(ind+2,str.Length()-ind+2);");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   int num = str.CountChar(',')+1;");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   for (i=0;i<num;i++) {");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      if (i<num-1)");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("         ind = str.First(',');");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      else");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("         ind = str.Length();");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      subStr = str(0,ind);");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      if (gAnalyzer->GetObjectInterpreterCode(subStr.Data())==-2)");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("         writeFlag = false;");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("      str = str(ind+1,str.Length()-ind+1);");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   }");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("}");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("if (writeFlag)");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->Get%s_%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
+            subSubSubGroup->GetLastParameter()->AddWriteLine("else");
+            subSubSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"\";");
             subSubGroup->AddSubGroup(subSubSubGroup);
          }
       }
@@ -6859,6 +6946,66 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
             groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity());
          pointerT.SetFormatted("%sf%s->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab,groupNameT,classNameT,pointerT,indexes);
+      }
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
+         buffer.AppendFormatted("%s   }\n",sTab.Data());
+         buffer.AppendFormatted("%s}\n",sTab.Data());
+      }
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1")
+         buffer.AppendFormatted("%s}\n",sTab.Data());
+   }
+   return true;
+}
+Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes)
+{
+   int i,j;
+   ROMEString classNameT;
+   ROMEString groupNameT;
+   ROMEString pointerT;
+   ROMEString indexesT;
+   ROMEString sTabT = "";
+   ROMEString sTab = "";
+   for (i=0;i<tab;i++)
+      sTab += "   ";
+
+   // Sub Groups
+   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
+         buffer.AppendFormatted("%sif (index==0) {\n",sTab.Data());
+         buffer.AppendFormatted("%s   for (i=0;i<fConfigData[index]->%sf%sArraySize;i++) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
+         buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+      }
+      indexesT = indexes;
+      classNameT.SetFormatted("%s%s::",className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      sTabT = sTab.Data();
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
+         sTabT += "      ";
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1")
+         sTabT += "   ";
+      if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
+         groupNameT.SetFormatted("%s%ss[%d]/%s[%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
+         indexesT.AppendFormatted(",i+1");
+         pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab+2,groupNameT,classNameT,pointerT,indexesT);
+      }
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0)
+            groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+         else
+            groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
+         indexesT.AppendFormatted(",i%d",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab+1,groupNameT,classNameT,pointerT,indexesT);
+      }
+      else {
+         if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0)
+            groupNameT.SetFormatted("%s%s[%s='%s'][%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity());
+         else
+            groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity());
+         pointerT.SetFormatted("%sf%s->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab,groupNameT,classNameT,pointerT,indexes);
       }
       if (parGroup->GetSubGroupAt(i)->GetNumberOfParameters()+parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups()>0) {
          buffer.AppendFormatted("%s// %s%s--\n",sTabT.Data(),groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -8392,9 +8539,10 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
    return true;
 }
 
-Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& path,Int_t tab)
+Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& path1,ROMEString& path2,Int_t tab)
 {
-   ROMEString pathT;
+   ROMEString path1T;
+   ROMEString path2T;
    ROMEString blank = "";
    for (int i=0;i<tab;i++)
       blank.Append("   ");
@@ -8404,8 +8552,14 @@ Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNum
       if (!steerFieldUsed[numTask][numSteer][k])
          continue;
       if (steerFieldArraySize[numTask][numSteer][k]=="1") {
-         buffer.AppendFormatted("%s   if (path==\"%s/%s\")\n",blank.Data(),path.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s   if (path==\"%s/%s\")\n",blank.Data(),path1.Data(),steerFieldName[numTask][numSteer][k].Data());
          buffer.AppendFormatted("%s      return %d;\n",blank.Data(),codeNumber);
+         buffer.AppendFormatted("%s   if (path.Index(\"%s/%s\")!=-1)\n",blank.Data(),path1.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      return -2;\n",blank.Data());
+         buffer.AppendFormatted("%s   if (path==\"%s->Get%s()\")\n",blank.Data(),path2.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      return %d;\n",blank.Data(),codeNumber);
+         buffer.AppendFormatted("%s   if (path.Index(\"%s->Get%s()\")!=-1)\n",blank.Data(),path2.Data(),steerFieldName[numTask][numSteer][k].Data());
+         buffer.AppendFormatted("%s      return -2;\n",blank.Data());
          codeNumber++;
       }
    }
@@ -8414,10 +8568,13 @@ Int_t ROMEBuilder::WriteSteeringInterpreterCode(ROMEString &buffer,Int_t codeNum
       if (!steerUsed[numTask][steerChildren[numTask][numSteer][k]])
          continue;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][k]]=="1") {
-         pathT = path;
-         path.AppendFormatted("/%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
-         codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,steerChildren[numTask][numSteer][k],numTask,path,tab);
-         path = pathT;
+         path1T = path1;
+         path2T = path2;
+         path1.AppendFormatted("/%s",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         path2.AppendFormatted("->Get%s()",steerName[numTask][steerChildren[numTask][numSteer][k]].Data());
+         codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,steerChildren[numTask][numSteer][k],numTask,path1,path2,tab);
+         path1 = path1T;
+         path2 = path2T;
       }
    }
    return codeNumber;
@@ -8514,6 +8671,7 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       buffer.AppendFormatted("   int nentry;\n");
    }
    buffer.AppendFormatted("   int j=0;\n");
+   buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
@@ -8528,14 +8686,14 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
          buffer.AppendFormatted("      name.SetFormatted(\"%s\");\n",valueDBName[numFolder][j].Data());
          buffer.AppendFormatted("   else\n");
          buffer.AppendFormatted("      name.SetFormatted(gAnalyzer->Get%s_%sDBName());\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
-         buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBPath())==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("   if (strlen(gAnalyzer->Get%s_%sDBPath(str))==0)\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          if (valueDBPath[numFolder][j].Length())
             buffer.AppendFormatted("      path.SetFormatted(%s);\n",valueDBPath[numFolder][j].Data());
          else
             buffer.AppendFormatted("      path.SetFormatted(\"\");\n");
 
          buffer.AppendFormatted("   else\n");
-         buffer.AppendFormatted("      path.SetFormatted(gAnalyzer->Get%s_%sDBPath()",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("      path.SetFormatted(gAnalyzer->Get%s_%sDBPath(str)",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
             buffer.AppendFormatted("\n         ,gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
          buffer.AppendFormatted(");\n");
