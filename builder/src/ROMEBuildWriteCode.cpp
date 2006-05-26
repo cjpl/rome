@@ -2886,7 +2886,7 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             if (tabObjectTaskIndex[iTab][i]!=-1) {
-               buffer.AppendFormatted("      if (fDisplayObjIndex==%d) {\n",i);
+               buffer.AppendFormatted("      if (fDisplayObjIndex==%d && gAnalyzer->Is%sActive()) {\n",i,histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                buffer.AppendFormatted("         for (i=0;i<%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                buffer.AppendFormatted("            *fUser%s[i] = *(gAnalyzer->Get%sAt(i));\n",tabObjectType[iTab][i].Data(),histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                buffer.AppendFormatted("         for (i=%s;i<fNumberOfUser%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data(),tabObjectType[iTab][i].Data());
@@ -3873,6 +3873,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    WriteObjectInterpreterValue(buffer,"double","Double");
    WriteObjectInterpreterValue(buffer,"ROMEString&","Char");
 
+   // Tasks
+   buffer.AppendFormatted("// Tasks\n");
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),taskHierarchyName[i].Data());
+      buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
+      buffer.AppendFormatted("}\n");
+   }
+   buffer.AppendFormatted("\n");
+
    // Histo Getters
    buffer.AppendFormatted("// Histo\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
@@ -3912,7 +3923,13 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("}\n");
          }
          buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
+         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive()",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
+         int index = taskHierarchyParentIndex[i];
+         while (index!=-1) {
+            buffer.AppendFormatted(" && ((%sT%s*)GetTaskObjectAt(%d))->IsActive()",shortCut.Data(),taskHierarchyName[index].Data(),taskHierarchyObjectIndex[index]);
+            index = taskHierarchyParentIndex[index];
+         }
+         buffer.AppendFormatted(";\n");
          buffer.AppendFormatted("}\n");
       }
    }
@@ -4432,9 +4449,15 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    buffer.AppendFormatted("\n");
 
-   // Task Switches
-   buffer.AppendFormatted("   // Task Switches\n");
+   // Tasks
+   buffer.AppendFormatted("   // Tasks\n");
    buffer.AppendFormatted("   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      buffer.AppendFormatted("   bool Is%sActive();\n",taskHierarchyName[i].Data());
+   }
    buffer.AppendFormatted("\n");
 
    // Data Base
