@@ -54,18 +54,21 @@ void ROMETask::Exec(Option_t *option)
       fWatchEvent.Reset();
       fWatchAll.Reset();
       BookHisto();
+      gROME->PrintVerbose("Executing %s::Init", this->ClassName());
       Init();
    }
    else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
       fWatchAll.Start(false);
+      gROME->PrintVerbose("Executing %s::BeginOfRun", this->ClassName());
       BeginOfRun();
       fWatchAll.Stop();
    }
    else if (!strncmp(option,"EndOfRun",8)) {
       fCurrentEventMethod = "EndOfRun";
       fWatchAll.Start(false);
+      gROME->PrintVerbose("Executing %s::EndOfRun", this->ClassName());
       EndOfRun();
       fWatchAll.Stop();
    }
@@ -74,6 +77,7 @@ void ROMETask::Exec(Option_t *option)
       ROMEString name;
       int nchars;
       fCurrentEventMethod = "Terminate";
+      gROME->PrintVerbose("Executing %s::Terminate", this->ClassName());
       Terminate();
 
       nchars = 0;
@@ -106,8 +110,10 @@ void ROMETask::Exec(Option_t *option)
       fCurrentEventMethod = "Event";
       fWatchAll.Start(false);
       fWatchEvent.Start(false);
-      if (gROME->isFillEvent())
+      if (gROME->isFillEvent()) {
+         gROME->PrintVerbose("Executing %s::Event", this->ClassName());
          Event();
+      }
       fWatchEvent.Stop();
       fWatchAll.Stop();
    }
