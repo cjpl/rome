@@ -18,9 +18,11 @@ ARGUSProjects = argus/file/flmonitor.exe \
                 argus/tabs/tbmonitor.exe \
                 argus/helloWorld/hwmonitor.exe \
                 argus/histogram/romeproject/hgframework.exe \
-                argus/histogram/hgmonitor.exe \
-                argus/folders/romeproject/foframework.exe \
-                argus/folders/fomonitor.exe
+                argus/histogram/hgmonitor.exe
+ifdef MIDASSYS
+ARGUSProjects += argus/folders/romeproject/foframework.exe \
+                 argus/folders/fomonitor.exe
+endif
 
 all: rome argus
 rome: $(ROMEProjects)
