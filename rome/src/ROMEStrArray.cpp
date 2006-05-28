@@ -193,3 +193,20 @@ Int_t ROMEStrArray::LowerBound() const
 void ROMEStrArray::Expand(Int_t newSize) {
    array->Expand(newSize);
 }
+
+Int_t ROMEStrArray::IndexOf(const char *text) const
+{
+   // obj != 0 Return index of object in array.
+   //          Returns -1 in case array doesn't contain the obj.
+   //
+   // obj == 0 return -1.
+   if (!text)
+      return -1;
+
+   Int_t i;
+   for (i = 0; i < array->GetEntriesFast(); i++)
+      if (static_cast<TObjString*>(array->At(i))->GetString() == text)
+         return i;
+   
+   return -1;
+}

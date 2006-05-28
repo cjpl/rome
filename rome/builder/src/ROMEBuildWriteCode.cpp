@@ -9674,7 +9674,10 @@ void ROMEBuilder::WriteHTMLDoku()
       buffer.AppendFormatted("<p>\n");
       buffer.AppendFormatted("<u>Fields</u>\n");
       buffer.AppendFormatted("<table>\n");
-      buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
+      if (folderDataBase[i])
+         buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Database</td><td>Description</td></tr>\n");
+      else
+         buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
          ROMEString comment = valueComment[i][j];
          if (valueComment[i][j].Length()>3) {
@@ -9682,8 +9685,53 @@ void ROMEBuilder::WriteHTMLDoku()
                comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
             }
          }
-         buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data(),comment.Data());
+         buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td>",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data());
+         if (folderDataBase[i]) {
+            if (valueDBPath[i][j].Length() || valueDBName[i][j].Length())
+               buffer.AppendFormatted("<td><center><a href=\"#db_%s_%s\">Yes</a></center></td>",folderName[i].Data(),valueName[i][j].Data());
+            else
+               buffer.AppendFormatted("<td><center>No</center></td>");
+         }
+         buffer.AppendFormatted("<td>&nbsp;%s&nbsp;</td></tr>\n",comment.Data());
          trodd = !trodd;
+      }
+      buffer.AppendFormatted("</table><br>\n");
+   }
+   buffer.AppendFormatted("<p>\n");
+
+   ROMEStrArray dbList;
+   dbList.RemoveAll();
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (numOfValue[i] <= 0) continue;
+      if (!folderDataBase[i]) continue;
+      for (j=0;j<numOfValue[i];j++) {
+         if (!valueDBPath[i][j].Length() && !valueDBName[i][j].Length()) continue;
+         if (dbList.IndexOf(valueDBName[i][j]) < 0)
+            dbList.Add(valueDBName[i][j]);
+      }
+   }
+   if (dbList.GetEntries() > 0) {
+      buffer.AppendFormatted("List of defualt database connections. These values can be overwritten by configuration file.\n");
+      buffer.AppendFormatted("<p>\n");
+   }
+   Int_t iDB;
+   for (iDB=0;iDB<dbList.GetEntries();iDB++) {
+      buffer.AppendFormatted("<u>%s</u>\n", dbList.At(iDB).Data());
+      buffer.AppendFormatted("<table>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Folder/Field</td><td>Database name</td><td>Database path</td></tr>\n");
+      for (i=0;i<numOfFolder;i++) {
+         if (!folderUsed[i])
+            continue;
+         if (numOfValue[i] <= 0) continue;
+         if (!folderDataBase[i]) continue;
+         for (j=0;j<numOfValue[i];j++) {
+            if (!valueDBPath[i][j].Length() && !valueDBName[i][j].Length()) continue;
+            if (dbList.At(iDB) == valueDBName[i][j])
+               buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;<a name = db_%s_%s>%s/%s</a>&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),valueDBName[i][j].Data(),valueDBPath[i][j].Data());
+            trodd = !trodd;
+         }
       }
       buffer.AppendFormatted("</table><br>\n");
    }
