@@ -9720,7 +9720,7 @@ void ROMEBuilder::WriteHTMLDoku()
    for (iDB=0;iDB<dbList.GetEntries();iDB++) {
       buffer.AppendFormatted("<u>%s</u>\n", dbList.At(iDB).Data());
       buffer.AppendFormatted("<table>\n");
-      buffer.AppendFormatted("<tr class=\"cont\"><td>Folder/Field</td><td>Database name</td><td>Database path</td></tr>\n");
+      buffer.AppendFormatted("<tr class=\"cont\"><td>Folder</td><td>Field</td><td>Database name</td><td>Database path</td></tr>\n");
       for (i=0;i<numOfFolder;i++) {
          if (!folderUsed[i])
             continue;
@@ -9729,7 +9729,7 @@ void ROMEBuilder::WriteHTMLDoku()
          for (j=0;j<numOfValue[i];j++) {
             if (!valueDBPath[i][j].Length() && !valueDBName[i][j].Length()) continue;
             if (dbList.At(iDB) == valueDBName[i][j])
-               buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;<a name = db_%s_%s>%s/%s</a>&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data(),valueDBName[i][j].Data(),valueDBPath[i][j].Data());
+               buffer.AppendFormatted("<tr class=\"%s\"><td>%s</td><td>&nbsp;<a name = db_%s_%s>%s</a>&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",folderName[i].Data(),folderName[i].Data(),valueName[i][j].Data(),valueName[i][j].Data(),valueDBName[i][j].Data(),valueDBPath[i][j].Data());
             trodd = !trodd;
          }
       }
