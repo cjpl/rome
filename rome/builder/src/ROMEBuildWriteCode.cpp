@@ -6018,6 +6018,16 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+   // Modes/VerboseMode
+   subGroup->AddParameter(new ROMEConfigParameter("VerboseMode","1","CheckButton"));
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetVerboseMode(true);");
+   subGroup->GetLastParameter()->AddSetLine("else");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetVerboseMode(false);");
+   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isVerboseMode())");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+   subGroup->GetLastParameter()->AddWriteLine("else");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/ShowSplashScreen
    subGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
@@ -8698,7 +8708,11 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
             buffer.AppendFormatted("\n         ,gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
          buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("   if (name.Length() && path.Length() && isDataBaseActive(name.Data())) {\n");
-         buffer.AppendFormatted("      if (!this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
+         buffer.AppendFormatted("      gAnalyzer->PrintVerbose(\"Reading database %%s(type=%%s, path=%%s)\",name.Data(),this->GetDataBase(name.Data())->GetType(),path.Data());\n");
+         buffer.AppendFormatted("      if (this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
+         buffer.AppendFormatted("         gAnalyzer->PrintVerbose(\"%s/%s was filled.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      else {\n");
          buffer.AppendFormatted("         gAnalyzer->PrintLine(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         return false;\n");
          buffer.AppendFormatted("      }\n");

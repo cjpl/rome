@@ -91,6 +91,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t argus)
    fAnalysisMode = kAnalyzeOffline;
    fBatchMode = false;
    fQuitMode = false;
+   fVerboseMode = false;
    fSplashScreen = true;
    fGraphicalConfigEdit = true;
    fDontReadNextEvent = false;
@@ -167,6 +168,7 @@ ROMEAnalyzer::~ROMEAnalyzer() {
 
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
+   PrintVerbose("Starting analyzer");
 // Starts the ROME Analyzer
    ROMEString text;
 
@@ -174,6 +176,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    cm_set_msg_print(0,0,NULL);
 #endif
 
+   PrintVerbose("Executing init tasks");
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
@@ -265,11 +268,25 @@ void ROMEAnalyzer::PrintFlush(const char* text)
    return;
 }
 
+void ROMEAnalyzer::PrintVerbose(const char* va_(fmt),...)
+{
+   if (!fVerboseMode)
+      return;
+   if (va_(fmt)==NULL)
+      return;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   PrintText("DEBUG :");
+   PrintLine(ROMEString::Format(va_(fmt), ap));
+   va_end(ap);
+}
+
 void ROMEAnalyzer::ParameterUsage()
 {
    gROME->PrintLine("  -i       Configuration file");
    gROME->PrintLine("  -b       Batch Mode (no Argument)");
    gROME->PrintLine("  -q       Quit Mode (no Argument)");
+   gROME->PrintLine("  -v       Verbose Mode (no Argument)");
    gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
    gROME->PrintLine("  -m       Analysing Mode : (online/[offline])");
    gROME->PrintLine("  -r       Runnumbers");
@@ -287,6 +304,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    ROMEString configFile("");
 
+   PrintVerbose("Reading command line options");
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help")) {
          ParameterUsage();
@@ -445,12 +463,16 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
    }
 
+   PrintVerbose("Reading command line options");
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-b")) {
          fBatchMode = true;
       }
       else if (!strcmp(argv[i],"-q")) {
          fQuitMode = true;
+      }
+      else if (!strcmp(argv[i],"-v")) {
+         fVerboseMode = true;
       }
       else if (!strcmp(argv[i],"-ns")) {
          fSplashScreen = false;
