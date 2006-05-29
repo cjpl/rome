@@ -2367,6 +2367,8 @@ Bool_t ROMEBuilder::WriteTaskH()
       else
          buffer.AppendFormatted("inline Int_t %sT%s::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   ROMEString path = objectPath;\n");
+      buffer.AppendFormatted("   if (path.Index(\"/\")==-1 && path.Index(\"gAnalyzer->\")==-1)\n");
+      buffer.AppendFormatted("      return -1;\n");
       buffer.AppendFormatted("   if (path.Index(\"/SP\")==0 || path.Index(\"gAnalyzer->GetSP()\")==0) {\n");
       ROMEString path1 = "/SP";
       ROMEString path2 = "gAnalyzer->GetSP()";
@@ -3881,6 +3883,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    int codeNumber = 0;
    buffer.AppendFormatted("Int_t %sAnalyzer::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data());
    buffer.AppendFormatted("   ROMEString path = objectPath;\n");
+   buffer.AppendFormatted("   if (path.Index(\"/\")==-1 && path.Index(\"gAnalyzer->\")==-1)\n");
+   buffer.AppendFormatted("      return -1;\n");
    buffer.AppendFormatted("   if (path.Index(\"/GSP\")==0 || path.Index(\"gAnalyzer->GetGSP()\")==0) {\n");
    ROMEString path1 = "/GSP";
    ROMEString path2 = "gAnalyzer->GetGSP()";
