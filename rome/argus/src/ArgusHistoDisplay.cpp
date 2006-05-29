@@ -203,13 +203,13 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
             }
             else {
                fMenuView->CheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
-               fPadConfigActive = true;
                fDialog = new XMLToForm(gClient->GetRoot(),this,"res/xmltoform/PadConfigDia.xml",&exitID);
                if (exitID==1) {
                   for (i=0;i<kMaxNumberOfPads;i++) {
                      sprintf(str,"Pad %d/Channel",i);
                      fPadConfigChannel[i] = fDialog->GetIntValue(str);
                   }
+                  fPadConfigActive = true;
                   fDialog->SaveForm();
                }
             }
@@ -424,6 +424,9 @@ void ArgusHistoDisplay::Modified(bool processEvents)
 {
    int i;
    double x1,x2,y1,y2;
+
+   if (!fCanvas)
+      return;
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
