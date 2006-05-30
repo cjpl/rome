@@ -75,105 +75,9 @@ void ArgusHistoDisplay::BaseInit()
 void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
 {
    fTabActive = true;
-   int exitID=1,i;
-   char str[200];
+   int exitID=1,i,j;
+   ROMEString str;
    switch (param) {
-      case M_ARGUS_DISPLAY_VIEW_1_1:
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(1, 1,true);
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_1_2:
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(1, 2,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_2_2:
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_2_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 2,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_3_2:  
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_3_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 3,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_4_2:  
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_4_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 4,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_5_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_5_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 5,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_6_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_6_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 6,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_7_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_7_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 7,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_8_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_8_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 8,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_9_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_9_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 9,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_10_2: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_10_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(2, 10,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_1_3: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(3, 1,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_2_3: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_2_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(3, 2,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_3_3: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_3_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(3, 3,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_4_3: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_4_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(3, 4,true); 
-            break;
-         }
-      case M_ARGUS_DISPLAY_VIEW_5_3: 
-         {
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_5_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-            SetupPads(3, 5,true); 
-            break;
-         }
       case M_ARGUS_DISPLAY_VIEW_NEXT:
          {
             fChannelNumber += fNumberOfPads;
@@ -192,7 +96,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
          {
             fChannelNumber = 0;
             SetupPads(1, 1,true); 
-            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
+            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
             break;
          }
       case M_ARGUS_DISPLAY_VIEW_PAD_CONFIG: 
@@ -203,18 +107,35 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
             }
             else {
                fMenuView->CheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
-               fDialog = new XMLToForm(gClient->GetRoot(),this,"res/xmltoform/PadConfigDia.xml",&exitID);
+               ROMEStrArray* substitutes = new ROMEStrArray(fNumberOfPads);
+               for (i=0;i<fNumberOfPads;i++) {
+                  str.SetFormatted("Pad %d",i);
+                  substitutes->Add(str.Data());
+               }
+               fDialog = new XMLToForm(gClient->GetRoot(),this,"res/xmltoform/PadConfigDia.xml",&exitID,substitutes);
                if (exitID==1) {
                   for (i=0;i<kMaxNumberOfPads;i++) {
-                     sprintf(str,"Pad %d/Channel",i);
-                     fPadConfigChannel[i] = fDialog->GetIntValue(str);
+                     str.SetFormatted("Pad %d/Channel",i);
+                     fPadConfigChannel[i] = fDialog->GetIntValue(str.Data());
                   }
                   fPadConfigActive = true;
                   fDialog->SaveForm();
                }
+               else
+                  fMenuView->UnCheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
+               delete substitutes;
             }
             break;
          }
+   }
+   for (i=0;i<kMaxNumberOfPadsX;i++) {
+      for (j=0;j<kMaxNumberOfPadsY;j++) {
+         if (param == M_ARGUS_DISPLAY_VIEW[i][j]) {
+            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
+            SetupPads(i+1, j+1,true);
+            break;
+         }
+      }
    }
    for (i=0;i<80;i++) {
       if (param == M_ARGUS_DISPLAY_VIEW_SELECT+i) { 
@@ -228,7 +149,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
 
 void ArgusHistoDisplay::BaseTabSelected()
 {
-   int i;
+   int i,j;
    ROMEString str;
    // Create menu
 
@@ -246,22 +167,16 @@ void ArgusHistoDisplay::BaseTabSelected()
    fMenuView40_59->Associate(gROME->GetWindow());
    fMenuView60_79 = new TGPopupMenu(fClient->GetRoot());
    fMenuView60_79->Associate(gROME->GetWindow());
-   fMenuViewDivide->AddEntry("1x1", M_ARGUS_DISPLAY_VIEW_1_1);
-   fMenuViewDivide->AddEntry("1x2", M_ARGUS_DISPLAY_VIEW_1_2);
-   fMenuViewDivide->AddEntry("2x2", M_ARGUS_DISPLAY_VIEW_2_2);
-   fMenuViewDivide->AddEntry("3x2", M_ARGUS_DISPLAY_VIEW_3_2);
-   fMenuViewDivide->AddEntry("4x2", M_ARGUS_DISPLAY_VIEW_4_2);
-   fMenuViewDivide->AddEntry("5x2", M_ARGUS_DISPLAY_VIEW_5_2);
-   fMenuViewDivide->AddEntry("6x2", M_ARGUS_DISPLAY_VIEW_6_2);
-   fMenuViewDivide->AddEntry("7x2", M_ARGUS_DISPLAY_VIEW_7_2);
-   fMenuViewDivide->AddEntry("8x2", M_ARGUS_DISPLAY_VIEW_8_2);
-   fMenuViewDivide->AddEntry("9x2", M_ARGUS_DISPLAY_VIEW_9_2);
-   fMenuViewDivide->AddEntry("10x2", M_ARGUS_DISPLAY_VIEW_10_2);
-   fMenuViewDivide->AddEntry("1x3", M_ARGUS_DISPLAY_VIEW_1_3);
-   fMenuViewDivide->AddEntry("2x3", M_ARGUS_DISPLAY_VIEW_2_3);
-   fMenuViewDivide->AddEntry("3x3", M_ARGUS_DISPLAY_VIEW_3_3);
-   fMenuViewDivide->AddEntry("4x3", M_ARGUS_DISPLAY_VIEW_4_3);
-   fMenuViewDivide->AddEntry("5x3", M_ARGUS_DISPLAY_VIEW_5_3);
+   for (i=0;i<kMaxNumberOfPadsX;i++) {
+      fMenuViewDivideColumn[i] = new TGPopupMenu(fClient->GetRoot());
+      fMenuViewDivideColumn[i]->Associate(gROME->GetWindow());
+      for (j=0;j<kMaxNumberOfPadsY;j++) {
+         str.SetFormatted("%dx%d",i+1,j+1);
+         fMenuViewDivideColumn[i]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW[i][j]);
+      }
+      str.SetFormatted("%dx.",i+1);
+      fMenuViewDivide->AddPopup(str.Data(), fMenuViewDivideColumn[i]);
+   }
    fMenuView->AddPopup("Divide", fMenuViewDivide);
    for (i=0;i<20;i++) {
       str.SetFormatted("%d",i);
@@ -292,44 +207,23 @@ void ArgusHistoDisplay::BaseTabSelected()
    gROME->GetWindow()->GetMenuBar()->AddPopup("Display", fMenuDisplay, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
    gROME->GetWindow()->GetMenuBar()->AddPopup("View", fMenuView, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 0, 0));
 
-   if (fNumberOfPadsX==1 && fNumberOfPadsY==1)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==1 && fNumberOfPadsY==2)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==2)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_2_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==3)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_3_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==4)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_4_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==5)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_5_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==6)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_6_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==7)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_7_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==8)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_8_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==9)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_9_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==2 && fNumberOfPadsY==10)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_10_2,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==3 && fNumberOfPadsY==1)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_1_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==3 && fNumberOfPadsY==2)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_2_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==3 && fNumberOfPadsY==3)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_3_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==3 && fNumberOfPadsY==4)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_4_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
-   if (fNumberOfPadsX==3 && fNumberOfPadsY==5)
-      fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW_5_3,M_ARGUS_DISPLAY_VIEW_1_1,M_ARGUS_DISPLAY_VIEW_5_3);
+   for (i=0;i<kMaxNumberOfPadsX;i++) {
+      for (j=0;j<kMaxNumberOfPadsY;j++) {
+         if (fNumberOfPadsX==i+1 && fNumberOfPadsY==j+1)
+            fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[fNumberOfPadsX-1][fNumberOfPadsY-1]);
+      }
+   }
    SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);
+   fChannelNumber = 0;
 }
 void ArgusHistoDisplay::BaseTabUnSelected()
 {
    while (fTabActive)
       gSystem->Sleep(10);
+
+   int i;
+   ROMEString str;
+
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("Display");
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("View");
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("Divide");
@@ -337,6 +231,10 @@ void ArgusHistoDisplay::BaseTabUnSelected()
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("20-39");
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("40-59");
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("60-79");
+   for (i=0;i<kMaxNumberOfPadsX;i++) {
+      str.SetFormatted("%dx.",i+1);
+      delete gROME->GetWindow()->GetMenuBar()->RemovePopup(str.Data());
+   }
 }
 
 void ArgusHistoDisplay::SetStatisticBox(bool flag)

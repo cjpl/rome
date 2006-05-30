@@ -42,6 +42,7 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
          if (!Substitute(titleValueT,titleValue)) {
             visible = false;
             nFrames++;
+            frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
             continue;
          }
          currentPath = frame->GetFramePath().Data();
@@ -58,9 +59,10 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
             vertical = true;
 
          nFrames++;
+         frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
       }
       // tab
-      if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"Tab")) {
+      else if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"Tab")) {
          nTabTags++;
          currentPath.SetFormatted("%s/Tab[%d]/TabTitle",frame->GetFramePath().Data(),nTabTags);
          fXML->GetPathValue(currentPath,titleValueT);
@@ -68,6 +70,7 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
             visible = false;
             nFrames++;
             nTabs++;
+            frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
             continue;
          }
          currentPath = frame->GetFramePath().Data();
@@ -77,9 +80,18 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
          tabIndex = nTabs;
          nFrames++;
          nTabs++;
+         frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
       }
-      frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
    }
+   visible = false;
+   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
+      if (frame->GetSubFrameAt(i)->IsFrameVisible()) {
+         visible = true;
+         break;
+      }
+   }
+   if (frame->GetNumberOfSubFrames()>0 && !visible)
+      frame->SetFrameVisible(false);
 }
 void XMLToForm::XMLToClass(XMLToFormFrame *frame)
 {

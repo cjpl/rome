@@ -93,6 +93,7 @@ public:
    bool IsFrameVertical() { return fFrameVertical; };
    bool IsFrameTab() { return fFrameTab; };
    bool IsFrameVisible() { return fFrameVisible; };
+   void SetFrameVisible(bool visible) { fFrameVisible = visible; };
    int  GetFrameTabIndex() { return fFrameTabIndex; };
    // Element Data Getter
    XMLToFormElement* GetElementAt(int i) { return ((XMLToFormElement*)fElements.At(i)); };

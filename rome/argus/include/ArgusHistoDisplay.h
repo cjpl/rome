@@ -41,7 +41,9 @@ class ArgusHistoDisplay : public ArgusTab
 {
 protected:
    enum {
-      kMaxNumberOfPads = 20,
+      kMaxNumberOfPads = 120,
+      kMaxNumberOfPadsX = 6,
+      kMaxNumberOfPadsY = 20
    };
    enum DisplayTypes {
       kNoDisplay,
@@ -50,29 +52,14 @@ protected:
       kTH2FDisplay
    };
    enum MenuEnumeration {
-      M_ROOT = 600,
-      M_ARGUS_DISPLAY_VIEW_1_1,
-      M_ARGUS_DISPLAY_VIEW_1_2,
-      M_ARGUS_DISPLAY_VIEW_2_2,
-      M_ARGUS_DISPLAY_VIEW_3_2,
-      M_ARGUS_DISPLAY_VIEW_4_2,
-      M_ARGUS_DISPLAY_VIEW_5_2,
-      M_ARGUS_DISPLAY_VIEW_6_2,
-      M_ARGUS_DISPLAY_VIEW_7_2,
-      M_ARGUS_DISPLAY_VIEW_8_2,
-      M_ARGUS_DISPLAY_VIEW_9_2,
-      M_ARGUS_DISPLAY_VIEW_10_2,
-      M_ARGUS_DISPLAY_VIEW_1_3,
-      M_ARGUS_DISPLAY_VIEW_2_3,
-      M_ARGUS_DISPLAY_VIEW_3_3,
-      M_ARGUS_DISPLAY_VIEW_4_3,
-      M_ARGUS_DISPLAY_VIEW_5_3,
+      M_ROOT = 700,
       M_ARGUS_DISPLAY_VIEW_NEXT,
       M_ARGUS_DISPLAY_VIEW_PREVIOUS,
       M_ARGUS_DISPLAY_VIEW_RESET,
       M_ARGUS_DISPLAY_VIEW_PAD_CONFIG,
       M_ARGUS_DISPLAY_VIEW_SELECT
    };
+   int M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX][kMaxNumberOfPadsY];
 
 protected:
    TGMenuBar*   fMenuBar;          //! menu bar
@@ -83,6 +70,7 @@ protected:
    TGPopupMenu* fMenuView20_39; //!
    TGPopupMenu* fMenuView40_59; //!
    TGPopupMenu* fMenuView60_79; //!
+   TGPopupMenu* fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
    TGHProgressBar *fProgress; //! 
    TRootEmbeddedCanvas *fStatus,*fStatusText; //! 
    TText *fText; //! 
@@ -122,6 +110,12 @@ protected:
 public:
    ArgusHistoDisplay():ArgusTab()
    {
+      int i,j;
+      for (i=0;i<kMaxNumberOfPadsX;i++) {
+         for (j=0;j<kMaxNumberOfPadsY;j++) {
+            M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-200+i*kMaxNumberOfPadsY+j;
+         }
+      }
       fDisplayType = kNoDisplay;
       fDisplayObjIndex = 0;
       fInherited = false;
