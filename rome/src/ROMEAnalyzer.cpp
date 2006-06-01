@@ -492,7 +492,6 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-o")) {
          ((ROMEEventLoop*)fMainTask)->SetContinuousMode(false);
-         i++;
       }
       else if (!strcmp(argv[i],"-i")) {
          i++;
