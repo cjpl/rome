@@ -154,7 +154,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the steering parameter field. This is used for selecting a subgroup of all steering parameter fields for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the steering parameter fields belonging to that group will be linked into the project. The steering parameter field can have multiple affiliations, then the steering parameter field is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 					</xs:annotation>
@@ -198,7 +198,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the steering parameter group. This is used for selecting a subgroup of all steering parameter groups for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the steering parameter groups belonging to that group will be linked into the project. The steering parameter group can have multiple affiliations, then the steering parameter group is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 					</xs:annotation>
@@ -281,7 +281,7 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the folder. This is used for selecting a subgroup of all folders for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the folders belonging to that group will be linked into the project. The folder can have multiple affiliations, then the folder is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 					</xs:annotation>
@@ -566,7 +566,7 @@
 						<xs:documentation>If this value is 'true', the task will have a class file (.h), that can be modified by the user. Therefore the romebuilder will not overwrite the class file. Default is false.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the task. This is used for selecting a subgroup of all tasks for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the tasks belonging to that group will be linked into the project. The task can have multiple affiliations, then the task is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 					</xs:annotation>
@@ -696,7 +696,7 @@
 			<xs:documentation>Description of ThreadFunction.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="FunctionName" type="xs:string" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="FunctionName" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Name of a thread function.</xs:documentation>
 				</xs:annotation>
@@ -720,6 +720,40 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="DisplayObjectDesc">
+		<xs:annotation>
+			<xs:documentation>Description of an object in a histogram display.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="ObjectName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Name of the object.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ObjectTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Title of the object.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Object" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>Object reference. This can be either the name of a histogram or TH1F, TH2F or TGraph. If a histogram name is specified this histogram will be displayed. If a histogram or graph class name is specified then the objects have to be filled by the user code. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DisplayObjectsDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the objects in a histogram display.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="DisplayObject" type="DisplayObjectDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Defines an object in a histogram display.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="TabDesc">
 		<xs:annotation>
 			<xs:documentation>Description of Tabs. Only used for ARGUS displays.</xs:documentation>
@@ -736,7 +770,12 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="HistogramDisplay" type="xs:boolean" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>If this value is 'true', the tab will be a histogram display. Default is false.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Affiliation of the tab. This is used for selecting a subgroup of all tabs for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the tabs belonging to that group will be linked into the project. The tab can have multiple affiliations, then the tab is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 					</xs:annotation>
@@ -761,19 +800,24 @@
 						<xs:documentation>Name of tab from which this tab will be derived.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Defines the steering parameters of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="ThreadFunctions" type="ThreadFunctionsDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="ThreadFunctions" type="ThreadFunctionsDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Defines the thread functions of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Menus" type="MenusDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="Menus" type="MenusDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Defines the menus of the Tab.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="DisplayObjects" type="DisplayObjectsDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Defines the objects in a histogram display.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">
@@ -857,7 +901,7 @@
 					<xs:documentation>The name of the DAQ system. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Affiliation of the DAQ system. This is used for selecting a subgroup of all DAQ systems for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the DAQ systems belonging to that group will be linked into the project. The DAQ system can have multiple affiliations, then the DAQ system is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 				</xs:annotation>
@@ -879,7 +923,7 @@
 					<xs:documentation>The description of the database interface. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Affiliation" type="xs:string" default="" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Affiliation of the database. This is used for selecting a subgroup of all databases for the generated project. If the ROMEBuilder is started with a '-a [Affiliation]' command line parameter only the databases belonging to that group will be linked into the project. The database can have multiple affiliations, then the database is linked into the project when one of the affiliations is given on the command line. Default is no affiliation.</xs:documentation>
 				</xs:annotation>

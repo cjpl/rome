@@ -227,6 +227,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskHierarchyMultiplicity = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
    taskHierarchyLevel = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
    taskHierarchyObjectIndex = static_cast<Int_t*>(AllocateInt(2*maxNumberOfTasks));
+   taskHierarchySuffix = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
 
    // steering
    numOfSteering = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1));
@@ -252,6 +253,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 
    // tab
    tabName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabSuffix = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabHistoDisplay = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
    numOfTabAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
