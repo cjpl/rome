@@ -8906,14 +8906,15 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          }
          if (!folderUsed[iFold])
             continue;
-         buffer.AppendFormatted("   if(gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d))\n",i,j);
+         buffer.AppendFormatted("   if(gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)) {\n",i,j);
          if (folderArray[iFold]=="1") {
             buffer.AppendFormatted("      tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
          else {
             buffer.AppendFormatted("      tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
          }
-         buffer.AppendFormatted("   tree->GetBranch(\"%s\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),i);
+         buffer.AppendFormatted("      tree->GetBranch(\"%s\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),i);
+         buffer.AppendFormatted("   }\n");
       }
    }
    buffer.AppendFormatted("}\n\n");
@@ -9309,6 +9310,15 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   if (strcmp(gROOT->GetVersion(),ROOT_RELEASE)) {\n");
+   buffer.AppendFormatted("      cerr<<\"Version of ROOT which is used when compiling and running are different.\"<<endl;\n");
+   buffer.AppendFormatted("      cerr<<\"(\"<<ROOT_RELEASE<<\" and \"<<gROOT->GetVersion()<<\")\"<<endl;\n");
+   buffer.AppendFormatted("      cerr<<\"Please rebuild\"<<endl;\n");
+   buffer.AppendFormatted("      cerr<<\"   make -k clean;\"<<endl;\n");
+   buffer.AppendFormatted("      cerr<<\"   make -k build;\"<<endl;\n");
+   buffer.AppendFormatted("      return 1;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   bool graphics = true;\n");
    buffer.AppendFormatted("   char str[200];\n");
