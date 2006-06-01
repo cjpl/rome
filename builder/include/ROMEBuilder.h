@@ -215,6 +215,7 @@ protected:
    Int_t        *taskHierarchyMultiplicity;
    Int_t        *taskHierarchyLevel;
    Int_t        *taskHierarchyObjectIndex;
+   ROMEString   *taskHierarchySuffix;
 
 // steering
    Int_t        *numOfSteering;
@@ -243,6 +244,7 @@ protected:
 // tab
    Int_t         numOfTab;
    ROMEString   *tabName;
+   ROMEString   *tabSuffix;
    ROMEString   *tabTitle;
    Bool_t       *tabHistoDisplay;
    Int_t        *numOfTabAffiliations;

@@ -119,6 +119,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskHierarchyMultiplicity;
    delete [] taskHierarchyLevel;
    delete [] taskHierarchyObjectIndex;
+   delete [] taskHierarchySuffix;
 
    // steering
    delete [] numOfSteering;
@@ -144,6 +145,7 @@ ROMEBuilder::~ROMEBuilder()
 
    // tab
    delete [] tabName;
+   delete [] tabSuffix;
    delete [] tabTitle;
    delete [] numOfTabAffiliations;
    delete [] tabAffiliation;
@@ -325,12 +327,58 @@ Bool_t ROMEBuilder::StartBuilder()
          tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1+tabHistoArrayIndexEnd[i][j]-tabHistoArrayIndexStart[i][j],tabHistoIndexMax[i]);
       }
    }
-   // fill task hierarchy index
+   // fill task hierarchy index and suffix
    Int_t taskIndex = 0;
+   Int_t suffixNumber = 0;
+   Int_t multiplicity = 0;
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       taskHierarchyObjectIndex[i] = taskIndex++;
+      suffixNumber = 0;
+      multiplicity = 0;
+      for (j=0;j<numOfTaskHierarchy;j++) {
+         if (j!=i && taskHierarchyName[i]==taskHierarchyName[j]) {
+            multiplicity++;
+            if (j<i)
+               suffixNumber++;
+         }
+      }
+      if (multiplicity>0) {
+         if (multiplicity<=9)
+            taskHierarchySuffix[i].SetFormatted("_%01d",suffixNumber);
+         if (multiplicity>9)
+            taskHierarchySuffix[i].SetFormatted("_%02d",suffixNumber);
+         if (multiplicity>99)
+            taskHierarchySuffix[i].SetFormatted("_%03d",suffixNumber);
+      }
+      else
+         taskHierarchySuffix[i] = "";
+   }
+
+   // fill tab suffix
+   for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
+      suffixNumber = 0;
+      multiplicity = 0;
+      for (j=0;j<numOfTab;j++) {
+         if (j!=i && tabName[i]==tabName[j]) {
+            multiplicity++;
+            if (j<i)
+               suffixNumber++;
+         }
+      }
+      if (multiplicity>0) {
+         if (multiplicity<=9)
+            tabSuffix[i].SetFormatted("_%01d",suffixNumber);
+         if (multiplicity>9)
+            tabSuffix[i].SetFormatted("_%02d",suffixNumber);
+         if (multiplicity>99)
+            tabSuffix[i].SetFormatted("_%03d",suffixNumber);
+      }
+      else
+         tabSuffix[i] = "";
    }
 
    // test for fortran
@@ -470,17 +518,17 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/ROMEDict.cpp");
          tempStr.AppendFormatted(" dict/ARGUSDict.cpp"); // currently no header when librome mode.
       }
-      if (hasFolderGenerated)
+      if (generatedFolderDictHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sGeneratedFolderDict.cpp",shortCut.Data());
-      if (hasFolderUserCode)
+      if (folderHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sFolderDict.cpp",shortCut.Data());
-      if (hasTaskGenerated)
+      if (generatedTaskDictHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sGeneratedTaskDict.cpp",shortCut.Data());
-      if (hasTaskUserCode)
+      if (taskHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sTaskDict.cpp",shortCut.Data());
-      if (numOfTab>0)
+      if (generatedTabDictHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sGeneratedTabDict.cpp",shortCut.Data());
-      if (numOfTab>0)
+      if (tabHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sTabDict.cpp",shortCut.Data());
       if (daqHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
