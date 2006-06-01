@@ -2648,6 +2648,13 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
       else
          buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
+      // Task class includes
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("#include \"%sT%s.h\"\n",shortCut.Data(),taskHierarchyName[i].Data());
+      }
+      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("#include \"Riostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
@@ -2772,18 +2779,18 @@ Bool_t ROMEBuilder::WriteTabH()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("      if (gAnalyzer->Get%s%s()->IsActive()) {\n",taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data());
                   if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                      buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                      buffer.AppendFormatted("         f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
-                     buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                     buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s%s()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),tabHistoName[iTab][j].Data());
                      buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
                   }
                   else {
                      for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
                         buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
                         buffer.AppendFormatted("         f%sPad%d_%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j,k);
-                        buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                        buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%s%s()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),tabHistoName[iTab][j].Data(),k);
                         buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
                      }
                   }
@@ -2881,9 +2888,9 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             if (tabObjectTaskIndex[iTab][i]!=-1) {
-               buffer.AppendFormatted("      if (fDisplayObjIndex==%d && gAnalyzer->Is%sActive()) {\n",i,histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               buffer.AppendFormatted("      if (fDisplayObjIndex==%d && gAnalyzer->Get%s%s()->IsActive()) {\n",i,taskHierarchyName[taskHierarchyClassIndex[tabObjectTaskIndex[iTab][i]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabObjectTaskIndex[iTab][i]]].Data());
                buffer.AppendFormatted("         for (i=0;i<%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-               buffer.AppendFormatted("            *fUser%s[i] = *(gAnalyzer->Get%sAt(i));\n",tabObjectType[iTab][i].Data(),histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               buffer.AppendFormatted("            *fUser%s[i] = *(gAnalyzer->Get%s%s()->Get%sAt(i));\n",tabObjectType[iTab][i].Data(),taskHierarchyName[taskHierarchyClassIndex[tabObjectTaskIndex[iTab][i]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabObjectTaskIndex[iTab][i]]].Data(),histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                buffer.AppendFormatted("         for (i=%s;i<fNumberOfUser%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data(),tabObjectType[iTab][i].Data());
                buffer.AppendFormatted("            *fUser%s[i] = *fUser%s[fNumberOfUser%s];\n",tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data());
                buffer.AppendFormatted("      }\n");
@@ -2893,16 +2900,16 @@ Bool_t ROMEBuilder::WriteTabH()
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
-               buffer.AppendFormatted("      if (gAnalyzer->Is%sActive()) {\n",tabHistoName[iTab][j].Data());
+               buffer.AppendFormatted("      if (gAnalyzer->Get%s%s()->IsActive()) {\n",taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data());
                if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
-                  buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s();\n",tabHistoName[iTab][j].Data(),j,tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s%s()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),tabHistoName[iTab][j].Data());
                   buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
                   buffer.AppendFormatted("            f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
                   buffer.AppendFormatted("         f%sPad%d->Modified();\n",tabHistoName[iTab][j].Data(),j);
                }
                else {
                   for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
-                     buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,tabHistoName[iTab][j].Data(),k);
+                     buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%s%s()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),taskHierarchySuffix[taskHierarchyClassIndex[tabHistoTaskIndex[iTab][j]]].Data(),tabHistoName[iTab][j].Data(),k);
                      buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
                      buffer.AppendFormatted("            f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
                      buffer.AppendFormatted("         f%sPad%d_%d->Modified();\n",tabHistoName[iTab][j].Data(),j,k);
@@ -3899,62 +3906,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      buffer.AppendFormatted("bool %sAnalyzer::Is%s%sActive() {\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
+      buffer.AppendFormatted("%sT%s* %sAnalyzer::Get%s%s() {\n",shortCut.Data(),taskHierarchyName[i].Data(),shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d));\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
       buffer.AppendFormatted("}\n");
    }
    buffer.AppendFormatted("\n");
 
-   // Histo Getters
-   buffer.AppendFormatted("// Histo\n");
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("%s* %sAnalyzer::Get%s() {\n",histoType[taskHierarchyClassIndex[i]][j].Data(),shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("}\n");
-         }
-         else {
-            buffer.AppendFormatted("TObjArray* %sAnalyzer::Get%s() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive())\n");
-            buffer.AppendFormatted("      return (TObjArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s\"));\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%s();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("}\n");
-            buffer.AppendFormatted("%s* %sAnalyzer::Get%sAt(Int_t index) {\n",histoType[taskHierarchyClassIndex[i]][j].Data(),shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   if (gAnalyzer->IsStandAloneARGUS() && IsSocketToROMEActive()) {\n");
-            buffer.AppendFormatted("      ROMEString name;\n");
-            buffer.AppendFormatted("      Int_t arrayStartIndex = 0;\n");
-            buffer.AppendFormatted("      arrayStartIndex = ((%sT%s*)GetTaskObjectAt(%d))->Get%sArrayStartIndex();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      name.SetFormatted(\"_%%0*d\",3,index+arrayStartIndex);\n");
-            buffer.AppendFormatted("      name.Insert(0,\"%s\");\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      return (%s*)(GetSocketToROMENetFolder()->FindObjectAny(name.Data()));\n",histoType[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("   else {\n");
-            buffer.AppendFormatted("      return ((%sT%s*)GetTaskObjectAt(%d))->Get%sAt(index);\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   }\n");
-            buffer.AppendFormatted("}\n");
-            buffer.AppendFormatted("int %sAnalyzer::GetNumberOf%s() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("   return Get%s()->GetEntriesFast();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("}\n");
-         }
-         buffer.AppendFormatted("bool %sAnalyzer::Is%sActive() {\n",shortCut.Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-         buffer.AppendFormatted("   return ((%sT%s*)GetTaskObjectAt(%d))->IsActive()",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyObjectIndex[i]);
-         int index = taskHierarchyParentIndex[i];
-         while (index!=-1) {
-            buffer.AppendFormatted(" && ((%sT%s*)GetTaskObjectAt(%d))->IsActive()",shortCut.Data(),taskHierarchyName[index].Data(),taskHierarchyObjectIndex[index]);
-            index = taskHierarchyParentIndex[index];
-         }
-         buffer.AppendFormatted(";\n");
-         buffer.AppendFormatted("}\n");
-      }
-   }
-   buffer.AppendFormatted("\n");
+   // Histos
+   buffer.AppendFormatted("// Histos\n");
    buffer.AppendFormatted("bool %sAnalyzer::ResetAllHistos() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i=0;\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
@@ -3962,11 +3921,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            buffer.AppendFormatted("   Get%s()->Reset();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   Get%s%s()->Get%s()->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   for (i=0;i<GetNumberOf%s();i++)\n",histoName[taskHierarchyClassIndex[i]][j].Data());
-            buffer.AppendFormatted("      Get%sAt(i)->Reset();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   for (i=0;i<Get%s%s()->Get%sArraySize();i++)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      Get%s%s()->Get%sAt(i)->Reset();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
       }
    }
@@ -4263,6 +4222,14 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    buffer.AppendFormatted("\n");
 
+   // Task class declaration
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      buffer.AppendFormatted("class %sT%s;\n",shortCut.Data(),taskHierarchyName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
+
    // Task Switches Structure
    buffer.AppendFormatted("// Task Switches Structure\n");
    buffer.AppendFormatted("typedef struct{\n");
@@ -4379,24 +4346,20 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    buffer.AppendFormatted("\n");
 
-   // Histo Getters
-   buffer.AppendFormatted("   // Histos\n");
-   for (i=0;i<numOfTask;i++) {
-      if (!taskUsed[i])
-         continue;
-      for (j=0;j<numOfHistos[i];j++) {
-         if (histoArraySize[i][j]=="1")
-            buffer.AppendFormatted("   %s* Get%s();\n",histoType[i][j].Data(),histoName[i][j].Data());
-         else {
-            buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[i][j].Data());
-            buffer.AppendFormatted("   %s* Get%sAt(Int_t index);\n",histoType[i][j].Data(),histoName[i][j].Data());
-            buffer.AppendFormatted("   int GetNumberOf%s();\n",histoName[i][j].Data());
-         }
-         buffer.AppendFormatted("   bool Is%sActive();\n",histoName[i][j].Data());
-      }
-   }
+   // Histos
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   bool ResetAllHistos();\n");
+   buffer.AppendFormatted("\n");
+
+   // Tasks
+   buffer.AppendFormatted("   // Tasks\n");
+   buffer.AppendFormatted("   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      buffer.AppendFormatted("   %sT%s* Get%s%s();\n",shortCut.Data(),taskHierarchyName[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+   }
    buffer.AppendFormatted("\n");
 
    // Tree Getters
@@ -4456,17 +4419,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
             buffer.AppendFormatted(format.Data(),folderName[i].Data(),valueName[i][j].Data(),"",folderName[i].Data(),valueName[i][j].Data());
          }
       }
-   }
-   buffer.AppendFormatted("\n");
-
-   // Tasks
-   buffer.AppendFormatted("   // Tasks\n");
-   buffer.AppendFormatted("   TaskSwitches* GetTaskSwitches() { return &fTaskSwitches; };\n");
-   buffer.AppendFormatted("\n");
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("   bool Is%s%sActive();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -8889,7 +8841,13 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sConfig.h\"\n",shortCut.Data());
-
+   // Task class includes
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      buffer.AppendFormatted("#include \"%sT%s.h\"\n",shortCut.Data(),taskHierarchyName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#include \"Riostream.h\"\n");
    buffer.AppendFormatted("#include \"include/generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
@@ -9199,16 +9157,16 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             buffer.AppendFormatted("   if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("      cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   else\n");
-            buffer.AppendFormatted("      %sTemp_%d->Copy(*gAnalyzer->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %sTemp_%d->Copy(*gAnalyzer->Get%s%s()->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
          else {
-            buffer.AppendFormatted("   nentry = gAnalyzer->Get%s()->GetEntries();\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("   nentry = gAnalyzer->Get%s%s()->Get%s()->GetEntries();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   for (i=0;i<nentry;i++) {\n");
-            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%s()->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
             buffer.AppendFormatted("         cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
-            buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%s%s()->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   };\n");
          }
       }
