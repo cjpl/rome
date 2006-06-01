@@ -3919,6 +3919,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Histos
    buffer.AppendFormatted("// Histos\n");
+   buffer.AppendFormatted("TH1* %sAnalyzer::GetHisto(const char* pathToHisto) {\n",shortCut.Data());
+   buffer.AppendFormatted("   return ((TH1*)GetMainHistoFolder()->FindObjectAny(pathToHisto));\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sAnalyzer::ResetAllHistos() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i=0;\n");
    for (i=0;i<numOfTaskHierarchy;i++) {
@@ -4353,6 +4357,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // Histos
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   TH1* GetHisto(const char* pathToHisto);\n");
    buffer.AppendFormatted("   bool ResetAllHistos();\n");
    buffer.AppendFormatted("\n");
 
