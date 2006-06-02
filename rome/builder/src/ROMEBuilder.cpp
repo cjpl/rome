@@ -62,6 +62,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] valueDBName;
    delete [] valueDBPath;
    delete [] valueNoBoundChech;
+   delete [] valueIsTObject;
 
    // net folder
    delete [] netFolderName;

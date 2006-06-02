@@ -170,6 +170,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    valueDBName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDBPath = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueNoBoundChech = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfValues));
+   valueIsTObject = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfValues));
 
    // net folder
    netFolderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
@@ -979,6 +980,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          valueComment[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDimension[numOfFolder][numOfValue[numOfFolder]] = 0;
          valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = false;
+         valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
          for (iDm=0;iDm<maxNumberOfValueDimension;iDm++)
             valueArray[numOfFolder][numOfValue[numOfFolder]][iDm] = "1";
          valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
@@ -996,6 +998,9 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             if (type == 1 && !strcmp((const char*)name,"FieldType")) {
                readType = true;
                xml->GetValue(valueType[numOfFolder][numOfValue[numOfFolder]],valueType[numOfFolder][numOfValue[numOfFolder]]);
+               if (valueType[numOfFolder][numOfValue[numOfFolder]].BeginsWith("T"))
+                  valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = true;
+               // set initial value
                if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TString" || valueType[numOfFolder][numOfValue[numOfFolder]] == "ROMEString")
                   valueInit[numOfFolder][numOfValue[numOfFolder]] = "' '";
                else if (valueType[numOfFolder][numOfValue[numOfFolder]] == "TRef")
@@ -1062,6 +1067,14 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                xml->GetValue(tmp,"false");
                if (tmp == "true")
                   valueNoBoundChech[numOfFolder][numOfValue[numOfFolder]] = true;
+            }
+            // ROOT object
+            if (type == 1 && !strcmp((const char*)name,"InheritTObject")) {
+               xml->GetValue(tmp,"false");
+               if (tmp == "true")
+                  valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = true;
+               else
+                  valueIsTObject[numOfFolder][numOfValue[numOfFolder]] = false;
             }
             // field end
             if (type == 15 && !strcmp((const char*)name,"Field"))
