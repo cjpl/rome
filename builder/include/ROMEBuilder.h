@@ -153,6 +153,7 @@ protected:
    ROMEString  **valueDBName;
    ROMEString  **valueDBPath;
    Bool_t      **valueNoBoundChech;
+   Bool_t      **valueIsTObject;
 
 // net folder
    Int_t         numOfNetFolder;
@@ -588,8 +589,6 @@ private:
    Bool_t  isTArrayType(TString &type) { return isTArrayType(type.Data()); };
    const char* TArray2StandardType(const char *type,ROMEString &standardType);
    const char* TArray2StandardType(TString &type,ROMEString &standardType) { return TArray2StandardType(type.Data(),standardType); };
-   Bool_t  isRootClassType(const char *type) { TString tmp=type; return isRootClassType(tmp); };
-   Bool_t  isRootClassType(TString &type) { ROMEString tmp=type; tmp.StripSpaces(); return tmp(0)=='T'; };
    Bool_t  isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
    Bool_t  isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
