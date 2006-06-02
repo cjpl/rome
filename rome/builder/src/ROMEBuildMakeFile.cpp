@@ -781,6 +781,8 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortCut.ToLower(tmp));
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
+   buffer.AppendFormatted("CXX := g++\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
    buffer.AppendFormatted("rootcflags := $(shell  $(ROOTSYS)/bin/root-config --cflags)\n");
@@ -980,7 +982,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
-   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp src/generated/%sDummy.cpp\n",dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp src/generated/%sDummy.cpp\n",dictionaryName,dictionaryName);
 #endif
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
@@ -1034,7 +1036,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp\n",shortCut.Data(),shortCut.Data());
 #endif
    WriteMakefileDictDummyCpp(dictionaryName.Data());
 
@@ -1082,9 +1084,9 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-      buffer.AppendFormatted("\tg++ $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
+      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\tg++ -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
@@ -1515,14 +1517,14 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\tg++ $(Flags) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("\t$(CXX) $(Flags) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
-   buffer.AppendFormatted("g++ $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("$(CXX) $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
@@ -1627,7 +1629,7 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("# 2) Add mySource.obj to the list of objects, e.g. objects += mySource.obj\n");
       usrBuffer.AppendFormatted("# 3) Add compile statment, e.g.\n");
       usrBuffer.AppendFormatted("#       obj/mySource.obj: mySource.cpp\n");
-      usrBuffer.AppendFormatted("#\tg++ -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
+      usrBuffer.AppendFormatted("#\t$(CXX) -c $(Flags) $(Includes) mySource.cpp -o obj/mySource.obj\n");
       usrBuffer.AppendFormatted("# 4) Add include paths for the rootcint, e.g. DictionaryIncludes += -ImyPath\n");
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");

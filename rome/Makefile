@@ -16,6 +16,9 @@ LIBROME = no
 # Compile mode for librome.a and romebuilder
 ROMEDEBUG = no
 
+# Compiler
+CXX = g++
+
 #####################################################################
 # Nothing needs to be modified after this line 
 #####################################################################
@@ -140,20 +143,20 @@ obj:
 	fi;
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 librome.a: $(LibObjects)
 	rm -f $@
 	ar -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	g++ $(CFLAGS) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CFLAGS) -c $(INCLUDE) -o $@ $<
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders)
@@ -162,13 +165,13 @@ ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	g++ $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 clean:
 	-rm -f $(BldObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
