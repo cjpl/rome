@@ -44,6 +44,7 @@ typedef struct {
 } Statistics;
 
 class ROMEAnalyzer;
+class ArgusWindow;
 extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
 class ROMEAnalyzer : public TObject

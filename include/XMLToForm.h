@@ -22,6 +22,8 @@
 #include <ROMEXML.h>
 #include "XMLToFormFrame.h"
 
+class XMLToFormWindow;
+
 class XMLToForm : public TObject
 {
    friend class XMLToFormWindow;
