@@ -4238,6 +4238,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("class %sT%s;\n",shortCut.Data(),taskHierarchyName[i].Data());
    }
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("class %sWindow;\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("class %sGlobalSteering;\n",shortCut.Data());
 
    // Task Switches Structure
    buffer.AppendFormatted("// Task Switches Structure\n");
