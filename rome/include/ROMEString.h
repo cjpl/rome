@@ -8,7 +8,7 @@
 #define ROMEString_H
 
 #include <TString.h>
-//#include <Varargs.h>
+#include <Varargs.h>
 
 class ROMEString : public TString
 {
