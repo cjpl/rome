@@ -13,7 +13,7 @@
 class ROMEOrcaDAQ : public ROMEDAQSystem {
 
 public:
-   ROMEOrcaDAQ::ROMEOrcaDAQ();
+   ROMEOrcaDAQ();
 
    // Additional Getters
    Int_t       GetTimeStamp() { return 0; };  // TODO
