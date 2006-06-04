@@ -1866,8 +1866,7 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
       }
       buffer.AppendFormatted("\n   ROMEString fHistoSuffix; //!\n");
-      buffer.AppendFormatted("\n   char* cstop; //!\n\n");
-
+      buffer.AppendFormatted("\n   char*      fCstop; //!\n\n");
 
       // Methods
       buffer.AppendFormatted("public:\n");
@@ -2302,11 +2301,11 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sArraySize(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sArraySizeCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sArraySize=strtol(value,&cstop,10);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sArraySize=strtol(value,&fCstop,10);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sArrayStartIndex(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sArrayStartIndexCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sArrayStartIndex=strtol(value,&cstop,10);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sArrayStartIndex=strtol(value,&fCstop,10);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sXLabel(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sXLabelCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
@@ -2322,39 +2321,39 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sXNbins(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sXNbinsCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sXNbins=strtol(value,&cstop,10);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sXNbins=strtol(value,&fCstop,10);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sXmin(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sXminCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sXmin=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sXmin=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sXmax(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sXmaxCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sXmax=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sXmax=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sYNbins(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sYNbinsCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sYNbins=strtol(value,&cstop,10);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sYNbins=strtol(value,&fCstop,10);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sYmin(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sYminCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sYmin=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sYmin=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sYmax(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sYmaxCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sYmax=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sYmax=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sZNbins(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sZNbinsCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sZNbins=strtol(value,&cstop,10);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sZNbins=strtol(value,&fCstop,10);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sZmin(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sZminCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sZmin=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sZmin=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("%sSet%sZmax(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sZmaxCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      f%sZmax=strtod(value,&cstop);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      f%sZmax=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
@@ -2387,7 +2386,8 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("inline Int_t %sT%s_Base::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline Int_t %sT%s::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop=NULL;\n");
+      buffer.AppendFormatted("   char *cstop;\n");
+      buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2404,7 +2404,8 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("inline Double_t %sT%s_Base::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       else
          buffer.AppendFormatted("inline Double_t %sT%s::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   char *cstop=NULL;\n");
+      buffer.AppendFormatted("   char *cstop;\n");
+      buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
       buffer.AppendFormatted("         return defaultValue;\n");
@@ -2752,7 +2753,8 @@ Bool_t ROMEBuilder::WriteTabH()
       // InitTab
       int nx=1,ny=1;
       buffer.AppendFormatted("   void BaseInit() {\n");
-      buffer.AppendFormatted("      int i=0;\n");
+      buffer.AppendFormatted("      int i;\n");
+      buffer.AppendFormatted("      i=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("      ROMEString str;\n");
       buffer.AppendFormatted("      Init();\n");
       if (numOfTabHistos[iTab]>0) {
@@ -3073,7 +3075,8 @@ Bool_t ROMEBuilder::WriteTabH()
       // Menu Clicked
       buffer.AppendFormatted("   void BaseMenuClicked(TGPopupMenu *menu,Long_t param) {\n");
       if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("      int i=0;\n");
+         buffer.AppendFormatted("      int i;\n");
+         buffer.AppendFormatted("      i=0;\n"); // to suppress unused warning
          buffer.AppendFormatted("      switch (param) {\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             buffer.AppendFormatted("         case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
@@ -3362,7 +3365,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Constructor
    buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t argus):ROMEAnalyzer(app,argus) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
@@ -3643,7 +3647,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Global Steering Parameter
    buffer.AppendFormatted("   ROMEString option = opt;\n");
    buffer.AppendFormatted("   ROMEString tmp;\n");
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    buffer.AppendFormatted("   // global steering parameters\n");
    if (numOfSteering[numOfTask]>0) {
       ROMEString pointerT;
@@ -3774,14 +3779,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("Bool_t %sAnalyzer::ShowConfigurationFile()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   int i=0;\n");
-   buffer.AppendFormatted("   bool writeFlag = true;\n");
+   buffer.AppendFormatted("   bool writeFlag;\n");
+   buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString str;\n");
    buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
    buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
-   buffer.AppendFormatted("   int ind = 0;\n");
-   buffer.AppendFormatted("   char *cstop = NULL;\n");
+   buffer.AppendFormatted("   int ind;\n");
+   buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL))==1) {\n");
@@ -3924,7 +3932,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sAnalyzer::ResetAllHistos() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
@@ -4693,7 +4702,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p, char* title) : ArgusWindow(p,title)\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
    buffer.AppendFormatted("\n");
    if (numOfTab>0)
@@ -4736,7 +4746,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    // CreateTabs
    buffer.AppendFormatted("Bool_t %sWindow::CreateTabs()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t tabID = 0;\n");
+   buffer.AppendFormatted("   Int_t tabID;\n");
+   buffer.AppendFormatted("   tabID = 0;\n"); // to suppress unused warning
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -4751,7 +4762,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    // ProcessMessage
    buffer.AppendFormatted("Bool_t %sWindow::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   // Process messages coming from widgets associated with the dialog.  \n");
    buffer.AppendFormatted("   switch (GET_MSG(msg)) {\n");
    buffer.AppendFormatted("   case kC_COMMAND:    \n");
@@ -5306,14 +5318,17 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    buffer.AppendFormatted("void %sConfigToForm::AddTabs(XMLToFormFrame *frame)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   int ind = 0;\n");
-   buffer.AppendFormatted("   bool writeFlag = true;\n");
+   buffer.AppendFormatted("   int ind;\n");
+   buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   bool writeFlag;\n");
+   buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   ROMEStrArray entries;\n");
-   buffer.AppendFormatted("   int nTabs=0;\n");
+   buffer.AppendFormatted("   int nTabs;\n");
+   buffer.AppendFormatted("   nTabs=0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("\n");
    WriteConfigToFormTabs(buffer,mainParGroup,"frame","","");
@@ -5598,7 +5613,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
    for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d = 0;\n",i);
+      buffer.AppendFormatted("   int i%d;\n",i);
+      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
    }
    WriteConfigRead(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
@@ -5610,7 +5626,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
    for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d = 0;\n",i);
+      buffer.AppendFormatted("   int i%d;\n",i);
+      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
    }
    WriteConfigCheckModified(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
@@ -5687,12 +5704,15 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::SetConfiguration(Int_t modIndex,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d = 0;\n",i);
+      buffer.AppendFormatted("   int i%d;\n",i);
+      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
    }
-   buffer.AppendFormatted("   char* cstop=NULL;\n");
+   buffer.AppendFormatted("   char* cstop;\n");
+   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
    buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
-   buffer.AppendFormatted("   int ind = 0;\n");
+   buffer.AppendFormatted("   int ind;\n");
+   buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   fActiveConfiguration = index;\n");
    WriteConfigSet(buffer,mainParGroup,1,"","");
    // end
@@ -8560,7 +8580,8 @@ void ROMEBuilder::WriteObjectInterpreterValue(ROMEString &buffer,const char* typ
       buffer.AppendFormatted("%s %sAnalyzer::GetObjectInterpreter%sValue(Int_t code,%s defaultValue) {\n",type,shortCut.Data(),fctName,type);
       buffer.AppendFormatted("   ROMEString buffer;\n");
    }
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    buffer.AppendFormatted("   switch (code) {\n");
    buffer.AppendFormatted("      case -1:\n");
    buffer.AppendFormatted("         return defaultValue;\n");
@@ -8604,13 +8625,15 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
       buffer.AppendFormatted("   int i;\n");
       buffer.AppendFormatted("   int nentry;\n");
    }
-   buffer.AppendFormatted("   int j=0;\n");
+   buffer.AppendFormatted("   int j;\n");
+   buffer.AppendFormatted("   j=0;\n"); // to suppress unused warnin
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString path;\n");
    buffer.AppendFormatted("   ROMEString name;\n");
    buffer.AppendFormatted("   ROMEString buffer[%d];\n",maxNumberOfPathObjectInterpreterCodes);
    buffer.AppendFormatted("   ROMEStr2DArray *values = new ROMEStr2DArray(1,1);\n");
-   buffer.AppendFormatted("   char *cstop=NULL;\n");
+   buffer.AppendFormatted("   char *cstop;\n");
+   buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    for (j=0;j<numOfValue[numFolder];j++) {
       if ( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
          continue;
@@ -8883,7 +8906,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    // Tree Initialization
    buffer.AppendFormatted("// Tree initialization\n");
    buffer.AppendFormatted("void %sEventLoop::InitTrees()\n{\n",shortCut.Data());
-   buffer.AppendFormatted("   TFolder *treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data());
+   buffer.AppendFormatted("   TFolder *treeFolder;\n");
+   buffer.AppendFormatted("   treeFolder = gAnalyzer->GetMainFolder()->AddFolder(\"Trees\",\"Trees of the %s framework\");\n",shortCut.Data()); // to suppress unused warning
    if (numOfTree>0) {
       buffer.AppendFormatted("   TTree *tree;\n");
       buffer.AppendFormatted("   ROMEString fileName;\n\n");
@@ -9020,7 +9044,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
    // Initialize Array Folders
    buffer.AppendFormatted("void %sEventLoop::InitArrayFolders() {\n",shortCut.Data());
-   buffer.AppendFormatted("   int i=0;\n");
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -9055,8 +9080,10 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       }
    }
    buffer.AppendFormatted("   // Fill Trees;\n");
-   buffer.AppendFormatted("   bool write = false;\n");
-   buffer.AppendFormatted("   bool written = false;\n");
+   buffer.AppendFormatted("   bool write;\n");
+   buffer.AppendFormatted("   write = false;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   bool written;\n");
+   buffer.AppendFormatted("   written = false;\n"); // to suppress unused warning
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   write = false;\n");
       buffer.AppendFormatted("   romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
@@ -9329,7 +9356,6 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   bool graphics = true;\n");
-   buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("   int argn = 1;\n");
    buffer.AppendFormatted("   char arg[1][100];\n");
    buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
@@ -9347,6 +9373,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   new %sAnalyzer(app,graphics);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("   sprintf(str,\"ROME - %%s\", gAnalyzer->GetProgramName());\n");
    buffer.AppendFormatted("   SetConsoleTitle(str);\n");
    buffer.AppendFormatted("\n");
