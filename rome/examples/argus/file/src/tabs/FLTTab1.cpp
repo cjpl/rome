@@ -47,10 +47,17 @@ void FLTTab1::Init()
    fLabelValue = new TGLabel(this, "Value");
 
    Char_t str[1024];
-   sprintf(str, "%d", gAnalyzer->GetCurrentRunNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+   sprintf(str, "%I64d", gAnalyzer->GetCurrentRunNumber());
    fTextRun->SetText(str);
-   sprintf(str, "%d", gAnalyzer->GetCurrentEventNumber());
+   sprintf(str, "%I64d", gAnalyzer->GetCurrentEventNumber());
    fTextEvent->SetText(str);
+#else
+   sprintf(str, "%lld", gAnalyzer->GetCurrentRunNumber());
+   fTextRun->SetText(str);
+   sprintf(str, "%lld", gAnalyzer->GetCurrentEventNumber());
+   fTextEvent->SetText(str);
+#endif
    sprintf(str, "%d", gAnalyzer->GetTest()->Getvalue());
    fTextValue->SetText(str);
 
@@ -76,7 +83,7 @@ void FLTTab1::TabUnSelected()
 
 void FLTTab1::Update()
 {
-   Int_t run, event, value;
+   Int_t run, event;
    Char_t str[1024];
 
    // read run and event number from tab
@@ -106,7 +113,11 @@ void FLTTab1::Update()
 
    // increment event number
    gAnalyzer->SetCurrentEventNumber(event + 1);
-   sprintf(str, "%d", gAnalyzer->GetCurrentEventNumber());
+#if defined( R__VISUAL_CPLUSPLUS )
+   sprintf(str, "%I64d", gAnalyzer->GetCurrentEventNumber());
+#else
+   sprintf(str, "%lld", gAnalyzer->GetCurrentEventNumber());
+#endif
    fTextEvent->SetText(str);
 
    return;

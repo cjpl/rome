@@ -61,7 +61,7 @@ void NFTFillHistoAndFolder::BeginOfRun()
 void NFTFillHistoAndFolder::Event()
 {
    double value = gRandom->Gaus(0,20);
-   gAnalyzer->GetHisto1()->Fill(value);
+   FillHisto1(value);
    int ivalue = (int)(value+100);
    if (ivalue>=0 && ivalue<200)
       gAnalyzer->GetGaussData()->SetBinAt(ivalue,gAnalyzer->GetGaussData()->GetBinAt(ivalue)+1);
