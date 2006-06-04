@@ -24,7 +24,7 @@ private:
    ROMEStrArray*         fComboBoxEntries;
    bool                  fWriteLinesAlways;
 public:
-   ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox") 
+   ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox") 
    { 
       fName = name; 
       fArraySize = arraySize;
@@ -115,7 +115,7 @@ private:
    int                fHierarchyLevel;
    bool               fWriteAlways;
 public:
-   ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdentifier = "",ROMEString nameIdentifier = "",ROMEString arrayIdentifier = "",ROMEString tagName = "",int multiplicity = 1) 
+   ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize = "1",ROMEString groupIdentifier = "",ROMEString nameIdentifier = "",ROMEString arrayIdentifier = "",ROMEString tagName = "",int multiplicity = 1) 
    { 
       fGroupName = groupName;
       fArraySize = arraySize;
