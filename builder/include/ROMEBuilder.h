@@ -276,6 +276,7 @@ protected:
    Int_t       **tabHistoIndex;
    Int_t       **tabHistoArrayIndexStart;
    Int_t       **tabHistoArrayIndexEnd;
+   Int_t       **tabHistoTaskHierarchyIndex;
    Int_t       **tabHistoTaskIndex;
    Int_t       **tabHistoHistoIndex;
    Int_t        *tabHistoIndexMax;
@@ -284,6 +285,7 @@ protected:
    ROMEString  **tabObjectTitle;
    ROMEString  **tabObject;
    ROMEString  **tabObjectType;
+   Int_t       **tabObjectTaskHierarchyIndex;
    Int_t       **tabObjectTaskIndex;
    Int_t       **tabObjectHistoIndex;
 

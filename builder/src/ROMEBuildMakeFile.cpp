@@ -773,7 +773,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    for (i=0;i<flags.GetEntriesFast();i++)
       buffer.AppendFormatted(" /D%s",flags.At(i).Data());
    for (i=0;i<affiliations.GetEntriesFast();i++)
-      buffer.AppendFormatted(" /DHAVE_%s_AFFILIATION",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+      buffer.AppendFormatted(" /DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" /D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
@@ -978,6 +978,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    if (!headers->GetEntriesFast())
       return;
    ROMEString str;
+   ROMEString tmp;
    int i;
    // depend file
 #if defined( R__UNIX )
@@ -997,6 +998,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    for (i=0;i<includeDirectories->GetEntriesFast();i++) {
       str = includeDirectories->At(i).Data();
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -1030,6 +1033,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
    int i;
    ROMEString str;
+   ROMEString tmp;
    ROMEString dictionaryName;
    dictionaryName.SetFormatted("%sUserDict",shortCut.Data());
 
@@ -1049,6 +1053,8 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    for (i=0;i<includeDirectories->GetEntriesFast();i++) {
       str = includeDirectories->At(i).Data();
 #if defined( R__VISUAL_CPLUSPLUS )

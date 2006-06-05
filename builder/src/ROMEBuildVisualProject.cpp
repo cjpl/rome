@@ -154,7 +154,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    for (i=0;i<flags.GetEntriesFast();i++)
       preProcDefs.AppendFormatted(";%s",flags.At(i).Data());
    for (i=0;i<affiliations.GetEntriesFast();i++)
-      preProcDefs.AppendFormatted(";HAVE_%s_AFFILIATION",((ROMEString)affiliations.At(i)).ToUpper(str));
+      preProcDefs.AppendFormatted(";HAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(str));
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCCLCompilerTool");
    xml->WriteAttribute("Optimization","0");

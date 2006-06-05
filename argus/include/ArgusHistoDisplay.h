@@ -52,7 +52,7 @@ protected:
       kTH2FDisplay
    };
    enum MenuEnumeration {
-      M_ROOT = 700,
+      M_ROOT = 900,
       M_ARGUS_DISPLAY_VIEW_NEXT,
       M_ARGUS_DISPLAY_VIEW_PREVIOUS,
       M_ARGUS_DISPLAY_VIEW_RESET,
@@ -77,6 +77,7 @@ protected:
 
 
    int fDisplayType; //! 
+   int fDisplayTypeOld; //! 
    int fDisplayObjIndex; //! 
    bool fInherited; //! 
    ROMEString fInheritanceName; //! 
@@ -113,10 +114,11 @@ public:
       int i,j;
       for (i=0;i<kMaxNumberOfPadsX;i++) {
          for (j=0;j<kMaxNumberOfPadsY;j++) {
-            M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-200+i*kMaxNumberOfPadsY+j;
+            M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
          }
       }
       fDisplayType = kNoDisplay;
+      fDisplayTypeOld = kNoDisplay;
       fDisplayObjIndex = 0;
       fInherited = false;
       fInheritanceName = "";

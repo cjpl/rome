@@ -47,7 +47,7 @@ public:
    // User Methods
    const char* GetTitle() { return fTitle.Data(); };
    void      SetTitle(const char* title) { fTitle = title; };
-   Bool_t    GetActive() { return fActive; };
+   Bool_t    IsActive() { return fActive; };
    void      SetActive(Bool_t active) { fActive = active; };
    Int_t     GetUpdateFrequency();
    void      SetUpdateFrequency(Int_t duration);

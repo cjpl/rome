@@ -117,7 +117,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    eventLoopIndex = 0;
 
-
    // Loop over Runs
    //----------------
    gROME->PrintVerbose("Entering run loop");
@@ -333,6 +332,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          CleanTasks();
          gROME->PrintLine("");
       }
+   }
+   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+      gROME->GetWindow()->StopEventHandler();
    }
 
    // Root Interpreter

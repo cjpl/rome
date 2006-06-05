@@ -115,6 +115,7 @@ public:
    Bool_t IsActive() { return fArgusActive; };
 
    // Event Handler
+   virtual void StopEventHandler() = 0;
    virtual void TriggerEventHandler() = 0;
 protected:
    void InitArgus();
