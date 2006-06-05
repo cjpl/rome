@@ -808,6 +808,12 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted(" -DHAVE_SQLITE");
    if (this->sqlite3)
       buffer.AppendFormatted(" -DHAVE_SQLITE3");
+   for (i=0;i<flags.GetEntriesFast();i++)
+      buffer.AppendFormatted(" -D%s",flags.At(i).Data());
+   for (i=0;i<affiliations.GetEntriesFast();i++)
+      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+   for (i=0;i<numOfMFPreDefs;i++)
+      buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
 #if defined( R__ALPHA )
    buffer.AppendFormatted("oscflags :=\n");
