@@ -68,7 +68,7 @@ public:
    void CloseWindow();
    void Update();
 
-   ClassDef(ArgusAnalyzerController,1)
+   ClassDef(ArgusAnalyzerController,1) // Panel to control event loop of analyzer
 };
 
 #endif

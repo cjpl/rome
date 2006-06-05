@@ -53,7 +53,7 @@ public:
    void      SetUpdateFrequency(Int_t duration);
    Bool_t    IsBusy() { return fBusy; };
 
-   ClassDef(ArgusTab,1)
+   ClassDef(ArgusTab,1) // Base class of ARGUS tabs
 };
 
 #endif   // ArgusTab_H

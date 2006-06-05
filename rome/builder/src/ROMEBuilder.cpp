@@ -39,6 +39,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderUsed;
    delete [] folderName;
    delete [] folderDescription;
+   delete [] folderShortDescription;
    delete [] folderParentName;
    delete [] folderTitle;
    delete [] folderArray;
@@ -80,6 +81,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskUsed;
    delete [] taskEventID;
    delete [] taskDescription;
+   delete [] taskShortDescription;
    delete [] taskFortran;
    delete [] taskUserCode;
    delete [] taskAuthor;
@@ -152,6 +154,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabAffiliation;
    delete [] tabUsed;
    delete [] tabDescription;
+   delete [] tabShortDescription;
    delete [] tabAuthor;
    delete [] tabAuthorInstitute;
    delete [] tabAuthorCollaboration;
@@ -290,6 +293,7 @@ Bool_t ROMEBuilder::StartBuilder()
                tabAuthor[numOfTab] = mainAuthor;
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
+               tabShortDescription[numOfTab] = "";
                numOfSteering[numOfTab+numOfTaskHierarchy+1] = -1;
                numOfMenu[numOfTab] = -1;
                tabNumOfChildren[numOfTab] = 0;

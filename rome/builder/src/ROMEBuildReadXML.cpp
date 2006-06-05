@@ -147,6 +147,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
+   folderShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderParentName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderArray = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
@@ -188,6 +189,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
    taskEventID = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskFortran = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
    taskUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
    taskAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
@@ -261,6 +263,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfAffiliations));
    tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
    tabDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
@@ -806,6 +809,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    folderUserCode[numOfFolder] = false;
    folderVersion[numOfFolder] = "1";
    folderDescription[numOfFolder] = "";
+   folderShortDescription[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
    folderNet[numOfFolder] = false;
    numOfFolderInclude[numOfFolder] = 0;
@@ -848,6 +852,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
                }
             }
          }
+         // description
+         if (folderDescription[currentNumberOfFolders].Length()
+             && !folderShortDescription[currentNumberOfFolders].Length()
+             && !folderDescription[currentNumberOfFolders].Contains("\n"))
+            folderShortDescription[currentNumberOfFolders] = folderDescription[currentNumberOfFolders];
          parent[recursiveDepth+1] = "";
          recursiveDepth--;
          return true;
@@ -909,6 +918,9 @@ Bool_t ROMEBuilder::ReadXMLFolder()
       // folder description
       if (type == 1 && !strcmp((const char*)name,"FolderDescription"))
          xml->GetValue(folderDescription[numOfFolder],folderDescription[numOfFolder]);
+      // folder short description
+      if (type == 1 && !strcmp((const char*)name,"FolderShortDescription"))
+         xml->GetValue(folderShortDescription[numOfFolder],folderShortDescription[numOfFolder]);
       // Net Folder
       if (type == 1 && !strcmp((const char*)name,"NetFolder")) {
          xml->GetValue(tmp,"false");
@@ -1258,6 +1270,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskAuthor[numOfTask] = mainAuthor;
    taskVersion[numOfTask] = "1";
    taskDescription[numOfTask] = "";
+   taskShortDescription[numOfTask] = "";
    numOfHistos[numOfTask] = 0;
    numOfTaskInclude[numOfTask] = 0;
    numOfSteering[numOfTask] = -1;
@@ -1296,6 +1309,11 @@ Bool_t ROMEBuilder::ReadXMLTask()
                }
             }
          }
+         // description
+         if (taskDescription[numOfTask].Length()
+             && !taskShortDescription[numOfTask].Length()
+             && !taskDescription[numOfTask].Contains("\n"))
+            taskShortDescription[numOfTask] = taskDescription[numOfTask];
          recursiveDepth--;
          return true;
       }
@@ -1364,6 +1382,9 @@ Bool_t ROMEBuilder::ReadXMLTask()
       // task description
       if (type == 1 && !strcmp((const char*)name,"TaskDescription"))
          xml->GetValue(taskDescription[numOfTask],taskDescription[numOfTask]);
+      // task short description
+      if (type == 1 && !strcmp((const char*)name,"TaskShortDescription"))
+         xml->GetValue(taskShortDescription[numOfTask],taskShortDescription[numOfTask]);
       // task include
       if (type == 1 && !strcmp((const char*)name,"Include")) {
          // include initialisation
@@ -1598,6 +1619,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabAuthor[currentNumberOfTabs] = mainAuthor;
    tabVersion[currentNumberOfTabs] = "1";
    tabDescription[currentNumberOfTabs] = "";
+   tabShortDescription[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
    tabHeredityIndex[currentNumberOfTabs] = 0;
    numOfSteering[currentNumberOfTabs+numOfTask+1] = -1;
@@ -1645,6 +1667,11 @@ Bool_t ROMEBuilder::ReadXMLTab()
                }
             }
          }
+         // description
+         if (tabDescription[numOfTab].Length()
+             && !tabShortDescription[numOfTab].Length()
+             && !tabDescription[numOfTab].Contains("\n"))
+            tabShortDescription[numOfTab] = tabDescription[numOfTab];
          recursiveTabDepth--;
          return kTRUE;
       }
@@ -1709,6 +1736,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab description
       if (type == 1 && !strcmp(name, "TabDescription"))
          xml->GetValue(tabDescription[currentNumberOfTabs], tabDescription[currentNumberOfTabs]);
+      // tab short description
+      if (type == 1 && !strcmp(name, "TabShortDescription"))
+         xml->GetValue(tabShortDescription[currentNumberOfTabs], tabShortDescription[currentNumberOfTabs]);
       // tab heredity
       if (type == 1 && !strcmp(name, "InheritedFrom"))
          xml->GetValue(tabHeredity[currentNumberOfTabs], tabHeredity[currentNumberOfTabs]);

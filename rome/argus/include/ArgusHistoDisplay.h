@@ -151,7 +151,7 @@ public:
 
    void   Modified(bool processEvents=true);
 
-   ClassDef(ArgusHistoDisplay,1)
+   ClassDef(ArgusHistoDisplay,1) // Base class of ARGUS histogram display
 };
 
 #endif   // ArgusHistoDisplay_H

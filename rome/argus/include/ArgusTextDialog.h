@@ -46,6 +46,6 @@ public:
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
    
-   ClassDef(ArgusTextDialog, 1)
+   ClassDef(ArgusTextDialog, 1) // Panel to input text
 };
 #endif
