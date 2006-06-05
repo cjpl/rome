@@ -119,7 +119,7 @@ public:
 protected:
    void InitArgus();
 
-   ClassDef(ArgusWindow,1)
+   ClassDef(ArgusWindow,1) // Base class of ARGUS main window
 };
 
 #endif

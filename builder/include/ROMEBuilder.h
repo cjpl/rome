@@ -128,6 +128,7 @@ protected:
    Bool_t       *folderUsed;
    ROMEString   *folderName;
    ROMEString   *folderDescription;
+   ROMEString   *folderShortDescription;
    ROMEString   *folderParentName;
    ROMEString   *folderTitle;
    ROMEString   *folderArray;
@@ -173,6 +174,7 @@ protected:
    Bool_t       *taskUsed;
    ROMEString   *taskEventID;
    ROMEString   *taskDescription;
+   ROMEString   *taskShortDescription;
    Bool_t       *taskFortran;
    Bool_t       *taskUserCode;
    ROMEString   *taskAuthor;
@@ -252,6 +254,7 @@ protected:
    ROMEString  **tabAffiliation;
    Bool_t       *tabUsed;
    ROMEString   *tabDescription;
+   ROMEString   *tabShortDescription;
    ROMEString   *tabAuthor;
    ROMEString   *tabAuthorInstitute;
    ROMEString   *tabAuthorCollaboration;

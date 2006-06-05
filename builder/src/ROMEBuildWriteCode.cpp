@@ -1333,10 +1333,15 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("\n");
 
       // Footer
-      if (folderUserCode[iFold])
-         buffer.AppendFormatted("\n   ClassDef(%s%s_Base,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
-      else
-         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+      if (folderUserCode[iFold]) {
+         buffer.AppendFormatted("\n   ClassDef(%s%s_Base,%s) // Base class of %s%s\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data(),shortCut.Data(),folderName[iFold].Data());
+      }
+      else {
+         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         if (folderShortDescription[iFold].Length())
+            buffer.AppendFormatted(" // %s", folderShortDescription[iFold].Data());
+         buffer.AppendFormatted("\n");
+      }
       buffer.AppendFormatted("};\n\n");
 /*
       buffer.AppendFormatted("#if !defined(__CINT__)\n");
@@ -1387,7 +1392,10 @@ Bool_t ROMEBuilder::WriteFolderH()
          buffer.Resize(buffer.Length()-1);
          buffer.AppendFormatted(" ) {}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)\n",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         buffer.AppendFormatted("\n   ClassDef(%s%s,%s)",shortCut.Data(),folderName[iFold].Data(),folderVersion[iFold].Data());
+         if (folderShortDescription[iFold].Length())
+            buffer.AppendFormatted(" // %s", folderShortDescription[iFold].Data());
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("};\n\n");
          buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),folderName[iFold].Data());
          // Write File
@@ -2057,10 +2065,15 @@ Bool_t ROMEBuilder::WriteTaskH()
       buffer.AppendFormatted("   virtual void BookHisto();\n");
       buffer.AppendFormatted("   virtual void ResetHisto();\n\n");
       // Footer
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
-      else
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+      if (taskUserCode[iTask]) {
+         buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s) // Base class of %sT%s\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+      }
+      else {
+         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+         if (taskShortDescription[iTask].Length())
+            buffer.AppendFormatted(" // %s", taskShortDescription[iTask].Data());
+         buffer.AppendFormatted("\n");
+      }
       buffer.AppendFormatted("};\n\n");
 
       // Histo Inline Methods
@@ -2469,7 +2482,10 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("   virtual void Event();\n");
          buffer.AppendFormatted("   virtual void EndOfRun();\n");
          buffer.AppendFormatted("   virtual void Terminate();\n\n");
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
+         if (taskShortDescription[iTask].Length())
+            buffer.AppendFormatted(" // %s", taskShortDescription[iTask].Data());
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("};\n\n");
          buffer.AppendFormatted("#endif   // %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -3098,7 +3114,7 @@ Bool_t ROMEBuilder::WriteTabH()
 
 
       // Footer
-      buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s)\n", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+      buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s) // Base class of %sT%s\n", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("};\n\n");
       buffer.AppendFormatted("#endif   // %sT%s_Base_H\n", shortCut.Data(), tabName[iTab].Data());
 
@@ -3151,7 +3167,10 @@ Bool_t ROMEBuilder::WriteTabH()
          buffer.AppendFormatted("\n");
 
          // Fields
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)\n", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+         if (tabShortDescription[iTab].Length())
+            buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("};\n\n");
          buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
 
