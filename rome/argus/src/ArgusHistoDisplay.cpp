@@ -276,38 +276,44 @@ void ArgusHistoDisplay::SetStatus(int mode,const char *text,double progress,int 
 void ArgusHistoDisplay::SetupPads(int nx, int ny, bool redraw)
 {
    int i;
+   bool clear = true;
+   if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fDisplayType)
+      clear = false;
+
+   fDisplayTypeOld = fDisplayType;
 
    fChannelNumber = fChannelNumber+gPad->GetNumber()-1;
    if (fChannelNumber < 0)
       fChannelNumber = 0;
 
-   fCanvas->GetCanvas()->Clear();
-   fCanvas->GetCanvas()->Divide(nx, ny);
-   fCanvas->GetCanvas()->cd(1);
-   fNumberOfPads = nx*ny;
-   fNumberOfPadsX = nx;
-   fNumberOfPadsY = ny;
+   if (clear) {
+      fCanvas->GetCanvas()->Clear();
+      fCanvas->GetCanvas()->Divide(nx, ny);
+      fNumberOfPads = nx*ny;
+      fNumberOfPadsX = nx;
+      fNumberOfPadsY = ny;
 
-   for (i=0 ; i<fNumberOfPads ; i++) {
-      fCanvas->GetCanvas()->cd(i+1);
-      fPad[i] = (TPad*)gPad;
-      gPad->SetGridx();
-      gPad->SetGridy();
-      gPad->SetLeftMargin(0.08f);
-      gPad->SetRightMargin(0.01f);
-      gPad->SetTopMargin(1.0f);
-      gPad->SetBottomMargin(1.0f);
-      if (fDisplayType==kTGraphDisplay) {
-         fTGraph[i]->Draw("AL");
-         SetStatisticBox(false);
-      }
-      else if (fDisplayType==kTH1FDisplay) {
-         fTH1F[i]->Draw();
-         SetStatisticBox(true);
-      }
-      else if (fDisplayType==kTH2FDisplay) {
-         fTH2F[i]->Draw();
-         SetStatisticBox(true);
+      for (i=0 ; i<fNumberOfPads ; i++) {
+         fPad[i] = (TPad*)fCanvas->GetCanvas()->GetPad(i+1);
+         fPad[i]->SetGridx();
+         fPad[i]->SetGridy();
+         fPad[i]->SetLeftMargin(0.08f);
+         fPad[i]->SetRightMargin(0.01f);
+         fPad[i]->SetTopMargin(1.0f);
+         fPad[i]->SetBottomMargin(1.0f);
+         fPad[i]->cd();
+         if (fDisplayType==kTGraphDisplay) {
+            fTGraph[i]->Draw("AL");
+            SetStatisticBox(false);
+         }
+         else if (fDisplayType==kTH1FDisplay) {
+            fTH1F[i]->Draw();
+            SetStatisticBox(true);
+         }
+         else if (fDisplayType==kTH2FDisplay) {
+            fTH2F[i]->Draw();
+            SetStatisticBox(true);
+         }
       }
    }
 
@@ -344,7 +350,6 @@ void ArgusHistoDisplay::Modified(bool processEvents)
    fCanvas->GetCanvas()->Modified();
    fCanvas->GetCanvas()->Update();
 
-   fCanvas->GetCanvas()->cd(1);
    if (processEvents) {
       gSystem->ProcessEvents();
       gSystem->Sleep(10);

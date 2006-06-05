@@ -285,6 +285,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoArrayIndexStart = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoArrayIndexEnd = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
+   tabHistoTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
@@ -293,6 +294,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabObjectTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
 
@@ -1901,15 +1903,17 @@ Bool_t ROMEBuilder::ReadXMLTab()
                          tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TGraph") {
                         found = true;
                         tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
+                        tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
                         tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
                         tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
                      }
-                     for (i=0;i<numOfTask && !found;i++) {
-                        for (j=0;j<numOfHistos[i] && !found;j++) {
-                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == histoName[i][j]) {
+                     for (i=0;i<numOfTaskHierarchy && !found;i++) {
+                        for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !found;j++) {
+                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == histoName[taskHierarchyClassIndex[i]][j]) {
                               found = true;
-                              tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = histoType[i][j];
-                              tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = i;
+                              tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = histoType[taskHierarchyClassIndex[i]][j];
+                              tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = i;
+                              tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
                               tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = j;
                            }
                         }

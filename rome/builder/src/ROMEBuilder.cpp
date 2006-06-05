@@ -176,9 +176,17 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabHistoIndex;
    delete [] tabHistoArrayIndexStart;
    delete [] tabHistoArrayIndexEnd;
+   delete [] tabHistoTaskHierarchyIndex;
    delete [] tabHistoTaskIndex;
    delete [] tabHistoHistoIndex;
    delete [] tabHistoIndexMax;
+   delete [] tabObjectName;
+   delete [] tabObjectTitle;
+   delete [] tabObject;
+   delete [] tabObjectType;
+   delete [] tabObjectTaskHierarchyIndex;
+   delete [] tabObjectTaskIndex;
+   delete [] tabObjectHistoIndex;
 
    // tree
    delete [] numOfBranch;
@@ -268,16 +276,16 @@ Bool_t ROMEBuilder::StartBuilder()
    int histoNumber;
    int is,ie,ind;
    // Check Histos & Tabs
-   for (i=0;i<numOfTask;i++) {
-      if (!taskUsed[i])
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
-      for (j=0;j<numOfHistos[i];j++) {
-         for (k=0;k<numOfHistoTabs[i][j];k++) {
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         for (k=0;k<numOfHistoTabs[taskHierarchyClassIndex[i]][j];k++) {
             found = false;
             for (l=0;l<numOfTab;l++) {
                if (!tabUsed[l])
                   continue;
-               if (histoTabName[i][j][k]==tabName[l]) {
+               if (histoTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
                   found = true;
                   tabNumber = l;
                   histoNumber = numOfTabHistos[l];
@@ -287,8 +295,8 @@ Bool_t ROMEBuilder::StartBuilder()
             if (!found) {
                if (numOfTab<0)
                   numOfTab = 0;
-               tabName[numOfTab] = histoTabName[i][j][k];
-               tabTitle[numOfTab] = histoTabName[i][j][k];
+               tabName[numOfTab] = histoTabName[taskHierarchyClassIndex[i]][j][k];
+               tabTitle[numOfTab] = histoTabName[taskHierarchyClassIndex[i]][j][k];
                tabHistoDisplay[numOfTab] = false;
                tabAuthor[numOfTab] = mainAuthor;
                tabVersion[numOfTab] = "1";
@@ -306,18 +314,19 @@ Bool_t ROMEBuilder::StartBuilder()
                tabUsed[numOfTab] = true;
                numOfTab++;
             }
-            is = histoTabArrayIndex[i][j][k].ToInteger(); ie = is;
-            if ((ind=histoTabArrayIndex[i][j][k].Index("-"))!=-1) {
-               str = histoTabArrayIndex[i][j][k](0,ind);
+            is = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
+            if ((ind=histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
+               str = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
                is = str.ToInteger();
-               str = histoTabArrayIndex[i][j][k](ind+1,histoTabArrayIndex[i][j][k].Length()-ind-1);
+               str = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
                ie = str.ToInteger();
             }
-            tabHistoName[tabNumber][histoNumber] = histoName[i][j];
-            tabHistoIndex[tabNumber][histoNumber] = histoTabIndex[i][j][k].ToInteger();
+            tabHistoName[tabNumber][histoNumber] = histoName[taskHierarchyClassIndex[i]][j];
+            tabHistoIndex[tabNumber][histoNumber] = histoTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
             tabHistoArrayIndexStart[tabNumber][histoNumber] = is;
             tabHistoArrayIndexEnd[tabNumber][histoNumber] = ie;
-            tabHistoTaskIndex[tabNumber][histoNumber] = i;
+            tabHistoTaskHierarchyIndex[tabNumber][histoNumber] = i;
+            tabHistoTaskIndex[tabNumber][histoNumber] = taskHierarchyClassIndex[i];
             tabHistoHistoIndex[tabNumber][histoNumber] = j;
             numOfTabHistos[tabNumber]++;
          }
