@@ -6614,7 +6614,7 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
 }
 Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
-   int i,index;
+   int i;
    ROMEString switchString;
    ROMEString steerPointerT;
    ROMEConfigParameterGroup* subGroup;
