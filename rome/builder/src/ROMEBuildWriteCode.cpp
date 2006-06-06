@@ -7250,6 +7250,9 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("#include \"ROMEEventLoop.h\"\n");
    buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sMidasDAQ.h\"\n",shortCut.Data());
+   if (bankHasHeader) {
+      buffer.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),bankHeaderFolder.Data());
+   }
    buffer.AppendFormatted("#include \"ROMEUtilities.h\"\n");
 
    buffer.AppendFormatted("\nClassImp(%sMidasDAQ)\n",shortCut.Data());
