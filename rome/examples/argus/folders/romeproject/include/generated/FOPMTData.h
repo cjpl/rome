@@ -55,7 +55,7 @@ public:
 private:
 
 
-   ClassDef(FOPMTData,1)
+   ClassDef(FOPMTData,1) // PMT data.
 };
 
 #endif   // FOPMTData_H

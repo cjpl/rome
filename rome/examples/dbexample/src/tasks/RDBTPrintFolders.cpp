@@ -12,8 +12,6 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
-//     SingleFolder                                                           //
-//     ArrayFolder                                                            //
 //                                                                            //
 //                                                                            //
 // Followings are include files of folders. ROMEBuilder will update it with   //

@@ -64,7 +64,7 @@ public:
 private:
 
 
-   ClassDef(FORunInfo,1)
+   ClassDef(FORunInfo,1) // Run information.
 };
 
 #endif   // FORunInfo_H

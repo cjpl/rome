@@ -10,7 +10,6 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
-//     PMTData                                                                //
 //                                                                            //
 //  This task contains the following histgrams :                              //
 //     ADC                                                                    //
