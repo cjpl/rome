@@ -4406,6 +4406,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   // Trees\n");
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   TTree* Get%sTree() { return ((ROMETree*)fTreeObjects->At(%d))->GetTree(); };\n",treeName[i].Data(),i);
+      buffer.AppendFormatted("   TFile* Get%sFile() { return ((ROMETree*)fTreeObjects->At(%d))->GetFile(); };\n",treeName[i].Data(),i);
    }
    buffer.AppendFormatted("\n");
 
@@ -7863,6 +7864,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
+   Int_t i;
 
    // File name
    hFile.SetFormatted("%sinclude/generated/%sRomeDAQ.h",outDir.Data(),shortCut.Data());
@@ -7885,8 +7887,13 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // Methods
    buffer.AppendFormatted("public:\n");
+
    // Constructor
    buffer.AppendFormatted("   %sRomeDAQ();\n",shortCut.Data());
+
+   // File getter
+   for (i=0;i<numOfTree;i++)
+      buffer.AppendFormatted("   TFile* Get%sFile() { return fRootFiles ? fRootFiles[%d] : 0; };\n",treeName[i].Data(),i);
 
    // methods
    buffer.AppendFormatted("protected:\n");
