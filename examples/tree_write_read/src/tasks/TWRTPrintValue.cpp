@@ -10,7 +10,6 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 // This task accesses the following folders :                                 //
-//     Data                                                                   //
 //                                                                            //
 //                                                                            //
 // Followings are include files of folders. ROMEBuilder will update it with   //
