@@ -493,7 +493,7 @@ private:
    Bool_t  AddConfigParameters();
    Bool_t  AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
    Bool_t  AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex);
-   Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer);
+   Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer);
    Bool_t  CheckConfigParameters(ROMEConfigParameterGroup *parGroup);
    Bool_t  WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab);
    Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes);

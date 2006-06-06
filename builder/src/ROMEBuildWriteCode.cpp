@@ -6421,7 +6421,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    if (readGlobalSteeringParameters) {
       subGroup = new ROMEConfigParameterGroup("GlobalSteeringParameters");
       mainParGroup->AddSubGroup(subGroup);
-      AddSteeringConfigParameters(subGroup,0,numOfTask,"gAnalyzer->GetGSP()");
+      AddSteeringConfigParameters(subGroup,0,numOfTask,"gAnalyzer->GetGSP()","gAnalyzer");
    }
    // midas banks
    if (numOfEvent>0) {
@@ -6500,6 +6500,7 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
    int i,j;
    ROMEString name;
    ROMEString steerPointerT;
+   ROMEString taskPointerT;
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
    for (i=0;i<numOfTaskHierarchy;i++) {
@@ -6605,7 +6606,8 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
       }
       if (numOfSteering[taskHierarchyClassIndex[i]]>0) {
          steerPointerT.SetFormatted("((%sT%s*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i]);
-         AddSteeringConfigParameters(subGroup,0,taskHierarchyClassIndex[i],steerPointerT);
+         taskPointerT.SetFormatted("((%sT%s*)gAnalyzer->GetTaskObjectAt(%d))",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i]);
+         AddSteeringConfigParameters(subGroup,0,taskHierarchyClassIndex[i],steerPointerT,taskPointerT);
       }
       AddTaskConfigParameters(subGroup,i);
    }
@@ -6617,6 +6619,7 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
    int i;
    ROMEString switchString;
    ROMEString steerPointerT;
+   ROMEString tabPointerT;
    ROMEConfigParameterGroup* subGroup;
    for (i=0;i<numOfTab;i++) {
       if (!tabUsed[i])
@@ -6637,14 +6640,15 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
       parGroup->AddSubGroup(subGroup);
       if (numOfSteering[i+numOfTask+1]>0) {
          steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()->GetSP()", tabName[i].Data(), tabSuffix[i].Data());
-         AddSteeringConfigParameters(subGroup,0,i+numOfTask+1,steerPointerT);
+         tabPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()", tabName[i].Data(), tabSuffix[i].Data());
+         AddSteeringConfigParameters(subGroup,0,i+numOfTask+1,steerPointerT,tabPointerT);
       }
       AddTabConfigParameters(subGroup,i);
    }
 
    return true;
 }
-Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer)
+Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer)
 {
    int i;
    ROMEString steerPointerT;
@@ -6666,44 +6670,56 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
             maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
          subSubGroup->AddParameter(new ROMEConfigParameter("SPFieldArrayValue","1"));
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
+         subSubGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subSubGroup->GetLastParameter()->AddSetLine("%s->Set%sAt(i%d,##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(i%d,##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else
-            subSubGroup->GetLastParameter()->AddSetLine("%s->Set%sAt(i%d,(%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
+            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(i%d,(%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
          GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         subSubGroup->GetLastParameter()->AddWriteLine("if (%s) {",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="TString" || steerFieldType[numTask][numSteer][i]=="ROMEString")
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else if (isBoolType(steerFieldType[numTask][numSteer][i].Data())) {
-            subSubGroup->GetLastParameter()->AddWriteLine("if (%s->Get%sAt(i%d))",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
-            subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-            subSubGroup->GetLastParameter()->AddWriteLine("else");
-            subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+            subSubGroup->GetLastParameter()->AddWriteLine("   if (%s->Get%sAt(i%d))",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
+            subSubGroup->GetLastParameter()->AddWriteLine("   else");
+            subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
          }
          else
-            subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d));",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d));",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+         subSubGroup->GetLastParameter()->AddWriteLine("}");
+         subSubGroup->GetLastParameter()->AddWriteLine("else {");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"\");");
+         subSubGroup->GetLastParameter()->AddWriteLine("}");
       }
       else {
          subGroup->AddParameter(new ROMEConfigParameter("SPValue","1"));
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
+         subGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subGroup->GetLastParameter()->AddSetLine("%s->Set%s(##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+            subGroup->GetLastParameter()->AddSetLine("   %s->Set%s(##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
          else
-            subGroup->GetLastParameter()->AddSetLine("%s->Set%s((%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
+            subGroup->GetLastParameter()->AddSetLine("   %s->Set%s((%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
          GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("if (%s) {",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="TString" || steerFieldType[numTask][numSteer][i]=="ROMEString")
-            subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%s().Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+            subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%s().Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
          else if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%s().c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+            subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%s().c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
          else if (isBoolType(steerFieldType[numTask][numSteer][i].Data())) {
-            subGroup->GetLastParameter()->AddWriteLine("if (%s->Get%s())",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
-            subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-            subGroup->GetLastParameter()->AddWriteLine("else");
-            subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+            subGroup->GetLastParameter()->AddWriteLine("   if (%s->Get%s())",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+            subGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
+            subGroup->GetLastParameter()->AddWriteLine("   else");
+            subGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
          }
          else
-            subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%s\",%s->Get%s());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+            subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%s());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("}");
+         subGroup->GetLastParameter()->AddWriteLine("else {");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"\");");
+         subGroup->GetLastParameter()->AddWriteLine("}");
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
@@ -6723,7 +6739,7 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
       }
       else
          steerPointerT.SetFormatted("%s->Get%s()",steerPointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
-      AddSteeringConfigParameters(subSubGroup,steerChildren[numTask][numSteer][i],numTask,steerPointerT);
+      AddSteeringConfigParameters(subSubGroup,steerChildren[numTask][numSteer][i],numTask,steerPointerT,taskPointer);
    }
    return true;
 }
@@ -9375,8 +9391,9 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   for (i=1;i<argc;i++) {\n");
-   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\")) {\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\") || !strcmp(argv[i],\"-b\")) {\n");
    buffer.AppendFormatted("         graphics = false;\n");
+   buffer.AppendFormatted("         gROOT->SetBatch(kTRUE);\n");
    buffer.AppendFormatted("         break;\n");
    buffer.AppendFormatted("      }\n");
    buffer.AppendFormatted("   }\n");
