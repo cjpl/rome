@@ -642,7 +642,7 @@ Bool_t ROMEEventLoop::UserInput()
          }
          if (ch == 'q' || gROME->IsUserEventQ()) {
             gROME->PrintFlush("                                  \r");
-            gROME->PrintText("Do you really want to quit [y/n] ?");
+            gROME->PrintFlush("Do you really want to quit [y/n] ?");
             while (!gROME->ss_kbhit()) {}
             ch = gROME->ss_getchar(0);
             if (ch == 'y')
