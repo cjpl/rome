@@ -4707,14 +4707,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      Int_t index = tabParentIndex[i];
-      ROMEString switchString = tabName[i].Data();
-      while (index != -1) {
-         switchString.Insert(0, "_");
-         switchString.Insert(0, tabName[index].Data());
-         index = tabParentIndex[index];
-      }
-      buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
+      buffer.AppendFormatted("   fTabSwitches.%s%s = kTRUE;\n",tabName[i].Data(),tabSuffix[i].Data());
    }
    buffer.AppendFormatted("}\n\n");
 
@@ -4731,14 +4724,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      Int_t index = tabParentIndex[i];
-      ROMEString switchString = tabName[i].Data();
-      while (index != -1) {
-         switchString.Insert(0, "_");
-         switchString.Insert(0, tabName[index].Data());
-         index = tabParentIndex[index];
-      }
-      buffer.AppendFormatted("   fTabSwitches.%s = kTRUE;\n", switchString.Data());
+      buffer.AppendFormatted("   fTabSwitches.%s%s = kTRUE;\n",tabName[i].Data(),tabSuffix[i].Data());
 
       if (tabHeredity[i].Length()>0) {
          if (numOfMenu[tabHeredityIndex[i]] > 0) {
@@ -5075,16 +5061,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      Int_t index = tabParentIndex[i];
-      switchString = tabName[i].Data();
-      while (index != -1) {
-         switchString.Insert(0, "_");
-         switchString.Insert(0, tabName[index].Data());
-         index = tabParentIndex[index];
-      }
-      format.SetFormatted("   Bool_t %%s;%%%ds  //! %%s Tab\n", switchLen - switchString.Length());
-      buffer.AppendFormatted(const_cast<char*>(format.Data()), switchString.Data(), "", switchString.Data());
-//      buffer.AppendFormatted("   Int_t %s;   //! %s Tab\n",switchString.Data(),switchString.Data());
+      buffer.AppendFormatted("   Bool_t %s%s;  //! %s%s Tab\n", tabName[i].Data(),tabSuffix[i].Data(), tabName[i].Data(),tabSuffix[i].Data());
    }
    buffer.AppendFormatted("} TabSwitches;\n");
    buffer.AppendFormatted("\n");
@@ -6645,21 +6622,14 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
          continue;
       if (tabParentIndex[i] != parentIndex)
          continue;
-      switchString = tabName[i].Data();
-      index = tabParentIndex[i];
-      while (index != -1) {
-         switchString.Insert(0, "_");
-         switchString.Insert(0, tabName[index].Data());
-         index = tabParentIndex[index];
-      }
       subGroup = new ROMEConfigParameterGroup(tabName[i],"1","Tab","TabName");
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
       subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s = kFALSE;",switchString.Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s%s = kFALSE;", tabName[i].Data(),tabSuffix[i].Data());
       subGroup->GetLastParameter()->AddSetLine("else");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s = kTRUE;",switchString.Data());
-      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetTabSwitches()->%s)",switchString.Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s%s = kTRUE;", tabName[i].Data(),tabSuffix[i].Data());
+      subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetTabSwitches()->%s%s)", tabName[i].Data(),tabSuffix[i].Data());
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
