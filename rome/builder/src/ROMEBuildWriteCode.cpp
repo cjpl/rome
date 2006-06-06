@@ -3950,7 +3950,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Histos
    buffer.AppendFormatted("// Histos\n");
    buffer.AppendFormatted("TH1* %sAnalyzer::GetHisto(const char* pathToHisto) {\n",shortCut.Data());
-   buffer.AppendFormatted("   return ((TH1*)GetMainHistoFolder()->FindObjectAny(pathToHisto));\n");
+   buffer.AppendFormatted("   return ((TH1*)gROOT->FindObjectAny(pathToHisto));\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("bool %sAnalyzer::ResetAllHistos() {\n",shortCut.Data());
