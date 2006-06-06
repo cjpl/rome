@@ -402,6 +402,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    readTrees = false;
    readGlobalSteeringParameters = false;
    readMidasBanks = false;
+   bankHasHeader = false;
 
    numOfFolder = -1;
    numOfTask = -1;
@@ -2391,7 +2392,6 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
 {
    char *name;
    int type,i,j,k,kk;
-   bankHasHeader = false;
    ROMEString tmp;
    char *cstop=NULL;
 
