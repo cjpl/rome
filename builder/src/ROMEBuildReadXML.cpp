@@ -440,7 +440,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   cout << "Terminating program." << endl;
                   return false;
                }
-               if (numOfFolder < 0);
+               if (numOfFolder < 0) numOfFolder = 0;
                if (numOfTask < 0) numOfTask = 0;
                if (numOfTaskHierarchy < 0) numOfTaskHierarchy = 0;
                if (numOfTree < 0) numOfTree = 0;
