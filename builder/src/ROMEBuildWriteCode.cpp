@@ -3385,7 +3385,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // Constructor
-   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t argus):ROMEAnalyzer(app,argus) {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sAnalyzer::%sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics):ROMEAnalyzer(app,batch,daemon,nographics) {\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("// Folder and Task initialisation\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
@@ -3396,7 +3396,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   gAnalyzer = this;\n");
    buffer.AppendFormatted("   gROME = static_cast<ROMEAnalyzer*>(this);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   if (argus) {\n");
+   buffer.AppendFormatted("   if (!isNoGraphics()) {\n");
    buffer.AppendFormatted("      sprintf(str,\"ARGUS - %%s\",fProgramName.Data());\n");
    buffer.AppendFormatted("      fWindow = new %sWindow(gClient->GetRoot(), str);\n",shortCut.Data());
    buffer.AppendFormatted("   }\n");
@@ -4359,7 +4359,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
-   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t argus);\n",shortCut.Data());
+   buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);\n",shortCut.Data());
 
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
@@ -5958,6 +5958,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetActiveDAQ()->GetName();");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"none\";");
+#if 0
+// batch mode does not work fully with configuration file,
+// because we have to know before constructor of analyzer
+// comment out for the moment.
    // Modes/BatchMode
    subGroup->AddParameter(new ROMEConfigParameter("BatchMode","1","CheckButton"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
@@ -5968,6 +5972,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+#endif
    // Modes/QuitMode
    subGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
@@ -9382,23 +9387,30 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   bool graphics = true;\n");
+   buffer.AppendFormatted("   bool nographics = false;\n");
+   buffer.AppendFormatted("   bool batch = false;\n");
+   buffer.AppendFormatted("   bool daemon = false;\n");
    buffer.AppendFormatted("   int argn = 1;\n");
    buffer.AppendFormatted("   char arg[1][100];\n");
    buffer.AppendFormatted("   char *argp = &arg[0][0];\n");
    buffer.AppendFormatted("   strcpy(arg[0],argv[0]);\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
-   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   for (i=1;i<argc;i++) {\n");
-   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\") || !strcmp(argv[i],\"-b\")) {\n");
-   buffer.AppendFormatted("         graphics = false;\n");
-   buffer.AppendFormatted("         gROOT->SetBatch(kTRUE);\n");
-   buffer.AppendFormatted("         break;\n");
-   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-ng\"))\n");
+   buffer.AppendFormatted("         nographics = true;\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-D\"))\n");
+   buffer.AppendFormatted("         daemon = true;\n");
+   buffer.AppendFormatted("      if (!strcmp(argv[i],\"-b\"))\n");
+   buffer.AppendFormatted("         batch = true;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   new %sAnalyzer(app,graphics);\n",shortCut.Data());
+   buffer.AppendFormatted("   gROOT->SetBatch(nographics || batch || daemon);\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   ROMERint *app = new ROMERint(\"App\", &argn, &argp,NULL,0,true);\n");
+   buffer.AppendFormatted("   if (!gClient || gClient->IsZombie())\n");
+   buffer.AppendFormatted("      nographics = true;\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   new %sAnalyzer(app,batch,daemon,nographics);\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("   char str[200];\n");
