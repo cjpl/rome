@@ -93,10 +93,12 @@ protected:
    // Modes
    Int_t          fAnalysisMode;                 //! Analysis mode flag
    Bool_t         fBatchMode;                    //! Batch mode flag
+   Bool_t         fDaemonMode;                   //! Daemon mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
    Bool_t         fVerboseMode;                  //! Verbose mode flag
    Bool_t         fSplashScreen;                 //! Splash screen flag
    Bool_t         fGraphicalConfigEdit;          //! Configuration edit flag
+   Bool_t         fNoGraphics;                   //! No graphics flag
 
    Bool_t         fDontReadNextEvent;            //! Don't read the next event from file/buffer
 
@@ -218,12 +220,12 @@ protected:
 #ifndef __CINT__
    // stream
    streambuf     *fOldbuf;                       //! original buffer of stdout
-   ofstream      *fRomeOutputFile;               //! Redirected output in batch mode
+   ofstream      *fRomeOutputFile;               //! Redirected output currently not used
 #endif // __CINT__
 
 public:
    ROMEAnalyzer() {};
-   ROMEAnalyzer(ROMERint *app,Bool_t argus);
+   ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
    ~ROMEAnalyzer();
 
    // Program Mode
@@ -307,15 +309,19 @@ public:
    // modes
    Bool_t          isSplashScreen() { return fSplashScreen; };
    Bool_t          isBatchMode() { return fBatchMode; };
+   Bool_t          isDaemonMode() { return fDaemonMode; };
    Bool_t          isQuitMode() { return fQuitMode; };
    Bool_t          isVerboseMode() { return fVerboseMode; };
    Bool_t          isGraphicalConfigEdit() { return fGraphicalConfigEdit; };
+   Bool_t          isNoGraphics() { return fNoGraphics; };
 
    void            SetSplashScreen(Bool_t flag=true)  { fSplashScreen = flag; };
    void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; };
+   void            SetDaemonMode(Bool_t flag=true) { fDaemonMode = flag; };
    void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; };
    void            SetVerboseMode(Bool_t flag=true) { fVerboseMode = flag; };
    void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; };
+   void            SetNoGraphics(Bool_t flag=true) { fNoGraphics = flag; };
 
    // Analysis Mode
    Bool_t          isOnline() { return fAnalysisMode==kAnalyzeOnline; };
@@ -605,6 +611,7 @@ public:
    Int_t           ss_getchar(UInt_t reset);
    UInt_t          ss_kbhit();
    UInt_t          ss_millitime();
+   Int_t           ss_daemon_init(Bool_t keep_stdout);
    Bool_t          strtobool(const char *str);
 
    Int_t           stricmp(const char*,const char*);

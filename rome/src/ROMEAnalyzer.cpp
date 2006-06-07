@@ -80,7 +80,7 @@ ClassImp(ROMEAnalyzer)
 
 ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
-ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t argus)
+ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics)
 {
 // Initialisations
    fProgramMode = kStandAloneROME;
@@ -89,8 +89,10 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t argus)
    fCintInitialisation = "";
    fActiveDAQ = 0;
    fAnalysisMode = kAnalyzeOffline;
-   fBatchMode = false;
-   fQuitMode = false;
+   fBatchMode = batch;
+   fDaemonMode = daemon;
+   fNoGraphics = batch || daemon || nographics;
+   fQuitMode = batch || daemon;
    fVerboseMode = false;
    fSplashScreen = true;
    fGraphicalConfigEdit = true;
@@ -163,18 +165,22 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t argus)
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
+   ss_getchar(1);
    restoreOutput();
 }
 
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
-   PrintVerbose("Starting analyzer");
-// Starts the ROME Analyzer
-   ROMEString text;
-
 #if defined( HAVE_MIDAS )
    cm_set_msg_print(0,0,NULL);
 #endif
+
+   if (this->isDaemonMode())
+      ss_daemon_init(kFALSE);
+
+   PrintVerbose("Starting analyzer");
+// Starts the ROME Analyzer
+   ROMEString text;
 
    PrintVerbose("Executing init tasks");
    fMainTask->ExecuteTask("init");
@@ -189,10 +195,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (!ConnectNetFolders())
       return false;
 
-   if (this->isBatchMode())
-      redirectOutput();
-   else
-      gROME->ss_getchar(0);
+   gROME->ss_getchar(0);
 
    if (IsStandAloneROME() || IsROMEAndARGUS()) {
       consoleStartScreen();
@@ -223,8 +226,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    fMainTask->ExecuteTask("start");
 
-   if (!this->isBatchMode())
-      gROME->ss_getchar(1);
+   gROME->ss_getchar(1);
 
    if (fTerminate) return false;
 
@@ -285,6 +287,7 @@ void ROMEAnalyzer::ParameterUsage()
 {
    gROME->PrintLine("  -i       Configuration file");
    gROME->PrintLine("  -b       Batch Mode (no Argument)");
+   gROME->PrintLine("  -D       Daemon Mode (no Argument)");
    gROME->PrintLine("  -q       Quit Mode (no Argument)");
    gROME->PrintLine("  -v       Verbose Mode (no Argument)");
    gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
@@ -346,35 +349,58 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          configFile = foundFiles.At(0);
       }
       else {
-         i = -1;
-         while (i < 0 || i >= nFile) {
-            gROME->PrintLine("Please select a configuration file.");
+         if (isBatchMode() || isDaemonMode()) {
+            gROME->PrintText("Several configuration files were found.\n");
             for (i = 0; i < nFile; i++) {
-               printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
-               gROME->PrintLine(printString.Data());
+               printString.SetFormatted("   %s\n", foundFiles.At(i).Data());
+               gROME->PrintText(printString.Data());
             }
-            gROME->PrintLine("   [q] Quit");
-            gROME->PrintFlush("File number: ");
-            cin.getline(answerLine, sizeof(answerLine));
-            answerString = answerLine;
-            if (answerString == "q" || answerString == "Q") {
-               return false;
-            }
-            i = answerString.ToInteger();
-            if (!answerString.IsDigit() || i < 0 || i >= nFile) {
-               printString.SetFormatted("File number %s is not found.", answerString.Data());
-               gROME->PrintLine(printString.Data());
-               gROME->PrintLine();
-               i = -1;
-            }
+            gROME->PrintFlush("Please specify with -i option.\n");
+            return false;
          }
-         configFile = foundFiles[i];
+         else {
+            i = -1;
+            while (i < 0 || i >= nFile) {
+               gROME->PrintLine("Please select a configuration file.");
+               for (i = 0; i < nFile; i++) {
+                  printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
+                  gROME->PrintLine(printString.Data());
+               }
+               gROME->PrintLine("   [q] Quit");
+               gROME->PrintFlush("File number: ");
+               cin.getline(answerLine, sizeof(answerLine));
+               answerString = answerLine;
+               if (answerString == "q" || answerString == "Q") {
+                  return false;
+               }
+               i = answerString.ToInteger();
+               if (!answerString.IsDigit() || i < 0 || i >= nFile) {
+                  printString.SetFormatted("File number %s is not found.", answerString.Data());
+                  gROME->PrintLine(printString.Data());
+                  gROME->PrintLine();
+                  i = -1;
+               }
+            }
+            configFile = foundFiles[i];
+         }
       }
    }
 
    char answer = 0;
    bool overwrite = true;
    if ( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
+      if (isBatchMode() || isDaemonMode()) {
+         if (configFile.Length()) {
+            gROME->PrintText("Configuration file '");
+            gROME->PrintText(configFile.Data());
+            gROME->PrintLine("' not found.");
+         }
+         else {
+            gROME->PrintLine("Please specify configuration file with -i option.");
+         }
+         return false;
+      }
+
       if (configFile.Length()) {
          gROME->PrintText("Configuration file '");
          gROME->PrintText(configFile.Data());
@@ -383,6 +409,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else {
          configFile = "romeConfig.xml";
       }
+
       gROME->PrintLine();
       gROME->PrintLine("The framework can generate a new configuration file for you.");
       gROME->PrintLine("Available configuration types are :");
@@ -452,7 +479,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       gROME->PrintLine("\nTerminate program.\n");
       return false;
    }
-   if (isGraphicalConfigEdit()) {
+   if (isGraphicalConfigEdit() && !isNoGraphics()) {
       if (!this->ShowConfigurationFile()) {
          gROME->PrintLine("\nTerminate program.\n");
          return false;
@@ -465,10 +492,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    PrintVerbose("Reading command line options");
    for (i=1;i<argc;i++) {
-      if (!strcmp(argv[i],"-b")) {
-         fBatchMode = true;
-      }
-      else if (!strcmp(argv[i],"-q")) {
+      if (!strcmp(argv[i],"-q")) {
          fQuitMode = true;
       }
       else if (!strcmp(argv[i],"-v")) {
@@ -496,8 +520,14 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-i")) {
          i++;
       }
+      else if (!strcmp(argv[i],"-b")) {
+         ;
+      }
+      else if (!strcmp(argv[i],"-D")) {
+         ;
+      }
       else if (!strcmp(argv[i],"-ng")) {
-         i++;
+         ;
       }
       else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {
          gROME->PrintText("Input line parameter '");
@@ -683,6 +713,8 @@ UInt_t ROMEAnalyzer::ss_kbhit()
 
 Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 {
+   if (this->isDaemonMode() || this->isBatchMode())
+      return 0;
 #if defined( R__UNIX )
    static unsigned long int init = 0;
    static struct termios save_termios;
@@ -906,6 +938,48 @@ UInt_t ROMEAnalyzer::ss_millitime()
 #endif
 }
 
+Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
+{
+#if defined( R__UNIX )   // only implemented for UNIX
+   int i, fd;
+   int pid = fork();
+
+   if (pid < 0)
+      return kFALSE;
+   else if (pid != 0) {
+      ROMEString printString;
+      printString.SetFormatted("Becoming a daemon... (PID = %d)", pid);
+      gROME->PrintLine(printString.Data());
+      fApplication->Terminate(0); // parent finished
+   }
+
+
+   /* try and use up stdin, stdout and stderr, so other
+      routines writing to stdout etc won't cause havoc. Copied from smbd */
+   for (i = 0; i < 3; i++) {
+      if (keep_stdout && ((i == 1) || (i == 2)))
+         continue;
+
+      close(i);
+      fd = open("/dev/null", O_RDWR, 0);
+      if (fd < 0)
+         fd = open("/dev/null", O_WRONLY, 0);
+      if (fd < 0) {
+         gROME->PrintLine("Can't open /dev/null");
+         return kFALSE;
+      }
+      if (fd != i) {
+         gROME->PrintLine("Did not get file descriptor");
+         return kFALSE;
+      }
+   }
+
+   setsid();                    // become session leader
+   umask(0);                    // clear our file mode createion mask
+#endif
+   return kTRUE;
+}
+
 Int_t ROMEAnalyzer::stricmp(const char* c1,const char* c2)
 {
 #if defined( R__UNIX )
@@ -954,16 +1028,19 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
 
 ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 {
+   ROMEString str;
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
          if (!fNetFolderActive[i]) {
-            Warning("GetNetFolder", "%s is not activated.", name);
+            str.SetFormatted("%s is not activated.", name);
+            gROME->PrintLine(str.Data());
             return 0;
          }
          return fNetFolder[i];
       }
    }
-   Error("GetNetFolder", "Netfolder '%s' is not defined", name);
+   str.SetFormatted("Netfolder '%s' is not defined", name);
+   gROME->PrintLine(str.Data());
    return 0;
 };
 
@@ -1000,7 +1077,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    ROMEString errMessage;
    if (!fNetFolder[i]->GetPointer()) {
       errMessage.SetFormatted("%s failed to connect to %s folder of %s.", fNetFolderName[i].Data(), fNetFolderRoot[i].Data(), fNetFolderHost[i].Data());
-      Warning("ConnectNetFolder", errMessage);
+      gROME->PrintLine(errMessage.Data());
    }
 
    return kTRUE;

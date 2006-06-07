@@ -343,12 +343,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       prompt.ToLower();
       prompt += " [%d]";
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
-      if (!gROME->isBatchMode() && !gROME->isQuitMode()) {
+      if (!gROME->isQuitMode()) {
          gROME->GetApplication()->Run(true);
          gROME->PrintLine();
       }
    }
-
 }
 
 Bool_t ROMEEventLoop::DAQInit()
@@ -643,9 +642,13 @@ Bool_t ROMEEventLoop::UserInput()
          if (ch == 'q' || gROME->IsUserEventQ()) {
             gROME->PrintFlush("                                  \r");
             gROME->PrintFlush("Do you really want to quit [y/n] ?");
-            while (!gROME->ss_kbhit()) {}
-            ch = gROME->ss_getchar(0);
-            if (ch == 'y')
+            ch = 0;
+            while (ch==0) {
+               while (gROME->ss_kbhit()) {
+                  ch = gROME->ss_getchar(0);
+               }
+            }
+            if (ch == 'y' || ch == 'Y')
                return false;
             gROME->PrintFlush("                                  \r");
          }
