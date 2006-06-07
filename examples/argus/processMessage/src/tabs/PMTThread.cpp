@@ -73,7 +73,7 @@ void PMTThread::withMakingThread()
    cout << "ProcessMessageThread will be executed instead of ProcessMessage." << endl;
    int i;
    for (i = 10; i > 0; i--) {
-      if (GetActive())
+      if (IsActive())
          cout << i << endl;
       gSystem->Sleep(1000);
    }
