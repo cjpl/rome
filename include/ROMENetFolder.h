@@ -8,7 +8,7 @@
 #ifndef ROMENetFolder_H
 #define ROMENetFolder_H
 
-#include <TNetFolder.h>
+#include "TNetFolder.h"
 
 class ROMENetFolder : public TNetFolder
 {  

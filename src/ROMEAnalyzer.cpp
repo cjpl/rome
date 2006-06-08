@@ -44,7 +44,7 @@
 #include <time.h>
 
 #if defined( HAVE_MIDAS )
-#   include <midas.h>
+#   include "midas.h"
 #endif
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -54,7 +54,6 @@
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
-//#include <THtml.h>
 #include <TArrayI.h>
 #include <TTask.h>
 #include <TTree.h>
@@ -68,12 +67,12 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <ROMENetFolderServer.h>
-#include <ROMETask.h>
-#include <ROMEAnalyzer.h>
-#include <ROMEEventLoop.h>
-#include <ROMEUtilities.h>
-#include <ArgusWindow.h>
+#include "ROMENetFolderServer.h"
+#include "ROMETask.h"
+#include "ROMEAnalyzer.h"
+#include "ROMEEventLoop.h"
+#include "ROMEUtilities.h"
+#include "ArgusWindow.h"
 #include <Riostream.h>
 
 ClassImp(ROMEAnalyzer)

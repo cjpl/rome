@@ -19,7 +19,7 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include <ROMEXML.h>
+#include "ROMEXML.h"
 #include "XMLToFormFrame.h"
 
 class XMLToFormWindow;

@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMEPgSQL.h>
+#include "ROMEPgSQL.h"
 
 ClassImp(ROMEPgSQL)
 

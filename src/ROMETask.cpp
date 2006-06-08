@@ -23,9 +23,9 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <ROMETask.h>
-#include <ROMEAnalyzer.h>
-#include "Riostream.h"
+#include "ROMETask.h"
+#include "ROMEAnalyzer.h"
+#include <Riostream.h>
 
 ClassImp(ROMETask)
 

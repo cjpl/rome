@@ -2,9 +2,9 @@
 #ifndef ROMEConfigToForm_H
 #define ROMEConfigToForm_H
 
-#include <ROMEStr2DArray.h>
-#include <XMLToFormWindow.h>
-#include <XMLToForm.h>
+#include "ROMEStr2DArray.h"
+#include "XMLToFormWindow.h"
+#include "XMLToForm.h"
 
 class ROMEConfigToForm : public XMLToForm{
 protected:

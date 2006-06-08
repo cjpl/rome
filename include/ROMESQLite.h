@@ -8,9 +8,9 @@
 #define ROMESQLITE_H
 
 #include <sqlite.h>
-#include <ROMESQL.h>
-#include <ROMEStrArray.h>
-#include <ROMEStr2DArray.h>
+#include "ROMESQL.h"
+#include "ROMEStrArray.h"
+#include "ROMEStr2DArray.h"
 const Int_t fileOpenMode = 0;
 
 class ROMESQLite : public ROMESQL

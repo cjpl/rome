@@ -7,8 +7,8 @@
 #ifndef ROMEOrcaDAQ_H
 #define ROMEOrcaDAQ_H
 
-#include <ROMEAnalyzer.h>
-#include <ROMEDAQSystem.h>
+#include "ROMEAnalyzer.h"
+#include "ROMEDAQSystem.h"
 
 class ROMEOrcaDAQ : public ROMEDAQSystem {
 

@@ -39,7 +39,7 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include <include/generated/HGTMakeHistogram.h>
+#include <include/tasks/HGTMakeHistogram.h>
 #include <Riostream.h>
 #include <TRandom.h>
 

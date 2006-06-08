@@ -21,8 +21,8 @@
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include <ROMEAnalyzer.h>
-#include <ROMENetFolderServer.h>
+#include "ROMEAnalyzer.h"
+#include "ROMENetFolderServer.h"
 
 ClassImp(ROMENetFolderServer)
 

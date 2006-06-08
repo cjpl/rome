@@ -7,8 +7,8 @@
 #ifndef ROMEStopwatch_H
 #define ROMEStopwatch_H
 
-#include<TStopwatch.h>
-#include<ROMEString.h>
+#include <TStopwatch.h>
+#include <ROMEString.h>
 
 class ROMEStopwatch : public TStopwatch
 {

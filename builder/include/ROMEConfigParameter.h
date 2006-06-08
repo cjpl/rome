@@ -9,8 +9,8 @@
 
 #include <TObject.h>
 #include <TObjArray.h>
-#include <ROMEString.h>
-#include <ROMEBuilder.h>
+#include "ROMEString.h"
+#include "ROMEBuilder.h"
 
 class ROMEConfigParameter : public TObject {
 private:

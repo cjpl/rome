@@ -7,7 +7,7 @@
 #ifndef ROMENetFolderServer_H
 #define ROMENetFolderServer_H
 
-#include <TNetFolderServer.h>
+#include "TNetFolderServer.h"
 
 class ROMENetFolderServer : public TNetFolderServer
 {

@@ -5,13 +5,13 @@
   $Id$
 
 ********************************************************************/
-#include "RConfig.h"
-#include "Riostream.h"
+#include <RConfig.h>
+#include <Riostream.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include "TSystem.h"
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -34,16 +34,8 @@ void ROMEBuilder::AddIncludeDirectories()
    includeDirectories->AddFormatted("$(ROOTSYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/include/");
    includeDirectories->AddFormatted("$(ROMESYS)/argus/include/");
-   includeDirectories->AddFormatted(".");
-   includeDirectories->AddFormatted("./include/");
-   if (numOfTab >0)
-      includeDirectories->AddFormatted("./include/tabs/");
-   if (numOfTask >0)
-      includeDirectories->AddFormatted("./include/tasks/");
-   includeDirectories->AddFormatted("./include/generated/");
-   if (hasFolderUserCode) includeDirectories->AddFormatted("./include/folders/");
-   if (numOfDAQ > 0) includeDirectories->AddFormatted("./include/daqs/");
-   if (numOfDB > 0) includeDirectories->AddFormatted("./include/databases/");
+   includeDirectories->AddFormatted("include/");
+   includeDirectories->AddFormatted("./");
 #if defined( R__VISUAL_CPLUSPLUS )
    if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
    if (midas) includeDirectories->AddFormatted("$(MIDASSYS)/include/");

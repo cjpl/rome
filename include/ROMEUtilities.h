@@ -8,8 +8,8 @@
 #define ROMEUtilities_H
 
 #include <Rtypes.h>
-#include <ROMEString.h>
-#include <ROMEStrArray.h>
+#include "ROMEString.h"
+#include "ROMEStrArray.h"
 
 class ROMEUtilities : public TObject
 {

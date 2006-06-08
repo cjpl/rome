@@ -24,10 +24,10 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include <ArgusAnalyzerController.h>
-#include <ArgusTab.h>
-#include <ROMEAnalyzer.h>
-#include <ROMEString.h>
+#include "ArgusAnalyzerController.h"
+#include "ArgusTab.h"
+#include "ROMEAnalyzer.h"
+#include "ROMEString.h"
 
 class ArgusWindow : public TGMainFrame 
 {

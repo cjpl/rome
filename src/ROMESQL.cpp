@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMESQL.h>
+#include "ROMESQL.h"
 
 ClassImp(ROMESQL)
 

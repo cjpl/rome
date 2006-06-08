@@ -7,7 +7,7 @@
 #ifndef ROMEDataBaseDAQ_H
 #define ROMEDataBaseDAQ_H
 
-#include <ROMEDAQSystem.h>
+#include "ROMEDAQSystem.h"
 
 class ROMEDataBaseDAQ : public ROMEDAQSystem
 {

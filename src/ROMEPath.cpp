@@ -11,9 +11,9 @@
 
 #include <TMath.h>
 #include <TObjArray.h>
-#include <ROMEStr2DArray.h>
-#include <ROMEPath.h>
 #include <Riostream.h>
+#include "ROMEStr2DArray.h"
+#include "ROMEPath.h"
 
 ClassImp(ROMEPath)
 

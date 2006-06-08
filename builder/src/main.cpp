@@ -10,7 +10,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include "TSystem.h"
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -26,8 +26,8 @@
 #      include <sys/io.h>
 #   endif
 #endif
-#include <ROMEBuilder.h>
 #include <Riostream.h>
+#include "ROMEBuilder.h"
 
 int main(int argc, char *argv[])
 {

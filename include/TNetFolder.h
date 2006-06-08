@@ -13,12 +13,12 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include "TNamed.h"
-#include "TSocket.h"
-#include "TCollection.h"
-#include "TObjArray.h"
-#include "TFolder.h"
-#include "TMessage.h"
+#include <TNamed.h>
+#include <TSocket.h>
+#include <TCollection.h>
+#include <TObjArray.h>
+#include <TFolder.h>
+#include <TMessage.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS

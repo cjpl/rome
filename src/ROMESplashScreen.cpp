@@ -11,9 +11,9 @@
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 
-#include <ROMEString.h>
 #include <Windows4Root.h>
 #include <Riostream.h>
+#include "ROMEString.h"
 
 #define ID_SPLASHSCREEN      25
 #define MY_BUFSIZE         1024 // buffer size for console window titles

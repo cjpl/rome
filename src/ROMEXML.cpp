@@ -29,7 +29,7 @@
 #include <TObjArray.h>
 #include <Riostream.h>
 
-#include <ROMEXML.h>
+#include "ROMEXML.h"
 
 ClassImp(ROMEXML)
 

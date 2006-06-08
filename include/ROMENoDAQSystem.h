@@ -7,8 +7,8 @@
 #ifndef ROMENoDAQSystem_H
 #define ROMENoDAQSystem_H
 
-#include <ROMEAnalyzer.h>
-#include <ROMEDAQSystem.h>
+#include "ROMEAnalyzer.h"
+#include "ROMEDAQSystem.h"
 
 class ROMENoDAQSystem : public ROMEDAQSystem {
 public:

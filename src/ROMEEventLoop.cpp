@@ -34,10 +34,10 @@
 #include "ArgusWindow.h"
 
 #if defined( HAVE_MIDAS )
-#   include <midas.h>
+#   include "midas.h"
 #endif
 
-#include <ROMEEventLoop.h>
+#include "ROMEEventLoop.h"
 #include <Riostream.h>
 
 TTask *TTask::fgBeginTask  = 0;
