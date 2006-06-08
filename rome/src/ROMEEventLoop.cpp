@@ -315,21 +315,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       }
    }
 
-   // Terminate
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
          gROME->PrintLine("run times :                      All Methods   Event Methods");
          gROME->PrintLine("-----------                      ------------  -------------");
          Exec("t");
-         if (!this->DAQTerminate(false)) {
-            gROME->SetTerminationFlag();
-            gROME->PrintLine("\n\nTerminating Program !");
-            return;
-         }
-         gROME->PrintVerbose("Executing Terminate tasks");
-         ExecuteTasks("Terminate");
-         CleanTasks();
          gROME->PrintLine("");
       }
    }
@@ -347,6 +338,18 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          gROME->GetApplication()->Run(true);
          gROME->PrintLine();
       }
+   }
+
+   // Terminate
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      if (!this->DAQTerminate(false)) {
+         gROME->SetTerminationFlag();
+         gROME->PrintLine("\n\nTerminating Program !");
+         return;
+      }
+      gROME->PrintVerbose("Executing Terminate tasks");
+      ExecuteTasks("Terminate");
+      CleanTasks();
    }
 }
 
@@ -383,7 +386,7 @@ Bool_t ROMEEventLoop::DAQInit()
    if (!gROME->GetActiveDAQ()->InitDAQ())
       return false;
 
-   // Open Output Files
+   // Open Output Files for accumulative output tree files
    ROMEString filename;
    ROMETree *romeTree;
    TTree *tree;
