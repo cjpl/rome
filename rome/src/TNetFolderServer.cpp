@@ -25,8 +25,8 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TNetFolderServer.h>
 #include <Riostream.h>
+#include "TNetFolderServer.h"
 
 TApplication *TNetFolderServer::fApplication;
 TString TNetFolderServer::fServerName;

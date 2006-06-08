@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMESQLite3.h>
+#include "ROMESQLite3.h"
 
 ClassImp(ROMESQLite3)
 

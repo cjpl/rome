@@ -18,9 +18,9 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include <ArgusTab.h>
-#include <ROMEAnalyzer.h>
-#include "Riostream.h"
+#include <Riostream.h>
+#include "ArgusTab.h"
+#include "ROMEAnalyzer.h"
 
 ClassImp(ArgusTab)
 

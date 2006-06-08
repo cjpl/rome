@@ -11,10 +11,10 @@
 #include <zlib.h>
 #include <RConfig.h>
 #include <TArrayL.h>
-#include <ROMEDAQSystem.h>
+#include "ROMEDAQSystem.h"
 
 #if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
-#   include <midas.h>
+#   include "midas.h"
 #else
 #if defined( R__VISUAL_CPLUSPLUS )
 typedef unsigned long   DWORD;

@@ -7,7 +7,7 @@
 #ifndef ROMEMYSQL_H
 #define ROMEMYSQL_H
 
-#include <ROMESQL.h>
+#include "ROMESQL.h"
 #if defined ( R__VISUAL_CPLUSPLUS )
 #   include <Windows4root.h>
 //typedef UINT_PTR        SOCKET;

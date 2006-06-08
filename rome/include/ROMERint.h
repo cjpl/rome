@@ -12,9 +12,9 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif
-#include "TRint.h"
-#include "TSystem.h"
-#include "TSysEvtHandler.h"
+#include <TRint.h>
+#include <TSystem.h>
+#include <TSysEvtHandler.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif

@@ -37,7 +37,7 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "include/generated/MRTFillHisto.h"
+#include "include/tasks/MRTFillHisto.h"
 #include <TRandom.h>
 #include <Riostream.h>
 

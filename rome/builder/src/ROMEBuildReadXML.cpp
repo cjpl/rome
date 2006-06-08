@@ -5,8 +5,8 @@
   $Id$
 
 ********************************************************************/
+#include <Riostream.h>
 #include "ROMEBuilder.h"
-#include "Riostream.h"
 
 Bool_t ROMEBuilder::AllocateMemorySpace()
 {

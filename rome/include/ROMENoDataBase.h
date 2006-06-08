@@ -7,7 +7,7 @@
 #ifndef ROMENoDataBase_H
 #define ROMENoDataBase_H
 
-#include <ROMEStr2DArray.h>
+#include "ROMEStr2DArray.h"
 
 class ROMENoDataBase : public ROMEDataBase {
 public:

@@ -11,13 +11,13 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 extern "C" {
 #endif
-#include <mxml.h>
+#include "mxml.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 }
 #endif
 
-#include <ROMEString.h>
-#include <ROMEStrArray.h>
+#include "ROMEString.h"
+#include "ROMEStrArray.h"
 
 class ROMEXML : public TObject
 {

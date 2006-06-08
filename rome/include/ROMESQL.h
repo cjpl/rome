@@ -8,7 +8,7 @@
 #define ROMESQL_H
 
 #include <Riostream.h>
-#include <ROMEString.h>
+#include "ROMEString.h"
 
 class ROMESQL
 {

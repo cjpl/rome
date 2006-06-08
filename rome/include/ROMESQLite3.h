@@ -11,8 +11,8 @@
 #   include <Windows4root.h>
 //typedef UINT_PTR        SOCKET;
 #endif
-#include <ROMESQL.h>
-#include <ROMEStr2DArray.h>
+#include "ROMESQL.h"
+#include "ROMEStr2DArray.h"
 #include <sqlite3.h>
 
 class ROMESQLite3 : public ROMESQL

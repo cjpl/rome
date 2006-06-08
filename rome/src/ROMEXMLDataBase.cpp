@@ -8,11 +8,10 @@
 //  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMEString.h>
 #include <TObjString.h>
 #include <Riostream.h>
-
-#include <ROMEXMLDataBase.h>
+#include "ROMEString.h"
+#include "ROMEXMLDataBase.h"
 
 ClassImp(ROMEXMLDataBase)
 

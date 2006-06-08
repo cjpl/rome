@@ -12,7 +12,7 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 
-#include "include/generated/THTTaskB.h"
+#include "include/tasks/THTTaskB.h"
 #include "Riostream.h"
 
 ClassImp(THTTaskB)

@@ -16,11 +16,11 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "RConfig.h"
-#include "TObject.h"
-#include "TClass.h"
-#include "TClonesArray.h"
-#include "TString.h"
+#include <RConfig.h>
+#include <TObject.h>
+#include <TClass.h>
+#include <TClonesArray.h>
+#include <TString.h>
 
 class FORunInfo : public TObject
 {

@@ -16,10 +16,10 @@
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
 
-#include "RConfig.h"
-#include "TObject.h"
-#include "TClass.h"
-#include "TClonesArray.h"
+#include <RConfig.h>
+#include <TObject.h>
+#include <TClass.h>
+#include <TClonesArray.h>
 
 class FOPMTData : public TObject
 {

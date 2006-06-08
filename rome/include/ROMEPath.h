@@ -8,8 +8,8 @@
 #define ROMEPath_H
 
 #include <TArrayI.h>
-#include <ROMEString.h>
-#include <ROMEStrArray.h>
+#include "ROMEString.h"
+#include "ROMEStrArray.h"
 
 class ROMEPath : public TObject
 {

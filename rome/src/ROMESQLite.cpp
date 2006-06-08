@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMESQLite.h>
+#include "ROMESQLite.h"
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <windows.h>

@@ -7,13 +7,13 @@
 #ifndef ArgusTab_H
 #define ArgusTab_H
 
-#include "RConfig.h"
+#include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
 #   pragma warning( disable : 4800 )
 #endif
-#include "TGFrame.h"
-#include "TTimer.h"
+#include <TGFrame.h>
+#include <TTimer.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif

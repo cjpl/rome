@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMEMySQL.h>
+#include "ROMEMySQL.h"
 
 ClassImp(ROMEMySQL)
 

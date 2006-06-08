@@ -8,8 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <ROMEStr2DArray.h>
-#include "Riostream.h"
+#include "ROMEStr2DArray.h"
+#include <Riostream.h>
 
 ClassImp(ROMEStr2DArray)
 

@@ -12,6 +12,8 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "include/generated/NFTHistos_Base.h"
+#include <TH1.h>
+#include <TRootEmbeddedCanvas.h>
 
 class NFTHistos : public NFTHistos_Base
 {
