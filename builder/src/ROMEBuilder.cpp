@@ -82,8 +82,6 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskEventID;
    delete [] taskDescription;
    delete [] taskShortDescription;
-   delete [] taskFortran;
-   delete [] taskUserCode;
    delete [] taskAuthor;
    delete [] taskAuthorInstitute;
    delete [] taskAuthorCollaboration;
@@ -395,13 +393,6 @@ Bool_t ROMEBuilder::StartBuilder()
          tabSuffix[i] = "";
    }
 
-   // test for fortran
-   for (i=0;i<numOfTask;i++) {
-      if (taskFortran[i]) {
-         haveFortranTask = true;
-         break;
-      }
-   }
    if (!readGlobalSteeringParameters) {
       if (numOfTaskHierarchy==-1)
          numOfTaskHierarchy++;
@@ -429,10 +420,8 @@ Bool_t ROMEBuilder::StartBuilder()
    if (numOfTask > 0) {
       path.SetFormatted("%ssrc/tasks", outDir.Data());
       gSystem->MakeDirectory(path.Data());
-      if (hasTaskUserCode) {
-         path.SetFormatted("%sinclude/tasks", outDir.Data());
-         gSystem->MakeDirectory(path.Data());
-      }
+      path.SetFormatted("%sinclude/tasks", outDir.Data());
+      gSystem->MakeDirectory(path.Data());
    }
    if (numOfTab > 0) {
       path.SetFormatted("%ssrc/tabs", outDir.Data());
@@ -466,7 +455,6 @@ Bool_t ROMEBuilder::StartBuilder()
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
    if (!WriteAnalyzerH()) return false;
-   if (!WriteAnalyzerF()) return false;
    if (makeOutput) 
       cout << "\n\nWindow:" << endl;
    if (!WriteWindowCpp()) return false;
@@ -479,12 +467,15 @@ Bool_t ROMEBuilder::StartBuilder()
    if (makeOutput) 
       cout << "\n\nTasks:" << endl;
    if (!WriteTaskCpp()) return false;
-   if (!WriteTaskF()) return false;
+   if (!WriteBaseTaskCpp()) return false;
    if (!WriteTaskH()) return false;
+   if (!WriteBaseTaskH()) return false;
    if (makeOutput)
       cout << "\n\nTabs:" << endl;
    if (!WriteTabCpp()) return false;
+   if (!WriteBaseTabCpp()) return false;
    if (!WriteTabH()) return false;
+   if (!WriteBaseTabH()) return false;
    if (makeOutput) 
       cout << "\n\nUser DAQ Systems:" << endl;
    if (!WriteDAQCpp()) return false;

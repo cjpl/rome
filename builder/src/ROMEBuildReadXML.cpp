@@ -190,8 +190,6 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskEventID = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
-   taskFortran = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
-   taskUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfTasks));
    taskAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
@@ -577,8 +575,6 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   // initialization
                   numOfTask = -1;
                   parent[0] = "GetMainTask()";
-                  hasTaskUserCode = false;
-                  hasTaskGenerated = false;
                   // output
                   if (makeOutput) cout << "\n\nTasks:" << endl;
                   while (xml->NextLine()) {
@@ -1268,8 +1264,6 @@ Bool_t ROMEBuilder::ReadXMLTask()
    numOfTaskAffiliations[numOfTask] = 0;
    taskUsed[numOfTask] = true;
    taskEventID[numOfTask] = "-1";
-   taskFortran[numOfTask] = false;
-   taskUserCode[numOfTask] = false;
    taskAuthor[numOfTask] = mainAuthor;
    taskVersion[numOfTask] = "1";
    taskDescription[numOfTask] = "";
@@ -1347,18 +1341,6 @@ Bool_t ROMEBuilder::ReadXMLTask()
       // task language
       if (type == 1 && !strcmp((const char*)name,"Language")) {
          xml->GetValue(tmp,"c++");
-         if (tmp == "Fortran")
-            taskFortran[numOfTask] = true;
-      }
-      // task with changeble class file
-      if (type == 1 && !strcmp((const char*)name,"ChangeableClassFile")) {
-         hasTaskUserCode = true;
-         xml->GetValue(tmp,"false");
-         if (tmp == "true")
-            taskUserCode[numOfTask] = true;
-      }
-      else {
-         hasTaskGenerated = true;
       }
       // task author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
