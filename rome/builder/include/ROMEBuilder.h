@@ -56,8 +56,6 @@ public:
    ROMEString    romeVersion;
 
 protected:
-   Bool_t        haveFortranTask;
-
    ROMEString    outDir;
    ROMEString    xmlFile;
    ROMEString    xsdFile;
@@ -175,8 +173,6 @@ protected:
    ROMEString   *taskEventID;
    ROMEString   *taskDescription;
    ROMEString   *taskShortDescription;
-   Bool_t       *taskFortran;
-   Bool_t       *taskUserCode;
    ROMEString   *taskAuthor;
    ROMEString   *taskAuthorInstitute;
    ROMEString   *taskAuthorCollaboration;
@@ -207,8 +203,6 @@ protected:
    ROMEString ***histoTabName;
    ROMEString ***histoTabIndex;
    ROMEString ***histoTabArrayIndex;
-   Bool_t        hasTaskUserCode;
-   Bool_t        hasTaskGenerated;
 
 // task hierarchy
    Int_t         numOfTaskHierarchy;
@@ -432,7 +426,7 @@ protected:
    int maxConfigParameterHierarchyLevel;
 
 public:
-   ROMEBuilder() { haveFortranTask = false; };
+   ROMEBuilder() { };
    ~ROMEBuilder();
 
    Bool_t  StartBuilder();
@@ -472,14 +466,16 @@ private:
    void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder,Int_t scl,Int_t nameLen,Int_t typeLen);
    void    WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder,Int_t scl);
    Bool_t  WriteTaskCpp();
-   Bool_t  WriteTaskF();
+   Bool_t  WriteBaseTaskCpp();
    Bool_t  WriteTaskH();
+   Bool_t  WriteBaseTaskH();
    Bool_t  WriteTabCpp();
+   Bool_t  WriteBaseTabCpp();
    Bool_t  WriteTabH();
+   Bool_t  WriteBaseTabH();
    Bool_t  WriteSteering(Int_t iTask);
    Bool_t  WriteAnalyzerCpp();
    Bool_t  WriteAnalyzerH();
-   Bool_t  WriteAnalyzerF();
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindowH();
    Bool_t  AddTab(ROMEString& buffer,Int_t& i);

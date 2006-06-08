@@ -1463,627 +1463,155 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       clsName.SetFormatted("%sT%s", shortCut.Data(), taskName[iTask].Data());
       clsDescription = taskDescription[iTask].Data();
       clsDescription.AppendFormatted("\n\n");
-      if (!taskFortran[iTask]) {
-         clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
-         fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         bool first = true;
-         for (j=0;j<numOfFolder;j++) {
-            if (accessFolder(fileBuffer,j)) {
-               if (first) {
-                  clsDescription.AppendFormatted("\n");
-                  clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
-                  clsDescription.AppendFormatted("\n");
-                  clsDescription.AppendFormatted("This task accesses the following folders :\n");
-                  first = false;
-               }
-               if (!folderUsed[j]) {
-/*                  cout << "Error : Task " << taskName[iTask].Data() << " tries to access folder " << folderName[j].Data() << endl;
-                  cout << "        but this folder is currently not linked into the project." << endl << endl;
-                  cout << "        Please check the affiliations of the task and the folder," << endl;
-                  cout << "        or modify the source code of the task." << endl;
-                  cout << "Terminating program." << endl;
-                  return false;
-*/                  clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
-               }
-            }
-         }
-         clsDescription.AppendFormatted("\n");
-         if (numOfHistos[iTask]>0) {
+      clsDescription.AppendFormatted("The event methods have been written by %s.\n",taskAuthor[iTask].Data());
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      bool first = true;
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j)) {
             if (first) {
-               clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
-               clsDescription.AppendFormatted("              \n");
                clsDescription.AppendFormatted("\n");
+               clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
+               clsDescription.AppendFormatted("\n");
+               clsDescription.AppendFormatted("This task accesses the following folders :\n");
                first = false;
             }
-            clsDescription.AppendFormatted(" This task contains the following histgrams :\n");
-            for (i=0;i<numOfHistos[iTask];i++) {
-               clsDescription.AppendFormatted("    %s\n",histoName[iTask][i].Data());
+            if (!folderUsed[j]) {
+/*                  cout << "Error : Task " << taskName[iTask].Data() << " tries to access folder " << folderName[j].Data() << endl;
+               cout << "        but this folder is currently not linked into the project." << endl << endl;
+               cout << "        Please check the affiliations of the task and the folder," << endl;
+               cout << "        or modify the source code of the task." << endl;
+               cout << "Terminating program." << endl;
+               return false;
+*/                  clsDescription.AppendFormatted("    %s\n",folderName[j].Data());
             }
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("The histograms are created and saved automaticaly by the task.\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("The following method can be used to fill a histogram :\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("Fill<Histogram Name>(Double_t value,Double_t weight)\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("For histogram arrays use :\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("Fill<Histogram Name>At(Int_t index,Double_t value,Double_t weight)\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("If more histogram functions are needed use the following function the get\n");
-            clsDescription.AppendFormatted(" a handle to the histogram and use the root functions.\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("Get<Histogram Name>()\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("For histogram arrays use :\n");
-            clsDescription.AppendFormatted("\n");
-            clsDescription.AppendFormatted("Get<Histogram Name>At(Int_t index)\n");
          }
-         bool folderIncludeFirst = true;
-         for (j=0;j<numOfFolder;j++) {
-            if (accessFolder(fileBuffer,j)) {
-               if (!folderUsed[j])
-                  continue;
-               if (numOfValue[j] > 0 && !folderSupport[j]) {
-                  if (folderIncludeFirst) {
-                     folderIncludeFirst = false;
-                     clsDescription.AppendFormatted("\n");
-                     clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
-                  }
-                  if (folderUserCode[j])
-                     clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
-                  else
-                     clsDescription.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+      }
+      clsDescription.AppendFormatted("\n");
+      if (numOfHistos[iTask]>0) {
+         if (first) {
+            clsDescription.AppendFormatted("Please note: The following information is only correct after executing the ROMEBuilder.\n");
+            clsDescription.AppendFormatted("              \n");
+            clsDescription.AppendFormatted("\n");
+            first = false;
+         }
+         clsDescription.AppendFormatted(" This task contains the following histgrams :\n");
+         for (i=0;i<numOfHistos[iTask];i++) {
+            clsDescription.AppendFormatted("    %s\n",histoName[iTask][i].Data());
+         }
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("The histograms are created and saved automaticaly by the task.\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("The following method can be used to fill a histogram :\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("Fill<Histogram Name>(Double_t value,Double_t weight)\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("For histogram arrays use :\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("Fill<Histogram Name>At(Int_t index,Double_t value,Double_t weight)\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("If more histogram functions are needed use the following function the get\n");
+         clsDescription.AppendFormatted(" a handle to the histogram and use the root functions.\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("Get<Histogram Name>()\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("For histogram arrays use :\n");
+         clsDescription.AppendFormatted("\n");
+         clsDescription.AppendFormatted("Get<Histogram Name>At(Int_t index)\n");
+      }
+      bool folderIncludeFirst = true;
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j)) {
+            if (!folderUsed[j])
+               continue;
+            if (numOfValue[j] > 0 && !folderSupport[j]) {
+               if (folderIncludeFirst) {
+                  folderIncludeFirst = false;
+                  clsDescription.AppendFormatted("\n");
+                  clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
                }
+               if (folderUserCode[j])
+                  clsDescription.AppendFormatted("#include \"include/folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               else
+                  clsDescription.AppendFormatted("#include \"include/generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
             }
          }
       }
 
-      // fortran task
-      if (taskFortran[iTask]) {
-         // Header
-         if (taskUserCode[iTask])
-            buffer.AppendFormatted("\n\n#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
-         else
-            buffer.AppendFormatted("\n\n#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("#include \"Riostream.h\"\n");
+      WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
-         buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.Resize(0);
+      // Header
+      buffer.AppendFormatted("\n\n#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("#include \"Riostream.h\"\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
+      buffer.AppendFormatted("//#include \"%sAllFolders.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("\n");
 
-         // User Functions
-#if defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("extern \"C\" void %sT%s_INIT();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %sT%s_INIT();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %sT%s_BEGINOFRUN();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %sT%s_BEGINOFRUN();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %sT%s_EVENT();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %sT%s_EVENT();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %sT%s_ENDOFRUN();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %sT%s_ENDOFRUN();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %sT%s_TERMINATE();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %sT%s_TERMINATE();\n",shortCut.ToUpper(tmp),taskName[iTask].ToUpper(tmp));
-         buffer.AppendFormatted("}\n\n");
-#endif
-#if defined( R__UNIX )
-         ROMEString tmp2;
-         buffer.AppendFormatted("extern \"C\" void %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("void %sT%s::Init()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_init_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_beginofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("void %sT%s::Event()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_event_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_endofrun_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("}\n\n");
-         buffer.AppendFormatted("extern \"C\" void %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("void %sT%s::Terminate()\n{\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   %st%s_terminate_();\n",shortCut.ToLower(tmp),taskName[iTask].ToLower(tmp2));
-         buffer.AppendFormatted("}\n\n");
-         //Write File
-         clsDescription += buffer;
-         WriteFile(cppFile.Data(),header.Data(),6);
-#endif
-      }
-      else{ // c++ task
-         WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
+      buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
 
-         buffer.Resize(0);
-         // Header
-         if (taskUserCode[iTask])
-            buffer.AppendFormatted("\n\n#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
-         else
-            buffer.AppendFormatted("\n\n#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("#include \"Riostream.h\"\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
-         buffer.AppendFormatted("//#include \"%sAllFolders.h\"\n",shortCut.Data());
-         buffer.AppendFormatted("\n");
+      // User Functions
+      buffer.AppendFormatted("void %sT%s::Init()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s::Event()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
 
-         buffer.AppendFormatted("\nClassImp(%sT%s)\n\n",shortCut.Data(),taskName[iTask].Data());
-
-         // User Functions
-         buffer.AppendFormatted("void %sT%s::Init()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("void %sT%s::BeginOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("void %sT%s::Event()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("void %sT%s::EndOfRun()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("void %sT%s::Terminate()\n{\n}\n\n",shortCut.Data(),taskName[iTask].Data());
-
-         //Write File
-         // replace header
-         ROMEString str1, str2;
-         if (taskUserCode[iTask]) {
-            str1.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-            str2.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-         }
-         else {
-            str1.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-            str2.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-         }
-         ReplaceHeader(cppFile.Data(),header.Data(),buffer.Data(),6,str1.Data(),str2.Data());
-      }
+      //Write File
+      // replace header
+      ROMEString str1, str2;
+      str1.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+      str2.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
+      ReplaceHeader(cppFile.Data(),header.Data(),buffer.Data(),6,str1.Data(),str2.Data());
    }
    return true;
 }
 
-Bool_t ROMEBuilder::WriteTaskF()
+Bool_t ROMEBuilder::WriteBaseTaskCpp()
 {
-   ROMEString fFile;
+   int i,j;
+   ROMEString cppFile;
    ROMEString buffer;
-
-   if (makeOutput) cout << "\n   Output F-Files:" << endl;
-   for (int iTask=0;iTask<numOfTask;iTask++) {
-      if (!taskUsed[iTask])
-         continue;
-      if (taskFortran[iTask]) {
-         // File name
-         fFile.SetFormatted("%ssrc/tasks/%sTF%s.F",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-
-         ROMEString shortcut(shortCut);
-         shortcut.ToLower();
-         ROMEString taskname(taskName[iTask]);
-         taskname.ToLower();
-
-         if (gSystem->AccessPathName(fFile.Data(),kFileExists)) {
-            if (makeOutput) cout << "      " << fFile.Data() << endl;
-
-            // Methods
-            buffer.Resize(0);
-            buffer.AppendFormatted("      subroutine %st%s_init()\n\n",shortcut.Data(),taskname.Data());
-            buffer.AppendFormatted("      return\n");
-            buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%s_beginofrun()\n\n",shortcut.Data(),taskname.Data());
-            buffer.AppendFormatted("      return\n");
-            buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%s_event()\n\n",shortcut.Data(),taskname.Data());
-            buffer.AppendFormatted("      return\n");
-            buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%s_endofrun()\n\n",shortcut.Data(),taskname.Data());
-            buffer.AppendFormatted("      return\n");
-            buffer.AppendFormatted("      end\n\n");
-            buffer.AppendFormatted("      subroutine %st%s_terminate()\n\n",shortcut.Data(),taskname.Data());
-            buffer.AppendFormatted("      return\n");
-            buffer.AppendFormatted("      end\n\n");
-
-            // Write File
-            WriteFile(fFile.Data(),buffer.Data(),6);
-         }
-      }
-   }
-   return true;
-}
-
-Bool_t ROMEBuilder::WriteTaskH()
-{
-   ROMEString hFile;
-   ROMEString buffer;
-   ROMEString format;
    ROMEString clsName;
    ROMEString clsDescription;
-   bool changeableFlagChanged;
-   int i,j;
+   ROMEString fileBuffer;
+   ROMEString tmp;
 
-   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   ROMEString format;
+   ROMEString discript;
+   ROMEString str;
+
+   if (makeOutput) cout << "\n   Output Cpp-Files:" << endl;
    for (int iTask=0;iTask<numOfTask;iTask++) {
       if (!taskUsed[iTask])
          continue;
-      changeableFlagChanged = false;
-
-      //back up old files
-      if (taskUserCode[iTask]) {
-         hFile.SetFormatted("%sinclude/generated/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         changeableFlagChanged = RemoveFile(hFile.Data());
-      }
-      else {
-         hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         changeableFlagChanged = RemoveFile(hFile.Data());
-         hFile.SetFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-         BackUpFile(hFile.Data());
-      }
-      if (changeableFlagChanged) {
-         if (taskUserCode[iTask])
-            hFile.SetFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-         else
-            hFile.SetFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[iTask].Data());
-         RemoveDepFiles(hFile.Data());
-      }
-
+      buffer.Resize(0);
       // File name
-      if (taskUserCode[iTask])
-         hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-      else
-         hFile.SetFormatted("%sinclude/generated/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+      cppFile.SetFormatted("%ssrc/generated/%sT%s_Base.cpp",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
 
       // Description
-      buffer.Resize(0);
-      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
-      if (taskUserCode[iTask]) {
-         buffer.AppendFormatted("#ifndef %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("#define %sT%s_Base_H\n\n",shortCut.Data(),taskName[iTask].Data());
-      }
-      else {
-         buffer.AppendFormatted("#ifndef %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("#define %sT%s_H\n\n",shortCut.Data(),taskName[iTask].Data());
-      }
-      clsName.SetFormatted("%sT%s", shortCut.Data(), taskName[iTask].Data());
+      WriteHeader(buffer, taskAuthor[iTask].Data(), kFALSE);
+      clsName.SetFormatted("%sT%s_Base", shortCut.Data(), taskName[iTask].Data());
       clsDescription = taskDescription[iTask].Data();
-      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+      clsDescription.AppendFormatted("\n\n");
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+
+      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
+
+      // Header
       buffer.AppendFormatted("\n\n");
 
-      if (numOfHistos[iTask]>0) {
-         buffer.AppendFormatted("#include \"RConfig.h\"\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("#pragma warning( push )\n");
-         buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-#endif // R__VISUAL_CPLUSPLUS
-         buffer.AppendFormatted("#include \"TH1.h\"\n");
-         buffer.AppendFormatted("#include \"TH2.h\"\n");
-         buffer.AppendFormatted("#include \"TH3.h\"\n");
-         buffer.AppendFormatted("#include \"TProfile.h\"\n");
-         buffer.AppendFormatted("#include \"TProfile2D.h\"\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-         buffer.AppendFormatted("#pragma warning( pop )\n");
-#endif // R__VISUAL_CPLUSPLUS
-      }
-      buffer.AppendFormatted("#include \"ROMETask.h\"\n");
+      buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("#include \"Riostream.h\"\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n",shortCut.Data(),taskName[iTask].Data());
 
-      for (i=0;i<numOfTaskInclude[iTask];i++) {
-         if (taskLocalFlag[iTask][i]) {
-            buffer.AppendFormatted("#include \"%s\"\n",taskInclude[iTask][i].Data());
-         }
-         else {
-            buffer.AppendFormatted("#include <%s>\n",taskInclude[iTask][i].Data());
-         }
-      }
-
-      if (readGlobalSteeringParameters)
-         buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
-      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
-
-      // Class
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("\nclass %sT%s_Base : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("\nclass %sT%s : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("{\n");
-
-      buffer.AppendFormatted("protected:\n");
-      // Fields
-      if (numOfSteering[iTask]>0) {
-         WriteSteeringClass(buffer,0,iTask,1);
-         buffer.AppendFormatted("\n");
-      }
-
-      if (numOfSteering[iTask]>0) {
-         buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
-      }
-
-      int nameLen = -1;
-      for (i=0;i<numOfHistos[iTask];i++) {
-         if (nameLen<(int)histoName[iTask][i].Length()) nameLen = histoName[iTask][i].Length();
-      }
-      for (i=0;i<numOfHistos[iTask];i++) {
-         if (histoArraySize[iTask][i]=="1") {
-            format.SetFormatted("   %%s*      f%%s;%%%ds // %%s Handle\n",20+nameLen-histoName[iTask][i].Length()+1);
-            buffer.AppendFormatted(format.Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         }
-         else {
-            format.SetFormatted("   TObjArray* f%%ss;%%%ds // %%s Handle\n",10+nameLen-histoName[iTask][i].Length());
-            buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         }
-         format.SetFormatted("   ROMEString f%%sTitle;%%%ds // Title of %%s\n",20+nameLen-histoName[iTask][i].Length()-5);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sTitleCode;%%%ds // Interpreter code of Title of %%s\n",20+nameLen-histoName[iTask][i].Length()-9);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   ROMEString f%%sFolderTitle;%%%ds // Title of the Folder of %%s\n",20+nameLen-histoName[iTask][i].Length()-11);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sFolderTitleCode;%%%ds // Interpreter code of Title of the Folder of %%s\n",20+nameLen-histoName[iTask][i].Length()-15);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sArraySize;%%%ds // Array Size of %%s\n",20+nameLen-histoName[iTask][i].Length()-9);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sArraySizeCode;%%%ds // Interpreter code of Array Size of %%s\n",20+nameLen-histoName[iTask][i].Length()-13);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sArrayStartIndex;%%%ds // Array Start Index of %%s\n",20+nameLen-histoName[iTask][i].Length()-15);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sArrayStartIndexCode;%%%ds // Interpreter code of Array Start Index of %%s\n",20+nameLen-histoName[iTask][i].Length()-19);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   ROMEString f%%sXLabel;%%%ds // Label of the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sXLabelCode;%%%ds // Interpreter code of Label of the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   ROMEString f%%sYLabel;%%%ds // Label of the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sYLabelCode;%%%ds // Interpreter code of Label of the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   ROMEString f%%sZLabel;%%%ds // Label of the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sZLabelCode;%%%ds // Interpreter code of Label of the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sXNbins;%%%ds // Number of bins on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sXNbinsCode;%%%ds // Interpreter code of Number of bins on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sXmin;%%%ds // Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sXminCode;%%%ds // Interpreter code of Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sXmax;%%%ds // Maximum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sXmaxCode;%%%ds // Interpreter code of Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sYNbins;%%%ds // Number of bins on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sYNbinsCode;%%%ds // Interpreter code of Number of bins on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sYmin;%%%ds // Minimum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sYminCode;%%%ds // Interpreter code of Minimum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sYmax;%%%ds // Maximum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sYmaxCode;%%%ds // Interpreter code of Maximum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sZNbins;%%%ds // Number of bins on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sZNbinsCode;%%%ds // Interpreter code of Number of bins on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sZmin;%%%ds // Minimum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sZminCode;%%%ds // Interpreter code of Minimum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Double_t   f%%sZmax;%%%ds // Maximum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Int_t      f%%sZmaxCode;%%%ds // Interpreter code of Maximum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-         format.SetFormatted("   Bool_t     f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",20+nameLen-histoName[iTask][i].Length()-12);
-         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
-      }
-      buffer.AppendFormatted("\n   ROMEString fHistoSuffix; //!\n");
-      buffer.AppendFormatted("\n   char*      fCstop; //!\n\n");
-
-      // Methods
-      buffer.AppendFormatted("public:\n");
-      // Constructor and Event Methods
-      buffer.AppendFormatted("   // Constructor\n");
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
-      // User Methods
-      buffer.AppendFormatted("   // User Methods\n");
-      if (numOfSteering[iTask]>0) {
-         buffer.AppendFormatted("   Steering* GetSteeringParameters() { return fSteering; };\n");
-         buffer.AppendFormatted("   Steering* GetSP() { return fSteering; };\n");
-      }
-      // Access Methods
-      for (i=0;i<numOfHistos[iTask];i++) {
-         if (histoArraySize[iTask][i]=="1") {
-            if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   %s* Get%s() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
-         }
-         else {
-            if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t z,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            }
-            buffer.AppendFormatted("   void Draw%sAt(Int_t index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   %s* Get%sAt(Int_t index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
-            buffer.AppendFormatted("   TObjArray* Get%s() { return f%ss; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-         }
-         buffer.AppendFormatted("   void Set%sTitle(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sFolderTitle(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sArraySize(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sArrayStartIndex(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sXLabel(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sYLabel(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sZLabel(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sXNbins(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sXmin(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sXmax(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sYNbins(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sYmin(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sYmax(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sZNbins(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sZmin(const char* value);\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sZmax(const char* value);\n",histoName[iTask][i].Data());
-
-         buffer.AppendFormatted("   const char* Get%sTitle() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sTitle==\"\")\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return \"%s\";\n",histoTitle[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sTitle;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   const char* Get%sFolderTitle() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sFolderTitle==\"\")\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return \"%s\";\n",histoFolderTitle[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sFolderTitle;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   const char* Get%sXLabel() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sXLabel==\"\")\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return \"%s\";\n",histoXLabel[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sXLabel;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   const char* Get%sYLabel() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sYLabel==\"\")\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return \"%s\";\n",histoYLabel[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sYLabel;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   const char* Get%sZLabel() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sZLabel==\"\")\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return \"%s\";\n",histoZLabel[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sZLabel;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   int Get%sArraySize() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sArraySize==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoArraySize[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sArraySize;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   int Get%sArrayStartIndex() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sArrayStartIndex==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoArrayStartIndex[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sArrayStartIndex;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   int Get%sXNbins() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sXNbins==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoXNbins[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sXNbins;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sXmin() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sXmin==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoXmin[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sXmin;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sXmax() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sXmax==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoXmax[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sXmax;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   int Get%sYNbins() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sYNbins==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoYNbins[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sYNbins;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sYmin() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sYmin==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoYmin[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sYmin;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sYmax() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sYmax==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoYmax[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sYmax;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   int Get%sZNbins() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sZNbins==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoZNbins[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sZNbins;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sZmin() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sZmin==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoZmin[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sZmin;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-         buffer.AppendFormatted("   double Get%sZmax() {\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("      if (f%sZmax==-1)\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("         return %s;\n",histoZmax[iTask][i].Data());
-         buffer.AppendFormatted("      else\n");
-         buffer.AppendFormatted("         return f%sZmax;\n",histoName[iTask][i].Data());
-         buffer.AppendFormatted("   };\n");
-
-         buffer.AppendFormatted("   Bool_t is%sAccumulation()                { return f%sAccumulation; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-         buffer.AppendFormatted("   void Set%sAccumulation(Bool_t flag)      { f%sAccumulation = flag; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
-      }
-
-
-      // Object Interpreter
-      buffer.AppendFormatted("   Int_t GetObjectInterpreterCode(const char* objectPath);\n");
-      buffer.AppendFormatted("   Int_t GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue);\n");
-      buffer.AppendFormatted("   Double_t GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue);\n");
-      buffer.AppendFormatted("   ROMEString& GetObjectInterpreterCharValue(Int_t code,ROMEString& defaultValue,ROMEString& buffer);\n");
-      // Protected
-      buffer.AppendFormatted("protected:\n");
-      buffer.AppendFormatted("   // Event Methods\n");
-      if (taskUserCode[iTask]) {
-         buffer.AppendFormatted("   virtual void Init() = 0;\n");
-         buffer.AppendFormatted("   virtual void BeginOfRun() = 0;\n");
-         buffer.AppendFormatted("   virtual void Event() = 0;\n");
-         buffer.AppendFormatted("   virtual void EndOfRun() = 0;\n");
-         buffer.AppendFormatted("   virtual void Terminate() = 0;\n\n");
-      }
-      else {
-         buffer.AppendFormatted("   virtual void Init();\n");
-         buffer.AppendFormatted("   virtual void BeginOfRun();\n");
-         buffer.AppendFormatted("   virtual void Event();\n");
-         buffer.AppendFormatted("   virtual void EndOfRun();\n");
-         buffer.AppendFormatted("   virtual void Terminate();\n\n");
-      }
-      // Histo Methods
-      buffer.AppendFormatted("   // Histo Methods\n");
-      buffer.AppendFormatted("   virtual void BookHisto();\n");
-      buffer.AppendFormatted("   virtual void ResetHisto();\n\n");
-      // Footer
-      if (taskUserCode[iTask]) {
-         buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s) // Base class of %sT%s\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
-      }
-      else {
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data());
-         if (taskShortDescription[iTask].Length())
-            buffer.AppendFormatted(" // %s", taskShortDescription[iTask].Data());
-         buffer.AppendFormatted("\n");
-      }
-      buffer.AppendFormatted("};\n\n");
-
-      // Histo Inline Methods
       // Constructor
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline %sT%s_Base::%sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline %sT%s::%sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("%sT%s_Base::%sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):ROMETask(name,title,level) {\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   fHistoSuffix = histoSuffix;\n");
       buffer.AppendFormatted("   fHistoFolder = histoFolder;\n");
       buffer.AppendFormatted("   fEventID = %s;\n",taskEventID[iTask].Data());
@@ -2132,10 +1660,7 @@ Bool_t ROMEBuilder::WriteTaskH()
       buffer.AppendFormatted("};\n");
 
       // Book
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline void %sT%s_Base::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline void %sT%s::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s_Base::BookHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       bool array = false;
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]!="1") array = true;
@@ -2273,10 +1798,7 @@ Bool_t ROMEBuilder::WriteTaskH()
       buffer.AppendFormatted("}\n\n");
 
       // Reset
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline void %sT%s_Base::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline void %sT%s::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("void %sT%s_Base::ResetHisto() {\n",shortCut.Data(),taskName[iTask].Data());
       array = false;
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]!="1")
@@ -2300,11 +1822,8 @@ Bool_t ROMEBuilder::WriteTaskH()
       buffer.AppendFormatted("}\n\n");
 
       ROMEString fctHead;
-      if (taskUserCode[iTask])
-         fctHead.SetFormatted("inline void %sT%s_Base::",shortCut.Data(),taskName[iTask].Data());
-      else
-         fctHead.SetFormatted("inline void %sT%s::",shortCut.Data(),taskName[iTask].Data());
-      // Parameter Setters
+      fctHead.SetFormatted("void %sT%s_Base::",shortCut.Data(),taskName[iTask].Data());
+      // Parameter Setters and Getters
       for (i=0;i<numOfHistos[iTask];i++) {
          buffer.AppendFormatted("%sSet%sTitle(const char* value) {\n",fctHead.Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   if ((f%sTitleCode=GetObjectInterpreterCode(value))==-1)\n",histoName[iTask][i].Data());
@@ -2371,15 +1890,109 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("      f%sZmax=strtod(value,&fCstop);\n",histoName[iTask][i].Data());
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("const char* %sT%s_Base::Get%sTitle() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sTitle==\"\")\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return \"%s\";\n",histoTitle[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sTitle;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("const char* %sT%s_Base::Get%sFolderTitle() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sFolderTitle==\"\")\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return \"%s\";\n",histoFolderTitle[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sFolderTitle;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("const char* %sT%s_Base::Get%sXLabel() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sXLabel==\"\")\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return \"%s\";\n",histoXLabel[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sXLabel;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("const char* %sT%s_Base::Get%sYLabel() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sYLabel==\"\")\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return \"%s\";\n",histoYLabel[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sYLabel;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("const char* %sT%s_Base::Get%sZLabel() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sZLabel==\"\")\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return \"%s\";\n",histoZLabel[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sZLabel;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("int %sT%s_Base::Get%sArraySize() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sArraySize==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoArraySize[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sArraySize;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("int %sT%s_Base::Get%sArrayStartIndex() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sArrayStartIndex==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoArrayStartIndex[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sArrayStartIndex;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("int %sT%s_Base::Get%sXNbins() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sXNbins==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoXNbins[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sXNbins;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sXmin() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sXmin==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoXmin[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sXmin;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sXmax() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sXmax==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoXmax[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sXmax;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("int %sT%s_Base::Get%sYNbins() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sYNbins==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoYNbins[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sYNbins;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sYmin() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sYmin==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoYmin[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sYmin;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sYmax() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sYmax==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoYmax[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sYmax;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("int %sT%s_Base::Get%sZNbins() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sZNbins==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoZNbins[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sZNbins;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sZmin() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sZmin==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoZmin[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sZmin;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+         buffer.AppendFormatted("double %sT%s_Base::Get%sZmax() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (f%sZmax==-1)\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("      return %s;\n",histoZmax[iTask][i].Data());
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      return f%sZmax;\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("};\n");
+
       }
 
 
       // Get Object Interpreter Code
       int codeNumber = fNumberOfInterpreterCodes;
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline Int_t %sT%s_Base::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline Int_t %sT%s::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("Int_t %sT%s_Base::GetObjectInterpreterCode(const char* objectPath) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   ROMEString path = objectPath;\n");
       buffer.AppendFormatted("   if (path.Index(\"/\")==-1 && path.Index(\"gAnalyzer->\")==-1)\n");
       buffer.AppendFormatted("      return -1;\n");
@@ -2397,10 +2010,7 @@ Bool_t ROMEBuilder::WriteTaskH()
 
       // Get Object Interpreter Int Value
       codeNumber = fNumberOfInterpreterCodes;
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline Int_t %sT%s_Base::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline Int_t %sT%s::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("Int_t %sT%s_Base::GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   char *cstop;\n");
       buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
@@ -2415,10 +2025,7 @@ Bool_t ROMEBuilder::WriteTaskH()
 
       // Get Object Interpreter Double Value
       codeNumber = fNumberOfInterpreterCodes;
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline Double_t %sT%s_Base::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline Double_t %sT%s::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("Double_t %sT%s_Base::GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   char *cstop;\n");
       buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
       buffer.AppendFormatted("   switch (code) {\n");
@@ -2433,10 +2040,7 @@ Bool_t ROMEBuilder::WriteTaskH()
 
       // Get Object Interpreter Char Value
       codeNumber = fNumberOfInterpreterCodes;
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("inline ROMEString& %sT%s_Base::GetObjectInterpreterCharValue(Int_t code,ROMEString& defaultValue,ROMEString& buffer) {\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("inline ROMEString& %sT%s::GetObjectInterpreterCharValue(Int_t code,ROMEString& defaultValue,ROMEString& buffer) {\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("ROMEString& %sT%s_Base::GetObjectInterpreterCharValue(Int_t code,ROMEString& defaultValue,ROMEString& buffer) {\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   switch (code) {\n");
       buffer.AppendFormatted("      case -1:\n");
@@ -2448,18 +2052,28 @@ Bool_t ROMEBuilder::WriteTaskH()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
+      //Write File
+      WriteFile(cppFile.Data(), buffer.Data(), 6);
+   }
+   return true;
+}
 
-      if (taskUserCode[iTask])
-         buffer.AppendFormatted("#endif   // %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
-      else
-         buffer.AppendFormatted("#endif   // %sT%s_H\n",shortCut.Data(),taskName[iTask].Data());
+Bool_t ROMEBuilder::WriteTaskH()
+{
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString format;
+   ROMEString clsName;
+   ROMEString clsDescription;
 
-      // Write File
-      WriteFile(hFile.Data(),buffer.Data(),6);
+   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   for (int iTask=0;iTask<numOfTask;iTask++) {
+      if (!taskUsed[iTask])
+         continue;
 
       // User H-File
       hFile.SetFormatted("%sinclude/tasks/%sT%s.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
-      if (taskUserCode[iTask] && (changeableFlagChanged || gSystem->AccessPathName(hFile.Data(),kFileExists))) {
+      if ((gSystem->AccessPathName(hFile.Data(),kFileExists))) {
          // Description
          buffer.Resize(0);
          WriteHeader(buffer, taskAuthor[iTask].Data(), kFALSE);
@@ -2495,6 +2109,270 @@ Bool_t ROMEBuilder::WriteTaskH()
          WriteFile(hFile.Data(),buffer.Data(),6);
       }
   }
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteBaseTaskH()
+{
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString format;
+   ROMEString clsName;
+   ROMEString clsDescription;
+   int i;
+
+   if (makeOutput) cout << "\n   Output H-Files:" << endl;
+   for (int iTask=0;iTask<numOfTask;iTask++) {
+      if (!taskUsed[iTask])
+         continue;
+
+      // File name
+      hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h",outDir.Data(),shortCut.Data(),taskName[iTask].Data());
+
+      // Description
+      buffer.Resize(0);
+      WriteHeader(buffer, taskAuthor[iTask].Data(), kTRUE);
+      buffer.AppendFormatted("#ifndef %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("#define %sT%s_Base_H\n\n",shortCut.Data(),taskName[iTask].Data());
+      clsName.SetFormatted("%sT%s_Base", shortCut.Data(), taskName[iTask].Data());
+      clsDescription = taskDescription[iTask].Data();
+      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+      buffer.AppendFormatted("\n\n");
+
+      if (readGlobalSteeringParameters)
+         buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
+
+      if (numOfHistos[iTask]>0) {
+         buffer.AppendFormatted("#include \"RConfig.h\"\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("#pragma warning( push )\n");
+         buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+         buffer.AppendFormatted("#include \"TH1.h\"\n");
+         buffer.AppendFormatted("#include \"TH2.h\"\n");
+         buffer.AppendFormatted("#include \"TH3.h\"\n");
+         buffer.AppendFormatted("#include \"TProfile.h\"\n");
+         buffer.AppendFormatted("#include \"TProfile2D.h\"\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+         buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+      }
+      buffer.AppendFormatted("#include \"ROMETask.h\"\n");
+
+      for (i=0;i<numOfTaskInclude[iTask];i++) {
+         if (taskLocalFlag[iTask][i]) {
+            buffer.AppendFormatted("#include \"%s\"\n",taskInclude[iTask][i].Data());
+         }
+         else {
+            buffer.AppendFormatted("#include <%s>\n",taskInclude[iTask][i].Data());
+         }
+      }
+
+      // Class
+      buffer.AppendFormatted("\nclass %sT%s_Base : public ROMETask\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("{\n");
+
+      buffer.AppendFormatted("protected:\n");
+      // Fields
+      if (numOfSteering[iTask]>0) {
+         WriteSteeringClass(buffer,0,iTask,1);
+         buffer.AppendFormatted("\n");
+      }
+
+      if (numOfSteering[iTask]>0) {
+         buffer.AppendFormatted("   Steering* fSteering; // Handle to Steering class\n\n");
+      }
+
+      int nameLen = -1;
+      for (i=0;i<numOfHistos[iTask];i++) {
+         if (nameLen<(int)histoName[iTask][i].Length()) nameLen = histoName[iTask][i].Length();
+      }
+      for (i=0;i<numOfHistos[iTask];i++) {
+         if (histoArraySize[iTask][i]=="1") {
+            format.SetFormatted("   %%s*      f%%s;%%%ds // %%s Handle\n",20+nameLen-histoName[iTask][i].Length()+1);
+            buffer.AppendFormatted(format.Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         }
+         else {
+            format.SetFormatted("   TObjArray* f%%ss;%%%ds // %%s Handle\n",10+nameLen-histoName[iTask][i].Length());
+            buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         }
+         format.SetFormatted("   ROMEString f%%sTitle;%%%ds // Title of %%s\n",20+nameLen-histoName[iTask][i].Length()-5);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sTitleCode;%%%ds // Interpreter code of Title of %%s\n",20+nameLen-histoName[iTask][i].Length()-9);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   ROMEString f%%sFolderTitle;%%%ds // Title of the Folder of %%s\n",20+nameLen-histoName[iTask][i].Length()-11);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sFolderTitleCode;%%%ds // Interpreter code of Title of the Folder of %%s\n",20+nameLen-histoName[iTask][i].Length()-15);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sArraySize;%%%ds // Array Size of %%s\n",20+nameLen-histoName[iTask][i].Length()-9);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sArraySizeCode;%%%ds // Interpreter code of Array Size of %%s\n",20+nameLen-histoName[iTask][i].Length()-13);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sArrayStartIndex;%%%ds // Array Start Index of %%s\n",20+nameLen-histoName[iTask][i].Length()-15);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sArrayStartIndexCode;%%%ds // Interpreter code of Array Start Index of %%s\n",20+nameLen-histoName[iTask][i].Length()-19);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   ROMEString f%%sXLabel;%%%ds // Label of the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sXLabelCode;%%%ds // Interpreter code of Label of the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   ROMEString f%%sYLabel;%%%ds // Label of the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sYLabelCode;%%%ds // Interpreter code of Label of the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   ROMEString f%%sZLabel;%%%ds // Label of the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sZLabelCode;%%%ds // Interpreter code of Label of the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sXNbins;%%%ds // Number of bins on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sXNbinsCode;%%%ds // Interpreter code of Number of bins on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sXmin;%%%ds // Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sXminCode;%%%ds // Interpreter code of Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sXmax;%%%ds // Maximum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sXmaxCode;%%%ds // Interpreter code of Minimum value on the X axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sYNbins;%%%ds // Number of bins on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sYNbinsCode;%%%ds // Interpreter code of Number of bins on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sYmin;%%%ds // Minimum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sYminCode;%%%ds // Interpreter code of Minimum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sYmax;%%%ds // Maximum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sYmaxCode;%%%ds // Interpreter code of Maximum value on the Y axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sZNbins;%%%ds // Number of bins on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-6);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sZNbinsCode;%%%ds // Interpreter code of Number of bins on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-10);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sZmin;%%%ds // Minimum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sZminCode;%%%ds // Interpreter code of Minimum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Double_t   f%%sZmax;%%%ds // Maximum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-4);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Int_t      f%%sZmaxCode;%%%ds // Interpreter code of Maximum value on the Z axis of %%s\n",20+nameLen-histoName[iTask][i].Length()-8);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+         format.SetFormatted("   Bool_t     f%%sAccumulation;%%%ds // Accumulation Flag for the %%s\n",20+nameLen-histoName[iTask][i].Length()-12);
+         buffer.AppendFormatted(format.Data(),histoName[iTask][i].Data(),"",histoName[iTask][i].Data());
+      }
+      buffer.AppendFormatted("\n   ROMEString fHistoSuffix; //!\n");
+      buffer.AppendFormatted("\n   char*      fCstop; //!\n\n");
+
+      // Methods
+      buffer.AppendFormatted("public:\n");
+      // Constructor and Event Methods
+      buffer.AppendFormatted("   // Constructor\n");
+      buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
+      // User Methods
+      buffer.AppendFormatted("   // User Methods\n");
+      if (numOfSteering[iTask]>0) {
+         buffer.AppendFormatted("   Steering* GetSteeringParameters() { return fSteering; };\n");
+         buffer.AppendFormatted("   Steering* GetSP() { return fSteering; };\n");
+      }
+      // Access Methods
+      for (i=0;i<numOfHistos[iTask];i++) {
+         if (histoArraySize[iTask][i]=="1") {
+            if (histoType[iTask][i][2]==49) {
+               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            else if (histoType[iTask][i][2]==50) {
+               buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            else if (histoType[iTask][i][2]==51) {
+               buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%s() { return f%s; };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         }
+         else {
+            if (histoType[iTask][i][2]==49) {
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            else if (histoType[iTask][i][2]==50) {
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            else if (histoType[iTask][i][2]==51) {
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t z,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            }
+            buffer.AppendFormatted("   void Draw%sAt(Int_t index) { ((%s*)f%ss->At(index))->Draw(); };\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   %s* Get%sAt(Int_t index) { return (%s*)f%ss->At(index); };\n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   TObjArray* Get%s() { return f%ss; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         }
+         buffer.AppendFormatted("   void Set%sTitle(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sFolderTitle(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sArraySize(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sArrayStartIndex(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sXLabel(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sYLabel(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sZLabel(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sXNbins(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sXmin(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sXmax(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sYNbins(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sYmin(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sYmax(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sZNbins(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sZmin(const char* value);\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sZmax(const char* value);\n",histoName[iTask][i].Data());
+
+         buffer.AppendFormatted("   const char* Get%sTitle();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   const char* Get%sFolderTitle();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   const char* Get%sXLabel();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   const char* Get%sYLabel();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   const char* Get%sZLabel();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   int Get%sArraySize();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   int Get%sArrayStartIndex();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   int Get%sXNbins();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sXmin();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sXmax();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   int Get%sYNbins();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sYmin();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sYmax();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   int Get%sZNbins();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sZmin();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   double Get%sZmax();\n",histoName[iTask][i].Data());
+
+         buffer.AppendFormatted("   Bool_t is%sAccumulation()                { return f%sAccumulation; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   void Set%sAccumulation(Bool_t flag)      { f%sAccumulation = flag; };\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+      }
+
+
+      // Object Interpreter
+      buffer.AppendFormatted("   Int_t GetObjectInterpreterCode(const char* objectPath);\n");
+      buffer.AppendFormatted("   Int_t GetObjectInterpreterIntValue(Int_t code,Int_t defaultValue);\n");
+      buffer.AppendFormatted("   Double_t GetObjectInterpreterDoubleValue(Int_t code,Double_t defaultValue);\n");
+      buffer.AppendFormatted("   ROMEString& GetObjectInterpreterCharValue(Int_t code,ROMEString& defaultValue,ROMEString& buffer);\n");
+      // Protected
+      buffer.AppendFormatted("protected:\n");
+      buffer.AppendFormatted("   // Event Methods\n");
+      buffer.AppendFormatted("   virtual void Init() = 0;\n");
+      buffer.AppendFormatted("   virtual void BeginOfRun() = 0;\n");
+      buffer.AppendFormatted("   virtual void Event() = 0;\n");
+      buffer.AppendFormatted("   virtual void EndOfRun() = 0;\n");
+      buffer.AppendFormatted("   virtual void Terminate() = 0;\n\n");
+      // Histo Methods
+      buffer.AppendFormatted("   // Histo Methods\n");
+      buffer.AppendFormatted("   virtual void BookHisto();\n");
+      buffer.AppendFormatted("   virtual void ResetHisto();\n\n");
+      // Footer
+      buffer.AppendFormatted("\n   ClassDef(%sT%s_Base,%s) // Base class of %sT%s\n",shortCut.Data(),taskName[iTask].Data(),taskVersion[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("};\n\n");
+
+      buffer.AppendFormatted("#endif   // %sT%s_Base_H\n",shortCut.Data(),taskName[iTask].Data());
+
+      // Write File
+      WriteFile(hFile.Data(),buffer.Data(),6);
+
+   }
    return true;
 }
 
@@ -2613,6 +2491,421 @@ Bool_t ROMEBuilder::WriteTabCpp()
    }
    return kTRUE;
 }
+Bool_t ROMEBuilder::WriteBaseTabCpp()
+{
+   ROMEString cppFile;
+   ROMEString buffer;
+   Int_t i, j,k;
+   ROMEString format;
+   ROMEString clsDescription;
+   ROMEString clsName;
+   ROMEString fileBuffer;
+   ROMEString str;
+   ROMEString str1;
+   ROMEString str2;
+
+   if (makeOutput)
+      cout << "\n   Output Cpp-Files:" << endl;
+   for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      if (!tabUsed[iTab])
+         continue;
+      buffer.Resize(0);
+      // File name
+      cppFile.SetFormatted("%ssrc/generated/%sT%s_Base.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+
+      // Description
+      WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+      clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
+      clsDescription = tabDescription[iTab].Data();
+      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
+
+      buffer.AppendFormatted("\n");
+      // Header
+      buffer.AppendFormatted("#include \"RConfig.h\"\n");
+   #if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( push )\n");
+      buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+   #endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"TCanvas.h\"\n");
+   #if defined( R__VISUAL_CPLUSPLUS )
+      buffer.AppendFormatted("#pragma warning( pop )\n");
+   #endif // R__VISUAL_CPLUSPLUS
+      if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
+      // Task class includes
+      for (i=0;i<numOfTask;i++) {
+         if (!taskUsed[i])
+            continue;
+         buffer.AppendFormatted("#include \"%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
+      }
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
+
+      buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n", shortCut.Data(), tabName[iTab].Data());
+
+      // Constructor
+      buffer.AppendFormatted("   // Constructor\n");
+      if (tabHistoDisplay[iTab])
+         buffer.AppendFormatted("%sT%s_Base::%sT%s_Base():ArgusHistoDisplay() {\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+      else if (tabHeredity[iTab].Length()>0)
+         buffer.AppendFormatted("%sT%s_Base::%sT%s_Base():%sT%s() {\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
+      else
+         buffer.AppendFormatted("%sT%s_Base::%sT%s_Base():ArgusTab() {\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   fVersion = %s;\n", tabVersion[iTab].Data());
+      if (tabHistoDisplay[iTab])
+         buffer.AppendFormatted("   fInheritanceName = \"%s\";\n", tabName[iTab].Data());
+      if (numOfSteering[iTab+numOfTask+1] > 0) {
+         buffer.AppendFormatted("   fSteering = new Steering();\n");
+      }
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("   m%s       = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+      }
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("%sT%s_Base::~%sT%s_Base() {\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("   Stop%s();\n", threadFunctionName[iTab][i].Data());
+      }
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // InitTab
+      int nx=1,ny=1;
+      buffer.AppendFormatted("void %sT%s_Base::BaseInit() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   int i;\n");
+      buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
+      buffer.AppendFormatted("   ROMEString str;\n");
+      buffer.AppendFormatted("   Init();\n");
+      if (numOfTabHistos[iTab]>0) {
+         buffer.AppendFormatted("   // Init Histos\n");
+         buffer.AppendFormatted("   fGeneratedCanvas = new TRootEmbeddedCanvas(\"GeneratedCanvas\", this, 600, 600);\n");
+         buffer.AppendFormatted("   AddFrame(fGeneratedCanvas,new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
+         if (tabHistoIndexMax[iTab]>1)
+            ny = 2;
+         if (tabHistoIndexMax[iTab]>2)
+            nx = 2;
+         if (tabHistoIndexMax[iTab]>4)
+            ny = 3;
+         if (tabHistoIndexMax[iTab]>6)
+            nx = 3;
+         if (tabHistoIndexMax[iTab]>9)
+            ny = 4;
+         if (tabHistoIndexMax[iTab]>12)
+            nx = 4;
+         if (tabHistoIndexMax[iTab]>16)
+            ny = 5;
+         if (tabHistoIndexMax[iTab]>20)
+            nx = 5;
+         buffer.AppendFormatted("   fGeneratedCanvas->GetCanvas()->Divide(%d, %d);\n",nx,ny);
+         for (i=0;i<tabHistoIndexMax[iTab];i++) {
+            for (j=0;j<numOfTabHistos[iTab];j++) {
+               if (tabHistoIndex[iTab][j]==i) {
+                  buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
+                  if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
+                     buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
+                     buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
+                     buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s%sTask()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data());
+                     buffer.AppendFormatted("      f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  }
+                  else {
+                     for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
+                        buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
+                        buffer.AppendFormatted("      f%sPad%d_%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j,k);
+                        buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%s%sTask()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data(),k);
+                        buffer.AppendFormatted("      f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                     }
+                  }
+                  buffer.AppendFormatted("   }\n");
+                  break;
+               }
+            }
+         }
+      }
+      if (tabHistoDisplay[iTab]) {
+         for (i=0;i<numOfTabObjects[iTab];i++) {
+            if (tabObjectTaskIndex[iTab][i]!=-1) {
+               if (histoType[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]]=="TH1F") {
+                  buffer.AppendFormatted("   if (fNumberOfUserTH1F<%s)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+                  buffer.AppendFormatted("      fNumberOfUserTH1F = %s;\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               }
+               if (histoType[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]]=="TH2F") {
+                  buffer.AppendFormatted("   if (fNumberOfUserTH2F<%s)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+                  buffer.AppendFormatted("      fNumberOfUserTH2F = %s;\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               }
+            }
+         }
+         if (numOfTabObjects[iTab]>0) {
+            buffer.AppendFormatted("   fUserTH1F = new TH1F*[fNumberOfUserTH1F+1];\n");
+            buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH1F+1;i++) {\n");
+            buffer.AppendFormatted("      str.SetFormatted(\"fUserTH1F_%%d_%%s\",i,fInheritanceName.Data());\n");
+            buffer.AppendFormatted("      fUserTH1F[i] = new TH1F(str.Data(),\"\",1,0,1);\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   fUserTH2F = new TH2F*[fNumberOfUserTH2F+1];\n");
+            buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH2F+1;i++) {\n");
+            buffer.AppendFormatted("      str.SetFormatted(\"fUserTH2F_%%d_%%s\",i,fInheritanceName.Data());\n");
+            buffer.AppendFormatted("      fUserTH2F[i] = new TH2F(str.Data(),\"\",1,0,1,1,0,1);\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   fUserTGraph = new TGraph*[fNumberOfUserTGraph+1];\n");
+            buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTGraph+1;i++) {\n");
+            buffer.AppendFormatted("      str.SetFormatted(\"fUserTGraph_%%d_%%s\",i,fInheritanceName.Data());\n");
+            buffer.AppendFormatted("      fUserTGraph[i] = new TGraph(1);\n");
+            buffer.AppendFormatted("      fUserTGraph[i]->SetPoint(0,0,0);\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   fDisplayType = k%sDisplay;\n",tabObjectType[iTab][0].Data());
+            buffer.AppendFormatted("   fDisplayObjIndex = 0;\n");
+         }
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseInit();\n");
+      }
+      buffer.AppendFormatted("   EndInit();\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // Display
+      buffer.AppendFormatted("void %sT%s_Base::Display(bool processEvents) {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("   int i,chn;\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   for (i=0 ; i<fNumberOfPads ; i++) {\n");
+         buffer.AppendFormatted("      if (fPadConfigActive)\n");
+         buffer.AppendFormatted("         chn = fPadConfigChannel[i];\n");
+         buffer.AppendFormatted("      else\n");
+         buffer.AppendFormatted("         chn = fChannelNumber+i;\n");
+         buffer.AppendFormatted("      if (fDisplayType==kTGraphDisplay) {\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTGraph)\n");
+         buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[fNumberOfUserTGraph];\n");
+         buffer.AppendFormatted("         else\n");
+         buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[chn];\n");
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      if (fDisplayType==kTH1FDisplay) {\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH1F)\n");
+         buffer.AppendFormatted("            *fTH1F[i] = *fUserTH1F[fNumberOfUserTH1F];\n");
+         buffer.AppendFormatted("         else\n");
+         buffer.AppendFormatted("            *fTH1F[i] = *fUserTH1F[chn];\n");
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      if (fDisplayType==kTH2FDisplay) {\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH2F)\n");
+         buffer.AppendFormatted("            *fTH2F[i] = *fUserTH2F[fNumberOfUserTH2F];\n");
+         buffer.AppendFormatted("         else\n");
+         buffer.AppendFormatted("            *fTH2F[i] = *fUserTH2F[chn];\n");
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   Modified(processEvents);\n");
+      }
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // BaseTabEventHandler
+      buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHistoDisplay[iTab]) {
+         for (i=0;i<numOfTabObjects[iTab];i++) {
+            if (tabObjectTaskIndex[iTab][i]!=-1) {
+               buffer.AppendFormatted("   int i;\n");
+               break;
+            }
+         }
+         buffer.AppendFormatted("\n");
+         for (i=0;i<numOfTabObjects[iTab];i++) {
+            if (tabObjectTaskIndex[iTab][i]!=-1) {
+               buffer.AppendFormatted("   if (fDisplayObjIndex==%d && gAnalyzer->Get%s%sTask()->IsActive()) {\n",i,taskHierarchyName[tabObjectTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+               buffer.AppendFormatted("      for (i=0;i<%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               buffer.AppendFormatted("         *fUser%s[i] = *(gAnalyzer->Get%s%sTask()->Get%sAt(i));\n",tabObjectType[iTab][i].Data(),taskHierarchyName[tabObjectTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data(),histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
+               buffer.AppendFormatted("      for (i=%s;i<fNumberOfUser%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data(),tabObjectType[iTab][i].Data());
+               buffer.AppendFormatted("         *fUser%s[i] = *fUser%s[fNumberOfUser%s];\n",tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data());
+               buffer.AppendFormatted("   }\n");
+            }
+         }
+      }
+      for (i=0;i<tabHistoIndexMax[iTab];i++) {
+         for (j=0;j<numOfTabHistos[iTab];j++) {
+            if (tabHistoIndex[iTab][j]==i) {
+               buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
+               if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
+                  buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s%sTask()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data());
+                  buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                  buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
+                  buffer.AppendFormatted("      f%sPad%d->Modified();\n",tabHistoName[iTab][j].Data(),j);
+               }
+               else {
+                  for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
+                     buffer.AppendFormatted("      f%sHisto%d_%d = gAnalyzer->Get%s%sTask()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data(),k);
+                     buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
+                     buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
+                     buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabHistoName[iTab][j].Data(),j,k);
+                  }
+               }
+               buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(1);\n");
+               buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->Modified();\n");
+               buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->Update();\n");
+               buffer.AppendFormatted("   }\n");
+               break;
+            }
+         }
+      }
+      buffer.AppendFormatted("   EventHandler();\n");
+      if (tabHistoDisplay[iTab])
+         buffer.AppendFormatted("   Display(false);\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // Thread
+      buffer.AppendFormatted("Bool_t %sT%s_Base::ProcessMessage(Long_t msg, Long_t param1, Long_t param2) {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   return RunProcessMessageThread(msg, param1, param2);\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("void %sT%s_Base::ThreadProcessMessageThread(void* arg) {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n", shortCut.Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("Bool_t %sT%s_Base::RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2) {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   %sArgs* arg = new %sArgs();\n", tabName[iTab].Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   arg->inst   = this;\n");
+      buffer.AppendFormatted("   arg->msg    = msg;\n");
+      buffer.AppendFormatted("   arg->param1 = param1;\n");
+      buffer.AppendFormatted("   arg->param2 = param2;\n");
+      buffer.AppendFormatted("   TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
+      buffer.AppendFormatted("   mProcessMessageThread->Run();\n");
+      buffer.AppendFormatted("   return kTRUE;\n");
+      buffer.AppendFormatted("}\n");
+      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("//%s\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("void %sT%s_Base::%s(", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++) {
+            buffer.AppendFormatted("%s", threadFunctionArgument[iTab][i][j].Data());
+            if (j < numOfThreadFunctionArguments[iTab][i] - 1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted(")\n");
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   cout<<endl\n");
+         buffer.AppendFormatted("       <<\" Thread function %s is not implemented.\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("       <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
+         buffer.AppendFormatted("       <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("       <<\"   void %s();\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("       <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("       <<\"   void %sT%s::%s()\"<<endl\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("       <<\"   {\"<<endl\n");
+         buffer.AppendFormatted("       <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("       <<\"   }\"<<endl<<endl;\n");
+         buffer.AppendFormatted("   Stop%s();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("void %sT%s_Base::Thread%s(void* arg) {\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   TThread::SetCancelOn();\n");
+         buffer.AppendFormatted("   TThread::SetCancelDeferred();\n");
+         buffer.AppendFormatted("   %sT%s_Base* inst = (%sT%s_Base*) arg;\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   Int_t iLoop = 0;\n");
+   //         buffer.AppendFormatted("   Int_t meid=TThread::SelfId(); // get pthread id\n");
+         buffer.AppendFormatted("   while (inst->f%sActive) {\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      TThread::CancelPoint();\n");
+         buffer.AppendFormatted("      inst->%s(", threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++) {
+            buffer.AppendFormatted("inst->f%sArgument_%d", threadFunctionName[iTab][i].Data(), j);
+            if (j < numOfThreadFunctionArguments[iTab][i] - 1)
+               buffer.AppendFormatted(",");
+         }
+         buffer.AppendFormatted("); // call the user defined threaded function\n");
+         buffer.AppendFormatted("      if (inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops) {\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         inst->f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         if (inst->m%s) {\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            TThread::Delete(inst->m%s);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("            inst->m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("      gSystem->Sleep(inst->f%sInterval);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("Bool_t %sT%s_Base::Start%s(", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
+            buffer.AppendFormatted("%s arg%d,", threadFunctionArgument[iTab][i][j].Data(), j);
+         buffer.AppendFormatted("Int_t interval, Int_t nloop) {\n");
+
+         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
+            buffer.AppendFormatted("   f%sArgument_%d = arg%d;\n", threadFunctionName[iTab][i].Data(), j, j);
+         buffer.AppendFormatted("   f%sActive        = kTRUE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   f%sNumberOfLoops = nloop;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   f%sInterval      = interval;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   if (!m%s) {\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s->Run();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   return kTRUE;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("Bool_t %sT%s_Base::Stop%s() {\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   gSystem->Sleep(1000); // wait a while for threads to halt\n");
+         buffer.AppendFormatted("   if (m%s) {\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      TThread::Delete(m%s);\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   return kTRUE;\n");
+         buffer.AppendFormatted("} \n");
+         buffer.AppendFormatted("Bool_t %sT%s_Base::Kill%s() {\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   if (m%s) {\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s->Kill();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("      m%s = 0;\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   return kTRUE;\n");
+         buffer.AppendFormatted("} \n");
+
+         buffer.AppendFormatted("\n");
+      }
+      buffer.AppendFormatted("\n");
+
+      // Tab Selected
+      buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected() {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
+         for (i=0;i<numOfTabObjects[iTab];i++)
+            buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str));
+         buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+      }
+      buffer.AppendFormatted("}\n");
+      // Tab Unselected
+      buffer.AppendFormatted("void %sT%s_Base::BaseTabUnSelected() {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabUnSelected();\n");
+      }
+      buffer.AppendFormatted("   TabUnSelected();\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+      // Menu Clicked
+      buffer.AppendFormatted("void %sT%s_Base::BaseMenuClicked(TGPopupMenu *menu,Long_t param) {\n", shortCut.Data(), tabName[iTab].Data());
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("   int i;\n");
+         buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   switch (param) {\n");
+         for (i=0;i<numOfTabObjects[iTab];i++) {
+            buffer.AppendFormatted("      case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
+            buffer.AppendFormatted("         {\n");
+            buffer.AppendFormatted("            fDisplayObjIndex = %d;\n",i);
+            buffer.AppendFormatted("            fDisplayType = k%sDisplay;\n",tabObjectType[iTab][i].Data());
+            buffer.AppendFormatted("            SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
+            buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+            buffer.AppendFormatted("            BaseEventHandler();\n");
+            buffer.AppendFormatted("            break;\n");
+            buffer.AppendFormatted("         }\n");
+         }
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseMenuClicked(menu,param);\n");
+      }
+      buffer.AppendFormatted("   MenuClicked(menu,param);\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+
+      // Write file
+      WriteFile(cppFile.Data(), buffer.Data(), 6);
+   }
+   return kTRUE;
+}
 
 Bool_t ROMEBuilder::WriteTabH()
 {
@@ -2621,17 +2914,90 @@ Bool_t ROMEBuilder::WriteTabH()
    ROMEString format;
    ROMEString clsName;
    ROMEString clsDescription;
-   ROMEString str;
-   ROMEString str1;
-   ROMEString str2;
 
-   Int_t i, j,k;
+   Int_t i;
    if (makeOutput)
       cout << "\n   Output H-Files:" << endl;
 
    for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
       if (!tabUsed[iTab])
          continue;
+
+      // User H-File
+      hFile.SetFormatted("%sinclude/tabs/%sT%s.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
+         // Description
+         buffer.Resize(0);
+         WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
+         buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
+         clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
+         clsDescription = tabDescription[iTab].Data();
+         WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
+         buffer.AppendFormatted("\n\n");
+
+         // Header
+         buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
+
+         // Class
+         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("protected:\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("public:\n");
+
+         // Constructor
+         buffer.AppendFormatted("   %sT%s():%sT%s_Base()\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   virtual ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
+         buffer.AppendFormatted("   {\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("   void Init();\n");
+         buffer.AppendFormatted("   void EndInit();\n");
+         buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
+         buffer.AppendFormatted("   void TabSelected();\n");
+         buffer.AppendFormatted("   void TabUnSelected();\n");
+         buffer.AppendFormatted("   void EventHandler();\n");
+
+         // Thread
+         for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
+            buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
+         }
+         buffer.AppendFormatted("\n");
+
+         // Fields
+         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
+         if (tabShortDescription[iTab].Length())
+            buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
+         buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("};\n\n");
+         buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
+
+         // Write File
+         WriteFile(hFile.Data(), buffer.Data(), 6);
+      }
+   }
+
+   return kTRUE;
+}
+Bool_t ROMEBuilder::WriteBaseTabH()
+{
+   Int_t i, j;
+   ROMEString buffer;
+   ROMEString clsName;
+   ROMEString clsDescription;
+   ROMEString hFile;
+   ROMEString str;
+   ROMEString str1;
+   ROMEString str2;
+
+   for (Int_t iTab = 0; iTab < numOfTab; iTab++) {
+      if (!tabUsed[iTab])
+         continue;
+
       // File name
       hFile.SetFormatted("%sinclude/generated/%sT%s_Base.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
       // Description
@@ -2646,34 +3012,31 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // Header
       buffer.AppendFormatted("#include \"RConfig.h\"\n");
-#if defined( R__VISUAL_CPLUSPLUS )
+   #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-#endif // R__VISUAL_CPLUSPLUS
+   #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"TGMenu.h\"\n");
       buffer.AppendFormatted("#include \"TThread.h\"\n");
       buffer.AppendFormatted("#include \"TRootEmbeddedCanvas.h\"\n");
-      buffer.AppendFormatted("#include \"TCanvas.h\"\n");
       buffer.AppendFormatted("#include \"TPad.h\"\n");
-#if defined( R__VISUAL_CPLUSPLUS )
+      if (numOfTabHistos[iTab]>0) {
+         buffer.AppendFormatted("#include \"TH1.h\"\n");
+         buffer.AppendFormatted("#include \"TH2.h\"\n");
+         buffer.AppendFormatted("#include \"TH3.h\"\n");
+         buffer.AppendFormatted("#include \"TProfile.h\"\n");
+         buffer.AppendFormatted("#include \"TProfile2D.h\"\n");
+      }
+   #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-#endif // R__VISUAL_CPLUSPLUS
+   #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"include/generated/%sAnalyzer.h\"\n",shortCut.Data());
       if (readGlobalSteeringParameters)
          buffer.AppendFormatted("#include \"include/generated/%sGlobalSteering.h\"\n",shortCut.Data());
-      if (tabHeredity[iTab].Length()>0)
-         buffer.AppendFormatted("#include \"include/tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       if (tabHistoDisplay[iTab])
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
       else
          buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
-      // Task class includes
-      for (i=0;i<numOfTask;i++) {
-         if (!taskUsed[i])
-            continue;
-         buffer.AppendFormatted("#include \"%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
-      }
-      buffer.AppendFormatted("\n");
       buffer.AppendFormatted("#include \"Riostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
@@ -2744,234 +3107,35 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // Constructor
       buffer.AppendFormatted("   // Constructor\n");
-      if (tabHistoDisplay[iTab])
-         buffer.AppendFormatted("   %sT%s_Base():ArgusHistoDisplay() {\n", shortCut.Data(), tabName[iTab].Data());
-      else if (tabHeredity[iTab].Length()>0)
-         buffer.AppendFormatted("   %sT%s_Base():%sT%s() {\n", shortCut.Data(), tabName[iTab].Data(),shortCut.Data(),tabHeredity[iTab].Data());
-      else
-         buffer.AppendFormatted("   %sT%s_Base():ArgusTab() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("      fVersion = %s;\n", tabVersion[iTab].Data());
-      if (tabHistoDisplay[iTab])
-         buffer.AppendFormatted("      fInheritanceName = \"%s\";\n", tabName[iTab].Data());
-      if (numOfSteering[iTab+numOfTask+1] > 0) {
-         buffer.AppendFormatted("      fSteering = new Steering();\n");
-      }
-      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
-         buffer.AppendFormatted("      m%s       = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
-      }
-      buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   virtual ~%sT%s_Base() {\n", shortCut.Data(), tabName[iTab].Data());
-      for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
-         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
-      }
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   %sT%s_Base();\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   virtual ~%sT%s_Base();\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("\n");
 
       // InitTab
       int nx=1,ny=1;
-      buffer.AppendFormatted("   void BaseInit() {\n");
-      buffer.AppendFormatted("      int i;\n");
-      buffer.AppendFormatted("      i=0;\n"); // to suppress unused warning
-      buffer.AppendFormatted("      ROMEString str;\n");
-      buffer.AppendFormatted("      Init();\n");
-      if (numOfTabHistos[iTab]>0) {
-         buffer.AppendFormatted("      // Init Histos\n");
-         buffer.AppendFormatted("      fGeneratedCanvas = new TRootEmbeddedCanvas(\"GeneratedCanvas\", this, 600, 600);\n");
-         buffer.AppendFormatted("      AddFrame(fGeneratedCanvas,new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n");
-         if (tabHistoIndexMax[iTab]>1)
-            ny = 2;
-         if (tabHistoIndexMax[iTab]>2)
-            nx = 2;
-         if (tabHistoIndexMax[iTab]>4)
-            ny = 3;
-         if (tabHistoIndexMax[iTab]>6)
-            nx = 3;
-         if (tabHistoIndexMax[iTab]>9)
-            ny = 4;
-         if (tabHistoIndexMax[iTab]>12)
-            nx = 4;
-         if (tabHistoIndexMax[iTab]>16)
-            ny = 5;
-         if (tabHistoIndexMax[iTab]>20)
-            nx = 5;
-         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->Divide(%d, %d);\n",nx,ny);
-         for (i=0;i<tabHistoIndexMax[iTab];i++) {
-            for (j=0;j<numOfTabHistos[iTab];j++) {
-               if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("      if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
-                  if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
-                     buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
-                     buffer.AppendFormatted("         f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
-                     buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s%sTask()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data());
-                     buffer.AppendFormatted("         f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
-                  }
-                  else {
-                     for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
-                        buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabHistoArrayIndexStart[iTab][j]);
-                        buffer.AppendFormatted("         f%sPad%d_%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j,k);
-                        buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%s%sTask()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("         f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
-                     }
-                  }
-                  buffer.AppendFormatted("      }\n");
-                  break;
-               }
-            }
-         }
-      }
-      if (tabHistoDisplay[iTab]) {
-         for (i=0;i<numOfTabObjects[iTab];i++) {
-            if (tabObjectTaskIndex[iTab][i]!=-1) {
-               if (histoType[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]]=="TH1F") {
-                  buffer.AppendFormatted("      if (fNumberOfUserTH1F<%s)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-                  buffer.AppendFormatted("         fNumberOfUserTH1F = %s;\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-               }
-               if (histoType[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]]=="TH2F") {
-                  buffer.AppendFormatted("      if (fNumberOfUserTH2F<%s)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-                  buffer.AppendFormatted("         fNumberOfUserTH2F = %s;\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-               }
-            }
-         }
-         if (numOfTabObjects[iTab]>0) {
-            buffer.AppendFormatted("      fUserTH1F = new TH1F*[fNumberOfUserTH1F+1];\n");
-            buffer.AppendFormatted("      for (i=0;i<fNumberOfUserTH1F+1;i++) {\n");
-            buffer.AppendFormatted("         str.SetFormatted(\"fUserTH1F_%%d_%%s\",i,fInheritanceName.Data());\n");
-            buffer.AppendFormatted("         fUserTH1F[i] = new TH1F(str.Data(),\"\",1,0,1);\n");
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("      fUserTH2F = new TH2F*[fNumberOfUserTH2F+1];\n");
-            buffer.AppendFormatted("      for (i=0;i<fNumberOfUserTH2F+1;i++) {\n");
-            buffer.AppendFormatted("         str.SetFormatted(\"fUserTH2F_%%d_%%s\",i,fInheritanceName.Data());\n");
-            buffer.AppendFormatted("         fUserTH2F[i] = new TH2F(str.Data(),\"\",1,0,1,1,0,1);\n");
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("      fUserTGraph = new TGraph*[fNumberOfUserTGraph+1];\n");
-            buffer.AppendFormatted("      for (i=0;i<fNumberOfUserTGraph+1;i++) {\n");
-            buffer.AppendFormatted("         str.SetFormatted(\"fUserTGraph_%%d_%%s\",i,fInheritanceName.Data());\n");
-            buffer.AppendFormatted("         fUserTGraph[i] = new TGraph(1);\n");
-            buffer.AppendFormatted("         fUserTGraph[i]->SetPoint(0,0,0);\n");
-            buffer.AppendFormatted("      }\n");
-            buffer.AppendFormatted("      fDisplayType = k%sDisplay;\n",tabObjectType[iTab][0].Data());
-            buffer.AppendFormatted("      fDisplayObjIndex = 0;\n");
-         }
-         buffer.AppendFormatted("      ArgusHistoDisplay::BaseInit();\n");
-      }
-      buffer.AppendFormatted("      EndInit();\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void BaseInit();\n");
       buffer.AppendFormatted("   virtual void Init() = 0;\n");
       buffer.AppendFormatted("   virtual void EndInit() {};\n");
       buffer.AppendFormatted("\n");
 
       // Display
-      buffer.AppendFormatted("   void Display(bool processEvents=true) {\n");
-      if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("      int i,chn;\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("      for (i=0 ; i<fNumberOfPads ; i++) {\n");
-         buffer.AppendFormatted("         if (fPadConfigActive)\n");
-         buffer.AppendFormatted("            chn = fPadConfigChannel[i];\n");
-         buffer.AppendFormatted("         else\n");
-         buffer.AppendFormatted("            chn = fChannelNumber+i;\n");
-         buffer.AppendFormatted("         if (fDisplayType==kTGraphDisplay) {\n");
-         buffer.AppendFormatted("            if (chn>=fNumberOfUserTGraph)\n");
-         buffer.AppendFormatted("               *fTGraph[i] = *fUserTGraph[fNumberOfUserTGraph];\n");
-         buffer.AppendFormatted("            else\n");
-         buffer.AppendFormatted("               *fTGraph[i] = *fUserTGraph[chn];\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         if (fDisplayType==kTH1FDisplay) {\n");
-         buffer.AppendFormatted("            if (chn>=fNumberOfUserTH1F)\n");
-         buffer.AppendFormatted("               *fTH1F[i] = *fUserTH1F[fNumberOfUserTH1F];\n");
-         buffer.AppendFormatted("            else\n");
-         buffer.AppendFormatted("               *fTH1F[i] = *fUserTH1F[chn];\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         if (fDisplayType==kTH2FDisplay) {\n");
-         buffer.AppendFormatted("            if (chn>=fNumberOfUserTH2F)\n");
-         buffer.AppendFormatted("               *fTH2F[i] = *fUserTH2F[fNumberOfUserTH2F];\n");
-         buffer.AppendFormatted("            else\n");
-         buffer.AppendFormatted("               *fTH2F[i] = *fUserTH2F[chn];\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("      Modified(processEvents);\n");
-      }
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void Display(bool processEvents=true);\n");
       buffer.AppendFormatted("\n");
 
       // BaseTabEventHandler
-      buffer.AppendFormatted("   void BaseEventHandler() {\n");
-      if (tabHistoDisplay[iTab]) {
-         for (i=0;i<numOfTabObjects[iTab];i++) {
-            if (tabObjectTaskIndex[iTab][i]!=-1) {
-               buffer.AppendFormatted("      int i;\n");
-               break;
-            }
-         }
-         buffer.AppendFormatted("\n");
-         for (i=0;i<numOfTabObjects[iTab];i++) {
-            if (tabObjectTaskIndex[iTab][i]!=-1) {
-               buffer.AppendFormatted("      if (fDisplayObjIndex==%d && gAnalyzer->Get%s%sTask()->IsActive()) {\n",i,taskHierarchyName[tabObjectTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
-               buffer.AppendFormatted("         for (i=0;i<%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-               buffer.AppendFormatted("            *fUser%s[i] = *(gAnalyzer->Get%s%sTask()->Get%sAt(i));\n",tabObjectType[iTab][i].Data(),taskHierarchyName[tabObjectTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data(),histoName[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
-               buffer.AppendFormatted("         for (i=%s;i<fNumberOfUser%s;i++)\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data(),tabObjectType[iTab][i].Data());
-               buffer.AppendFormatted("            *fUser%s[i] = *fUser%s[fNumberOfUser%s];\n",tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data(),tabObjectType[iTab][i].Data());
-               buffer.AppendFormatted("      }\n");
-            }
-         }
-      }
-      for (i=0;i<tabHistoIndexMax[iTab];i++) {
-         for (j=0;j<numOfTabHistos[iTab];j++) {
-            if (tabHistoIndex[iTab][j]==i) {
-               buffer.AppendFormatted("      if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
-               if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
-                  buffer.AppendFormatted("         f%sHisto%d = gAnalyzer->Get%s%sTask()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data());
-                  buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
-                  buffer.AppendFormatted("            f%sHisto%d->Draw();\n",tabHistoName[iTab][j].Data(),j);
-                  buffer.AppendFormatted("         f%sPad%d->Modified();\n",tabHistoName[iTab][j].Data(),j);
-               }
-               else {
-                  for (k=tabHistoArrayIndexStart[iTab][j];k<=tabHistoArrayIndexEnd[iTab][j];k++) {
-                     buffer.AppendFormatted("         f%sHisto%d_%d = gAnalyzer->Get%s%sTask()->Get%sAt(%d);\n",tabHistoName[iTab][j].Data(),j,k,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data(),k);
-                     buffer.AppendFormatted("         if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
-                     buffer.AppendFormatted("            f%sHisto%d_%d->Draw();\n",tabHistoName[iTab][j].Data(),j,k);
-                     buffer.AppendFormatted("         f%sPad%d_%d->Modified();\n",tabHistoName[iTab][j].Data(),j,k);
-                  }
-               }
-               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->cd(1);\n");
-               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->Modified();\n");
-               buffer.AppendFormatted("         fGeneratedCanvas->GetCanvas()->Update();\n");
-               buffer.AppendFormatted("      }\n");
-               break;
-            }
-         }
-      }
-      buffer.AppendFormatted("      EventHandler();\n");
-      if (tabHistoDisplay[iTab])
-         buffer.AppendFormatted("      Display(false);\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void BaseEventHandler();\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual void EventHandler() = 0;\n");
       buffer.AppendFormatted("\n");
 
       // Thread
-      buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2) {\n");
-      buffer.AppendFormatted("      return RunProcessMessageThread(msg, param1, param2);\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   virtual Bool_t ProcessMessage(Long_t msg, Long_t param1, Long_t param2);\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("   virtual Bool_t ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2) {return kTRUE;}\n");
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg) {\n");
-      buffer.AppendFormatted("      ((%sT%s_Base*)((%sArgs*)arg)->inst)->ProcessMessageThread(((%sArgs*)arg)->msg, ((%sArgs*)arg)->param1, ((%sArgs*)arg)->param2);\n", shortCut.Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   static void ThreadProcessMessageThread(void* arg);\n");
       buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("   Bool_t RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2) {\n");
-      buffer.AppendFormatted("      %sArgs* arg = new %sArgs();\n", tabName[iTab].Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("      arg->inst   = this;\n");
-      buffer.AppendFormatted("      arg->msg    = msg;\n");
-      buffer.AppendFormatted("      arg->param1 = param1;\n");
-      buffer.AppendFormatted("      arg->param2 = param2;\n");
-      buffer.AppendFormatted("      TThread* mProcessMessageThread = new TThread(\"processMessageThread\",(void(*) (void *))&ThreadProcessMessageThread,(void*) arg);\n");
-      buffer.AppendFormatted("      mProcessMessageThread->Run();\n");
-      buffer.AppendFormatted("      return kTRUE;\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   Bool_t RunProcessMessageThread(Long_t msg, Long_t param1, Long_t param2);\n");
       for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   //%s\n", threadFunctionName[iTab][i].Data());
@@ -2981,82 +3145,17 @@ Bool_t ROMEBuilder::WriteTabH()
             if (j < numOfThreadFunctionArguments[iTab][i] - 1)
                buffer.AppendFormatted(",");
          }
-         buffer.AppendFormatted(")\n");
-         buffer.AppendFormatted("   {\n");
-         buffer.AppendFormatted("      cout<<endl\n");
-         buffer.AppendFormatted("          <<\" Thread function %s is not implemented.\"<<endl\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("          <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
-         buffer.AppendFormatted("          <<\" In %sT%s.h,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("          <<\"   void %s();\"<<endl\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("          <<\" In %sT%s.cpp,\"<<endl\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("          <<\"   void %sT%s::%s()\"<<endl\n", shortCut.Data(), tabName[iTab].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("          <<\"   {\"<<endl\n");
-         buffer.AppendFormatted("          <<\"      cout<<\\\"Thread function %s is running.\\\"<<endl;\"<<endl\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("          <<\"   }\"<<endl<<endl;\n");
-         buffer.AppendFormatted("      Stop%s();\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   static void Thread%s(void* arg) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      TThread::SetCancelOn();\n");
-         buffer.AppendFormatted("      TThread::SetCancelDeferred();\n");
-         buffer.AppendFormatted("      %sT%s_Base* inst = (%sT%s_Base*) arg;\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("      Int_t iLoop = 0;\n");
-//         buffer.AppendFormatted("      Int_t meid=TThread::SelfId(); // get pthread id\n");
-         buffer.AppendFormatted("      while (inst->f%sActive) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         TThread::CancelPoint();\n");
-         buffer.AppendFormatted("         inst->%s(", threadFunctionName[iTab][i].Data());
-         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++) {
-            buffer.AppendFormatted("inst->f%sArgument_%d", threadFunctionName[iTab][i].Data(), j);
-            if (j < numOfThreadFunctionArguments[iTab][i] - 1)
-               buffer.AppendFormatted(",");
-         }
-         buffer.AppendFormatted("); // call the user defined threaded function\n");
-         buffer.AppendFormatted("         if (inst->f%sNumberOfLoops != 0 && ++iLoop>=inst->f%sNumberOfLoops) {\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            inst->f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            if (inst->m%s) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("               TThread::Delete(inst->m%s);\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("               inst->m%s = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("            }\n");
-         buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         gSystem->Sleep(inst->f%sInterval);\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   static void Thread%s(void* arg);\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Bool_t Start%s(", threadFunctionName[iTab][i].Data());
          for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
             buffer.AppendFormatted("%s arg%d,", threadFunctionArgument[iTab][i][j].Data(), j);
-         buffer.AppendFormatted("Int_t interval = 1000, Int_t nloop = 0) {\n");
-
-         for (j = 0; j < numOfThreadFunctionArguments[iTab][i]; j++)
-            buffer.AppendFormatted("      f%sArgument_%d = arg%d;\n", threadFunctionName[iTab][i].Data(), j, j);
-         buffer.AppendFormatted("      f%sActive        = kTRUE;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sNumberOfLoops = nloop;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sInterval      = interval;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      if (!m%s) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         m%s = new TThread(\"Thread%s\",(void(*) (void *))&Thread%s,(void*) this);\n", threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data(), threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         m%s->Run();\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return kTRUE;\n");
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("Int_t interval = 1000, Int_t nloop = 0);\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   Bool_t Stop%s() {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      gSystem->Sleep(1000); // wait a while for threads to halt\n");
-         buffer.AppendFormatted("      if (m%s) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         TThread::Delete(m%s);\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         m%s = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return kTRUE;\n");
-         buffer.AppendFormatted("   } \n");
-         buffer.AppendFormatted("   Bool_t Kill%s() {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      f%sActive = kFALSE;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      if (m%s) {\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         m%s->Kill();\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("         m%s = 0;\n", threadFunctionName[iTab][i].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      return kTRUE;\n");
-         buffer.AppendFormatted("   } \n");
-
+         buffer.AppendFormatted("   Bool_t Stop%s();\n", threadFunctionName[iTab][i].Data());
+         buffer.AppendFormatted("   Bool_t Kill%s();\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("\n");
       }
       buffer.AppendFormatted("\n");
@@ -3071,47 +3170,15 @@ Bool_t ROMEBuilder::WriteTabH()
       buffer.AppendFormatted("   void         SetActive(Bool_t active) { fActive = active; };\n");
 
       // Tab Selected
-      buffer.AppendFormatted("   void BaseTabSelected() {\n");
-      if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("      ArgusHistoDisplay::BaseTabSelected();\n");
-         for (i=0;i<numOfTabObjects[iTab];i++)
-            buffer.AppendFormatted("      fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str));
-         buffer.AppendFormatted("      fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
-      }
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void BaseTabSelected();\n");
       buffer.AppendFormatted("   virtual void TabSelected() = 0;\n");
       // Tab Unselected
-      buffer.AppendFormatted("   void BaseTabUnSelected() {\n");
-      if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("      ArgusHistoDisplay::BaseTabUnSelected();\n");
-      }
-      buffer.AppendFormatted("      TabUnSelected();\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void BaseTabUnSelected();\n");
       buffer.AppendFormatted("   virtual void TabUnSelected() = 0;\n");
 
       buffer.AppendFormatted("\n");
       // Menu Clicked
-      buffer.AppendFormatted("   void BaseMenuClicked(TGPopupMenu *menu,Long_t param) {\n");
-      if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("      int i;\n");
-         buffer.AppendFormatted("      i=0;\n"); // to suppress unused warning
-         buffer.AppendFormatted("      switch (param) {\n");
-         for (i=0;i<numOfTabObjects[iTab];i++) {
-            buffer.AppendFormatted("         case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
-            buffer.AppendFormatted("            {\n");
-            buffer.AppendFormatted("               fDisplayObjIndex = %d;\n",i);
-            buffer.AppendFormatted("               fDisplayType = k%sDisplay;\n",tabObjectType[iTab][i].Data());
-            buffer.AppendFormatted("               SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
-            buffer.AppendFormatted("               fMenuDisplay->RCheckEntry(M_DISPLAY_%s,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
-            buffer.AppendFormatted("               BaseEventHandler();\n");
-            buffer.AppendFormatted("               break;\n");
-            buffer.AppendFormatted("            }\n");
-         }
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      ArgusHistoDisplay::BaseMenuClicked(menu,param);\n");
-      }
-      buffer.AppendFormatted("      MenuClicked(menu,param);\n");
-      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   void BaseMenuClicked(TGPopupMenu *menu,Long_t param);\n");
       buffer.AppendFormatted("   virtual void MenuClicked(TGPopupMenu *menu,Long_t param) = 0;\n");
       buffer.AppendFormatted("\n");
 
@@ -3123,65 +3190,7 @@ Bool_t ROMEBuilder::WriteTabH()
 
       // Write File
       WriteFile(hFile.Data(), buffer.Data(), 6);
-
-      // User H-File
-      hFile.SetFormatted("%sinclude/tabs/%sT%s.h", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
-      if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
-         // Description
-         buffer.Resize(0);
-         WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
-         buffer.AppendFormatted("#ifndef %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("#define %sT%s_H\n\n", shortCut.Data(), tabName[iTab].Data());
-         clsName.SetFormatted("%sT%s", shortCut.Data() ,tabName[iTab].Data());
-         clsDescription = tabDescription[iTab].Data();
-         WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
-         buffer.AppendFormatted("\n\n");
-
-         // Header
-         buffer.AppendFormatted("#include \"include/generated/%sT%s_Base.h\"\n", shortCut.Data(), tabName[iTab].Data());
-
-         // Class
-         buffer.AppendFormatted("\nclass %sT%s : public %sT%s_Base\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("{\n");
-         buffer.AppendFormatted("protected:\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("public:\n");
-
-         // Constructor
-         buffer.AppendFormatted("   %sT%s():%sT%s_Base()\n", shortCut.Data(), tabName[iTab].Data(), shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("   {\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   virtual ~%sT%s()\n", shortCut.Data(), tabName[iTab].Data());
-         buffer.AppendFormatted("   {\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   void Init();\n");
-         buffer.AppendFormatted("   void EndInit();\n");
-         buffer.AppendFormatted("   void MenuClicked(TGPopupMenu *menu,Long_t param);\n");
-         buffer.AppendFormatted("   void TabSelected();\n");
-         buffer.AppendFormatted("   void TabUnSelected();\n");
-         buffer.AppendFormatted("   void EventHandler();\n");
-
-         // Thread
-         for (i = 0; i < numOfThreadFunctions[iTab]; i++) {
-            buffer.AppendFormatted("   void %s();\n", threadFunctionName[iTab][i].Data());
-         }
-         buffer.AppendFormatted("\n");
-
-         // Fields
-         buffer.AppendFormatted("\n   ClassDef(%sT%s,%s)", shortCut.Data(), tabName[iTab].Data(), tabVersion[iTab].Data());
-         if (tabShortDescription[iTab].Length())
-            buffer.AppendFormatted(" // %s", tabShortDescription[iTab].Data());
-         buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("};\n\n");
-         buffer.AppendFormatted("#endif   // %sT%s_H\n", shortCut.Data(), tabName[iTab].Data());
-
-         // Write File
-         WriteFile(hFile.Data(), buffer.Data(), 6);
-      }
    }
-
    return kTRUE;
 }
 
@@ -3294,10 +3303,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i])
-         buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
-      else
-         buffer.AppendFormatted("#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("#include \"include/generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"include/generated/%sWindow.h\"\n",shortCut.Data());
@@ -4027,44 +4033,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("   \n");
 
-   if (haveFortranTask) {
-      buffer.AppendFormatted("// Interface to Fortran Tasks\n");
-      for (i=0;i<numOfFolder;i++) {
-         if (!folderUsed[i])
-            continue;
-         if (!folderSupport[i]) {
-            for (j=0;j<numOfValue[i];j++) {
-               if (!isNumber(valueType[i][j].Data()))
-                  continue;
-               if (folderArray[i]=="1") {
-                  if (valueArray[i][j][0]=="1") {
-                     buffer.AppendFormatted("extern \"C\" float Get%s_Get%s_C() {\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("   return (float)gAnalyzer->Get%s()->Get%s();\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("}\n");
-                  }
-                  else {
-                     buffer.AppendFormatted("extern \"C\" float Get%s_Get%sAt_C(int j) {\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("   return (float)gAnalyzer->Get%s()->Get%sAt(j);\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("}\n");
-                  }
-               }
-               else {
-                  if (valueArray[i][j][0]=="1") {
-                     buffer.AppendFormatted("extern \"C\" float Get%sAt_Get%s_C(int i) {\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("   return (float)gAnalyzer->Get%sAt(i)->Get%s();\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("}\n");
-                  }
-                  else {
-                     buffer.AppendFormatted("extern \"C\" float Get%sAt_Get%sAt_C(int i,int j) {\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("   return (float)gAnalyzer->Get%sAt(j)->Get%sAt(j);\n",folderName[i].Data(),valueName[i][j].Data());
-                     buffer.AppendFormatted("}\n");
-                  }
-               }
-            }
-         }
-      }
-   }
-
    // Folder dump and load
    buffer.AppendFormatted("Bool_t %sAnalyzer::DumpFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
    buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
@@ -4558,98 +4526,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // Write File
    WriteFile(hFile.Data(),buffer.Data(),6);
-
-   return true;
-}
-
-Bool_t ROMEBuilder::WriteAnalyzerF()
-{
-   int i,j;
-
-   ROMEString fFile;
-   ROMEString buffer;
-
-   bool writeFortran = false;
-   for (i=0;i<numOfTask;i++) {
-      if (!taskUsed[i])
-         continue;
-      if (taskFortran[i]) {
-         writeFortran = true;
-         break;
-      }
-   }
-   if (!writeFortran)
-      return true;
-
-   // File name
-   fFile.SetFormatted("%ssrc/generated/%sfanalyzer.F",outDir.Data(),shortCut.Data());
-
-   // Description
-   buffer.Resize(0);
-
-   // Folder Fields
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderUsed[i])
-         continue;
-      if (!folderSupport[i]) {
-         for (j=0;j<numOfValue[i];j++) {
-            if (!isNumber(valueType[i][j].Data()))
-               continue;
-            if (folderArray[i]=="1") {
-               if (valueArray[i][j][0]=="1") {
-                  buffer.AppendFormatted("      real function Get%s_Get%s\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("         interface to real function\n     &      Get%s_Get%s_C\n     &      [C, ALIAS:'_Get%s_Get%s_C'] ()\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("         end\n");
-                  buffer.AppendFormatted("         Get%s_Get%s = Get%s_Get%s_C()\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      end\n");
-                  buffer.AppendFormatted("      subroutine Get%s_Set%s(value)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      return\n");
-                  buffer.AppendFormatted("      end\n");
-               }
-               else {
-                  buffer.AppendFormatted("      real function Get%s_Get%sAt(j)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("         interface to real function\n     &      Get%s_Get%sAt_C\n     &      [C, ALIAS:'_Get%s_Get%sAt_C'] (j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("            integer j[value]\n");
-                  buffer.AppendFormatted("         end\n");
-                  buffer.AppendFormatted("         Get%s_Get%sAt = Get%s_Get%sAt_C(j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      end\n");
-                  buffer.AppendFormatted("      subroutine Get%s_Set%sAt(j,value)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      return\n");
-                  buffer.AppendFormatted("      end\n");
-               }
-            }
-            else {
-               if (valueArray[i][j][0]=="1") {
-                  buffer.AppendFormatted("      real function Get%sAt_Get%s(i)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("         interface to real function\n     &      Get%sAt_Get%s_C\n     &      [C, ALIAS:'_Get%sAt_Get%s_C'] (i)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("            integer i[value]\n");
-                  buffer.AppendFormatted("         end\n");
-                  buffer.AppendFormatted("         Get%sAt_Get%s = Get%sAt_Get%s_C(i)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      end\n");
-                  buffer.AppendFormatted("      subroutine Get%sAt_Set%s(i,value)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      return\n");
-                  buffer.AppendFormatted("      end\n");
-               }
-               else {
-                  buffer.AppendFormatted("      real function Get%sAt_Get%sAt(i,j)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("         interface to real function\n     &      Get%sAt_Get%sAt_C\n     &      [C, ALIAS:'_Get%sAt_Get%sAt_C'] (i,j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("            integer i[value]\n");
-                  buffer.AppendFormatted("            integer j[value]\n");
-                  buffer.AppendFormatted("         end\n");
-                  buffer.AppendFormatted("         Get%sAt_Get%sAt = Get%sAt_Get%sAt_C(i,j)\n",folderName[i].Data(),valueName[i][j].Data(),folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      end\n");
-                  buffer.AppendFormatted("      subroutine Get%sAt_Set%sAt(i,j,value)\n",folderName[i].Data(),valueName[i][j].Data());
-                  buffer.AppendFormatted("      return\n");
-                  buffer.AppendFormatted("      end\n");
-               }
-            }
-         }
-      }
-   }
-   buffer.AppendFormatted("\n");
-
-   // Write File
-   WriteFile(fFile.Data(),buffer.Data(),6);
 
    return true;
 }
@@ -5304,10 +5180,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i])
-         buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
-      else
-         buffer.AppendFormatted("#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
    }
    buffer.AppendFormatted("#include \"include/generated/%sConfigToForm.h\"\n",shortCut.Data());
    if (readGlobalSteeringParameters)
@@ -5517,10 +5390,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i])
-         buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
-      else
-         buffer.AppendFormatted("#include \"include/generated/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
+      buffer.AppendFormatted("#include \"include/tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
    }
    for (i=0;i<numOfDAQ;i++) {
       if (!daqUsed[i])

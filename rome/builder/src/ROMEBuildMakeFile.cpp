@@ -25,7 +25,7 @@ void ROMEBuilder::AddIncludeDirectories()
    if (numOfDAQ > 0) numOfIncludeDirectories++;
    if (numOfDB > 0) numOfIncludeDirectories++;
    if (numOfTab >0) numOfIncludeDirectories++;
-   if (hasTaskUserCode) numOfIncludeDirectories++;
+   if (numOfTask >0) numOfIncludeDirectories++;
 #if defined( R__VISUAL_CPLUSPLUS )
    if (mysql) numOfIncludeDirectories++;
    if (midas) numOfIncludeDirectories++;
@@ -38,7 +38,7 @@ void ROMEBuilder::AddIncludeDirectories()
    includeDirectories->AddFormatted("./include/");
    if (numOfTab >0)
       includeDirectories->AddFormatted("./include/tabs/");
-   if (hasTaskUserCode)
+   if (numOfTask >0)
       includeDirectories->AddFormatted("./include/tasks/");
    includeDirectories->AddFormatted("./include/generated/");
    if (hasFolderUserCode) includeDirectories->AddFormatted("./include/folders/");
@@ -330,12 +330,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i]) {
-         generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-      }
-      else {
-         generatedHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
-      }
+      generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
    }
    for (i=0;i<numOfTab;i++) {
       if (!tabUsed[i])
@@ -397,14 +392,8 @@ void ROMEBuilder::AddGeneratedTaskDictHeaders()
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i]) {
-         generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
-         generatedTaskLinkDefSuffix->Add("");
-      }
-      else {
-         generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s.h",shortCut.Data(),taskName[i].Data());
-         generatedTaskLinkDefSuffix->Add("");
-      }
+      generatedTaskDictHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),taskName[i].Data());
+      generatedTaskLinkDefSuffix->Add("");
    }
 }
 
@@ -423,7 +412,8 @@ void ROMEBuilder::AddGeneratedTabDictHeaders()
 
 void ROMEBuilder::AddGeneratedSources()
 {
-   generatedSources = new ROMEStrArray(10);
+   int i;
+   generatedSources = new ROMEStrArray(12+TMath::Max(numOfTab,0)+TMath::Max(numOfTask,0));
    generatedSources->AddFormatted("src/generated/main.cpp");
    generatedSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
@@ -432,6 +422,16 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfigToForm.cpp",shortCut.Data());
+   for (i=0;i<numOfTask;i++) {
+      if (!taskUsed[i])
+         continue;
+      generatedSources->AddFormatted("src/generated/%sT%s_Base.cpp",shortCut.Data(),taskName[i].Data());
+   }
+   for (i=0;i<numOfTab;i++) {
+      if (!tabUsed[i])
+         continue;
+      generatedSources->AddFormatted("src/generated/%sT%s_Base.cpp",shortCut.Data(),tabName[i].Data());
+   }
    if (generatedDictHeaders->GetEntriesFast()>0)
       generatedSources->AddFormatted("dict/%sGeneratedDict.cpp",shortCut.Data());
    if (generatedFolderDictHeaders->GetEntriesFast()>0)
@@ -488,10 +488,8 @@ void ROMEBuilder::AddTaskHeaders()
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
-      if (taskUserCode[i]) {
-         taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
-         taskLinkDefSuffix->Add("");
-      }
+      taskHeaders->AddFormatted("include/tasks/%sT%s.h",shortCut.Data(),taskName[i].Data());
+      taskLinkDefSuffix->Add("");
    }
 }
 
@@ -1523,10 +1521,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@echo linking %s%s...\n",shortCut.Data(),mainProgName.Data());
-   if (haveFortranTask)
-      buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries) /link /nodefaultlib:\"libcmtd.lib\" /FORCE:MULTIPLE\n\n",shortCut.Data(),mainProgName.Data());
-   else
-      buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    buffer.AppendFormatted("\t$(CXX) $(Flags) -o $@ $(objects) $(Libraries)\n");
