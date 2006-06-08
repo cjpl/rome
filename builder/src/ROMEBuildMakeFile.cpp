@@ -865,8 +865,6 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted("daqlibs += %s\n",daqLibraries->At(i).Data());
    }
    buffer.AppendFormatted("clibs := -lHtml -lz $(SYSLIBS)");
-   if (haveFortranTask)
-      buffer.AppendFormatted(" -lg2c");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    // libs
@@ -1454,10 +1452,10 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedFolderDictionary.d\n",shortCut.Data());
    if (hasFolderUserCode)
       buffer.AppendFormatted("dependfiles += obj/%sFolderDictionary.d\n",shortCut.Data());
-   if (hasTaskGenerated)
+   if (numOfTask) {
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedTaskDictionary.d\n",shortCut.Data());
-   if (hasTaskUserCode)
       buffer.AppendFormatted("dependfiles += obj/%sTaskDictionary.d\n",shortCut.Data());
+   }
    if (numOfTab>0)
       buffer.AppendFormatted("dependfiles += obj/%sGeneratedTabDictionary.d\n",shortCut.Data());
    if (numOfTab>0)
