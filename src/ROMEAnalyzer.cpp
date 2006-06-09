@@ -177,6 +177,11 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    if (this->isDaemonMode())
       ss_daemon_init(kFALSE);
 
+/*
+   if (this->isBatchMode())
+      ss_batch_init(kFALSE);
+*/
+
    PrintVerbose("Starting analyzer");
 // Starts the ROME Analyzer
    ROMEString text;
@@ -206,18 +211,20 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
          gROME->PrintLine(text.Data());
       }
-
-      gROME->PrintLine("Program steering");
-      gROME->PrintLine("----------------");
-      gROME->PrintLine("q : Terminates the program");
-      gROME->PrintLine("e : Ends the program");
-      gROME->PrintLine("s : Stops the program");
-      gROME->PrintLine("r : Restarts the program");
-      gROME->PrintLine("c : Continuous Analysis");
-      gROME->PrintLine("o : Step by step Analysis");
-      gROME->PrintLine("g : Run until event #");
-      gROME->PrintLine("i : Root interpreter");
-      gROME->PrintLine();
+      
+      if (!this->isBatchMode()) {
+         gROME->PrintLine("Program steering");
+         gROME->PrintLine("----------------");
+         gROME->PrintLine("q : Terminates the program");
+         gROME->PrintLine("e : Ends the program");
+         gROME->PrintLine("s : Stops the program");
+         gROME->PrintLine("r : Restarts the program");
+         gROME->PrintLine("c : Continuous Analysis");
+         gROME->PrintLine("o : Step by step Analysis");
+         gROME->PrintLine("g : Run until event #");
+         gROME->PrintLine("i : Root interpreter");
+         gROME->PrintLine();
+      }
    }
    if (IsStandAloneARGUS()) {
       ShowRunStat(false);
@@ -348,7 +355,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          configFile = foundFiles.At(0);
       }
       else {
-         if (isBatchMode() || isDaemonMode()) {
+         if (this->isBatchMode() || this->isDaemonMode()) {
             gROME->PrintText("Several configuration files were found.\n");
             for (i = 0; i < nFile; i++) {
                printString.SetFormatted("   %s\n", foundFiles.At(i).Data());
@@ -977,6 +984,31 @@ Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
    }
 
    setsid();                    // become session leader
+   umask(0);                    // clear our file mode createion mask
+#endif
+   return kTRUE;
+}
+
+Int_t ROMEAnalyzer::ss_batch_init()
+{
+// redirect std input.
+// this method is not used yet.
+#if defined( R__UNIX )   // only implemented for UNIX
+   int fd;
+
+   close(0);
+   fd = open("/dev/null", O_RDWR, 0);
+   if (fd < 0)
+      fd = open("/dev/null", O_WRONLY, 0);
+   if (fd < 0) {
+      gROME->PrintLine("Can't open /dev/null");
+      return kFALSE;
+   }
+   if (fd != 0) {
+      gROME->PrintLine("Did not get file descriptor");
+      return kFALSE;
+   }
+
    umask(0);                    // clear our file mode createion mask
 #endif
    return kTRUE;

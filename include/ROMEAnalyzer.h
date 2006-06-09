@@ -612,6 +612,7 @@ public:
    UInt_t          ss_kbhit();
    UInt_t          ss_millitime();
    Int_t           ss_daemon_init(Bool_t keep_stdout);
+   Int_t           ss_batch_init();
    Bool_t          strtobool(const char *str);
 
    Int_t           stricmp(const char*,const char*);
