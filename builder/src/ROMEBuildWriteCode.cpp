@@ -2537,6 +2537,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
    #endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       // Task class includes
