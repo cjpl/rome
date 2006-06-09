@@ -285,7 +285,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->SetBeginOfRun();
 
          // Show number of processed events
-         if (gROME->IsShowRunStat()) {
+         if (gROME->IsShowRunStat() && !gROME->isBatchMode()) {
 #if defined( R__VISUAL_CPLUSPLUS )
             text.SetFormatted("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
             gROME->PrintLine(text.Data());
@@ -610,6 +610,9 @@ Bool_t ROMEEventLoop::Update()
 
 Bool_t ROMEEventLoop::UserInput()
 {
+   if (gROME->isDaemonMode() || gROME->isBatchMode())
+      return kTRUE;
+
    // Looks for user input. Called before the Event tasks.
    bool wait = false;
    bool first = true;
