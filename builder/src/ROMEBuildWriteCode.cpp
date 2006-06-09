@@ -2607,7 +2607,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
+                  buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTask()->IsActive()) {\n",taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
                   if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                      buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                      buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
