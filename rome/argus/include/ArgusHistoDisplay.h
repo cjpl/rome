@@ -11,7 +11,7 @@
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
-#pragma warning( disable : 4800 )
+#pragma warning( disable : 4800 4244)
 #endif // R__VISUAL_CPLUSPLUS
 #include <TCanvas.h>
 #include <TColor.h>
