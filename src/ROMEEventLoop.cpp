@@ -285,7 +285,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->SetBeginOfRun();
 
          // Show number of processed events
-         if (gROME->IsShowRunStat() && !gROME->isBatchMode()) {
+         if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
             text.SetFormatted("Run %I64d stopped                                             \n",gROME->GetCurrentRunNumber());
             gROME->PrintLine(text.Data());
@@ -582,7 +582,8 @@ Bool_t ROMEEventLoop::Update()
       }
    }
 
-   if (!fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite))) {
+   if (!gROME->isBatchMode() &&
+       ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
          text.SetFormatted("%I64d events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);

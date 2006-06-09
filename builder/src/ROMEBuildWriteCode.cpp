@@ -4015,8 +4015,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    ROMEString prog;
    prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());   
-   buffer.AppendFormatted("   if (this->isBatchMode())\n");
-   buffer.AppendFormatted("      return;\n");
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*****************************************\");\n");
    buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
