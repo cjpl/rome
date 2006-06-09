@@ -520,13 +520,13 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          i++;
       }
       else if (!strcmp(argv[i],"-b")) {
-         ;
+         fBatchMode = kTRUE;
       }
       else if (!strcmp(argv[i],"-D")) {
-         ;
+         fDaemonMode = kTRUE;         
       }
       else if (!strcmp(argv[i],"-ng")) {
-         ;
+         fNoGraphics = kTRUE;
       }
       else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {
          gROME->PrintText("Input line parameter '");
@@ -538,6 +538,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          return false;
       }
    }
+   fNoGraphics = fBatchMode || fDaemonMode || fNoGraphics;
+   fQuitMode = fBatchMode || fDaemonMode || fQuitMode;
 
    return true;
 }
