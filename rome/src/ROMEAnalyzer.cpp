@@ -93,7 +93,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fNoGraphics = batch || daemon || nographics;
    fQuitMode = batch || daemon;
    fVerboseMode = false;
-   fSplashScreen = true;
+   fSplashScreen = !nographics;
    fGraphicalConfigEdit = true;
    fDontReadNextEvent = false;
    fInputDir = "./";
@@ -540,6 +540,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    }
    fNoGraphics = fBatchMode || fDaemonMode || fNoGraphics;
    fQuitMode = fBatchMode || fDaemonMode || fQuitMode;
+   fSplashScreen =  fSplashScreen && !fNoGraphics;
 
    return true;
 }
