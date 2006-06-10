@@ -8,6 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <Riostream.h>
+#include "ROMEString.h"
 #include "ROMESQL.h"
 
 ClassImp(ROMESQL)

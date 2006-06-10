@@ -8,6 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <Riostream.h>
+#include <TString.h>
 #include "ROMESQLite3.h"
 
 ClassImp(ROMESQLite3)
