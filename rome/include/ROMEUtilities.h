@@ -7,9 +7,10 @@
 #ifndef ROMEUtilities_H
 #define ROMEUtilities_H
 
-#include <Rtypes.h>
-#include "ROMEString.h"
-#include "ROMEStrArray.h"
+#include <TObject.h>
+
+class ROMEString;
+class ROMEStrArray;
 
 class ROMEUtilities : public TObject
 {

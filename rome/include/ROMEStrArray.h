@@ -8,7 +8,7 @@
 #define ROMEStrArray_H
 
 #include <TObjArray.h>
-#include <TObjString.h>
+#include <TString.h>
 
 class ROMEStrArray : public TObject
 {

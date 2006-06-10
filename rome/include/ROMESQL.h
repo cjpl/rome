@@ -7,10 +7,17 @@
 #ifndef ROMESQL_H
 #define ROMESQL_H
 
-#include <Riostream.h>
-#include "ROMEString.h"
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TObject.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 
-class ROMESQL
+class ROMESQL : public TObject
 {
 public:
    ROMESQL(){};
@@ -42,7 +49,7 @@ public:
    Bool_t          InsertRow(const char* table,const char* fields,const char* values);
    Bool_t          DeleteRow(const char* table,const char* constraint);
    Bool_t          ReplaceField(const char* table,const char* field,const char* value,const char* constraint);
-   Bool_t           ExistField(const char* table,const char* field);
+   Bool_t          ExistField(const char* table,const char* field);
 
    ClassDef(ROMESQL, 0) // DBMS independent interface to SQL database
 };

@@ -17,6 +17,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h> 
 #include <TThread.h>
+#include <TFolder.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -31,11 +32,16 @@
 #include <fcntl.h>
 #include <time.h>
 
-#include "ArgusWindow.h"
-
 #if defined( HAVE_MIDAS )
 #   include "midas.h"
 #endif
+
+#include "ROMEAnalyzer.h"
+#include "ROMETreeInfo.h"
+#include "ROMERint.h"
+#include "ROMEConfig.h"
+#include "ArgusWindow.h"
+#include "ArgusAnalyzerController.h"
 
 #include "ROMEEventLoop.h"
 #include <Riostream.h>

@@ -25,6 +25,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMETask.h"
 #include "ROMEAnalyzer.h"
+#include <ROMERint.h>
 #include <Riostream.h>
 
 ClassImp(ROMETask)

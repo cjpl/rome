@@ -9,8 +9,9 @@
 
 #include <TFile.h>
 #include "ROMEString.h"
-#include "ROMETreeInfo.h"
 #include "ROMEDAQSystem.h"
+
+class ROMETreeInfo;
 
 class ROMERomeDAQ : public ROMEDAQSystem {
 protected:

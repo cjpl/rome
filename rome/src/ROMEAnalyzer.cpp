@@ -54,7 +54,6 @@
 #include <TMessage.h>
 #include <TSocket.h>
 #include <TServerSocket.h>
-#include <TArrayI.h>
 #include <TTask.h>
 #include <TTree.h>
 #include <TFolder.h>
@@ -64,6 +63,9 @@
 #include <TBrowser.h>
 #include <THtml.h>
 #include <TSystem.h>
+#include <TFile.h>
+#include <TArrayI.h>
+#include <TArrayL.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -74,6 +76,12 @@
 #include "ROMEUtilities.h"
 #include "ArgusWindow.h"
 #include <Riostream.h>
+
+#include "ROMENetFolder.h"
+#include "ROMERint.h"
+#include "ROMEConfig.h"
+#include "ArgusTab.h"
+#include "ROMEDataBase.h"
 
 ClassImp(ROMEAnalyzer)
 
@@ -1226,3 +1234,51 @@ Bool_t ROMEAnalyzer::IsWindowBusy() {
          busy = true;
    return busy;
 }
+
+ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
+{
+   if (fActiveDAQ!=NULL)
+      return fActiveDAQ;
+   this->PrintLine("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
+   fApplication->Terminate(1);
+   return NULL;
+}
+
+ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
+{
+   if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
+      return fDataBaseHandle[i];
+   this->PrintLine("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
+   fApplication->Terminate(1);
+   return NULL;
+}
+
+ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
+{
+   for (Int_t i=0;i<fNumberOfDataBases;i++)
+      if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+         return fDataBaseHandle[i];
+   ROMEString str;
+   str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
+   this->PrintLine(str.Data());
+   fApplication->Terminate(1);
+   return NULL;
+}
+
+Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
+{
+   for (Int_t i=0;i<fNumberOfDataBases;i++)
+      if (!stricmp(fDataBaseHandle[i]->GetName(),name))
+         return true;
+   return false;
+}
+
+void ROMEAnalyzer::InitDataBases(Int_t number)
+{
+   fDataBaseHandle = new ROMEDataBase*[number];
+   fDataBaseConnection = new ROMEString[number];
+   fDataBaseName = new ROMEString[number];
+   fDataBaseDir = new ROMEString[number];
+   fNumberOfDataBases = number;
+}
+

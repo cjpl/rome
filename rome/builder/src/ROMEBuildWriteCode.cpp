@@ -6,7 +6,6 @@
 
 ********************************************************************/
 #include <RConfig.h>
-
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
@@ -18,6 +17,7 @@
 
 #include <Riostream.h>
 #include "ROMEBuilder.h"
+#include "ROMEConfigParameter.h"
 
 Bool_t ROMEBuilder::WriteFolderCpp()
 {
@@ -1611,6 +1611,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
 
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#include <Riostream.h>\n");
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -2143,10 +2144,6 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
       buffer.AppendFormatted("\n\n");
 
-      if (readGlobalSteeringParameters)
-         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-
       if (numOfHistos[iTask]>0) {
          buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -2441,6 +2438,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("\n");
       // Header
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
 
@@ -2529,14 +2527,15 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("\n");
       // Header
       buffer.AppendFormatted("#include <RConfig.h>\n");
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( push )\n");
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-   #endif // R__VISUAL_CPLUSPLUS
+#endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TCanvas.h>\n");
-   #if defined( R__VISUAL_CPLUSPLUS )
+#if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
-   #endif // R__VISUAL_CPLUSPLUS
+#endif // R__VISUAL_CPLUSPLUS
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
@@ -3204,6 +3203,8 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    ROMEString buffer;
    ROMEString clsName;
    ROMEString clsDescription;
+   ROMEString tmp;
+   Int_t i, j;
 
    hFile.SetFormatted("%sinclude/generated/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
 
@@ -3225,8 +3226,23 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    buffer.AppendFormatted("\n\n");
 
    // Header
-   buffer.AppendFormatted("#include <string>\n\n");
-   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   // Folder includes
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (numOfValue[i] > 0 && !folderSupport[i]) {
+         for (j=0;j<numOfFolderInclude[i];j++) {
+            if (folderLocalFlag[i][j]) {
+               tmp.SetFormatted("#include \"%s\"",folderInclude[i][j].Data());
+            }
+            else {
+               tmp.SetFormatted("#include <%s>",folderInclude[i][j].Data());
+            }
+            if (!buffer.Contains(tmp))
+               buffer.AppendFormatted("%s\n",tmp.Data());
+         }
+      }
+   }
 
    WriteSteeringClass(buffer,0,iTask,0);
 
@@ -3315,6 +3331,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
 
+   buffer.AppendFormatted("#include \"ROMERint.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
    buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
@@ -4171,25 +4189,18 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n\n");
 
    // includes
-#if defined( R__UNIX )
-   buffer.AppendFormatted("#include <unistd.h>\n");
-#endif
+   buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
    buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include <TTask.h>\n");
-   buffer.AppendFormatted("#include <TTree.h>\n");
-   buffer.AppendFormatted("#include <TFolder.h>\n");
-   buffer.AppendFormatted("#include <TClonesArray.h>\n");
    buffer.AppendFormatted("#include <TH1.h>\n");
+   buffer.AppendFormatted("#include <TTree.h>\n");
+   buffer.AppendFormatted("#include <TFile.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include \"ROMETask.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
-
    // DAQ includes
    buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
@@ -4201,24 +4212,10 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
          continue;
       buffer.AppendFormatted("#include \"daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
    }
-   // Folder includes
-   for (i=0;i<numOfFolder;i++) {
-      if (!folderUsed[i])
-         continue;
-      if (numOfValue[i] > 0 && !folderSupport[i]) {
-         for (j=0;j<numOfFolderInclude[i];j++) {
-            if (folderLocalFlag[i][j]) {
-               tmp.SetFormatted("#include \"%s\"",folderInclude[i][j].Data());
-            }
-            else {
-               tmp.SetFormatted("#include <%s>",folderInclude[i][j].Data());
-            }
-            if (!buffer.Contains(tmp))
-               buffer.AppendFormatted("%s\n",tmp.Data());
-         }
-      }
-   }
-   buffer.AppendFormatted("\n");
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n", shortCut.Data());
+//   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
+   buffer.AppendFormatted("class %sWindow;\n", shortCut.Data());
 
    // Folder class declaration
    for (i=0;i<numOfFolder;i++) {
@@ -4237,9 +4234,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("class %sT%s;\n",shortCut.Data(),taskHierarchyName[i].Data());
    }
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("class %sWindow;\n",shortCut.Data());
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("class %sGlobalSteering;\n",shortCut.Data());
+   buffer.AppendFormatted("class %sEventLoop;\n",shortCut.Data());
+   buffer.AppendFormatted("class %sConfig;\n",shortCut.Data());
+   buffer.AppendFormatted("\n");
 
    // Task Switches Structure
    buffer.AppendFormatted("// Task Switches Structure\n");
@@ -4565,6 +4562,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TGMsgBox.h>\n");
+      buffer.AppendFormatted("#include <TGTab.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -4927,12 +4925,12 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("\n\n");
 
    // Header
+   buffer.AppendFormatted("#include \"ArgusWindow.h\"\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("class %sT%s_Base;\n", shortCut.Data(), tabName[i].Data());
    }
-   buffer.AppendFormatted("#include \"ArgusWindow.h\"\n");
    buffer.AppendFormatted("\n");
 
    // Tab Switches Structure
@@ -5175,6 +5173,9 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    // Header
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#include \"XMLToFormFrame.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEDataBase.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -5386,6 +5387,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    // Header
    buffer.AppendFormatted("\n");
 
+   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -5410,6 +5412,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
@@ -5687,14 +5690,12 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#if !defined(__CINT__)\n");
-   buffer.AppendFormatted("#include <TArrayI.h>\n");
-   buffer.AppendFormatted("#include <TArrayL.h>\n");
-   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
+   buffer.AppendFormatted("#   include \"TArrayL64.h\"\n");
+   buffer.AppendFormatted("#   include \"ROMEString.h\"\n");
+   buffer.AppendFormatted("#   include \"ROMEStrArray.h\"\n");
+   buffer.AppendFormatted("#   include \"ROMEConfig.h\"\n");
    buffer.AppendFormatted("#endif\n");
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"ROMEConfig.h\"\n");
+   buffer.AppendFormatted("class ROMEXML;\n");
 
    // Class
    buffer.AppendFormatted("\nclass %sConfig : public ROMEConfig\n",shortCut.Data());
@@ -8783,6 +8784,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TBranchElement.h>\n");
    buffer.AppendFormatted("#include <TTask.h>\n");
+   buffer.AppendFormatted("#include <TFile.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
@@ -9155,19 +9157,9 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
    buffer.AppendFormatted("\n\n");
 
-   buffer.AppendFormatted("#include <RConfig.h>\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#pragma warning( push )\n");
-   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include <TTree.h>\n");
-   buffer.AppendFormatted("#include <TFolder.h>\n");
-   buffer.AppendFormatted("#include <TClonesArray.h>\n");
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("#pragma warning( pop )\n");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include \"ROMEString.h\"\n");
    buffer.AppendFormatted("#include \"ROMEEventLoop.h\"\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("class ROMEString;\n");
 
    buffer.AppendFormatted("\n");
 
@@ -10168,7 +10160,28 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
          writeFile = true;
          fileBuffer.ReplaceAll(str1, str2);
       }
+#if 1
+// this special treatment is neccesary only for several month from Jun.2006
+      //check if the file has string to be replaced.
+      ROMEString filenameStr = filename;
+      ROMEString analyzerInclude[4];
+      analyzerInclude[0].SetFormatted("#include <generated/%sAnalyzer.h>",shortCut.Data());
+      analyzerInclude[1].SetFormatted("#include <include/generated/%sAnalyzer.h>",shortCut.Data());
+      analyzerInclude[2].SetFormatted("#include \"generated/%sAnalyzer.h\"",shortCut.Data());
+      analyzerInclude[3].SetFormatted("#include \"include/generated/%sAnalyzer.h\"",shortCut.Data());
+      if (filenameStr.Contains("src/tasks") || filenameStr.Contains("src/tabs")) {
+         if (!fileBuffer.Contains(analyzerInclude[0])
+            && !fileBuffer.Contains(analyzerInclude[1])
+            && !fileBuffer.Contains(analyzerInclude[2])
+            && !fileBuffer.Contains(analyzerInclude[3])
+            ) {
+            writeFile = true;            
+            fileBuffer.Insert(strlen(header), analyzerInclude[2]);
+            fileBuffer.Insert(strlen(header), "\n");
+         }
+      }
    }
+#endif
    if (writeFile) {
       if (pBuffer>=0)
          buffer += fileBuffer(pBuffer+80,fileBuffer.Length());

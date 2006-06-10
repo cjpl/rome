@@ -10,9 +10,10 @@
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 #include "ROMEStr2DArray.h"
-#include "ROMEXML.h"
-#include "ROMEPath.h"
 #include "ROMEDataBase.h"
+
+class ROMEXML;
+class ROMEPath;
 
 class ROMEXMLDataBase : public ROMEDataBase
 {

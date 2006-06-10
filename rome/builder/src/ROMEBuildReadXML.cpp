@@ -7,6 +7,7 @@
 ********************************************************************/
 #include <Riostream.h>
 #include "ROMEBuilder.h"
+#include "ROMEXML.h"
 
 Bool_t ROMEBuilder::AllocateMemorySpace()
 {

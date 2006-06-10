@@ -7,19 +7,12 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TGButton.h>
-#include <TGTab.h>
-#include <TGLayout.h>
-#include <TGTextEntry.h>
-#include <TGLabel.h>
 #include <TGFrame.h>
-#include <TGComboBox.h>
-#include <Riostream.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include "XMLToForm.h"
+class XMLToFormFrame;
 
 class XMLToFormWindow : public TGTransientFrame {
 public:
@@ -30,28 +23,28 @@ public:
       BUTTON
    };
 protected:
-   int *fExitID;
-   bool fFirstEdit;
-   int fMaximalWindowWidth;
+   Int_t          *fExitID;
+   Bool_t          fFirstEdit;
+   Int_t           fMaximalWindowWidth;
    XMLToFormFrame *fMainFrame;
 
 public:
    XMLToFormWindow() {};
-   XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, int *exitButtonID, int windowWidth=200);
+   XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, Int_t *exitButtonID, Int_t windowWidth=200);
    virtual ~ XMLToFormWindow();
-   void SignalHandler();
-   bool SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame);
+   void   SignalHandler();
+   Bool_t SearchWidget(const char* path,XMLToFormFrame** frame,Int_t *index,XMLToFormFrame* mainFrame);
 
 protected:
    XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);
 
-   void CheckSignals(XMLToFormFrame *frame);
-   void PlaceWindow(const TGWindow * main);
-   bool CreateForm(XMLToFormFrame *frame);
-   void BuildForm(XMLToFormFrame *frame);
-   void CreateFrame(XMLToFormFrame *frame);
-   void BuildFrame(XMLToFormFrame *frame);
-   void SaveCurrentValues(XMLToFormFrame *frame);
+   void   CheckSignals(XMLToFormFrame *frame);
+   void   PlaceWindow(const TGWindow * main);
+   Bool_t CreateForm(XMLToFormFrame *frame);
+   void   BuildForm(XMLToFormFrame *frame);
+   void   CreateFrame(XMLToFormFrame *frame);
+   void   BuildFrame(XMLToFormFrame *frame);
+   void   SaveCurrentValues(XMLToFormFrame *frame);
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 

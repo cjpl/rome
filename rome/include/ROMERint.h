@@ -13,7 +13,6 @@
 #   pragma warning( disable : 4800 )
 #endif
 #include <TRint.h>
-#include <TSystem.h>
 #include <TSysEvtHandler.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
@@ -29,9 +28,9 @@ private:
 public:
    ROMERint(const char *appClassName, int *argc, char **argv,
             void *options = 0, Int_t numOptions = 0, Bool_t noLogo = kFALSE);
-   Bool_t HandleTermInput();
-   void Run(Bool_t retrn);
-   Bool_t isUseRintInterruptHandler() { return fUseRintInterruptHandler; };
+   Bool_t          HandleTermInput();
+   void            Run(Bool_t retrn);
+   Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; };
    TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; };
 
    ClassDef(ROMERint, 0) // Customized TRint for ROME

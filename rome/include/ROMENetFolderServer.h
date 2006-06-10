@@ -12,10 +12,11 @@
 class ROMENetFolderServer : public TNetFolderServer
 {
 public:
-   void StartServer(TApplication *app,Int_t port,const char* serverName);
-   static int ResponseFunction(TSocket *socket);
+   void              StartServer(TApplication *app,Int_t port,const char* serverName);
+   static Int_t      ResponseFunction(TSocket *socket);
+
 protected:
-   static int CheckCommand(TSocket *socket,char *str);
+   static Int_t      CheckCommand(TSocket *socket,char *str);
    static THREADTYPE Server(void *arg);
    static THREADTYPE ServerLoop(void *arg);
 

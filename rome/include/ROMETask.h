@@ -8,9 +8,10 @@
 #define ROMETask_H
 
 #include <TTask.h>
-#include <TFolder.h>
 #include "ROMEString.h"
 #include "ROMEStopwatch.h"
+
+class TFolder;
 
 class ROMETask : public TTask {
 private:
@@ -27,6 +28,7 @@ protected:
    int            fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
+
 public:
    ROMETask() { ; }
    ROMETask(const char *name,const char *title,int level);
@@ -34,7 +36,12 @@ public:
    Bool_t       hasHistograms()  { return fHasHistograms; };
    Int_t        GetVersion()     { return fVersion; };
    TFolder     *GetHistoFolder() { return fHistoFolder; };
+
 protected:
+   void         StartRootInterpreter(const char* message = NULL);
+   const char  *GetTimeOfEvents();
+   const char  *GetTimeOfAll();
+
    virtual void BookHisto() = 0;
    virtual void ResetHisto() = 0;
    virtual void Init() = 0;
@@ -43,12 +50,8 @@ protected:
    virtual void EndOfRun() = 0;
    virtual void Terminate() = 0;
 
-   void         StartRootInterpreter(const char* message = NULL);
 
-   const char  *GetTimeOfEvents();
-   const char  *GetTimeOfAll();
-
-   ClassDef(ROMETask,1) // Customized TTask for ROME
+   ClassDef(ROMETask,0) // Customized TTask for ROME
 };
 
 #endif   // ROMETask_H

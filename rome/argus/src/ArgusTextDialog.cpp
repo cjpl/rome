@@ -1,4 +1,4 @@
-// $Id: ArgusTextDialog.cpp 785 2005-12-18 18:43:19Z sawada $
+// $Id$
 // Author: Ryu Sawada
 
 //////////////////////////////////////////////////////////////////////////
@@ -9,6 +9,9 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
+#include <TGButton.h>
+#include <TGLabel.h>
+#include <TGTextEntry.h>
 #include "ArgusTextDialog.h"
 
 ClassImp(ArgusTextDialog)

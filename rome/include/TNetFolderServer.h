@@ -14,13 +14,15 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include <TNamed.h>
 #include <TString.h>
-#include <TApplication.h>
+#include <TFolder.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
 #define THREADRETURN NULL
 #define THREADTYPE void*
+
+class TApplication;
 
 class TNetFolderServer : public TNamed
 {
@@ -30,9 +32,9 @@ protected:
    static TString       fServerName;
 public:
    void               StartServer(TApplication *app,Int_t port,const char* serverName);
-   static int         ResponseFunction(TSocket *socket);
+   static Int_t       ResponseFunction(TSocket *socket);
 protected:
-   static int         CheckCommand(TSocket *socket,char *str);
+   static Int_t       CheckCommand(TSocket *socket,char *str);
    static TFolder    *ReadFolderPointer(TSocket *socket);
    static THREADTYPE  Server(void *arg);
    static THREADTYPE  ServerLoop(void *arg);

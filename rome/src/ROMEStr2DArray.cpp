@@ -8,8 +8,11 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include "ROMEStr2DArray.h"
 #include <Riostream.h>
+#include <TObjString.h>
+#include "ROMEString.h"
+#include "ROMEStrArray.h"
+#include "ROMEStr2DArray.h"
 
 ClassImp(ROMEStr2DArray)
 

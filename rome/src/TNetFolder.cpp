@@ -14,6 +14,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include <TObjString.h>
 #include <TSystem.h>
+#include <TSocket.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS

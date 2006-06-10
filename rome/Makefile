@@ -22,7 +22,7 @@ CXX = g++
 #####################################################################
 # Nothing needs to be modified after this line 
 #####################################################################
-INCLUDE := -I. -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
+INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj bin/romebuilder.exe
 
@@ -48,6 +48,7 @@ BldObjects := obj/ROMEBuilder.o \
               obj/ROMEString.o \
               obj/ROMEXML.o \
               obj/ROMEBuilderDict.o \
+              obj/ROMEConfigParameter.o \
               obj/mxml.o \
               obj/strlcpy.o
 
@@ -165,6 +166,9 @@ ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
+	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+
+obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
 	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h

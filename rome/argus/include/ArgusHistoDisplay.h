@@ -13,29 +13,20 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 4244)
 #endif // R__VISUAL_CPLUSPLUS
-#include <TCanvas.h>
-#include <TColor.h>
-#include <TLine.h>
-#include <TGTextEdit.h>
-#include <TGTextEntry.h>
-#include <TGListBox.h>
-#include <TRootEmbeddedCanvas.h>
-#include <TTimer.h>
-#include <TText.h>
-#include <TStyle.h>
-#include <TGraphErrors.h>
-#include <TSpline.h>
+#include <TGMenu.h>
 #include <TGProgressBar.h>
-#include <TGButton.h>
-#include <TFrame.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TText.h>
+#include <TGraph.h>
+#include <TH1.h>
 #include <TH2.h>
-#include <TFile.h>
-#include <TF1.h>
+#include <TPad.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include "XMLToForm.h"
+#include "ROMEString.h"
 #include "ArgusTab.h"
+#include "XMLToForm.h"
 
 class ArgusHistoDisplay : public ArgusTab
 {
@@ -59,101 +50,77 @@ protected:
       M_ARGUS_DISPLAY_VIEW_PAD_CONFIG,
       M_ARGUS_DISPLAY_VIEW_SELECT
    };
-   int M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX][kMaxNumberOfPadsY];
+   Int_t M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX][kMaxNumberOfPadsY];
 
 protected:
-   TGMenuBar*   fMenuBar;          //! menu bar
-   TGPopupMenu* fMenuDisplay; //!
-   TGPopupMenu* fMenuView; //!
-   TGPopupMenu* fMenuViewDivide; //!
-   TGPopupMenu* fMenuView0_19; //!
-   TGPopupMenu* fMenuView20_39; //!
-   TGPopupMenu* fMenuView40_59; //!
-   TGPopupMenu* fMenuView60_79; //!
-   TGPopupMenu* fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
-   TGHProgressBar *fProgress; //! 
-   TRootEmbeddedCanvas *fStatus,*fStatusText; //! 
-   TText *fText; //! 
+   TGMenuBar           *fMenuBar;       //! menu bar
+   TGPopupMenu         *fMenuDisplay;   //!
+   TGPopupMenu         *fMenuView;      //!
+   TGPopupMenu         *fMenuViewDivide;//!
+   TGPopupMenu         *fMenuView0_19;  //!
+   TGPopupMenu         *fMenuView20_39; //!
+   TGPopupMenu         *fMenuView40_59; //!
+   TGPopupMenu         *fMenuView60_79; //!
+   TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
+   TGHProgressBar      *fProgress;      //! 
+   TRootEmbeddedCanvas *fStatus;        //! 
+   TRootEmbeddedCanvas *fStatusText;    //! 
+   TText               *fText;          //! 
 
+   Int_t                fDisplayType;     //! 
+   Int_t                fDisplayTypeOld;  //! 
+   Int_t                fDisplayObjIndex; //! 
+   Bool_t               fInherited;       //! 
+   ROMEString           fInheritanceName; //! 
+   Bool_t               fTabActive;       //! 
 
-   int fDisplayType; //! 
-   int fDisplayTypeOld; //! 
-   int fDisplayObjIndex; //! 
-   bool fInherited; //! 
-   ROMEString fInheritanceName; //! 
-   bool fTabActive; //! 
+   TGraph             **fUserTGraph;         //! 
+   TH1F               **fUserTH1F;           //! 
+   TH2F               **fUserTH2F;           //! 
+   Int_t                fNumberOfUserTGraph; //!
+   Int_t                fNumberOfUserTH1F;   //!
+   Int_t                fNumberOfUserTH2F;   //!
 
-   TGraph** fUserTGraph; //! 
-   TH1F** fUserTH1F; //! 
-   TH2F** fUserTH2F; //! 
-   int fNumberOfUserTGraph; //!
-   int fNumberOfUserTH1F; //!
-   int fNumberOfUserTH2F; //!
+   TRootEmbeddedCanvas *fCanvas;                   //! 
+   TPad                *fPad[kMaxNumberOfPads];    //! 
 
-   TRootEmbeddedCanvas *fCanvas; //! 
-   TPad *fPad[kMaxNumberOfPads]; //! 
+   Int_t                fNumberOfPads;             //! 
+   Int_t                fNumberOfPadsX;            //! 
+   Int_t                fNumberOfPadsY;            //! 
+   TH1F                *fTH1F[kMaxNumberOfPads];   //! 
+   TH2F                *fTH2F[kMaxNumberOfPads];   //! 
+   TGraph              *fTGraph[kMaxNumberOfPads]; //! 
 
-   int fNumberOfPads; //! 
-   int fNumberOfPadsX; //! 
-   int fNumberOfPadsY; //! 
-   TH1F   *fTH1F[kMaxNumberOfPads]; //! 
-   TH2F   *fTH2F[kMaxNumberOfPads]; //! 
-   TGraph *fTGraph[kMaxNumberOfPads]; //! 
+   XMLToForm           *fDialog; //! 
 
-   XMLToForm *fDialog; //! 
+   Int_t                fChannelNumber; //! 
 
-   int fChannelNumber; //! 
-
-   bool fPadConfigActive; //! 
-   int fPadConfigChannel[kMaxNumberOfPads]; //! 
-
+   Bool_t               fPadConfigActive;                    //! 
+   Int_t                fPadConfigChannel[kMaxNumberOfPads]; //! 
 
 public:
-   ArgusHistoDisplay():ArgusTab()
-   {
-      int i,j;
-      for (i=0;i<kMaxNumberOfPadsX;i++) {
-         for (j=0;j<kMaxNumberOfPadsY;j++) {
-            M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
-         }
-      }
-      fDisplayType = kNoDisplay;
-      fDisplayTypeOld = kNoDisplay;
-      fDisplayObjIndex = 0;
-      fInherited = false;
-      fInheritanceName = "";
-      fPadConfigActive = false;
-      fTabActive = false;
-      fNumberOfUserTGraph = kMaxNumberOfPads;
-      fNumberOfUserTH1F = kMaxNumberOfPads;
-      fNumberOfUserTH2F = kMaxNumberOfPads;
-   }
-
-   ~ArgusHistoDisplay()
-   {
-   }
+   ArgusHistoDisplay();
+   ~ArgusHistoDisplay() {};
 
    void BaseInit();
+   void BaseMenuClicked(TGPopupMenu *menu,Long_t param);
+   void BaseTabSelected();
+   void BaseTabUnSelected();
+   void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);
+   void SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime=10);
+   void SetStatisticBox(Bool_t flag);
+   void Modified(Bool_t processEvents=true);
+
    virtual void Init() = 0;
    virtual void EndInit() = 0;
-   void BaseMenuClicked(TGPopupMenu *menu,Long_t param);
    virtual void MenuClicked(TGPopupMenu *menu,Long_t param) = 0;
-   void BaseTabSelected();
    virtual void TabSelected() = 0;
-   void BaseTabUnSelected();
    virtual void TabUnSelected() = 0;
    virtual void BaseEventHandler() = 0;
    virtual void EventHandler() = 0;
+   virtual void Display(Bool_t processEvents=true) = 0;
 
-   virtual void Display(bool processEvents=true) = 0;
-
-   void   SetupPads(int nx, int ny, bool redraw);
-   void   SetStatus(int mode,const char *text,double progress,int sleepingTime=10);
-   void   SetStatisticBox(bool flag);
-
-   void   Modified(bool processEvents=true);
-
-   ClassDef(ArgusHistoDisplay,1) // Base class of ARGUS histogram display
+   ClassDef(ArgusHistoDisplay,0) // Base class of ARGUS histogram display
 };
 
 #endif   // ArgusHistoDisplay_H

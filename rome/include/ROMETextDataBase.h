@@ -1,53 +1,18 @@
-/********************************************************************
-  ROMETextDataBase.h, R. Sawada
+// $Id$
+// Author: Ryu Sawada
 
-  Text format non-relational database.
-
-  Arguments of Init
-     name       : name of database
-     path       : directory of files
-     connection : not used
-
-  Rules of dataBasePath
-     Data with following dataBasePath
-        filename/valuename+
-        filename/valuename
-        filename/valuename-
-     will be stored in text file like
-     <valuename>
-     1.0, 1.0
-     2.0, 1.0
-     3.4,                  // <-- there is a comma
-     2.2                   // <-- no comma
-     2.1, 4.5
-     ...
-     5.0, 0.0
-     </valuename>
-     Letters between <valuename> and </valuename> are recognized as data.
-     In the above example, 3.4 and 2.2 are recognized in the same row.
-
-     If there is + at the end, new data will be added after existing data.
-     If there is - at the end, new data will be added before existing data.
-     When reading, data which was found first will be used.
-
-   In text files, C like comment is available.
-
-  $Id$
-
-********************************************************************/
 #ifndef ROMETextDataBase_H
 #define ROMETextDataBase_H
 
-#include <Riostream.h>
+//////////////////////////////////////////////////////////////////////////
+//
+//  Text format non-relational database.
+//
+//////////////////////////////////////////////////////////////////////////
+
 #include "ROMEDataBase.h"
-#if defined( R__VISUAL_CPLUSPLUS )
-#   pragma warning( push )
-#   pragma warning( disable : 4244 )
-#endif // R__VISUAL_CPLUSPLUS
-#include <TTimeStamp.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#   pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+
+class TTimeStamp;
 
 class ROMETextDataBase : public ROMEDataBase
 {

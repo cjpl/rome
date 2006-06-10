@@ -19,6 +19,7 @@
 #include <TROOT.h>
 #include <TFolder.h>
 #include <TObjArray.h>
+#include <TApplication.h>
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #   include <TThread.h>
 #endif // ROOT_VERSION

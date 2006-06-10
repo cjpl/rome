@@ -9,7 +9,26 @@
 /////////////////////////////////////----///////////////////////////////////////
 // $Id$
 
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TGButton.h>
+#include <TGTab.h>
+#include <TGLayout.h>
+#include <TGTextEntry.h>
+#include <TGLabel.h>
+#include <TGFrame.h>
+#include <TGComboBox.h>
+#include <Riostream.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+#include "XMLToForm.h"
+#include "XMLToFormFrame.h"
 #include "XMLToFormWindow.h"
+#include "XMLToFormElementSignal.h"
 
 ClassImp(XMLToFormWindow)
 

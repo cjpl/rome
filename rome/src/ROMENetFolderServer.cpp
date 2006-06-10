@@ -14,6 +14,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSocket.h>
 #include <TServerSocket.h>
+#include <TMessage.h>
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
 #   include <TThread.h>
 #endif // ROOT_VERSION

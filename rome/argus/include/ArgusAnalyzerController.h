@@ -17,13 +17,16 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TGNumberEntry.h>
-#include <TGButton.h>
-#include <TGLabel.h>
+#include <TGFrame.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include "ROMENetFolder.h"
+
+class ROMENetFolder;
+class TGNumberEntryField;
+class TGNumberEntry;
+class TGLabel;
+class TGPictureButton;
 
 class ArgusAnalyzerController : public TGTransientFrame
 {
@@ -65,10 +68,10 @@ public:
    ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
-   void CloseWindow();
-   void Update();
+   void           CloseWindow();
+   void           Update();
 
-   ClassDef(ArgusAnalyzerController,1) // Panel to control event loop of analyzer
+   ClassDef(ArgusAnalyzerController,0) // Panel to control event loop of analyzer
 };
 
 #endif

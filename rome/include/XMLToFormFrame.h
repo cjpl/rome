@@ -2,10 +2,20 @@
 #ifndef XMLToFormFrame_H
 #define XMLToFormFrame_H
 
+#include <TGLayout.h>
+
 #include <TObjArray.h>
-#include <TArrayI.h>
+#include "ROMEString.h"
 #include "XMLToFormElement.h"
-#include "ROMEStr2DArray.h"
+
+class TGLayoutHints;
+class XMLToFormFrame;
+class TGCompositeFrame;
+class TGTab;
+class TGHotString;
+class TGLabel;
+class TGHorizontalFrame;
+class TGVerticalFrame;
 
 class XMLToFormFrame : public TObject
 {
@@ -18,38 +28,40 @@ public:
 
 private:
    // Frame Data Fields
-   ROMEString fFrameTitle;  //!
-   ROMEString fFramePath;  //!
-   bool fFrameVertical;  //!
-   bool fFrameTab;  //!
-   bool fFrameVisible;  //!
-   int fFrameTabIndex;  //!
+   ROMEString fFrameTitle;        //!
+   ROMEString fFramePath;         //!
+   Bool_t     fFrameVertical;     //!
+   Bool_t     fFrameTab;          //!
+   Bool_t     fFrameVisible;      //!
+   Int_t      fFrameTabIndex;     //!
    // Widget Data Fields
-   TObjArray fElements;  //!
-   int fNumberOfElements;  //!
+   TObjArray  fElements;          //!
+   Int_t      fNumberOfElements;  //!
    // SubFrames
-   TObjArray fSubFrames;  //!
-   int fNumberOfSubFrames;  //!
+   TObjArray  fSubFrames;         //!
+   Int_t      fNumberOfSubFrames; //!
+
 public:
    // GUI Frame Fields
-   TGLayoutHints *fLFrame;  //!
-   TGLayoutHints *fLInnerFrame;  //!
-   TGLayoutHints *fLInnerCheckButtonFrame;  //!
-   XMLToFormFrame *fParentFrame;  //!
-   TGCompositeFrame *fFrame;  //!
-   TGTab *fTab;  //!
-   TGHotString *fTitleString;  //!
-   TGLabel *fTitleLabel;  //!
-   TGLayoutHints *fLTitleLabel;  //!
-   int fIndex;  //!
+   TGLayoutHints      *fLFrame;           //!
+   TGLayoutHints      *fLInnerFrame;      //!
+   TGLayoutHints      *fLInnerCheckButtonFrame;  //!
+   XMLToFormFrame     *fParentFrame;      //!
+   TGCompositeFrame   *fFrame;            //!
+   TGTab              *fTab;              //!
+   TGHotString        *fTitleString;      //!
+   TGLabel            *fTitleLabel;       //!
+   TGLayoutHints      *fLTitleLabel;      //!
+   Int_t               fIndex;            //!
    // VFrames
-   TGHorizontalFrame *fHFrame;  //!
-   TGHorizontalFrame **fHHFrames;  //!
-   TGVerticalFrame **fVFrames;  //!
-   int fNumberOfHHFrames;  //!
-   int fNumberOfVFrames;  //!
+   TGHorizontalFrame  *fHFrame;           //!
+   TGHorizontalFrame **fHHFrames;         //!
+   TGVerticalFrame   **fVFrames;          //!
+   Int_t               fNumberOfHHFrames; //!
+   Int_t               fNumberOfVFrames;  //!
+
 public:
-   XMLToFormFrame(const char* title,const char* path,bool vertical,bool tab,bool visible,int tabIndex) { 
+   XMLToFormFrame(const char* title,const char* path,Bool_t vertical,Bool_t tab,Bool_t visible,Int_t tabIndex) { 
       fFrameTitle = title;
       fFramePath = path;
       fFrameVertical = vertical;
@@ -90,17 +102,17 @@ public:
    // Frame Data Getters
    TString GetFrameTitle() { return fFrameTitle; };
    TString GetFramePath() { return fFramePath; };
-   bool IsFrameVertical() { return fFrameVertical; };
-   bool IsFrameTab() { return fFrameTab; };
-   bool IsFrameVisible() { return fFrameVisible; };
-   void SetFrameVisible(bool visible) { fFrameVisible = visible; };
-   int  GetFrameTabIndex() { return fFrameTabIndex; };
+   Bool_t  IsFrameVertical() { return fFrameVertical; };
+   Bool_t  IsFrameTab() { return fFrameTab; };
+   Bool_t  IsFrameVisible() { return fFrameVisible; };
+   void    SetFrameVisible(Bool_t visible) { fFrameVisible = visible; };
+   Int_t   GetFrameTabIndex() { return fFrameTabIndex; };
    // Element Data Getter
-   XMLToFormElement* GetElementAt(int i) { return ((XMLToFormElement*)fElements.At(i)); };
-   int GetNumberOfElements() { return fNumberOfElements; };
+   XMLToFormElement* GetElementAt(Int_t i) { return ((XMLToFormElement*)fElements.At(i)); };
+   Int_t   GetNumberOfElements() { return fNumberOfElements; };
    // Sub Frame Data Getter
-   XMLToFormFrame* GetSubFrameAt(int i) { return ((XMLToFormFrame*)fSubFrames.At(i)); };
-   int GetNumberOfSubFrames() { return fNumberOfSubFrames; };
+   XMLToFormFrame* GetSubFrameAt(Int_t i) { return ((XMLToFormFrame*)fSubFrames.At(i)); };
+   Int_t   GetNumberOfSubFrames() { return fNumberOfSubFrames; };
 
    ClassDef(XMLToFormFrame, 0)
 };

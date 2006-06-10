@@ -7,35 +7,39 @@
 #ifndef ROMEAnalyzer_H
 #define ROMEAnalyzer_H
 
-#include <time.h>
-#include <TFile.h>
-#include <TArrayI.h>
-#include <TArrayL.h>
-#include <TArrayL64.h>
-#include <TList.h>
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TTask.h>
-#include <TTree.h>
-#include <TROOT.h>
 #include <TFolder.h>
+#include <TFile.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include <Riostream.h>
-#include "ROME.h"
-#include "ROMEConfig.h"
-#include "ROMETree.h"
-#include "ROMETask.h"
-#include "ROMETreeInfo.h"
-#include "ROMEDataBase.h"
 #include "ROMEString.h"
+#include "ROMEStrArray.h"
 #include "ROMEDAQSystem.h"
-#include "ROMENetFolder.h"
+#include "ROMETree.h"
 #include "ROMERint.h"
-#if defined ( HAVE_SQL )
-#   include "ROMESQL.h"
-#endif
+#include "ROMEDataBase.h"
+#include "ROMETask.h"
+#include "ROMENetFolder.h"
+#include "ROMEConfig.h"
+#include "ArgusWindow.h"
+#include "TArrayL64.h"
 #if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
 #   include "midas.h"
 #else
 typedef Int_t HNDLE;
 #endif
+
+class TObjArray;
+class TSocket;
+class TTree;
+class ROMEDAQSystem;
 
 typedef struct {
    Double_t processedEvents;   //! Processed Events
@@ -258,13 +262,7 @@ public:
 
    // Active DAQ System
    const char     *GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
-   ROMEDAQSystem  *GetActiveDAQ() {
-                       if (fActiveDAQ!=NULL)
-                          return fActiveDAQ;
-                       this->PrintLine("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
-                       fApplication->Terminate(1);
-                       return NULL;
-                   }
+   ROMEDAQSystem  *GetActiveDAQ();
    Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; };
    void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; };
 
@@ -273,38 +271,12 @@ public:
    void            SetDataBaseName(Int_t i,const char *name) { fDataBaseName[i] = name; };
    const char     *GetDataBaseConnection(Int_t i) { return fDataBaseConnection[i].Data(); };
    void            SetDataBaseConnection(Int_t i,const char *connection) { fDataBaseConnection[i] = connection; };
-   ROMEDataBase   *GetDataBase(Int_t i) {
-                      if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
-                         return fDataBaseHandle[i];
-                      this->PrintLine("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
-                      fApplication->Terminate(1);
-                      return NULL;
-                   }
-   ROMEDataBase   *GetDataBase(const char *name) {
-                      for (Int_t i=0;i<fNumberOfDataBases;i++)
-                         if (!stricmp(fDataBaseHandle[i]->GetName(),name))
-                            return fDataBaseHandle[i];
-                      ROMEString str;
-                      str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
-                      this->PrintLine(str.Data());
-                      fApplication->Terminate(1);
-                      return NULL;
-                   }
-   Bool_t          isDataBaseActive(const char *name) {
-                      for (Int_t i=0;i<fNumberOfDataBases;i++)
-                         if (!stricmp(fDataBaseHandle[i]->GetName(),name))
-                            return true;
-                      return false;
-                   };
+   ROMEDataBase   *GetDataBase(Int_t i);
+   ROMEDataBase   *GetDataBase(const char *name);
+   Bool_t          isDataBaseActive(const char *name);
    void            SetDataBase(Int_t i,ROMEDataBase *dataBase) { fDataBaseHandle[i] = dataBase; };
    Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; };
-   void            InitDataBases(Int_t number) {
-                      fDataBaseHandle = new ROMEDataBase*[number];
-                      fDataBaseConnection = new ROMEString[number];
-                      fDataBaseName = new ROMEString[number];
-                      fDataBaseDir = new ROMEString[number];
-                      fNumberOfDataBases = number;
-                   }
+   void            InitDataBases(Int_t number);
 
    // modes
    Bool_t          isSplashScreen() { return fSplashScreen; };
