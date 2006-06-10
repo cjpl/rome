@@ -8,6 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <Riostream.h>
+#include <TString.h>
 #include "ROMESQLite.h"
 
 #if defined( R__VISUAL_CPLUSPLUS )

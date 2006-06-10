@@ -17,6 +17,8 @@
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
+class TString;
+
 class ROMESQL : public TObject
 {
 public:

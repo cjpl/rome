@@ -25,7 +25,7 @@
 #if defined ( HAVE_SQLITE3 )
 #   include "ROMESQLite3.h"
 #endif
-
+#include "ROMEPath.h"
 #include "ROMESQLDataBase.h"
 
 const char RSQLDB_STR[]="RomeWasNotBuiltInADay";

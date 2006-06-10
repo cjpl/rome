@@ -8,6 +8,8 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
+#include <Riostream.h>
+#include <TString.h>
 #include "ROMEPgSQL.h"
 
 ClassImp(ROMEPgSQL)
