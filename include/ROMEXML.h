@@ -7,7 +7,6 @@
 #ifndef ROMEXML_H
 #define ROMEXML_H
 
-
 #if defined( R__VISUAL_CPLUSPLUS )
 extern "C" {
 #endif
@@ -16,8 +15,9 @@ extern "C" {
 }
 #endif
 
+#include <TObject.h>
 #include "ROMEString.h"
-#include "ROMEStrArray.h"
+class ROMEStrArray;
 
 class ROMEXML : public TObject
 {

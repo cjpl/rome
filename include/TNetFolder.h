@@ -14,14 +14,14 @@
 #   pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TNamed.h>
-#include <TSocket.h>
-#include <TCollection.h>
-#include <TObjArray.h>
-#include <TFolder.h>
 #include <TMessage.h>
+#include <TFolder.h>
+#include <TObjArray.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
+
+class TSocket;
 
 class TNetFolder : public TNamed
 {
@@ -53,7 +53,7 @@ public:
   virtual void        Remove( TObject * ) { Error("Remove","Not available for TNetFolders"); }    
   void                ExecuteCommand(const char *line);
   size_t              GetPointer();
-  void                GetServerName(char* serverName,int serverNameSize);
+  void                GetServerName(char* serverName,Int_t serverNameSize);
 
 protected:
 

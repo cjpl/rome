@@ -7,9 +7,9 @@
 #ifndef ROMEODBOfflineDataBase_H
 #define ROMEODBOfflineDataBase_H
 
-#include "ROMEStr2DArray.h"
-#include "ROMEXML.h"
 #include "ROMEDataBase.h"
+class ROMEStr2DArray;
+class ROMEXML;
 
 class ROMEODBOfflineDataBase : public ROMEDataBase
 {

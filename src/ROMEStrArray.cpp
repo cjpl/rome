@@ -9,6 +9,7 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include <Riostream.h>
+#include <TObjString.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 

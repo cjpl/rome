@@ -5,9 +5,21 @@
 //
 // Customized TRint for ROME
 //
-//  $Id:$
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
+
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif
+#include <TSystem.h>
+#include <TSysEvtHandler.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif
+
 #include "ROMERint.h"
 #include "ROMEAnalyzer.h"
 

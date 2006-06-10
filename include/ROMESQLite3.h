@@ -18,30 +18,30 @@
 class ROMESQLite3 : public ROMESQL
 {
 protected:
-   sqlite3*      db;
-   sqlite3_stmt* stmt;
+   sqlite3*       db;
+   sqlite3_stmt*  stmt;
    ROMEStr2DArray result;
-   int            numOfFields;
-   int            numOfRows;
-   int            currentRow;
+   Int_t          numOfFields;
+   Int_t          numOfRows;
+   Int_t          currentRow;
 
 public:
    ROMESQLite3();
    ~ROMESQLite3();
-   bool  Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
-   bool  DisConnect();
-   bool  MakeQuery(const char* query,bool store);
-   bool  StoreResult();
-   bool  NextRow();
-   char* GetField(int fieldNumber);
-   int   GetNumberOfRows(){ return numOfRows; }
-   int   GetNumberOfFields(){ return numOfFields; }
-   void  FreeResult();
-   int   GetErrorCode(){ return sqlite3_errcode(db); }
-   char* GetErrorMessage(){ return (char*) sqlite3_errmsg(db); }
-   bool  StartTransaction( const char* option );
-   bool  CommitTransaction( const char* option );
-   bool  RollbackTransaction( const char* option );
+   Bool_t Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
+   Bool_t DisConnect();
+   Bool_t MakeQuery(const char* query,Bool_t store);
+   Bool_t StoreResult();
+   Bool_t NextRow();
+   char*  GetField(Int_t fieldNumber);
+   Int_t  GetNumberOfRows(){ return numOfRows; }
+   Int_t  GetNumberOfFields(){ return numOfFields; }
+   void   FreeResult();
+   Int_t  GetErrorCode(){ return sqlite3_errcode(db); }
+   char*  GetErrorMessage(){ return (char*) sqlite3_errmsg(db); }
+   Bool_t StartTransaction( const char* option );
+   Bool_t CommitTransaction( const char* option );
+   Bool_t RollbackTransaction( const char* option );
 
    ClassDef(ROMESQLite3, 0) // Interface to SQLite3 database
 };

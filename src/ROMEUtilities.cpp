@@ -20,6 +20,8 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #  pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
+#include "ROMEString.h"
+#include "ROMEStrArray.h"
 
 ClassImp(ROMEUtilities)
 

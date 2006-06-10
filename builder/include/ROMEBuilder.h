@@ -8,10 +8,13 @@
 #ifndef ROMEBuilder_H
 #define ROMEBuilder_H
 
-#include "ROMEXML.h"
 #include "ROMEString.h"
+#include "ROMEStrArray.h"
 #include "ROMEStr2DArray.h"
-#include "ROMEConfigParameter.h"
+
+class ROMEXML;
+class ROMEConfigParameter;
+class ROMEConfigParameterGroup;
 
 const Int_t maxNumberOfPathObjectInterpreterCodes = 10;
 const Int_t maxNumberOfInclude = 10;

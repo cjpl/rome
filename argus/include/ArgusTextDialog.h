@@ -17,14 +17,20 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TGButton.h>
-#include <TGLabel.h>
-#include <TGTextEntry.h>
+#include <TGFrame.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-class ArgusTextDialog:public TGTransientFrame {
+class TGTransientFrame;
+class TGCompositeFrame;
+class TGButton;
+class TGLayoutHints;
+class TGTextEntry;
+class TGTextBuffer;
+class TGLabel;
+
+class ArgusTextDialog : public TGTransientFrame {
 protected:
    TGCompositeFrame*      fF1;           // sub frames
    TGCompositeFrame*      fF2;           // sub frames
@@ -46,6 +52,6 @@ public:
    virtual void CloseWindow();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
    
-   ClassDef(ArgusTextDialog, 1) // Panel to input text
+   ClassDef(ArgusTextDialog, 0) // Panel to input text
 };
 #endif

@@ -8,11 +8,12 @@
 #define ROMESQLDataBase_H
 
 #include <Riostream.h>
-#include "ROMEStr2DArray.h"
-#include "ROMESQL.h"
 #include "ROMEDataBase.h"
 #include "ROMEString.h"
-#include "ROMEPath.h"
+#include "ROMESQL.h"
+
+class ROMEPath;
+class ROMEStr2DArray;
 
 const Int_t kNumberOfReadCache = 1000;
 

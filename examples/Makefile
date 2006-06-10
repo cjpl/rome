@@ -99,4 +99,10 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -v -midas
 
 clean :
+	find $(ROMESYS)/examples -name "*.obj" -exec rm {} \;
+
+depclean :
+	find $(ROMESYS)/examples -name "*.d" -exec rm {} \;
+
+remove :
 	rm $(ROMEProjects) $(ARGUSProjects)

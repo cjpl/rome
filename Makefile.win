@@ -19,6 +19,7 @@ BldObjects = obj/ROMEBuilder.obj \
 	  obj/ROMEBuildWriteCode.obj \
 	  obj/ROMEBuildMakeFile.obj \
 	  obj/ROMEBuildVisualProject.obj \
+	  obj/ROMEConfigParameter.obj \
 	  obj/main.obj \
 	  obj/ROMEXML.obj \
 	  obj/mxml.obj \
@@ -69,6 +70,9 @@ obj/ROMEBuildMakeFile.obj: Builder/src/ROMEBuildMakeFile.cpp Builder/include/ROM
 
 obj/ROMEBuildVisualProject.obj: Builder/src/ROMEBuildVisualProject.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuildVisualProject.cpp /Foobj/ROMEBuildVisualProject.obj
+
+obj/ROMEConfigParameter.obj: Builder/src/ROMEConfigParameter.cpp Builder/include/ROMEConfigParameter.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
+	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEConfigParameter.cpp /Foobj/ROMEConfigParameter.obj
 
 obj/main.obj: Builder/src/main.cpp Builder/include/ROMEBuilder.h include/ROMEStrArray.h include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/main.cpp /Foobj/main.obj

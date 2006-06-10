@@ -11,6 +11,8 @@
 #include <TObjString.h>
 #include <Riostream.h>
 #include "ROMEString.h"
+#include "ROMEXML.h"
+#include "ROMEPath.h"
 #include "ROMEXMLDataBase.h"
 
 ClassImp(ROMEXMLDataBase)

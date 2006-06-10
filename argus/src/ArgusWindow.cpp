@@ -16,10 +16,15 @@
 #endif                          // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #include <TGMsgBox.h>
+#include <TGTab.h>
+#include <TGStatusBar.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
+#include "ROMEString.h"
 #include "ArgusWindow.h"
+#include "ArgusTab.h"
+#include "ArgusAnalyzerController.h"
 #include "ArgusTextDialog.h"
 #include "ROMEAnalyzer.h"
 
@@ -110,3 +115,22 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    return 0;
 };
 
+void ArgusWindow::SetUpdateFrequency(Int_t duration)
+{
+   fUpdateFrequency = duration;
+   if (fArgusActive) {
+      ArgusTab *tab;
+      for (int i=0;i<GetTabObjectEntries();i++) {
+         tab = GetTabObjectAt(i);
+         if (tab)
+            tab->SetUpdateFrequency(duration);
+      }
+   }
+}
+
+void ArgusWindow::SetControllerNetFolder(const char* folderName)
+{
+   if (!gROME->IsNetFolderActive(folderName))
+      return;
+   fControllerNetFolder = gROME->GetNetFolder(folderName);
+}

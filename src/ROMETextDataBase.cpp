@@ -1,18 +1,55 @@
-// Author: R. Sawada
+// $Id$
+// Author: Ryu Sawada
+
 //////////////////////////////////////////////////////////////////////////
-//
-//  ROMETextDataBase
 //
 //  Text format non-relational database.
 //
-//  $Id$
+//  Arguments of Init
+//     name       : name of database
+//     path       : directory of files
+//     connection : not used
+//
+//  Rules of dataBasePath
+//     Data with following dataBasePath
+//        filename/valuename+
+//        filename/valuename
+//        filename/valuename-
+//     will be stored in text file like
+//     <valuename>
+//     1.0, 1.0
+//     2.0, 1.0
+//     3.4,                  // <-- there is a comma
+//     2.2                   // <-- no comma
+//     2.1, 4.5
+//     ...
+//     5.0, 0.0
+//     </valuename>
+//     Letters between <valuename> and </valuename> are recognized as data.
+//     In the above example, 3.4 and 2.2 are recognized in the same row.
+//
+//     If there is + at the end, new data will be added after existing data.
+//     If there is - at the end, new data will be added before existing data.
+//     When reading, data which was found first will be used.
+//
+//   In text files, C like comment is available.
 //
 //////////////////////////////////////////////////////////////////////////
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4244 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TArrayI.h>
+#include <TTimeStamp.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+#include <Riostream.h>
+#include "ROMEStrArray.h"
 #include "ROMETextDataBase.h"
 
 const char* EndOfHeader = "/////////////////////////////////////----///////////////////////////////////////";
-const int   numbering = 10;
+const Int_t numbering = 10;
 
 ClassImp(ROMETextDataBase)
 
@@ -42,8 +79,8 @@ Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* conn
 
 Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
    Ssiz_t     ps,pe;
-   int        iRow;
-   int        iCol = 0;
+   Int_t      iRow;
+   Int_t      iCol = 0;
    ROMEString lineBuffer = "";
    ROMEString fileName;
    ROMEString valueName;
@@ -79,9 +116,9 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
       return true;
 
    // read data
-   bool start = false;
-   bool end = false;
-   bool lineEndsWithComma = false;
+   Bool_t start = false;
+   Bool_t end = false;
+   Bool_t lineEndsWithComma = false;
 
    iRow = 0;
    while(lineBuffer.ReadLine(fileStream)){
@@ -144,9 +181,9 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
    ROMEString fileName;
    ROMEString valueName;
    ROMEString format;
-   int        iRow,iCol;
-   bool       append  = false;
-   bool       prepend = false;
+   Int_t      iRow,iCol;
+   Bool_t     append  = false;
+   Bool_t     prepend = false;
    Ssiz_t     ps,pe;
    TArrayI    fieldLen;
 
@@ -188,7 +225,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
       }
    }
 
-   const int kColPerLine = 5;
+   const Int_t kColPerLine = 5;
 
    // count field length
    for(iRow=0;iRow<values->GetEntries();iRow++){
@@ -253,7 +290,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
 }
 
 void ROMETextDataBase::RemoveComment(ROMEString &buffer,Bool_t initialize) {
-   static bool inComment;
+   static Bool_t inComment;
    Ssiz_t ps,pe;
 
    if(initialize)
@@ -342,7 +379,7 @@ void ROMETextDataBase::AddHeader(ROMEString &buffer,const char* fileName) {
    header.AppendFormatted("//\n");
    header.AppendFormatted("// This file contains following data.\n");
    ps = pe = 0;
-   int i;
+   Int_t i;
    while((ps=buffer.Index("<",1,pe,TString::kExact))!=-1){
       pe=buffer.Index(">",1,ps,TString::kExact);
       if((ps=buffer.Index("</",2,pe,TString::kExact))==-1)

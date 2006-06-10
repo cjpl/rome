@@ -9,27 +9,49 @@
 /////////////////////////////////////----///////////////////////////////////////
 // $Id$
 
+
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TGButton.h>
+#include <TGTab.h>
+#include <TGLayout.h>
+#include <TGTextEntry.h>
+#include <TGLabel.h>
+#include <TGFrame.h>
+#include <TGComboBox.h>
+#include <Riostream.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+
+#include "ROMEXML.h"
 #include "XMLToForm.h"
+#include "XMLToFormElement.h"
+#include "XMLToFormElementSignal.h"
+#include "XMLToFormFrame.h"
 #include "XMLToFormWindow.h"
 
 ClassImp(XMLToForm)
 
 void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
-   int i;
+   Int_t i;
    ROMEString value;
    ROMEString currentPath;
    ROMEString pathValue;
    ROMEString titleValue;
    ROMEString titleValueT;
    PMXML_NODE frameNode;
-   int nFrames = 0;
-   int nTabs = 0;
-   int nFrameTags = 0;
-   int nTabTags = 0;
-   bool visible=false;
-   bool isTab=false;
-   bool vertical=false;
-   int tabIndex=0;
+   Int_t nFrames = 0;
+   Int_t nTabs = 0;
+   Int_t nFrameTags = 0;
+   Int_t nTabTags = 0;
+   Bool_t visible=false;
+   Bool_t isTab=false;
+   Bool_t vertical=false;
+   Int_t tabIndex=0;
 
    // read frames
    frameNode = fXML->GetPathNode(frame->GetFramePath().Data());
@@ -95,7 +117,7 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
 }
 void XMLToForm::XMLToClass(XMLToFormFrame *frame)
 {
-   int j,k,ind;
+   Int_t j,k,ind;
    ROMEString temp;
    ROMEString value;
    ROMEString title;
@@ -104,17 +126,17 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
    ROMEString currentPath;
    ROMEString savePath;
    ROMEString entry;
-   int width;
-   int buttonID;
-   int selectedEntry;
+   Int_t width;
+   Int_t buttonID;
+   Int_t selectedEntry;
    ROMEStrArray* entries = new ROMEStrArray(0);
 
    // create path
    xmlPath = frame->GetFramePath().Data();
 
-   int nButton = 0;
-   int nEditBox = 0;
-   int nComboBox = 0;
+   Int_t nButton = 0;
+   Int_t nEditBox = 0;
+   Int_t nComboBox = 0;
    PMXML_NODE node = fXML->GetPathNode(xmlPath);
    for (j=0;j<node->n_children;j++) {
       if (!strcmp(node->child[j].name,"EditBox")) {
@@ -245,9 +267,9 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
    InitSubFrames(frame);
 }
 
-bool XMLToForm::XMLToRootClass()
+Bool_t XMLToForm::XMLToRootClass()
 {
-   bool vertical;
+   Bool_t vertical;
    ROMEString value;
    ROMEString valueT;
    if (!fXML->OpenFileForPath(fXMLFileName.Data()))
@@ -279,7 +301,7 @@ void XMLToForm::SaveForm()
 
 void XMLToForm::SaveFrame(XMLToFormFrame *frame)
 {
-   int i;
+   Int_t i;
    ROMEString path;
    ROMEString value;
    for (i=0;i<frame->GetNumberOfElements();i++) {
@@ -307,7 +329,7 @@ void XMLToForm::SaveFrame(XMLToFormFrame *frame)
 }
 
 
-int XMLToForm::GetIntValue(const char* label)
+Int_t XMLToForm::GetIntValue(const char* label)
 {
    char *cstop;
    return strtol(GetValue(label),&cstop,10);
@@ -317,11 +339,11 @@ double XMLToForm::GetDoubleValue(const char* label)
    char *cstop;
    return strtod(GetValue(label),&cstop);
 }
-int XMLToForm::GetSelectedIndex(const char* label)
+Int_t XMLToForm::GetSelectedIndex(const char* label)
 {
    return GetIndex(label);
 }
-bool XMLToForm::IsChecked(const char* label)
+Bool_t XMLToForm::IsChecked(const char* label)
 {
    if (!strcmp(GetValue(label),"true"))
       return true;
@@ -330,15 +352,15 @@ bool XMLToForm::IsChecked(const char* label)
 
 const char* XMLToForm::GetValue(const char* label)
 {
-   int index = 0;
+   Int_t index = 0;
    XMLToFormFrame *frame;
    if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
       return "";
    return frame->GetElementAt(index)->GetValue().Data();
 }
-int XMLToForm::GetIndex(const char* label)
+Int_t XMLToForm::GetIndex(const char* label)
 {
-   int index = 0;
+   Int_t index = 0;
    XMLToFormFrame *frame;
    if (!fWindow->SearchWidget(label,&frame,&index,fMainFrame))
       return -1;
@@ -346,7 +368,7 @@ int XMLToForm::GetIndex(const char* label)
 }
 void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes) 
 {
-   int i,ind;
+   Int_t i,ind;
    ROMEString str;
    if (substitutes==NULL) {
       fSubstitutes = NULL;
@@ -370,8 +392,8 @@ void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
       }
    }
 }
-bool XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
-   int i;
+Bool_t XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
+   Int_t i;
    ROMEString tempValue;
    if (placeHolder.Length()>0) {
       if (placeHolder[0]=='#') {
@@ -393,7 +415,7 @@ bool XMLToForm::Substitute(ROMEString& placeHolder,ROMEString& substitute) {
 }
 void XMLToForm::FillClass(XMLToFormFrame *frame)
 {
-   int i;
+   Int_t i;
 
    // read xml
    XMLToClass(frame);
@@ -406,7 +428,7 @@ void XMLToForm::FillClass(XMLToFormFrame *frame)
 }
 
 
-bool XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
+Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
 {
    fXMLFileName = xmlFileName;
    fXML = new ROMEXML();
@@ -428,7 +450,7 @@ XMLToForm::XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes)
    fMainFrame = NULL;
    Init(xmlFileName,substitutes);
 }
-XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFileName, int *exitButtonID,ROMEStrArray* substitutes)
+XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFileName, Int_t *exitButtonID,ROMEStrArray* substitutes)
 {
    fWindow = NULL;
    fXML = NULL;
@@ -452,7 +474,7 @@ XMLToForm::~XMLToForm()
 
 void XMLToForm::DeleteFrame(XMLToFormFrame *frame)
 {
-   int i;
+   Int_t i;
    // Title
    if (frame->GetFrameTitle().Length()>0 && !frame->IsFrameTab())
       delete frame->fTitleLabel;
@@ -503,9 +525,9 @@ void XMLToForm::DeleteFrame(XMLToFormFrame *frame)
 
 
 
-void XMLToForm::PrintFrame(XMLToFormFrame *frame,int tab)
+void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
 {
-   int i;
+   Int_t i;
    ROMEString tabChar;
    for (i=0;i<tab;i++)
       tabChar += "   ";

@@ -15,10 +15,28 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TSystem.h>
+#include <TCanvas.h>
+#include <TColor.h>
+#include <TLine.h>
+#include <TGTextEdit.h>
+#include <TGTextEntry.h>
+#include <TGListBox.h>
+#include <TRootEmbeddedCanvas.h>
+#include <TTimer.h>
+#include <TText.h>
+#include <TStyle.h>
+#include <TGraphErrors.h>
+#include <TSpline.h>
+#include <TGProgressBar.h>
+#include <TGButton.h>
+#include <TGStatusBar.h>
+#include <TGMenu.h>
+#include <TFrame.h>
+#include <TFile.h>
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TF1.h>
-
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <Windows4Root.h>
 #   include <direct.h>
@@ -33,12 +51,33 @@
 #include "ArgusWindow.h"
 #include "ROMEAnalyzer.h"
 #include "ArgusHistoDisplay.h"
+#include "XMLToForm.h"
 
 ClassImp(ArgusHistoDisplay)
 
+ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
+{
+   Int_t i,j;
+   for (i=0;i<kMaxNumberOfPadsX;i++) {
+      for (j=0;j<kMaxNumberOfPadsY;j++) {
+         M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
+      }
+   }
+   fDisplayType = kNoDisplay;
+   fDisplayTypeOld = kNoDisplay;
+   fDisplayObjIndex = 0;
+   fInherited = false;
+   fInheritanceName = "";
+   fPadConfigActive = false;
+   fTabActive = false;
+   fNumberOfUserTGraph = kMaxNumberOfPads;
+   fNumberOfUserTH1F = kMaxNumberOfPads;
+   fNumberOfUserTH2F = kMaxNumberOfPads;
+}
+
 void ArgusHistoDisplay::BaseInit()
 {
-   int i;
+   Int_t i;
    ROMEString str;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
@@ -48,7 +87,7 @@ void ArgusHistoDisplay::BaseInit()
             new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
 
    // Status bar
-   int parts[2] = { 70,30 };
+   Int_t parts[2] = { 70,30 };
    gROME->GetWindow()->GetStatusBar()->SetParts(parts,2);
    fProgress = new TGHProgressBar(gROME->GetWindow()->GetStatusBar()->GetBarPart(1),TGProgressBar::kStandard,20);
    fProgress->SetPosition(0);
@@ -75,7 +114,7 @@ void ArgusHistoDisplay::BaseInit()
 void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
 {
    fTabActive = true;
-   int exitID=1,i,j;
+   Int_t exitID=1,i,j;
    ROMEString str;
    switch (param) {
       case M_ARGUS_DISPLAY_VIEW_NEXT:
@@ -149,7 +188,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
 
 void ArgusHistoDisplay::BaseTabSelected()
 {
-   int i,j;
+   Int_t i,j;
    ROMEString str;
    // Create menu
 
@@ -221,7 +260,7 @@ void ArgusHistoDisplay::BaseTabUnSelected()
    while (fTabActive)
       gSystem->Sleep(10);
 
-   int i;
+   Int_t i;
    ROMEString str;
 
    delete gROME->GetWindow()->GetMenuBar()->RemovePopup("Display");
@@ -237,7 +276,7 @@ void ArgusHistoDisplay::BaseTabUnSelected()
    }
 }
 
-void ArgusHistoDisplay::SetStatisticBox(bool flag)
+void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 {
    if (flag) {
       gStyle->SetStatW(0.1f);
@@ -250,7 +289,7 @@ void ArgusHistoDisplay::SetStatisticBox(bool flag)
    }
 }
 
-void ArgusHistoDisplay::SetStatus(int mode,const char *text,double progress,int sleepingTime)
+void ArgusHistoDisplay::SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime)
 {
    // Set status bar
    // mode 0 : initialization
@@ -273,10 +312,10 @@ void ArgusHistoDisplay::SetStatus(int mode,const char *text,double progress,int 
    return;
 }
 
-void ArgusHistoDisplay::SetupPads(int nx, int ny, bool redraw)
+void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
-   int i;
-   bool clear = true;
+   Int_t i;
+   Bool_t clear = true;
    if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fDisplayType)
       clear = false;
 
@@ -324,9 +363,9 @@ void ArgusHistoDisplay::SetupPads(int nx, int ny, bool redraw)
    }
 }
 
-void ArgusHistoDisplay::Modified(bool processEvents)
+void ArgusHistoDisplay::Modified(Bool_t processEvents)
 {
-   int i;
+   Int_t i;
    double x1,x2,y1,y2;
 
    if (!fCanvas)

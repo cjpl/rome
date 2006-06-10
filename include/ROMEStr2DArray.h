@@ -8,8 +8,8 @@
 #define ROMEStr2DArray_H
 
 #include <TObjArray.h>
-#include <TObjString.h>
-#include "ROMEStrArray.h"
+#include <TString.h>
+class ROMEStrArray;
 
 class ROMEStr2DArray : public TObject
 {

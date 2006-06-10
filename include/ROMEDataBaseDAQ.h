@@ -12,8 +12,7 @@
 class ROMEDataBaseDAQ : public ROMEDAQSystem
 {
 protected:
-
-   Int_t         fTimeStamp;                       //! Current time stamp
+   Int_t      fTimeStamp;    //! Current time stamp
 
 public:
    ROMEDataBaseDAQ();

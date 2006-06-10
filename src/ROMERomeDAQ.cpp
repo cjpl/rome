@@ -12,6 +12,7 @@
 #include <TBranchElement.h>
 #include "ROMEAnalyzer.h"
 #include "ROMERomeDAQ.h"
+#include "ROMETreeInfo.h"
 
 ClassImp(ROMERomeDAQ)
 

@@ -30,6 +30,7 @@
 #include <Riostream.h>
 
 #include "ROMEXML.h"
+#include "ROMEStrArray.h"
 
 ClassImp(ROMEXML)
 
