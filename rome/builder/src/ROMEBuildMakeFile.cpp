@@ -1454,6 +1454,38 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sTabDictionary.d\n",shortCut.Data());
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
+
+   buffer.AppendFormatted("NoOpt %s -O0\n",kEqualSign);
+   // equal signs below should be '=' to allow change in Makefile.usr
+   if (romeDictHeaders->GetEntries() > 0) {
+      if (!librome)
+         buffer.AppendFormatted("ROMEDictOpt = $(NoOpt)\n");
+      else
+         buffer.AppendFormatted("ROMESDictOpt = $(NoOpt)\n");
+   }
+   if (argusHeaders->GetEntries() > 0)
+      buffer.AppendFormatted("ARGUSDictOpt =$(NoOpt)\n");
+   if (generatedDictHeaders->GetEntries() > 0)
+      buffer.AppendFormatted("%sGeneratedDictOpt = $(NoOpt)\n",shortCut.Data());
+   if (hasFolderGenerated)
+      buffer.AppendFormatted("%sGeneratedFolderDictOpt = $(NoOpt)\n",shortCut.Data());
+   if (hasFolderUserCode)
+      buffer.AppendFormatted("%sFolderDictOpt = $(NoOpt)\n",shortCut.Data());
+   if (numOfTask) {
+      buffer.AppendFormatted("%sGeneratedTaskDictOpt = $(NoOpt)\n",shortCut.Data());
+      buffer.AppendFormatted("%sTaskDictOpt = $(NoOpt)\n",shortCut.Data());
+   }
+   if (numOfTab>0)
+      buffer.AppendFormatted("%sGeneratedTabDictOpt = $(NoOpt)\n",shortCut.Data());
+   if (numOfTab>0)
+      buffer.AppendFormatted("%sTabDictOpt = $(NoOpt)\n",shortCut.Data());
+   if (numOfMFDictHeaders>0)
+      buffer.AppendFormatted("%sUserDictOpt = $(NoOpt)\n",shortCut.Data());
+
+      buffer.AppendFormatted("%sAnalyzer = $(NoOpt)\n",shortCut.Data());
+      buffer.AppendFormatted("%sConfigOpt = $(NoOpt)\n",shortCut.Data());
+      buffer.AppendFormatted("%sConfigToFormOpt = $(NoOpt)\n",shortCut.Data());
+
 #endif // R__UNIX
 
 // user makefile
