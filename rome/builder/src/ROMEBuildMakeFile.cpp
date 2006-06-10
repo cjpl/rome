@@ -1482,7 +1482,7 @@ void ROMEBuilder::WriteMakefile() {
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("%sUserDictOpt = $(NoOpt)\n",shortCut.Data());
 
-      buffer.AppendFormatted("%sAnalyzer = $(NoOpt)\n",shortCut.Data());
+      buffer.AppendFormatted("%sAnalyzerOpt = $(NoOpt)\n",shortCut.Data());
       buffer.AppendFormatted("%sConfigOpt = $(NoOpt)\n",shortCut.Data());
       buffer.AppendFormatted("%sConfigToFormOpt = $(NoOpt)\n",shortCut.Data());
 
