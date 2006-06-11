@@ -695,6 +695,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 {
    int i,j;
    ROMEString tmp;
+
 #if defined( R__VISUAL_CPLUSPLUS )
    // libs
    buffer.AppendFormatted("rootlibs = $(ROOTSYS)/lib/gdk-1.3.lib $(ROOTSYS)/lib/glib-1.3.lib $(ROOTSYS)/lib/libCint.lib $(ROOTSYS)/lib/libCore.lib $(ROOTSYS)/lib/libGpad.lib $(ROOTSYS)/lib/libGraf.lib $(ROOTSYS)/lib/libGraf3d.lib $(ROOTSYS)/lib/libGui.lib $(ROOTSYS)/lib/libHist.lib $(ROOTSYS)/lib/libHistPainter.lib $(ROOTSYS)/lib/libHtml.lib $(ROOTSYS)/lib/libMatrix.lib $(ROOTSYS)/lib/libMinuit.lib $(ROOTSYS)/lib/libPhysics.lib $(ROOTSYS)/lib/libPostscript.lib $(ROOTSYS)/lib/libRint.lib $(ROOTSYS)/lib/libTree.lib $(ROOTSYS)/lib/libTreePlayer.lib $(ROOTSYS)/lib/libTreeViewer.lib $(ROOTSYS)/lib/libWin32gdk.lib");
@@ -770,8 +771,23 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    // fortran flags
    buffer.AppendFormatted("FortranFlags = $(%suserflags)\n",shortCut.ToLower(tmp));
 #endif // R__VISUAL_CPLUSPLUS
+
 #if defined( R__UNIX )
-   buffer.AppendFormatted("CXX := g++\n");
+   // equal signs below should be '=' to allow change in Makefile.usr
+   buffer.AppendFormatted("ifndef %sCFLAGS\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToLower(tmp));
+   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef %sCXXFLAGS\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCXXFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToLower(tmp));
+   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef %sFFLAGS\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sFFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToLower(tmp));
+   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef %sLDFLAGS\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sLDFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToLower(tmp));
+   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("CXX = g++\n");
+
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
    buffer.AppendFormatted("rootglibs := $(shell  $(ROOTSYS)/bin/root-config --glibs)\n");
@@ -874,10 +890,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    }
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%suserflags) $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("Flags := $(%sCXXFLAGS) $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToUpper(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)",shortCut.ToUpper(tmp));
 #endif // R__UNIX
 }
 
@@ -977,7 +994,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT dict/%s.cpp src/generated/%sDummy.cpp\n",dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | sed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@\n",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
 #endif
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
@@ -988,8 +1005,12 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    }
    if (linkDefName)
       buffer.AppendFormatted(" %s",linkDefName);
-   buffer.AppendFormatted(" $(%sDep)\n", dictionaryName);
+   buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
+#if defined( R__UNIX )
+   buffer.AppendFormatted("\t@if [ -e dict/%s.cpp ]; then rm dict/%s.cpp; fi;\n",dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t@if [ -e dict/%s.h ]; then rm dict/%s.h; fi;\n",dictionaryName,dictionaryName);
+#endif
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
    for (i=0;i<affiliations.GetEntriesFast();i++)
@@ -1034,7 +1055,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ \n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
 #endif
    WriteMakefileDictDummyCpp(dictionaryName.Data());
 
@@ -1045,6 +1066,10 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
    }
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
+#if defined( R__UNIX )
+   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then rm dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then rm dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
+#endif
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
    for (i=0;i<affiliations.GetEntriesFast();i++)
@@ -1084,7 +1109,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -M -MF $@ -MT obj/%s.obj $<\n",name.Data());
+      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<\n",name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
       buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
@@ -1546,14 +1571,14 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(Flags) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("lib%s%s.so: $(objects)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t");
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
-   buffer.AppendFormatted("$(CXX) $(Flags) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("$(CXX) $(LDFLAGS) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
@@ -1583,8 +1608,8 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-rm -f obj/*.d\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
    buffer.AppendFormatted("\t-rm -f obj/*.obj G__auto*LinkDef.h\n");
-   buffer.AppendFormatted("distclean: clean\n");
-   buffer.AppendFormatted("\t-rm -rf src/generated include/generated obj Makefile\n");
+   buffer.AppendFormatted("distclean: userdistclean clean\n");
+   buffer.AppendFormatted("\t-rm -rf dict src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
 
@@ -1666,6 +1691,8 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("#\trm your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n");
+      usrBuffer.AppendFormatted("\t@echo ''\n");
+      usrBuffer.AppendFormatted("userdistclean:\n");
       usrBuffer.AppendFormatted("\t@echo ''\n");
       WriteFile(makeFile.Data(),usrBuffer.Data(),0);
    }
