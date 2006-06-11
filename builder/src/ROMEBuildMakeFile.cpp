@@ -894,7 +894,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)\n",shortCut.ToUpper(tmp));
 #endif // R__UNIX
 }
 
