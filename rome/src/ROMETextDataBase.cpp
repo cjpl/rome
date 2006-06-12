@@ -35,6 +35,7 @@
 //   In text files, C like comment is available.
 //
 //////////////////////////////////////////////////////////////////////////
+#include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
 #   pragma warning( disable : 4244 )

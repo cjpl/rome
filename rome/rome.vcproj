@@ -137,6 +137,9 @@
 				RelativePath=".\builder\src\ROMEBuildWriteCode.cpp">
 			</File>
 			<File
+				RelativePath=".\builder\src\ROMEConfigParameter.cpp">
+			</File>
+			<File
 				RelativePath=".\src\ROMEStr2DArray.cpp">
 			</File>
 			<File
