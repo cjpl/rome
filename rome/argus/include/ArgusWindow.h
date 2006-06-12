@@ -12,16 +12,23 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-class TObjArray;
-class TGMenuBar;
-class TGPopupMenu;
-class TGStatusBar;
-class TGTab;
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif
+#include <TGMenu.h>
+#include <TGStatusBar.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif
 
 #include "ROMEString.h"
 #include "ROMENetFolder.h"
 #include "ArgusAnalyzerController.h"
 #include "ArgusTab.h"
+
+class TObjArray;
+class TGTab;
 
 class ArgusWindow : public TGMainFrame 
 {
