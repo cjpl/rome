@@ -5,6 +5,7 @@
   $Id$
 
 ********************************************************************/
+#include "ROMEXML.h"
 #include "ROMEBuilder.h"
 
 void ROMEBuilder::WriteVisualProjectSln(Int_t version,ROMEString& projectGUID)

@@ -13,7 +13,7 @@
 
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
-#pragma warning( disable : 4800 )
+#pragma warning( disable : 4800 4244)
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #include <TCanvas.h>

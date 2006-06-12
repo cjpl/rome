@@ -12,19 +12,12 @@
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 
-#include <RConfig.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( push )
-#pragma warning( disable : 4800 )
-#endif // R__VISUAL_CPLUSPLUS
-#include <TObjArray.h>
-#include <TGFrame.h>
-#include <TGMenu.h>
-#include <TGStatusBar.h>
-#include <TGTab.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+class TObjArray;
+class TGMenuBar;
+class TGPopupMenu;
+class TGStatusBar;
+class TGTab;
+
 #include "ROMEString.h"
 #include "ROMENetFolder.h"
 #include "ArgusAnalyzerController.h"

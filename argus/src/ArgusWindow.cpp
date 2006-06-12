@@ -18,6 +18,8 @@
 #include <TGMsgBox.h>
 #include <TGTab.h>
 #include <TGStatusBar.h>
+#include <TObjArray.h>
+#include <TGMenu.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif                          // R__VISUAL_CPLUSPLUS
