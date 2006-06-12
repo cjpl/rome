@@ -7,6 +7,15 @@
 #ifndef ROMEEventLoop_H
 #define ROMEEventLoop_H
 
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( push )
+#   pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
+#include <TTimeStamp.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#   pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
+
 #include "ROMEAnalyzer.h"
 #include "ROMETask.h"
 
