@@ -100,7 +100,10 @@ void ArgusHistoDisplay::BaseInit()
       fTH1F[i] = new TH1F(str.Data(),"",1,0,1);
       str.SetFormatted("fTH2F_%d_%s",i,fInheritanceName.Data());
       fTH2F[i] = new TH2F(str.Data(),"",1,0,1,1,0,1);
+      str.SetFormatted("fTGraph_%d_%s",i,fInheritanceName.Data());
       fTGraph[i] = new TGraph(1);
+      fTGraph[i]->SetTitle(str.Data());
+      fTGraph[i]->SetPoint(0,0,0);
    }
 
    SetSize(GetDefaultSize());
@@ -392,6 +395,31 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    if (processEvents) {
       gSystem->ProcessEvents();
       gSystem->Sleep(10);
+   }
+}
+void ArgusHistoDisplay::SetLimits(TGraph *g)
+{
+   if (g->GetN()<=1)
+      return;
+   int i;
+   double xmin,xmax,ymin,ymax,x,y;
+   g->GetPoint(0,xmin,ymin);
+   g->GetPoint(0,xmax,ymax);
+   for (i=1;i<g->GetN();i++) {
+      g->GetPoint(i,x,y);
+      if (xmin>x)
+         xmin = x;
+      if (xmax<x)
+         xmax = x;
+      if (ymin>y)
+         ymin = y;
+      if (ymax<y)
+         ymax = y;
+   }
+   if (xmin<xmax && ymin<ymax) {
+      g->SetMinimum(ymin-(ymax-ymin)/10.);
+      g->SetMaximum(ymax+(ymax-ymin)/10.);
+      g->GetXaxis()->SetLimits(xmin,xmax);
    }
 }
 
