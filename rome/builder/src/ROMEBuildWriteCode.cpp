@@ -2656,6 +2656,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTGraph+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTGraph_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTGraph[i] = new TGraph(1);\n");
+            buffer.AppendFormatted("      fUserTGraph[i]->SetTitle(str.Data());\n");
             buffer.AppendFormatted("      fUserTGraph[i]->SetPoint(0,0,0);\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   fDisplayType = k%sDisplay;\n",tabObjectType[iTab][0].Data());
@@ -2682,6 +2683,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[fNumberOfUserTGraph];\n");
          buffer.AppendFormatted("         else\n");
          buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[chn];\n");
+         buffer.AppendFormatted("         SetLimits(fTGraph[i]);\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      if (fDisplayType==kTH1FDisplay) {\n");
          buffer.AppendFormatted("         if (chn>=fNumberOfUserTH1F)\n");

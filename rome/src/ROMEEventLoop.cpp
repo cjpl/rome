@@ -682,9 +682,6 @@ Bool_t ROMEEventLoop::UserInput()
 
             if (fContinuous)
                gROME->PrintFlush("                                  \r");
-            if (!fContinuous && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())) {
-               gROME->GetWindow()->TriggerEventHandler();
-            }
 
             wait = false;
          }

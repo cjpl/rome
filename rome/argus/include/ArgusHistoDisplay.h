@@ -110,6 +110,7 @@ public:
    void SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime=10);
    void SetStatisticBox(Bool_t flag);
    void Modified(Bool_t processEvents=true);
+   void SetLimits(TGraph *g);
 
    virtual void Init() = 0;
    virtual void EndInit() = 0;
