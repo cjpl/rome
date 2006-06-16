@@ -65,6 +65,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEConfigToForm.o \
               obj/ROMEDAQSystem.o \
               obj/ROMEDataBaseDAQ.o \
+              obj/ROMERootDAQ.o \
               obj/ROMENetFolder.o \
               obj/ROMENetFolderServer.o \
               obj/ROMEODBOfflineDataBase.o \
@@ -113,6 +114,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEUtilities.h \
                   include/ROMEConfigToForm.h \
                   include/ROMEDataBaseDAQ.h \
+                  include/ROMERootDAQ.h \
                   include/ROMENoDAQSystem.h \
                   include/ROMERomeDAQ.h \
                   include/ROMEDataBase.h \
