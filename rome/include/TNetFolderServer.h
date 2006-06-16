@@ -23,6 +23,7 @@
 #define THREADTYPE void*
 
 class TApplication;
+class TSocket;
 
 class TNetFolderServer : public TNamed
 {
