@@ -1091,7 +1091,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    }
    if (linkDefName)
       buffer.AppendFormatted(" %s",linkDefName);
-   buffer.AppendFormatted(" || ($(RM) obj/%s.d; exit 1;)\n\n",dictionaryName);
+   buffer.AppendFormatted(" || ($(RM) obj/%sionary.d; exit 1;)\n\n",dictionaryName);
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
@@ -1151,7 +1151,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
          continue;
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
    }
-   buffer.AppendFormatted(" || ($(RM) obj/%sUserDict.d; exit 1;)\n\n",shortCut.Data());
+   buffer.AppendFormatted(" || ($(RM) obj/%sUserDictionary.d; exit 1;)\n\n",shortCut.Data());
 }
 
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources)
