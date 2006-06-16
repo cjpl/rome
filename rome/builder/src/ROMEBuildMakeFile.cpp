@@ -1091,7 +1091,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    }
    if (linkDefName)
       buffer.AppendFormatted(" %s",linkDefName);
-   buffer.Append("\n\n");
+   buffer.AppendFormatted(" || ($(RM) obj/%s.d; exit 1;)\n\n",dictionaryName);
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
@@ -1151,7 +1151,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
          continue;
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
    }
-   buffer.Append("\n\n");
+   buffer.AppendFormatted(" || ($(RM) obj/%sUserDict.d; exit 1;)\n\n",shortCut.Data());
 }
 
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources)
@@ -1171,7 +1171,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
       buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<\n",name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj || ($(RM) obj/%s.d; exit 1;)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
