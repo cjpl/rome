@@ -18,6 +18,7 @@
 #endif
 #include <TGMenu.h>
 #include <TGStatusBar.h>
+#include <TGTab.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif
@@ -28,7 +29,6 @@
 #include "ArgusTab.h"
 
 class TObjArray;
-class TGTab;
 
 class ArgusWindow : public TGMainFrame 
 {
