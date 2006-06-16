@@ -47,7 +47,6 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders = new ROMEStrArray(50);
    romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/ROME.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
@@ -60,7 +59,12 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEPath.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMERint.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+   if (numOfEvent>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
+   if (numOfTree>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+   if (numOfRootTree>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
@@ -122,8 +126,10 @@ void ROMEBuilder::AddRomeDictHeaders()
    romeLinkDefSuffix->Add("");
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
    romeLinkDefSuffix->Add("");
-   romeDictHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
-   romeLinkDefSuffix->Add("");
+   if (numOfEvent>0) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
+      romeLinkDefSuffix->Add("");
+   }
    if (!librome) {
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
       romeLinkDefSuffix->Add("");
@@ -175,8 +181,14 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
       romeLinkDefSuffix->Add("");
-      romeDictHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
-      romeLinkDefSuffix->Add("");
+      if (numOfTree>0) {
+         romeDictHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+         romeLinkDefSuffix->Add("");
+      }
+      if (numOfRootTree>0) {
+         romeDictHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
+         romeLinkDefSuffix->Add("");
+      }
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEUtilities.h");
@@ -211,7 +223,8 @@ void ROMEBuilder::AddRomeSources()
    romeSources = new ROMEStrArray(50);
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
-   romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
+   if (numOfEvent>0)
+      romeSources->Add("$(ROMESYS)/src/ROMEMidasDAQ.cpp");
    if (!librome) {
       romeSources->Add("$(ROMESYS)/src/mxml.c");
       romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
@@ -219,7 +232,10 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
-      romeSources->Add("$(ROMESYS)/src/ROMERomeDAQ.cpp");
+      if (numOfTree>0)
+         romeSources->Add("$(ROMESYS)/src/ROMERomeDAQ.cpp");
+      if (numOfRootTree>0)
+         romeSources->Add("$(ROMESYS)/src/ROMERootDAQ.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMESplashScreen.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEStr2DArray.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEStrArray.cpp");
@@ -296,16 +312,28 @@ void ROMEBuilder::AddArgusSources()
 
 void ROMEBuilder::AddGeneratedHeaders()
 {
-   int i;
-   generatedHeaders = new ROMEStrArray(9+TMath::Max(numOfFolder,0)+TMath::Max(numOfTask,0)+TMath::Max(numOfTab,0));
+   int i,j;
+   int nRootClass = 0;
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            nRootClass++;
+         }
+      }
+   }
+   generatedHeaders = new ROMEStrArray(9+TMath::Max(numOfFolder,0)+TMath::Max(numOfTask,0)+TMath::Max(numOfTab,0)+nRootClass);
    generatedHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
    if (readGlobalSteeringParameters)
       generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
-   generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
-   generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+   if (numOfEvent>0)
+      generatedHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
+   if (numOfTree>0)
+      generatedHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+   if (numOfRootTree>0)
+      generatedHeaders->AddFormatted("include/generated/%sRootDAQ.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfigToForm.h",shortCut.Data());
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -329,12 +357,20 @@ void ROMEBuilder::AddGeneratedHeaders()
          continue;
       generatedHeaders->AddFormatted("include/generated/%sT%s_Base.h",shortCut.Data(),tabName[i].Data());
    }
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            generatedHeaders->AddFormatted("include/generated/%s.h",rootBranchName[i][j].Data());
+         }
+      }
+   }
 }
 
 void ROMEBuilder::AddGeneratedDictHeaders()
 {
-   generatedDictHeaders = new ROMEStrArray(4);
-   generatedLinkDefSuffix = new ROMEStrArray(4);
+   int i,j;
+   generatedDictHeaders = new ROMEStrArray(1);
+   generatedLinkDefSuffix = new ROMEStrArray(1);
    generatedDictHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sAnalyzer.h",shortCut.Data());
@@ -349,10 +385,26 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
-   generatedDictHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
-   generatedLinkDefSuffix->Add("");
-   generatedDictHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
-   generatedLinkDefSuffix->Add("");
+   if (numOfEvent>0) {
+      generatedDictHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
+      generatedLinkDefSuffix->Add("");
+   }
+   if (numOfTree>0) {
+      generatedDictHeaders->AddFormatted("include/generated/%sRomeDAQ.h",shortCut.Data());
+      generatedLinkDefSuffix->Add("");
+   }
+   if (numOfRootTree>0) {
+      generatedDictHeaders->AddFormatted("include/generated/%sRootDAQ.h",shortCut.Data());
+      generatedLinkDefSuffix->Add("");
+   }
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            generatedDictHeaders->AddFormatted("include/generated/%s.h",rootBranchName[i][j].Data());
+            generatedLinkDefSuffix->Add("");
+         }
+      }
+   }
 }
 
 void ROMEBuilder::AddGeneratedFolderDictHeaders()
@@ -411,8 +463,12 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
-   generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
-   generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
+   if (numOfEvent>0)
+      generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
+   if (numOfTree>0)
+      generatedSources->AddFormatted("src/generated/%sRomeDAQ.cpp",shortCut.Data());
+   if (numOfRootTree>0)
+      generatedSources->AddFormatted("src/generated/%sRootDAQ.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfigToForm.cpp",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
@@ -531,7 +587,7 @@ void ROMEBuilder::AddDAQHeaders()
    for (i=0;i<numOfDAQ;i++) {
       if (!daqUsed[i])
          continue;
-      daqHeaders->AddFormatted("include/daqs/%s%s.h",shortCut.Data(),daqName[i].Data());
+      daqHeaders->AddFormatted("include/daqs/%s%sDAQ.h",shortCut.Data(),daqName[i].Data());
    }
 }
 
@@ -542,7 +598,7 @@ void ROMEBuilder::AddDAQSources()
    for (i=0;i<numOfDAQ;i++) {
       if (!daqUsed[i])
          continue;
-      daqSources->AddFormatted("src/daqs/%s%s.cpp",shortCut.Data(),daqName[i].Data());
+      daqSources->AddFormatted("src/daqs/%s%sDAQ.cpp",shortCut.Data(),daqName[i].Data());
    }
    if (daqHeaders->GetEntriesFast() > 0)
       daqSources->AddFormatted("dict/%sDAQDict.cpp", shortCut.Data());

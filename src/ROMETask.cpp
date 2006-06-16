@@ -74,13 +74,14 @@ void ROMETask::Exec(Option_t *option)
       fWatchAll.Stop();
    }
    else if (!strncmp(option,"Terminate",9)) {
-      int i;
-      ROMEString name;
-      int nchars;
       fCurrentEventMethod = "Terminate";
       gROME->PrintVerbose("Executing %s::Terminate", this->ClassName());
       Terminate();
-
+   }
+   else if (!strncmp(option,"Time",4)) {
+      int i;
+      ROMEString name;
+      int nchars;
       nchars = 0;
       for (i=0;i<fLevel;i++)
          gROME->PrintText(" ");

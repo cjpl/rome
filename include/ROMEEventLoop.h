@@ -7,9 +7,10 @@
 #ifndef ROMEEventLoop_H
 #define ROMEEventLoop_H
 
+#include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
-#   pragma warning( disable : 4800 )
+#   pragma warning( disable : 4800 4244)
 #endif // R__VISUAL_CPLUSPLUS
 #include <TTimeStamp.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -101,7 +102,7 @@ protected:
    Bool_t       WriteEvent();
    Bool_t       Update();
    Bool_t       DAQEndOfRun();
-   Bool_t       DAQTerminate(Bool_t quit);
+   Bool_t       DAQTerminate();
 
    // virtual methods
    virtual void InitSingleFolders() = 0;

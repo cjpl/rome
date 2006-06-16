@@ -3435,13 +3435,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fConfiguration = new %sConfig();\n",shortCut.Data());
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("   fMidasDAQ = NULL;\n");
-   buffer.AppendFormatted("   fRomeDAQ = NULL;\n");
-   buffer.AppendFormatted("   fDataBaseDAQ = NULL;\n");
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      buffer.AppendFormatted("   f%s = NULL;\n",daqName[i].Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("   f%sDAQ = NULL;\n",daqNameArray->At(i).Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -3802,28 +3797,16 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("}\n\n");
 
    // DAQ Access Methods
-   ROMEStrArray daqNameArray(3);
-   ROMEStrArray daqTypeArray(3);
-   daqNameArray.AddLast("Midas");
-   daqTypeArray.AddLast(shortCut.Data());
-   daqNameArray.AddLast("Rome");
-   daqTypeArray.AddLast(shortCut.Data());
-   daqNameArray.AddLast("DataBase");
-   daqTypeArray.AddLast("ROME");
-   if (this->orca) {
-      daqNameArray.AddLast("Orca");
-      daqTypeArray.AddLast("ROME");
-   }
    buffer.AppendFormatted("// Deprecated DAQ Access Methods\n");
-   for (i=0;i<daqNameArray.GetEntriesFast();i++) {
-      buffer.AppendFormatted("// %s DAQ Access Methods\n",daqNameArray.At(i).Data());
-      buffer.AppendFormatted("%s%sDAQ* %sAnalyzer::Get%sDAQ() {\n",daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),shortCut.Data(),daqNameArray.At(i).Data());
-      buffer.AppendFormatted("   if (f%sDAQ==NULL) {\n",daqNameArray.At(i).Data());
-      buffer.AppendFormatted("      this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("// %s DAQ Access Methods\n",daqNameArray->At(i).Data());
+      buffer.AppendFormatted("%s%sDAQ* %sAnalyzer::Get%sDAQ() {\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),shortCut.Data(),daqNameArray->At(i).Data());
+      buffer.AppendFormatted("   if (f%sDAQ==NULL) {\n",daqNameArray->At(i).Data());
+      buffer.AppendFormatted("      this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
       buffer.AppendFormatted("      fApplication->Terminate(1);\n");
       buffer.AppendFormatted("      return NULL;\n");
       buffer.AppendFormatted("   }\n");
-      buffer.AppendFormatted("   return f%sDAQ;\n",daqNameArray.At(i).Data());
+      buffer.AppendFormatted("   return f%sDAQ;\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("};\n");
    }
 
@@ -4204,15 +4187,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    // DAQ includes
-   buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
-   if (this->orca)
-      buffer.AppendFormatted("#include \"ROMEOrcaDAQ.h\"\n");
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
    }
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n", shortCut.Data());
@@ -4310,15 +4286,8 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 
    // DAQ Handle
    buffer.AppendFormatted("   // DAQ Handle\n");
-   buffer.AppendFormatted("   %sMidasDAQ* fMidasDAQ; // Handle to the Midas DAQ Class\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRomeDAQ*  fRomeDAQ; // Handle to the Rome DAQ Class\n",shortCut.Data());
-   buffer.AppendFormatted("   ROMEDataBaseDAQ*  fDataBaseDAQ; // Handle to the DataBase DAQ Class\n",shortCut.Data());
-   if (this->orca)
-      buffer.AppendFormatted("   ROMEOrcaDAQ* fOrcaDAQ; // Handle to the Orca DAQ Class\n");
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      buffer.AppendFormatted("   %s%s*  f%s; // Handle to the %s DAQ Class\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("   %s%sDAQ* f%sDAQ; // Handle to the %s DAQ Class\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
    }
    buffer.AppendFormatted("\n");
 
@@ -4472,32 +4441,16 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
 
    // DAQ Access Methods
-   ROMEStrArray daqNameArray(3);
-   ROMEStrArray daqTypeArray(3);
-   daqNameArray.AddLast("Midas");
-   daqTypeArray.AddLast(shortCut.Data());
-   daqNameArray.AddLast("Rome");
-   daqTypeArray.AddLast(shortCut.Data());
-   daqNameArray.AddLast("DataBase");
-   daqTypeArray.AddLast("ROME");
-   if (this->orca) {
-      daqNameArray.AddLast("Orca");
-      daqTypeArray.AddLast("ROME");
-   }
    buffer.AppendFormatted("   // Deprecated DAQ Access Methods\n");
-   buffer.AppendFormatted("   %sMidasDAQ* GetMidas() { return GetMidasDAQ(); };\n",shortCut.Data());
-   buffer.AppendFormatted("   %sRomeDAQ* GetRome() { return GetRomeDAQ(); };\n",shortCut.Data());
-   for (i=0;i<daqNameArray.GetEntriesFast();i++) {
-      buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqNameArray.At(i).Data());
-      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ!=NULL; };\n",daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
-      buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ();\n",daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
-      buffer.AppendFormatted("   void     Set%sDAQ(%s%sDAQ* handle) { f%sDAQ = handle; };\n",daqNameArray.At(i).Data(),daqTypeArray.At(i).Data(),daqNameArray.At(i).Data(),daqNameArray.At(i).Data());
-   }
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      buffer.AppendFormatted("   %s%s*  Get%s()                 { return f%s;    };\n",shortCut.Data(),daqName[i].Data(),daqName[i].Data(),daqName[i].Data());
-      buffer.AppendFormatted("   void     Set%s (%s%s*  handle) { f%s  = handle; };\n",daqName[i].Data(),shortCut.Data(),daqName[i].Data(),daqName[i].Data());
+   if (numOfEvent>0)
+      buffer.AppendFormatted("   %sMidasDAQ* GetMidas() { return GetMidasDAQ(); };\n",shortCut.Data());
+   if (numOfTree>0)
+      buffer.AppendFormatted("   %sRomeDAQ* GetRome() { return GetRomeDAQ(); };\n",shortCut.Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("   // %s DAQ Access Methods\n",daqNameArray->At(i).Data());
+      buffer.AppendFormatted("   Bool_t Is%sDAQ() { return f%sDAQ!=NULL; };\n",daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
+      buffer.AppendFormatted("   %s%sDAQ* Get%sDAQ();\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
+      buffer.AppendFormatted("   void     Set%sDAQ(%s%sDAQ* handle) { f%sDAQ = handle; };\n",daqNameArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
    }
 
    // Folder dump and load
@@ -5400,13 +5353,9 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
          continue;
       buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[i].Data());
    }
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      buffer.AppendFormatted("#include \"daqs/%s%s.h\"\n",shortCut.Data(),daqName[i].Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
    }
-   buffer.AppendFormatted("#include \"generated/%sMidasDAQ.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
 
@@ -5422,9 +5371,6 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    if (this->sql)
       buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
-   buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
-   if (this->orca)
-      buffer.AppendFormatted("#include \"ROMEOrcaDAQ.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
 
    buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
@@ -5755,6 +5701,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    int i,j;
    int nIndex = 1;
    int *index = new int[nIndex];
+   ROMEString str;
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
    ROMEConfigParameterGroup* subSubSubGroup;
@@ -5796,40 +5743,23 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddComboBoxEntry("online");
    // Modes/DAQSystem
    subGroup->AddParameter(new ROMEConfigParameter("DAQSystem","1","ComboBox"));
-   subGroup->GetLastParameter()->AddSetLine("if (!##.CompareTo(\"midas\",TString::kIgnoreCase)) {");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetMidasDAQ(new %sMidasDAQ());",shortCut.Data());
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetMidasDAQ());");
-   subGroup->GetLastParameter()->AddSetLine("}");
-   subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"rome\",TString::kIgnoreCase)) {");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetRomeDAQ(new %sRomeDAQ());",shortCut.Data());
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetRomeDAQ());");
-   subGroup->GetLastParameter()->AddSetLine("}");
-   subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"database\",TString::kIgnoreCase)) {");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBaseDAQ(new ROMEDataBaseDAQ());");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetDataBaseDAQ());");
-   subGroup->GetLastParameter()->AddSetLine("}");
-   subGroup->GetLastParameter()->AddComboBoxEntry("none");
-   subGroup->GetLastParameter()->AddComboBoxEntry("rome");
-   subGroup->GetLastParameter()->AddComboBoxEntry("midas");
-   subGroup->GetLastParameter()->AddComboBoxEntry("database");
-   if (this->orca) {
-      subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"orca\",TString::kIgnoreCase)) {");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOrcaDAQ(new ROMEOrcaDAQ());");
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->GetOrcaDAQ());");
+   subGroup->GetLastParameter()->AddSetLine("if (false) {}");
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      str = daqNameArray->At(i);
+      str.ToLower();
+      subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"%s\",TString::kIgnoreCase)) {",str.Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Set%sDAQ(new %s%sDAQ());",daqNameArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->Get%sDAQ());",daqNameArray->At(i).Data());
       subGroup->GetLastParameter()->AddSetLine("}");
-      subGroup->GetLastParameter()->AddComboBoxEntry("orca");
    }
    subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"none\",TString::kIgnoreCase) || ##.Length()==0) {");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(new ROMENoDAQSystem());");
    subGroup->GetLastParameter()->AddSetLine("}");
-   for (i=0;i<numOfDAQ;i++) {
-      if (!daqUsed[i])
-         continue;
-      subGroup->GetLastParameter()->AddSetLine("else if (!##.CompareTo(\"%s\",TString::kIgnoreCase)) {",daqName[i].Data());
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->Set%s(new %s%s());",daqName[i].Data(),shortCut.Data(),daqName[i].Data());
-      subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetActiveDAQ(gAnalyzer->Get%s());",daqName[i].Data());
-      subGroup->GetLastParameter()->AddSetLine("}");
-      subGroup->GetLastParameter()->AddComboBoxEntry(daqName[i].Data());
+   subGroup->GetLastParameter()->AddComboBoxEntry("none");
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      str = daqNameArray->At(i);
+      str.ToLower();
+      subGroup->GetLastParameter()->AddComboBoxEntry(str.Data());
    }
    subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isActiveDAQSet())");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = gAnalyzer->GetActiveDAQ()->GetName();");
@@ -7803,6 +7733,251 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    buffer.AppendFormatted("};\n\n");
 
    buffer.AppendFormatted("#endif   // %sRomeDAQ_H\n",shortCut.Data());
+
+   // Write File
+   WriteFile(hFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+Bool_t ROMEBuilder::WriteRootDAQCpp() {
+   int i,j;
+
+   ROMEString cppFile;
+   ROMEString buffer;
+   ROMEString clsName;
+   ROMEString clsDescription;
+
+   ROMEString format;
+
+   // File name
+   cppFile.SetFormatted("%ssrc/generated/%sRootDAQ.cpp",outDir.Data(),shortCut.Data());
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   clsName.SetFormatted("%sRootDAQ", shortCut.Data());
+   clsDescription.SetFormatted("This class implements the ROOT DAQ for %s%s.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   // Header
+   buffer.AppendFormatted("#include <RConfig.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TBranchElement.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sRootDAQ.h\"\n",shortCut.Data());
+
+   buffer.AppendFormatted("\nClassImp(%sRootDAQ)\n",shortCut.Data());
+
+   // Constructor
+   buffer.AppendFormatted("\n// Constructor\n");
+   buffer.AppendFormatted("%sRootDAQ::%sRootDAQ()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   for (i=0;i<numOfRootTree;i++) {
+      buffer.AppendFormatted("   f%s = new %s();\n",rootTreeName[i].Data(),rootTreeName[i].Data());
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            buffer.AppendFormatted("   f%s->f%s = new %s();\n",rootTreeName[i].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+         }
+      }
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
+   // Create Trees
+   buffer.AppendFormatted("// Create Trees\n");
+   buffer.AppendFormatted("Bool_t %sRootDAQ::CreateTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   TTree *tree;\n");
+   buffer.AppendFormatted("   fTrees->RemoveAll();\n");
+   for (i=0;i<numOfRootTree;i++) {
+      buffer.AppendFormatted("   tree = NULL;\n");
+      buffer.AppendFormatted("   for (i=0;i<gROME->GetNumberOfInputFileNames() && tree==NULL;i++) {\n");
+      buffer.AppendFormatted("      tree = (TTree*)fRootFiles[i]->FindObjectAny(\"%s\");\n",rootTreeName[i].Data());
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   if (tree==NULL) {\n");
+      buffer.AppendFormatted("      gROME->PrintText(\"Tree '%s' not found.\");\n",rootTreeName[i].Data());
+      buffer.AppendFormatted("      return false;\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   fTrees->AddLast(tree);\n");
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Connect Trees
+   buffer.AppendFormatted("// Connect Trees\n");
+   buffer.AppendFormatted("Bool_t %sRootDAQ::ConnectTrees()\n{\n",shortCut.Data());
+   buffer.AppendFormatted("   TBranchElement *bb;\n");
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         buffer.AppendFormatted("   bb = ((TBranchElement*)((TTree*)fTrees->At(%d))->FindBranch(\"%s\"));\n",i,rootBranchName[i][j].Data());
+         buffer.AppendFormatted("   if (!bb) {\n");
+         buffer.AppendFormatted("      gROME->PrintText(\"Branch '%s' not found in tree '%s'.\");\n",rootBranchName[i][j].Data(),rootTreeName[i].Data());
+         buffer.AppendFormatted("      return false;\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   bb->SetAddress(&(Get%s()->f%s));\n",rootTreeName[i].Data(),rootBranchName[i][j].Data());
+      }
+   }
+   buffer.AppendFormatted("   return true;\n");
+   buffer.AppendFormatted("}\n\n");
+
+   // Write File
+   WriteFile(cppFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteRootDAQH() {
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString clsName;
+   ROMEString clsDescription;
+   Int_t i,j;
+
+   // File name
+   hFile.SetFormatted("%sinclude/generated/%sRootDAQ.h",outDir.Data(),shortCut.Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   buffer.AppendFormatted("#ifndef %sRootDAQ_H\n",shortCut.Data());
+   buffer.AppendFormatted("#define %sRootDAQ_H\n\n",shortCut.Data());
+   clsName.SetFormatted("%sRootDAQ", shortCut.Data());
+   clsDescription.SetFormatted("This class implements the ROOT DAQ for %s%s.",shortCut.Data(),mainProgName.Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   buffer.AppendFormatted("#include \"TTree.h\"\n");
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            buffer.AppendFormatted("#include \"%s.h\"\n",rootBranchName[i][j].Data());
+         }
+      }
+   }
+   buffer.AppendFormatted("#include \"ROMERootDAQ.h\"\n");
+
+   // Class
+   buffer.AppendFormatted("\nclass %sRootDAQ : public ROMERootDAQ\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("protected:\n");
+
+   // Fields
+   for (i=0;i<numOfRootTree;i++) {
+      buffer.AppendFormatted("   class %s {\n",rootTreeName[i].Data());
+      buffer.AppendFormatted("   public:\n");
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            buffer.AppendFormatted("      %s* f%s; // %s Branch\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+         }
+         else {
+            buffer.AppendFormatted("      %s f%s; // %s Branch\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+         }
+      }
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            buffer.AppendFormatted("      %s* Get%s() { return f%s; };\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+         }
+         else {
+            buffer.AppendFormatted("      %s Get%s() { return f%s; };\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+         }
+      }
+      buffer.AppendFormatted("   };\n");
+      buffer.AppendFormatted("   %s* f%s; // %s Branch\n",rootTreeName[i].Data(),rootTreeName[i].Data(),rootTreeName[i].Data());
+   }
+   // Methods
+   buffer.AppendFormatted("public:\n");
+
+   // Constructor
+   buffer.AppendFormatted("   %sRootDAQ();\n",shortCut.Data());
+   for (i=0;i<numOfRootTree;i++) {
+      buffer.AppendFormatted("   %s* Get%s() { return f%s; };\n",rootTreeName[i].Data(),rootTreeName[i].Data(),rootTreeName[i].Data());
+   }
+
+   // methods
+   buffer.AppendFormatted("protected:\n");
+   buffer.AppendFormatted("   Bool_t CreateTrees();\n");
+   buffer.AppendFormatted("   Bool_t ConnectTrees();\n");
+
+   buffer.AppendFormatted("\n");
+   // Footer
+   buffer.AppendFormatted("   ClassDef(%sRootDAQ, 0)\n",shortCut.Data());
+   buffer.AppendFormatted("};\n\n");
+
+   buffer.AppendFormatted("#endif   // %sRootDAQ_H\n",shortCut.Data());
+
+   // Write File
+   WriteFile(hFile.Data(),buffer.Data(),6);
+
+   return true;
+}
+Bool_t ROMEBuilder::WriteRootDAQClassesH() {
+   int i,j;
+   for (i=0;i<numOfRootTree;i++) {
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            WriteRootDAQClassH(i,j);
+         }
+      }
+   }
+   return true;
+}
+Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString clsName;
+   ROMEString clsDescription;
+   Int_t i;
+
+   // File name
+   hFile.SetFormatted("%sinclude/generated/%s.h",outDir.Data(),rootBranchName[iTree][iBranch].Data());
+
+   // Description
+   buffer.Resize(0);
+   WriteHeader(buffer, mainAuthor.Data(), kTRUE);
+   buffer.AppendFormatted("#ifndef %s_H\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("#define %s_H\n\n",rootBranchName[iTree][iBranch].Data());
+   clsName.SetFormatted("%s",rootBranchName[iTree][iBranch].Data());
+   clsDescription.SetFormatted("This class implements is used for the branch %s of the tree %s of the ROOT DAQ.",rootBranchName[iTree][iBranch].Data(),rootTreeName[iTree].Data());
+   WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
+   buffer.AppendFormatted("\n\n");
+
+   buffer.AppendFormatted("#include \"TObject.h\"\n");
+
+   // Class
+   buffer.AppendFormatted("\nclass %s : public TObject\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("protected:\n");
+   for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
+      buffer.AppendFormatted("   %s %s; // %s Field\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   // Methods
+   buffer.AppendFormatted("public:\n");
+
+   // Constructor
+   buffer.AppendFormatted("   %s() {};\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("\n");
+
+   // methods
+   for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
+      buffer.AppendFormatted("   %s Get%s() { return %s; };\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
+      buffer.AppendFormatted("   void Set%s(%s %sValue) { %s = %sValue; };\n",rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+   }
+   buffer.AppendFormatted("\n");
+   // Footer
+   buffer.AppendFormatted("   ClassDef(%s, %d)\n",rootBranchName[iTree][iBranch].Data(),rootBranchClassVersion[iTree][iBranch].ToInteger()+1);
+   buffer.AppendFormatted("};\n\n");
+
+   buffer.AppendFormatted("#endif   // %s_H\n",rootBranchName[iTree][iBranch].Data());
 
    // Write File
    WriteFile(hFile.Data(),buffer.Data(),6);

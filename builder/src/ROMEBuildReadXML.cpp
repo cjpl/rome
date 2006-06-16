@@ -112,6 +112,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    path = "ROMEFrameworkDefinition/MidasBanks/EventDefinition";
    maxNumberOfEvents = xml->NumberOfOccurrenceOfPath(path);
 
+   // Root DAQ
+   path = "ROMEFrameworkDefinition/RootDAQ/RootTree";
+   maxNumberOfRootTrees = xml->NumberOfOccurrenceOfPath(path);
+
    // User makefile
    {
       // Dict headers
@@ -341,6 +345,16 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    structFieldSize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
    bankFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfEvents,maxNumberOfBanks,maxNumberOfStructFields));
 
+   // root DAQ
+   numOfRootBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfRootTrees));
+   numOfRootBranchField = static_cast<Int_t**>(AllocateInt(maxNumberOfRootTrees,maxNumberOfRootBranches));
+   rootTreeName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfRootTrees));
+   rootBranchName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
+   rootBranchType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
+   rootBranchClassVersion = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
+   rootBranchFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
+   rootBranchFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
+
    // user makefile
    mfDictHeaderName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfMFDictHeaders));
    numOfMFDictHeaderAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfMFDictHeaders));
@@ -395,12 +409,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    usedCLO = ROMECommandLineOptions;
 
    readExperiment = false;
-   readAuthor = false;
-   readFolders = false;
-   readTasks = false;
-   readTrees = false;
    readGlobalSteeringParameters = false;
-   readMidasBanks = false;
    bankHasHeader = false;
 
    numOfFolder = -1;
@@ -487,7 +496,6 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   continue;
                }
                if (!strcmp((const char*)name,"Author")) {
-                  readAuthor = true;
                   while (xml->NextLine()&&!finished) {
                      type = xml->GetType();
                      name = xml->GetName();
@@ -748,6 +756,10 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                if (!strcmp((const char*)name,"MidasBanks")) {
                   numOfEvent = -1;
                   if (!ReadXMLMidasBanks()) return false;
+               }
+               if (!strcmp((const char*)name,"RootDAQ")) {
+                  numOfRootTree = -1;
+                  if (!ReadXMLRootDAQ()) return false;
                }
                if (!strcmp((const char*)name,"GlobalSteeringParameters")) {
                   if (numOfTask==-1)
@@ -2737,6 +2749,154 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
                   return false;
                }
             }
+         }
+      }
+   }
+   return true;
+}
+
+Bool_t ROMEBuilder::ReadXMLRootDAQ()
+{
+   char *name;
+   int type,i,k;
+   ROMEString tmp;
+   char *cstop=NULL;
+
+   // output
+   if (makeOutput) cout << "\n\nRootDAQ:" << endl;
+
+   while (xml->NextLine()) {
+      type = xml->GetType();
+      name = xml->GetName();
+      if (type == 1 && !strcmp((const char*)name,"RootTree")) {
+         numOfRootTree++;
+         if (numOfRootTree>=maxNumberOfRootTrees) {
+            cout << "Maximal number of root trees in the RootDAQ reached : " << maxNumberOfRootTrees << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         // tree initialisation
+         rootTreeName[numOfRootTree] = "";
+         numOfRootBranch[numOfRootTree] = -1;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // tree name
+            if (type == 1 && !strcmp((const char*)name,"RootTreeName")) {
+               xml->GetValue(rootTreeName[numOfRootTree],rootTreeName[numOfRootTree]);
+               // output
+               if (makeOutput) cout << "   " << rootTreeName[numOfRootTree].Data() << endl;
+            }
+            if (type == 1 && !strcmp((const char*)name,"RootBranch")) {
+               // count branches
+               numOfRootBranch[numOfRootTree]++;
+               if (numOfRootBranch[numOfRootTree]>=maxNumberOfRootBranches) {
+                  cout << "Maximal number of branches in a root tree of a RootDAQ reached : " << maxNumberOfRootBranches << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               // branch initialisation
+               numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]] = -1;
+               rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
+               rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
+               rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]] = "0";
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // branch name
+                  if (type == 1 && !strcmp((const char*)name,"RootBranchName")) {
+                     xml->GetValue(rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]],rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]]);
+                     // output
+                     if (makeOutput) cout << "      " << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << endl;
+                  }
+                  // branch type
+                  if (type == 1 && !strcmp((const char*)name,"RootBranchType"))
+                     xml->GetValue(rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]],rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]]);
+                  // branch class version
+                  if (type == 1 && !strcmp((const char*)name,"RootBranchClassVersion"))
+                     xml->GetValue(rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]],rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]]);
+                  // branch class field
+                  if (type == 1 && !strcmp((const char*)name,"RootBranchClassField")) {
+                     // count branch fields
+                     numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]++;
+                     if (numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]>=maxNumberOfRootBranchFields) {
+                        cout << "Maximal number of fields in a class of a branch in a root tree of a RootDAQ reached : " << maxNumberOfRootBranchFields << " !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                     // branch field initialisation
+                     rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
+                     rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]] = "";
+                     while (xml->NextLine()) {
+                        type = xml->GetType();
+                        name = xml->GetName();
+                        // branch field name
+                        if (type == 1 && !strcmp((const char*)name,"RootBranchClassFieldName")) {
+                           xml->GetValue(rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
+                           // output
+                           if (makeOutput) cout << "      " << rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data() << endl;
+                        }
+                        // branch field type
+                        if (type == 1 && !strcmp((const char*)name,"RootBranchClassFieldType"))
+                           xml->GetValue(rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]],rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]);
+                        // branch end
+                        if (type == 15 && !strcmp((const char*)name,"RootBranchClassField"))
+                           break;
+                     }
+                     // input check
+                     if (rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]=="") {
+                        cout << "A field of a class of a branch of the Root DAQ has no Name !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                     if (rootBranchFieldType[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]]=="") {
+                        cout << "Field '" << rootBranchFieldName[numOfRootTree][numOfRootBranch[numOfRootTree]][numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]].Data() << "' of branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' of the Root DAQ has no type !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                  }
+                  // branch end
+                  if (type == 15 && !strcmp((const char*)name,"RootBranch")) {
+                     numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]++;
+                     break;
+                  }
+               }
+               // input check
+               if (rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]]=="") {
+                  cout << "A branch of the Root DAQ has no Name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               if (rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]]=="") {
+                  cout << "Branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' of the Root DAQ has no type !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+            // tree end
+            if (type == 15 && !strcmp((const char*)name,"RootTree")) {
+               numOfRootBranch[numOfRootTree]++;
+               if (rootTreeName[numOfRootTree]=="") {
+                  cout << "Tree of the Root DAQ without a name !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               break;
+            }
+         }
+      }
+      // root DAQ end
+      if (type == 15 && !strcmp((const char*)name,"RootDAQ")) {
+         numOfRootTree++;
+         break;
+      }
+   }
+   for (i=0;i<numOfRootTree;i++) {
+      for (k=i+1;k<numOfRootTree;k++) {
+         if (rootTreeName[i]==rootTreeName[k]) {
+            cout << "\nTree '" << rootTreeName[k].Data() << "' of the Root DAQ is defined twice !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
          }
       }
    }
