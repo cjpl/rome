@@ -1,19 +1,19 @@
-#include "include/daqs/SMDmydaq.h"
+#include "include/daqs/SMDmydaqDAQ.h"
 #include "include/generated/SMDAnalyzer.h"
 #include "include/generated/SMDConfig.h"
 #include "include/generated/SMDPMTData.h"
 
-SMDmydaq::SMDmydaq()
+SMDmydaqDAQ::SMDmydaqDAQ()
 {
 }
 
 
-Bool_t SMDmydaq::Init()
+Bool_t SMDmydaqDAQ::Init()
 {
    return true;
 }
 
-Bool_t SMDmydaq::BeginOfRun()
+Bool_t SMDmydaqDAQ::BeginOfRun()
 {
    //-- Open data file
    char filename[100];
@@ -33,7 +33,7 @@ Bool_t SMDmydaq::BeginOfRun()
    return true;
 }
 
-Bool_t SMDmydaq::Event(Long64_t event)
+Bool_t SMDmydaqDAQ::Event(Long64_t event)
 {
    //-- Check event number
    if (gAnalyzer->GetCurrentEventNumber() >= fNumberOfEvent) {
@@ -55,14 +55,14 @@ Bool_t SMDmydaq::Event(Long64_t event)
    return true;
 }
 
-Bool_t SMDmydaq::EndOfRun()
+Bool_t SMDmydaqDAQ::EndOfRun()
 {
    //-- Close file
    fFile.close();
    return true;
 }
 
-Bool_t SMDmydaq::Terminate()
+Bool_t SMDmydaqDAQ::Terminate()
 {
    //-- Close file
    fFile.close();

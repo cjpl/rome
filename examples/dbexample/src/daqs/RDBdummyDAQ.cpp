@@ -1,17 +1,17 @@
-#include <include/daqs/RDBdummy.h>
+#include <include/daqs/RDBdummyDAQ.h>
 #include <include/generated/RDBAnalyzer.h>
 
-RDBdummy::RDBdummy()
+RDBdummyDAQ::RDBdummyDAQ()
 {
 }
 
 
-bool RDBdummy::Init()
+bool RDBdummyDAQ::Init()
 {
    return true;
 }
 
-bool RDBdummy::BeginOfRun()
+bool RDBdummyDAQ::BeginOfRun()
 {
    gAnalyzer->SetCurrentEventNumber(0);
    this->SetAnalyze();
@@ -19,18 +19,18 @@ bool RDBdummy::BeginOfRun()
    return true;
 }
 
-bool RDBdummy::Event(Long64_t event)
+bool RDBdummyDAQ::Event(Long64_t event)
 {
    gAnalyzer->SetCurrentEventNumber(event);
    return true;
 }
 
-bool RDBdummy::EndOfRun()
+bool RDBdummyDAQ::EndOfRun()
 {
    return true;
 }
 
-bool RDBdummy::Terminate()
+bool RDBdummyDAQ::Terminate()
 {
    return true;
 }

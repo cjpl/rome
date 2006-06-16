@@ -7997,7 +7997,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
       if (!daqUsed[iDAQ])
          continue;
       // File name
-      cppFile.SetFormatted("%ssrc/daqs/%s%s.cpp",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
+      cppFile.SetFormatted("%ssrc/daqs/%s%sDAQ.cpp",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
 
 #if 1
 // this special treatment is neccesary only for several month from Feb.2006
@@ -8022,44 +8022,44 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
          // Description
          buffer.Resize(0);
          WriteHeader(buffer, mainAuthor.Data(), kFALSE);
-         clsName.SetFormatted("%s%s", shortCut.Data(), daqName[iDAQ].Data());
+         clsName.SetFormatted("%s%sDAQ", shortCut.Data(), daqName[iDAQ].Data());
          clsDescription.SetFormatted("%s DAQ class for %s%s.",daqName[iDAQ].Data(),shortCut.Data(),mainProgName.Data());
          WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
          buffer.AppendFormatted("\n\n");
 
-         buffer.AppendFormatted("#include \"daqs/%s%s.h\"\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("#include \"daqs/%s%sDAQ.h\"\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
          buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
          buffer.AppendFormatted("\n");
 
-         buffer.AppendFormatted("ClassImp(%s%s)\n",shortCut.Data(),daqName[iDAQ].Data());
-         buffer.AppendFormatted("%s%s::%s%s()\n",shortCut.Data(),daqName[iDAQ].Data(),shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("ClassImp(%s%sDAQ)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("%s%sDAQ::%s%sDAQ()\n",shortCut.Data(),daqName[iDAQ].Data(),shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("\n");
 
-         buffer.AppendFormatted("Bool_t %s%s::Init()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%sDAQ::Init()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("Bool_t %s%s::BeginOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%sDAQ::BeginOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("Bool_t %s%s::Event(Long64_t event)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%sDAQ::Event(Long64_t event)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("Bool_t %s%s::EndOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%sDAQ::EndOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("Bool_t %s%s::Terminate()\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("Bool_t %s%sDAQ::Terminate()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
@@ -8084,7 +8084,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
       if (!daqUsed[iDAQ])
          continue;
       // File name
-      hFile.SetFormatted("%sinclude/daqs/%s%s.h",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
+      hFile.SetFormatted("%sinclude/daqs/%s%sDAQ.h",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
 
 #if 1
 // this special treatment is neccesary only for several month from Feb.2006
@@ -8109,9 +8109,9 @@ Bool_t ROMEBuilder::WriteDAQH() {
          // Description
          buffer.Resize(0);
          WriteHeader(buffer, mainAuthor.Data(), kFALSE);
-         buffer.AppendFormatted("#ifndef %s%s_H\n",shortCut.Data(),daqName[iDAQ].Data());
-         buffer.AppendFormatted("#define %s%s_H\n\n",shortCut.Data(),daqName[iDAQ].Data());
-         clsName.SetFormatted("%s%s", shortCut.Data(), daqName[iDAQ].Data());
+         buffer.AppendFormatted("#ifndef %s%sDAQ_H\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("#define %s%sDAQ_H\n\n",shortCut.Data(),daqName[iDAQ].Data());
+         clsName.SetFormatted("%s%sDAQ", shortCut.Data(), daqName[iDAQ].Data());
          clsDescription.SetFormatted("%s DAQ class for %s%s.",daqName[iDAQ].Data(),shortCut.Data(),mainProgName.Data());
          WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
          buffer.AppendFormatted("\n\n");
@@ -8119,14 +8119,14 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("#include \"ROMEDAQSystem.h\"\n");
 
          // Class
-         buffer.AppendFormatted("\nclass %s%s : public ROMEDAQSystem\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("\nclass %s%sDAQ : public ROMEDAQSystem\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
 
          buffer.AppendFormatted("protected:\n");
          // Methods
          buffer.AppendFormatted("public:\n");
          // Constructor and Methods
-         buffer.AppendFormatted("   %s%s();\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("   %s%sDAQ();\n",shortCut.Data(),daqName[iDAQ].Data());
 
          // Methods
          buffer.AppendFormatted("   Int_t  GetTimeStamp() { return 0; };\n");
@@ -8138,11 +8138,11 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   Bool_t EndOfRun();\n");
          buffer.AppendFormatted("   Bool_t Terminate();\n");
 
-         buffer.AppendFormatted("   ClassDef(%s%s, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("   ClassDef(%s%sDAQ, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("};\n\n");
 
 
-         buffer.AppendFormatted("#endif   // %s%s_H\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("#endif   // %s%sDAQ_H\n",shortCut.Data(),daqName[iDAQ].Data());
 
          // Write File
          WriteFile(hFile.Data(),buffer.Data(),6);

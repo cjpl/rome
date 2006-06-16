@@ -1,11 +1,11 @@
 // Author: Ryu Sawada
 
-#ifndef FLuser_H
-#define FLuser_H
+#ifndef FLuserDAQ_H
+#define FLuserDAQ_H
 
 ////////////////////////////////////////////////////////////////////////////////
 //                                                                            //
-// FLuser                                                                     //
+// FLuserDAQ                                                                     //
 //                                                                            //
 // user DAQ class for FLmonitor.                                              //
 //                                                                            //
@@ -13,11 +13,11 @@
 
 #include "generated/FLRomeDAQ.h"
 
-class FLuser : public FLRomeDAQ
+class FLuserDAQ : public FLRomeDAQ
 {
 protected:
 public:
-   FLuser();
+   FLuserDAQ();
    Int_t  GetTimeStamp() { return 0; };
    const char* GetName() { return "user"; };
 
@@ -26,7 +26,7 @@ public:
    Bool_t Event(Long64_t event);
    Bool_t EndOfRun();
    Bool_t Terminate();
-   ClassDef(FLuser, 0)
+   ClassDef(FLuserDAQ, 0)
 };
 
-#endif   // FLuser_H
+#endif   // FLuserDAQ_H
