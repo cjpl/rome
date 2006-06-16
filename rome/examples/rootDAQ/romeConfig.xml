@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Fri Jun 16 09:31:45 2006 -->
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>false</Active>
+    </ARGUS>
+  </ProgramConfiguration>
+  <MainConfiguration>
+    <RunParameters>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames>tree1.root</InputFileNames>
+    </RunParameters>
+    <Modes>
+      <AnalyzingMode>offline</AnalyzingMode>
+      <DAQSystem>root</DAQSystem>
+      <QuitMode>false</QuitMode>
+      <VerboseMode>false</VerboseMode>
+      <ShowSplashScreen>false</ShowSplashScreen>
+      <GraphicalConfigEdit>true</GraphicalConfigEdit>
+    </Modes>
+    <DataBases/>
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+    </Online>
+    <SocketInterface>
+      <PortNumber>9090</PortNumber>
+      <AvailableOffline>false</AvailableOffline>
+    </SocketInterface>
+    <Paths>
+      <InputFilePath>./</InputFilePath>
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+    <Histograms>
+      <Read>false</Read>
+      <RunNumber>0</RunNumber>
+    </Histograms>
+    <Tasks>
+      <Task>
+        <TaskName>PrintData</TaskName>
+        <Active>true</Active>
+      </Task>
+    </Tasks>
+  </MainConfiguration>
+</Configuration>

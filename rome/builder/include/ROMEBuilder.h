@@ -30,6 +30,8 @@ const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
 const Int_t maxNumberOfBranches = 20;
 const Int_t maxNumberOfBanks = 50;
+const Int_t maxNumberOfRootBranches = 20;
+const Int_t maxNumberOfRootBranchFields = 20;
 const Int_t maxNumberOfStructFields = 50;
 const Int_t maxNumberOfSteering = 50;
 const Int_t maxNumberOfSteeringField = 100;
@@ -83,12 +85,7 @@ protected:
    ROMEString    experimentName;
 
    Bool_t        readExperiment;
-   Bool_t        readAuthor;
-   Bool_t        readFolders;
-   Bool_t        readTasks;
-   Bool_t        readTrees;
    Bool_t        readGlobalSteeringParameters;
-   Bool_t        readMidasBanks;
 
    Bool_t        hasStructuredBank;
 
@@ -99,6 +96,7 @@ protected:
    Int_t maxNumberOfDAQ;
    Int_t maxNumberOfDB;
    Int_t maxNumberOfEvents;
+   Int_t maxNumberOfRootTrees;
    Int_t maxNumberOfMFDictHeaders;
    Int_t maxNumberOfMFDictIncDirs;
    Int_t maxNumberOfMFWinLibs;
@@ -118,7 +116,11 @@ protected:
 
    Int_t         recursiveTabDepth;
    Int_t         recursiveMenuDepth;
-   
+
+   ROMEStrArray *daqNameArray;
+   ROMEStrArray *daqTypeArray;
+   ROMEStrArray *daqDirArray;
+
 // folders
    Int_t         numOfFolder;
    Int_t        *numOfValue;
@@ -340,6 +342,17 @@ protected:
    ROMEString    bankHeaderSerialNumber;
    ROMEString    bankHeaderTimeStamp;
 
+// root DAQ
+   Int_t         numOfRootTree;
+   Int_t        *numOfRootBranch;
+   Int_t       **numOfRootBranchField;
+   ROMEString   *rootTreeName;
+   ROMEString  **rootBranchName;
+   ROMEString  **rootBranchType;
+   ROMEString  **rootBranchClassVersion;
+   ROMEString ***rootBranchFieldName;
+   ROMEString ***rootBranchFieldType;
+
 // user makefile
    Int_t         numOfMFDictHeaders;
    ROMEString   *mfDictHeaderName;
@@ -451,6 +464,7 @@ private:
    Bool_t  ReadXMLDAQ();
    Bool_t  ReadXMLDB();
    Bool_t  ReadXMLMidasBanks();
+   Bool_t  ReadXMLRootDAQ();
    Bool_t  ReadXMLSteering(Int_t iTask);
    Bool_t  ReadXMLUserMakefile();
    void    ParseSVNKeyword(ROMEString& str);
@@ -503,6 +517,10 @@ private:
    Bool_t  WriteMidasDAQH();
    Bool_t  WriteRomeDAQCpp();
    Bool_t  WriteRomeDAQH();
+   Bool_t  WriteRootDAQCpp();
+   Bool_t  WriteRootDAQH();
+   Bool_t  WriteRootDAQClassesH();
+   Bool_t  WriteRootDAQClassH(Int_t iTree,Int_t iBranch);
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();
    Bool_t  WriteDBCpp();

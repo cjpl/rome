@@ -1131,6 +1131,67 @@
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="RootBranchClassFieldDisc">
+		<xs:annotation>
+			<xs:documentation>Description of a field inside the root branch class.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="RootBranchClassFieldName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the field. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranchClassFieldType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of a field. This can be a C++ or ROOT type. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RootBranchDesc">
+		<xs:annotation>
+			<xs:documentation>Description of a branch of a root tree.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="RootBranchName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the branch. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranchType" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The type of a branch. This can be a C++ or ROOT type, 'Structure', or a 'Class'. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranchClassVersion" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The version of the class used for creating the branch. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranchClassField" type="RootBranchClassFieldDisc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a field of a class which is filled to a root branch. (optional, requiered for RootBranchType = 'Class')</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="RootTreeDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the structure of a root tree.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="RootTreeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the root tree. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranch" type="RootBranchDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a branch of the root tree.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="HeaderDesc">
 		<xs:annotation>
 			<xs:documentation>Additional header file added to the rootcint command.</xs:documentation>
@@ -1481,6 +1542,20 @@
 							<xs:element name="EventDefinition" type="EventDefinitionDesc" minOccurs="0" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>Describes a midas event. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+				<xs:element name="RootDAQ" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Description of root DAQ. With a root DAQ standard root files can be taken as input for the analysis. (optional)</xs:documentation>
+					</xs:annotation>
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="RootTree" type="RootTreeDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Describes the structure of a root tree. (optional)</xs:documentation>
 								</xs:annotation>
 							</xs:element>
 						</xs:sequence>

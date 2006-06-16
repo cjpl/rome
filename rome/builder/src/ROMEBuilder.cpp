@@ -230,6 +230,16 @@ ROMEBuilder::~ROMEBuilder()
    delete [] structFieldSize;
    delete [] bankFieldArraySize;
 
+   // root DAQ
+   delete [] numOfRootBranch;
+   delete [] numOfRootBranchField;
+   delete [] rootTreeName;
+   delete [] rootBranchName;
+   delete [] rootBranchType;
+   delete [] rootBranchClassVersion;
+   delete [] rootBranchFieldName;
+   delete [] rootBranchFieldType;
+
    // user makefile
    delete [] mfDictHeaderName;
    delete [] numOfMFDictHeaderAffiliations;
@@ -403,6 +413,42 @@ Bool_t ROMEBuilder::StartBuilder()
       numOfSteerChildren[numOfTaskHierarchy][0] = 0;
    }
 
+   // Add DAQs to daqArray
+   daqNameArray = new ROMEStrArray(1);
+   daqTypeArray = new ROMEStrArray(1);
+   daqDirArray = new ROMEStrArray(1);
+   if (numOfEvent>0) {
+      daqNameArray->AddLast("Midas");
+      daqTypeArray->AddLast(shortCut.Data());
+      daqDirArray->AddLast("generated/");
+   }
+   if (numOfTree>0) {
+      daqNameArray->AddLast("Rome");
+      daqTypeArray->AddLast(shortCut.Data());
+      daqDirArray->AddLast("generated/");
+   }
+   if (numOfRootTree>0) {
+      daqNameArray->AddLast("Root");
+      daqTypeArray->AddLast(shortCut.Data());
+      daqDirArray->AddLast("generated/");
+   }
+   daqNameArray->AddLast("DataBase");
+   daqTypeArray->AddLast("ROME");
+   daqDirArray->AddLast("");
+   if (this->orca) {
+      daqNameArray->AddLast("Orca");
+      daqTypeArray->AddLast("ROME");
+      daqDirArray->AddLast("");
+   }
+   for (i=0;i<numOfDAQ;i++) {
+      if (!daqUsed[i])
+         continue;
+      str.SetFormatted("%s",daqName[i].Data());
+      daqNameArray->AddLast(str.Data());
+      daqTypeArray->AddLast(shortCut.Data());
+      daqDirArray->AddLast("daqs/");
+   }
+
    // make directories
    ROMEString path;
    path.SetFormatted("%sobj",outDir.Data());
@@ -492,10 +538,19 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteConfigToFormH()) return false;
    if (!WriteConfigCpp()) return false;
    if (!WriteConfigH()) return false;
-   if (!WriteMidasDAQCpp()) return false;
-   if (!WriteMidasDAQH()) return false;
-   if (!WriteRomeDAQCpp()) return false;
-   if (!WriteRomeDAQH()) return false;
+   if (numOfEvent>0) {
+      if (!WriteMidasDAQCpp()) return false;
+      if (!WriteMidasDAQH()) return false;
+   }
+   if (numOfTree>0) {
+      if (!WriteRomeDAQCpp()) return false;
+      if (!WriteRomeDAQH()) return false;
+   }
+   if (numOfRootTree>0) {
+      if (!WriteRootDAQCpp()) return false;
+      if (!WriteRootDAQH()) return false;
+      if (!WriteRootDAQClassesH()) return false;
+   }
    if (!WriteEventLoopCpp()) return false;
    if (!WriteEventLoopH()) return false;
    if (!WriteMain()) return false;
@@ -677,6 +732,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
          outDir = "C:/rome/examples/histogui/";
          xmlFile = "C:/rome/examples/histogui/histogui.xml";
+      }
+      else if (!strcmp(argv[i],"-rootDAQ")) {
+         noLink = true;
+         outDir = "C:/rome/examples/rootDAQ/";
+         xmlFile = "C:/rome/examples/rootDAQ/rootDAQ.xml";
       }
       else if (!strcmp(argv[i],"-lp")) {
          makeOutput = true;

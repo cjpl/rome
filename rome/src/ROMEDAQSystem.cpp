@@ -47,22 +47,25 @@ Bool_t ROMEDAQSystem::EndOfRunDAQ()
    fWatchAll.Stop(); 
    return ret;
 };
-Bool_t ROMEDAQSystem::TerminateDAQ(Bool_t quit) 
+Bool_t ROMEDAQSystem::TerminateDAQ() 
 { 
-   if (!quit) {
-      int i;
-      ROMEString str;
-      gROME->PrintText(" DAQ ");
-      str = GetName();
-      gROME->PrintText(str.Data());
-      for (i=0;i<30-4-1-str.Length();i++)
-         gROME->PrintText(".");
-      gROME->PrintText(" : ");
-      fWatchAll.GetRealTimeString(str);
-      gROME->PrintText(str.Data());
-      gROME->PrintText("  ");
-      fWatchEvent.GetRealTimeString(str);
-      gROME->PrintLine(str.Data());
-   }
    return Terminate(); 
+};
+
+Bool_t ROMEDAQSystem::TimeDAQ() 
+{ 
+   int i;
+   ROMEString str;
+   gROME->PrintText(" DAQ ");
+   str = GetName();
+   gROME->PrintText(str.Data());
+   for (i=0;i<30-4-1-str.Length();i++)
+      gROME->PrintText(".");
+   gROME->PrintText(" : ");
+   fWatchAll.GetRealTimeString(str);
+   gROME->PrintText(str.Data());
+   gROME->PrintText("  ");
+   fWatchEvent.GetRealTimeString(str);
+   gROME->PrintLine(str.Data());
+   return true;
 };

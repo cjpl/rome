@@ -128,7 +128,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    gROME->PrintVerbose("Entering run loop");
    for (ii=0;!this->isTerminate();ii++) {
       if (!this->DAQBeginOfRun(eventLoopIndex)) {
-         this->DAQTerminate(true);
+         this->DAQTerminate();
          gROME->SetTerminationFlag();
          gROME->PrintLine("\n\nTerminating Program !");
          return;
@@ -189,7 +189,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
          if (gROME->IsWindowClosed()) {
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-               this->DAQTerminate(true);
+               this->DAQTerminate();
                gROME->SetTerminationFlag();
                gROME->PrintLine("\n\nTerminating Program !");
                return;
@@ -222,7 +222,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (!gROME->IsStandAloneARGUS()) {
             if (!firstUserInput) {
                if (!this->UserInput()) {
-                  this->DAQTerminate(true);
+                  this->DAQTerminate();
                   gROME->SetTerminationFlag();
                   gROME->PrintLine("\n\nTerminating Program !");
                   return;
@@ -326,7 +326,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (gROME->IsShowRunStat()) {
          gROME->PrintLine("run times :                      All Methods   Event Methods");
          gROME->PrintLine("-----------                      ------------  -------------");
-         Exec("t");
+         gROME->GetActiveDAQ()->TimeDAQ();
+         ExecuteTasks("Time");
          gROME->PrintLine("");
       }
    }
@@ -348,7 +349,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Terminate
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      if (!this->DAQTerminate(false)) {
+      if (!this->DAQTerminate()) {
          gROME->SetTerminationFlag();
          gROME->PrintLine("\n\nTerminating Program !");
          return;
@@ -845,7 +846,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    return true;
 }
 
-Bool_t ROMEEventLoop::DAQTerminate(Bool_t quit)
+Bool_t ROMEEventLoop::DAQTerminate()
 {
    // Clean up the analyzer. Called after the Terminate tasks.
    // Write accumulative output tree files
@@ -878,7 +879,7 @@ Bool_t ROMEEventLoop::DAQTerminate(Bool_t quit)
       }
    }
 
-   if (!gROME->GetActiveDAQ()->TerminateDAQ(quit))
+   if (!gROME->GetActiveDAQ()->TerminateDAQ())
       return false;
 
    return true;
