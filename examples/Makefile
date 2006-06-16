@@ -8,7 +8,8 @@ ROMEProjects = multirun/mranalyzer.exe \
                histoGUI/hguiexample.exe \
                stepbystepdbdaq/sdaqanalyzer.exe \
                stepbystepmydaq/smdanalyzer.exe \
-               runheader/runhanalyzer.exe
+               runheader/runhanalyzer.exe \
+               rootDAQ/rdaqanalyzer.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -61,6 +62,9 @@ stepbystepmydaq/smdanalyzer.exe :
 
 runheader/runhanalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i runheader/runheader.xml -o runheader -v;
+
+rootDAQ/rdaqanalyzer.exe :
+	$(ROMESYS)/bin/romebuilder.exe -i rootDAQ/rootDAQ.xml -o rootDAQ -v;
 
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -v 
