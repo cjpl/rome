@@ -2760,7 +2760,6 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
    char *name;
    int type,i,k;
    ROMEString tmp;
-   char *cstop=NULL;
 
    // output
    if (makeOutput) cout << "\n\nRootDAQ:" << endl;
