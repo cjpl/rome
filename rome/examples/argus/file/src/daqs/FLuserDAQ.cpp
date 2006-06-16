@@ -1,27 +1,27 @@
-#include <include/daqs/FLuser.h>
+#include <include/daqs/FLuserDAQ.h>
 #include <include/generated/FLAnalyzer.h>
 #include <include/generated/FLConfig.h>
 #include "TSystem.h"
 
-FLuser::FLuser()
+FLuserDAQ::FLuserDAQ()
 {
 }
 
-bool FLuser::Init()
+bool FLuserDAQ::Init()
 {
    cout << "user DAQ: init" << endl;
    FLRomeDAQ::Init();
    return true;
 }
 
-bool FLuser::BeginOfRun()
+bool FLuserDAQ::BeginOfRun()
 {
    FLRomeDAQ::BeginOfRun();
    cout << "user DAQ: begin of run" << endl;
    return true;
 }
 
-bool FLuser::Event(Long64_t event)
+bool FLuserDAQ::Event(Long64_t event)
 {
    FLRomeDAQ::Event(event);
    gSystem->Sleep(100);
@@ -29,14 +29,14 @@ bool FLuser::Event(Long64_t event)
    return true;
 }
 
-bool FLuser::EndOfRun()
+bool FLuserDAQ::EndOfRun()
 {
    FLRomeDAQ::EndOfRun();
    cout << "user DAQ: end of run" << endl;
    return true;
 }
 
-bool FLuser::Terminate()
+bool FLuserDAQ::Terminate()
 {
    FLRomeDAQ::Terminate();
    cout << "user DAQ: terminate" << endl;

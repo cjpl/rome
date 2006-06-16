@@ -1,24 +1,24 @@
-#include "include/daqs/HGdummy.h"
+#include "include/daqs/HGdummyDAQ.h"
 #include "include/generated/HGAnalyzer.h"
 #include "include/generated/HGConfig.h"
 
-HGdummy::HGdummy()
+HGdummyDAQ::HGdummyDAQ()
 {
 }
 
 
-bool HGdummy::Init()
+bool HGdummyDAQ::Init()
 {
    return true;
 }
 
-bool HGdummy::BeginOfRun()
+bool HGdummyDAQ::BeginOfRun()
 {
    gAnalyzer->SetCurrentEventNumber(0);
    return true;
 }
 
-bool HGdummy::Event(Long64_t event)
+bool HGdummyDAQ::Event(Long64_t event)
 {
    gAnalyzer->SetCurrentEventNumber(gAnalyzer->GetCurrentEventNumber() + 1);
    if (gAnalyzer->GetCurrentEventNumber() > 10000)
@@ -26,12 +26,12 @@ bool HGdummy::Event(Long64_t event)
    return true;
 }
 
-bool HGdummy::EndOfRun()
+bool HGdummyDAQ::EndOfRun()
 {
    return true;
 }
 
-bool HGdummy::Terminate()
+bool HGdummyDAQ::Terminate()
 {
    return true;
 }
