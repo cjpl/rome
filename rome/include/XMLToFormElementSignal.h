@@ -4,6 +4,7 @@
 
 #include <TObject.h>
 #include <TString.h>
+#include "ROMEString.h"
 #include "ROMEStrArray.h"
 
 class XMLToFormElementSignal : public TObject
