@@ -952,6 +952,10 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)\n",shortCut.ToUpper(tmp));
 #endif // R__UNIX
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("ifndef RM\n");
+   buffer.AppendFormatted("RM %s rm -f\n",kEqualSign);
+   buffer.AppendFormatted("endif\n\n");
 }
 
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
@@ -1064,8 +1068,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t@if [ -e dict/%s.cpp ]; then rm dict/%s.cpp; fi;\n",dictionaryName,dictionaryName);
-   buffer.AppendFormatted("\t@if [ -e dict/%s.h ]; then rm dict/%s.h; fi;\n",dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t@if [ -e dict/%s.cpp ]; then $(RM) dict/%s.cpp; fi;\n",dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t@if [ -e dict/%s.h ]; then $(RM) dict/%s.h; fi;\n",dictionaryName,dictionaryName);
 #endif
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
@@ -1123,8 +1127,8 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    }
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then rm dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
-   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then rm dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then $(RM) dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then $(RM) dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
 #endif
    WriteRootCintCall(buffer);
    buffer.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
@@ -1664,13 +1668,13 @@ void ROMEBuilder::WriteMakefile() {
 
    buffer.AppendFormatted("dep: $(dependfiles)\n");
    buffer.AppendFormatted("depclean:\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.d\n");
+   buffer.AppendFormatted("\t-$(RM) obj/*.d\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
-   buffer.AppendFormatted("\t-rm -f obj/*.obj G__auto*LinkDef.h\n");
+   buffer.AppendFormatted("\t-$(RM) obj/*.obj G__auto*LinkDef.h\n");
    buffer.AppendFormatted("distclean: userdistclean clean\n");
-   buffer.AppendFormatted("\t-rm -rf dict src/generated include/generated obj Makefile\n");
+   buffer.AppendFormatted("\t-$(RM) -R dict src/generated include/generated obj Makefile\n");
    buffer.AppendFormatted("%sclean: userclean\n",shortCut.ToLower(tmp));
-   buffer.AppendFormatted("\t-rm -f obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t-$(RM) obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
    WriteMakefileBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder.exe");
@@ -1747,7 +1751,7 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders += myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
       usrBuffer.AppendFormatted("#       userclean:\n");
-      usrBuffer.AppendFormatted("#\trm your_file.h\n");
+      usrBuffer.AppendFormatted("#\t$(RM) your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n");
       usrBuffer.AppendFormatted("\t@echo ''\n");
@@ -1772,7 +1776,7 @@ void ROMEBuilder::WriteUserMakeFile()
       usrBuffer.AppendFormatted("# 5) Add header files for the rootcint, e.g. DictionaryHeaders = $(DictionaryHeaders) myHeader.h/\n");
       usrBuffer.AppendFormatted("# 6) Add clean target, e.g.\n");
       usrBuffer.AppendFormatted("#       userclean:\n");
-      usrBuffer.AppendFormatted("#\trm your_file.h\n");
+      usrBuffer.AppendFormatted("#\t$(RM) your_file.h\n");
       usrBuffer.AppendFormatted("#\n");
       usrBuffer.AppendFormatted("userclean:\n",shortCut.Data());
       usrBuffer.AppendFormatted("\t@echo ''\n",shortCut.Data(),shortCut.Data(),shortCut.Data());
