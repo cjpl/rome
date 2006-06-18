@@ -1692,7 +1692,26 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
 //   buffer.AppendFormatted("!INCLUDE obj/*.d\n");
 #else
-   buffer.AppendFormatted("-include obj/*.d\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("SkipDepInclude = no\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), dep)\n");
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), depclean)\n");
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), clean)\n");
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), distclean)\n");
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), %sclean)\n",shortCut.ToLower(tmp));
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
+   buffer.AppendFormatted("include $(dependfiles)\n");
+   buffer.AppendFormatted("endif\n");
 #endif // R__VISUAL_CPLUSPLUS
 
    ROMEString makeFile;
