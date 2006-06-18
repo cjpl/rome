@@ -10,6 +10,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TROOT.h>
 #include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
@@ -42,6 +43,7 @@ int main(int argc, char *argv[])
       return 0;
    }
 
+   gROOT->SetBatch();
    ROMEBuilder* romeb = new ROMEBuilder();
 
    romeb->romeVersion = "Version 2.5";
