@@ -37,8 +37,8 @@ public:
    Int_t   GetNumberOfRows(){ return numOfRows; }
    Int_t   GetNumberOfFields(){ return numOfFields; }
    void    FreeResult();
-   Int_t   GetErrorCode(){ return errnum; };
-   char   *GetErrorMessage(){ return errmsg; };
+   Int_t   GetErrorCode(){ return errnum; }
+   char   *GetErrorMessage(){ return errmsg; }
    Bool_t  StartTransaction( const char* option );
    Bool_t  CommitTransaction( const char* option );
    Bool_t  RollbackTransaction( const char* option );

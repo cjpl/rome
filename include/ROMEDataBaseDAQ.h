@@ -16,10 +16,10 @@ protected:
 
 public:
    ROMEDataBaseDAQ();
-   virtual ~ROMEDataBaseDAQ() {};
+   virtual ~ROMEDataBaseDAQ() {}
 
-   Int_t       GetTimeStamp() { return fTimeStamp; };
-   const char *GetName() { return "database"; };
+   Int_t       GetTimeStamp() { return fTimeStamp; }
+   const char *GetName() { return "database"; }
 
    Bool_t      Init();
    Bool_t      BeginOfRun();

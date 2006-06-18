@@ -33,7 +33,7 @@ protected:
 
 public:
    ArgusTab();
-   ~ArgusTab() {};
+   ~ArgusTab() {}
 
    void ArgusInit();
    void ArgusEventHandler();
@@ -42,13 +42,13 @@ public:
    void StopEventHandler();
 
    // User Methods
-   const char* GetTitle() { return fTitle.Data(); };
-   void        SetTitle(const char* title) { fTitle = title; };
-   Bool_t      IsActive() { return fActive; };
-   void        SetActive(Bool_t active) { fActive = active; };
+   const char* GetTitle() { return fTitle.Data(); }
+   void        SetTitle(const char* title) { fTitle = title; }
+   Bool_t      IsActive() { return fActive; }
+   void        SetActive(Bool_t active) { fActive = active; }
    Int_t       GetUpdateFrequency();
    void        SetUpdateFrequency(Int_t duration);
-   Bool_t      IsBusy() { return fBusy; };
+   Bool_t      IsBusy() { return fBusy; }
 
    virtual void BaseInit() = 0;
    virtual void Init() = 0;

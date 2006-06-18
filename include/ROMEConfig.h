@@ -13,8 +13,8 @@ class ROMEConfig : public TObject
 {
 protected:
 public:
-   ROMEConfig() {};
-   virtual ~ROMEConfig() {};
+   ROMEConfig() {}
+   virtual ~ROMEConfig() {}
 
    virtual Bool_t WriteConfigurationFile(const char *file) = 0;
    virtual Bool_t ReadConfigurationFile(const char *file) = 0;

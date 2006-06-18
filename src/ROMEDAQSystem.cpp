@@ -19,7 +19,8 @@ Bool_t ROMEDAQSystem::InitDAQ()
    fWatchEvent.Reset(); 
    fWatchAll.Reset(); 
    return Init();
-};
+}
+
 Bool_t ROMEDAQSystem::BeginOfRunDAQ() 
 { 
    Bool_t ret;
@@ -27,7 +28,8 @@ Bool_t ROMEDAQSystem::BeginOfRunDAQ()
    ret = BeginOfRun(); 
    fWatchAll.Stop(); 
    return ret;
-};
+}
+
 Bool_t ROMEDAQSystem::EventDAQ(Long64_t event) 
 { 
    Bool_t ret;
@@ -38,7 +40,8 @@ Bool_t ROMEDAQSystem::EventDAQ(Long64_t event)
    fWatchEvent.Stop(); 
    fWatchAll.Stop(); 
    return ret;
-};
+}
+
 Bool_t ROMEDAQSystem::EndOfRunDAQ() 
 { 
    Bool_t ret;
@@ -46,11 +49,12 @@ Bool_t ROMEDAQSystem::EndOfRunDAQ()
    ret = EndOfRun(); 
    fWatchAll.Stop(); 
    return ret;
-};
+}
+
 Bool_t ROMEDAQSystem::TerminateDAQ() 
 { 
    return Terminate(); 
-};
+}
 
 Bool_t ROMEDAQSystem::TimeDAQ() 
 { 
@@ -61,4 +65,4 @@ Bool_t ROMEDAQSystem::TimeDAQ()
       ROMEPrint::Print(".");
    ROMEPrint::Print(" : %s  %s\n", fWatchAll.GetRealTimeString(str), fWatchEvent.GetRealTimeString(str));
    return true;
-};
+}

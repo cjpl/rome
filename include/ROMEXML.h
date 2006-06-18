@@ -40,20 +40,20 @@ public:
    ROMEXML();
    virtual ~ROMEXML();
 
-   const char *GetFileName() { return fFileName.Data(); };
-   const char *GetPath() { return fPath.Data(); };
+   const char *GetFileName() { return fFileName.Data(); }
+   const char *GetPath() { return fPath.Data(); }
 
-   Bool_t      isReaderOpen() { return rootNode!=NULL; };
-   Bool_t      isWriterOpen() { return writer!=NULL; };
-   Bool_t      isPathOpen() { return rootNode!=NULL; };
+   Bool_t      isReaderOpen() { return rootNode!=NULL; }
+   Bool_t      isWriterOpen() { return writer!=NULL; }
+   Bool_t      isPathOpen() { return rootNode!=NULL; }
 
    // read
    Bool_t      OpenFileForRead(const char* file);
    Bool_t      NextLine();
-   char       *GetName() { return currentNode->name; };
-   Int_t       GetType() { return nodeType; };
-   Int_t       GetDepth() { return nodeDepth; };
-   Bool_t      isEmpty() { return currentNode->value[0]==0; };
+   char       *GetName() { return currentNode->name; }
+   Int_t       GetType() { return nodeType; }
+   Int_t       GetDepth() { return nodeDepth; }
+   Bool_t      isEmpty() { return currentNode->value[0]==0; }
    Bool_t      GetAttribute(ROMEString& name,ROMEString& value,ROMEString& defaultValue);
    Bool_t      GetAttribute(const char* name,ROMEString& value,ROMEString& defaultValue);
    Bool_t      GetAttribute(ROMEString& name,ROMEString& value,const char* defaultValue="");

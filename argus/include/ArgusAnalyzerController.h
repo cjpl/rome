@@ -64,7 +64,7 @@ protected:
    };
       
 public:
-   ArgusAnalyzerController():TGTransientFrame(NULL, NULL, 1, 1){};
+   ArgusAnalyzerController():TGTransientFrame(NULL, NULL, 1, 1){}
    ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);
    virtual ~ArgusAnalyzerController() { DeleteWindow(); }
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);

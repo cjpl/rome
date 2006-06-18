@@ -22,8 +22,8 @@ class TString;
 class ROMESQL : public TObject
 {
 public:
-   ROMESQL(){};
-   virtual ~ROMESQL(){};
+   ROMESQL(){}
+   virtual ~ROMESQL(){}
 
    // DBMS dependent methods
    virtual Bool_t  Connect(const char* server,const char* user,const char* passwd,const char* database,const char* port) = 0;

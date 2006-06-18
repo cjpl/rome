@@ -34,9 +34,9 @@ public:
    ROMETask(const char *name,const char *title,int level);
    virtual ~ROMETask() {}
    void         Exec(Option_t *option="");
-   Bool_t       hasHistograms()  { return fHasHistograms; };
-   Int_t        GetVersion()     { return fVersion; };
-   TFolder     *GetHistoFolder() { return fHistoFolder; };
+   Bool_t       hasHistograms()  { return fHasHistograms; }
+   Int_t        GetVersion()     { return fVersion; }
+   TFolder     *GetHistoFolder() { return fHistoFolder; }
 
 protected:
    void         StartRootInterpreter(const char* message = NULL);

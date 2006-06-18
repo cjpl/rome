@@ -31,8 +31,8 @@ public:
    virtual ~ROMERint(){}
    Bool_t          HandleTermInput();
    void            Run(Bool_t retrn);
-   Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; };
-   TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; };
+   Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; }
+   TSignalHandler* GetRintInterruptHandler(){ return fRintInterruptHandler; }
 
    ClassDef(ROMERint, 0) // Customized TRint for ROME
 };

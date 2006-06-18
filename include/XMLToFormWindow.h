@@ -29,7 +29,7 @@ protected:
    XMLToFormFrame *fMainFrame;
 
 public:
-   XMLToFormWindow() {};
+   XMLToFormWindow() {}
    XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, Int_t *exitButtonID, Int_t windowWidth=200);
    virtual ~ XMLToFormWindow();
    void   SignalHandler();

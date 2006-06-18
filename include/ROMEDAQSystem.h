@@ -32,8 +32,8 @@ class ROMEDAQSystem : public TObject
    ROMEStopwatch fWatchAll;                        //! Records time used by DAQ
 
 public:
-   ROMEDAQSystem() {};
-   virtual ~ROMEDAQSystem() {};
+   ROMEDAQSystem() {}
+   virtual ~ROMEDAQSystem() {}
 
    virtual Int_t       GetTimeStamp() = 0;
    virtual const char *GetName() = 0;
@@ -51,24 +51,24 @@ public:
    virtual Bool_t Terminate() = 0;
 public:
    // Run Status
-   Bool_t              isRunning()  { return fRunStatus==kRunning; };
-   Bool_t              isStopped()  { return fRunStatus==kStopped; };
+   Bool_t              isRunning()  { return fRunStatus==kRunning; }
+   Bool_t              isStopped()  { return fRunStatus==kStopped; }
 
-   void                SetRunning()  { fRunStatus = kRunning; };
-   void                SetStopped()  { fRunStatus = kStopped; };
+   void                SetRunning()  { fRunStatus = kRunning; }
+   void                SetStopped()  { fRunStatus = kStopped; }
 
    // Event Status
-   Bool_t              isAnalyze()    { return fEventStatus==kAnalyze;    };
-   Bool_t              isContinue()   { return fEventStatus==kContinue;   };
-   Bool_t              isBeginOfRun() { return fEventStatus==kBeginOfRun; };
-   Bool_t              isEndOfRun()   { return fEventStatus==kEndOfRun;   };
-   Bool_t              isTerminate()  { return fEventStatus==kTerminate;  };
+   Bool_t              isAnalyze()    { return fEventStatus==kAnalyze;    }
+   Bool_t              isContinue()   { return fEventStatus==kContinue;   }
+   Bool_t              isBeginOfRun() { return fEventStatus==kBeginOfRun; }
+   Bool_t              isEndOfRun()   { return fEventStatus==kEndOfRun;   }
+   Bool_t              isTerminate()  { return fEventStatus==kTerminate;  }
 
-   void                SetAnalyze()    { fEventStatus = kAnalyze;    };
-   void                SetContinue()   { fEventStatus = kContinue;   };
-   void                SetBeginOfRun() { fEventStatus = kBeginOfRun; };
-   void                SetEndOfRun()   { fEventStatus = kEndOfRun;   };
-   void                SetTerminate()  { fEventStatus = kTerminate;  };
+   void                SetAnalyze()    { fEventStatus = kAnalyze;    }
+   void                SetContinue()   { fEventStatus = kContinue;   }
+   void                SetBeginOfRun() { fEventStatus = kBeginOfRun; }
+   void                SetEndOfRun()   { fEventStatus = kEndOfRun;   }
+   void                SetTerminate()  { fEventStatus = kTerminate;  }
 
    ClassDef(ROMEDAQSystem, 0) // Base DAQ class
 };

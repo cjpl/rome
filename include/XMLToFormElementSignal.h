@@ -20,17 +20,17 @@ public:
       fSignal = signal;
       fSenderType = senderType;
       fNumberOfReceivers = 0; 
-   };
+   }
    void AddReceiver(const char* receiverPath,const char* receiverType) {
       fReceiverPath.Add(receiverPath);
       fReceiverType.Add(receiverType);
       fNumberOfReceivers++;
-   };
-   Int_t GetNumberOfReceivers() { return fNumberOfReceivers; };
-   TString GetSignal() { return fSignal; };
-   TString GetSenderType() { return fSenderType; };
-   TString GetReceiverPathAt(Int_t i) { return fReceiverPath[i]; };
-   TString GetReceiverTypeAt(Int_t i) { return fReceiverType[i]; };
+   }
+   Int_t GetNumberOfReceivers() { return fNumberOfReceivers; }
+   TString GetSignal() { return fSignal; }
+   TString GetSenderType() { return fSenderType; }
+   TString GetReceiverPathAt(Int_t i) { return fReceiverPath[i]; }
+   TString GetReceiverTypeAt(Int_t i) { return fReceiverType[i]; }
 
    ClassDef(XMLToFormElementSignal, 0)
 };

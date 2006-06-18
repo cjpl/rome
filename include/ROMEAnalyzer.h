@@ -227,68 +227,68 @@ protected:
 #endif // __CINT__
 
 public:
-   ROMEAnalyzer() {};
+   ROMEAnalyzer() {}
    ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
    virtual ~ROMEAnalyzer();
 
    // Program Mode
-   Bool_t          IsStandAloneROME() { return fProgramMode==kStandAloneROME; };
-   Bool_t          IsStandAloneARGUS() { return fProgramMode==kStandAloneARGUS; };
-   Bool_t          IsROMEAndARGUS() { return fProgramMode==kROMEAndARGUS; };
-   void            SetStandAloneROME() { fProgramMode=kStandAloneROME; };
-   void            SetStandAloneARGUS() { fProgramMode=kStandAloneARGUS; };
-   void            SetROMEAndARGUS() { fProgramMode=kROMEAndARGUS; };
+   Bool_t          IsStandAloneROME() { return fProgramMode==kStandAloneROME; }
+   Bool_t          IsStandAloneARGUS() { return fProgramMode==kStandAloneARGUS; }
+   Bool_t          IsROMEAndARGUS() { return fProgramMode==kROMEAndARGUS; }
+   void            SetStandAloneROME() { fProgramMode=kStandAloneROME; }
+   void            SetStandAloneARGUS() { fProgramMode=kStandAloneARGUS; }
+   void            SetROMEAndARGUS() { fProgramMode=kROMEAndARGUS; }
 
    // Window Closed
    Bool_t          IsWindowClosed() { return fWindowClosed; }
    void            WindowClosed() { fWindowClosed = true; }
 
    // Application Handle
-   ROMERint       *GetApplication() { return fApplication; };
+   ROMERint       *GetApplication() { return fApplication; }
 
    // Cint
-   const char     *GetCintInitialisation() { return fCintInitialisation.Data(); };
-   void            SetCintInitialisation(const char *str) { fCintInitialisation = str; };
+   const char     *GetCintInitialisation() { return fCintInitialisation.Data(); }
+   void            SetCintInitialisation(const char *str) { fCintInitialisation = str; }
 
    // Active DAQ System
-   const char     *GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); };
+   const char     *GetNameOfActiveDAQ() { if (fActiveDAQ==NULL) return "none"; return fActiveDAQ->GetName(); }
    ROMEDAQSystem  *GetActiveDAQ();
-   Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; };
-   void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; };
+   Bool_t          isActiveDAQSet() { return fActiveDAQ!=NULL; }
+   void            SetActiveDAQ(ROMEDAQSystem *handle) { fActiveDAQ = handle; }
 
    // Data Base Handle
-   const char     *GetDataBaseName(Int_t i) { return fDataBaseName[i].Data(); };
-   void            SetDataBaseName(Int_t i,const char *name) { fDataBaseName[i] = name; };
-   const char     *GetDataBaseConnection(Int_t i) { return fDataBaseConnection[i].Data(); };
-   void            SetDataBaseConnection(Int_t i,const char *connection) { fDataBaseConnection[i] = connection; };
+   const char     *GetDataBaseName(Int_t i) { return fDataBaseName[i].Data(); }
+   void            SetDataBaseName(Int_t i,const char *name) { fDataBaseName[i] = name; }
+   const char     *GetDataBaseConnection(Int_t i) { return fDataBaseConnection[i].Data(); }
+   void            SetDataBaseConnection(Int_t i,const char *connection) { fDataBaseConnection[i] = connection; }
    ROMEDataBase   *GetDataBase(Int_t i);
    ROMEDataBase   *GetDataBase(const char *name);
    Bool_t          isDataBaseActive(const char *name);
-   void            SetDataBase(Int_t i,ROMEDataBase *dataBase) { fDataBaseHandle[i] = dataBase; };
-   Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; };
+   void            SetDataBase(Int_t i,ROMEDataBase *dataBase) { fDataBaseHandle[i] = dataBase; }
+   Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; }
    void            InitDataBases(Int_t number);
 
    // modes
-   Bool_t          isSplashScreen() { return fSplashScreen; };
-   Bool_t          isBatchMode() { return fBatchMode; };
-   Bool_t          isDaemonMode() { return fDaemonMode; };
-   Bool_t          isQuitMode() { return fQuitMode; };
-   Bool_t          isGraphicalConfigEdit() { return fGraphicalConfigEdit; };
-   Bool_t          isNoGraphics() { return fNoGraphics; };
+   Bool_t          isSplashScreen() { return fSplashScreen; }
+   Bool_t          isBatchMode() { return fBatchMode; }
+   Bool_t          isDaemonMode() { return fDaemonMode; }
+   Bool_t          isQuitMode() { return fQuitMode; }
+   Bool_t          isGraphicalConfigEdit() { return fGraphicalConfigEdit; }
+   Bool_t          isNoGraphics() { return fNoGraphics; }
 
-   void            SetSplashScreen(Bool_t flag=true)  { fSplashScreen = flag; };
-   void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; };
-   void            SetDaemonMode(Bool_t flag=true) { fDaemonMode = flag; };
-   void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; };
-   void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; };
-   void            SetNoGraphics(Bool_t flag=true) { fNoGraphics = flag; };
+   void            SetSplashScreen(Bool_t flag=true)  { fSplashScreen = flag; }
+   void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; }
+   void            SetDaemonMode(Bool_t flag=true) { fDaemonMode = flag; }
+   void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; }
+   void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; }
+   void            SetNoGraphics(Bool_t flag=true) { fNoGraphics = flag; }
 
    // Analysis Mode
-   Bool_t          isOnline() { return fAnalysisMode==kAnalyzeOnline; };
-   Bool_t          isOffline() { return fAnalysisMode==kAnalyzeOffline; };
+   Bool_t          isOnline() { return fAnalysisMode==kAnalyzeOnline; }
+   Bool_t          isOffline() { return fAnalysisMode==kAnalyzeOffline; }
 
-   void            SetOnline()  { fAnalysisMode = kAnalyzeOnline; };
-   void            SetOffline() { fAnalysisMode = kAnalyzeOffline; };
+   void            SetOnline()  { fAnalysisMode = kAnalyzeOnline; }
+   void            SetOffline() { fAnalysisMode = kAnalyzeOffline; }
 
    // Directories
    const char     *GetInputDir() { return fInputDir.Data(); }
@@ -306,39 +306,39 @@ public:
    void            SetConfigDir(ROMEString &dir) { fConfigDir = dir; }
 
    // Fill Event Flag
-   Bool_t          isFillEvent() { return fFillEvent; };
+   Bool_t          isFillEvent() { return fFillEvent; }
    void            SetFillEvent(Bool_t fillEvent = true) { fFillEvent = fillEvent; }
 
    // Termination Flag
-   Bool_t          isTerminationFlag() { return fTerminate; };
-   void            SetTerminationFlag() { fTerminate = true; };
+   Bool_t          isTerminationFlag() { return fTerminate; }
+   void            SetTerminationFlag() { fTerminate = true; }
 
    // Event Read Flag
-   Bool_t          IsDontReadNextEvent() { return fDontReadNextEvent; };
-   void            SetDontReadNextEvent(Bool_t flag = true) { fDontReadNextEvent = flag; };
+   Bool_t          IsDontReadNextEvent() { return fDontReadNextEvent; }
+   void            SetDontReadNextEvent(Bool_t flag = true) { fDontReadNextEvent = flag; }
 
    // Tree IO
-   Bool_t          isTreeAccumulation()  { return fTreeAccumulation;  };
-   void            SetTreeAccumulation(Bool_t flag = true) { fTreeAccumulation = flag;  };
+   Bool_t          isTreeAccumulation()  { return fTreeAccumulation;  }
+   void            SetTreeAccumulation(Bool_t flag = true) { fTreeAccumulation = flag;  }
 
    // Tasks
-   void            AddTask(TTask *task) { fTaskObjects->AddLast(task); };
-   ROMETask       *GetTaskObjectAt(Int_t index) { return (ROMETask*)fTaskObjects->At(index); };
-   Int_t           GetTaskObjectEntries() { return fTaskObjects->GetEntries(); };
+   void            AddTask(TTask *task) { fTaskObjects->AddLast(task); }
+   ROMETask       *GetTaskObjectAt(Int_t index) { return (ROMETask*)fTaskObjects->At(index); }
+   Int_t           GetTaskObjectEntries() { return fTaskObjects->GetEntries(); }
 
    // Trees
-   void            AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); };
-   ROMETree       *GetTreeObjectAt(Int_t index) { return (ROMETree*)fTreeObjects->At(index); };
-   Int_t           GetTreeObjectEntries() { return fTreeObjects->GetEntries(); };
+   void            AddTree(TTree *tree) { fTreeObjects->Add(new ROMETree(tree)); }
+   ROMETree       *GetTreeObjectAt(Int_t index) { return (ROMETree*)fTreeObjects->At(index); }
+   Int_t           GetTreeObjectEntries() { return fTreeObjects->GetEntries(); }
 
    // Histogram Folders
-   TFolder        *GetMainHistoFolder() { return fMainHistoFolder; };
-   TFolder        *GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); };
-   Bool_t          IsHistosRead() { return fHistoRead; };
-   Int_t           GetHistosRun() { return fHistoRun; };
+   TFolder        *GetMainHistoFolder() { return fMainHistoFolder; }
+   TFolder        *GetHistoFolderAt(int index) { return (TFolder*)fHistoFolders->At(index); }
+   Bool_t          IsHistosRead() { return fHistoRead; }
+   Int_t           GetHistosRun() { return fHistoRun; }
 
-   void            SetHistosRead(Bool_t flag) { fHistoRead = flag; };
-   void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; };
+   void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
+   void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; }
 
    // Run Number
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i) {
@@ -404,28 +404,28 @@ public:
                    }
 
    // IO type
-   Bool_t          IsRunNumberBasedIO() { return (fIOType==kRunNumberBased); };
-   Bool_t          IsRunNumberAndFileNameBasedIO() { return (fIOType==kRunNumberAndFileNameBased); };
-   Bool_t          IsFileNameBasedIO() { return (fIOType==kFileNameBased); };
+   Bool_t          IsRunNumberBasedIO() { return (fIOType==kRunNumberBased); }
+   Bool_t          IsRunNumberAndFileNameBasedIO() { return (fIOType==kRunNumberAndFileNameBased); }
+   Bool_t          IsFileNameBasedIO() { return (fIOType==kFileNameBased); }
 
-   void            SetIOType(Int_t type) { fIOType = type; };
+   void            SetIOType(Int_t type) { fIOType = type; }
 
    // User Events
-   void            SetUserEventQ() { fUserEvent = true; fUserEventQ = true; };
-   void            SetUserEventE() { fUserEvent = true; fUserEventE = true; };
-   void            SetUserEventS() { fUserEvent = true; fUserEventS = true; };
-   void            SetUserEventR() { fUserEvent = true; fUserEventR = true; };
-   void            SetUserEventO() { fUserEvent = true; fUserEventO = true; };
-   void            SetUserEventC() { fUserEvent = true; fUserEventC = true; };
+   void            SetUserEventQ() { fUserEvent = true; fUserEventQ = true; }
+   void            SetUserEventE() { fUserEvent = true; fUserEventE = true; }
+   void            SetUserEventS() { fUserEvent = true; fUserEventS = true; }
+   void            SetUserEventR() { fUserEvent = true; fUserEventR = true; }
+   void            SetUserEventO() { fUserEvent = true; fUserEventO = true; }
+   void            SetUserEventC() { fUserEvent = true; fUserEventC = true; }
    void            SetUserEventG(Long64_t runNumber,Long64_t eventNumber) {
                       fUserEvent = true;
                       fUserEventG = true;
                       fUserEventGRunNumber = runNumber;
                       fUserEventGEventNumber = eventNumber;
                    }
-   void            SetUserEventI() { fUserEvent = true; fUserEventI = true; };
+   void            SetUserEventI() { fUserEvent = true; fUserEventI = true; }
 
-   Bool_t          HasUserEvent() { return fUserEvent; };
+   Bool_t          HasUserEvent() { return fUserEvent; }
    void            DeleteUserEvent() {
                       fUserEvent = false;
                       fUserEventQ = false;
@@ -437,16 +437,16 @@ public:
                       fUserEventG = false;
                       fUserEventI = false;
                    }
-   Bool_t          IsUserEventQ() { return fUserEventQ; };
-   Bool_t          IsUserEventE() { return fUserEventE; };
-   Bool_t          IsUserEventS() { return fUserEventS; };
-   Bool_t          IsUserEventR() { return fUserEventR; };
-   Bool_t          IsUserEventO() { return fUserEventO; };
-   Bool_t          IsUserEventC() { return fUserEventC; };
-   Bool_t          IsUserEventG() { return fUserEventG; };
-   Long64_t        GetUserEventGRunNumber() { return fUserEventGRunNumber; };
-   Long64_t        GetUserEventGEventNumber() { return fUserEventGEventNumber; };
-   Bool_t          IsUserEventI() { return fUserEventI; };
+   Bool_t          IsUserEventQ() { return fUserEventQ; }
+   Bool_t          IsUserEventE() { return fUserEventE; }
+   Bool_t          IsUserEventS() { return fUserEventS; }
+   Bool_t          IsUserEventR() { return fUserEventR; }
+   Bool_t          IsUserEventO() { return fUserEventO; }
+   Bool_t          IsUserEventC() { return fUserEventC; }
+   Bool_t          IsUserEventG() { return fUserEventG; }
+   Long64_t        GetUserEventGRunNumber() { return fUserEventGRunNumber; }
+   Long64_t        GetUserEventGEventNumber() { return fUserEventGEventNumber; }
+   Bool_t          IsUserEventI() { return fUserEventI; }
 
    // Event ID
    Int_t           GetEventID() { return fEventID; }
@@ -458,49 +458,49 @@ public:
    // main objects
    TFolder        *GetMainFolder() { return fMainFolder; }
    TTask          *GetMainTask() { return fMainTask; }
-   TFile          *GetHistoFileHandle() { return fHistoFiles; };
+   TFile          *GetHistoFileHandle() { return fHistoFiles; }
 
-   void            SetHistoFileHandle(TFile *file) { fHistoFiles = file; };
+   void            SetHistoFileHandle(TFile *file) { fHistoFiles = file; }
 
-   const char     *GetProgramName() { return fProgramName.Data(); };
+   const char     *GetProgramName() { return fProgramName.Data(); }
 
    // Online
-   const char     *GetOnlineHost() { return fOnlineHost.Data(); };
-   const char     *GetOnlineExperiment() { return fOnlineExperiment.Data(); };
+   const char     *GetOnlineHost() { return fOnlineHost.Data(); }
+   const char     *GetOnlineExperiment() { return fOnlineExperiment.Data(); }
 
-   void            SetOnlineHost(const char *host) { fOnlineHost = host; };
-   void            SetOnlineExperiment(const char *experiment) { fOnlineExperiment = experiment; };
+   void            SetOnlineHost(const char *host) { fOnlineHost = host; }
+   void            SetOnlineExperiment(const char *experiment) { fOnlineExperiment = experiment; }
 
    // Socket
-   Int_t           GetPortNumber() { return fPortNumber; };
-   Bool_t          isSocketOffline() { return fSocketOffline; };
+   Int_t           GetPortNumber() { return fPortNumber; }
+   Bool_t          isSocketOffline() { return fSocketOffline; }
 
-   void            SetPortNumber(Int_t portNumber) { fPortNumber = portNumber; };
-   void            SetPortNumber(const char *portNumber) { char *cstop; fPortNumber = strtol(portNumber,&cstop,10); };
-   void            SetSocketOffline(Bool_t flag=true) { fSocketOffline = flag; };
+   void            SetPortNumber(Int_t portNumber) { fPortNumber = portNumber; }
+   void            SetPortNumber(const char *portNumber) { char *cstop; fPortNumber = strtol(portNumber,&cstop,10); }
+   void            SetSocketOffline(Bool_t flag=true) { fSocketOffline = flag; }
 
    // SocketToROME
-   Bool_t          IsSocketToROMEActive() { return fSocketToROMEActive; };
-   const char     *GetSocketToROMEHost() { return fSocketToROMEHost.Data(); };
-   Int_t           GetSocketToROMEPort() { return fSocketToROMEPort; };
-   ROMENetFolder  *GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; };
+   Bool_t          IsSocketToROMEActive() { return fSocketToROMEActive; }
+   const char     *GetSocketToROMEHost() { return fSocketToROMEHost.Data(); }
+   Int_t           GetSocketToROMEPort() { return fSocketToROMEPort; }
+   ROMENetFolder  *GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; }
 
-   void            SetSocketToROMEActive(Bool_t flag) { fSocketToROMEActive = flag; };
-   void            SetSocketToROMEHost(const char *host) { fSocketToROMEHost = host; };
-   void            SetSocketToROMEPort(Int_t portNumber) { fSocketToROMEPort = portNumber; };
-   void            SetSocketToROMEPort(const char *portNumber) { char *cstop; fSocketToROMEPort = strtol(portNumber,&cstop,10); };
+   void            SetSocketToROMEActive(Bool_t flag) { fSocketToROMEActive = flag; }
+   void            SetSocketToROMEHost(const char *host) { fSocketToROMEHost = host; }
+   void            SetSocketToROMEPort(Int_t portNumber) { fSocketToROMEPort = portNumber; }
+   void            SetSocketToROMEPort(const char *portNumber) { char *cstop; fSocketToROMEPort = strtol(portNumber,&cstop,10); }
    
    // Midas ODB
-   HNDLE        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };
+   HNDLE        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
    HNDLE*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }
 
    // Configuration
-   ROMEConfig     *GetConfiguration() { return fConfiguration; };
+   ROMEConfig     *GetConfiguration() { return fConfiguration; }
    virtual Bool_t  ShowConfigurationFile() = 0;
 
    // Statistics
-   Statistics     *GetTriggerStatistics() { return &fTriggerStatistics; };
-   Statistics     *GetScalerStatistics() { return &fScalerStatistics; };
+   Statistics     *GetTriggerStatistics() { return &fTriggerStatistics; }
+   Statistics     *GetScalerStatistics() { return &fScalerStatistics; }
 
    // Start Method
    virtual Bool_t  Start(int argc=0, char **argv=NULL);
@@ -514,12 +514,12 @@ public:
 
 
    // Run Stat
-   void            ShowRunStat(Bool_t flag=true) { fShowRunStat = flag; };
-   Bool_t          IsShowRunStat() { return fShowRunStat; };
+   void            ShowRunStat(Bool_t flag=true) { fShowRunStat = flag; }
+   Bool_t          IsShowRunStat() { return fShowRunStat; }
 
    // Event Based Data Base
-   void            SetEventBasedDataBase(Bool_t flag=true) { fEventBasedDataBase = flag; };
-   Bool_t          IsEventBasedDataBase() { return fEventBasedDataBase; };
+   void            SetEventBasedDataBase(Bool_t flag=true) { fEventBasedDataBase = flag; }
+   Bool_t          IsEventBasedDataBase() { return fEventBasedDataBase; }
 
    // NetFolder
    Bool_t          IsNetFolderActive(const char *name);
@@ -557,13 +557,13 @@ public:
    virtual Bool_t  LoadFolders(const char* filename, Bool_t only_database) = 0;
 
    // Monitor
-   ArgusWindow    *GetWindow() { return fWindow; };
+   ArgusWindow    *GetWindow() { return fWindow; }
    Bool_t          StartWindow();
    Int_t           GetUpdateFrequency();
    void            SetUpdateFrequency(Int_t frequency);
    Bool_t          IsWindowBusy();
-   Bool_t          IsEventFilled() { return fEventFilled; };
-   void            SetEventFilled(Bool_t flag) { fEventFilled = flag; };
+   Bool_t          IsEventFilled() { return fEventFilled; }
+   void            SetEventFilled(Bool_t flag) { fEventFilled = flag; }
 
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
