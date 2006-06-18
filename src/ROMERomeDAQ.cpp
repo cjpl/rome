@@ -24,23 +24,21 @@ ROMERomeDAQ::ROMERomeDAQ() {
 
 Bool_t ROMERomeDAQ::Init() {
    if (gROME->isOnline()) {
-      gROME->PrintLine("Rome mode is not supported for online analysis.\n");
+      ROMEPrint::Error("Rome mode is not supported for online analysis.\n");
       return false;
    }
    if (gROME->isOffline()) {
       int i;
       ROMEString filename;
       const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
-      gROME->PrintLine("Program is running offline.\n");
+      ROMEPrint::Print("Program is running offline.\n");
       if ((gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
          fRootFiles = new TFile*[nInputFile];
          for (i=0;i<nInputFile;i++) {
             filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
             fRootFiles[i] = new TFile(filename.Data(),"READ");
             if (fRootFiles[i]->IsZombie()) {
-               gROME->PrintText("Inputfile '");
-               gROME->PrintText(filename.Data());
-               gROME->PrintLine("' not found.");
+               ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                return false;
             }
          }
@@ -78,13 +76,10 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
                fRootFiles[j] = new TFile(filename.Data(),"READ");
                if (fRootFiles[j]->IsZombie()) {
-                  gROME->PrintText("Inputfile '");
-                  gROME->PrintText(filename.Data());
-                  gROME->PrintLine("' not found.");
+                  ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
                   return false;
                }
-               gROME->PrintText("Reading ");
-               gROME->PrintLine(filename.Data());
+               ROMEPrint::Print("Reading %s\n", filename.Data());
                tree->Read(romeTree->GetName());
             }
             else if (gROME->IsFileNameBasedIO()) {
@@ -107,9 +102,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   }
                   gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(fInputFileNameIndex).Data());
                   fRootFiles[fInputFileNameIndex]->cd();
-                  gROME->PrintText("Reading ");
-                  gROME->PrintText(gROME->GetInputDir());
-                  gROME->PrintLine(gROME->GetCurrentInputFileName().Data());
+                  ROMEPrint::Print("Reading %s%s\n",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
                   tree->Read(romeTree->GetName());
                   fCurrentTreeName = romeTree->GetName();
                   fTreeIndex++;
@@ -130,9 +123,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                      tree->GetBranch("Info")->GetEntry(0);
                      if (fTreeInfo->GetRunNumber()==gROME->GetCurrentRunNumber()) {
                         gROME->SetCurrentInputFileName(gROME->GetInputFileNameAt(i));
-                        gROME->PrintText("Reading ");
-                        gROME->PrintText(gROME->GetInputDir());
-                        gROME->PrintLine(gROME->GetCurrentInputFileName().Data());
+                        ROMEPrint::Print("Reading %s%s\n",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
                         tree->SetName(fCurrentTreeName.Data());
                         fInputFileNameIndex = i;
                         break;
@@ -140,17 +131,12 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                   }
                }
                if (fInputFileNameIndex==-1) {
-                  ROMEString buf;
 #if defined( R__VISUAL_CPLUSPLUS )
-                  buf.SetFormatted("Run %I64d not found in the specified input files !",gROME->GetCurrentRunNumber());
-                  gROME->PrintLine(buf);
-                  buf.SetFormatted("Skipping run %I64d.",gROME->GetCurrentRunNumber());
-                  gROME->PrintLine(buf);
+                  ROMEPrint::Warning("Run %I64d not found in the specified input files !\n",gROME->GetCurrentRunNumber());
+                  ROMEPrint::Warning("Skipping run %I64d.\n",gROME->GetCurrentRunNumber());
 #else
-                  buf.SetFormatted("Run %lld not found in the specified input files !",gROME->GetCurrentRunNumber());
-                  gROME->PrintLine(buf);
-                  buf.SetFormatted("Skipping run %lld.",gROME->GetCurrentRunNumber());
-                  gROME->PrintLine(buf);
+                  ROMEPrint::Warning("Run %lld not found in the specified input files !\n",gROME->GetCurrentRunNumber());
+                  ROMEPrint::Warning("Skipping run %lld.\n",gROME->GetCurrentRunNumber());
 #endif
                   this->SetEndOfRun();
                   return true;
@@ -161,7 +147,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          }
       }
       if (!treeRead) {
-         gROME->PrintLine("No input tree specified for running in rome mode.\n");
+         ROMEPrint::Error("No input tree specified for running in rome mode.\n");
          return false;
       }
       this->ConnectTrees();

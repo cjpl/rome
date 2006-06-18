@@ -108,6 +108,7 @@ protected:
    Long64_t      fLastEventRead;                           //! Last events read
 public:
    ROMEMidasDAQ();
+   virtual ~ROMEMidasDAQ(){}
 
    // Online Database
 //   HNDLE          GetMidasOnlineDataBase() { return fMidasOnlineDataBase; };

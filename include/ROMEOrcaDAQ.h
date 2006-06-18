@@ -14,6 +14,7 @@ class ROMEOrcaDAQ : public ROMEDAQSystem {
 
 public:
    ROMEOrcaDAQ();
+   virtual ~ROMEOrcaDAQ(){}
 
    // Additional Getters
    Int_t       GetTimeStamp() { return 0; };  // TODO

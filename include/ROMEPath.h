@@ -36,7 +36,7 @@ protected:
 
 public:
    ROMEPath();
-   ~ROMEPath();
+   virtual ~ROMEPath();
 
    void Print();
    Bool_t      Decode(const char* path,Long64_t runNumber,Long64_t eventNumber);

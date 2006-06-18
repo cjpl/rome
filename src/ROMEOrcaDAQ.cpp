@@ -18,7 +18,7 @@ ROMEOrcaDAQ::ROMEOrcaDAQ() {
 }
 
 Bool_t ROMEOrcaDAQ::Init() {
-   cout << "This is Orca" << endl;
+   ROMEPrint::Print("This is Orca\n");
    return true;
 }
 

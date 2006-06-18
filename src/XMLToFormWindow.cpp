@@ -21,7 +21,7 @@
 #include <TGLabel.h>
 #include <TGFrame.h>
 #include <TGComboBox.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS

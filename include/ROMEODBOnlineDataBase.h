@@ -17,7 +17,7 @@ protected:
 
 public:
    ROMEODBOnlineDataBase();
-   ~ROMEODBOnlineDataBase();
+   virtual ~ROMEODBOnlineDataBase();
 
    Bool_t  Init(const char* name,const char* path,const char* connection);
    Bool_t  Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);

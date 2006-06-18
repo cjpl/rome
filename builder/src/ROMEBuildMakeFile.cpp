@@ -69,6 +69,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEString.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEPrint.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETextDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETree.h");
@@ -148,6 +149,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEPrint.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
       romeLinkDefSuffix->Add("");
@@ -240,6 +243,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEStr2DArray.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEStrArray.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEString.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEPrint.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETask.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMERint.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETextDataBase.cpp");
@@ -842,7 +846,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("ifndef %sLDFLAGS\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("%sLDFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
    buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef CXX\n");
    buffer.AppendFormatted("CXX = g++\n");
+   buffer.AppendFormatted("endif\n\n");
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");

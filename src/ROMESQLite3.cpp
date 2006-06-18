@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include <TString.h>
 #include "ROMESQLite3.h"
 
@@ -33,7 +33,7 @@ Bool_t ROMESQLite3::Connect(const char *server,const char *user,const char *pass
    }
    sqlite3_open(filename.Data(), &db);
    if( GetErrorCode() != SQLITE_OK ){
-      cout<<"ROMESQLite3:"<<GetErrorMessage()<<endl;
+      ROMEPrint::Error("ROMESQLite3: %s\n", GetErrorMessage());
       return false;
    }
    return true;
@@ -48,24 +48,22 @@ Bool_t ROMESQLite3::DisConnect()
 
 Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
 {
-#if defined( SQLDEBUG )
-   cout<<endl<<"ROMESQLite3::MakeQuery : "<<query<<endl;
-#endif
+   ROMEPrint::Debug("\nROMESQLite3::MakeQuery : %s\n", query);
    if(store){
       sqlite3_prepare(db, query, 0, &stmt, NULL);
       if(GetErrorCode() != SQLITE_OK){
-         cout<<query<<endl;
-         cout << "Query error :" << GetErrorMessage() << endl;
+         ROMEPrint::Error("%s\n", query);
+         ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
          return false;
       }
       if(!StoreResult()){
-         cout << "Query error :" << query << endl;
+         ROMEPrint::Error("Query error : %s\n", query);
          return false;
       }
    }
    else if(sqlite3_exec(db, query, NULL, NULL, NULL) != SQLITE_OK){
-      cout << query <<endl;
-      cout << "Query error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("%s\n", query);
+      ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
       return false;
    }
    return true;
@@ -98,7 +96,7 @@ Bool_t ROMESQLite3::StoreResult()
 
 Bool_t ROMESQLite3::NextRow() {
    if(currentRow+1 >= GetNumberOfRows()){
-      cout << "NextRow error : You have tried nonexistent row." << endl;
+      ROMEPrint::Error("NextRow error : You have tried nonexistent row.\n");
       return false;
    }
    currentRow++;
@@ -108,7 +106,7 @@ Bool_t ROMESQLite3::NextRow() {
 
 char* ROMESQLite3::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
-      cout << "GetField error : field number out of bounds" << endl;
+      ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
    return (char*) result.At(fieldNumber,currentRow).Data();

@@ -28,6 +28,7 @@ private:
 public:
    ROMERint(const char *appClassName, int *argc, char **argv,
             void *options = 0, Int_t numOptions = 0, Bool_t noLogo = kFALSE);
+   virtual ~ROMERint(){}
    Bool_t          HandleTermInput();
    void            Run(Bool_t retrn);
    Bool_t          isUseRintInterruptHandler() { return fUseRintInterruptHandler; };

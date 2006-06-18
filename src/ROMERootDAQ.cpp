@@ -21,12 +21,12 @@ ROMERootDAQ::ROMERootDAQ() {
 
 Bool_t ROMERootDAQ::Init() {
    if (gROME->isOnline()) {
-      gROME->PrintLine("Root mode is not supported for online analysis.\n");
+      ROMEPrint::Error("Root mode is not supported for online analysis.\n");
       return false;
    }
-   gROME->PrintLine("Program is running offline.\n");
+   ROMEPrint::Print("Program is running offline.\n");
    if ((!gROME->IsFileNameBasedIO() && !gROME->IsRunNumberAndFileNameBasedIO())) {
-      gROME->PrintText("No inputfile specified for Root mode.");
+      ROMEPrint::Error("No inputfile specified for Root mode.\n");
       return false;
    }
    return true;
@@ -41,9 +41,7 @@ Bool_t ROMERootDAQ::BeginOfRun() {
       filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
       fRootFiles[i] = new TFile(filename.Data(),"READ");
       if (fRootFiles[i]->IsZombie()) {
-         gROME->PrintText("Inputfile '");
-         gROME->PrintText(filename.Data());
-         gROME->PrintLine("' not found.");
+         ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
          return false;
       }
    }

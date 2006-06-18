@@ -22,7 +22,7 @@
 #include <TGLabel.h>
 #include <TGFrame.h>
 #include <TGComboBox.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -531,9 +531,9 @@ void XMLToForm::PrintFrame(XMLToFormFrame *frame,Int_t tab)
    ROMEString tabChar;
    for (i=0;i<tab;i++)
       tabChar += "   ";
-   cout << tabChar.Data() << "Frame : " << frame->GetFrameTitle().Data() << endl;
+   ROMEPrint::Print("%sFrame : %s\n", tabChar.Data(), frame->GetFrameTitle().Data());
    for (i=0;i<frame->GetNumberOfElements();i++) {
-      cout << tabChar.Data() << "   " << frame->GetElementAt(i)->GetType().Data() << " : " << frame->GetElementAt(i)->GetTitle().Data() << endl;
+      ROMEPrint::Print("%s   %s : %s\n", tabChar.Data(), frame->GetElementAt(i)->GetType().Data(), frame->GetElementAt(i)->GetTitle().Data());
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       PrintFrame(frame->GetSubFrameAt(i),tab+1);

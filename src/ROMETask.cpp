@@ -26,7 +26,7 @@
 #include "ROMETask.h"
 #include "ROMEAnalyzer.h"
 #include <ROMERint.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 
 ClassImp(ROMETask)
 
@@ -55,27 +55,27 @@ void ROMETask::Exec(Option_t *option)
       fWatchEvent.Reset();
       fWatchAll.Reset();
       BookHisto();
-      gROME->PrintVerbose("Executing %s::Init", this->ClassName());
+      ROMEPrint::Debug("Executing %s::Init\n", ClassName());
       Init();
    }
    else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
       fWatchAll.Start(false);
-      gROME->PrintVerbose("Executing %s::BeginOfRun", this->ClassName());
+      ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
       BeginOfRun();
       fWatchAll.Stop();
    }
    else if (!strncmp(option,"EndOfRun",8)) {
       fCurrentEventMethod = "EndOfRun";
       fWatchAll.Start(false);
-      gROME->PrintVerbose("Executing %s::EndOfRun", this->ClassName());
+      ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
       EndOfRun();
       fWatchAll.Stop();
    }
    else if (!strncmp(option,"Terminate",9)) {
       fCurrentEventMethod = "Terminate";
-      gROME->PrintVerbose("Executing %s::Terminate", this->ClassName());
+      ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
       Terminate();
    }
    else if (!strncmp(option,"Time",4)) {
@@ -84,36 +84,35 @@ void ROMETask::Exec(Option_t *option)
       int nchars;
       nchars = 0;
       for (i=0;i<fLevel;i++)
-         gROME->PrintText(" ");
+         ROMEPrint::Print(" ");
       if (fLevel==1) {
-         gROME->PrintText("Task ");
+         ROMEPrint::Print("Task ");
          nchars = 5;
       }
       else if (fLevel>1) {
-         gROME->PrintText("SubTask ");
+         ROMEPrint::Print("SubTask ");
          nchars = 8;
       }
       name = fName;
       if (name.Last('_')>0)
          name = name(0,name.Last('_'));
-      gROME->PrintText(name.Data());
+      ROMEPrint::Print(name.Data());
       for (i=0;i<30-name.Length()-fLevel-nchars;i++)
-         gROME->PrintText(".");
-      gROME->PrintText(" : ");
-      gROME->PrintText(GetTimeOfAll());
+         ROMEPrint::Print(".");
+      ROMEPrint::Print(" : %s", GetTimeOfAll());
       if (fWatchEvent.RealTime()>0) {
-         gROME->PrintText("  ");
-         gROME->PrintLine(GetTimeOfEvents());
+         ROMEPrint::Print("  ");
+         ROMEPrint::Print("%s\n", GetTimeOfEvents());
       }
       else
-         gROME->PrintLine("");
+         ROMEPrint::Print("\n");
    }
    else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
       fCurrentEventMethod = "Event";
       fWatchAll.Start(false);
       fWatchEvent.Start(false);
       if (gROME->isFillEvent()) {
-         gROME->PrintVerbose("Executing %s::Event", this->ClassName());
+         ROMEPrint::Debug("Executing %s::Event\n", ClassName());
          Event();
       }
       fWatchEvent.Stop();
@@ -122,15 +121,14 @@ void ROMETask::Exec(Option_t *option)
 }
 
 void ROMETask::StartRootInterpreter(const char* message) {
-   ROMEString text;
 #if defined( R__VISUAL_CPLUSPLUS )
-   text.SetFormatted("\nIn method %s of task %s of event number %I64d of run number %I64d",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+   ROMEPrint::Print("\nIn method %s of task %s of event number %I64d of run number %I64d\n",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #else
-   text.SetFormatted("\nIn method %s of task %s of event number %lld of run number %lld",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+   ROMEPrint::Print("\nIn method %s of task %s of event number %lld of run number %lld\n",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #endif
-   gROME->PrintLine(text.Data());
+   
    if (message)
-      gROME->PrintLine(message);
+      ROMEPrint::Print("%s\n", message);
    ROMEString prompt = gROME->GetProgramName();
    prompt.ToLower();
    prompt += " [%d]";

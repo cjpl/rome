@@ -18,7 +18,7 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ArgusTab.h"
 #include "ROMEAnalyzer.h"
 

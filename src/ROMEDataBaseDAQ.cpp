@@ -19,7 +19,7 @@ ROMEDataBaseDAQ::ROMEDataBaseDAQ() {
 
 Bool_t ROMEDataBaseDAQ::Init() {
    if (gROME->isOnline()) {
-      gROME->PrintLine("Database mode is not supported for online analysis.\n");
+      ROMEPrint::Warning("Database mode is not supported for online analysis.\n");
       return false;
    }
    if (gROME->isOffline()) {

@@ -45,7 +45,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEStrArray.h"
 #include "ROMETextDataBase.h"
 
@@ -281,7 +281,7 @@ Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,L
 
    // write file
    if(!(fileStream = new fstream(fileName.Data(),ios::out | ios::trunc))){
-      cout << "\n\nError : Failed to open '" << fileName << "' !!!" << endl;
+      ROMEPrint::Error("\n\nError : Failed to open '%s' !!!\n", fileName.Data());
       return false;
    }
    *fileStream<<buffer;

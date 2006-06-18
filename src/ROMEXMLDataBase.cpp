@@ -9,7 +9,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 #include <TObjString.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEString.h"
 #include "ROMEXML.h"
 #include "ROMEPath.h"
@@ -54,7 +54,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
 
    // decode path
    if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
-      cout << "\nPath decode error : " << dataBasePath << endl;
+      ROMEPrint::Error("\nPath decode error : %s\n", dataBasePath);
       return 0;
    }
 //   path->Print();
@@ -69,7 +69,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
       fFileName += path->GetTableNameAt(i);
       fFileName += ".xml";
       if (!xml->OpenFileForPath(fFileName.Data())) {
-         cout << "\nFailed to load xml database file : '" << fFileName.Data() << "'" << endl;
+         ROMEPrint::Error("\nFailed to load xml database file : '%s'\n", fFileName.Data());
          return 0;
       }
       // create path
@@ -125,11 +125,11 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
 
          // build new path
          if ((istart=dbPath.Index("[@",2,0,TString::kExact))==-1) {
-            cout << "\nData base constraint statment not found : " << dataBasePath << endl;
+            ROMEPrint::Error("\nData base constraint statment not found : %s\n", dataBasePath);
             return 0;
          }
          if ((iend=dbPath.Index("]",1,istart,TString::kExact))==-1) {
-            cout << "\nData base constraint statment not closed : " << dataBasePath << endl;
+            ROMEPrint::Error("\nData base constraint statment not closed : %s\n", dataBasePath);
             return 0;
          }
          newDataBasePath = dbPath(0,istart);
@@ -138,7 +138,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          // read data base constraint
          xmlPath += path->GetTableDBConstraintAt(i);
          if (!xml->GetPathValue(xmlPath,value)) {
-            cout << "\nWrong path for data base constraint : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong path for data base constraint : %s\n", xmlPath.Data());
             return 0;
          }
          ROMEString temp = path->GetTableNameAt(i+1);
@@ -188,7 +188,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          xmlPath += "_";
          xmlPath += path->GetTableIDNameAt(i);
          if (!xml->GetPathValue(xmlPath,id)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             return 0;
          }
       }
@@ -205,7 +205,7 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
          else
             xmlPath += path->GetTableIDXNameAt(i-1);
          if (!xml->GetPathValues(xmlPath,&fIDX)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             return 0;
          }
          xmlPath = fXMLBase;
@@ -218,11 +218,11 @@ Int_t ROMEXMLDataBase::SearchTable(ROMEPath *path,ROMEStr2DArray *values,const c
             else
                xmlPath += path->GetTableIDXNameAt(i-1);
             if (!xml->GetPathValues(xmlPath,&valueArr)) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+               ROMEPrint::Error("\nWrong data base path : %s\n",xmlPath.Data());
                return 0;
             }
             if (valueArr.GetEntriesFast()!=fIDX.GetEntriesFast()) {
-               cout << "\nInvalid Table : " << path->GetTableNameAt(i) << endl;
+               ROMEPrint::Error("\nInvalid Table : %s\n", path->GetTableNameAt(i));
                return 0;
             }
             for (j=0;j<valueArr.GetEntriesFast();j++) {
@@ -275,12 +275,12 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
             xmlPath += path->GetFieldName();
             xmlPath.AppendFormatted("__%d",j);
             if (!xml->GetPathValues(xmlPath,&valueArr)) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+               ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
                delete path;
                return false;
             }
             if (valueArr.GetEntriesFast()!=fIDX.GetEntriesFast()) {
-               cout << "\nInvalid Table : " << path->GetTableNameAt(path->GetNumberOfTables()-1) << endl;
+               ROMEPrint::Error("\nInvalid Table : %s\n", path->GetTableNameAt(path->GetNumberOfTables()-1));
                delete path;
                return false;
             }
@@ -295,12 +295,12 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          xmlPath = fXMLBase;
          xmlPath += path->GetFieldName();
          if (!xml->GetPathValues(xmlPath,&valueArr)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             delete path;
             return false;
          }
          if (valueArr.GetEntriesFast()!=fIDX.GetEntriesFast()) {
-            cout << "\nInvalid Table : " << path->GetTableNameAt(path->GetNumberOfTables()-1) << endl;
+            ROMEPrint::Error("\nInvalid Table : %s\n", path->GetTableNameAt(path->GetNumberOfTables()-1));
             delete path;
             return false;
          }
@@ -340,7 +340,7 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
             xmlPath += path->GetFieldName();
             xmlPath.AppendFormatted("__%d",j);
             if (!xml->GetPathValues(xmlPath,&valueArr)) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+               ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
                delete path;
                return false;
             }
@@ -351,12 +351,12 @@ Bool_t ROMEXMLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          xmlPath = fXMLBase;
          xmlPath += path->GetFieldName();
          if (!xml->GetPathValues(xmlPath,&valueArr)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             delete path;
             return false;
          }
          if (valueArr.GetEntriesFast()<=0) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n",xmlPath.Data());
             delete path;
             return false;
          }
@@ -380,7 +380,7 @@ Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& baseP
    if (xml->ExistPath(xmlPath)) {
       // replace
       if (!xml->ReplacePathValue(xmlPath,value)) {
-         cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+         ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
          delete path;
          return false;
       }
@@ -390,7 +390,7 @@ Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& baseP
       basePath = basePath(1,basePath.Length()-1);
       if (xml->ExistPath("/"+basePath)) {
          if (!xml->NewPathChildElement(basePath,fieldName,value)) {
-            cout << "\nWrong data base path : " << ("/"+basePath).Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : /%s\n", basePath.Data());
             delete path;
             return false;
          }
@@ -399,19 +399,19 @@ Bool_t ROMEXMLDataBase::WriteValue(ROMEXML *xml,ROMEPath *path,ROMEString& baseP
          xmlPath.SetFormatted("/%s/%s",fDataBaseName.Data(),path->GetTableNameAt(0));
          int num = xml->NumberOfOccurrenceOfPath(xmlPath.Data())+1;
          if (!xml->NewPathLastElement(xmlPath.Data(),path->GetTableNameAt(0),NULL)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n",xmlPath.Data());
             delete path;
             return false;
          }
          xmlPath.AppendFormatted("[%d]",num);
          if (!xml->NewPathChildElement(xmlPath.Data(),fieldName,value)) {
-            cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+            ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
             delete path;
             return false;
          }
          for (i=0;i<path->GetNumberOfConstraints();i++) {
             if (!xml->NewPathChildElement(xmlPath.Data(),path->GetConstraintFieldAt(i),path->GetConstraintValueAt(i))) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+               ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
                delete path;
                return false;
             }
@@ -451,12 +451,12 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
             xmlPath += path->GetFieldName();
             xmlPath.AppendFormatted("__%d",j);
             if (!xml->GetPathValues(xmlPath,&valueArr)) {
-               cout << "\nWrong data base path : " << xmlPath.Data() << endl;
+               ROMEPrint::Error("\nWrong data base path : %s\n", xmlPath.Data());
                delete path;
                return false;
             }
             if (valueArr.GetEntriesFast()!=fIDX.GetEntriesFast()) {
-               cout << "\nInvalid Table : " << path->GetTableNameAt(path->GetNumberOfTables()-1) << endl;
+               ROMEPrint::Error("\nInvalid Table : %s\n", path->GetTableNameAt(path->GetNumberOfTables()-1));
                delete path;
                return false;
             }
@@ -469,7 +469,6 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       }
       else {
          for (i=0;i<fIDX.GetEntriesFast();i++) {
-            cout << i << endl;
             xmlPath = fXMLBase;
             xmlPath.InsertFormatted(xmlPath.Length()-1,"[idx=%ld]",strtol(fIDX.At(i).Data(),&cstop,10));
             xmlPath += path->GetFieldName();
@@ -538,7 +537,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       xmlFieldPath += "/";
       xmlFieldPath += path->GetFieldName();
       if (values==NULL) {
-         cout << "\nInvalid input for database write." << endl;
+         ROMEPrint::Error("\nInvalid input for database write.\n");
          delete xml;
          delete path;
          return false;
@@ -546,7 +545,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       if (path->IsFieldArray()) {
          for (j=path->GetFieldIndexAt(0);j<=path->GetFieldIndexAt(1);j=j+path->GetFieldIndexAt(2)) {
             if (values->At(i-istart,j)==NULL) {
-               cout << "\nInvalid input for database write." << endl;
+               ROMEPrint::Error("\nInvalid input for database write.\n");
                delete xml;
                delete path;
                return false;
@@ -586,7 +585,7 @@ Bool_t ROMEXMLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       }
       else {
          if (values->At(i-istart,0)==NULL) {
-            cout << "\nInvalid input for database write." << endl;
+            ROMEPrint::Error("\nInvalid input for database write.\n");
             delete xml;
             delete path;
             return false;

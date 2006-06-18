@@ -75,7 +75,7 @@
 #include "ROMEEventLoop.h"
 #include "ROMEUtilities.h"
 #include "ArgusWindow.h"
-#include <Riostream.h>
+#include "ROMEiostream.h"
 
 #include "ROMENetFolder.h"
 #include "ROMERint.h"
@@ -100,7 +100,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fDaemonMode = daemon;
    fNoGraphics = batch || daemon || nographics;
    fQuitMode = batch || daemon;
-   fVerboseMode = false;
    fSplashScreen = !nographics;
    fGraphicalConfigEdit = true;
    fDontReadNextEvent = false;
@@ -190,11 +189,11 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       ss_batch_init(kFALSE);
 */
 
-   PrintVerbose("Starting analyzer");
+   ROMEPrint::Debug("Starting analyzer\n");
 // Starts the ROME Analyzer
    ROMEString text;
 
-   PrintVerbose("Executing init tasks");
+   ROMEPrint::Debug("Executing init tasks\n");
    fMainTask->ExecuteTask("init");
 
    if (!ReadParameters(argc,argv)) return false;
@@ -213,25 +212,24 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       consoleStartScreen();
       if (isSplashScreen()) startSplashScreen();
 
-      if (gROME->isOnline() || gROME->isSocketOffline()) {
+      if (isOnline() || isSocketOffline()) {
          ROMENetFolderServer *tnet = new ROMENetFolderServer();
-         tnet->StartServer(gROME->GetApplication(),gROME->GetPortNumber(),"ROME");
-         text.SetFormatted("Root server listening on port %d\n\n", gROME->GetPortNumber());
-         gROME->PrintLine(text.Data());
+         tnet->StartServer(GetApplication(),GetPortNumber(),"ROME");
+         ROMEPrint::Print("Root server listening on port %d\n", GetPortNumber());
       }
       
       if (!this->isBatchMode()) {
-         gROME->PrintLine("Program steering");
-         gROME->PrintLine("----------------");
-         gROME->PrintLine("q : Terminates the program");
-         gROME->PrintLine("e : Ends the program");
-         gROME->PrintLine("s : Stops the program");
-         gROME->PrintLine("r : Restarts the program");
-         gROME->PrintLine("c : Continuous Analysis");
-         gROME->PrintLine("o : Step by step Analysis");
-         gROME->PrintLine("g : Run until event #");
-         gROME->PrintLine("i : Root interpreter");
-         gROME->PrintLine();
+         ROMEPrint::Print("Program steering\n");
+         ROMEPrint::Print("----------------\n");
+         ROMEPrint::Print("q : Terminates the program\n");
+         ROMEPrint::Print("e : Ends the program\n");
+         ROMEPrint::Print("s : Stops the program\n");
+         ROMEPrint::Print("r : Restarts the program\n");
+         ROMEPrint::Print("c : Continuous Analysis\n");
+         ROMEPrint::Print("o : Step by step Analysis\n");
+         ROMEPrint::Print("g : Run until event #\n");
+         ROMEPrint::Print("i : Root interpreter\n");
+         ROMEPrint::Print("\n");
       }
    }
    if (IsStandAloneARGUS()) {
@@ -247,73 +245,24 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    return true;
 }
 
-void ROMEAnalyzer::PrintText(char text)
-{
-   cout << text;
-#if defined( HAVE_MIDAS )
-   ROMEString strText = text;
-//   cm_msg(MINFO, "ROMEAnalyzer::Print", strText.Data());
-#endif
-   return;
-}
-
-void ROMEAnalyzer::PrintText(const char* text)
-{
-   cout << text;
-#if defined( HAVE_MIDAS )
-//   cm_msg(MINFO, "ROMEAnalyzer::Print", text);
-#endif
-   return;
-}
-
-void ROMEAnalyzer::PrintLine(const char* text)
-{
-   cout << text << endl;
-#if defined( HAVE_MIDAS )
-//   cm_msg(MINFO, "ROMEAnalyzer::PrintLine", text);
-#endif
-   return;
-}
-
-void ROMEAnalyzer::PrintFlush(const char* text)
-{
-   cout << text << flush;
-#if defined( HAVE_MIDAS )
-//   cm_msg(MINFO, "ROMEAnalyzer::PrintFlush", text);
-#endif
-   return;
-}
-
-void ROMEAnalyzer::PrintVerbose(const char* va_(fmt),...)
-{
-   if (!fVerboseMode)
-      return;
-   if (va_(fmt)==NULL)
-      return;
-   va_list ap;
-   va_start(ap,va_(fmt));
-   PrintText("DEBUG :");
-   PrintLine(ROMEString::Format(va_(fmt), ap));
-   va_end(ap);
-}
-
 void ROMEAnalyzer::ParameterUsage()
 {
-   gROME->PrintLine("  -i       Configuration file");
-   gROME->PrintLine("  -b       Batch Mode (no Argument)");
-   gROME->PrintLine("  -D       Daemon Mode (no Argument)");
-   gROME->PrintLine("  -q       Quit Mode (no Argument)");
-   gROME->PrintLine("  -v       Verbose Mode (no Argument)");
-   gROME->PrintLine("  -ns      Splash Screen is not displayed (no Argument)");
-   gROME->PrintLine("  -m       Analysing Mode : (online/[offline])");
-   gROME->PrintLine("  -r       Runnumbers");
-   gROME->PrintLine("  -e       Eventnumbers");
-   gROME->PrintLine("  -o       Start Analyzer in Step by Step Mode");
-   gROME->PrintLine("  -docu    Generates a Root-Html-Documentation (no Argument)");
-   gROME->PrintLine("  -ng      No graphics is used");
-   gROME->UserParameterUsage();
+   ROMEPrint::Print("  -i       Configuration file\n");
+   ROMEPrint::Print("  -b       Batch Mode (no Argument)\n");
+   ROMEPrint::Print("  -D       Daemon Mode (no Argument)\n");
+   ROMEPrint::Print("  -q       Quit Mode (no Argument)\n");
+   ROMEPrint::Print("  -v       Verbose level :(mute/error/warning/normal/debug)\n");
+   ROMEPrint::Print("  -ns      Splash Screen is not displayed (no Argument)\n");
+   ROMEPrint::Print("  -m       Analysing Mode : (online/[offline])\n");
+   ROMEPrint::Print("  -r       Runnumbers\n");
+   ROMEPrint::Print("  -e       Eventnumbers\n");
+   ROMEPrint::Print("  -o       Start Analyzer in Step by Step Mode\n");
+   ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
+   ROMEPrint::Print("  -ng      No graphics is used\n");
+   UserParameterUsage();
    return;
 }
+
 Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 {
    // Reads the Inputlineparameters
@@ -321,7 +270,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    ROMEString configFile("");
 
-   PrintVerbose("Reading command line options");
+   ROMEPrint::Debug("Reading command line options\n");
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-h")||!strcmp(argv[i],"-help")||!strcmp(argv[i],"--help")) {
          ParameterUsage();
@@ -333,7 +282,22 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          return false;
       }
       if (!strcmp(argv[i],"-i")&&i<argc-1) {
+         if (i+1 >= argc) break;
          configFile = argv[i+1];
+         i++;
+      }
+      if (!strcmp(argv[i],"-v")) {
+         if (i+1 >= argc) break;
+         if (!strcmp(argv[i+1],"mute"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
+         else if (!strcmp(argv[i+1],"error"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);
+         else if (!strcmp(argv[i+1],"warning"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);
+         else if (!strcmp(argv[i+1],"normal"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
+         else if (!strcmp(argv[i+1],"debug"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
          i++;
       }
    }
@@ -364,24 +328,22 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       else {
          if (this->isBatchMode() || this->isDaemonMode()) {
-            gROME->PrintText("Several configuration files were found.\n");
+            ROMEPrint::Error("Several configuration files were found.\n");
             for (i = 0; i < nFile; i++) {
-               printString.SetFormatted("   %s\n", foundFiles.At(i).Data());
-               gROME->PrintText(printString.Data());
+               ROMEPrint::Error("   %s\n", foundFiles.At(i).Data());
             }
-            gROME->PrintFlush("Please specify with -i option.\n");
+            ROMEPrint::Error("Please specify with -i option.\n");
             return false;
          }
          else {
             i = -1;
             while (i < 0 || i >= nFile) {
-               gROME->PrintLine("Please select a configuration file.");
+               ROMEPrint::Print("Please select a configuration file.\n");
                for (i = 0; i < nFile; i++) {
-                  printString.SetFormatted("   [%d] %s", i, foundFiles.At(i).Data());
-                  gROME->PrintLine(printString.Data());
+                  ROMEPrint::Print("   [%d] %s\n", i, foundFiles.At(i).Data());
                }
-               gROME->PrintLine("   [q] Quit");
-               gROME->PrintFlush("File number: ");
+               ROMEPrint::Print("   [q] Quit\n");
+               ROMEPrint::Print("File number: ");
                cin.getline(answerLine, sizeof(answerLine));
                answerString = answerLine;
                if (answerString == "q" || answerString == "Q") {
@@ -389,9 +351,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
                }
                i = answerString.ToInteger();
                if (!answerString.IsDigit() || i < 0 || i >= nFile) {
-                  printString.SetFormatted("File number %s is not found.", answerString.Data());
-                  gROME->PrintLine(printString.Data());
-                  gROME->PrintLine();
+                  ROMEPrint::Print("File number %s is not found.\n", answerString.Data());
                   i = -1;
                }
             }
@@ -405,33 +365,29 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    if ( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
       if (isBatchMode() || isDaemonMode()) {
          if (configFile.Length()) {
-            gROME->PrintText("Configuration file '");
-            gROME->PrintText(configFile.Data());
-            gROME->PrintLine("' not found.");
+            ROMEPrint::Error("Configuration file '%s' not found.\n", configFile.Data());
          }
          else {
-            gROME->PrintLine("Please specify configuration file with -i option.");
+            ROMEPrint::Error("Please specify configuration file with -i option.\n");
          }
          return false;
       }
 
       if (configFile.Length()) {
-         gROME->PrintText("Configuration file '");
-         gROME->PrintText(configFile.Data());
-         gROME->PrintLine("' not found.");
+         ROMEPrint::Warning("Configuration file '%s' not found.", configFile.Data());
       }
       else {
          configFile = "romeConfig.xml";
       }
 
-      gROME->PrintLine();
-      gROME->PrintLine("The framework can generate a new configuration file for you.");
-      gROME->PrintLine("Available configuration types are :");
-      gROME->PrintLine("   [R] ROME Framework");
-      gROME->PrintLine("   [A] ARGUS Monitor");
-      gROME->PrintLine("   [M] ROME Framework with ARGUS Monitor");
-      gROME->PrintLine("   [N] Don't generate a configuration file");
-      gROME->PrintFlush("Please select a configuration type[R/A/M/N]: ");
+      ROMEPrint::Print("\n");
+      ROMEPrint::Print("The framework can generate a new configuration file for you.\n");
+      ROMEPrint::Print("Available configuration types are :\n");
+      ROMEPrint::Print("   [R] ROME Framework\n");
+      ROMEPrint::Print("   [A] ARGUS Monitor\n");
+      ROMEPrint::Print("   [M] ROME Framework with ARGUS Monitor\n");
+      ROMEPrint::Print("   [N] Don't generate a configuration file\n");
+      ROMEPrint::Print("Please select a configuration type[R/A/M/N]: ");
       gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
@@ -443,22 +399,19 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       answerString.ToUpper();
       if (answerString=="R" || answerString=="A" || answerString=="M") {
          if (answerString=="R")
-            gROME->SetStandAloneROME();
+            SetStandAloneROME();
          if (answerString=="A")
-            gROME->SetStandAloneARGUS();
+            SetStandAloneARGUS();
          if (answerString=="M")
-            gROME->SetROMEAndARGUS();
-         gROME->PrintLine();
-         printString.SetFormatted("Please specify file name (default='%s'): ", configFile.Data());
-         gROME->PrintFlush(printString.Data());
+            SetROMEAndARGUS();
+         ROMEPrint::Print("\nPlease specify file name (default='%s'): ", configFile.Data());
          cin.getline(answerLine, sizeof(answerLine));
          if (strlen(answerLine))
             configFile = answerLine;
          if (!configFile.EndsWith(".xml") && !configFile.EndsWith(".XML"))
             configFile += ".xml";
          if (!gSystem->AccessPathName(configFile.Data(), kFileExists)) {
-            printString.SetFormatted("overwrite '%s'? ", configFile.Data());
-            gROME->PrintFlush(printString.Data());
+            ROMEPrint::Print("overwrite '%s'? ", configFile.Data());
 /*
             gROME->ss_getchar(0);
             while (answer==0) {
@@ -474,57 +427,69 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          }
          if (overwrite) {
             if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-               gROME->PrintLine("\nTerminate program.\n");
+               ROMEPrint::Print("\nTerminate program.\n");
                return false;
             }
-            gROME->PrintLine("\nThe framework generated a new configuration file.");
-            gROME->PrintLine(configFile.Data());
-            gROME->PrintLine("Please edit this file and restart the program.\n");
+            ROMEPrint::Print("\nThe framework generated a new configuration file.\n%s\n", configFile.Data());
+            ROMEPrint::Print("Please edit this file and restart the program.\n");
          }
       }
       else {
-         gROME->PrintLine("\nTerminate program.\n");
+         ROMEPrint::Print("\nTerminate program.\n");
       }
       return false;
    }
-   printString.SetFormatted("reading configuration from %s", configFile.Data());
-   gROME->PrintLine(printString.Data());
+   ROMEPrint::Print("reading configuration from %s\n", configFile.Data());
    if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
-      gROME->PrintLine("\nTerminate program.\n");
+      ROMEPrint::Print("\nTerminate program.\n");
       return false;
    }
    if (isGraphicalConfigEdit() && !isNoGraphics()) {
       if (!this->ShowConfigurationFile()) {
-         gROME->PrintLine("\nTerminate program.\n");
+         ROMEPrint::Print("\nTerminate program.\n");
          return false;
       }
       if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-         gROME->PrintLine("\nTerminate program.\n");
+         ROMEPrint::Print("\nTerminate program.\n");
          return false;
       }
    }
 
-   PrintVerbose("Reading command line options");
+   ROMEPrint::Debug("Reading command line options\n");
    for (i=1;i<argc;i++) {
       if (!strcmp(argv[i],"-q")) {
          fQuitMode = true;
       }
       else if (!strcmp(argv[i],"-v")) {
-         fVerboseMode = true;
+         if (i+1 >= argc) break;
+         if (!strcmp(argv[i+1],"mute"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);
+         else if (!strcmp(argv[i+1],"error"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);
+         else if (!strcmp(argv[i+1],"warning"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);
+         else if (!strcmp(argv[i+1],"normal"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);
+         else if (!strcmp(argv[i+1],"debug"))
+            ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
+         i++;
       }
       else if (!strcmp(argv[i],"-ns")) {
          fSplashScreen = false;
       }
       else if (!strcmp(argv[i],"-m")) {
+         if (i+1 >= argc) break;
          if (!strcmp(argv[i+1],"online")) this->SetOnline();
          else this->SetOffline();
          i++;
       }
       else if (!strcmp(argv[i],"-r")&&i<argc-1) {
+         if (i+1 >= argc) break;
          this->SetRunNumbers(argv[i+1]);
          i++;
       }
       else if (!strcmp(argv[i],"-e")&&i<argc-1) {
+         if (i+1 >= argc) break;
          this->SetEventNumbers(argv[i+1]);
          i++;
       }
@@ -532,6 +497,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          ((ROMEEventLoop*)fMainTask)->SetContinuousMode(false);
       }
       else if (!strcmp(argv[i],"-i")) {
+         if (i+1 >= argc) break;
          i++;
       }
       else if (!strcmp(argv[i],"-b")) {
@@ -544,11 +510,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          fNoGraphics = kTRUE;
       }
       else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {
-         gROME->PrintText("Input line parameter '");
-         gROME->PrintText(argv[i]);
-         gROME->PrintLine("' not available.");
-         gROME->PrintLine("Available input line parameters are : ");
-         gROME->PrintLine();
+         ROMEPrint::Error("Input line parameter '%s' not available.\n", argv[i]);
+         ROMEPrint::Print("Available input line parameters are :\n");
          ParameterUsage();
          return false;
       }
@@ -964,9 +927,7 @@ Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
    if (pid < 0)
       return kFALSE;
    else if (pid != 0) {
-      ROMEString printString;
-      printString.SetFormatted("Becoming a daemon... (PID = %d)", pid);
-      gROME->PrintLine(printString.Data());
+      ROMEPrint::Print("Becoming a daemon... (PID = %d)\n", pid);
       fApplication->Terminate(0); // parent finished
    }
 
@@ -982,11 +943,11 @@ Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
       if (fd < 0)
          fd = open("/dev/null", O_WRONLY, 0);
       if (fd < 0) {
-         gROME->PrintLine("Can't open /dev/null");
+         ROMEPrint::Error("Can't open /dev/null\n");
          return kFALSE;
       }
       if (fd != i) {
-         gROME->PrintLine("Did not get file descriptor");
+         ROMEPrint::Error("Did not get file descriptor\n");
          return kFALSE;
       }
    }
@@ -1009,11 +970,11 @@ Int_t ROMEAnalyzer::ss_batch_init()
    if (fd < 0)
       fd = open("/dev/null", O_WRONLY, 0);
    if (fd < 0) {
-      gROME->PrintLine("Can't open /dev/null");
+      ROMEPrint::Error("Can't open /dev/null\n");
       return kFALSE;
    }
    if (fd != 0) {
-      gROME->PrintLine("Did not get file descriptor");
+      ROMEPrint::Error("Did not get file descriptor\n");
       return kFALSE;
    }
 
@@ -1074,15 +1035,13 @@ ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
    for (Int_t i = 0; i < fNumberOfNetFolders; i++) {
       if (!stricmp(fNetFolderName[i].Data(), name)) {
          if (!fNetFolderActive[i]) {
-            str.SetFormatted("%s is not activated.", name);
-            gROME->PrintLine(str.Data());
+            ROMEPrint::Warning("%s is not activated.\n", name);
             return 0;
          }
          return fNetFolder[i];
       }
    }
-   str.SetFormatted("Netfolder '%s' is not defined", name);
-   gROME->PrintLine(str.Data());
+   ROMEPrint::Warning("Netfolder '%s' is not defined", name);
    return 0;
 };
 
@@ -1108,18 +1067,15 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    while (!fNetFolderSocket[i]->IsValid()) {
       delete fNetFolderSocket[i];
-      PrintText("can not make socket connection for ");
-      PrintText(fNetFolderName[i].Data());
-      PrintLine(".");
-      PrintLine("program sleeps for 5s and tries again.");
+      ROMEPrint::Warning("can not make socket connection for %s.\n", fNetFolderName[i].Data());
+      ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
       fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
    fNetFolder[i] = new ROMENetFolder(fNetFolderRoot[i].Data(), fNetFolderName[i].Data(), fNetFolderSocket[i], fNetFolderReconnect[i]);
    ROMEString errMessage;
    if (!fNetFolder[i]->GetPointer()) {
-      errMessage.SetFormatted("%s failed to connect to %s folder of %s.", fNetFolderName[i].Data(), fNetFolderRoot[i].Data(), fNetFolderHost[i].Data());
-      gROME->PrintLine(errMessage.Data());
+      ROMEPrint::Warning("%s failed to connect to %s folder of %s.\n", fNetFolderName[i].Data(), fNetFolderRoot[i].Data(), fNetFolderHost[i].Data());
    }
 
    return kTRUE;
@@ -1135,18 +1091,12 @@ Bool_t ROMEAnalyzer::ConnectSocketToROME()
          return true;
       }
    }
-   ROMEString port;
-   port.SetFormatted("%d",fSocketToROMEPort);
    if (fSocketToROME==NULL)
       fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
    while (!fSocketToROME->IsValid()) {
       delete fSocketToROME;
-      PrintText("can not make socket connection to the ROME analyzer on host '");
-      PrintText(fSocketToROMEHost.Data());
-      PrintText("' through port ");
-      PrintText(port);
-      PrintLine(".");
-      PrintLine("program sleeps for 5s and tries again.");
+      ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n", fSocketToROMEHost.Data(), fSocketToROMEPort);
+      ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
       fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
    }
@@ -1239,7 +1189,7 @@ ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
 {
    if (fActiveDAQ!=NULL)
       return fActiveDAQ;
-   this->PrintLine("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
+   ROMEPrint::Error("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
    fApplication->Terminate(1);
    return NULL;
 }
@@ -1248,7 +1198,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
 {
    if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
       return fDataBaseHandle[i];
-   this->PrintLine("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
+   ROMEPrint::Error("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
    fApplication->Terminate(1);
    return NULL;
 }
@@ -1258,9 +1208,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
    for (Int_t i=0;i<fNumberOfDataBases;i++)
       if (!stricmp(fDataBaseHandle[i]->GetName(),name))
          return fDataBaseHandle[i];
-   ROMEString str;
-   str.SetFormatted("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
-   this->PrintLine(str.Data());
+   ROMEPrint::Error("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
    fApplication->Terminate(1);
    return NULL;
 }

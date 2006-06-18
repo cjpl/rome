@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include <TString.h>
 #include "ROMEMySQL.h"
 
@@ -25,7 +25,7 @@ ROMEMySQL::~ROMEMySQL() {
 Bool_t ROMEMySQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)
 {
    if (!mysql_real_connect(&mysql, server, user, passwd, database,atoi(port), NULL, 0)) {
-      cout<<"Could not connect to the data base '"<<database<<"' : Error: "<<GetErrorMessage()<<endl;
+      ROMEPrint::Error("Could not connect to the data base '%s' : Error: %s\n", database, GetErrorMessage());
       return false;
    }
    return true;
@@ -39,17 +39,15 @@ Bool_t ROMEMySQL::DisConnect()
 
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
-#if defined( SQLDEBUG )
-   cout<<endl<<"ROMEMySQL::MakeQuery : "<<query<<endl;
-#endif
+   ROMEPrint::Debug("ROMEMySQL::MakeQuery : %s\n", query);
    if (mysql_query(&mysql,query)) {
-      cout << query <<endl;
-      cout << "Query error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("%s\n", query);
+      ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
       return false;
    }
    if (store && !StoreResult()) {
-      cout << query <<endl;
-      cout << "Query error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("%s\n", query);
+      ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
       return false;
    }
    return true;
@@ -67,7 +65,7 @@ void ROMEMySQL::FreeResult(){
 
 Int_t ROMEMySQL::GetNumberOfRows() {
    if( !result ) {
-      cout << "GetNumberOfRows error : no query result." << endl;
+      ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
       return -1;
    }
    return (int)mysql_num_rows(result);
@@ -75,7 +73,7 @@ Int_t ROMEMySQL::GetNumberOfRows() {
 
 Int_t ROMEMySQL::GetNumberOfFields() {
    if( !this->row ) {
-      cout << "GetFieldCount error : no query result." << endl;
+      ROMEPrint::Error("GetFieldCount error : no query result.\n");
       return -1;
    }
    return mysql_num_fields(result);
@@ -83,16 +81,16 @@ Int_t ROMEMySQL::GetNumberOfFields() {
 
 Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
    if( !result ) {
-      cout << "DataSeek error : no query result" << endl;
+      ROMEPrint::Error("DataSeek error : no query result");
       return false;
    }
    if( GetNumberOfRows() <= (int)offset ) {
-      cout << "DataSeek error : offset is larger than number of results"<<endl;
+      ROMEPrint::Error("DataSeek error : offset is larger than number of results");
       return false;
    }
    mysql_data_seek(result,offset);
    if( !(row = mysql_fetch_row(result)) ) {
-      cout << "DataSeek error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("DataSeek error : %s\n", GetErrorMessage());
       return false;
    }
    return true;
@@ -100,11 +98,11 @@ Bool_t ROMEMySQL::DataSeek(my_ulonglong offset) {
 
 char* ROMEMySQL::GetField(Int_t fieldNumber) {
    if( !row ) {
-      cout << "GetField error : no query result." << endl;
+      ROMEPrint::Error("GetField error : no query result.\n");
       return NULL;
    }
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
-      cout << "GetField error : field number out of bounds" << endl;
+      ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
    return this->row[fieldNumber];
@@ -112,11 +110,11 @@ char* ROMEMySQL::GetField(Int_t fieldNumber) {
 
 Bool_t ROMEMySQL::NextRow() {
    if( !result ) {
-      cout << "NextRow error : no query result." << endl;
+      ROMEPrint::Error("NextRow error : no query result.\n");
       return false;
    }
    if( !(row = mysql_fetch_row(result)) ) {
-      cout << "NextRow error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("NextRow error : %s\n", GetErrorMessage());
       return false;
    }
    return true;

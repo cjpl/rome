@@ -7,7 +7,6 @@
 #ifndef ROMESQLDataBase_H
 #define ROMESQLDataBase_H
 
-#include <Riostream.h>
 #include "ROMEDataBase.h"
 #include "ROMEString.h"
 #include "ROMESQL.h"

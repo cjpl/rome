@@ -11,7 +11,7 @@
 #include <RConfig.h>
 #include <ROMEUtilities.h>
 #include <ROMEXML.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #if defined( R__VISUAL_CPLUSPLUS )
 #  pragma warning( push )
 #  pragma warning( disable : 4800 )
@@ -142,7 +142,7 @@ void ROMEUtilities::GetMidasTID(ROMEString *buf, Char_t *type)
 #if defined( R__B64 )          // Note: Long_t and ULong_t are currently not portable types
    else if (!strcmp(type, "Long_t")
             || !strcmp(type, "ULong_t")) {
-      cout << "WARNING: Long_t and ULong_t is not supported on this architecture." << endl;
+      ROMEPrint::Warning("WARNING: Long_t and ULong_t is not supported on this architecture.\n");
       buf->Append("TID_DOUBLE");        //< 8 Byte float format
    }
 #else

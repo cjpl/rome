@@ -45,6 +45,7 @@ BldObjects := obj/ROMEBuilder.o \
               obj/ROMEBuildMakeFile.o \
               obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
+              obj/ROMEPrint.o \
               obj/ROMEString.o \
               obj/ROMEXML.o \
               obj/ROMEBuilderDict.o \
@@ -53,6 +54,7 @@ BldObjects := obj/ROMEBuilder.o \
               obj/strlcpy.o
 
 BldDictHeaders := include/ROMEString.h \
+                  include/ROMEPrint.h \
                   include/ROMEStrArray.h \
                   include/ROMEStr2DArray.h \
                   include/ROMEXML.h
@@ -60,6 +62,7 @@ BldDictHeaders := include/ROMEString.h \
 LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
               obj/ROMEString.o \
+              obj/ROMEPrint.o \
               obj/ROMEXML.o \
               obj/ROMELibDict.o \
               obj/ROMEConfigToForm.o \
@@ -94,6 +97,7 @@ LibObjects := obj/ROMEStr2DArray.o \
 LibDictHeaders := include/ROMEString.h \
                   include/ROMEStrArray.h \
                   include/ROMEStr2DArray.h \
+                  include/ROMEPrint.h \
                   include/ROMEXML.h \
                   include/ROMETask.h \
                   include/ROMERint.h \

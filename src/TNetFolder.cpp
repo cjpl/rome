@@ -18,7 +18,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <Riostream.h>
+#include "Riostream.h"
 #include "TNetFolder.h"
 
 ClassImp(TNetFolder)
