@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include <TString.h>
 #include "ROMEPgSQL.h"
 
@@ -29,7 +29,7 @@ Bool_t ROMEPgSQL::Connect(const char *server,const char *user,const char *passwd
       port = NULL;
    connection = PQsetdbLogin(server, port, NULL, NULL, database, user, passwd);
    if (PQstatus(connection) == CONNECTION_BAD) {
-      cout<<"Could not connect to the data base '"<<database<<"' : Error: "<<GetErrorMessage()<<endl;
+      ROMEPrint::Error("Could not connect to the data base '%s' : Error: %s\n", database, GetErrorMessage());
       return false;
    }
    return true;
@@ -44,14 +44,12 @@ Bool_t ROMEPgSQL::DisConnect()
 
 Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t store)
 {
-#if defined( SQLDEBUG )
-   cout<<endl<<"ROMEPgSQL::MakeQuery : "<<query<<endl;
-#endif
+   ROMEPrint::Debug("ROMEPgSQL::MakeQuery : %s\n", query);
    result = PQexec(connection, query);
    if ((PQresultStatus(result) != PGRES_COMMAND_OK) &&
        (PQresultStatus(result) != PGRES_TUPLES_OK)) {
-      cout << query <<endl;
-      cout << "Query error :" << GetErrorMessage() << endl;
+      ROMEPrint::Error("%s\n", query);
+      ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
       PQclear(result);
       return false;
    }
@@ -73,7 +71,7 @@ void ROMEPgSQL::FreeResult(){
 
 Int_t ROMEPgSQL::GetNumberOfRows() {
    if( !result ) {
-      cout << "GetNumberOfRows error : no query result." << endl;
+      ROMEPrint::Error("GetNumberOfRows error : no query result.\n");
       return -1;
    }
    return (int)PQntuples(result);
@@ -81,7 +79,7 @@ Int_t ROMEPgSQL::GetNumberOfRows() {
 
 Int_t ROMEPgSQL::GetNumberOfFields() {
    if (!result) {
-      cout << "GetFieldCount error : no query result." << endl;
+      ROMEPrint::Error("GetFieldCount error : no query result.\n");
       return -1;
    }
    return PQnfields(result);
@@ -89,7 +87,7 @@ Int_t ROMEPgSQL::GetNumberOfFields() {
 
 char* ROMEPgSQL::GetField(Int_t fieldNumber) {
    if( fieldNumber < 0 || fieldNumber >= GetNumberOfFields() ) {
-      cout << "GetField error : field number out of bounds" << endl;
+      ROMEPrint::Error("GetField error : field number out of bounds\n");
       return NULL;
    }
    return PQgetvalue(result, fCurrentRow, fieldNumber);
@@ -97,7 +95,7 @@ char* ROMEPgSQL::GetField(Int_t fieldNumber) {
 
 Bool_t ROMEPgSQL::NextRow() {
    if(fCurrentRow+1 >= GetNumberOfRows()){
-      cout << "NextRow error : You have tried nonexistent row." << endl;
+      ROMEPrint::Print("NextRow error : You have tried nonexistent row.\n");
       return false;
    }
    fCurrentRow++;

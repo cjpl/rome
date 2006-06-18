@@ -12,7 +12,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 
 #include <Windows4Root.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEString.h"
 
 #define ID_SPLASHSCREEN      25

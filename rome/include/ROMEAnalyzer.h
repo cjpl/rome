@@ -18,7 +18,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 #include "ROMEDAQSystem.h"
@@ -99,7 +99,6 @@ protected:
    Bool_t         fBatchMode;                    //! Batch mode flag
    Bool_t         fDaemonMode;                   //! Daemon mode flag
    Bool_t         fQuitMode;                     //! Quit mode flag
-   Bool_t         fVerboseMode;                  //! Verbose mode flag
    Bool_t         fSplashScreen;                 //! Splash screen flag
    Bool_t         fGraphicalConfigEdit;          //! Configuration edit flag
    Bool_t         fNoGraphics;                   //! No graphics flag
@@ -230,7 +229,7 @@ protected:
 public:
    ROMEAnalyzer() {};
    ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);
-   ~ROMEAnalyzer();
+   virtual ~ROMEAnalyzer();
 
    // Program Mode
    Bool_t          IsStandAloneROME() { return fProgramMode==kStandAloneROME; };
@@ -243,15 +242,6 @@ public:
    // Window Closed
    Bool_t          IsWindowClosed() { return fWindowClosed; }
    void            WindowClosed() { fWindowClosed = true; }
-
-   // Output
-   void            PrintText(char text);
-   void            PrintText(const char *text="");
-   void            PrintLine(const char *text="");
-   void            PrintFlush(const char *text="");
-#ifndef __MAKECINT__
-   void            PrintVerbose(const char* format=NULL,...);
-#endif
 
    // Application Handle
    ROMERint       *GetApplication() { return fApplication; };
@@ -283,7 +273,6 @@ public:
    Bool_t          isBatchMode() { return fBatchMode; };
    Bool_t          isDaemonMode() { return fDaemonMode; };
    Bool_t          isQuitMode() { return fQuitMode; };
-   Bool_t          isVerboseMode() { return fVerboseMode; };
    Bool_t          isGraphicalConfigEdit() { return fGraphicalConfigEdit; };
    Bool_t          isNoGraphics() { return fNoGraphics; };
 
@@ -291,7 +280,6 @@ public:
    void            SetBatchMode(Bool_t flag=true) { fBatchMode = flag; };
    void            SetDaemonMode(Bool_t flag=true) { fDaemonMode = flag; };
    void            SetQuitMode(Bool_t flag=true) { fQuitMode = flag; };
-   void            SetVerboseMode(Bool_t flag=true) { fVerboseMode = flag; };
    void            SetGraphicalConfigEdit(Bool_t flag=true) { fGraphicalConfigEdit = flag; };
    void            SetNoGraphics(Bool_t flag=true) { fNoGraphics = flag; };
 

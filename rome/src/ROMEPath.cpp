@@ -11,7 +11,7 @@
 
 #include <TMath.h>
 #include <TObjArray.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEStr2DArray.h"
 #include "ROMEPath.h"
 
@@ -28,12 +28,12 @@ ROMEPath::ROMEPath() {
    fTableIDXName = new ROMEStrArray(0);
    fFieldIndex.Set(3);
    fOrderIndex.Set(3);
-   this->SetOrderIndexAt(0,0);
-   this->SetOrderIndexAt(1,-1);
-   this->SetOrderIndexAt(2,1);
-   this->SetFieldIndexAt(0,0);
-   this->SetFieldIndexAt(1,-1);
-   this->SetFieldIndexAt(2,1);
+   SetOrderIndexAt(0,0);
+   SetOrderIndexAt(1,-1);
+   SetOrderIndexAt(2,1);
+   SetFieldIndexAt(0,0);
+   SetFieldIndexAt(1,-1);
+   SetFieldIndexAt(2,1);
 
    fConstraintField = new ROMEStrArray(0);
    fConstraintValue = new ROMEStrArray(0);
@@ -61,7 +61,7 @@ Bool_t ROMEPath::DecodeConstraint(const char* contraint)
    fConstraintField->RemoveAll();
    fConstraintValue->RemoveAll();
    if (str.Index(" or ",4,0,TString::kIgnoreCase)!=-1) {
-      cout << "\n'or' not handled in DecodeConstraint." << endl;
+      ROMEPrint::Error("\n'or' not handled in DecodeConstraint.\n");
       return false;
    }
    str.ReplaceAll("(","");
@@ -76,11 +76,11 @@ Bool_t ROMEPath::DecodeConstraint(const char* contraint)
       substr.Strip(TString::kBoth,' ');
       istart = iend+1;
       if ((iequal=substr.Index("=",1,0,TString::kExact))==-1) {
-         cout << "\nInvalid constraint expression : " << substr.Data() << "." << endl;
+         ROMEPrint::Error("\nInvalid constraint expression : %s.\n", substr.Data());
          return false;
       }
-      this->SetConstraintFieldAt(iconst,((TString)substr(0,iequal)).Data());
-      this->SetConstraintValueAt(iconst,((TString)substr(iequal+1,substr.Length()-iequal-1)).Data());
+      SetConstraintFieldAt(iconst,((TString)substr(0,iequal)).Data());
+      SetConstraintValueAt(iconst,((TString)substr(iequal+1,substr.Length()-iequal-1)).Data());
       iconst++;
    }
    return true;
@@ -88,8 +88,8 @@ Bool_t ROMEPath::DecodeConstraint(const char* contraint)
 
 Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber)
 {
-   this->SetOrderTableName("");
-   this->SetOrderFieldName("idx");
+   SetOrderTableName("");
+   SetOrderFieldName("idx");
    char* cstop;
    int value;
    int abspathposition = 0;
@@ -114,11 +114,11 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
    path.ReplaceAll("#",tmpString);
    // check path
    if (path.Length()<=0) {
-      cout << "\nInvalid path." << endl;
+      ROMEPrint::Error("\nInvalid path.\n");
       return false;
    }
    if (path[0]!='/') {
-      cout << "\nPath statment has to start with '/'." << endl;
+      ROMEPrint::Error("\nPath statment has to start with '/'.\n");
       return false;
    }
    path = path(1,path.Length());
@@ -138,10 +138,10 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
    while ((index=path.Index("/",1,0,TString::kExact))!=-1) {
       constraint.Resize(0);
       nTable++;
-      this->SetTableIDNameAt(nTable,"id");
-      this->SetTableIDXNameAt(nTable,"");
-      this->SetTableConstraintAt(nTable,"");
-      this->SetTableDBConstraintAt(nTable,"");
+      SetTableIDNameAt(nTable,"id");
+      SetTableIDXNameAt(nTable,"");
+      SetTableConstraintAt(nTable,"");
+      SetTableDBConstraintAt(nTable,"");
       subPath = path(0,index);
       path = path(index+1,path.Length());
       abspathposition += index+1;
@@ -149,58 +149,58 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
       i1=subPath.Index("[",1,0,TString::kExact);
       i2=subPath.Index("(",1,0,TString::kExact);
       i3=subPath.Index("{",1,0,TString::kExact);
-      index = this->MinPosition(i1,i2,i3);
+      index = MinPosition(i1,i2,i3);
       if (index==-1) {
-         this->SetTableNameAt(nTable,subPath);
-         this->SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
+         SetTableNameAt(nTable,subPath);
+         SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
          continue;
       }
       else {
          if (index==0) {
-            cout << "\nNo table name specified." << endl;
+            ROMEPrint::Error("\nNo table name specified.\n");
             return false;
          }
-         this->SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
-         this->SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
+         SetTableNameAt(nTable,((TString)subPath(0,index)).Data());
+         SetTableAbsolutePathAt(nTable,((TString)originalPath(0,abspathposition-1)).Data());
       }
       // handle '[' (Constraints)
       if (i1!=-1) {
          if ((iat1=subPath.Index("@",1,i1,TString::kExact))!=-1) {
             if ((iat2=subPath.Index("]",1,iat1,TString::kExact))==-1) {
-               cout << "\nData base constraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
-               return false;
+               ROMEPrint::Error("\nData base constraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
+return false;
             }
-            this->SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
+            SetTableDBConstraintAt(nTable,((TString)subPath(iat1+1,iat2-iat1-1)).Data());
          }
          else {
             if ((index=subPath.Index("]",1,i1,TString::kExact))==-1) {
-               cout << "\nConstraint statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
+               ROMEPrint::Error("\nConstraint statement not closed in table '%s'.\n", GetTableNameAt(nTable));
                return false;
             }
-            this->SetTableConstraintAt(nTable,((TString)subPath(i1+1,index-i1-1)).Data());
+            SetTableConstraintAt(nTable,((TString)subPath(i1+1,index-i1-1)).Data());
          }
       }
       // handle '('  (Arrays)
       if (i2!=-1) {
          if ((index=subPath.Index(")",1,i2,TString::kExact))==-1) {
-            cout << "\nArray statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
+            ROMEPrint::Error("\nArray statement not closed in table '%s'.\n", GetTableNameAt(nTable));
             return false;
          }
-         this->SetOrderTableName(this->GetTableNameAt(nTable));
-         this->SetOrderArray(true);
-         this->SetOrderIndexAt(0,0);
-         this->SetOrderIndexAt(1,-1);
-         this->SetOrderIndexAt(2,1);
+         SetOrderTableName(GetTableNameAt(nTable));
+         SetOrderArray(true);
+         SetOrderIndexAt(0,0);
+         SetOrderIndexAt(1,-1);
+         SetOrderIndexAt(2,1);
          ROMEString temp = subPath(i2+1,index-i2);
          for (int i=0;i<3;i++) {
             value = strtol(temp.Data(),&cstop,10);
             if (cstop==NULL)
                return true;
             if (*cstop!=',' && *cstop!=')') {
-               cout << "\nError in array statement.\n" << dataBasePath << endl;
+               ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
                return false;
             }
-            this->SetOrderIndexAt(i,value);
+            SetOrderIndexAt(i,value);
             if (*cstop==')')
                break;
             temp = temp((int)(cstop+1-temp.Data()),temp.Length());
@@ -209,26 +209,26 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
       // handle '{'
       if (i3!=-1) {
          if ((ie=subPath.Index("}",1,i3,TString::kExact))==-1) {
-            cout << "\nID statement not closed in table '" << this->GetTableNameAt(nTable) << "'." << endl;
+            ROMEPrint::Error("\nID statement not closed in table '%s'.\n", GetTableNameAt(nTable));
             return false;
          }
          itemp=subPath.Index(",",1,i3,TString::kExact);
          if (itemp==-1 || itemp>=ie) {
-            cout << "\nConnection id statment in table '" << this->GetTableNameAt(nTable) << "' must contain a comma." << endl;
+            ROMEPrint::Error("\nConnection id statment in table '%s' must contain a comma.\n", GetTableNameAt(nTable));
             return false;
          }
          ROMEString temp = subPath(i3+1,itemp-i3-1);
          temp.Strip(TString::kBoth,' ');
          temp.Strip(TString::kBoth,'"');
-         this->SetTableIDNameAt(nTable,temp.Data());
+         SetTableIDNameAt(nTable,temp.Data());
          temp = subPath(itemp+1,ie-itemp-1);
          temp.Strip(TString::kBoth,' ');
          temp.Strip(TString::kBoth,'"');
-         this->SetTableIDXNameAt(nTable,temp.Data());
+         SetTableIDXNameAt(nTable,temp.Data());
       }
    }
-   if (strlen(this->GetOrderTableName())<=0)
-      this->SetOrderTableName(this->GetTableNameAt(nTable));
+   if (strlen(GetOrderTableName())<=0)
+      SetOrderTableName(GetTableNameAt(nTable));
 
    // handle order
    if (orderPath.Length()>0) {
@@ -236,63 +236,63 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
       orderPath.Insert(0,"/");
       order->Decode(orderPath.Data(),runNumber,eventNumber);
       if (order->GetNumberOfTables()!=1) {
-         cout << "\nOrder statment has to look like this : 'Table'/'Field'['start','end','step']." << endl;
+         ROMEPrint::Error("\nOrder statment has to look like this : 'Table'/'Field'['start','end','step'].\n");
          delete order;
          return false;
       }
-      this->SetOrderArray(order->IsFieldArray());
-      this->SetOrderTableName(order->GetTableNameAt(0));
-      this->SetOrderFieldName(order->GetFieldName());
+      SetOrderArray(order->IsFieldArray());
+      SetOrderTableName(order->GetTableNameAt(0));
+      SetOrderFieldName(order->GetFieldName());
       for (int i=0;i<3;i++)
-         this->SetOrderIndexAt(i,order->GetFieldIndexAt(i));
+         SetOrderIndexAt(i,order->GetFieldIndexAt(i));
       delete order;
    }
 
    // extract field
-   this->SetFieldIndexAt(0,0);
-   this->SetFieldIndexAt(1,-1);
-   this->SetFieldIndexAt(2,1);
+   SetFieldIndexAt(0,0);
+   SetFieldIndexAt(1,-1);
+   SetFieldIndexAt(2,1);
    i1=path.Index("[",1,0,TString::kExact);
    i2=path.Index("(",1,0,TString::kExact);
-   index = this->MinPosition(i1,i2);
+   index = MinPosition(i1,i2);
    if (index==-1) {
-      this->SetFieldName(path);
-      this->SetFieldArray(false);
+      SetFieldName(path);
+      SetFieldArray(false);
       return true;
    }
    else {
       if (index==0) {
-         cout << "\nNo field name specified." << endl;
+         ROMEPrint::Error("\nNo field name specified.\n");
          return false;
       }
-      this->SetFieldName(((TString)path(0,index)).Data());
+      SetFieldName(((TString)path(0,index)).Data());
    }
    // handle '[' (Constraints)
    if (i1!=-1) {
       if ((index=path.Index("]",1,i1,TString::kExact))==-1) {
-         cout << "\nConstraint statement not closed in field '" << this->GetFieldName() << "'." << endl;
+         ROMEPrint::Error("\nConstraint statement not closed in field '%s'.\n", GetFieldName());
          return false;
       }
-      this->SetFieldConstraints(((TString)path(i1+1,index-i1-1)).Data());
+      SetFieldConstraints(((TString)path(i1+1,index-i1-1)).Data());
    }
 
    // handle '('  (Arrays)
    if (i2!=-1) {
       if ((index=path.Index(")",1,i2,TString::kExact))==-1) {
-         cout << "\nArray statement not closed in field '" << this->GetFieldName() << "'." << endl;
+         ROMEPrint::Error("\nArray statement not closed in field '%s'.\n", GetFieldName());
          return false;
       }
-      this->SetFieldArray(true);
+      SetFieldArray(true);
       path = path(i2+1,index-i2);
       for (int i=0;i<3;i++) {
          value = strtol(path.Data(),&cstop,10);
          if (cstop==NULL)
             return true;
          if (*cstop!=',' && *cstop!=')') {
-            cout << "\nError in array statement.\n" << dataBasePath << endl;
+            ROMEPrint::Error("\nError in array statement.\n%s\n", dataBasePath);
             return false;
          }
-         this->SetFieldIndexAt(i,value);
+         SetFieldIndexAt(i,value);
          if (*cstop==')')
             return true;
          path = path((int)(cstop+1-path.Data()),path.Length());
@@ -302,34 +302,34 @@ Bool_t ROMEPath::Decode(const char* dataBasePath,Long64_t runNumber,Long64_t eve
 }
 
 void ROMEPath::Print() {
-   const int nTable = this->GetNumberOfTables();
-   cout << "Tables : " << endl;
+   const int nTable = GetNumberOfTables();
+   ROMEPrint::Print("Tables : \n");
    for (int i=0;i<nTable;i++) {
-      cout << "   Name : " << this->GetTableNameAt(i) << endl;
-      cout << "      Constraint     : " << this->GetTableConstraintAt(i) << endl;
-      cout << "      DB Constraint  : " << this->GetTableDBConstraintAt(i) << endl;
-      cout << "      Connection ID  : " << this->GetTableIDNameAt(i) << endl;
-      cout << "      Connection IDX : " << this->GetTableIDXNameAt(i) << endl;
-      cout << endl;
+      ROMEPrint::Print("   Name : %s\n", GetTableNameAt(i));
+      ROMEPrint::Print("      Constraint     : %s\n", GetTableConstraintAt(i));
+      ROMEPrint::Print("      DB Constraint  : %s\n", GetTableDBConstraintAt(i));
+      ROMEPrint::Print("      Connection ID  : %s\n", GetTableIDNameAt(i));
+      ROMEPrint::Print("      Connection IDX : %s\n", GetTableIDXNameAt(i));
+      ROMEPrint::Print("\n");
    }
-   cout << "\nOrder : " << endl;
-   cout << "   Table Name : " << this->GetOrderTableName() << endl;
-   cout << "   Field Name : " << this->GetOrderFieldName() << endl;
-   if (this->IsOrderArray()) {
-      cout << "\n   Array : " << endl;
-      cout << "      start : " << this->GetOrderIndexAt(0) << endl;
-      cout << "      end   : " << this->GetOrderIndexAt(1) << endl;
-      cout << "      step  : " << this->GetOrderIndexAt(2) << endl;
-      cout << endl;
+   ROMEPrint::Print("\nOrder :\n");
+   ROMEPrint::Print("   Table Name : %s\n", GetOrderTableName());
+   ROMEPrint::Print("   Field Name : %s\n", GetOrderFieldName());
+   if (IsOrderArray()) {
+      ROMEPrint::Print("\n   Array :\n");
+      ROMEPrint::Print("      start : %s\n", GetOrderIndexAt(0));
+      ROMEPrint::Print("      end   : %s\n", GetOrderIndexAt(1));
+      ROMEPrint::Print("      step  : %s\n", GetOrderIndexAt(2));
+      ROMEPrint::Print("\n");
    }
-   cout << "\nField : " << endl;
-   cout << "   Name : " << this->GetFieldName() << endl;
-   cout << "      Constraint     : " << this->GetFieldConstraints() << endl;
-   if (this->IsFieldArray()) {
-      cout << "\n   Array : " << endl;
-      cout << "      start : " << this->GetFieldIndexAt(0) << endl;
-      cout << "      end   : " << this->GetFieldIndexAt(1) << endl;
-      cout << "      step  : " << this->GetFieldIndexAt(2) << endl;
+   ROMEPrint::Print("\nField :\n");
+   ROMEPrint::Print("   Name : %s\n", GetFieldName());
+   ROMEPrint::Print("      Constraint     : %s\n", GetFieldConstraints());
+   if (IsFieldArray()) {
+      ROMEPrint::Print("\n   Array :\n");
+      ROMEPrint::Print("      start : %s\n", GetFieldIndexAt(0));
+      ROMEPrint::Print("      end   : %s\n", GetFieldIndexAt(1));
+      ROMEPrint::Print("      step  : %s\n", GetFieldIndexAt(2));
    }
 }
 

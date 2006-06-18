@@ -59,6 +59,7 @@ public:
 
 public:
    ROMEEventLoop() { ; }
+   virtual ~ROMEEventLoop() {}
    ROMEEventLoop(const char *name,const char *title);
    void         ExecuteTask(Option_t *option="");
    void         BookHisto() {};

@@ -8,7 +8,7 @@ class ROMEConfigToForm : public XMLToForm{
 protected:
 public:
    ROMEConfigToForm();
-   ~ROMEConfigToForm();
+   virtual ~ROMEConfigToForm();
    Int_t  Show(const TGWindow * p,const TGWindow * main);
 
 protected:

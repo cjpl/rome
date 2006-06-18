@@ -27,7 +27,7 @@ protected:
 
 public:
    ROMESQLite3();
-   ~ROMESQLite3();
+   virtual ~ROMESQLite3();
    Bool_t Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port);
    Bool_t DisConnect();
    Bool_t MakeQuery(const char* query,Bool_t store);

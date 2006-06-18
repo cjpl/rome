@@ -15,6 +15,10 @@ public:
    void              StartServer(TApplication *app,Int_t port,const char* serverName);
    static Int_t      ResponseFunction(TSocket *socket);
 
+public:
+   ROMENetFolderServer(){}
+   virtual ~ROMENetFolderServer(){}
+
 protected:
    static Int_t      CheckCommand(TSocket *socket,char *str);
    static THREADTYPE Server(void *arg);

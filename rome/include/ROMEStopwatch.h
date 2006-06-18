@@ -14,6 +14,7 @@ class ROMEStopwatch : public TStopwatch
 {
 public:
    ROMEStopwatch():TStopwatch() {};
+   virtual ~ROMEStopwatch(){};
    const char* GetRealTimeString(ROMEString& time) {
                   Int_t runTime = (Int_t)this->RealTime();
                   Int_t milli = (Int_t)((this->RealTime()-runTime)*1000);

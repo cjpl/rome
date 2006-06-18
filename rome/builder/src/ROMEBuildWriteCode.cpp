@@ -1548,7 +1548,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       buffer.Resize(0);
       // Header
       buffer.AppendFormatted("\n\n#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("#include <Riostream.h>\n");
+      buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
       buffer.AppendFormatted("//#include \"%sAllFolders.h\"\n",shortCut.Data());
@@ -1610,7 +1610,7 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("\n\n");
 
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("#include <Riostream.h>\n");
+      buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n",shortCut.Data(),taskName[iTask].Data());
@@ -2005,8 +2005,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       ROMEString path1 = "/SP";
       ROMEString path2 = "gAnalyzer->GetSP()";
       WriteSteeringInterpreterCode(buffer,codeNumber,0,iTask,path1,path2,1);
-      buffer.AppendFormatted("      gAnalyzer->PrintLine(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
-      buffer.AppendFormatted("      gAnalyzer->PrintLine(\"   \"+path+\"\\n\");\n");
+      buffer.AppendFormatted("      ROMEPrint::Error(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
+      buffer.AppendFormatted("      ROMEPrint::Error(\"   %%s\\n\", path.Data());\n");
       buffer.AppendFormatted("      return -1;\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   return gAnalyzer->GetObjectInterpreterCode(objectPath);\n");
@@ -2787,6 +2787,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          }
          buffer.AppendFormatted(")\n");
          buffer.AppendFormatted("{\n");
+         // following lines should be modified to use ROMEPrint instead of iostream.
          buffer.AppendFormatted("   cout<<endl\n");
          buffer.AppendFormatted("       <<\" Thread function %s is not implemented.\"<<endl\n", threadFunctionName[iTab][i].Data());
          buffer.AppendFormatted("       <<\" Please overwrite this function in derived class. For example,\"<<endl\n");
@@ -3043,7 +3044,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
       else
          buffer.AppendFormatted("#include \"ArgusTab.h\"\n");
-      buffer.AppendFormatted("#include <Riostream.h>\n");
+      buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("struct %sArgs{\n", tabName[iTab].Data());
       buffer.AppendFormatted("   void*  inst;\n");
@@ -3332,7 +3333,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-
    buffer.AppendFormatted("#include \"ROMERint.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEStr2DArray.h\"\n");
@@ -3344,7 +3344,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMETextDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
-   buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
@@ -3802,7 +3802,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       buffer.AppendFormatted("// %s DAQ Access Methods\n",daqNameArray->At(i).Data());
       buffer.AppendFormatted("%s%sDAQ* %sAnalyzer::Get%sDAQ() {\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data(),shortCut.Data(),daqNameArray->At(i).Data());
       buffer.AppendFormatted("   if (f%sDAQ==NULL) {\n",daqNameArray->At(i).Data());
-      buffer.AppendFormatted("      this->PrintLine(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
+      buffer.AppendFormatted("      ROMEPrint::Error(\"\\nYou have tried to access the %s DAQ system over a gAnalyzer->Get%sDAQ()\\nhandle but the current DAQ system is not '%s'.\\n\\nShutting down the program.\\n\");\n",daqNameArray->At(i).Data(),daqNameArray->At(i).Data(),daqNameArray->At(i).Data());
       buffer.AppendFormatted("      fApplication->Terminate(1);\n");
       buffer.AppendFormatted("      return NULL;\n");
       buffer.AppendFormatted("   }\n");
@@ -3891,8 +3891,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             for (k=0;k<maxNumberOfPathObjectInterpreterCodes;k++)
                buffer.AppendFormatted(",gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[i].Data(),valueName[i][j].Data(),k,k,k);
             buffer.AppendFormatted(");\n");
-            buffer.AppendFormatted("   if (!this->GetDataBase(gAnalyzer->Get%s_%sDBIndex())->Write(values,path,gAnalyzer->GetCurrentRunNumber())) {\n",folderName[i].Data(),valueName[i][j].Data());
-            buffer.AppendFormatted("      gAnalyzer->PrintLine(\"   in Folder '%s' Value '%s'.\");\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("   if (!GetDataBase(gAnalyzer->Get%s_%sDBIndex())->Write(values,path,gAnalyzer->GetCurrentRunNumber())) {\n",folderName[i].Data(),valueName[i][j].Data());
+            buffer.AppendFormatted("      ROMEPrint::Error(\"Error in Folder '%s' Value '%s'.\\n\");\n",folderName[i].Data(),valueName[i][j].Data());
             buffer.AppendFormatted("      delete values;\n");
             buffer.AppendFormatted("      return;\n");
             buffer.AppendFormatted("   }\n");
@@ -3914,8 +3914,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    ROMEString path1 = "/GSP";
    ROMEString path2 = "gAnalyzer->GetGSP()";
    codeNumber = WriteSteeringInterpreterCode(buffer,codeNumber,0,numOfTask,path1,path2,1);
-   buffer.AppendFormatted("      gAnalyzer->PrintLine(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
-   buffer.AppendFormatted("      gAnalyzer->PrintLine(\"   \"+path+\"\\n\");\n");
+   buffer.AppendFormatted("      ROMEPrint::Error(\"\\nWrong path to a steering parameter in configuration file.\\n\");\n");
+   buffer.AppendFormatted("      ROMEPrint::Error(\"   %%s\\n\", path.Data());\n");
    buffer.AppendFormatted("      return -1;\n");
    buffer.AppendFormatted("   }\n");
    for (i=0;i<numOfFolder;i++) {
@@ -3937,8 +3937,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          }
       }
    }
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"\\nWrong path in configuration file.\\n\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"   \"+path+\"\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Error(\"\\nWrong path in configuration file.\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Error(\"   %%s\\n\", path.Data());\n");
    buffer.AppendFormatted("   return -1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -4019,24 +4019,24 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());   
    buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*****************************************\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintText(\"*\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*****************************************\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*\");\n");
    int len1 = (int)((39-(double)prog.Length())/2+0.5);
    int len2 = (int)((39-(double)prog.Length())/2);
-   buffer.AppendFormatted("   for (i=0;i<%d;i++) gAnalyzer->PrintText(\" \");\n",len1);
-   buffer.AppendFormatted("   gAnalyzer->PrintText(\"%s\");\n",prog.Data());
-   buffer.AppendFormatted("   for (i=0;i<%d;i++) gAnalyzer->PrintText(\" \");\n",len2);
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*   generated by the ROME Environment   *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*             %s               *\");\n",romeVersion.Data());
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*                                       *\");\n");
-   buffer.AppendFormatted("   gAnalyzer->PrintLine(\"*****************************************\\n\");\n");
+   buffer.AppendFormatted("   for (i=0;i<%d;i++) ROMEPrint::Print(\" \");\n",len1);
+   buffer.AppendFormatted("   ROMEPrint::Print(\"%s\");\n",prog.Data());
+   buffer.AppendFormatted("   for (i=0;i<%d;i++) ROMEPrint::Print(\" \");\n",len2);
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*   generated by the ROME Environment   *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*             %s               *\\n\");\n",romeVersion.Data());
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
+   buffer.AppendFormatted("   ROMEPrint::Print(\"*****************************************\\n\\n\");\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("   \n");
 
@@ -4355,7 +4355,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("   ROMEDataBase* GetXMLDataBase() { return GetDataBase(\"XML\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetTextDataBase() { return GetDataBase(\"TEXT\"); };\n");
    buffer.AppendFormatted("   ROMEDataBase* GetODBDataBase() { return GetDataBase(\"ODB\"); };\n");
-   if (this->sql)
+   if (sql)
       buffer.AppendFormatted("   ROMEDataBase* GetSQLDataBase() { return GetDataBase(\"SQL\"); };\n");
    for (i=0;i<numOfDB;i++) {
       buffer.AppendFormatted("   ROMEDataBase* Get%sDataBase() { return GetDataBase(\"%s\"); };\n",dbName[i].Data(),dbName[i].Data());
@@ -4521,6 +4521,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"ArgusTextDialog.h\"\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -4775,7 +4776,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       }
       buffer.AppendFormatted("   }\n");
    }
-   buffer.AppendFormatted("   cout<<\"Error: A menu (\"<<menuName<<\") was not found.\"<<endl;\n");
+   buffer.AppendFormatted("   ROMEPrint::Error(\"Error: A menu (%%s) was not found.\\n\", menuName);\n");
    buffer.AppendFormatted("   return NULL;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -5362,6 +5363,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
@@ -5369,7 +5371,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOfflineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
-   if (this->sql)
+   if (sql)
       buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
 
@@ -5790,16 +5792,35 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   // Modes/VerboseMode
-   subGroup->AddParameter(new ROMEConfigParameter("VerboseMode","1","CheckButton"));
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetVerboseMode(true);");
-   subGroup->GetLastParameter()->AddSetLine("else");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetVerboseMode(false);");
-   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isVerboseMode())");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+   // Modes/VerboseLevel
+   subGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"mute\")");
+   subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
+   subGroup->GetLastParameter()->AddSetLine("else if (##==\"error\")");
+   subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorOnly);");
+   subGroup->GetLastParameter()->AddSetLine("else if (##==\"warning\")");
+   subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kErrorAndWarning);");
+   subGroup->GetLastParameter()->AddSetLine("else if (##==\"normal\")");
+   subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kNormal);");
+   subGroup->GetLastParameter()->AddSetLine("else if (##==\"debug\")");
+   subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);");
+   subGroup->GetLastParameter()->AddWriteLine("if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kMute)");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"mute\";");
+   subGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kErrorOnly)");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"error\";");
+   subGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kErrorAndWarning)");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"warning\";");
+   subGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kNormal)");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
+   subGroup->GetLastParameter()->AddWriteLine("else if (ROMEPrint::GetVerboseLevel() == ROMEPrint::kDebug)");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"debug\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"normal\";");
+   subGroup->GetLastParameter()->AddComboBoxEntry("mute");
+   subGroup->GetLastParameter()->AddComboBoxEntry("error");
+   subGroup->GetLastParameter()->AddComboBoxEntry("warning");
+   subGroup->GetLastParameter()->AddComboBoxEntry("normal");
+   subGroup->GetLastParameter()->AddComboBoxEntry("verbose");
    // Modes/ShowSplashScreen
    subGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
@@ -5905,13 +5926,13 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // DataBase/Type
    subGroup->AddParameter(new ROMEConfigParameter("Type","1","ComboBox"));
    subGroup->GetLastParameter()->AddSetLine("if (##==\"sql\") {");
-   if (this->sql) {
+   if (sql) {
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMESQLDataBase());");
       subGroup->GetLastParameter()->AddSetLine("   if (!gAnalyzer->GetDataBase(i)->Init(gAnalyzer->GetDataBaseName(i),\"\",gAnalyzer->GetDataBaseConnection(i)))");
       subGroup->GetLastParameter()->AddSetLine("      return false;");
    }
    else{
-      subGroup->GetLastParameter()->AddSetLine("   cout<<gAnalyzer->GetProgramName()<<\" is not linked with sql support.\"<<endl;");
+      subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::Error(\"%%s is not linked with sql support.\\n\", gAnalyzer->GetProgramName())\n;");
       subGroup->GetLastParameter()->AddSetLine("   return false;");
    }
    subGroup->GetLastParameter()->AddSetLine("}");
@@ -5926,7 +5947,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("   ROMEString str = gAnalyzer->GetDataBaseConnection(i);");
    subGroup->GetLastParameter()->AddSetLine("   int ind;");
    subGroup->GetLastParameter()->AddSetLine("   if ((ind=str.Index(\";\",1,0,TString::kExact))==-1) {");
-   subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->PrintLine(\"Invalid database connection\");");
+   subGroup->GetLastParameter()->AddSetLine("      ROMEPrint::Error(\"Invalid database connection\\n\");");
    subGroup->GetLastParameter()->AddSetLine("      return false;");
    subGroup->GetLastParameter()->AddSetLine("   }");
    subGroup->GetLastParameter()->AddSetLine("   ROMEString path = str(0,ind);");
@@ -7090,13 +7111,13 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("Bool_t %sMidasDAQ::InitHeader() {\n",shortCut.Data());
    if (bankHasHeader) {
       if (bankHeaderEventID!="")
-         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)this->GetRawDataEvent())->event_id);\n",bankHeaderFolder.Data(),bankHeaderEventID.Data());
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)GetRawDataEvent())->event_id);\n",bankHeaderFolder.Data(),bankHeaderEventID.Data());
       if (bankHeaderTriggerMask!="")
-         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)this->GetRawDataEvent())->trigger_mask);\n",bankHeaderFolder.Data(),bankHeaderTriggerMask.Data());
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)GetRawDataEvent())->trigger_mask);\n",bankHeaderFolder.Data(),bankHeaderTriggerMask.Data());
       if (bankHeaderSerialNumber!="")
-         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)this->GetRawDataEvent())->serial_number);\n",bankHeaderFolder.Data(),bankHeaderSerialNumber.Data());
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)GetRawDataEvent())->serial_number);\n",bankHeaderFolder.Data(),bankHeaderSerialNumber.Data());
       if (bankHeaderTimeStamp!="")
-         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)this->GetRawDataEvent())->time_stamp);\n",bankHeaderFolder.Data(),bankHeaderTimeStamp.Data());
+         buffer.AppendFormatted("   gAnalyzer->Get%s()->Set%s(((EVENT_HEADER*)GetRawDataEvent())->time_stamp);\n",bankHeaderFolder.Data(),bankHeaderTimeStamp.Data());
    }
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -7104,7 +7125,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    // Initialize ODB
    buffer.AppendFormatted("// InitODB\n");
    buffer.AppendFormatted("Bool_t %sMidasDAQ::InitODB() {\n",shortCut.Data());
-   if (this->midas) {
+   if (midas) {
       buffer.AppendFormatted("   HNDLE hKey;\n");
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   str = \"/%s%s/Task switches\";\n",shortCut.Data(),mainProgName.Data());
@@ -7119,11 +7140,11 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
       buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)taskSwitchesString.Data(), TRUE);\n");
       buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
       buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetTaskSwitches(),sizeof(TaskSwitches),0) != DB_SUCCESS) {\n");
-      buffer.AppendFormatted("      gAnalyzer->PrintLine(\"Cannot write to task switches record.\");\n");
+      buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to task switches record.\\n\");\n");
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetTaskSwitches(), sizeof(TaskSwitches), MODE_READ, TaskSwitchesChanged, NULL) != DB_SUCCESS) {\n");
-      buffer.AppendFormatted("      gAnalyzer->PrintLine(\"Cannot open task switches record, probably other analyzer is using it\");\n");
+      buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open task switches record, probably other analyzer is using it\\n\");\n");
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
    }
@@ -7147,11 +7168,11 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          // Bank Array
          if (bankArrayDigit[i][j]>0) {
             buffer.AppendFormatted("   for (i=%d;i<%d;i++)\n",bankArrayStart[i][j],bankArraySize[i][j]+bankArrayStart[i][j]);
-            buffer.AppendFormatted("      this->Init%sBank(i);\n",bankName[i][j].Data());
+            buffer.AppendFormatted("      Init%sBank(i);\n",bankName[i][j].Data());
          }
          // Single Bank
          else {
-            buffer.AppendFormatted("   this->Init%sBank();\n",bankName[i][j].Data());
+            buffer.AppendFormatted("   Init%sBank();\n",bankName[i][j].Data());
          }
       }
    }
@@ -7168,44 +7189,44 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             // Functions
             if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankAt(Int_t bankIndex,Int_t index) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex]+index;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer(Int_t bankIndex) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t index) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex]+index;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer(Int_t bankIndex) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
             }
             else {
                buffer.AppendFormatted("%s %sMidasDAQ::Get%sBankAt(Int_t bankIndex,Int_t index) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return *(f%sBankPointer[bankIndex]+index);\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s* %sMidasDAQ::Get%sBankPointer(Int_t bankIndex) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer[bankIndex];\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t bankIndex,Int_t index) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return *(fLast%sBankPointer[bankIndex]+index);\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s* %sMidasDAQ::GetLast%sBankPointer(Int_t bankIndex) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists[bankIndex])\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer[bankIndex];\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
@@ -7216,7 +7237,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             buffer.AppendFormatted("      fLast%sBankPointer[bankIndex] = f%sBankPointer[bankIndex];\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankLength[bankIndex] = f%sBankLength[bankIndex];\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      DWORD bktype;\n");
-            buffer.AppendFormatted("      EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();\n");
+            buffer.AppendFormatted("      EVENT_HEADER *pevent = (EVENT_HEADER*)GetRawDataEvent();\n");
             buffer.AppendFormatted("      pevent++;\n");
             buffer.AppendFormatted("      ROMEString bankname;\n");
             buffer.AppendFormatted("      bankname.SetFormatted(\"%s%%0%dd\",bankIndex);\n",bankName[i][j].Data(),bankArrayDigit[i][j]);
@@ -7242,44 +7263,44 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
          else {
             if (bankType[i][j]=="structure"||bankType[i][j]=="struct") {
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankAt(Int_t index) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer+index;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::Get%sBankPointer() {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankAt(Int_t index) {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer+index;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%sStruct* %sMidasDAQ::GetLast%sBankPointer() {\n",bankName[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
             }
             else {
                buffer.AppendFormatted("%s %sMidasDAQ::Get%sBankAt(Int_t index) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return *(f%sBankPointer+index);\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s* %sMidasDAQ::Get%sBankPointer() {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->f%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (f%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return f%sBankPointer;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s %sMidasDAQ::GetLast%sBankAt(Int_t index) {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return *(fLast%sBankPointer+index);\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return (%s)exp(999.);\n",bankType[i][j].Data());
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("%s* %sMidasDAQ::GetLast%sBankPointer() {\n",bankType[i][j].Data(),shortCut.Data(),bankName[i][j].Data());
-               buffer.AppendFormatted("   if (this->fLast%sBankExists)\n",bankName[i][j].Data());
+               buffer.AppendFormatted("   if (fLast%sBankExists)\n",bankName[i][j].Data());
                buffer.AppendFormatted("      return fLast%sBankPointer;\n",bankName[i][j].Data());
                buffer.AppendFormatted("   return NULL;\n");
                buffer.AppendFormatted("}\n");
@@ -7290,7 +7311,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
             buffer.AppendFormatted("      fLast%sBankPointer = f%sBankPointer;\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      fLast%sBankLength = f%sBankLength;\n",bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("      DWORD bktype;\n");
-            buffer.AppendFormatted("      EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();\n");
+            buffer.AppendFormatted("      EVENT_HEADER *pevent = (EVENT_HEADER*)GetRawDataEvent();\n");
             buffer.AppendFormatted("      pevent++;\n");
             buffer.AppendFormatted("      if (bk_find((BANK_HEADER*)pevent, \"%s\", &f%sBankLength, &bktype, (void**)&f%sBankPointer)) {\n",bankName[i][j].Data(),bankName[i][j].Data(),bankName[i][j].Data());
             buffer.AppendFormatted("         f%sBankExists = true;\n",bankName[i][j].Data());
@@ -7676,7 +7697,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
-         buffer.AppendFormatted("   bb->SetAddress(&this->fTreeInfo);\n");
+         buffer.AppendFormatted("   bb->SetAddress(&fTreeInfo);\n");
       }
    }
    buffer.AppendFormatted("}\n\n");
@@ -7801,7 +7822,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
       buffer.AppendFormatted("      tree = (TTree*)fRootFiles[i]->FindObjectAny(\"%s\");\n",rootTreeName[i].Data());
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   if (tree==NULL) {\n");
-      buffer.AppendFormatted("      gROME->PrintText(\"Tree '%s' not found.\");\n",rootTreeName[i].Data());
+      buffer.AppendFormatted("      ROMEPrint::Warning(\"Tree '%s' not found.\\n\");\n",rootTreeName[i].Data());
       buffer.AppendFormatted("      return false;\n");
       buffer.AppendFormatted("   }\n");
       buffer.AppendFormatted("   fTrees->AddLast(tree);\n");
@@ -7817,7 +7838,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
       for (j=0;j<numOfRootBranch[i];j++) {
          buffer.AppendFormatted("   bb = ((TBranchElement*)((TTree*)fTrees->At(%d))->FindBranch(\"%s\"));\n",i,rootBranchName[i][j].Data());
          buffer.AppendFormatted("   if (!bb) {\n");
-         buffer.AppendFormatted("      gROME->PrintText(\"Branch '%s' not found in tree '%s'.\");\n",rootBranchName[i][j].Data(),rootTreeName[i].Data());
+         buffer.AppendFormatted("      ROMEPrint::Warning(\"Branch '%s' not found in tree '%s'.\\n\");\n",rootBranchName[i][j].Data(),rootTreeName[i].Data());
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   bb->SetAddress(&(Get%s()->f%s));\n",rootTreeName[i].Data(),rootBranchName[i][j].Data());
@@ -8486,7 +8507,7 @@ Bool_t ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,Int_t numStee
             }
             else{
                buffer.AppendFormatted("      if (!strlen(value))\n");
-               buffer.AppendFormatted("         gAnalyzer->PrintLine(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
+               buffer.AppendFormatted("         ROMEPrint::Warning(\"warning: %s might not be specified properly.\\n\");\n",steerFieldName[numTask][numSteer][k].Data());
                setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
                buffer.AppendFormatted("      %s->Set%s((%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
                buffer.AppendFormatted("      i++;\n");
@@ -8505,7 +8526,7 @@ Bool_t ROMEBuilder::WriteSteeringReadParameters(ROMEString &buffer,Int_t numStee
             }
             else{
                buffer.AppendFormatted("         if (!strlen(value))\n");
-               buffer.AppendFormatted("            gAnalyzer->PrintLine(\"warning: %s might not be specified properly.\");\n",steerFieldName[numTask][numSteer][k].Data());
+               buffer.AppendFormatted("            ROMEPrint::Warning(\"warning: %s might not be specified properly.\\n\");\n",steerFieldName[numTask][numSteer][k].Data());
                setValue(&decodedValue,"","value",steerFieldType[numTask][numSteer][k].Data(),1);
                buffer.AppendFormatted("         %s->Set%sAt(i_%s,(%s)%s);\n",steerPointer.Data(),steerFieldName[numTask][numSteer][k].Data(),steerFieldCLOption[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),decodedValue.Data());
                buffer.AppendFormatted("         i++;\n");
@@ -8554,11 +8575,11 @@ Bool_t ROMEBuilder::WriteSteeringParameterUsage(ROMEString &buffer,Int_t numStee
          nspace = 8-steerFieldCLOption[numTask][numSteer][k].Length()-arrayIndex.Length();
          if (nspace<1)
             nspace = 1;
-         format.SetFormatted("   gAnalyzer->PrintLine(\"  -%%s%%s%%%ds%%s",nspace);
+         format.SetFormatted("   ROMEPrint::Print(\"  -%%s%%s%%%ds%%s",nspace);
          buffer.AppendFormatted(format.Data(),steerFieldCLOption[numTask][numSteer][k].Data(),arrayIndex.Data(),"",steerFieldCLDescription[numTask][numSteer][k].Data());
          if (isBoolType(steerFieldCLOption[numTask][numSteer][k].Data()))
             buffer.AppendFormatted(" (no Argument)");
-         buffer.AppendFormatted("\");\n");
+         buffer.AppendFormatted("\\n\");\n");
       }
    }
    // Groups
@@ -8739,12 +8760,12 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
             buffer.AppendFormatted("\n         ,gAnalyzer->GetObjectInterpreterCharValue(gAnalyzer->Get%s_%sDBCodeAt(%d),buffer[%d],buffer[%d]).Data()",folderName[numFolder].Data(),valueName[numFolder][j].Data(),k,k,k);
          buffer.AppendFormatted(");\n");
          buffer.AppendFormatted("   if (name.Length() && path.Length() && isDataBaseActive(name.Data())) {\n");
-         buffer.AppendFormatted("      gAnalyzer->PrintVerbose(\"Reading database %%s(type=%%s, path=%%s)\",name.Data(),this->GetDataBase(name.Data())->GetType(),path.Data());\n");
-         buffer.AppendFormatted("      if (this->GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
-         buffer.AppendFormatted("         gAnalyzer->PrintVerbose(\"%s/%s was filled.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("      ROMEPrint::Debug(\"Reading database %%s(type=%%s, path=%%s)\\n\",name.Data(),GetDataBase(name.Data())->GetType(),path.Data());\n");
+         buffer.AppendFormatted("      if (GetDataBase(name.Data())->Read(values,path,gAnalyzer->GetCurrentRunNumber(),gAnalyzer->GetCurrentEventNumber())) {\n");
+         buffer.AppendFormatted("         ROMEPrint::Debug(\"%s/%s was filled.\\n\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      else {\n");
-         buffer.AppendFormatted("         gAnalyzer->PrintLine(\"   in Folder '%s' Value '%s'.\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
+         buffer.AppendFormatted("         ROMEPrint::Error(\"Error in Folder '%s' Value '%s'.\\n\");\n",folderName[numFolder].Data(),valueName[numFolder][j].Data());
          buffer.AppendFormatted("         return false;\n");
          buffer.AppendFormatted("      }\n");
          if (type==2) {
@@ -8876,8 +8897,7 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder,Int
             buffer.AppendFormatted("      f%sFolders = (TClonesArray*)(GetSocketToROMENetFolder()->FindObjectAny(\"%s%ss\"));\n",folderName[numFolder].Data(),shortCut.Data(),folderName[numFolder].Data());
          }
          buffer.AppendFormatted("   if (f%sFolders->GetEntriesFast()<=index) {\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("     ROMEString str;str.SetFormatted(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
-         buffer.AppendFormatted("     this->PrintLine(str.Data());\n");
+         buffer.AppendFormatted("     ROMEPrint::Error(\"\\nYou have tried to access the %%d. item of the array folder %s\\nwhich was defined with array size %s.\\n\\nShutting down the program.\\n\",index);\n",folderName[numFolder].Data(),folderArray[numFolder].Data());
          buffer.AppendFormatted("     fApplication->Terminate(1);\n");
          buffer.AppendFormatted("     return NULL;\n");
          buffer.AppendFormatted("   }\n");
@@ -8978,7 +8998,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
@@ -9277,9 +9297,9 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("   filename.SetFormatted(\"%%s%%s%%05d.root\",gAnalyzer->GetInputDir(),\"histos\",gAnalyzer->GetHistosRun());\n");
    buffer.AppendFormatted("   TFile *file = new TFile(filename.Data(),\"READ\");\n");
    buffer.AppendFormatted("   if (file->IsZombie()) {\n");
-   buffer.AppendFormatted("       cout << \"Histograms of run \" << gAnalyzer->GetHistosRun() << \" not available.\" << endl;\n");
-   buffer.AppendFormatted("       cout << \"Please check the run number and the input path.\" << endl << endl;\n");
-   buffer.AppendFormatted("       cout << \"No Histogram loaded!\" << endl << endl;\n");
+   buffer.AppendFormatted("       ROMEPrint::Warning(\"Histograms of run %%d not available.\\n\", gAnalyzer->GetHistosRun());\n");
+   buffer.AppendFormatted("       ROMEPrint::Warning(\"Please check the run number and the input path.\\n\\n\");\n");
+   buffer.AppendFormatted("       ROMEPrint::Warning(\"No Histogram loaded!\\n\\n\");\n");
    buffer.AppendFormatted("       return;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   file->FindObjectAny(\"histos\");\n");
@@ -9290,7 +9310,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("   %s* %sTemp_%d = ((%s*)file->FindObjectAny(\"%s\"));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
-            buffer.AppendFormatted("      cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Histogram '%s' not available in run %d!\\n\", gAnalyzer->GetHistosRun());\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   else\n");
             buffer.AppendFormatted("      %sTemp_%d->Copy(*gAnalyzer->Get%s%sTask()->Get%s());\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          }
@@ -9299,7 +9319,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             buffer.AppendFormatted("   for (i=0;i<nentry;i++) {\n");
             buffer.AppendFormatted("      %s* %sTemp_%d = ((%s*)file->FindObjectAny(gAnalyzer->Get%s%sTask()->Get%sAt(i)->GetName()));\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),i,histoType[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      if (%sTemp_%d==NULL)\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i);
-            buffer.AppendFormatted("         cout << \"Histogram '%s' not available in run \" << gAnalyzer->GetHistosRun() << \"!\" << endl;\n",histoName[taskHierarchyClassIndex[i]][j].Data());
+            buffer.AppendFormatted("         ROMEPrint::Warning(\"Histogram '%s' not available in run %%d!\\n\", gAnalyzer->GetHistosRun());\n",histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("      else\n");
             buffer.AppendFormatted("         %sTemp_%d->Copy(*gAnalyzer->Get%s%sTask()->Get%sAt(i));\n",histoName[taskHierarchyClassIndex[i]][j].Data(),i,taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             buffer.AppendFormatted("   };\n");
@@ -9416,7 +9436,7 @@ Bool_t ROMEBuilder::WriteMain()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <Windows.h>\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
    buffer.AppendFormatted("{\n");
@@ -10066,7 +10086,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include <Riostream.h>\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
 
    // check if branch
    Bool_t *isBranch = new Bool_t[maxNumberOfFolders];
@@ -10620,4 +10640,3 @@ void ROMEBuilder::RemoveDepFiles(const char* str)
 
    return;
 }
-

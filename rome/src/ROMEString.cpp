@@ -15,7 +15,7 @@
 #include <TString.h>
 #include <TMath.h>
 #include <TVirtualMutex.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include "ROMEString.h"
 
 ClassImp(ROMEString)
@@ -26,7 +26,7 @@ ROMEString& ROMEString::AppendFormatted(const char* va_(fmt),...)
       return *this;
    va_list ap;
    va_start(ap,va_(fmt));
-   this->Append(Format(va_(fmt), ap));
+   Append(Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
@@ -37,7 +37,7 @@ ROMEString& ROMEString::InsertFormatted(Ssiz_t position,const char* va_(fmt),...
       return *this;
    va_list ap;
    va_start(ap,va_(fmt));
-   this->Insert(position,Format(va_(fmt), ap));
+   Insert(position,Format(va_(fmt), ap));
    va_end(ap);
    return *this;
 }
@@ -54,23 +54,23 @@ ROMEString& ROMEString::SetFormatted(const char* va_(fmt),...)
 }
 
 void ROMEString::Write() {
-   cout << this->Data();
+   cout << Data();
 }
 
 
 void ROMEString::WriteLine() {
-   cout << this->Data() << endl;
+   cout << Data() << endl;
 }
 
 Int_t ROMEString::NumberOfOccurrence(ROMEString& subString)
 {
-   return this->NumberOfOccurrence(subString.Data());
+   return NumberOfOccurrence(subString.Data());
 }
 
 Int_t ROMEString::NumberOfOccurrence(const char* subString)
 {
    Int_t numberOfOccurrence = 0;
-   const char* str = this->Data();
+   const char* str = Data();
    str = strstr(str,subString);
    while (str!=NULL) {
       str++;
@@ -81,7 +81,7 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
 }
 
 istream& ROMEString::ReadFile(istream& str) {
-   this->Resize(0);
+   Resize(0);
    char *buffer = "";
    int bufferSize = 2000;
    int bufferLength = bufferSize-1;
@@ -90,14 +90,14 @@ istream& ROMEString::ReadFile(istream& str) {
       buffer = new char[bufferSize];
       str.get(buffer,bufferSize,0);
       bufferLength = strlen(buffer);
-      this->Append(buffer);
+      Append(buffer);
       delete buffer;
    }
    return str;
 }
 
 istream& ROMEString::ReadLine(istream& str) {
-   this->Resize(0);
+   Resize(0);
    char *buffer = "";
    int bufferSize = 2000;
    int bufferLength = bufferSize-1;
@@ -106,7 +106,7 @@ istream& ROMEString::ReadLine(istream& str) {
       buffer = new char[bufferSize];
       str.getline(buffer,bufferSize);
       bufferLength = strlen(buffer);
-      this->Append(buffer);
+      Append(buffer);
       delete buffer;
    }
    return str;
@@ -115,27 +115,27 @@ istream& ROMEString::ReadLine(istream& str) {
 Int_t ROMEString::ToInteger()
 {
    char *cstop;
-   return strtol(this->Data(),&cstop,10);
+   return strtol(Data(),&cstop,10);
 }
 
 Double_t ROMEString::ToDouble()
 {
    char *cstop;
-   return strtod(this->Data(),&cstop);
+   return strtod(Data(),&cstop);
 }
 
 Float_t ROMEString::ToFloat()
 {
    char *cstop;
-   return (Float_t)strtod(this->Data(),&cstop);
+   return (Float_t)strtod(Data(),&cstop);
 }
 Bool_t ROMEString::ToBool()
 {
-   if (this->CompareTo("true",TString::kIgnoreCase))
+   if (CompareTo("true",TString::kIgnoreCase))
       return true;
-   if (this->CompareTo("false",TString::kIgnoreCase))
+   if (CompareTo("false",TString::kIgnoreCase))
       return false;
-   return this->ToInteger()!=0;
+   return ToInteger()!=0;
 }
 
 void ROMEString::ToLower() {
@@ -144,7 +144,7 @@ void ROMEString::ToLower() {
 
 const char* ROMEString::ToLower(ROMEString& destination)
 {
-   destination = this->Data();
+   destination = Data();
    destination.ToLower();
    return destination.Data();
 }
@@ -155,7 +155,7 @@ void ROMEString::ToUpper() {
 
 const char* ROMEString::ToUpper(ROMEString& destination)
 {
-   destination = this->Data();
+   destination = Data();
    destination.ToUpper();
    return destination.Data();
 }
@@ -172,8 +172,8 @@ ROMEString& ROMEString::StripSpaces(){
    while (start < end && direct[end] <= ' ')
       --end;
 
-   this->Remove(end+1,Length()-end-1);
-   this->Remove(0,start);
+   Remove(end+1,Length()-end-1);
+   Remove(0,start);
    return *this;
 }
 

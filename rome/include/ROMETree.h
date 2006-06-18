@@ -60,7 +60,7 @@ public:
       fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
       fBranchActive = 0;
    }
-   ~ROMETree() {
+   virtual ~ROMETree() {
       delete [] fBranchActive;
    }
 

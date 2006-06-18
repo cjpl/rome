@@ -8,7 +8,7 @@
 //  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
-#include <Riostream.h>
+#include "ROMEiostream.h"
 #include <TObjString.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"

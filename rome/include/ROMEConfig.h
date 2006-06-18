@@ -7,7 +7,6 @@
 #ifndef ROMEConfig_H
 #define ROMEConfig_H
 
-#include <Riostream.h>
 #include <TObject.h>
 
 class ROMEConfig : public TObject

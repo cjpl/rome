@@ -56,16 +56,9 @@ Bool_t ROMEDAQSystem::TimeDAQ()
 { 
    int i;
    ROMEString str;
-   gROME->PrintText(" DAQ ");
-   str = GetName();
-   gROME->PrintText(str.Data());
+   ROMEPrint::Print(" DAQ %s", GetName());
    for (i=0;i<30-4-1-str.Length();i++)
-      gROME->PrintText(".");
-   gROME->PrintText(" : ");
-   fWatchAll.GetRealTimeString(str);
-   gROME->PrintText(str.Data());
-   gROME->PrintText("  ");
-   fWatchEvent.GetRealTimeString(str);
-   gROME->PrintLine(str.Data());
+      ROMEPrint::Print(".");
+   ROMEPrint::Print(" : %s  %s\n", fWatchAll.GetRealTimeString(str), fWatchEvent.GetRealTimeString(str));
    return true;
 };

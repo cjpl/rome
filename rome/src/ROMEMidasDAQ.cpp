@@ -61,11 +61,11 @@ Bool_t ROMEMidasDAQ::Init() {
       INT requestId;
       Int_t i;
 
-      gROME->PrintLine("Program is running online.\n");
+      ROMEPrint::Print("Program is running online.\n");
 
       // Connect to the experiment
       if (cm_connect_experiment((char*)gROME->GetOnlineHost(), (char*)gROME->GetOnlineExperiment(),(char*)gROME->GetProgramName(), NULL) != SUCCESS) {
-         gROME->PrintLine("\nCannot connect to experiment");
+         ROMEPrint::Error("\nCannot connect to experiment\n");
          return false;
       }
 
@@ -80,8 +80,8 @@ Bool_t ROMEMidasDAQ::Init() {
 
       // place a request for a specific event id
       if (this->GetNumberOfEventRequests()<=0) {
-         gROME->PrintLine("\nNo Events Requests for online mode!");
-         gROME->PrintLine("\nPlace Events Requests into the ROME configuration file.");
+         ROMEPrint::Error("\nNo Events Requests for online mode!\n");
+         ROMEPrint::Error("\nPlace Events Requests into the ROME configuration file.\n");
          return false;
       }
       const int nRequest = this->GetNumberOfEventRequests();
@@ -101,13 +101,13 @@ Bool_t ROMEMidasDAQ::Init() {
       // Registers a callback function for run transitions.
       if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
-         gROME->PrintLine("\nCannot connect to experiment");
+         ROMEPrint::Error("\nCannot connect to experiment\n");
          return false;
       }
 
       // Connect to the online database
       if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         gROME->PrintLine("\nCannot connect to the online database");
+         ROMEPrint::Error("\nCannot connect to the online database\n");
          return false;
       }
 
@@ -115,7 +115,7 @@ Bool_t ROMEMidasDAQ::Init() {
       int state = 0;
       int statesize = sizeof(state);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/State",&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
-         gROME->PrintLine("\nCannot read run status from the online database");
+         ROMEPrint::Error("\nCannot read run status from the online database\n");
          return false;
       }
       if (state!=3) {
@@ -127,7 +127,7 @@ Bool_t ROMEMidasDAQ::Init() {
       Int_t runNumber = 0;
       Int_t size = sizeof(runNumber);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
-         gROME->PrintLine("\nCannot read runnumber from the online database");
+         ROMEPrint::Error("\nCannot read runnumber from the online database\n");
          return false;
       }
       gROME->SetCurrentRunNumber(runNumber);
@@ -142,7 +142,7 @@ Bool_t ROMEMidasDAQ::Init() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         gROME->PrintLine("\nCannot open trigger statistics record, probably other analyzer is using it");
+         ROMEPrint::Warning("\nCannot open trigger statistics record, probably other analyzer is using it\n");
          return false;
       }
 
@@ -153,7 +153,7 @@ Bool_t ROMEMidasDAQ::Init() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         gROME->PrintLine("\nCannot open scaler statistics record, probably other analyzer is using it");
+         ROMEPrint::Warning("\nCannot open scaler statistics record, probably other analyzer is using it\n");
          return false;
       }
 
@@ -166,11 +166,11 @@ Bool_t ROMEMidasDAQ::Init() {
          db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
          if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
-            gROME->PrintLine("\nCannot write to tree switches record.");
+            ROMEPrint::Warning("\nCannot write to tree switches record.\n");
             return false;
          }
          if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(), gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
-            gROME->PrintLine("\nCannot open tree switches record, probably other analyzer is using it");
+            ROMEPrint::Warning("\nCannot open tree switches record, probably other analyzer is using it\n");
             return false;
          }
       }
@@ -179,13 +179,13 @@ Bool_t ROMEMidasDAQ::Init() {
       this->InitODB();
 
 #else
-      gROME->PrintLine("Need Midas support for Online Mode !!");
-      gROME->PrintLine("Please link the midas library into this project.");
+      ROMEPrint::Error("Need Midas support for Online Mode !!\n");
+      ROMEPrint::Error("Please link the midas library into this project.\n");
       return false;
 #endif
    }
    else if (gROME->isOffline()) {
-      gROME->PrintLine("Program is running offline.\n");
+      ROMEPrint::Print("Program is running offline.\n");
    }
    return true;
 }
@@ -210,9 +210,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
          if (fMidasFileHandle == -1) {
             fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
             if (fMidasGzFileHandle==NULL) {
-               gROME->PrintText("Failed to open input file '");
-               gROME->PrintText(filename.Data());
-               gROME->PrintLine("[.gz]'.");
+               ROMEPrint::Error("Failed to open input file '%s[.gz]'.\n", filename.Data());
                return false;
             }
             fGZippedMidasFile = true;
@@ -225,9 +223,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
             fGZippedMidasFile = true;
             fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
             if (fMidasGzFileHandle==NULL) {
-               gROME->PrintText("Failed to open input file '");
-               gROME->PrintText(gzfilename.Data());
-               gROME->PrintLine("'.");
+               ROMEPrint::Error("Failed to open input file '%s'.\n", gzfilename.Data());
                return false;
             }
          }
@@ -235,20 +231,18 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
             fGZippedMidasFile = false;
             fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
             if (fMidasFileHandle == -1) {
-               gROME->PrintText("Failed to open input file '");
-               gROME->PrintText(filename.Data());
-               gROME->PrintLine("'.");
+               ROMEPrint::Error("Failed to open input file '%s'.\n", filename.Data());
                return false;
             }
          }
       }
 
-      gROME->PrintText("Reading Midas-File ");
+      ROMEPrint::Print("Reading Midas-File ");
       if(!fGZippedMidasFile){
-         gROME->PrintLine(filename.Data());
+         ROMEPrint::Print("%s\n", filename.Data());
       }
       else
-         gROME->PrintLine(gzfilename.Data());
+         ROMEPrint::Print("%s\n", gzfilename.Data());
 
       while (!isBeginOfRun() && !isEndOfRun() && !isTerminate())
          if (!Event(0))
@@ -350,7 +344,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          }
          // check input
          if (readError) {
-            if (n > 0) gROME->PrintLine("Unexpected end of file");
+            if (n > 0) ROMEPrint::Warning("Unexpected end of file\n");
             this->SetEndOfRun();
             return true;
          }

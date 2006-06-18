@@ -27,7 +27,7 @@
 #include <stdio.h>
 
 #include <TObjArray.h>
-#include <Riostream.h>
+#include "ROMEiostream.h"
 
 #include "ROMEXML.h"
 #include "ROMEStrArray.h"
@@ -51,7 +51,7 @@ Bool_t ROMEXML::OpenFileForRead(const char* file) {
    char error[240];
    rootNode = mxml_parse_file((char*)file, error, sizeof(error));
    if (rootNode == NULL) {
-      cout << error << endl;
+      ROMEPrint::Error("%s\n", error);
       return false;
    }
    fFileName = file;
@@ -201,7 +201,7 @@ Bool_t ROMEXML::OpenFileForPath(const char* file) {
    char error[240];
    rootNode = mxml_parse_file((char*)file, error, sizeof(error));
    if (rootNode == NULL) {
-      cout << error << endl;
+      ROMEPrint::Error("%s\n", error);
       return false;
    }
    fFileName = file;
@@ -222,7 +222,7 @@ Bool_t ROMEXML::OpenBufferForPath(char* buffer) {
    char error[240];
    rootNode = mxml_parse_buffer(buffer, error, sizeof(error));
    if (rootNode == NULL) {
-      cout << error << endl;
+      ROMEPrint::Error("%s\n", error);
       return false;
    }
    return true;

@@ -25,6 +25,7 @@
 #if defined ( HAVE_SQLITE3 )
 #   include "ROMESQLite3.h"
 #endif
+#include "ROMEiostream.h"
 #include "ROMEPath.h"
 #include "ROMESQLDataBase.h"
 
@@ -179,8 +180,7 @@ Bool_t ROMESQLDataBase:: DecodeDBConstraint(const char* currentTableName,const c
       }
    }
    else{
-      cout << "Warning: DB constraint was not found for "
-           <<nextTableName<<endl;
+      ROMEPrint::Warning("Warning: DB constraint was not found for %s\n", nextTableName);
       delete dbpath;
       return false;
    }
@@ -215,19 +215,15 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
       }
    }
 
-#if defined ( SQLDEBUG )
-   cout<<endl<<"******************************************************************************"<<endl;
+   ROMEPrint::Debug("\n******************************************************************************\n");
    for (iTable=0;iTable<path->GetNumberOfTables();iTable++) {
-      cout<<"Table\t: "<<path->GetTableNameAt(iTable)<<endl;
+      ROMEPrint::Debug("Table\t: %s\n", path->GetTableNameAt(iTable));
    }
-   cout<<"Field\t: "<<path->GetFieldName()<<endl<<endl;
-   cout<<"following relations..."<<endl;
-#endif
+   ROMEPrint::Debug("Field\t: %s\n\n", path->GetFieldName());
+   ROMEPrint::Debug("following relations...\n");
    // start following relation.
    for (iTable=0;iTable<path->GetNumberOfTables();iTable++) {
-#if defined ( SQLDEBUG )
-      cout<<"Level-"<<iTable<<": "<<path->GetTableNameAt(iTable);
-#endif
+      ROMEPrint::Debug("Level-%d: %s\n", iTable, path->GetTableNameAt(iTable));
       //add table to FROM phrase
       if (!fFromPhrase.Contains(path->GetTableNameAt(iTable))) {
          if (fFromPhrase.Length())
@@ -282,12 +278,12 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
          sqlQuery.ReplaceAll(kRunNumberReplace, tmpString);
 
          if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
-            cout << "Wrong path for data base constraint : " << path->GetTableDBConstraintAt(iTable) << endl;
+            ROMEPrint::Error("Wrong path for data base constraint : %s\n", path->GetTableDBConstraintAt(iTable));
             fSQL->FreeResult();
             return false;
          }
          if (!fSQL->NextRow()) {
-            cout << "Database constraint ("<<path->GetTableDBConstraintAt(iTable)<<") was not found"<< endl;
+            ROMEPrint::Error("Database constraint '%s' was not found\n", path->GetTableDBConstraintAt(iTable));
             fSQL->FreeResult();
             return false;
          }
@@ -325,9 +321,7 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
                );
          }
       }
-#if defined ( SQLDEBUG )
-      cout<<"\t  ... OK"<<endl;
-#endif
+      ROMEPrint::Debug("\t  ... OK\n");
    }
    return true;
 }
@@ -349,12 +343,12 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* c
 
    //decode dataBasePath
    if ((istart=path.Index("://",3,0,TString::kIgnoreCase))==-1) {
-      cout << "Wrong path for SQL database : " << path << endl
-           << "Path should look like," << endl
-           << "mysql://username:password@servername:port/database" << endl
-           << "postgresql://username:password@servername:port/database" << endl
-           << "sqlite://filename" << endl
-           << "sqlite3://filename" << endl;
+      ROMEPrint::Error("Wrong path for SQL database : %s\n",path.Data());
+      ROMEPrint::Error("Path should look like,\n");
+      ROMEPrint::Error("mysql://username:password@servername:port/database\n");
+      ROMEPrint::Error("postgresql://username:password@servername:port/database\n");
+      ROMEPrint::Error("sqlite://filename\n");
+      ROMEPrint::Error("sqlite3://filename\n");
       return false;
    }
    fDBMSType = path(0,istart);
@@ -406,14 +400,12 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* c
 #endif
 // please implement similar function for windows
    }
-#if defined ( SQLDEBUG )
-   cout<<"******  SQL Connection  ******"<<endl
-       <<"server   : "<<server<<endl
-       <<"user     : "<<user<<endl
-       <<"passwd   : "<<passwd<<endl
-       <<"database : "<<database<<endl
-       <<"port     : "<<port<<endl;
-#endif
+   ROMEPrint::Debug("******  SQL Connection  ******\n");
+   ROMEPrint::Debug("server   : %s\n", server.Data());
+   ROMEPrint::Debug("user     : %s\n", user.Data());
+   ROMEPrint::Debug("passwd   : %s\n", passwd.Data());
+   ROMEPrint::Debug("database : %s\n", database.Data());
+   ROMEPrint::Debug("port     : %s\n", port.Data());
 
    if ( fDBMSType == "mysql" ) {
 #if defined ( HAVE_MYSQL )
@@ -448,7 +440,7 @@ Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* c
 #endif
    }
    else{
-      cout<<"Error: DBMS \""<<fDBMSType<<"\" is not supported"<<endl;
+      ROMEPrint::Error("Error: DBMS \"%s\" is not supported\n", fDBMSType.Data());
       return false;
    }
 
@@ -492,18 +484,18 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
       pathString.ReplaceAll("#", kRunNumberReplace);
 
       if (!path->Decode(pathString.Data(),runNumber,eventNumber)) {
-         cout << "Path decode error : " << dataBasePath << endl;
+         ROMEPrint::Error("Path decode error : %s\n", dataBasePath);
          return false;
       }
 
       this->ResetPhrase();
       if (!MakePhrase(path,runNumber,eventNumber)) {
-         cout<<"Invalid input for database read."<<endl;
+         ROMEPrint::Error("Invalid input for database read.\n");
          return false;
       }
       if (!fFromPhrase.Contains(path->GetOrderTableName())) {
-         cout<<"Invalid path for database read."<<endl
-             <<"order tabele("<<path->GetOrderTableName()<<") should be in path"<<endl;
+         ROMEPrint::Error("Invalid path for database read.\n");
+         ROMEPrint::Error("order tabele '%s' should be in path\n", path->GetOrderTableName());
          return false;
       }
       if (path->IsOrderArray())
@@ -565,13 +557,13 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    sqlQuery.ReplaceAll(kEventNumberReplace, fLastEventNumberString);
 
    if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
-      cout<<"Invalid input for database read."<<endl;
+      ROMEPrint::Error("Invalid input for database read.\n");
       fSQL->FreeResult();
       return false;
    }
    if (!fSQL->GetNumberOfRows()) {
-      cout << "Warning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName();
-      cout<<" was not found. Default value will be used."<<endl;
+      ROMEPrint::Warning("Warning: %s.%s was not found. Default value will be used.\n"
+                         , path->GetTableNameAt(path->GetNumberOfTables()-1), path->GetFieldName());
       fSQL->FreeResult();
       return true;
    }
@@ -584,7 +576,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
            ;iOrder+=orderIndex[2],iArray++) {
       if (!keepCursor) {
          if (!fSQL->NextRow()) {
-            cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
+            ROMEPrint::Warning("Warning: some records were not found in %s\n",path->GetTableNameAt(path->GetNumberOfTables()-1));
             fSQL->FreeResult();
             return true;
          }
@@ -597,23 +589,23 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
          while (TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)), orderIndex[2])
                 < TMath::Sign(iOrder, orderIndex[2])) {
             if (!fSQL->NextRow()) {
-               cout << "Warning: some records were not found in "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<endl;
+               ROMEPrint::Warning("Warning: some records were not found in %s\n", path->GetTableNameAt(path->GetNumberOfTables()-1));
                fSQL->FreeResult();
                return true;
             }
             iCount++ ;
          }
          if (iCount)
-            cout << "Warning: "<<path->GetTableNameAt(path->GetNumberOfTables()-1)<<" has "<<iCount+1
-                 <<" records which satisfy "<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iLastOrder<<endl;
+            ROMEPrint::Warning("Warning: %s  has %d records which satisfy %s.%s=%d\n"
+                               ,path->GetTableNameAt(path->GetNumberOfTables()-1), iCount+1
+                               ,path->GetOrderTableName(), path->GetOrderFieldName(), iLastOrder);
 
          // check if the record exists
          if (TMath::Sign(iOrder,orderIndex[2])
              < TMath::Sign(atoi(fSQL->GetField(fSQL->GetNumberOfFields()-1)),orderIndex[2])) {
-            cout << "Warning: "
-                 <<path->GetTableNameAt(path->GetNumberOfTables()-1)<<"."<<path->GetFieldName()
-                 <<"("<<path->GetOrderTableName()<<"."<<path->GetOrderFieldName()<<"="<<iOrder<<")"
-                 <<" was not found. Default value will be used."<<endl;
+            ROMEPrint::Warning("Warning: %s.%s(%s.%s=%d) was not found. Default value will be used.\n"
+                               ,path->GetTableNameAt(path->GetNumberOfTables()-1), path->GetFieldName()
+                               ,path->GetOrderTableName(), path->GetOrderFieldName(), iOrder);
             keepCursor = true;
             continue;
          }
@@ -649,25 +641,25 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
    bool exist;
 
    if (!path->Decode(dataBasePath,runNumber,eventNumber)) {
-      cout << "Path decode error : " << dataBasePath << endl;
+      ROMEPrint::Error("Path decode error : %s\n", dataBasePath);
       delete path;
       return false;
    }
 //   path->Print();
    if (path->GetNumberOfTables()!=1) {
-      cout << "Wrong data base path : " << dataBasePath << endl;
+      ROMEPrint::Error("Wrong data base path : %s\n", dataBasePath);
       delete path;
       return false;
    }
    if (strstr(path->GetTableConstraintAt(path->GetNumberOfTables()-1),"!=")) {
-      cout << " \"!=\" can not be used for default values." << endl;
+      ROMEPrint::Error(" \"!=\" can not be used for default values.\n");
       delete path;
       return false;
    }
 
    this->ResetPhrase();
    if (!MakePhrase(path,runNumber,eventNumber)) {
-      cout<<"Invalid input for database write."<<endl;
+      ROMEPrint::Error("Invalid input for database write.\n");
       delete path;
       return false;
    }
@@ -697,7 +689,7 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
       }
       sqlQuery += " LIMIT 1;";
       if (!fSQL->MakeQuery((char*)sqlQuery.Data(),true)) {
-         cout << "Invalid input for database write."<< endl;
+         ROMEPrint::Error("Invalid input for database write.\n");
          fSQL->FreeResult();
          delete path;
 #if defined ( USE_TRANSACTION )
@@ -769,18 +761,15 @@ Bool_t ROMESQLDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Lo
          }
       }
 
-#if defined ( SQLDEBUG )
-      cout<<"ROMESQLDataBase::Write  : "<<sqlQuery<<endl;
-#else
+      ROMEPrint::Debug("ROMESQLDataBase::Write  : %s\n", sqlQuery.Data());
       if (!fSQL->MakeQuery((char*)sqlQuery.Data(),false)) {
-         cout<<"Invalid input for database write."<<endl;
+         ROMEPrint::Error("Invalid input for database write.\n");
          delete path;
 #if defined ( USE_TRANSACTION )
          fSQL->RollbackTransaction("");
 #endif
          return false;
       }
-#endif
       if (!path->IsOrderArray())
          break;
    }

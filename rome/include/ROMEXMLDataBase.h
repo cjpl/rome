@@ -33,7 +33,7 @@ protected:
    Int_t  SearchTable(ROMEPath *path,ROMEStr2DArray *values,const char* dataBasePath,Long64_t runNumber,Long64_t eventNumber,Bool_t write);
 public:
    ROMEXMLDataBase();
-   ~ROMEXMLDataBase();
+   virtual ~ROMEXMLDataBase();
 
    Bool_t Init(const char* name,const char* path,const char* connection);
    Bool_t Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);

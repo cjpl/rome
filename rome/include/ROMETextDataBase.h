@@ -22,7 +22,7 @@ protected:
 
 public:
    ROMETextDataBase();
-   ~ROMETextDataBase();
+   virtual ~ROMETextDataBase();
 
    Bool_t      Init(const char* name,const char* path,const char* connection);
    Bool_t      Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);

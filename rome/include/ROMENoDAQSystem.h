@@ -13,6 +13,7 @@
 class ROMENoDAQSystem : public ROMEDAQSystem {
 public:
    ROMENoDAQSystem() {};
+   virtual ~ROMENoDAQSystem() {};
 
    Int_t       GetTimeStamp() { return -1; };
    const char *GetName() { return "none"; };
