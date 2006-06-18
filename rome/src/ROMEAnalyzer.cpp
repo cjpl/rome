@@ -338,12 +338,12 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          else {
             i = -1;
             while (i < 0 || i >= nFile) {
-               ROMEPrint::Print("Please select a configuration file.\n");
+               ROMEPrint::PrintAlways("Please select a configuration file.\n");
                for (i = 0; i < nFile; i++) {
-                  ROMEPrint::Print("   [%d] %s\n", i, foundFiles.At(i).Data());
+                  ROMEPrint::PrintAlways("   [%d] %s\n", i, foundFiles.At(i).Data());
                }
-               ROMEPrint::Print("   [q] Quit\n");
-               ROMEPrint::Print("File number: ");
+               ROMEPrint::PrintAlways("   [q] Quit\n");
+               ROMEPrint::PrintAlways("File number: ");
                cin.getline(answerLine, sizeof(answerLine));
                answerString = answerLine;
                if (answerString == "q" || answerString == "Q") {
@@ -351,7 +351,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
                }
                i = answerString.ToInteger();
                if (!answerString.IsDigit() || i < 0 || i >= nFile) {
-                  ROMEPrint::Print("File number %s is not found.\n", answerString.Data());
+                  ROMEPrint::PrintAlways("File number %s is not found.\n", answerString.Data());
                   i = -1;
                }
             }
@@ -380,14 +380,14 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          configFile = "romeConfig.xml";
       }
 
-      ROMEPrint::Print("\n");
-      ROMEPrint::Print("The framework can generate a new configuration file for you.\n");
-      ROMEPrint::Print("Available configuration types are :\n");
-      ROMEPrint::Print("   [R] ROME Framework\n");
-      ROMEPrint::Print("   [A] ARGUS Monitor\n");
-      ROMEPrint::Print("   [M] ROME Framework with ARGUS Monitor\n");
-      ROMEPrint::Print("   [N] Don't generate a configuration file\n");
-      ROMEPrint::Print("Please select a configuration type[R/A/M/N]: ");
+      ROMEPrint::PrintAlways("\n");
+      ROMEPrint::PrintAlways("The framework can generate a new configuration file for you.\n");
+      ROMEPrint::PrintAlways("Available configuration types are :\n");
+      ROMEPrint::PrintAlways("   [R] ROME Framework\n");
+      ROMEPrint::PrintAlways("   [A] ARGUS Monitor\n");
+      ROMEPrint::PrintAlways("   [M] ROME Framework with ARGUS Monitor\n");
+      ROMEPrint::PrintAlways("   [N] Don't generate a configuration file\n");
+      ROMEPrint::PrintAlways("Please select a configuration type[R/A/M/N]: ");
       gROME->ss_getchar(0);
       while (answer==0) {
          while (this->ss_kbhit()) {
@@ -404,14 +404,14 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             SetStandAloneARGUS();
          if (answerString=="M")
             SetROMEAndARGUS();
-         ROMEPrint::Print("\nPlease specify file name (default='%s'): ", configFile.Data());
+         ROMEPrint::PrintAlways("\nPlease specify file name (default='%s'): ", configFile.Data());
          cin.getline(answerLine, sizeof(answerLine));
          if (strlen(answerLine))
             configFile = answerLine;
          if (!configFile.EndsWith(".xml") && !configFile.EndsWith(".XML"))
             configFile += ".xml";
          if (!gSystem->AccessPathName(configFile.Data(), kFileExists)) {
-            ROMEPrint::Print("overwrite '%s'? ", configFile.Data());
+            ROMEPrint::PrintAlways("overwrite '%s'? ", configFile.Data());
 /*
             gROME->ss_getchar(0);
             while (answer==0) {
