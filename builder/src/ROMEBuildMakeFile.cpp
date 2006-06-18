@@ -1709,6 +1709,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), %sclean)\n",shortCut.ToLower(tmp));
    buffer.AppendFormatted("SkipDepInclude = yes\n");
    buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("ifeq ($(MAKECMDGOALS), build)\n");
+   buffer.AppendFormatted("SkipDepInclude = yes\n");
+   buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
    buffer.AppendFormatted("-include $(dependfiles)\n");
    buffer.AppendFormatted("endif\n");
