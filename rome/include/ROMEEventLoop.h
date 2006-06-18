@@ -62,38 +62,38 @@ public:
    virtual ~ROMEEventLoop() {}
    ROMEEventLoop(const char *name,const char *title);
    void         ExecuteTask(Option_t *option="");
-   void         BookHisto() {};
-   void         ResetHisto() {};
-   void         Init() {};
-   void         BeginOfRun() {};
-   void         Event() {};
-   void         EndOfRun() {};
-   void         Terminate() {};
+   void         BookHisto() {}
+   void         ResetHisto() {}
+   void         Init() {}
+   void         BeginOfRun() {}
+   void         Event() {}
+   void         EndOfRun() {}
+   void         Terminate() {}
 
-   void         SetContinuousMode(Bool_t mode) { fContinuous = mode; };
-   Bool_t       isContinuousMode() { return fContinuous; };
+   void         SetContinuousMode(Bool_t mode) { fContinuous = mode; }
+   Bool_t       isContinuousMode() { return fContinuous; }
 
    virtual void AddTreeBranches() = 0;
 protected:
    // Run Status
-   Bool_t       isRunning()  { return gROME->GetActiveDAQ()->isRunning(); };
-   Bool_t       isStopped()  { return gROME->GetActiveDAQ()->isStopped(); };
+   Bool_t       isRunning()  { return gROME->GetActiveDAQ()->isRunning(); }
+   Bool_t       isStopped()  { return gROME->GetActiveDAQ()->isStopped(); }
 
-   void         SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); };
-   void         SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); };
+   void         SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); }
+   void         SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); }
 
    // Event Status
-   Bool_t       isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze();    };
-   Bool_t       isContinue()   { return gROME->GetActiveDAQ()->isContinue();   };
-   Bool_t       isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); };
-   Bool_t       isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun();   };
-   Bool_t       isTerminate()  { return gROME->GetActiveDAQ()->isTerminate();  };
+   Bool_t       isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze(); }
+   Bool_t       isContinue()   { return gROME->GetActiveDAQ()->isContinue(); }
+   Bool_t       isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); }
+   Bool_t       isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun(); }
+   Bool_t       isTerminate()  { return gROME->GetActiveDAQ()->isTerminate(); }
 
-   void         SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze();    };
-   void         SetContinue()   { gROME->GetActiveDAQ()->SetContinue();   };
-   void         SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); };
-   void         SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun();   };
-   void         SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate();  };
+   void         SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze(); }
+   void         SetContinue()   { gROME->GetActiveDAQ()->SetContinue(); }
+   void         SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
+   void         SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun(); }
+   void         SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate(); }
 
    // event methods
    Bool_t       DAQInit();

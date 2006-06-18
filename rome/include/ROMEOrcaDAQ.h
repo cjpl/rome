@@ -17,8 +17,8 @@ public:
    virtual ~ROMEOrcaDAQ(){}
 
    // Additional Getters
-   Int_t       GetTimeStamp() { return 0; };  // TODO
-   const char *GetName() { return "orca"; };
+   Int_t       GetTimeStamp() { return 0; }  // TODO
+   const char *GetName() { return "orca"; }
 
    Bool_t      Init();
    Bool_t      BeginOfRun();

@@ -56,7 +56,7 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fROMEInterruptHandler->Add();
    SetSignalHandler(fROMEInterruptHandler);
    fUseRintInterruptHandler = kFALSE;
-};
+}
 
 Bool_t ROMERint::HandleTermInput()
 {

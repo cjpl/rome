@@ -115,7 +115,7 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    }
    Error("GetTabObject", "%s was not found.", tabName);
    return 0;
-};
+}
 
 void ArgusWindow::SetUpdateFrequency(Int_t duration)
 {

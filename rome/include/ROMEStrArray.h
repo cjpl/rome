@@ -50,7 +50,7 @@ public:
    Int_t            LowerBound() const;
    virtual void     Expand(Int_t newSize);
    Int_t            IndexOf(const char *text) const;
-   Int_t            IndexOf(const TString &text) const { return IndexOf(text.Data()); };
+   Int_t            IndexOf(const TString &text) const { return IndexOf(text.Data()); }
 
    ClassDef(ROMEStrArray,1) // 1 dimensional ROMEString array
 };

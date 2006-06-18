@@ -46,8 +46,8 @@ public:
    static void  Warning(const char *msgfmt, ...);
    static void  Error(const char *msgfmt, ...);
 #endif
-   static Int_t GetVerboseLevel() { return fgVerboseLevel; };
-   static void  SetVerboseLevel(Int_t level = kNormal) { fgVerboseLevel = level; };
+   static Int_t GetVerboseLevel() { return fgVerboseLevel; }
+   static void  SetVerboseLevel(Int_t level = kNormal) { fgVerboseLevel = level; }
 
    ClassDef(ROMEPrint, 0) // Message system in ROME
 };

@@ -1027,7 +1027,7 @@ Bool_t ROMEAnalyzer::IsNetFolderActive(const char *name)
       }
    }
    return false;
-};
+}
 
 ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
 {
@@ -1043,7 +1043,7 @@ ROMENetFolder *ROMEAnalyzer::GetNetFolder(const char *name)
    }
    ROMEPrint::Warning("Netfolder '%s' is not defined", name);
    return 0;
-};
+}
 
 Bool_t ROMEAnalyzer::ConnectNetFolder(const char *name)
 {
@@ -1165,17 +1165,17 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
 Bool_t ROMEAnalyzer::StartWindow() 
 { 
    return fWindow->Start(); 
-};
+}
 
 Int_t ROMEAnalyzer::GetUpdateFrequency() 
 { 
    return fWindow->GetUpdateFrequency(); 
-};
+}
 
 void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency) 
 { 
    fWindow->SetUpdateFrequency(frequency); 
-};
+}
 
 Bool_t ROMEAnalyzer::IsWindowBusy() {
    Bool_t busy = false;

@@ -77,7 +77,8 @@ void ArgusTab::StopEventHandler() {
 Int_t ArgusTab::GetUpdateFrequency() 
 { 
    return fUpdateFrequency; 
-};
+}
+
 void ArgusTab::SetUpdateFrequency(Int_t duration) 
 { 
    fUpdateFrequency = duration;
@@ -88,5 +89,5 @@ void ArgusTab::SetUpdateFrequency(Int_t duration)
          fEventHandlerTimer->TurnOn();
       }
    }
-};
+}
 

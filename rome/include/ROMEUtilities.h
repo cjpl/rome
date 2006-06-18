@@ -15,8 +15,8 @@ class ROMEStrArray;
 class ROMEUtilities : public TObject
 {
 public:
-   ROMEUtilities() {};
-   virtual ~ROMEUtilities() {};
+   ROMEUtilities() {}
+   virtual ~ROMEUtilities() {}
    static void ByteSwap( UShort_t *aValue );
    static void ByteSwap( Short_t *aValue );
    static void ByteSwap( UInt_t *aValue );

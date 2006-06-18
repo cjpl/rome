@@ -103,7 +103,7 @@ Bool_t ROMESQLite::StoreResult()
             break;
          default:
             return false;
-      };
+      }
    }
    numOfFields = i;
    numOfRows   = j;

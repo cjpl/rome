@@ -55,16 +55,16 @@ protected:
 public:
    ArgusWindow(); 
    ArgusWindow(const TGWindow* p, Char_t* title);
-   virtual ~ArgusWindow() {};
+   virtual ~ArgusWindow() {}
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
 
    // Analyzer Controller
-   ArgusAnalyzerController   *GetAnalyzerController() { return fController; };
-   Bool_t          IsControllerActive() { return fControllerActive; };
-   void            SetControllerActive(bool flag) { fControllerActive = flag; };
-   ROMENetFolder  *GetControllerNetFolder() { return fControllerNetFolder; };
+   ArgusAnalyzerController   *GetAnalyzerController() { return fController; }
+   Bool_t          IsControllerActive() { return fControllerActive; }
+   void            SetControllerActive(bool flag) { fControllerActive = flag; }
+   ROMENetFolder  *GetControllerNetFolder() { return fControllerNetFolder; }
    void            SetControllerNetFolder(const char* folderName);
 
    // Window Scale
@@ -74,26 +74,26 @@ public:
    void            SetWindowScale(ROMEString& scale) { SetWindowScale((Char_t*)scale.Data()); }
 
    // Status bar
-   void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; };
-   Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; };
-   TGStatusBar*    GetStatusBar() { return fStatusBar; };
+   void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
+   Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
+   TGStatusBar*    GetStatusBar() { return fStatusBar; }
 
    // Update Frequency
    void            SetUpdateFrequency(Int_t duration);
-   Int_t           GetUpdateFrequency() { return fUpdateFrequency; };
+   Int_t           GetUpdateFrequency() { return fUpdateFrequency; }
    
    // Menu
-   TGMenuBar*      GetMenuBar() { return fMenuBar; };
+   TGMenuBar*      GetMenuBar() { return fMenuBar; }
    void            CloseWindow();
    void            ClearStatusBar();
    
    // Tabs
-   void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); };
-   ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); };
+   void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }
+   ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); }
    ArgusTab       *GetTabObject(const char* tabName);
-   Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; };
+   Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
    // Active
-   Bool_t          IsActive() { return fArgusActive; };
+   Bool_t          IsActive() { return fArgusActive; }
 
    // Event Handler
    virtual void    StopEventHandler() = 0;

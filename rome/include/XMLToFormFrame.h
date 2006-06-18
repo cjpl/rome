@@ -90,29 +90,29 @@ public:
       fVFrames = NULL;
       fNumberOfHHFrames = 0;
       fNumberOfVFrames = 0;
-   };
+   }
    void AddSubFrame(XMLToFormFrame* subFrame) {
       fSubFrames.AddLast(subFrame);
       fNumberOfSubFrames++;
-   };
+   }
    void AddElement(XMLToFormElement* element) {
       fElements.AddLast(element);
       fNumberOfElements++;
-   };
+   }
    // Frame Data Getters
-   TString GetFrameTitle() { return fFrameTitle; };
-   TString GetFramePath() { return fFramePath; };
-   Bool_t  IsFrameVertical() { return fFrameVertical; };
-   Bool_t  IsFrameTab() { return fFrameTab; };
-   Bool_t  IsFrameVisible() { return fFrameVisible; };
-   void    SetFrameVisible(Bool_t visible) { fFrameVisible = visible; };
-   Int_t   GetFrameTabIndex() { return fFrameTabIndex; };
+   TString GetFrameTitle() { return fFrameTitle; }
+   TString GetFramePath() { return fFramePath; }
+   Bool_t  IsFrameVertical() { return fFrameVertical; }
+   Bool_t  IsFrameTab() { return fFrameTab; }
+   Bool_t  IsFrameVisible() { return fFrameVisible; }
+   void    SetFrameVisible(Bool_t visible) { fFrameVisible = visible; }
+   Int_t   GetFrameTabIndex() { return fFrameTabIndex; }
    // Element Data Getter
-   XMLToFormElement* GetElementAt(Int_t i) { return ((XMLToFormElement*)fElements.At(i)); };
-   Int_t   GetNumberOfElements() { return fNumberOfElements; };
+   XMLToFormElement* GetElementAt(Int_t i) { return ((XMLToFormElement*)fElements.At(i)); }
+   Int_t   GetNumberOfElements() { return fNumberOfElements; }
    // Sub Frame Data Getter
-   XMLToFormFrame* GetSubFrameAt(Int_t i) { return ((XMLToFormFrame*)fSubFrames.At(i)); };
-   Int_t   GetNumberOfSubFrames() { return fNumberOfSubFrames; };
+   XMLToFormFrame* GetSubFrameAt(Int_t i) { return ((XMLToFormFrame*)fSubFrames.At(i)); }
+   Int_t   GetNumberOfSubFrames() { return fNumberOfSubFrames; }
 
    ClassDef(XMLToFormFrame, 0)
 };

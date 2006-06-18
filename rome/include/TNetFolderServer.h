@@ -32,8 +32,8 @@ protected:
    Int_t                fPort;
    static TString       fServerName;
 public:
-   TNetFolderServer(){};
-   virtual ~TNetFolderServer(){};
+   TNetFolderServer(){}
+   virtual ~TNetFolderServer(){}
    void               StartServer(TApplication *app,Int_t port,const char* serverName);
    static Int_t       ResponseFunction(TSocket *socket);
 protected:
