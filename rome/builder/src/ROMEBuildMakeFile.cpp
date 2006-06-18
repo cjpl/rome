@@ -1710,7 +1710,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("SkipDepInclude = yes\n");
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
-   buffer.AppendFormatted("include $(dependfiles)\n");
+   buffer.AppendFormatted("-include $(dependfiles)\n");
    buffer.AppendFormatted("endif\n");
 #endif // R__VISUAL_CPLUSPLUS
 
