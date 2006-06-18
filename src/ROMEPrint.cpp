@@ -21,6 +21,18 @@ ClassImp(ROMEPrint)
 
 Int_t ROMEPrint::fgVerboseLevel = ROMEPrint::kNormal;
 
+void ROMEPrint::PrintAlways(const char* va_(fmt),...)
+{
+// Print always independently of verbose level
+// STDOUT
+   if (va_(fmt)==NULL)
+      return;
+   va_list ap;
+   va_start(ap,va_(fmt));
+   cout<<ROMEString::Format(va_(fmt), ap)<<flush;
+   va_end(ap);
+}
+
 void ROMEPrint::Debug(const char* va_(fmt),...)
 {
 // Print when verbose level >= kDebug

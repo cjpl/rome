@@ -39,6 +39,7 @@ public:
 
    // Output
 #ifndef __MAKECINT__
+   static void  PrintAlways(const char *msgfmt, ...);
    static void  Debug(const char *msgfmt, ...);
    static void  Print(const char *msgfmt, ...);
    static void  Info(const char *msgfmt, ...);
