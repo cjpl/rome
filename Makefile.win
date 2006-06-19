@@ -24,6 +24,7 @@ BldObjects = obj/ROMEBuilder.obj \
 	  obj/ROMEXML.obj \
 	  obj/mxml.obj \
 	  obj/strlcpy.obj \
+	  obj/ROMEPrint.obj \
 	  obj/ROMEString.obj \
 	  obj/ROMEStrArray.obj \
 	  obj/ROMEStr2DArray.obj \
@@ -32,6 +33,7 @@ BldObjects = obj/ROMEBuilder.obj \
 BldDictHeaders = include/ROMEString.h \
                  include/ROMEStrArray.h \
                  include/ROMEStr2DArray.h \
+                 include/ROMEPrint.h \
                  include/ROMEXML.h
 
 
@@ -85,6 +87,9 @@ obj/mxml.obj: src/mxml.c include/mxml.h
 
 obj/strlcpy.obj: src/strlcpy.c include/strlcpy.h
 	@cl /nologo /c $(Flags) $(Includes) src/strlcpy.c /Foobj/strlcpy.obj
+
+obj/ROMEPrint.obj: src/ROMEPrint.cpp include/ROMEPrint.h
+	@cl /nologo /c $(Flags) $(Includes) src/ROMEPrint.cpp /Foobj/ROMEPrint.obj
 
 obj/ROMEString.obj: src/ROMEString.cpp include/ROMEString.h
 	@cl /nologo /c $(Flags) $(Includes) src/ROMEString.cpp /Foobj/ROMEString.obj
