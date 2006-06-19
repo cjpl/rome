@@ -957,11 +957,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)\n",shortCut.ToUpper(tmp));
-#endif // R__UNIX
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ifndef RM\n");
    buffer.AppendFormatted("RM %s rm -f\n",kEqualSign);
    buffer.AppendFormatted("endif\n\n");
+#endif // R__UNIX
 }
 
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
