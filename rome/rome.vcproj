@@ -46,7 +46,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Root Dictionary Generation"
-				CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h"/>
+				CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h include/ROMEPrint.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -140,6 +140,9 @@
 				RelativePath=".\builder\src\ROMEConfigParameter.cpp">
 			</File>
 			<File
+				RelativePath=".\src\ROMEPrint.cpp">
+			</File>
+			<File
 				RelativePath=".\src\ROMEStr2DArray.cpp">
 			</File>
 			<File
@@ -170,6 +173,9 @@
 			</File>
 			<File
 				RelativePath=".\builder\include\ROMEConfigParameter.h">
+			</File>
+			<File
+				RelativePath=".\include\ROMEPrint.h">
 			</File>
 			<File
 				RelativePath=".\include\ROMEStr2DArray.h">
