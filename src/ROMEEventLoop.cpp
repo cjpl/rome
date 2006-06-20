@@ -744,7 +744,7 @@ Bool_t ROMEEventLoop::UserInput()
 #if defined( R__VISUAL_CPLUSPLUS )
          ROMEPrint::Print("\nStart root session at the end of event number %I64d of run number %I64d\n",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #else
-         ROMEPrint::Print("\nStart root session at the end of event number %lld of run number %I64d\n",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+         ROMEPrint::Print("\nStart root session at the end of event number %lld of run number %lld\n",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #endif
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();
