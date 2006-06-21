@@ -145,6 +145,9 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
             romeTree->SetTree(tree);
             fTreePosition[j] = 0;
          }
+         else {
+            fRootFiles[j] = 0;
+         }
       }
       if (!treeRead) {
          ROMEPrint::Error("No input tree specified for running in rome mode.\n");

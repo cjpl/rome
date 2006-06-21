@@ -404,6 +404,11 @@ Bool_t ROMEEventLoop::DAQInit()
             romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
          }
       }
+      else {
+         romeTree->SetFile(0);
+         filename = "";
+         romeTree->SetFileName(filename);
+      }
    }
    return true;
 }
@@ -499,6 +504,11 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
                romeTree->SetFileOverWrite();
                fTreeUpdateIndex = 0;
             }
+            romeTree->SetFileName(filename);
+         }
+         else {
+            romeTree->SetFile(0);
+            filename = "";
             romeTree->SetFileName(filename);
          }
       }
