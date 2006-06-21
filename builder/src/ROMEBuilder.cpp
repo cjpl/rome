@@ -475,7 +475,7 @@ Bool_t ROMEBuilder::StartBuilder()
       path.SetFormatted("%sinclude/tabs", outDir.Data());
       gSystem->MakeDirectory(path.Data());
    }
-   if (hasFolderUserCode) {
+   if (numOfFolder > 0) {
       path.SetFormatted("%ssrc/folders", outDir.Data());
       gSystem->MakeDirectory(path.Data());
       path.SetFormatted("%sinclude/folders", outDir.Data());
