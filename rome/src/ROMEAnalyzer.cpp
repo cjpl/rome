@@ -439,11 +439,11 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       return false;
    }
-   ROMEPrint::Print("reading configuration from %s\n", configFile.Data());
    if (!this->GetConfiguration()->ReadConfigurationFile(configFile.Data())) {
       ROMEPrint::Print("\nTerminate program.\n");
       return false;
    }
+   ROMEPrint::Print("Using configuration file %s\n", configFile.Data());
    if (isGraphicalConfigEdit() && !isNoGraphics()) {
       if (!this->ShowConfigurationFile()) {
          ROMEPrint::Print("\nTerminate program.\n");
