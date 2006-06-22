@@ -1060,7 +1060,8 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | sed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@\n",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | sed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@ ",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
+   buffer.AppendFormatted(" || ($(RM) obj/%sionary.d; exit 1;)\n",dictionaryName);
 #endif
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
@@ -1097,7 +1098,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    }
    if (linkDefName)
       buffer.AppendFormatted(" %s",linkDefName);
-   buffer.AppendFormatted(" || ($(RM) obj/%sionary.d; exit 1;)\n\n",dictionaryName);
+   buffer.AppendFormatted("\n\n");
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
@@ -1121,7 +1122,8 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ \n",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ ",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(" || ($(RM) obj/%sUserDictionary.d; exit 1;)\n",shortCut.Data());
 #endif
    WriteMakefileDictDummyCpp(dictionaryName.Data());
 
@@ -1157,7 +1159,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
          continue;
       buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
    }
-   buffer.AppendFormatted(" || ($(RM) obj/%sUserDictionary.d; exit 1;)\n\n",shortCut.Data());
+   buffer.AppendFormatted("\n\n");
 }
 
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources)
@@ -1175,9 +1177,9 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<\n",name.Data());
+      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<  || ($(RM) obj/%s.d; exit 1;)\n",name.Data(),name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj || ($(RM) obj/%s.d; exit 1;)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
+      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
