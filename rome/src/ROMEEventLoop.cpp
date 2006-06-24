@@ -667,7 +667,7 @@ Bool_t ROMEEventLoop::UserInput()
             }
             if (ch == 'y' || ch == 'Y')
                return false;
-            ROMEPrint::Print("                                  \r");
+            ROMEPrint::Print("\r                                                                                \r");
          }
          if (ch == 'e' || gROME->IsUserEventE()) {
             this->SetTerminate();
@@ -763,6 +763,7 @@ Bool_t ROMEEventLoop::UserInput()
          gROME->GetApplication()->Run(true);
          gSystem->Init();
          gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
+         ROMEPrint::Print("\r                                                                                \r");
       }
 
       if (wait) {
