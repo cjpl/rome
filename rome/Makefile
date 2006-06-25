@@ -11,13 +11,15 @@
 #  If yes, ROME classes are packed in librome.a and linked to each projects
 #  instead of compiling in each projects.
 #  When you changed this key, you need to do "make clean"
-LIBROME = no
+# LIBROME = yes
 
 # Compile mode for librome.a and romebuilder
-ROMEDEBUG = no
+# ROMEDEBUG = yes
 
 # Compiler
+ifndef CXX
 CXX = g++
+endif
 
 #####################################################################
 # Nothing needs to be modified after this line 
