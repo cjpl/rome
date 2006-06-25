@@ -500,10 +500,12 @@ Bool_t ROMEBuilder::StartBuilder()
    if (makeOutput) 
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
+   if (!WriteAnalyzer2Cpp()) return false;
    if (!WriteAnalyzerH()) return false;
    if (makeOutput) 
       cout << "\n\nWindow:" << endl;
    if (!WriteWindowCpp()) return false;
+   if (!WriteWindow2Cpp()) return false;
    if (!WriteWindowH()) return false;
    if (makeOutput) 
       cout << "\n\nFolders:" << endl;

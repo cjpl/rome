@@ -464,8 +464,10 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources = new ROMEStrArray(12+TMath::Max(numOfTab,0)+TMath::Max(numOfTask,0));
    generatedSources->AddFormatted("src/generated/main.cpp");
    generatedSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sAnalyzer2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sWindow2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
    if (numOfEvent>0)
       generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
