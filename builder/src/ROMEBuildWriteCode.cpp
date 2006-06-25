@@ -3038,8 +3038,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
       buffer.AppendFormatted("#pragma warning( pop )\n");
    #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-      if (readGlobalSteeringParameters)
-         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+
       if (tabHistoDisplay[iTab])
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
       else
