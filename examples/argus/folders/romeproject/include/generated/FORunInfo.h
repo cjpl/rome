@@ -36,24 +36,24 @@ public:
 
    virtual ~FORunInfo();
 
-   Short_t        GetRunMode()   { return RunMode;   };
-   TString        GetComment()   { return Comment;   };
-   Int_t          GetStartTime() { return StartTime; };
-   Int_t          GetStopTime()  { return StopTime;  };
+   Short_t        GetRunMode()   { return RunMode;   }
+   TString        GetComment()   { return Comment;   }
+   Int_t          GetStartTime() { return StartTime; }
+   Int_t          GetStopTime()  { return StopTime;  }
 
    Bool_t         isModified();
 
-   void SetRunMode  (Short_t       RunMode_value  ) { RunMode   = RunMode_value;   SetModified(true); };
-   void SetComment  (TString       Comment_value  ) { Comment   = Comment_value;   SetModified(true); };
-   void SetStartTime(Int_t         StartTime_value) { StartTime = StartTime_value; SetModified(true); };
-   void SetStopTime (Int_t         StopTime_value ) { StopTime  = StopTime_value;  SetModified(true); };
+   void SetRunMode  (Short_t       RunMode_value  ) { RunMode   = RunMode_value;   SetModified(true); }
+   void SetComment  (TString       Comment_value  ) { Comment   = Comment_value;   SetModified(true); }
+   void SetStartTime(Int_t         StartTime_value) { StartTime = StartTime_value; SetModified(true); }
+   void SetStopTime (Int_t         StopTime_value ) { StopTime  = StopTime_value;  SetModified(true); }
 
-   void AddRunMode  (Short_t       RunMode_value  ) { RunMode   += RunMode_value;   SetModified(true); };
-   void AddComment  (TString       Comment_value  ) { Comment   += Comment_value;   SetModified(true); };
-   void AddStartTime(Int_t         StartTime_value) { StartTime += StartTime_value; SetModified(true); };
-   void AddStopTime (Int_t         StopTime_value ) { StopTime  += StopTime_value;  SetModified(true); };
+   void AddRunMode  (Short_t       RunMode_value  ) { RunMode   += RunMode_value;   SetModified(true); }
+   void AddComment  (TString       Comment_value  ) { Comment   += Comment_value;   SetModified(true); }
+   void AddStartTime(Int_t         StartTime_value) { StartTime += StartTime_value; SetModified(true); }
+   void AddStopTime (Int_t         StopTime_value ) { StopTime  += StopTime_value;  SetModified(true); }
 
-   void SetModified (Bool_t        modified ) { fModified  = modified; };
+   void SetModified (Bool_t        modified ) { fModified  = modified; }
 
    void ResetModified();
 

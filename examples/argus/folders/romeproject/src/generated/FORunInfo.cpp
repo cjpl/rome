@@ -23,11 +23,11 @@ FORunInfo::FORunInfo( Short_t RunMode_value,TString Comment_value,Int_t StartTim
    StartTime = StartTime_value;
    StopTime = StopTime_value;
    fModified = false;
-};
+}
 
 FORunInfo::~FORunInfo()
 {
-};
+}
 
 
 Bool_t FORunInfo::isModified()
@@ -43,7 +43,7 @@ void FORunInfo::ResetModified()
    if (isModified()) {
       SetModified(false);
    }
-};
+}
 
 void FORunInfo::SetAll( Short_t RunMode_value,TString Comment_value,Int_t StartTime_value,Int_t StopTime_value )
 {
@@ -52,7 +52,7 @@ void FORunInfo::SetAll( Short_t RunMode_value,TString Comment_value,Int_t StartT
    StartTime = StartTime_value;
    StopTime = StopTime_value;
    SetModified(true);
-};
+}
 
 void FORunInfo::Reset()
 {
@@ -62,6 +62,6 @@ void FORunInfo::Reset()
       StartTime = (Int_t)0;
       StopTime = (Int_t)0;
    fModified = false;
-};
+}
 
 
