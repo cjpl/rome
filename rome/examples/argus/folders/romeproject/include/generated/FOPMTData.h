@@ -33,18 +33,18 @@ public:
 
    virtual ~FOPMTData();
 
-   Short_t        GetADC()      { return ADC;      };
-   Short_t        GetTDC()      { return TDC;      };
+   Short_t        GetADC()      { return ADC;      }
+   Short_t        GetTDC()      { return TDC;      }
 
    Bool_t         isModified();
 
-   void SetADC     (Short_t       ADC_value     ) { ADC      = ADC_value;      SetModified(true); };
-   void SetTDC     (Short_t       TDC_value     ) { TDC      = TDC_value;      SetModified(true); };
+   void SetADC     (Short_t       ADC_value     ) { ADC      = ADC_value;      SetModified(true); }
+   void SetTDC     (Short_t       TDC_value     ) { TDC      = TDC_value;      SetModified(true); }
 
-   void AddADC     (Short_t       ADC_value     ) { ADC      += ADC_value;      SetModified(true); };
-   void AddTDC     (Short_t       TDC_value     ) { TDC      += TDC_value;      SetModified(true); };
+   void AddADC     (Short_t       ADC_value     ) { ADC      += ADC_value;      SetModified(true); }
+   void AddTDC     (Short_t       TDC_value     ) { TDC      += TDC_value;      SetModified(true); }
 
-   void SetModified(Bool_t        modified) { fModified = modified;};
+   void SetModified(Bool_t        modified) { fModified = modified;}
 
    void ResetModified();
 
