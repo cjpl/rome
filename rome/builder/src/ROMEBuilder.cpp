@@ -501,6 +501,7 @@ Bool_t ROMEBuilder::StartBuilder()
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
    if (!WriteAnalyzer2Cpp()) return false;
+   if (!WriteAnalyzer3Cpp()) return false;
    if (!WriteAnalyzerH()) return false;
    if (makeOutput) 
       cout << "\n\nWindow:" << endl;
