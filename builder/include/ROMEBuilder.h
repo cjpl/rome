@@ -492,8 +492,10 @@ private:
    Bool_t  WriteBaseTabH();
    Bool_t  WriteSteering(Int_t iTask);
    Bool_t  WriteAnalyzerCpp();
+   Bool_t  WriteAnalyzer2Cpp();
    Bool_t  WriteAnalyzerH();
    Bool_t  WriteWindowCpp();
+   Bool_t  WriteWindow2Cpp();
    Bool_t  WriteWindowH();
    Bool_t  AddTab(ROMEString& buffer,Int_t& i);
    Bool_t  AddMenuItems(ROMEString& buffer,Int_t i,Int_t j,Int_t iHeredity,Int_t jHeredity,Int_t jOffset);
