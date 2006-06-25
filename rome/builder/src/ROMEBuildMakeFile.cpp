@@ -837,18 +837,10 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 
 #if defined( R__UNIX )
    // equal signs below should be '=' to allow change in Makefile.usr
-   buffer.AppendFormatted("ifndef %sCFLAGS\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sCFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("endif\n\n");
-   buffer.AppendFormatted("ifndef %sCXXFLAGS\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sCXXFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("endif\n\n");
-   buffer.AppendFormatted("ifndef %sFFLAGS\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sFFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("endif\n\n");
-   buffer.AppendFormatted("ifndef %sLDFLAGS\n",shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sLDFLAGS = $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("%sCFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sFFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sLDFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
    buffer.AppendFormatted("ifndef CXX\n");
    buffer.AppendFormatted("CXX = g++\n");
    buffer.AppendFormatted("endif\n\n");
