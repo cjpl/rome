@@ -465,6 +465,7 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/main.cpp");
    generatedSources->AddFormatted("src/generated/%sAnalyzer.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sAnalyzer2.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sAnalyzer3.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sEventLoop.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow2.cpp",shortCut.Data());
@@ -1577,7 +1578,7 @@ void ROMEBuilder::WriteMakefile() {
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("%sUserDictOpt = $(NoOpt)\n",shortCut.Data());
 
-      buffer.AppendFormatted("%sAnalyzerOpt = $(NoOpt)\n",shortCut.Data());
+      buffer.AppendFormatted("%sAnalyzer3Opt = $(NoOpt)\n",shortCut.Data());
       buffer.AppendFormatted("%sConfigOpt = $(NoOpt)\n",shortCut.Data());
       buffer.AppendFormatted("%sConfigToFormOpt = $(NoOpt)\n",shortCut.Data());
 

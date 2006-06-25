@@ -493,6 +493,7 @@ private:
    Bool_t  WriteSteering(Int_t iTask);
    Bool_t  WriteAnalyzerCpp();
    Bool_t  WriteAnalyzer2Cpp();
+   Bool_t  WriteAnalyzer3Cpp();
    Bool_t  WriteAnalyzerH();
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindow2Cpp();
