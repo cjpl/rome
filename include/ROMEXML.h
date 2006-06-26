@@ -17,6 +17,7 @@ extern "C" {
 
 #include <TObject.h>
 #include "ROMEString.h"
+
 class ROMEStrArray;
 
 class ROMEXML : public TObject

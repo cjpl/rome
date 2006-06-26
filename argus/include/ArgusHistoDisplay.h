@@ -13,20 +13,22 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 4244)
 #endif // R__VISUAL_CPLUSPLUS
-#include <TGMenu.h>
-#include <TGProgressBar.h>
-#include <TRootEmbeddedCanvas.h>
-#include <TText.h>
-#include <TGraph.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TPad.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 #include "ArgusTab.h"
-#include "XMLToForm.h"
+
+class TGMenuBar;
+class TGPopupMenu;
+class TGHProgressBar;
+class TRootEmbeddedCanvas;
+class TText;
+class TGraph;
+class TH1F;
+class TH2F;
+class TPad;
+class XMLToForm;
 
 class ArgusHistoDisplay : public ArgusTab
 {

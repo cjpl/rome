@@ -2536,6 +2536,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("#include <TH1F.h>\n",shortCut.Data());
+         buffer.AppendFormatted("#include <TH2F.h>\n",shortCut.Data());
+         buffer.AppendFormatted("#include <TGraph.h>\n",shortCut.Data());
+      }
+
       if (tabHeredity[iTab].Length()>0)
          buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n",shortCut.Data(),tabHeredity[iTab].Data());
       // Task class includes
@@ -3037,7 +3043,6 @@ Bool_t ROMEBuilder::WriteBaseTabH()
    #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
    #endif // R__VISUAL_CPLUSPLUS
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
 
       if (tabHistoDisplay[iTab])
          buffer.AppendFormatted("#include \"ArgusHistoDisplay.h\"\n");
@@ -4315,8 +4320,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    }
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n", shortCut.Data());
-//   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
-   buffer.AppendFormatted("class %sWindow;\n", shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
 
    // Folder class declaration
    for (i=0;i<numOfFolder;i++) {
@@ -5174,7 +5178,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("   ClassDef(%sWindow,1)\n", shortCut.Data());
+   buffer.AppendFormatted("   ClassDef(%sWindow,0)\n", shortCut.Data());
    buffer.AppendFormatted("};\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#endif\n");
@@ -9609,7 +9613,6 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ROMERint.h\"\n");
-   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#include <Windows.h>\n");

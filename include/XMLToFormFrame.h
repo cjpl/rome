@@ -3,12 +3,10 @@
 #define XMLToFormFrame_H
 
 #include <TGLayout.h>
-
 #include <TObjArray.h>
 #include "ROMEString.h"
 #include "XMLToFormElement.h"
 
-class TGLayoutHints;
 class XMLToFormFrame;
 class TGCompositeFrame;
 class TGTab;
