@@ -626,6 +626,9 @@ private:
    void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateROMEString(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
+
+   ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
+   ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
 };
 
 #endif   // ROMEBuilder_H
