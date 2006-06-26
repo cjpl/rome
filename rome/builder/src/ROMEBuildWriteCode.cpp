@@ -985,11 +985,11 @@ Bool_t ROMEBuilder::WriteFolderH()
                return false;
             }
             format.SetFormatted("   TClonesArray*%%%ds %%s;%%%ds %%s\n",typeLen-13,nameLen-valueName[iFold][i].Length());
-            buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
+            buffer.AppendFormatted(format.Data(),"",valueName[iFold][i].Data(),"",ProcessCommentCPP(valueComment[iFold][i],tmp).Data());
          }
          else if (valueArray[iFold][i][0]=="variable") {
             format.SetFormatted("   %%-%ds* %%s;%%%ds %%s\n",typeLen-1,nameLen-valueName[iFold][i].Length());
-            buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",valueComment[iFold][i].Data());
+            buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),"",ProcessCommentCPP(valueComment[iFold][i],tmp).Data());
             format.SetFormatted("   %%-%ds %%sSize;%%%ds // ! number of elements of %%s\n",typeLen,nameLen-valueName[iFold][i].Length()-4);
             buffer.AppendFormatted(format.Data(),"Int_t",valueName[iFold][i].Data(),"",valueName[iFold][i].Data());
             format.SetFormatted("   %%-%ds %%sActualSize;%%%ds // ! actual size of %%s allocated in memory\n",typeLen,nameLen-valueName[iFold][i].Length()-10);
@@ -1006,7 +1006,7 @@ Bool_t ROMEBuilder::WriteFolderH()
                }
             }
             format.SetFormatted(";%%%ds %%s\n",nameLen-valueName[iFold][i].Length()-arrayLen);
-            buffer.AppendFormatted(format.Data(),"",valueComment[iFold][i].Data());
+            buffer.AppendFormatted(format.Data(),"",ProcessCommentCPP(valueComment[iFold][i],tmp).Data());
          }
       }
       format.SetFormatted("   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen-9);
@@ -8552,17 +8552,19 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
 
    buffer.AppendFormatted("%sprotected:\n",blank.Data());
 
+   ROMEString tmp;
+
    // Fields
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (!steerFieldUsed[numTask][numSteer][j])
          continue;
       if (steerFieldArraySize[numTask][numSteer][j]=="1") {
          format.SetFormatted("%%s   %%-%ds f%%s;%%%ds %%s\n",typeLen,nameLen+5-steerFieldName[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),"",ProcessCommentCPP(steerFieldComment[numTask][numSteer][j],tmp).Data());
       }
       else {
          format.SetFormatted("%%s   %%-%ds f%%s[%%s];%%%ds %%s\n",typeLen,nameLen+3-steerFieldName[numTask][numSteer][j].Length()-steerFieldArraySize[numTask][numSteer][j].Length());
-         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldArraySize[numTask][numSteer][j].Data(),"",steerFieldComment[numTask][numSteer][j].Data());
+         buffer.AppendFormatted(format.Data(),blank.Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldArraySize[numTask][numSteer][j].Data(),"",ProcessCommentCPP(steerFieldComment[numTask][numSteer][j],tmp).Data());
       }
    }
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
@@ -9901,6 +9903,7 @@ void ROMEBuilder::WriteHTMLDoku()
    buffer.AppendFormatted("<p>\n");
    buffer.AppendFormatted("In the following all folders will be described.\n");
    buffer.AppendFormatted("<p>\n");
+   ROMEString tmp;
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -9928,7 +9931,7 @@ void ROMEBuilder::WriteHTMLDoku()
             else
                buffer.AppendFormatted("<td><center>No</center></td>");
          }
-         buffer.AppendFormatted("<td>&nbsp;%s&nbsp;</td></tr>\n",comment.Data());
+         buffer.AppendFormatted("<td>&nbsp;%s&nbsp;</td></tr>\n",ProcessCommentHTML(comment,tmp).Data());
          trodd = !trodd;
       }
       buffer.AppendFormatted("</table><br>\n");
@@ -10171,6 +10174,7 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numT
    int k;
    ROMEString comment;
    ROMEString groupName;
+   ROMEString tmp;
    bool trodd = true;
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if (!steerFieldUsed[numTask][numSteer][k])
@@ -10181,7 +10185,7 @@ void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numT
             comment = steerFieldComment[numTask][numSteer][k](3,steerFieldComment[numTask][numSteer][k].Length()-3);
          }
       }
-      buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),comment.Data());
+      buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),ProcessCommentHTML(comment,tmp).Data());
       trodd = !trodd;
    }
    // Groups
@@ -10820,4 +10824,18 @@ void ROMEBuilder::RemoveDepFiles(const char* str)
    }
 
    return;
+}
+
+ROMEString& ROMEBuilder::ProcessCommentCPP(ROMEString& org, ROMEString& result)
+{
+   result = org;
+   result.ReplaceAll("\n", "\n// ");
+   return result;
+}
+
+ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
+{
+   result = org;
+   result.ReplaceAll("\n", "<br>\n");
+   return result;
 }
