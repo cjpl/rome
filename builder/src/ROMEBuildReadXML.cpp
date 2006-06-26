@@ -2910,6 +2910,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
    int type,i,j;
    ROMEString currentSteeringName = "";
    int currentNumberOfSteerings;
+   bool readFieldAffiliation;
 
    // count steering parameters
    numOfSteering[iTask]++;
@@ -3004,6 +3005,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          // include initialisation
          bool readName = false;
          bool readType = false;
+         readFieldAffiliation = false;
          steerFieldName[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "1";
@@ -3025,6 +3027,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
             }
             // steering parameter field affiliation
             if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
+               readFieldAffiliation = true;
                steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]] = "";
                xml->GetValue(steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]],steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]]);
                for (i=0;i<affiliationList.GetEntries();i++) {
@@ -3098,6 +3101,14 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
                   cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
                   cout << "Terminating program." << endl;
                   return false;
+               }
+               if (!readFieldAffiliation) {
+                  numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]
+                     = numOfSteerAffiliations[iTask][numOfSteering[iTask]];
+                  for (i=0;i<numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];i++) {
+                     steerFieldAffiliation[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][i]
+                        = steerAffiliation[iTask][actualSteerIndex][i];
+                  }
                }
                if (affiliations.GetEntriesFast()>0) {
                   steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = false;
