@@ -1278,7 +1278,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskUsed[numOfTask] = true;
    taskEventID[numOfTask] = "-1";
    taskAuthor[numOfTask] = mainAuthor;
-   taskVersion[numOfTask] = "1";
+   taskVersion[numOfTask] = "0";
    taskDescription[numOfTask] = "";
    taskShortDescription[numOfTask] = "";
    numOfHistos[numOfTask] = 0;
@@ -1615,7 +1615,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfTabAffiliations[numOfTab] = 0;
    tabUsed[numOfTab] = true;
    tabAuthor[currentNumberOfTabs] = mainAuthor;
-   tabVersion[currentNumberOfTabs] = "1";
+   tabVersion[currentNumberOfTabs] = "0";
    tabDescription[currentNumberOfTabs] = "";
    tabShortDescription[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
