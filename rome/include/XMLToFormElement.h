@@ -2,8 +2,6 @@
 #ifndef XMLToFormElement_H
 #define XMLToFormElement_H
 
-#include <TObjArray.h>
-#include <TArrayI.h>
 #include <TString.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"

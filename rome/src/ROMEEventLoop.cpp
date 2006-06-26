@@ -885,3 +885,23 @@ Bool_t ROMEEventLoop::DAQTerminate()
 
    return true;
 }
+
+// Run Status
+Bool_t ROMEEventLoop::isRunning()  { return gROME->GetActiveDAQ()->isRunning(); }
+Bool_t ROMEEventLoop::isStopped()  { return gROME->GetActiveDAQ()->isStopped(); }
+
+void ROMEEventLoop::SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); }
+void ROMEEventLoop::SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); }
+
+// Event Status
+Bool_t ROMEEventLoop::isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze(); }
+Bool_t ROMEEventLoop::isContinue()   { return gROME->GetActiveDAQ()->isContinue(); }
+Bool_t ROMEEventLoop::isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); }
+Bool_t ROMEEventLoop::isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun(); }
+Bool_t ROMEEventLoop::isTerminate()  { return gROME->GetActiveDAQ()->isTerminate(); }
+
+void ROMEEventLoop::SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze(); }
+void ROMEEventLoop::SetContinue()   { gROME->GetActiveDAQ()->SetContinue(); }
+void ROMEEventLoop::SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
+void ROMEEventLoop::SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun(); }
+void ROMEEventLoop::SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate(); }

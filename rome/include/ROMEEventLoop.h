@@ -17,10 +17,10 @@
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
-#include "ROMEAnalyzer.h"
 #include "ROMETask.h"
 
 class ROMETreeInfo;
+class TFile;
 
 class ROMEEventLoop : public ROMETask {
 protected:
@@ -76,24 +76,24 @@ public:
    virtual void AddTreeBranches() = 0;
 protected:
    // Run Status
-   Bool_t       isRunning()  { return gROME->GetActiveDAQ()->isRunning(); }
-   Bool_t       isStopped()  { return gROME->GetActiveDAQ()->isStopped(); }
+   inline Bool_t isRunning();
+   inline Bool_t isStopped();
 
-   void         SetRunning()  { gROME->GetActiveDAQ()->SetRunning(); }
-   void         SetStopped()  { gROME->GetActiveDAQ()->SetStopped(); }
+   inline void   SetRunning();
+   inline void   SetStopped();
 
    // Event Status
-   Bool_t       isAnalyze()    { return gROME->GetActiveDAQ()->isAnalyze(); }
-   Bool_t       isContinue()   { return gROME->GetActiveDAQ()->isContinue(); }
-   Bool_t       isBeginOfRun() { return gROME->GetActiveDAQ()->isBeginOfRun(); }
-   Bool_t       isEndOfRun()   { return gROME->GetActiveDAQ()->isEndOfRun(); }
-   Bool_t       isTerminate()  { return gROME->GetActiveDAQ()->isTerminate(); }
+   inline Bool_t isAnalyze();
+   inline Bool_t isContinue();
+   inline Bool_t isBeginOfRun();
+   inline Bool_t isEndOfRun();
+   inline Bool_t isTerminate();
 
-   void         SetAnalyze()    { gROME->GetActiveDAQ()->SetAnalyze(); }
-   void         SetContinue()   { gROME->GetActiveDAQ()->SetContinue(); }
-   void         SetBeginOfRun() { gROME->GetActiveDAQ()->SetBeginOfRun(); }
-   void         SetEndOfRun()   { gROME->GetActiveDAQ()->SetEndOfRun(); }
-   void         SetTerminate()  { gROME->GetActiveDAQ()->SetTerminate(); }
+   inline void   SetAnalyze();
+   inline void   SetContinue();
+   inline void   SetBeginOfRun();
+   inline void   SetEndOfRun();
+   inline void   SetTerminate();
 
    // event methods
    Bool_t       DAQInit();
