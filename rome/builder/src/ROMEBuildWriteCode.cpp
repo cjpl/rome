@@ -8023,7 +8023,12 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
          buffer.AppendFormatted("      ROMEPrint::Warning(\"Branch '%s' not found in tree '%s'.\\n\");\n",rootBranchName[i][j].Data(),rootTreeName[i].Data());
          buffer.AppendFormatted("      return false;\n");
          buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   bb->SetAddress(&(Get%s()->f%s));\n",rootTreeName[i].Data(),rootBranchName[i][j].Data());
+         if (rootBranchArraySize[i][j].Length()==0) {
+            buffer.AppendFormatted("   bb->SetAddress(&(Get%s()->f%s));\n",rootTreeName[i].Data(),rootBranchName[i][j].Data());
+         }
+         else {
+            buffer.AppendFormatted("   bb->SetAddress(Get%s()->f%s);\n",rootTreeName[i].Data(),rootBranchName[i][j].Data());
+         }
       }
    }
    buffer.AppendFormatted("   return true;\n");
@@ -8079,15 +8084,35 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
             buffer.AppendFormatted("      %s* f%s; // %s Branch\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
          }
          else {
-            buffer.AppendFormatted("      %s f%s; // %s Branch\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            if (rootBranchArraySize[i][j].Length()==0) {
+               buffer.AppendFormatted("      %s f%s; // %s Branch\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            }
+            else {
+               buffer.AppendFormatted("      %s *f%s; // %s Branch\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            }
          }
       }
+      buffer.AppendFormatted("      %s() {\n",rootTreeName[i].Data());
+      for (j=0;j<numOfRootBranch[i];j++) {
+         if (rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
+            if (rootBranchArraySize[i][j].Length()>0) {
+               buffer.AppendFormatted("         f%s = new %s[%s];\n",rootBranchName[i][j].Data(),rootBranchType[i][j].Data(),rootBranchArraySize[i][j].Data());
+            }
+         }
+      }
+      buffer.AppendFormatted("      }\n");
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
             buffer.AppendFormatted("      %s* Get%s() { return f%s; }\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
          }
          else {
-            buffer.AppendFormatted("      %s Get%s() { return f%s; }\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            if (rootBranchArraySize[i][j].Length()==0) {
+               buffer.AppendFormatted("      %s Get%s() { return f%s; }\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            }
+            else {
+               buffer.AppendFormatted("      %s Get%sAt(int i) { return f%s[i]; }\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+               buffer.AppendFormatted("      %s* Get%s() { return f%s; }\n",rootBranchType[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            }
          }
       }
       buffer.AppendFormatted("   };\n");
@@ -8157,23 +8182,41 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("protected:\n");
    for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
-      buffer.AppendFormatted("   %s %s; // %s Field\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      if (rootBranchFieldArraySize[iTree][iBranch][i].Length()==0) {
+         buffer.AppendFormatted("   %s %s; // %s Field\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
+      else {
+         buffer.AppendFormatted("   %s %s[%s]; // %s Field\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldArraySize[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
    }
    buffer.AppendFormatted("\n");
    // Methods
    buffer.AppendFormatted("public:\n");
 
    // Constructor
-   buffer.AppendFormatted("   %s() {}\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("   %s()\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("   {\n");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
 
    // methods
    for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
-      buffer.AppendFormatted("   %s Get%s() { return %s; }\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      if (rootBranchFieldArraySize[iTree][iBranch][i].Length()==0) {
+         buffer.AppendFormatted("   %s Get%s() { return %s; }\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
+      else {
+         buffer.AppendFormatted("   %s  Get%sAt(int i) { return %s[i]; }\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+         buffer.AppendFormatted("   %s* Get%s() { return %s; }\n",rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
    }
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
-      buffer.AppendFormatted("   void Set%s(%s %sValue) { %s = %sValue; }\n",rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      if (rootBranchFieldArraySize[iTree][iBranch][i].Length()==0) {
+         buffer.AppendFormatted("   void Set%s(%s %sValue) { %s = %sValue; }\n",rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
+      else {
+         buffer.AppendFormatted("   void Set%sAt(int i,%s %sValue) { %s[i] = %sValue; }\n",rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldType[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data(),rootBranchFieldName[iTree][iBranch][i].Data());
+      }
    }
    buffer.AppendFormatted("\n");
    // Footer

@@ -1146,6 +1146,11 @@
 					<xs:documentation>The type of a field. This can be a C++ or ROOT type. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="RootBranchClassFieldArraySize" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the field. Default is 1 (no array).</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="RootBranchDesc">
@@ -1161,6 +1166,11 @@
 			<xs:element name="RootBranchType" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>The type of a branch. This can be a C++ or ROOT type, 'Structure', or a 'Class'. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="RootBranchArraySize" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the branch. Default is 1 (no array).</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="RootBranchClassVersion" type="xs:integer" minOccurs="0">

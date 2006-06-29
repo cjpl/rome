@@ -236,9 +236,11 @@ ROMEBuilder::~ROMEBuilder()
    delete [] rootTreeName;
    delete [] rootBranchName;
    delete [] rootBranchType;
+   delete [] rootBranchArraySize;
    delete [] rootBranchClassVersion;
    delete [] rootBranchFieldName;
    delete [] rootBranchFieldType;
+   delete [] rootBranchFieldArraySize;
 
    // user makefile
    delete [] mfDictHeaderName;
