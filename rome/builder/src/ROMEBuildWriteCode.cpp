@@ -7985,7 +7985,7 @@ Bool_t ROMEBuilder::WriteRootDAQCpp() {
       buffer.AppendFormatted("   f%s = new %s();\n",rootTreeName[i].Data(),rootTreeName[i].Data());
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            buffer.AppendFormatted("   f%s->f%s = new %s();\n",rootTreeName[i].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            buffer.AppendFormatted("   f%s->f%s = new %s();\n",rootTreeName[i].Data(),rootBranchName[i][j].Data(),rootBranchClassName[i][j].Data());
          }
       }
    }
@@ -8064,7 +8064,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
    for (i=0;i<numOfRootTree;i++) {
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            buffer.AppendFormatted("#include \"%s.h\"\n",rootBranchName[i][j].Data());
+            buffer.AppendFormatted("#include \"%s.h\"\n",rootBranchClassName[i][j].Data());
          }
       }
    }
@@ -8081,7 +8081,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
       buffer.AppendFormatted("   public:\n");
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            buffer.AppendFormatted("      %s* f%s; // %s Branch\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            buffer.AppendFormatted("      %s* f%s; // %s Branch\n",rootBranchClassName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
          }
          else {
             if (rootBranchArraySize[i][j].Length()==0) {
@@ -8103,7 +8103,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
       buffer.AppendFormatted("      }\n");
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            buffer.AppendFormatted("      %s* Get%s() { return f%s; }\n",rootBranchName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
+            buffer.AppendFormatted("      %s* Get%s() { return f%s; }\n",rootBranchClassName[i][j].Data(),rootBranchName[i][j].Data(),rootBranchName[i][j].Data());
          }
          else {
             if (rootBranchArraySize[i][j].Length()==0) {
@@ -8163,22 +8163,22 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    Int_t i;
 
    // File name
-   hFile.SetFormatted("%sinclude/generated/%s.h",outDir.Data(),rootBranchName[iTree][iBranch].Data());
+   hFile.SetFormatted("%sinclude/generated/%s.h",outDir.Data(),rootBranchClassName[iTree][iBranch].Data());
 
    // Description
    buffer.Resize(0);
    WriteHeader(buffer, mainAuthor.Data(), kTRUE);
-   buffer.AppendFormatted("#ifndef %s_H\n",rootBranchName[iTree][iBranch].Data());
-   buffer.AppendFormatted("#define %s_H\n\n",rootBranchName[iTree][iBranch].Data());
-   clsName.SetFormatted("%s",rootBranchName[iTree][iBranch].Data());
-   clsDescription.SetFormatted("This class implements is used for the branch %s of the tree %s of the ROOT DAQ.",rootBranchName[iTree][iBranch].Data(),rootTreeName[iTree].Data());
+   buffer.AppendFormatted("#ifndef %s_H\n",rootBranchClassName[iTree][iBranch].Data());
+   buffer.AppendFormatted("#define %s_H\n\n",rootBranchClassName[iTree][iBranch].Data());
+   clsName.SetFormatted("%s",rootBranchClassName[iTree][iBranch].Data());
+   clsDescription.SetFormatted("This class is used for the branch %s of the tree %s of the ROOT DAQ.",rootBranchName[iTree][iBranch].Data(),rootTreeName[iTree].Data());
    WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#include \"TObject.h\"\n");
 
    // Class
-   buffer.AppendFormatted("\nclass %s : public TObject\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("\nclass %s : public TObject\n",rootBranchClassName[iTree][iBranch].Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("protected:\n");
    for (i=0;i<numOfRootBranchField[iTree][iBranch];i++) {
@@ -8194,7 +8194,7 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    buffer.AppendFormatted("public:\n");
 
    // Constructor
-   buffer.AppendFormatted("   %s()\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("   %s()\n",rootBranchClassName[iTree][iBranch].Data());
    buffer.AppendFormatted("   {\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
@@ -8220,10 +8220,10 @@ Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    }
    buffer.AppendFormatted("\n");
    // Footer
-   buffer.AppendFormatted("   ClassDef(%s, %d)\n",rootBranchName[iTree][iBranch].Data(),rootBranchClassVersion[iTree][iBranch].ToInteger()+1);
+   buffer.AppendFormatted("   ClassDef(%s, %d)\n",rootBranchClassName[iTree][iBranch].Data(),rootBranchClassVersion[iTree][iBranch].ToInteger()+1);
    buffer.AppendFormatted("};\n\n");
 
-   buffer.AppendFormatted("#endif   // %s_H\n",rootBranchName[iTree][iBranch].Data());
+   buffer.AppendFormatted("#endif   // %s_H\n",rootBranchClassName[iTree][iBranch].Data());
 
    // Write File
    WriteFile(hFile.Data(),buffer.Data(),6);

@@ -352,6 +352,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    rootBranchName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
+   rootBranchClassName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchClassVersion = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches));
    rootBranchFieldName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
    rootBranchFieldType = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfRootTrees,maxNumberOfRootBranches,maxNumberOfRootBranchFields));
@@ -2801,6 +2802,7 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
                rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
                rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
+               rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
                rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]] = "0";
                while (xml->NextLine()) {
                   type = xml->GetType();
@@ -2820,6 +2822,9 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                      if (rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]].ToInteger()<=1)
                         rootBranchArraySize[numOfRootTree][numOfRootBranch[numOfRootTree]] = "";
                   }
+                  // branch class name
+                  if (type == 1 && !strcmp((const char*)name,"RootBranchClassName"))
+                     xml->GetValue(rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]],rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]]);
                   // branch class version
                   if (type == 1 && !strcmp((const char*)name,"RootBranchClassVersion"))
                      xml->GetValue(rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]],rootBranchClassVersion[numOfRootTree][numOfRootBranch[numOfRootTree]]);
@@ -2872,6 +2877,13 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
                   }
                   // branch end
                   if (type == 15 && !strcmp((const char*)name,"RootBranch")) {
+                     if (!rootBranchType[numOfRootTree][numOfRootBranch[numOfRootTree]].CompareTo("Class",TString::kIgnoreCase)) {
+                        if (rootBranchClassName[numOfRootTree][numOfRootBranch[numOfRootTree]].Length()==0) {
+                           cout << "Class name of Branch '" << rootBranchName[numOfRootTree][numOfRootBranch[numOfRootTree]].Data() << "' not specified !" << endl;
+                           cout << "Terminating program." << endl;
+                           return false;
+                        }
+                     }
                      numOfRootBranchField[numOfRootTree][numOfRootBranch[numOfRootTree]]++;
                      break;
                   }

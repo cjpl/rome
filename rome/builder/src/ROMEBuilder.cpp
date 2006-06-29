@@ -237,6 +237,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] rootBranchName;
    delete [] rootBranchType;
    delete [] rootBranchArraySize;
+   delete [] rootBranchClassName;
    delete [] rootBranchClassVersion;
    delete [] rootBranchFieldName;
    delete [] rootBranchFieldType;
@@ -756,10 +757,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          xmlFile = "C:/lpframework/lpframework.xml";
       }
       else if (!strcmp(argv[i],"-laura")) {
-         makeOutput = true;
-         midas = false;
          noLink = true;
-         outDir = "C:/Data/Testprojects/laura";
+         outDir = "C:/Data/Testprojects/laura/";
          xmlFile = "C:/Data/Testprojects/laura/rootDAQClean.xml";
       }
       // -- only for testing (end) --

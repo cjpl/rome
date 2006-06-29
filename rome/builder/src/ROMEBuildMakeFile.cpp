@@ -364,7 +364,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    for (i=0;i<numOfRootTree;i++) {
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            generatedHeaders->AddFormatted("include/generated/%s.h",rootBranchName[i][j].Data());
+            generatedHeaders->AddFormatted("include/generated/%s.h",rootBranchClassName[i][j].Data());
          }
       }
    }
@@ -404,7 +404,7 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    for (i=0;i<numOfRootTree;i++) {
       for (j=0;j<numOfRootBranch[i];j++) {
          if (!rootBranchType[i][j].CompareTo("Class",TString::kIgnoreCase)) {
-            generatedDictHeaders->AddFormatted("include/generated/%s.h",rootBranchName[i][j].Data());
+            generatedDictHeaders->AddFormatted("include/generated/%s.h",rootBranchClassName[i][j].Data());
             generatedLinkDefSuffix->Add("");
          }
       }
