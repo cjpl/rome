@@ -38,6 +38,7 @@
 			<RootBranch>
 				<RootBranchName>Branch1</RootBranchName>
 				<RootBranchType>Class</RootBranchType>
+				<RootBranchClassName>Branch1</RootBranchClassName>
 				<RootBranchClassVersion>1</RootBranchClassVersion>
 				<RootBranchClassField>
 					<RootBranchClassFieldName>Px</RootBranchClassFieldName>

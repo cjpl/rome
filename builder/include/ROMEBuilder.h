@@ -350,6 +350,7 @@ protected:
    ROMEString  **rootBranchName;
    ROMEString  **rootBranchType;
    ROMEString  **rootBranchArraySize;
+   ROMEString  **rootBranchClassName;
    ROMEString  **rootBranchClassVersion;
    ROMEString ***rootBranchFieldName;
    ROMEString ***rootBranchFieldType;
