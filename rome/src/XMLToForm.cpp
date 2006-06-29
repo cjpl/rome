@@ -46,10 +46,9 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
    PMXML_NODE frameNode;
    Int_t nFrames = 0;
    Int_t nTabs = 0;
-   Int_t nFrameTags = 0;
-   Int_t nTabTags = 0;
+   Int_t nListTrees = 0;
+   Int_t nListTreeItems = 0;
    Bool_t visible=false;
-   Bool_t isTab=false;
    Bool_t vertical=false;
    Int_t tabIndex=0;
 
@@ -58,19 +57,17 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
    for (i=0;i<frameNode->n_children;i++) {
       // frame
       if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"Frame")) {
-         nFrameTags++;
-         currentPath.SetFormatted("%s/Frame[%d]/FrameTitle",frame->GetFramePath().Data(),nFrameTags);
+         nFrames++;
+         currentPath.SetFormatted("%s/Frame[%d]/FrameTitle",frame->GetFramePath().Data(),nFrames);
          fXML->GetPathValue(currentPath,titleValueT);
          if (!Substitute(titleValueT,titleValue)) {
             visible = false;
-            nFrames++;
-            frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
+            frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kFrame,visible,tabIndex));
             continue;
          }
          currentPath = frame->GetFramePath().Data();
-         currentPath.AppendFormatted("/Frame[%d]",nFrames+1);
+         currentPath.AppendFormatted("/Frame[%d]",nFrames);
          pathValue = currentPath;
-         isTab = false;
          tabIndex = -1;
          visible = true;
          currentPath.AppendFormatted("/FrameType");
@@ -80,29 +77,59 @@ void XMLToForm::InitSubFrames(XMLToFormFrame *frame) {
          else
             vertical = true;
 
-         nFrames++;
-         frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
+         frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kFrame,visible,tabIndex));
       }
       // tab
       else if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"Tab")) {
-         nTabTags++;
-         currentPath.SetFormatted("%s/Tab[%d]/TabTitle",frame->GetFramePath().Data(),nTabTags);
+         nTabs++;
+         currentPath.SetFormatted("%s/Tab[%d]/TabTitle",frame->GetFramePath().Data(),nTabs);
          fXML->GetPathValue(currentPath,titleValueT);
          if (!Substitute(titleValueT,titleValue)) {
             visible = false;
-            nFrames++;
-            nTabs++;
-            frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
+            frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kTab,visible,tabIndex));
             continue;
          }
+         visible = true;
          currentPath = frame->GetFramePath().Data();
-         currentPath.AppendFormatted("/Tab[%d]",nFrames+1);
+         currentPath.AppendFormatted("/Tab[%d]",nTabs);
          pathValue = currentPath;
-         isTab = true;
-         tabIndex = nTabs;
-         nFrames++;
-         nTabs++;
-         frame->AddSubFrame(new XMLToFormFrame(titleValue,pathValue,vertical,isTab,visible,tabIndex));
+         tabIndex = nTabs-1;
+         frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kTab,visible,tabIndex));
+      }
+      // list tree
+      else if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"ListTree")) {
+         nListTrees++;
+         currentPath.SetFormatted("%s/ListTree[%d]/ListTreeTitle",frame->GetFramePath().Data(),nListTrees);
+         fXML->GetPathValue(currentPath,titleValueT);
+         if (!Substitute(titleValueT,titleValue)) {
+            visible = false;
+            frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kListTree,visible,tabIndex));
+            continue;
+         }
+         visible = true;
+         currentPath = frame->GetFramePath().Data();
+         currentPath.AppendFormatted("/ListTree[%d]",nListTrees);
+         pathValue = currentPath;
+         frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kListTree,visible,tabIndex));
+      }
+      // list tree item
+      else if (!strcmp(fXML->GetSubNode(frameNode,i)->name,"ListTreeItem")) {
+         if (!frame->IsFrameListTree() && frame->IsFrameListTreeItem()) {
+            continue;
+         }
+         nListTreeItems++;
+         currentPath.SetFormatted("%s/ListTreeItem[%d]/ListTreeItemTitle",frame->GetFramePath().Data(),nListTreeItems);
+         fXML->GetPathValue(currentPath,titleValueT);
+         if (!Substitute(titleValueT,titleValue)) {
+            visible = false;
+            frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kListTreeItem,visible,tabIndex));
+            continue;
+         }
+         visible = true;
+         currentPath = frame->GetFramePath().Data();
+         currentPath.AppendFormatted("/ListTreeItem[%d]",nListTreeItems);
+         pathValue = currentPath;
+         frame->AddSubFrame(new XMLToFormFrame(frame,titleValue,pathValue,vertical,XMLToFormFrame::kListTreeItem,visible,tabIndex));
       }
    }
    visible = false;
@@ -288,7 +315,7 @@ Bool_t XMLToForm::XMLToRootClass()
    else
       vertical = true;
 
-   fMainFrame = new XMLToFormFrame(value,"/XMLToForm",vertical,false,true,0);
+   fMainFrame = new XMLToFormFrame(NULL,value,"/XMLToForm",vertical,XMLToFormFrame::kFrame,true,0);
 
    return true;
 }
@@ -465,62 +492,12 @@ XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFi
 
 XMLToForm::~XMLToForm()
 {
-   if (fMainFrame != NULL)
-      DeleteFrame(fMainFrame);
+   if (fMainFrame != NULL) {
+      fWindow->DeleteFrame(fMainFrame);
+   }
    delete fSubstitutes;
    delete fPlaceHolders;
    delete fXML;
-}
-
-void XMLToForm::DeleteFrame(XMLToFormFrame *frame)
-{
-   Int_t i;
-   // Title
-   if (frame->GetFrameTitle().Length()>0 && !frame->IsFrameTab())
-      delete frame->fTitleLabel;
-   // EditBox
-   for (i=0;i<frame->GetNumberOfElements();i++) {
-      if (frame->GetElementAt(i)->GetType()=="EditBox") {
-//         delete frame->GetElementAt(i)->fEditBox;
-         delete frame->GetElementAt(i)->fEditVFrames;
-         delete frame->GetElementAt(i)->fEditLabel;
-      }
-      if (frame->GetElementAt(i)->GetType()=="Button") {
-         delete frame->GetElementAt(i)->fButton;
-      }
-      if (frame->GetElementAt(i)->GetType()=="ComboBox") {
-         delete frame->GetElementAt(i)->fComboLabel;
-         delete frame->GetElementAt(i)->fComboBox;
-         delete frame->GetElementAt(i)->fComboVFrames;
-      }
-      if (frame->GetElementAt(i)->GetType()=="CheckButton") {
-         delete frame->GetElementAt(i)->fCheckButtonLabel;
-         delete frame->GetElementAt(i)->fCheckButton;
-         delete frame->GetElementAt(i)->fCheckButtonVFrames;
-      }
-      if (frame->GetElementAt(i)->GetSignal()!=NULL) {
-         delete frame->GetElementAt(i)->GetSignal();
-      }
-      delete frame->GetElementAt(i);
-   }
-   // Frames
-   for (i=0;i<frame->fNumberOfHHFrames;i++) {
-      delete frame->fHHFrames[i];
-   }
-   for (i=0;i<frame->fNumberOfVFrames;i++) {
-      delete frame->fVFrames[i];
-   }
-   if (frame->GetNumberOfElements()>0) {
-      delete [] frame->fHHFrames;
-      delete [] frame->fVFrames;
-      delete frame->fHFrame;
-   }
-   // SubFrames
-   for (i=0;i<frame->GetNumberOfSubFrames();i++) {
-      DeleteFrame(frame->GetSubFrameAt(i));
-   }
-   // Frame
-   delete frame->fFrame;
 }
 
 

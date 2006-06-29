@@ -10,6 +10,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 // $Id$
 
+#include "TError.h"
 #include "ROMEConfigToForm.h"
 #include "ROMEAnalyzer.h"
 #include "XMLToFormWindow.h"
@@ -37,7 +38,9 @@ int ROMEConfigToForm::Show(const TGWindow * p, const TGWindow * main)
    int exitButtonID = 1;
    if (!Init())
       return -1;
+   gErrorIgnoreLevel = 3000;
    fWindow = new XMLToFormWindow(p,main,fMainFrame,&exitButtonID,fMaximalWindowWidth);
+   gErrorIgnoreLevel = 0;
    return exitButtonID;
 }
 
@@ -57,7 +60,7 @@ bool ROMEConfigToForm::XMLToRootClass()
    ROMEString valueT;
    fMaximalWindowWidth = 1000;
 
-   fMainFrame = new XMLToFormFrame("","/Configuration/MainConfiguration",true,false,true,0);
+   fMainFrame = new XMLToFormFrame(NULL,"","",true,XMLToFormFrame::kFrame,true,0);
 
    return true;
 }
@@ -69,15 +72,15 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    nFrames = 0;
 
    // Run Mode Frame
-   frame->AddSubFrame(new XMLToFormFrame("",frame->GetFramePath().Data(),true,false,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
    FillRunModeFrame(frame->GetSubFrameAt(nFrames));
    nFrames++;
    // Tab Frame
-   frame->AddSubFrame(new XMLToFormFrame("",frame->GetFramePath().Data(),true,false,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kListTree,true,nFrames));
    AddTabs(frame->GetSubFrameAt(nFrames));
    nFrames++;
    // Button Frame
-   frame->AddSubFrame(new XMLToFormFrame("",frame->GetFramePath().Data(),true,false,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
    FillButtonFrame(frame->GetSubFrameAt(nFrames));
    nFrames++;
 }

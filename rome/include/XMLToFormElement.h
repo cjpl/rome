@@ -28,6 +28,7 @@ private:
    ROMEString              fPath;          //!
    Int_t                   fWidth;         //!
    XMLToFormElementSignal *fSignal;        //!
+   Int_t                   fParentFrameIndex; //!
    // ComboBox
    ROMEStrArray            fEntry;         //!
    Int_t                   fSelectedEntry; //!
@@ -36,7 +37,7 @@ private:
    Bool_t                  fButtonChecked; //!
 
 public:
-   TGHotString            *fWidgetTitle;   //!
+   TGHotString            *fWidgetTitle;      //!
    // EditBox
    TGVerticalFrame        *fEditVFrames;   //!
    TGLabel                *fEditLabel;     //!
@@ -83,6 +84,8 @@ public:
          fButtonChecked = true;
       else
          fButtonChecked = false;
+      fParentFrameIndex = 0;
+
       fWidgetTitle = NULL;
       // EditBox
       fEditVFrames = NULL;
@@ -122,6 +125,8 @@ public:
    Int_t   GetButtonID() { return fButtonID; }
    Bool_t  GetButtonChecked() { return fButtonChecked; }
    void    SetButtonChecked(Bool_t state) { fButtonChecked = state; }
+   Int_t   GetParentFrameIndex() { return fParentFrameIndex; }
+   void    SetParentFrameIndex(Int_t index) { fParentFrameIndex = index; }
    XMLToFormElementSignal *GetSignal() { return fSignal; }
 
    ClassDef(XMLToFormElement, 0)
