@@ -815,7 +815,6 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
                ROMEPrint::Print("Writing Root-File ");
             }
             ROMEPrint::Print("%s\n", romeTree->GetFileName().Data());
-            romeTree->UpdateFilePointer();
             romeTree->GetFile()->cd();
             if (tree->Write(0,TObject::kOverwrite)==0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");

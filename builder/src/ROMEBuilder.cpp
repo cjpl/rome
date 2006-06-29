@@ -711,6 +711,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/rome/examples/stepbystep/";
          xmlFile = "C:/rome/examples/stepbystep/stepbystep.xml";
       }
+      else if (!strcmp(argv[i],"-readwrite")) {
+         noLink = true;
+         outDir = "C:/rome/examples/tree_write_read/";
+         xmlFile = "C:/rome/examples/tree_write_read/tree_write_read.xml";
+      }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
          outDir = "C:/rome/examples/multirun/";
@@ -747,6 +752,13 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
          outDir = "C:/lpframework/";
          xmlFile = "C:/lpframework/lpframework.xml";
+      }
+      else if (!strcmp(argv[i],"-laura")) {
+         makeOutput = true;
+         midas = false;
+         noLink = true;
+         outDir = "C:/Data/Testprojects/laura";
+         xmlFile = "C:/Data/Testprojects/laura/rootDAQClean.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {
