@@ -772,7 +772,9 @@ void XMLToFormWindow::DeleteFrame(XMLToFormFrame *frame)
    Int_t i;
    // Title
    if (frame->GetFrameTitle().Length()>0) {
-      delete frame->fTitleLabel;
+      if (!frame->IsFrameTab() && !frame->IsFrameListTree() && !frame->IsFrameListTreeItem()) {
+         delete frame->fTitleLabel;
+      }
    }
    // EditBox
    for (i=0;i<frame->GetNumberOfElements();i++) {
