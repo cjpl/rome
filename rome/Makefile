@@ -152,17 +152,17 @@ obj:
 	fi;
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 librome.a: $(LibObjects)
 	rm -f $@
 	ar -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
 	$(CXX) $(CFLAGS) -c $(INCLUDE) -o $@ $<
@@ -174,16 +174,16 @@ ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(OPT) $(CFLAGS) -g  $(INCLUDE) -c -o $@ $<
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
 	-rm -f $(BldObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
