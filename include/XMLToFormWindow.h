@@ -13,6 +13,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 
 class XMLToFormFrame;
+class TGListTreeItem;
 
 class XMLToFormWindow : public TGTransientFrame {
 public:
@@ -23,10 +24,14 @@ public:
       BUTTON
    };
 protected:
+   const TGWindow *fMainWindow;
    Int_t          *fExitID;
    Bool_t          fFirstEdit;
    Int_t           fMaximalWindowWidth;
+   Int_t           fListTreeWidth;
+   Int_t           fListTreeHeight;
    XMLToFormFrame *fMainFrame;
+   XMLToFormFrame *fTreeListActiveFrame;
 
 public:
    XMLToFormWindow() {}
@@ -34,6 +39,8 @@ public:
    virtual ~ XMLToFormWindow();
    void   SignalHandler();
    Bool_t SearchWidget(const char* path,XMLToFormFrame** frame,Int_t *index,XMLToFormFrame* mainFrame);
+   Bool_t ListTreeClicked(TGListTreeItem* item,Int_t btn);
+   void DeleteFrame(XMLToFormFrame *frame);
 
 protected:
    XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);
@@ -44,7 +51,13 @@ protected:
    void   BuildForm(XMLToFormFrame *frame);
    void   CreateFrame(XMLToFormFrame *frame);
    void   BuildFrame(XMLToFormFrame *frame);
+   void   BuildSubFrames(XMLToFormFrame *frame);
    void   SaveCurrentValues(XMLToFormFrame *frame);
+   void   RemoveFrame(XMLToFormFrame *frame);
+   void   AddFrame(XMLToFormFrame *frame);
+   void   AddSubFrames(XMLToFormFrame *frame);
+   void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };
+   void   HideFrame(XMLToFormFrame *frame);
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
