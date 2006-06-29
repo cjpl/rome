@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jun 16 09:31:45 2006 -->
+<!-- created by MXML on Thu Jun 29 18:39:54 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
@@ -19,7 +19,7 @@
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>root</DAQSystem>
       <QuitMode>false</QuitMode>
-      <VerboseMode>false</VerboseMode>
+      <VerboseLevel>normal</VerboseLevel>
       <ShowSplashScreen>false</ShowSplashScreen>
       <GraphicalConfigEdit>true</GraphicalConfigEdit>
     </Modes>

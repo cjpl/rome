@@ -24,6 +24,11 @@
 				<RootBranchType>Double_t</RootBranchType>
 			</RootBranch>
 			<RootBranch>
+				<RootBranchName>Pp</RootBranchName>
+				<RootBranchType>Double_t</RootBranchType>
+				<RootBranchArraySize>3</RootBranchArraySize>
+			</RootBranch>
+			<RootBranch>
 				<RootBranchName>Np</RootBranchName>
 				<RootBranchType>Int_t</RootBranchType>
 			</RootBranch>
@@ -45,6 +50,11 @@
 				<RootBranchClassField>
 					<RootBranchClassFieldName>Pz</RootBranchClassFieldName>
 					<RootBranchClassFieldType>Double_t</RootBranchClassFieldType>
+				</RootBranchClassField>
+				<RootBranchClassField>
+					<RootBranchClassFieldName>Pp</RootBranchClassFieldName>
+					<RootBranchClassFieldType>Double_t</RootBranchClassFieldType>
+					<RootBranchClassFieldArraySize>3</RootBranchClassFieldArraySize>
 				</RootBranchClassField>
 				<RootBranchClassField>
 					<RootBranchClassFieldName>Np</RootBranchClassFieldName>

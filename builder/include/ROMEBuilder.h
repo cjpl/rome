@@ -349,9 +349,11 @@ protected:
    ROMEString   *rootTreeName;
    ROMEString  **rootBranchName;
    ROMEString  **rootBranchType;
+   ROMEString  **rootBranchArraySize;
    ROMEString  **rootBranchClassVersion;
    ROMEString ***rootBranchFieldName;
    ROMEString ***rootBranchFieldType;
+   ROMEString ***rootBranchFieldArraySize;
 
 // user makefile
    Int_t         numOfMFDictHeaders;

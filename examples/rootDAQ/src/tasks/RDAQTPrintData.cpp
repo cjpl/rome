@@ -37,11 +37,17 @@ void RDAQTPrintData::Event()
    cout << "px = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPx() << endl;
    cout << "py = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPy() << endl;
    cout << "pz = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPz() << endl;
+   cout << "pp[0] = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPpAt(0) << endl;
+   cout << "pp[1] = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPpAt(1) << endl;
+   cout << "pp[2] = " << gAnalyzer->GetRootDAQ()->GetT1()->GetPpAt(2) << endl;
    cout << "T2:" << endl;
    cout << "np = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetNp() << endl;
    cout << "px = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPx() << endl;
    cout << "py = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPy() << endl;
    cout << "pz = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPz() << endl;
+   cout << "pp[0] = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPpAt(0) << endl;
+   cout << "pp[1] = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPpAt(1) << endl;
+   cout << "pp[2] = " << gAnalyzer->GetRootDAQ()->GetT2()->GetBranch1()->GetPpAt(2) << endl;
    cout << endl;
 }
 
