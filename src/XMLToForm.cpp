@@ -218,11 +218,6 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          currentPath.AppendFormatted("/ComboBox[%d]/Label",nComboBox+1);
          fXML->GetPathValue(currentPath,temp);
          Substitute(temp,title);
-         // selected
-         currentPath = xmlPath;
-         currentPath.AppendFormatted("/ComboBox[%d]/Selected",nComboBox+1);
-         fXML->GetPathValue(currentPath,temp);
-         selectedEntry = temp.ToInteger();
          // entries
          savePath = xmlPath;
          savePath.AppendFormatted("/ComboBox[%d]/Entry",nComboBox+1);
@@ -247,6 +242,13 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
             }
             entries->AddAtAndExpand(entry.Data(),k);
          }
+         // selected
+         currentPath = xmlPath;
+         currentPath.AppendFormatted("/ComboBox[%d]/Selected",nComboBox+1);
+         fXML->GetPathValue(currentPath,temp);
+         selectedEntry = temp.ToInteger();
+         if (selectedEntry>=entries->GetEntriesFast())
+            selectedEntry = entries->GetEntriesFast()-1;
          // path
          path = xmlPath;
          path.AppendFormatted("/ComboBox[%d]",nComboBox+1);

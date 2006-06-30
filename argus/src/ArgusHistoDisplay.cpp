@@ -137,6 +137,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
       case M_ARGUS_DISPLAY_VIEW_RESET:
          {
             fChannelNumber = 0;
+            fDisplayTypeOld = -1;
             SetupPads(1, 1,true); 
             fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
             break;
@@ -346,7 +347,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->cd();
          if (fDisplayType==kTGraphDisplay) {
             fTGraph[i]->Draw("AL");
-            SetStatisticBox(false);
+            SetStatisticBox(true);
          }
          else if (fDisplayType==kTH1FDisplay) {
             fTH1F[i]->Draw();
