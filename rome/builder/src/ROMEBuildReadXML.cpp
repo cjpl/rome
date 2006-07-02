@@ -1146,7 +1146,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          tmp.ReplaceAll("//","");
          tmp.ReplaceAll(" ","");
          tmp.ReplaceAll("\t","");
-         if ((isNumber(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) || isBoolType(valueType[numOfFolder][numOfValue[numOfFolder]].Data())) && valueArray[numOfFolder][numOfValue[numOfFolder]][0]=="variable" && tmp[0]!='!') {
+         if ((isNumber(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) || isBoolType(valueType[numOfFolder][numOfValue[numOfFolder]].Data()) || valueType[numOfFolder][numOfValue[numOfFolder]]=="TString") && valueArray[numOfFolder][numOfValue[numOfFolder]][0]=="variable" && tmp[0]!='!') {
             for (i=0;i<numOfValue[numOfFolder];i++) {
                tmp.SetFormatted("[%s]",valueName[numOfFolder][i].Data());
                if (valueComment[numOfFolder][numOfValue[numOfFolder]].Contains(tmp) && isIntType(valueType[numOfFolder][i].Data())) {
