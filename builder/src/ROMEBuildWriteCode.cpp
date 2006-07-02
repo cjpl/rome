@@ -1546,6 +1546,12 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
       if (fileBuffer.Contains("GetGSP"))
          clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      for (j=0;j<daqNameArray->GetEntriesFast();j++) {
+         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp))
+            clsDescription.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
+      }
+
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
@@ -1615,6 +1621,8 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+      if (numOfHistos[iTask]>0 && readGlobalSteeringParameters)
+         buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -2389,6 +2397,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
    ROMEString clsName;
    ROMEString fileBuffer;
    ROMEString str;
+   ROMEString tmp;
 
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;
@@ -2433,6 +2442,17 @@ Bool_t ROMEBuilder::WriteTabCpp()
             }
          }
       }
+      if (fileBuffer.Contains("GetWindow"))
+         clsDescription.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      if (fileBuffer.Contains("GetGSP"))
+         clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+
+      for (j=0;j<daqNameArray->GetEntriesFast();j++) {
+         tmp.SetFormatted("Get%sDAQ",daqNameArray->At(j).Data());
+         if (fileBuffer.Contains(tmp))
+            clsDescription.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(j).Data(),shortCut.Data(),daqNameArray->At(j).Data());
+      }
+
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
@@ -2543,6 +2563,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("#include <TH1F.h>\n",shortCut.Data());
          buffer.AppendFormatted("#include <TH2F.h>\n",shortCut.Data());
          buffer.AppendFormatted("#include <TGraph.h>\n",shortCut.Data());
+         if (readGlobalSteeringParameters)
+            buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       }
 
       if (tabHeredity[iTab].Length()>0)
@@ -5344,6 +5366,10 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      if (daqNameArray->At(i) == "Midas")
+         buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
    buffer.AppendFormatted("\nClassImp(%sConfigToForm)\n",shortCut.Data());
 
    // Constructor
@@ -9235,6 +9261,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
