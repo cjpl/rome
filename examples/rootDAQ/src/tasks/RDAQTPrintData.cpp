@@ -12,6 +12,7 @@
  * following line will be lost next time ROMEBuilder is executed.             */
 /////////////////////////////////////----///////////////////////////////////////
 #include "generated/RDAQAnalyzer.h"
+#include "generated/RDAQRootDAQ.h"
 
 #include "tasks/RDAQTPrintData.h"
 #include <Riostream.h>

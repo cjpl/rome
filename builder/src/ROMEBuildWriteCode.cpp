@@ -1542,7 +1542,10 @@ Bool_t ROMEBuilder::WriteTaskCpp()
             }
          }
       }
-
+      if (fileBuffer.Contains("GetWindow"))
+         clsDescription.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      if (fileBuffer.Contains("GetGSP"))
+         clsDescription.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
@@ -3233,6 +3236,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    buffer.AppendFormatted("\n\n");
 
    // Header
+   buffer.AppendFormatted("#include <Rtypes.h>\n");
    // Folder includes
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -3321,6 +3325,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -4016,6 +4022,8 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -4030,6 +4038,9 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
    buffer.AppendFormatted("#include \"ROMEDataBaseDAQ.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDataBase.h\"\n");
@@ -4314,13 +4325,14 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   // DAQ includes
-   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
-      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
-   }
    if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n", shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
+      buffer.AppendFormatted("class %sGlobalSteering;\n", shortCut.Data());
+   buffer.AppendFormatted("class %sWindow;\n", shortCut.Data());
+
+   // DAQ class declaration
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("class %s%sDAQ;\n",daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
 
    // Folder class declaration
    for (i=0;i<numOfFolder;i++) {
@@ -5545,6 +5557,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
