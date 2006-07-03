@@ -296,7 +296,6 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
                currentSubFrame->fListTreeHFrame = currentSubFrame->fParentFrame->fListTreeHFrame;
             }
             currentSubFrame->fListTreeItem = currentSubFrame->fListTree->AddItem(currentSubFrame->fParentFrame->fListTreeItem,currentSubFrame->GetFrameTitle());
-            currentSubFrame->fListTree->OpenItem(currentSubFrame->fListTreeItem);
             currentSubFrame->fFrame = new TGHorizontalFrame(currentSubFrame->fListTreeFrame,0,0,kRaisedFrame);
             currentSubFrame->fListTreeFrame->AddFrame(currentSubFrame->fFrame,currentSubFrame->fLFrame);
          }
@@ -549,7 +548,9 @@ XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLT
    CreateForm(fMainFrame);
 
    PlaceWindow(main);
+   SetWindowName("Please wait while the mask is building up ...");
    HideFrame(fMainFrame);
+   SetWindowName("Please edit mask");
    fClient->WaitFor(this);
 }
 XMLToFormWindow::~XMLToFormWindow()
@@ -561,8 +562,6 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
 {
    MapSubwindows();
    Resize(fMaximalWindowWidth,GetDefaultSize().fHeight);
-
-   SetWindowName("Please Edit Form");
 
    // position relative to the parent's window
    Int_t ax, ay;

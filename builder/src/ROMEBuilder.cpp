@@ -313,7 +313,7 @@ Bool_t ROMEBuilder::StartBuilder()
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
                tabShortDescription[numOfTab] = "";
-               numOfSteering[numOfTab+numOfTaskHierarchy+1] = -1;
+               numOfSteering[numOfTab+numOfTask+1] = -1;
                numOfMenu[numOfTab] = -1;
                tabNumOfChildren[numOfTab] = 0;
                numOfThreadFunctions[numOfTab] = 0;
@@ -409,11 +409,11 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!readGlobalSteeringParameters) {
       if (numOfTaskHierarchy==-1)
          numOfTaskHierarchy++;
-      steerName[numOfTaskHierarchy][0] = "GlobalSteering";
-      steerParent[numOfTaskHierarchy][0] = -1;
-      numOfSteering[numOfTaskHierarchy] = 0;
-      numOfSteerFields[numOfTaskHierarchy][0] = 0;
-      numOfSteerChildren[numOfTaskHierarchy][0] = 0;
+      steerName[numOfTask][0] = "GlobalSteering";
+      steerParent[numOfTask][0] = -1;
+      numOfSteering[numOfTask] = 0;
+      numOfSteerFields[numOfTask][0] = 0;
+      numOfSteerChildren[numOfTask][0] = 0;
    }
 
    // Add DAQs to daqArray
