@@ -107,7 +107,7 @@ istream& ROMEString::ReadLine(istream& str) {
       str.getline(buffer,bufferSize);
       bufferLength = strlen(buffer);
       Append(buffer);
-      delete buffer;
+      delete [] buffer;
    }
    return str;
 }
