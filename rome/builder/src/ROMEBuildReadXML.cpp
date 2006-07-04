@@ -420,6 +420,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
    numOfTaskHierarchy = -1;
    numOfTree = -1;
    numOfEvent = -1;
+   numOfRootTree = -1;
    numOfDAQ = -1;
    numOfDB = -1;
    numOfIncludeDirectories = -1;
