@@ -91,7 +91,7 @@ istream& ROMEString::ReadFile(istream& str) {
       str.get(buffer,bufferSize,0);
       bufferLength = strlen(buffer);
       Append(buffer);
-      delete buffer;
+      delete [] buffer;
    }
    return str;
 }
