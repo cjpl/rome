@@ -683,13 +683,13 @@ Bool_t ROMEEventLoop::UserInput()
                   if (!this->DAQTerminate()) {
                      gROME->SetTerminationFlag();
                      ROMEPrint::Print("\n\nTerminating Program !\n");
-                     return true;
+                     return false;
                   }
                   ROMEPrint::Debug("Executing Terminate tasks\n");
                   ExecuteTasks("Terminate");
                   CleanTasks();
                }
-               return false;               
+               return false;
             }
          }
          if (ch == 'e' || gROME->IsUserEventE()) {
