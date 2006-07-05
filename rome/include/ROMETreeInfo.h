@@ -20,6 +20,7 @@ protected:
 
 public:
    ROMETreeInfo() { ROMETreeInfo::Class()->IgnoreTObjectStreamer(); }
+   virtual ~ROMETreeInfo() {};
 
    Long64_t GetSequentialNumber() { return number; }
    Long64_t GetRunNumber()   { return run; }

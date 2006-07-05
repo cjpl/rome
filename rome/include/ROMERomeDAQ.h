@@ -29,7 +29,7 @@ protected:
 
 public:
    ROMERomeDAQ();
-   virtual ~ROMERomeDAQ() {}
+   virtual ~ROMERomeDAQ();
 
    Int_t        GetTimeStamp() { return fTimeStamp; }
    const char  *GetName() { return "rome"; }

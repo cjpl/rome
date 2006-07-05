@@ -16,7 +16,13 @@
 ClassImp(ROMERootDAQ)
 
 ROMERootDAQ::ROMERootDAQ() {
+   fRootFiles = 0;
    fTrees = new TObjArray(1);
+}
+
+ROMERootDAQ::~ROMERootDAQ() {
+   SafeDelete(fTrees);
+   SafeDeleteArray(fRootFiles);
 }
 
 Bool_t ROMERootDAQ::Init() {
@@ -71,6 +77,7 @@ Bool_t ROMERootDAQ::EndOfRun() {
    for (i=0;i<nInputFile;i++) {
       fRootFiles[i]->Close();
    }
+   SafeDeleteArray(fRootFiles);
    return true;
 }
 

@@ -64,6 +64,12 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fStopAtRun = -1;
    fStopAtEvent = -1;
    fSavedUpdateFrequency = -1;
+   fHistoFile = 0;
+}
+
+ROMEEventLoop::~ROMEEventLoop()
+{
+   SafeDelete(fHistoFile);
 }
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
@@ -840,6 +846,7 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    TFolder *folder = (TFolder*)gROOT->FindObjectAny("histos");
    folder->Write();
    fHistoFile->Close();
+   SafeDelete(fHistoFile);
 
    if (!gROME->GetActiveDAQ()->EndOfRunDAQ())
       return false;

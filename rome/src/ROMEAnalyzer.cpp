@@ -132,6 +132,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fMidasOnlineDataBase = 0;
    fTerminate = false;
    fFillEvent = false;
+   fTaskObjects = 0;
    fMainTask = 0;
    fMainFolder = 0;
    fHistoFiles = 0;
@@ -160,25 +161,62 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fNetFolderHost = 0;
    fNetFolderRoot = 0;
    fOldbuf = 0;
-   fSocketToROME = NULL;
-   fSocketToROMENetFolder = NULL;
+   fSocketToROME = 0;
+   fSocketToROMENetFolder = 0;
    fSocketToROMEActive = true;
    fSocketToROMEHost = "localhost";
    fSocketToROMEPort = 9090;
    fHistoRead = false;
    fHistoRun = 0;
-   fRomeOutputFile = NULL;
+   fRomeOutputFile = 0;
+   fWindow = 0;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
    ss_getchar(1);
    restoreOutput();
+   SafeDelete(fTreeObjects);
+   SafeDelete(fConfiguration);
+   SafeDelete(fActiveDAQ);
+   SafeDelete(fHistoFolders);
+   SafeDelete(fRomeOutputFile);
+   SafeDelete(fSocketToROME);
+   SafeDelete(fSocketToROMENetFolder);
+   SafeDelete(fTaskObjects);
+   SafeDelete(fMainTask);
+   SafeDelete(fMainFolder);
+   SafeDelete(fMainHistoFolder);
+   SafeDelete(fHistoFiles);
+   SafeDelete(fHistoFolders);
+   SafeDelete(fWindow);
+
+   Int_t i;
+   for(i = 0; i < fNumberOfNetFolders; i++) {
+      SafeDelete(fNetFolder[i]);
+      SafeDelete(fNetFolderSocket[i]);
+   }
+   SafeDeleteArray(fNetFolder);
+   SafeDeleteArray(fNetFolderActive);
+   SafeDeleteArray(fNetFolderReconnect);
+   SafeDeleteArray(fNetFolderSocket);
+   SafeDeleteArray(fNetFolderPort);
+   SafeDeleteArray(fNetFolderName);
+   SafeDeleteArray(fNetFolderHost);
+   SafeDeleteArray(fNetFolderRoot);
+
+   for(i = 0; i < fNumberOfDataBases; i++) {
+      SafeDelete(fDataBaseHandle[i]);
+   }
+   SafeDeleteArray(fDataBaseConnection);
+   SafeDeleteArray(fDataBaseName);
+   SafeDeleteArray(fDataBaseDir);
+   SafeDeleteArray(fDataBaseHandle);
 }
 
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 {
 #if defined( HAVE_MIDAS )
-   cm_set_msg_print(0,0,NULL);
+   cm_set_msg_print(0,0,0);
 #endif
 
    if (this->isDaemonMode())
@@ -667,7 +705,7 @@ UInt_t ROMEAnalyzer::ss_kbhit()
    FD_ZERO(&readfds);
    FD_SET(sock, &readfds);
    do {
-      status = select(FD_SETSIZE, &readfds, NULL, NULL, &timeout);
+      status = select(FD_SETSIZE, &readfds, 0, 0, &timeout);
 
       // if an alarm signal was cought, restart select with reduced timeout
       if (status == -1 && timeout.tv_sec >= 1)
@@ -908,7 +946,7 @@ UInt_t ROMEAnalyzer::ss_millitime()
    {
       struct timeval tv;
 
-      gettimeofday(&tv, NULL);
+      gettimeofday(&tv, 0);
 
       return tv.tv_sec * 1000 + tv.tv_usec / 1000;
    }
@@ -1088,12 +1126,12 @@ Bool_t ROMEAnalyzer::ConnectSocketToROME()
 {
    if (!IsSocketToROMEActive())
       return false;
-   if (fSocketToROME!=NULL) {
+   if (fSocketToROME!=0) {
       if (fSocketToROME->IsValid()) {
          return true;
       }
    }
-   if (fSocketToROME==NULL)
+   if (fSocketToROME==0)
       fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
    while (!fSocketToROME->IsValid()) {
       delete fSocketToROME;
@@ -1189,20 +1227,20 @@ Bool_t ROMEAnalyzer::IsWindowBusy() {
 
 ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
 {
-   if (fActiveDAQ!=NULL)
+   if (fActiveDAQ!=0)
       return fActiveDAQ;
    ROMEPrint::Error("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
    fApplication->Terminate(1);
-   return NULL;
+   return 0;
 }
 
 ROMEDataBase* ROMEAnalyzer::GetDataBase(Int_t i)
 {
-   if(i<fNumberOfDataBases && fDataBaseHandle[i]!=NULL)
+   if(i<fNumberOfDataBases && fDataBaseHandle[i]!=0)
       return fDataBaseHandle[i];
    ROMEPrint::Error("\nYou have tried to access a database without initialisation.\nTo use the databases you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n");
    fApplication->Terminate(1);
-   return NULL;
+   return 0;
 }
 
 ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
@@ -1212,7 +1250,7 @@ ROMEDataBase* ROMEAnalyzer::GetDataBase(const char *name)
          return fDataBaseHandle[i];
    ROMEPrint::Error("\nYou have tried to access the %s database without initialisation.\nTo use the %s database you have to add it to the list of databases in the\nROME configuration file under <DataBases>.\n\nShutting down the program.\n",name,name);
    fApplication->Terminate(1);
-   return NULL;
+   return 0;
 }
 
 Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)

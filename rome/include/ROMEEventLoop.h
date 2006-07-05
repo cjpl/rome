@@ -58,8 +58,8 @@ public:
    static Bool_t fTaskSwitchesChanged;               //! Flag Task Switches Changes
 
 public:
-   ROMEEventLoop() { ; }
-   virtual ~ROMEEventLoop() {}
+   ROMEEventLoop();
+   virtual ~ROMEEventLoop();
    ROMEEventLoop(const char *name,const char *title);
    void         ExecuteTask(Option_t *option="");
    void         BookHisto() {}

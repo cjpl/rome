@@ -52,6 +52,11 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
 #else
    fByteSwap = true;
 #endif
+   fOdbOffline = 0;
+}
+
+ROMEMidasDAQ::~ROMEMidasDAQ() {
+   SafeDelete(fOdbOffline);
 }
 
 Bool_t ROMEMidasDAQ::Init() {

@@ -49,8 +49,7 @@ ROMESQLDataBase::ROMESQLDataBase() {
 }
 
 ROMESQLDataBase::~ROMESQLDataBase() {
-   if (fSQL)
-      delete fSQL;
+   SafeDelete(fSQL);
 }
 
 void ROMESQLDataBase:: ResetPhrase() {

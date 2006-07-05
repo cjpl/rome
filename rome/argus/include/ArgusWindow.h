@@ -34,13 +34,13 @@ class ArgusWindow : public TGMainFrame
 {
 protected:
    Bool_t                   fArgusActive;      //! active flag
-   TGStatusBar*             fStatusBar;        //! status bar
+   TGStatusBar             *fStatusBar;        //! status bar
    Bool_t                   fStatusBarSwitch;  //! status bar switch
    Int_t                    fUpdateFrequency;  //! update frequency
-   TGMenuBar*               fMenuBar;          //! menu bar
-   TGPopupMenu*             fMenuFile;         //! file menu
-   TGPopupMenu*             fMenuNetFolder;    //! file menu, net folder
-   TGTab*                   fTab;              //! tabs
+   TGMenuBar               *fMenuBar;          //! menu bar
+   TGPopupMenu             *fMenuFile;         //! file menu
+   TGPopupMenu             *fMenuNetFolder;    //! file menu, net folder
+   TGTab                   *fTab;              //! tabs
    Int_t                    fCurrentTabID;     //! ID number of top tab
    TObjArray               *fTabObjects;       //! Handle to Tab Objects
    Bool_t                   fControllerActive;
@@ -55,7 +55,7 @@ protected:
 public:
    ArgusWindow(); 
    ArgusWindow(const TGWindow* p, Char_t* title);
-   virtual ~ArgusWindow() {}
+   virtual ~ArgusWindow();
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;

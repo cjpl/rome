@@ -58,6 +58,11 @@ ROMERint::ROMERint(const char *appClassName, int *argc, char **argv,
    fUseRintInterruptHandler = kFALSE;
 }
 
+ROMERint::~ROMERint()
+{
+   SafeDelete(fROMEInterruptHandler);
+}
+
 Bool_t ROMERint::HandleTermInput()
 {
    if (fRunning)

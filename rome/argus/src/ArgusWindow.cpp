@@ -48,6 +48,28 @@ void ArgusWindow::InitArgus()
    fControllerActive = false;
    fControllerNetFolder = NULL;
    fUpdateFrequency = 0;
+
+   fStatusBar = 0;
+   fMenuBar = 0;
+   fMenuFile = 0;
+   fMenuNetFolder = 0;
+   fTab = 0;
+   fTabObjects = 0;
+   fController = 0;
+   fControllerNetFolder = 0;
+}
+
+ArgusWindow::~ArgusWindow()
+{
+#if 0 // deleting GUI objects may cause error
+   SafeDelete(fStatusBar);
+   SafeDelete(fMenuBar);
+   SafeDelete(fMenuFile);
+   SafeDelete(fMenuNetFolder);
+   SafeDelete(fTab);
+   SafeDelete(fTabObjects);
+#endif
+//   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
 
 Bool_t ArgusWindow::Start()

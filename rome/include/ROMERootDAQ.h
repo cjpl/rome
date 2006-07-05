@@ -18,7 +18,7 @@ protected:
 
 public:
    ROMERootDAQ();
-   virtual ~ROMERootDAQ() {}
+   virtual ~ROMERootDAQ();
 
    Int_t        GetTimeStamp() { return 0; }
    const char  *GetName() { return "root"; }

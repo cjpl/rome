@@ -21,6 +21,8 @@ ROMEPgSQL::ROMEPgSQL() {
 
 ROMEPgSQL::~ROMEPgSQL() {
    DisConnect();
+   SafeDelete(connection);
+   SafeDelete(result);
 }
 
 Bool_t ROMEPgSQL::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)

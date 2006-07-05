@@ -45,6 +45,11 @@ void ArgusTab::ArgusInit() {
    }
 }
 
+ArgusTab::~ArgusTab() {
+   SafeDelete(fEventHandlerTimer);
+   SafeDelete(fEventHandlerWaitTimer);
+}
+
 void ArgusTab::ArgusEventHandler() {
    if (gROME->IsROMEAndARGUS()) {
       if (fEventHandlerWaitTimer==NULL)

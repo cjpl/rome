@@ -73,6 +73,77 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fNumberOfUserTGraph = kMaxNumberOfPads;
    fNumberOfUserTH1F = kMaxNumberOfPads;
    fNumberOfUserTH2F = kMaxNumberOfPads;
+
+   fMenuBar = 0;
+   fMenuDisplay = 0;
+   fMenuView = 0;
+   fMenuViewDivide = 0;
+   fMenuView0_19 = 0;
+   fMenuView20_39 = 0;
+   fMenuView40_59 = 0;
+   fMenuView60_79 = 0;
+   fProgress = 0;
+   fStatus = 0;
+   fStatusText = 0;
+   fText = 0;
+   fCanvas = 0;
+   fDialog = 0;
+
+   for (i = 0; i < kMaxNumberOfPadsX; i++)
+      fMenuViewDivideColumn[i] = 0;
+
+   fUserTGraph = 0;
+   fUserTH1F = 0;
+   fUserTH2F = 0;
+
+   for (i = 0; i < kMaxNumberOfPads; i++) {
+      fPad[kMaxNumberOfPads] = 0;
+      fTH1F[kMaxNumberOfPads] = 0;
+      fTH2F[kMaxNumberOfPads] = 0;
+      fTGraph[kMaxNumberOfPads] = 0;
+   }
+}
+
+ArgusHistoDisplay::~ArgusHistoDisplay()
+{
+   SafeDelete(fMenuBar);
+   SafeDelete(fMenuDisplay);
+   SafeDelete(fMenuView);
+   SafeDelete(fMenuViewDivide);
+   SafeDelete(fMenuView0_19);
+   SafeDelete(fMenuView20_39);
+   SafeDelete(fMenuView40_59);
+   SafeDelete(fMenuView60_79);
+   SafeDelete(fProgress);
+   SafeDelete(fStatus);
+   SafeDelete(fStatusText);
+   SafeDelete(fText);
+   SafeDelete(fCanvas);
+   SafeDelete(fDialog);
+
+   Int_t i;
+
+   for (i = 0; i < kMaxNumberOfPadsX; i++)
+      SafeDelete(fMenuViewDivideColumn[i]);
+
+   for (i = 0; i < fNumberOfUserTGraph; i++)
+      SafeDelete(fUserTGraph[i]);
+   SafeDeleteArray(fUserTGraph)
+
+   for (i = 0; i < fNumberOfUserTH1F; i++)
+      SafeDelete(fUserTH1F);
+   SafeDeleteArray(fUserTH1F[i])
+
+   for (i = 0; i < fNumberOfUserTH2F; i++)
+      SafeDelete(fUserTH2F);
+   SafeDeleteArray(fUserTH2F[i])
+
+   for (i = 0; i < kMaxNumberOfPads; i++) {
+      SafeDelete(fPad[i]);
+      SafeDelete(fTH1F[i]);
+      SafeDelete(fTH2F[i]);
+      SafeDelete(fTGraph[i]);
+   }
 }
 
 void ArgusHistoDisplay::BaseInit()
