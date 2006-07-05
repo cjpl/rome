@@ -102,7 +102,7 @@ protected:
 
 public:
    ArgusHistoDisplay();
-   ~ArgusHistoDisplay() {}
+   virtual ~ArgusHistoDisplay();
 
    void BaseInit();
    void BaseMenuClicked(TGPopupMenu *menu,Long_t param);

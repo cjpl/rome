@@ -21,7 +21,7 @@ ROMEODBOfflineDataBase::ROMEODBOfflineDataBase() {
 }
 
 ROMEODBOfflineDataBase::~ROMEODBOfflineDataBase() {
-   delete xml;
+   SafeDelete(xml);
 }
 
 Bool_t ROMEODBOfflineDataBase::Init(const char* name,const char* path,const char* connection) {

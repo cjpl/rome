@@ -26,7 +26,7 @@ ROMEStr2DArray::ROMEStr2DArray(Int_t sizeX,Int_t sizeY)
 ROMEStr2DArray::~ROMEStr2DArray()
 {
    this->RemoveAll();
-   delete array;
+   SafeDelete(array);
 }
 
 

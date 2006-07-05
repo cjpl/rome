@@ -31,26 +31,27 @@ class TGPictureButton;
 class ArgusAnalyzerController : public TGTransientFrame
 {
 protected:
-   ROMENetFolder*      fNetFolder;
+   ROMENetFolder      *fNetFolder;
    Long64_t            fRunNumber;
    Long64_t            fLastRunNumber;
    Long64_t            fEventNumber;
    Int_t               fEventStep;
    Int_t               fEventInterval;
-   TGVerticalFrame*    fVerticalFrame[2];
-   TGHorizontalFrame*  fHorizontalFrame[2];
-   TGNumberEntryField* fRunNumberEntry;
-   TGNumberEntryField* fEventNumberEntry;
-   TGNumberEntry*      fEventStepEntry;
-   TGNumberEntry*      fEventIntervalEntry;
-   TGLabel*            fRunNumberLabel;
-   TGLabel*            fEventNumberLabel;
-   TGLabel*            fEventStepLabel;
-   TGLabel*            fEventIntervalLabel;
-   TGPictureButton*    fPlayButton;
-   TGPictureButton*    fNextButton;
-   TGPictureButton*    fStopButton;
-   TGPictureButton*    fFrwdButton;
+   TGVerticalFrame    *fVerticalFrame[2];
+   TGHorizontalFrame  *fHorizontalFrame[2];
+   TGNumberEntryField *fRunNumberEntry;
+   TGNumberEntryField *fEventNumberEntry;
+//   TGNumberEntry      *fEventStepEntry;
+//   TGNumberEntry      *fEventIntervalEntry;
+   TGLabel            *fRunNumberLabel;
+   TGLabel            *fEventNumberLabel;
+//   TGLabel            *fEventStepLabel;
+//   TGLabel            *fEventIntervalLabel;
+   TGPictureButton    *fPlayButton;
+   TGPictureButton    *fNextButton;
+   TGPictureButton    *fStopButton;
+//   TGPictureButton  *fFrwdButton;
+   Bool_t              fOnDisplay;
 
    enum CommandIdentifiers{
       B_Play,
@@ -66,7 +67,7 @@ protected:
 public:
    ArgusAnalyzerController():TGTransientFrame(NULL, NULL, 1, 1){}
    ArgusAnalyzerController(const TGWindow* p,const TGWindow* main,UInt_t w,UInt_t h,ROMENetFolder* nf,UInt_t options = kVerticalFrame);
-   virtual ~ArgusAnalyzerController() { DeleteWindow(); }
+   virtual ~ArgusAnalyzerController();
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t);
    void           CloseWindow();
    void           Update();

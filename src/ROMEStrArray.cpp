@@ -32,7 +32,7 @@ ROMEStrArray::ROMEStrArray(ROMEStrArray& strArray)
 ROMEStrArray::~ROMEStrArray()
 {
    this->RemoveAll();
-   delete array;
+   SafeDelete(array);
 }
 
 void ROMEStrArray::Delete(Option_t *option)

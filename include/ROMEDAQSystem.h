@@ -8,6 +8,7 @@
 #define ROMEDAQSystem_H
 #include <Rtypes.h>
 #include <TObject.h>
+#include "ROME.h"
 #include "ROMEStopwatch.h"
 
 class ROMEDAQSystem : public TObject

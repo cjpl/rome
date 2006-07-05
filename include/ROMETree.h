@@ -39,30 +39,8 @@ protected:
    Int_t       fFileOption;        //!   File Option for the Tree Object
 
 public:
-   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Long64_t maxEntries=0) {
-      fTree = tree;
-      fFileName = fileName;
-      fConfigFileName = configFileName;
-      fFile = file;
-      fFileOption = fileOption;
-      fSwitches.fRead = read;
-      fSwitches.fWrite = write;
-      fSwitches.fFill = fill;
-      fSwitches.fCompressionLevel = compressionLevel;
-      fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
-      /* note: use 4byte integer for odb */
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-      if (maxEntries>0) fTree->SetCircular(maxEntries);
-#endif 
-      TObjArray *branches = fTree->GetListOfBranches();
-      for (Int_t i=0;i<branches->GetEntriesFast();i++)
-         ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
-      fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
-      fBranchActive = 0;
-   }
-   virtual ~ROMETree() {
-      delete [] fBranchActive;
-   }
+   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Long64_t maxEntries=0);
+   virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n) { fBranchActive = new Bool_t[n]; for(int i=0;i<n;i++) fBranchActive[i]=kTRUE; }
    TTree      *GetTree() { return fTree; }

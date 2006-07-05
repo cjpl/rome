@@ -33,7 +33,7 @@ protected:
 
 public:
    ArgusTab();
-   ~ArgusTab() {}
+   virtual ~ArgusTab();
 
    void ArgusInit();
    void ArgusEventHandler();

@@ -100,17 +100,19 @@ ArgusTextDialog::ArgusTextDialog(const TGWindow *p, const TGWindow *main, UInt_t
 
 ArgusTextDialog::~ArgusTextDialog()
 {
-   // Clean up text dialog   
-   delete fCancelButton;
-   delete fOkButton;
-   delete fText;
-   delete fLabel;
-   delete fF1;
-   delete fF2;
-   delete fL1;
-   delete fL5;
-   delete fL6;
-   delete fL21;
+   // Clean up text dialog
+#if 0 // deleting GUI objects may cause error
+   SafeDelete(fCancelButton);
+   SafeDelete(fOkButton);
+   SafeDelete(fText);
+   SafeDelete(fLabel);
+   SafeDelete(fF1);
+   SafeDelete(fF2);
+   SafeDelete(fL1);
+   SafeDelete(fL5);
+   SafeDelete(fL6);
+   SafeDelete(fL21);
+#endif
 }
 
 void ArgusTextDialog::CloseWindow()

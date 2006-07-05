@@ -86,43 +86,9 @@ public:
    Int_t               fNumberOfVFrames;  //!
 
 public:
-   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex) { 
-      fFrameCreated = false;
-      fFrameTitle = title;
-      fFramePath = path;
-      fFrameVertical = vertical;
-      fFrameType = type;
-      fFrameVisible = visible;
-      fFrameTabIndex = tabIndex;
-      fElements.RemoveAll();
-      fNumberOfElements = 0;
-      fSubFrames.RemoveAll();
-      fNumberOfSubFrames = 0;
-      fLFrame = NULL;
-      fLInnerFrame = NULL;
-      fLInnerCheckButtonFrame = NULL;
-      fParentFrame = parentFrame;
-      fFrame = NULL;
-      fTab = NULL;
-      fListTreeFrame = NULL;
-      fListTreeHFrame = NULL;
-      fListTreeCanvas = NULL;
-      fListTree = NULL;
-      fListTreeItem = NULL;
-      if (strlen(title)>0 && visible) {
-         fLTitleLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, elementPad, elementPad, elementPad, elementPad);
-      }
-      else {
-         fTitleLabel = NULL;
-         fLTitleLabel = NULL;
-      }
-      fHFrame = NULL;
-      fHHFrames = NULL;
-      fHHFrameIndex = NULL;
-      fVFrames = NULL;
-      fNumberOfHHFrames = 0;
-      fNumberOfVFrames = 0;
-   }
+   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex);
+   virtual ~XMLToFormFrame();
+
    void AddSubFrame(XMLToFormFrame* subFrame) {
       fSubFrames.AddLast(subFrame);
       fNumberOfSubFrames++;

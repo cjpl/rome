@@ -20,6 +20,12 @@ ROMERomeDAQ::ROMERomeDAQ() {
    fTreeInfo = new ROMETreeInfo();
    fTreeIndex = 0;
    fInputFileNameIndex = -1;
+   fRootFiles = 0;
+}
+
+ROMERomeDAQ::~ROMERomeDAQ() {
+   SafeDelete(fTreeInfo);
+   SafeDeleteArray(fRootFiles);
 }
 
 Bool_t ROMERomeDAQ::Init() {
@@ -248,7 +254,7 @@ Bool_t ROMERomeDAQ::EndOfRun() {
                gROME->GetTreeObjectAt(j)->SetTree(new TTree());
             }
          }
-         delete [] fRootFiles;
+         SafeDeleteArray(fRootFiles);
       }
    }
    return true;

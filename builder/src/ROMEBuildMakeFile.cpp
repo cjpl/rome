@@ -250,6 +250,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEUtilities.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEXML.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMETree.cpp");
       romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
       romeSources->Add("$(ROMESYS)/src/strlcpy.c");
       romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
@@ -259,6 +260,8 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEConfigToForm.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToForm.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
+      romeSources->Add("$(ROMESYS)/src/XMLToFormFrame.cpp");
+      romeSources->Add("$(ROMESYS)/src/XMLToFormElement.cpp");
    }
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");

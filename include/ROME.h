@@ -18,4 +18,10 @@
 #   define DLLEXPORT
 #endif
 
+#ifdef R__GNU
+#   define SafeDeleteArray(p) { if (p) { delete [] p; p = 0; } }
+#else
+#   define SafeDeleteArray(p) { delete [] p; p = 0; }
+#endif
+
 #endif   // ROME_H

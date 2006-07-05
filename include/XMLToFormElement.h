@@ -71,45 +71,9 @@ public:
    XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,XMLToFormElementSignal* signal = NULL) {
       Init(type,title,value,path,width,entries,0,signal);
    }
-   void Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal) { 
-      fType = type; fTitle = title; fValue = value; fPath = path; fSignal = signal; fButtonID = buttonID; fWidth = width;
-      if (entries!=NULL) {
-         for (Int_t i=0;i<entries->GetEntriesFast();i++) {
-            if (entries->At(i)==value)
-               fSelectedEntry = i;
-            fEntry.AddLast(entries->At(i).Data()); 
-         }
-      }
-      if (!strcmp(value,"true"))
-         fButtonChecked = true;
-      else
-         fButtonChecked = false;
-      fParentFrameIndex = 0;
+   void XMLToFormElement::Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal);
+   virtual ~XMLToFormElement();
 
-      fWidgetTitle = NULL;
-      // EditBox
-      fEditVFrames = NULL;
-      fEditLabel = NULL;
-      fLEditLabel = NULL;
-      fEditBox = NULL;
-      fEditBoxBuffer = NULL;
-      fLEditBox = NULL;
-      // Button
-      fButton = NULL;
-      fLButton = NULL;
-      // ComboBox
-      fComboVFrames = NULL;
-      fComboLabel = NULL;
-      fLComboLabel = NULL;
-      fComboBox = NULL;
-      fLComboBox = NULL;
-      // CheckButton
-      fCheckButtonVFrames = NULL;
-      fCheckButtonLabel = NULL;
-      fLCheckButtonLabel = NULL;
-      fCheckButton = NULL;
-      fLCheckButton = NULL;
-   }
    // Widget Data Getters
    TString GetType() { return fType; }
    TString GetTitle() { return fTitle; }

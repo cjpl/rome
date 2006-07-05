@@ -21,15 +21,16 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "ArgusAnalyzerController.h"
+#include "ArgusWindow.h"
 #include "ROMEAnalyzer.h"
 #include "ROMEEventLoop.h"
 #include "ROMENetFolder.h"
 #include "ROMETreeInfo.h"
 
 ClassImp(ArgusAnalyzerController)
-#define AADEBUG
+
 // Constructor
-    ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, ROMENetFolder * nf, UInt_t options)
+ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, ROMENetFolder * nf, UInt_t options)
 :TGTransientFrame(p, main, w, h, options)
 {
    fNetFolder = nf;
@@ -39,7 +40,7 @@ ClassImp(ArgusAnalyzerController)
    fEventStep = 1;
    fEventInterval = 5;
 
-#if !defined( AADEBUG )
+#if 0 // fSocket is protected
    if (!fNetFolder->fSocket || !fNetFolder->fSocket->IsValid())
       Error("ArgusAnalyzerController", "NetFolder is not connected to server.");
    return;
@@ -148,7 +149,7 @@ ClassImp(ArgusAnalyzerController)
    SetWMPosition(ax, ay);
 
    TString window_name = "Control Panel";
-#if !defined( AADEBUG )
+#if 0 // fSocket is protected
    window_name += fNetFolder->fSocket->GetUrl();
 #endif
    window_name += ".";
@@ -158,6 +159,23 @@ ClassImp(ArgusAnalyzerController)
 
    MapWindow();
 //   fClient->WaitFor(this);
+}
+
+ArgusAnalyzerController::~ArgusAnalyzerController()
+{
+#if 0 // deleting GUI objects may cause error
+   SafeDelete(fHorizontalFrame[0]);
+   SafeDelete(fHorizontalFrame[1]);
+   SafeDelete(fVerticalFrame[0]);
+   SafeDelete(fVerticalFrame[1]);
+   SafeDelete(fPlayButton);
+   SafeDelete(fNextButton);
+   SafeDelete(fStopButton);
+   SafeDelete(fRunNumberLabel);
+   SafeDelete(fEventNumberLabel);
+   SafeDelete(fRunNumberEntry);
+   SafeDelete(fEventNumberEntry);
+#endif
 }
 
 void ArgusAnalyzerController::Update()
@@ -297,5 +315,8 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
 }
 void ArgusAnalyzerController::CloseWindow()
 {
-   gROME->WindowClosed();
+   // Close the dialog. On close the dialog will be deleted and cannot be
+   // re-used.
+   gROME->GetWindow()->SetControllerActive(kFALSE);
+   DeleteWindow();
 }

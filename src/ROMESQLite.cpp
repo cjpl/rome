@@ -26,6 +26,8 @@ ROMESQLite::ROMESQLite() {
 
 ROMESQLite::~ROMESQLite() {
    DisConnect();
+   SafeDelete(db);
+   SafeDelete(vm);
 }
 
 Bool_t ROMESQLite::Connect(const char *server,const char *user,const char *passwd,const char *database,const char *port)

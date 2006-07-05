@@ -19,6 +19,8 @@ public:
    ROMEString(const char* s) : TString(s) {}
    ROMEString(const TString& s) : TString(s) {}
    ROMEString(const TSubString& s) : TString(s) {}
+   virtual ~ROMEString() {}
+
 #ifndef __MAKECINT__
    ROMEString&  AppendFormatted(const char* format=NULL,...);
    ROMEString&  InsertFormatted(Ssiz_t position,const char* format=NULL,...);

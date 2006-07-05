@@ -470,6 +470,7 @@ Bool_t XMLToForm::Init(const char* xmlFileName,ROMEStrArray* substitutes)
    FillClass(fMainFrame);
    return true;
 }
+
 XMLToForm::XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes)
 {
    fWindow = NULL;
@@ -479,6 +480,7 @@ XMLToForm::XMLToForm(const char* xmlFileName,ROMEStrArray* substitutes)
    fMainFrame = NULL;
    Init(xmlFileName,substitutes);
 }
+
 XMLToForm::XMLToForm(const TGWindow * p, const TGWindow * main,const char* xmlFileName, Int_t *exitButtonID,ROMEStrArray* substitutes)
 {
    fWindow = NULL;
@@ -497,9 +499,9 @@ XMLToForm::~XMLToForm()
    if (fMainFrame != NULL) {
       fWindow->DeleteFrame(fMainFrame);
    }
-   delete fSubstitutes;
-   delete fPlaceHolders;
-   delete fXML;
+   SafeDelete(fSubstitutes);
+   SafeDelete(fPlaceHolders);
+   SafeDelete(fXML);
 }
 
 

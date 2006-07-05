@@ -83,11 +83,14 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMETextDataBase.o \
               obj/ROMEUtilities.o \
               obj/ROMEXMLDataBase.o \
+              obj/ROMETree.o \
               obj/TArrayL64.o \
               obj/TNetFolder.o \
               obj/TNetFolderServer.o \
               obj/XMLToForm.o \
               obj/XMLToFormWindow.o \
+              obj/XMLToFormFrame.o \
+              obj/XMLToFormElement.o \
               obj/ArgusAnalyzerController.o \
               obj/ArgusTab.o \
               obj/ArgusHistoDisplay.o \

@@ -2104,6 +2104,7 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,level,histoSuffix,histoFolder) {}\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   virtual ~%sT%s() {}\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
@@ -2282,6 +2283,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       // Constructor and Event Methods
       buffer.AppendFormatted("   // Constructor\n");
       buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("   virtual ~%sT%s_Base() {}\n",shortCut.Data(),taskName[iTask].Data());
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
       if (numOfSteering[iTask]>0) {
@@ -4462,6 +4464,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sAnalyzer() {}\n",shortCut.Data());
 
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
@@ -5523,6 +5526,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sConfigToForm();\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sConfigToForm() {}\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   void AddTabs(XMLToFormFrame *frame);\n");
 
@@ -5891,6 +5895,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sConfig();\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sConfig() {}\n",shortCut.Data());
 
    // methods
    buffer.AppendFormatted("   Bool_t WriteConfigurationFile(const char *file);\n");
@@ -7766,6 +7771,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sMidasDAQ();\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sMidasDAQ() {}\n",shortCut.Data());
 
    // Banks
    buffer.AppendFormatted("   // Bank Methodes\n");
@@ -7961,6 +7967,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    // Constructor
    buffer.AppendFormatted("   %sRomeDAQ();\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sRomeDAQ() {}\n",shortCut.Data());
 
    // File getter
    for (i=0;i<numOfTree;i++)
@@ -8166,6 +8173,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
    for (i=0;i<numOfRootTree;i++) {
       buffer.AppendFormatted("   %s* Get%s() { return f%s; }\n",rootTreeName[i].Data(),rootTreeName[i].Data(),rootTreeName[i].Data());
    }
+   buffer.AppendFormatted("   virtual ~%sRootDAQ() {}\n",shortCut.Data());
 
    // methods
    buffer.AppendFormatted("protected:\n");
@@ -8413,6 +8421,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("public:\n");
          // Constructor and Methods
          buffer.AppendFormatted("   %s%sDAQ();\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("   virtual ~%s%sDAQ() {}\n",shortCut.Data(),daqName[iDAQ].Data());
 
          // Methods
          buffer.AppendFormatted("   Int_t  GetTimeStamp() { return 0; }\n");
@@ -8707,6 +8716,7 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       }
    }
    buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("%s   ~%s%s() {};\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
    // Getters
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (!steerFieldUsed[numTask][numSteer][j])
@@ -9639,6 +9649,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sEventLoop(const char *name,const char *title);\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sEventLoop() {}\n",shortCut.Data());
    buffer.AppendFormatted("   void AddTreeBranches();\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
@@ -9695,6 +9706,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TFolder.h>\n");
+   buffer.AppendFormatted("#include <TGClient.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS

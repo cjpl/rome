@@ -8,10 +8,9 @@
 #define ROMETask_H
 
 #include <TTask.h>
+#include <TFolder.h>
 #include "ROMEString.h"
 #include "ROMEStopwatch.h"
-
-class TFolder;
 
 class ROMETask : public TTask {
 private:
@@ -30,9 +29,9 @@ protected:
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
 
 public:
-   ROMETask() { ; }
+   ROMETask() { fHistoFolder = 0; }
    ROMETask(const char *name,const char *title,int level);
-   virtual ~ROMETask() {}
+   virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");
    Bool_t       hasHistograms()  { return fHasHistograms; }
    Int_t        GetVersion()     { return fVersion; }

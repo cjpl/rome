@@ -40,17 +40,17 @@ ROMEPath::ROMEPath() {
 }
 
 ROMEPath::~ROMEPath() {
-   delete fTableNames;
-   delete fTableAbsolutePaths;
-   delete fTableConstraints;
-   delete fTableDBConstraints;
-   delete fTableIDName;
-   delete fTableIDXName;
+   SafeDelete(fTableNames);
+   SafeDelete(fTableAbsolutePaths);
+   SafeDelete(fTableConstraints);
+   SafeDelete(fTableDBConstraints);
+   SafeDelete(fTableIDName);
+   SafeDelete(fTableIDXName);
 
    fConstraintField->Delete();
    fConstraintValue->Delete();
-   delete fConstraintField;
-   delete fConstraintValue;
+   SafeDelete(fConstraintField);
+   SafeDelete(fConstraintValue);
 }
 
 Bool_t ROMEPath::DecodeConstraint(const char* contraint)
@@ -237,7 +237,7 @@ return false;
       order->Decode(orderPath.Data(),runNumber,eventNumber);
       if (order->GetNumberOfTables()!=1) {
          ROMEPrint::Error("\nOrder statment has to look like this : 'Table'/'Field'['start','end','step'].\n");
-         delete order;
+         SafeDelete(order);
          return false;
       }
       SetOrderArray(order->IsFieldArray());
@@ -245,7 +245,7 @@ return false;
       SetOrderFieldName(order->GetFieldName());
       for (int i=0;i<3;i++)
          SetOrderIndexAt(i,order->GetFieldIndexAt(i));
-      delete order;
+      SafeDelete(order);
    }
 
    // extract field

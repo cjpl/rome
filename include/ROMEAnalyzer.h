@@ -28,7 +28,6 @@
 #include "ROMETask.h"
 #include "ROMENetFolder.h"
 #include "ROMEConfig.h"
-#include "ArgusWindow.h"
 #include "TArrayL64.h"
 #if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
 #   include "midas.h"
@@ -40,6 +39,8 @@ class TObjArray;
 class TSocket;
 class TTree;
 class ROMEDAQSystem;
+class ROMEAnalyzer;
+class ArgusWindow;
 
 typedef struct {
    Double_t processedEvents;   //! Processed Events
@@ -47,8 +48,6 @@ typedef struct {
    Double_t writtenEvents;     //! Written Events
 } Statistics;
 
-class ROMEAnalyzer;
-class ArgusWindow;
 extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 
 class ROMEAnalyzer : public TObject

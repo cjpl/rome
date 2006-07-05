@@ -553,9 +553,9 @@ XMLToFormWindow::XMLToFormWindow(const TGWindow * p, const TGWindow * main, XMLT
    SetWindowName("Please edit mask");
    fClient->WaitFor(this);
 }
+
 XMLToFormWindow::~XMLToFormWindow()
 {
-
 }
 
 void XMLToFormWindow::PlaceWindow(const TGWindow * main)

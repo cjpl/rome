@@ -59,7 +59,7 @@ ROMETextDataBase::ROMETextDataBase() {
 }
 
 ROMETextDataBase::~ROMETextDataBase() {
-   delete fTime;
+   SafeDelete(fTime);
 }
 
 Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* connection) {
