@@ -71,6 +71,7 @@ void XMLToFormElement::Init(const char* type,const char* title,const char* value
 
 XMLToFormElement::~XMLToFormElement()
 {
+#if 0 // deleting GUI objects may cause error
    SafeDelete(fWidgetTitle);
    SafeDelete(fEditVFrames);
    SafeDelete(fEditLabel);
@@ -93,4 +94,5 @@ XMLToFormElement::~XMLToFormElement()
    SafeDelete(fLCheckButtonLabel);
    SafeDelete(fCheckButton);
    SafeDelete(fLCheckButton);
+#endif
 }

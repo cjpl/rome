@@ -106,6 +106,8 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
 
 ArgusHistoDisplay::~ArgusHistoDisplay()
 {
+   Int_t i;
+#if 0
    SafeDelete(fMenuBar);
    SafeDelete(fMenuDisplay);
    SafeDelete(fMenuView);
@@ -121,22 +123,21 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
    SafeDelete(fCanvas);
    SafeDelete(fDialog);
 
-   Int_t i;
-
    for (i = 0; i < kMaxNumberOfPadsX; i++)
       SafeDelete(fMenuViewDivideColumn[i]);
+#endif
 
    for (i = 0; i < fNumberOfUserTGraph; i++)
       SafeDelete(fUserTGraph[i]);
    SafeDeleteArray(fUserTGraph)
 
    for (i = 0; i < fNumberOfUserTH1F; i++)
-      SafeDelete(fUserTH1F);
-   SafeDeleteArray(fUserTH1F[i])
+      SafeDelete(fUserTH1F[i]);
+   SafeDeleteArray(fUserTH1F)
 
    for (i = 0; i < fNumberOfUserTH2F; i++)
-      SafeDelete(fUserTH2F);
-   SafeDeleteArray(fUserTH2F[i])
+      SafeDelete(fUserTH2F[i]);
+   SafeDeleteArray(fUserTH2F)
 
    for (i = 0; i < kMaxNumberOfPads; i++) {
       SafeDelete(fPad[i]);
