@@ -671,9 +671,26 @@ Bool_t ROMEEventLoop::UserInput()
                   ch = gROME->ss_getchar(0);
                }
             }
-            if (ch == 'y' || ch == 'Y')
-               return false;
-            ROMEPrint::Print("\r                                                                                \r");
+            if (ch == 'y' || ch == 'Y') {
+               ROMEPrint::Print("\r                                                                                \r");
+               SetTerminate();
+               gROME->SetTerminationFlag();
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+                  gROME->GetWindow()->StopEventHandler();
+               }
+               // Terminate
+               if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+                  if (!this->DAQTerminate()) {
+                     gROME->SetTerminationFlag();
+                     ROMEPrint::Print("\n\nTerminating Program !\n");
+                     return true;
+                  }
+                  ROMEPrint::Debug("Executing Terminate tasks\n");
+                  ExecuteTasks("Terminate");
+                  CleanTasks();
+               }
+               return false;               
+            }
          }
          if (ch == 'e' || gROME->IsUserEventE()) {
             this->SetTerminate();
