@@ -69,15 +69,17 @@ void ArgusTab::StartEventHandler(Int_t milliSeconds) {
    fUpdateFrequency = milliSeconds;
    StartEventHandler();
 }
+
 void ArgusTab::StartEventHandler() {
+   if (!fEventHandlerTimer->NumberOfSignals())
+      fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
    fEventHandlerTimer->SetTime(fUpdateFrequency);
    fEventHandlerTimer->TurnOn();
 }
 
 void ArgusTab::StopEventHandler() {
-   fEventHandlerTimer->TurnOff();
-   fEventHandlerTimer->Disconnect(this);
-   fEventHandlerWaitTimer->Disconnect(this);
+   //  fEventHandlerTimer->TurnOff(); // <-- this line causes seg fault under Linux. (reason is unknown.)
+   this->Disconnect(fEventHandlerTimer);
    fEventHandlerUserStop  = true;
 }
 
@@ -93,6 +95,8 @@ void ArgusTab::SetUpdateFrequency(Int_t duration)
       fEventHandlerTimer->TurnOff();
       if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {
          fEventHandlerTimer->SetTime(fUpdateFrequency);
+         if (!fEventHandlerTimer->NumberOfSignals())
+            fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
          fEventHandlerTimer->TurnOn();
       }
    }
