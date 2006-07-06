@@ -466,6 +466,8 @@ Bool_t ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    path.SetFormatted("%sinclude/generated", outDir.Data());
    gSystem->MakeDirectory(path.Data());
+   path.SetFormatted("%sinclude/version", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
    if (numOfTask > 0) {
       path.SetFormatted("%ssrc/tasks", outDir.Data());
       gSystem->MakeDirectory(path.Data());
@@ -561,6 +563,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteEventLoopH()) return false;
    if (!WriteMain()) return false;
    if (!WriteReadTreesC()) return false;
+   if (!WriteVersionH()) return false;
 
    ROMEString buffer;
    gSystem->ChangeDirectory(outDir.Data());

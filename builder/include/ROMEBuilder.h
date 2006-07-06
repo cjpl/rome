@@ -535,6 +535,7 @@ private:
    Bool_t  WriteEventLoopH();
    Bool_t  WriteMain();
    Bool_t  WriteReadTreesC();
+   Bool_t  WriteVersionH();
    Bool_t  WriteLinkDefHs();
    Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* filename);
 
