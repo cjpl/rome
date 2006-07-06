@@ -15,11 +15,11 @@
 */
 
 #define ROME_RELEASE "2.5"
-#define ROME_REVISION "$Rev: 1 $"
+#define ROME_REVISION "$Rev$"
 #define ROME_REVISION_CODE 1
 #define ROME_STABLE 0
 #define ROME_RELEASE_DATE "Aug  6 2006"
-#define ROME_RELEASE_TIME "19:57:45"
+#define ROME_RELEASE_TIME "20:04:28"
 #define ROME_VERSION_CODE 517
 #define ROME_VERSION(a,b) (((a) << 8) + (b))
 
