@@ -76,6 +76,8 @@ void ArgusTab::StartEventHandler() {
 
 void ArgusTab::StopEventHandler() {
    fEventHandlerTimer->TurnOff();
+   fEventHandlerTimer->Disconnect(this);
+   fEventHandlerWaitTimer->Disconnect(this);
    fEventHandlerUserStop  = true;
 }
 
