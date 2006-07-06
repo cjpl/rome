@@ -29,6 +29,7 @@
 #endif
 #include <Riostream.h>
 #include "ROMEBuilder.h"
+#include "ROMEVersion.h"
 
 int main(int argc, char *argv[])
 {
@@ -46,7 +47,8 @@ int main(int argc, char *argv[])
    gROOT->SetBatch();
    ROMEBuilder* romeb = new ROMEBuilder();
 
-   romeb->romeVersion = "Version 2.5";
+   romeb->romeVersion = "Version ";
+   romeb->romeVersion += ROME_RELEASE;
    
    ROMEString xmlFile = "";
 
