@@ -61,6 +61,9 @@ BldDictHeaders := include/ROMEString.h \
                   include/ROMEStr2DArray.h \
                   include/ROMEXML.h
 
+UpHObjects := obj/ROMEString.o obj/UpdateVersionHDict.o
+UpHDictHeaders := include/ROMEString.h
+
 LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
               obj/ROMEString.o \
@@ -154,8 +157,12 @@ obj:
 		mkdir obj; \
 	fi;
 
-bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
+bin/romebuilder.exe: builder/src/main.cpp $(BldObjects) ./bin/updateVersionH.exe
+	@./bin/updateVersionH.exe
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+
+bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 librome.a: $(LibObjects)
 	rm -f $@
@@ -175,6 +182,9 @@ ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
+
+UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(UpHDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
