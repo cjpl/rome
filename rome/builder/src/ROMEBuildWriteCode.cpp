@@ -11,6 +11,7 @@
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
+#include <TTimeStamp.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -10543,6 +10544,89 @@ Bool_t ROMEBuilder::WriteReadTreesC()
       delete branchFolderNum[i];
    }
    delete branchFolderNum;
+   return true;
+}
+
+Bool_t ROMEBuilder::WriteVersionH()
+{
+   // Write XXXVersion.h
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString headerDescription;
+   ROMEString tmp, tmp2, tmp3, tmp4, tmp5, tmp6;
+   hFile.SetFormatted("%sinclude/version/%sVersion.h", outDir.Data(), shortCut.Data());
+
+   // read current revision
+   ROMEString revNumber;
+   ROMEString revLine;
+   ROMEString userCode;
+   ifstream currentH(hFile.Data());
+   ROMEString keyword;
+   keyword.SetFormatted("%s%s_SVN_REVISION", shortCut.ToUpper(tmp), mainProgName.ToUpper(tmp2));
+   if (currentH.good()) {
+      buffer.ReadFile(currentH);
+      currentH.close();
+      Int_t pos1, pos2;
+      pos1 = buffer.Index(keyword.Data());
+      pos1 = buffer.Index(keyword.Data(), keyword.Length(), pos1 + 1, TString::kExact);
+      pos2 = buffer.Index("\n", 1, pos1 + 1, TString::kExact);
+      revLine = buffer(pos1, pos2 - pos1);
+      pos1 = revLine.Index("$");
+      pos2 = revLine.Index("$", 1, pos1 + 1, TString::kExact);
+      revNumber = revLine(pos1, pos2 - pos1 + 1);
+      ParseSVNKeyword(revNumber);
+      pos1 = buffer.Index(kHeaderEndMark) + strlen(kHeaderEndMark);
+      userCode = buffer(pos1 + 1, buffer.Length() - pos1 - strlen("\n#endif\n\n") - 1);
+   }
+   else {
+      revLine.SetFormatted("%s \"$Rev: 0 $\"", keyword.Data());
+      revNumber.SetFormatted("0");
+   }
+
+   // current time
+   const char* const monthName[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+   TTimeStamp timestamp;
+   UInt_t year;
+   UInt_t month;
+   UInt_t day;
+   UInt_t hour;
+   UInt_t min;
+   UInt_t sec;
+   timestamp.Set();
+   timestamp.GetDate(kTRUE, 0, &year, &month, &day);
+   timestamp.GetTime(kTRUE, 0, &hour, &min, &sec);
+
+   // prepare new file.
+   buffer.Resize(0);
+   headerDescription.Resize(0);
+   WriteHeader(buffer, mainAuthor, false);
+   headerDescription.AppendFormatted("This header contains Subversion revision code of %s%s.\n\n", shortCut.Data(), mainProgName.Data());
+   headerDescription.AppendFormatted("These numbers make sense when you use Subversion.\n");
+   headerDescription.AppendFormatted("ROMEBuilder will update %s%s_SVN_REVISION_CODE, %s%s_RELEASE_DATE and %s%s_RELEASE_TIME.\n"
+                                     ,shortCut.ToUpper(tmp), mainProgName.ToUpper(tmp2)
+                                     ,shortCut.ToUpper(tmp3), mainProgName.ToUpper(tmp4)
+                                     ,shortCut.ToUpper(tmp5), mainProgName.ToUpper(tmp6));
+   headerDescription.AppendFormatted("\n");
+   WriteDescription(buffer, gSystem->BaseName(hFile.Data()), headerDescription.Data(), false);
+   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("#ifndef %sVersion_H\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("#define %sVersion_H\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("#define %s\n", revLine.Data());
+   buffer.AppendFormatted("#define %s%s_SVN_REVISION_CODE %s\n",shortCut.ToUpper(tmp), mainProgName.ToUpper(tmp2),revNumber.Data());
+   buffer.AppendFormatted("#define %s%s_RELEASE_DATE \"%s %2d %d\"\n",shortCut.ToUpper(tmp), mainProgName.ToUpper(tmp2)
+                          , monthName[month], day, year);
+   buffer.AppendFormatted("#define %s%s_RELEASE_TIME \"%02d:%02d:%02d\"\n",shortCut.ToUpper(tmp), mainProgName.ToUpper(tmp2)
+                          , hour, min, sec);
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("// romebuilder preserves after following line.\n");
+   buffer.AppendFormatted("%s\n", kHeaderEndMark);
+   if (userCode.Length())
+      buffer.AppendFormatted("%s", userCode.Data());
+   buffer.AppendFormatted("\n#endif\n\n");
+
+   // Write File
+   WriteFile(hFile.Data(),buffer.Data(),6);
    return true;
 }
 
