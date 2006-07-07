@@ -6,7 +6,7 @@
 //                                                                            //
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-// $Id: ArgusHistoDisplay.cpp 3520 2006-05-18 18:54:40Z Matthias Schneebeli $
+// $Id$
 
 #include <RConfig.h>
 #include <sys/stat.h>

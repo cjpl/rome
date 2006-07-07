@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEConfigParameter.cpp, M.Schneebeli
 
-  $Id: ROMEConfigParameter.cpp 1134 2006-06-08 20:42:22Z sawada $
+  $Id$
 
 ********************************************************************/
 #include <TObject.h>
