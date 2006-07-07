@@ -395,7 +395,7 @@ Int_t XMLToForm::GetIndex(const char* label)
       return -1;
    return frame->GetElementAt(index)->GetSelectedEntry();
 }
-void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes) 
+void XMLToForm::InitSubstitutes(ROMEStrArray* substitutes)
 {
    Int_t i,ind;
    ROMEString str;

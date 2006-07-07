@@ -118,7 +118,7 @@ ArgusTextDialog::~ArgusTextDialog()
 void ArgusTextDialog::CloseWindow()
 {
    // Close the dialog. On close the dialog will be deleted and cannot be
-   // re-used.  
+   // re-used.
    DeleteWindow();
 }
 

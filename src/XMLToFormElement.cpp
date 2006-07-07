@@ -35,7 +35,7 @@ void XMLToFormElement::Init(const char* type,const char* title,const char* value
       for (Int_t i=0;i<entries->GetEntriesFast();i++) {
          if (entries->At(i)==value)
             fSelectedEntry = i;
-         fEntry.AddLast(entries->At(i).Data()); 
+         fEntry.AddLast(entries->At(i).Data());
       }
    }
    if (!strcmp(value,"true"))

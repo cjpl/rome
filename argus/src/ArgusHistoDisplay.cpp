@@ -155,7 +155,7 @@ void ArgusHistoDisplay::BaseInit()
    /* Create an embedded canvas and add to the main frame, centered in x and y */
    fCanvas = new TRootEmbeddedCanvas("Canvas", this, 800, 400);
 
-   AddFrame(fCanvas, 
+   AddFrame(fCanvas,
             new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
 
    // Status bar
@@ -210,11 +210,11 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
          {
             fChannelNumber = 0;
             fDisplayTypeOld = -1;
-            SetupPads(1, 1,true); 
+            SetupPads(1, 1,true);
             fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX-1][kMaxNumberOfPadsY-1]);
             break;
          }
-      case M_ARGUS_DISPLAY_VIEW_PAD_CONFIG: 
+      case M_ARGUS_DISPLAY_VIEW_PAD_CONFIG:
          {
             if (fPadConfigActive) {
                fMenuView->UnCheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
@@ -253,7 +253,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
       }
    }
    for (i=0;i<80;i++) {
-      if (param == M_ARGUS_DISPLAY_VIEW_SELECT+i) { 
+      if (param == M_ARGUS_DISPLAY_VIEW_SELECT+i) {
          fChannelNumber = i;
          Display();
          break;

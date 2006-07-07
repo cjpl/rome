@@ -13,7 +13,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TSystem.h> 
+#include <TSystem.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -83,13 +83,13 @@ void ArgusTab::StopEventHandler() {
    fEventHandlerUserStop  = true;
 }
 
-Int_t ArgusTab::GetUpdateFrequency() 
-{ 
-   return fUpdateFrequency; 
+Int_t ArgusTab::GetUpdateFrequency()
+{
+   return fUpdateFrequency;
 }
 
-void ArgusTab::SetUpdateFrequency(Int_t duration) 
-{ 
+void ArgusTab::SetUpdateFrequency(Int_t duration)
+{
    fUpdateFrequency = duration;
    if (fEventHandlerTimer!=NULL) {
       fEventHandlerTimer->TurnOff();

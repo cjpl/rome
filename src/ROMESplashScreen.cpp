@@ -74,7 +74,7 @@ BOOL CreateSplashScreen(HWND hParent)
             NULL,
             hInst,
             NULL);
-    
+
     return (hSplashWnd != NULL);
 }
 
@@ -185,64 +185,64 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             SetTimer(hWnd, ID_SPLASHSCREEN, DelayVal, NULL);
             RomeSysDir = getenv("ROMESYS");
             FullBmpDir.SetFormatted("%s%s",RomeSysDir,bmpDir.Data());
-            // Retrieve a handle identifying the file. 
-            hfbm = CreateFile(FullBmpDir.Data(), GENERIC_READ, 
-                    FILE_SHARE_READ, (LPSECURITY_ATTRIBUTES) NULL, 
-                    OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, 
-                    (HANDLE) NULL); 
+            // Retrieve a handle identifying the file.
+            hfbm = CreateFile(FullBmpDir.Data(), GENERIC_READ,
+                    FILE_SHARE_READ, (LPSECURITY_ATTRIBUTES) NULL,
+                    OPEN_EXISTING, FILE_ATTRIBUTE_READONLY,
+                    (HANDLE) NULL);
             if(hfbm) {
-                // Retrieve the BITMAPFILEHEADER structure. 
-                ReadFile(hfbm, &bmfh, sizeof(BITMAPFILEHEADER), &dwRead, 
-                        (LPOVERLAPPED)NULL); 
-                // Retrieve the BITMAPFILEHEADER structure. 
-                ReadFile(hfbm, &bmih, sizeof(BITMAPINFOHEADER), 
-                        &dwRead, (LPOVERLAPPED)NULL); 
-                // Allocate memory for the BITMAPINFO structure. 
-                hmem1 = GlobalAlloc(GHND, sizeof(BITMAPINFOHEADER) + 
-                        ((1<<bmih.biBitCount) * sizeof(RGBQUAD))); 
-                lpbmi = (LPBITMAPINFO)GlobalLock(hmem1); 
-                // Load BITMAPINFOHEADER into the BITMAPINFO structure. 
-                lpbmi->bmiHeader.biSize = bmih.biSize; 
-                lpbmi->bmiHeader.biWidth = bmih.biWidth; 
-                lpbmi->bmiHeader.biHeight = bmih.biHeight; 
-                lpbmi->bmiHeader.biPlanes = bmih.biPlanes; 
-                lpbmi->bmiHeader.biBitCount = bmih.biBitCount; 
-                lpbmi->bmiHeader.biCompression = bmih.biCompression; 
-                lpbmi->bmiHeader.biSizeImage = bmih.biSizeImage; 
-                lpbmi->bmiHeader.biXPelsPerMeter = bmih.biXPelsPerMeter; 
-                lpbmi->bmiHeader.biYPelsPerMeter = bmih.biYPelsPerMeter; 
-                lpbmi->bmiHeader.biClrUsed = bmih.biClrUsed; 
-                lpbmi->bmiHeader.biClrImportant = bmih.biClrImportant; 
-                // Retrieve the color table. 
-                // 1 << bmih.biBitCount == 2 ^ bmih.biBitCount 
-                ReadFile(hfbm, lpbmi->bmiColors, 
-                        ((1<<bmih.biBitCount) * sizeof(RGBQUAD)), 
-                        &dwRead, (LPOVERLAPPED) NULL); 
-                // Allocate memory for the required number of bytes. 
-                hmem2 = GlobalAlloc(GHND, (bmfh.bfSize - bmfh.bfOffBits)); 
-                lpvBits = GlobalLock(hmem2); 
-                // Retrieve the bitmap data. 
-                ReadFile(hfbm, lpvBits, (bmfh.bfSize - bmfh.bfOffBits), 
-                        &dwRead, (LPOVERLAPPED) NULL); 
+                // Retrieve the BITMAPFILEHEADER structure.
+                ReadFile(hfbm, &bmfh, sizeof(BITMAPFILEHEADER), &dwRead,
+                        (LPOVERLAPPED)NULL);
+                // Retrieve the BITMAPFILEHEADER structure.
+                ReadFile(hfbm, &bmih, sizeof(BITMAPINFOHEADER),
+                        &dwRead, (LPOVERLAPPED)NULL);
+                // Allocate memory for the BITMAPINFO structure.
+                hmem1 = GlobalAlloc(GHND, sizeof(BITMAPINFOHEADER) +
+                        ((1<<bmih.biBitCount) * sizeof(RGBQUAD)));
+                lpbmi = (LPBITMAPINFO)GlobalLock(hmem1);
+                // Load BITMAPINFOHEADER into the BITMAPINFO structure.
+                lpbmi->bmiHeader.biSize = bmih.biSize;
+                lpbmi->bmiHeader.biWidth = bmih.biWidth;
+                lpbmi->bmiHeader.biHeight = bmih.biHeight;
+                lpbmi->bmiHeader.biPlanes = bmih.biPlanes;
+                lpbmi->bmiHeader.biBitCount = bmih.biBitCount;
+                lpbmi->bmiHeader.biCompression = bmih.biCompression;
+                lpbmi->bmiHeader.biSizeImage = bmih.biSizeImage;
+                lpbmi->bmiHeader.biXPelsPerMeter = bmih.biXPelsPerMeter;
+                lpbmi->bmiHeader.biYPelsPerMeter = bmih.biYPelsPerMeter;
+                lpbmi->bmiHeader.biClrUsed = bmih.biClrUsed;
+                lpbmi->bmiHeader.biClrImportant = bmih.biClrImportant;
+                // Retrieve the color table.
+                // 1 << bmih.biBitCount == 2 ^ bmih.biBitCount
+                ReadFile(hfbm, lpbmi->bmiColors,
+                        ((1<<bmih.biBitCount) * sizeof(RGBQUAD)),
+                        &dwRead, (LPOVERLAPPED) NULL);
+                // Allocate memory for the required number of bytes.
+                hmem2 = GlobalAlloc(GHND, (bmfh.bfSize - bmfh.bfOffBits));
+                lpvBits = GlobalLock(hmem2);
+                // Retrieve the bitmap data.
+                ReadFile(hfbm, lpvBits, (bmfh.bfSize - bmfh.bfOffBits),
+                        &dwRead, (LPOVERLAPPED) NULL);
                 hDC = GetDC(hWnd);
-                // Create a bitmap from the data stored in the .BMP file. 
-                hBmp = CreateDIBitmap(hDC, &bmih, CBM_INIT, lpvBits, lpbmi, DIB_RGB_COLORS); 
-                // Unlock the global memory objects and close the .BMP file. 
-                GlobalUnlock(hmem1); 
-                GlobalUnlock(hmem2); 
-                CloseHandle(hfbm); 
+                // Create a bitmap from the data stored in the .BMP file.
+                hBmp = CreateDIBitmap(hDC, &bmih, CBM_INIT, lpvBits, lpbmi, DIB_RGB_COLORS);
+                // Unlock the global memory objects and close the .BMP file.
+                GlobalUnlock(hmem1);
+                GlobalUnlock(hmem2);
+                CloseHandle(hfbm);
                 GetObjectA(hBmp, sizeof(bm), &bm);
                 // Center the splashscreen
                 xScreen = GetSystemMetrics(SM_CXFULLSCREEN);
                 yScreen = GetSystemMetrics(SM_CYFULLSCREEN);
                 if (numberOfAuthors>5) {
                     long hh = bm.bmHeight-250+numberOfAuthors*20/2;
-                    SetWindowPos(hWnd, HWND_TOPMOST, (xScreen - bm.bmWidth)/2, 
+                    SetWindowPos(hWnd, HWND_TOPMOST, (xScreen - bm.bmWidth)/2,
                         (yScreen - hh)/2, bm.bmWidth, hh, 0 );
                 }
                 else {
                     long hh = bm.bmHeight-250+numberOfAuthors*20;
-                    SetWindowPos(hWnd, HWND_TOPMOST, (xScreen - bm.bmWidth)/2, 
+                    SetWindowPos(hWnd, HWND_TOPMOST, (xScreen - bm.bmWidth)/2,
                         (yScreen - hh)/2, bm.bmWidth, hh, 0 );
                 }
             }
@@ -312,9 +312,9 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
             TextOut(hDC,bm.bmWidth/2,400,buf.Data(),buf.Length());
 
             if (numberOfAuthors>0) {
-               if (numberOfAuthors==1) 
+               if (numberOfAuthors==1)
                   buf.SetFormatted("Author of the %s :",programName);
-               else 
+               else
                   buf.SetFormatted("Authors of the %s :",programName);
                SelectObject(hDC,fontAuthor);
                TextOut(hDC,bm.bmWidth/2,430,buf.Data(),buf.Length());
@@ -322,7 +322,7 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                if (numberOfAuthors>5) {
                   for (i=0;i<numberOfAuthors;i++) {
                       buf = authorNames[i];
-                      if (i+1<numberOfAuthors) 
+                      if (i+1<numberOfAuthors)
                          buf.AppendFormatted(", %s",authorNames[(i+1)].Data());
                       SelectObject(hDC,fontAuthor);
                       TextOut(hDC,bm.bmWidth/2,450+20*(i/2),buf.Data(),buf.Length());
@@ -338,8 +338,8 @@ LRESULT CALLBACK SplashWndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lP
                }
             }
 
-            
-            
+
+
             EndPaint(hWnd, &ps);
             // format a "unique" NewWindowTitle
             pszNewWindowTitle.SetFormatted("%d/%d", GetTickCount(), GetCurrentProcessId());

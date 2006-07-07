@@ -500,23 +500,23 @@ Bool_t ROMEBuilder::StartBuilder()
    // write classes
    if (!AddConfigParameters()) return false;
    if (!CheckConfigParameters(mainParGroup)) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nAnalyzer:" << endl;
    if (!WriteAnalyzerCpp()) return false;
    if (!WriteAnalyzer2Cpp()) return false;
    if (!WriteAnalyzer3Cpp()) return false;
    if (!WriteAnalyzerH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nWindow:" << endl;
    if (!WriteWindowCpp()) return false;
    if (!WriteWindow2Cpp()) return false;
    if (!WriteWindowH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nFolders:" << endl;
    if (!WriteFolderH()) return false;
    if (!WriteFolderCpp()) return false;
    if (!WriteAllFoldersH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nTasks:" << endl;
    if (!WriteTaskCpp()) return false;
    if (!WriteBaseTaskCpp()) return false;
@@ -528,15 +528,15 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!WriteBaseTabCpp()) return false;
    if (!WriteTabH()) return false;
    if (!WriteBaseTabH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nUser DAQ Systems:" << endl;
    if (!WriteDAQCpp()) return false;
    if (!WriteDAQH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nUser Database Interfaces:" << endl;
    if (!WriteDBCpp()) return false;
    if (!WriteDBH()) return false;
-   if (makeOutput) 
+   if (makeOutput)
       cout << "\n\nFramework:" << endl;
    if (readGlobalSteeringParameters)
       if (!WriteSteering(numOfTask)) return false;
@@ -816,7 +816,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-o")&&i<argc-1) {
          outDir = argv[i+1];
-         if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\') 
+         if (outDir[outDir.Length()-1]!='/' && outDir[outDir.Length()-1]!='\\')
             outDir.Append("/");
          i++;
       }
@@ -844,7 +844,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    return true;
 }
 
-Bool_t ROMEBuilder::CheckFileAndPath() 
+Bool_t ROMEBuilder::CheckFileAndPath()
 {
    if (gSystem->AccessPathName(xmlFile.Data(),kFileExists)) {
       if ( xmlFile == "")

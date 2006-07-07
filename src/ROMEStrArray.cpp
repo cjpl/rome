@@ -37,7 +37,7 @@ ROMEStrArray::~ROMEStrArray()
 
 void ROMEStrArray::Delete(Option_t *option)
 {
-   const Int_t nStr = array->GetEntriesFast(); 
+   const Int_t nStr = array->GetEntriesFast();
    for (int i=0;i<nStr;i++) {
       delete array->At(i);
    }
@@ -208,6 +208,6 @@ Int_t ROMEStrArray::IndexOf(const char *text) const
    for (i = 0; i < array->GetEntriesFast(); i++)
       if (static_cast<TObjString*>(array->At(i))->GetString() == text)
          return i;
-   
+
    return -1;
 }

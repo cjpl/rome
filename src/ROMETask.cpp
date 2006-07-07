@@ -127,7 +127,7 @@ void ROMETask::StartRootInterpreter(const char* message) {
 #else
    ROMEPrint::Print("\nIn method %s of task %s of event number %lld of run number %lld\n",fCurrentEventMethod.Data(),fName.Data(),gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
 #endif
-   
+
    if (message)
       ROMEPrint::Print("%s\n", message);
    ROMEString prompt = gROME->GetProgramName();

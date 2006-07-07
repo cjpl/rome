@@ -49,7 +49,7 @@ int main(int argc, char *argv[])
 
    romeb->romeVersion = "Version ";
    romeb->romeVersion += ROME_RELEASE;
-   
+
    ROMEString xmlFile = "";
 
    if (!romeb->ReadCommandLineParameters(argc,argv))

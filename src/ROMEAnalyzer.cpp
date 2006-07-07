@@ -257,7 +257,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          tnet->StartServer(GetApplication(),GetPortNumber(),"ROME");
          ROMEPrint::Print("Root server listening on port %d\n", GetPortNumber());
       }
-      
+
       if (!this->isBatchMode()) {
          ROMEPrint::Print("Program steering\n");
          ROMEPrint::Print("----------------\n");
@@ -544,7 +544,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          fBatchMode = kTRUE;
       }
       else if (!strcmp(argv[i],"-D")) {
-         fDaemonMode = kTRUE;         
+         fDaemonMode = kTRUE;
       }
       else if (!strcmp(argv[i],"-ng")) {
          fNoGraphics = kTRUE;
@@ -563,12 +563,12 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
    return true;
 }
 
-Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber) 
+Int_t ROMEAnalyzer::CheckEventNumber(Long64_t eventNumber)
 {
    return CheckNumber(eventNumber,fEventNumber);
 }
 
-Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber) 
+Int_t ROMEAnalyzer::CheckRunNumber(Long64_t runNumber)
 {
    return CheckNumber(runNumber,fRunNumber);
 }
@@ -711,7 +711,7 @@ UInt_t ROMEAnalyzer::ss_kbhit()
       if (status == -1 && timeout.tv_sec >= 1)
          timeout.tv_sec -= 1;
 
-   } while (status == -1);      // dont return if an alarm signal was cought 
+   } while (status == -1);      // dont return if an alarm signal was cought
 
    return 1;
 }*/
@@ -1202,19 +1202,19 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
    fNumberOfNetFolders = number;
 }
 
-Bool_t ROMEAnalyzer::StartWindow() 
-{ 
-   return fWindow->Start(); 
+Bool_t ROMEAnalyzer::StartWindow()
+{
+   return fWindow->Start();
 }
 
-Int_t ROMEAnalyzer::GetUpdateFrequency() 
-{ 
-   return fWindow->GetUpdateFrequency(); 
+Int_t ROMEAnalyzer::GetUpdateFrequency()
+{
+   return fWindow->GetUpdateFrequency();
 }
 
-void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency) 
-{ 
-   fWindow->SetUpdateFrequency(frequency); 
+void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency)
+{
+   fWindow->SetUpdateFrequency(frequency);
 }
 
 Bool_t ROMEAnalyzer::IsWindowBusy() {
@@ -1272,18 +1272,18 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
 
 
 
-void ROMEAnalyzer::NextEvent() 
-{ 
-   ((ROMEEventLoop*)fMainTask)->RunEvent(); 
+void ROMEAnalyzer::NextEvent()
+{
+   ((ROMEEventLoop*)fMainTask)->RunEvent();
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEPrint::Print("Executed Event %I64d                                                     \n",GetCurrentEventNumber());
 #else
    ROMEPrint::Print("Executed Event %lld                                                      \n",GetCurrentEventNumber());
 #endif
 }
-void ROMEAnalyzer::GotoEvent(Long64_t eventNumber) 
-{ 
-   ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber); 
+void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
+{
+   ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber);
 #if defined( R__VISUAL_CPLUSPLUS )
    ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
 #else
