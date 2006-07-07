@@ -26,7 +26,7 @@ endif
 #####################################################################
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
-TARGET :=  obj bin/romebuilder.exe
+TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe
 
 ifeq ($(ROMEDEBUG), yes)
   OPT = -g
@@ -61,8 +61,16 @@ BldDictHeaders := include/ROMEString.h \
                   include/ROMEStr2DArray.h \
                   include/ROMEXML.h
 
-UpHObjects := obj/ROMEString.o obj/UpdateVersionHDict.o
-UpHDictHeaders := include/ROMEString.h
+UpHObjects := obj/ROMEString.o \
+              obj/ROMEXML.o \
+              obj/ROMEPrint.o \
+              obj/mxml.o \
+              obj/strlcpy.o \
+              obj/UpdateVersionHDict.o
+
+UpHDictHeaders := include/ROMEString.h \
+                  include/ROMEXML.h \
+                  include/ROMEPrint.h
 
 LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEStrArray.o \
@@ -164,6 +172,9 @@ bin/romebuilder.exe: builder/src/main.cpp $(BldObjects) ./bin/updateVersionH.exe
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
+include/ROMEVersion.h: bin/updateVersionH.exe
+	@./bin/updateVersionH.exe
+
 librome.a: $(LibObjects)
 	rm -f $@
 	ar -cr $@ $^
@@ -199,4 +210,4 @@ obj/%.o: src/%.cpp include/%.h
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
-	-rm -f $(BldObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
+	-rm -f $(BldObjects) $(UpHObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
