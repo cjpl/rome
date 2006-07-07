@@ -3,7 +3,7 @@
 // Histogram Display.
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
-// $Id: ArgusHistoDisplay.h 3501 2006-05-15 15:43:23Z schneebeli_m $
+// $Id$
 
 #ifndef ArgusHistoDisplay_H
 #define ArgusHistoDisplay_H

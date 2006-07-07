@@ -1,4 +1,4 @@
-// $Id: XMLToFormElementSignal.h 1041 2006-05-04 18:20:33Z sawada $
+// $Id$
 #ifndef XMLToFormElementSignal_H
 #define XMLToFormElementSignal_H
 
