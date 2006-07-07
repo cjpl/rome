@@ -152,14 +152,23 @@ if (
 }
 #endif
 
+   ROMEString hfile = gSystem->ExpandPathName("$(ROMESYS)/include/");
+   hfile.AppendFormatted("ROMEVersion.h");
+   //
+   // Reading ROMEVersion.h
+   //
+   ROMEString fileBuffer;
+   ifstream originalFile(hfile.Data());
+   if (originalFile.good()) {
+      fileBuffer.ReadFile(originalFile);
+   }
+   originalFile.close();
+
    //
    // Writing ROMEVersion.h
    //
 
-   ROMEString hfile = gSystem->ExpandPathName("$(ROMESYS)/include/");
-   hfile.AppendFormatted("ROMEVersion.h");
    ROMEString buffer;
-
    ParseSVNKeyword(revisionString);
 
    // current time
@@ -194,21 +203,25 @@ if (
    buffer.AppendFormatted("#define ROME_RELEASE \"%d.%d\"\n", romeMajor, romeMinor);
    buffer.AppendFormatted("#define ROME_REVISION_CODE %s\n", revisionString.Data());
    buffer.AppendFormatted("#define ROME_STABLE %d\n", isStableVersion);
+/*
    buffer.AppendFormatted("#define ROME_RELEASE_DATE \"%s %2d %d\"\n", monthName[month], day, year);
    buffer.AppendFormatted("#define ROME_RELEASE_TIME \"%02d:%02d:%02d\"\n", hour, min, sec);
+*/
    buffer.AppendFormatted("#define ROME_VERSION_CODE %d\n", GetROMEVersion(romeMajor, romeMinor));
    buffer.AppendFormatted("#define ROME_VERSION(a,b) (((a) << 8) + (b))\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#endif\n");
 
    // write file
-   ofstream versionH(hfile.Data());
-   if (!versionH.good()) {
-      cerr<<"failed to open "<<hfile<<" for write."<<endl;
-      return 1;
+   if (fileBuffer != buffer) {
+      ofstream versionH(hfile.Data());
+      if (!versionH.good()) {
+         cerr<<"failed to open "<<hfile<<" for write."<<endl;
+         return 1;
+      }
+      versionH<<buffer.Data();
+      versionH.close();
    }
-   versionH<<buffer.Data();
-   versionH.close();
 
    return 0;
 }
