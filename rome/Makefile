@@ -13,8 +13,11 @@
 #  When you changed this key, you need to do "make clean"
 # LIBROME = yes
 
-# Compile mode for librome.a and romebuilder
+# Add -g compile option when compiling librome.a and romebuilder
 # ROMEDEBUG = yes
+
+# Add -O compile option when compiling librome.a and romebuilder
+# ROMEOPTIMIZE = yes
 
 # Compiler
 ifndef CXX
@@ -29,9 +32,11 @@ LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe
 
 ifeq ($(ROMEDEBUG), yes)
-  OPT = -g
-else
-  OPT = -O2
+  OPT += -g
+endif
+
+ifeq ($(ROMEOPTIMIZE), yes)
+  OPT += -O
 endif
 
 ifeq ($(LIBROME), yes)
