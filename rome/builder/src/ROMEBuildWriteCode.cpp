@@ -10565,7 +10565,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    if (!gSystem->AccessPathName(path,kFileExists)) {
       ROMEXML *svnxml = new ROMEXML();
       svnxml->OpenFileForPath(path.Data());
-      svnxml->GetPathAttribute("/entry", "revision", revNumber, "0");
+      svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0");
       delete svnxml;
    }
 
