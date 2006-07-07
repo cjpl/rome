@@ -1558,6 +1558,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
 
       buffer.Resize(0);
       // Header
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("\n\n#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
