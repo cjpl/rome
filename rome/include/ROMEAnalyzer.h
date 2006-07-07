@@ -197,7 +197,7 @@ protected:
    ROMEConfig    *fConfiguration;                //! Configuration Handle
 
    // Run Stat
-   Bool_t         fShowRunStat;                  //! Show Run Statistics 
+   Bool_t         fShowRunStat;                  //! Show Run Statistics
 
    // Event Based Data Base
    Bool_t         fEventBasedDataBase;           //! Flag for Event Based Data Base
@@ -489,7 +489,7 @@ public:
    void            SetSocketToROMEHost(const char *host) { fSocketToROMEHost = host; }
    void            SetSocketToROMEPort(Int_t portNumber) { fSocketToROMEPort = portNumber; }
    void            SetSocketToROMEPort(const char *portNumber) { char *cstop; fSocketToROMEPort = strtol(portNumber,&cstop,10); }
-   
+
    // Midas ODB
    HNDLE        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
    HNDLE*       GetMidasOnlineDataBasePointer() { return &fMidasOnlineDataBase; }

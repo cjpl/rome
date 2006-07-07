@@ -1,5 +1,5 @@
 /********************************************************************
-  ROMEOrcaDAQ.h, J. Wouters 
+  ROMEOrcaDAQ.h, J. Wouters
 
   $Id$
 

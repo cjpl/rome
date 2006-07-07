@@ -85,7 +85,7 @@ public:
 		  /* note: use 4byte integer for odb */
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
                   if (maxEntries>0) fTree->SetCircular(maxEntries);
-#endif 
+#endif
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
 
