@@ -6,8 +6,16 @@
 
 ********************************************************************/
 #include <Riostream.h>
+#include <RConfig.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( push )
+#pragma warning( disable : 4800 )
+#endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #include <TTimeStamp.h>
+#if defined( R__VISUAL_CPLUSPLUS )
+#pragma warning( pop )
+#endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
 
 //------
@@ -125,7 +133,7 @@ int main(int argc, char *argv[])
       cerr<<"failed to open "<<hfile<<" for write."<<endl;
       return 1;
    }
-   versionH<<buffer;
+   versionH<<buffer.Data();
    versionH.close();
 
    return 0;

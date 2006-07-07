@@ -36,6 +36,9 @@ BldDictHeaders = include/ROMEString.h \
                  include/ROMEPrint.h \
                  include/ROMEXML.h
 
+UpHObjects = obj/UpdateVersionHmain.obj obj/ROMEString.obj obj/UpdateVersionHDict.obj
+UpHDictHeaders = include/ROMEString.h
+
 
 all:startecho obj ROMEBuilder.exe endecho
 
@@ -49,15 +52,19 @@ endecho:
 obj:
 	@echo making directory bin ...
 	@mkdir obj
-
-ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) 
-	@echo creating ROOT dictonary ...
-	@-%ROOTSYS%\bin\rootcint -f ROMEBuilderDict.cpp -c -p $(DictIncludes) $(BldDictHeaders)
-
-ROMEBuilder.exe: $(BldObjects)
+#
+# ROME exe
+#
+ROMEBuilder.exe: $(BldObjects) bin/updateVersionH.exe
 	@echo linking ROMEBuilder ...
+	@cd bin
+	@updateVersionH.exe
+	@cd ..
 	@cl /nologo /Febin/ROMEBuilder.exe $(BldObjects) $(Libraries)
 
+#
+# ROME obj
+#
 obj/ROMEBuilder.obj: Builder/src/ROMEBuilder.cpp Builder/include/ROMEBuilder.h include/ROMEXML.h include/ROMEString.h include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) Builder/src/ROMEBuilder.cpp /Foobj/ROMEBuilder.obj
 
@@ -100,6 +107,35 @@ obj/ROMEStrArray.obj: src/ROMEStrArray.cpp include/ROMEStrArray.h
 obj/ROMEStr2DArray.obj: src/ROMEStr2DArray.cpp include/ROMEStr2DArray.h
 	@cl /nologo /c $(Flags) $(Includes) src/ROMEStr2DArray.cpp /Foobj/ROMEStr2DArray.obj
 
+#
+# ROME dict
+#
+ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders) 
+	@echo creating ROOT dictonary ...
+	@-%ROOTSYS%\bin\rootcint -f ROMEBuilderDict.cpp -c -p $(DictIncludes) $(BldDictHeaders)
+
 obj/ROMEBuilderDict.obj: ROMEBuilderDict.cpp ROMEBuilderDict.h
 	@cl /nologo /c $(Flags) $(Includes) ROMEBuilderDict.cpp /Foobj/ROMEBuilderDict.obj
+
+
+#
+# UpdateVersion exe
+#
+bin/updateVersionH.exe: $(UpHObjects)
+	@cl /nologo /Febin/updateVersionH.exe $(UpHObjects) $(Libraries)
+
+#
+# UpdateVersion obj
+#
+obj/UpdateVersionHmain.obj: tools/UpdateVersionH/main.cpp include/ROMEString.h
+	@cl /nologo /c $(Flags) $(Includes) tools/UpdateVersionH/main.cpp /Foobj/UpdateVersionHmain.obj
+
+#
+# UpdateVersion dict
+#
+UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
+	@-%ROOTSYS%\bin\rootcint -f UpdateVersionHDict.cpp -c -p $(DictIncludes) $(UpHDictHeaders)
+
+obj/UpdateVersionHDict.obj: UpdateVersionHDict.cpp UpdateVersionHDict.h
+	@cl /nologo /c $(Flags) $(Includes) UpdateVersionHDict.cpp /Foobj/UpdateVersionHDict.obj
 
