@@ -123,7 +123,7 @@ void ROMEStr2DArray::RemoveAllAt(Int_t idx)
    if (array->At(idx)==NULL)
       return;
    TObjArray *subArray = (TObjArray*)array->At(idx);
-   const Int_t nStr = subArray->GetEntriesFast(); 
+   const Int_t nStr = subArray->GetEntriesFast();
    for (int i=0;i<nStr;i++) {
       delete subArray->At(i);
    }

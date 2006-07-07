@@ -3829,7 +3829,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Console Screen
    ROMEString prog;
    prog.SetFormatted("%s%s",shortCut.Data(),mainProgName.Data());
-   buffer.AppendFormatted("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());   
+   buffer.AppendFormatted("void %sAnalyzer::consoleStartScreen() {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEPrint::Print(\"*****************************************\\n\");\n");
    buffer.AppendFormatted("   ROMEPrint::Print(\"*                                       *\\n\");\n");
@@ -6326,7 +6326,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
             subSubSubGroup->GetLastParameter()->AddSetLine("      path = path(ind+1,path.Length()-ind+1);");
             subSubSubGroup->GetLastParameter()->AddSetLine("   }");
             subSubSubGroup->GetLastParameter()->AddSetLine("}");
-            subSubSubGroup->GetLastParameter()->DontWriteLinesAlways(); 
+            subSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
             subSubSubGroup->GetLastParameter()->AddWriteLine("str = gAnalyzer->Get%s_%sDBPathOriginal();",folderName[i].Data(),valueName[i][j].Data());
             subSubSubGroup->GetLastParameter()->AddWriteLine("ind = str.Last('\"');");
             subSubSubGroup->GetLastParameter()->AddWriteLine("writeFlag = true;");
@@ -10717,7 +10717,7 @@ Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const 
             && !fileBuffer.Contains(analyzerInclude[2])
             && !fileBuffer.Contains(analyzerInclude[3])
             ) {
-            writeFile = true;            
+            writeFile = true;
             fileBuffer.Insert(strlen(header), analyzerInclude[2]);
             fileBuffer.Insert(strlen(header), "\n");
          }

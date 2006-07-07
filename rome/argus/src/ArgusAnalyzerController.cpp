@@ -66,7 +66,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    else {
       fPlayButton->SetToolTipText("Start continuous analysis");
    }
- 
+
    fNextButton->SetToolTipText("Go to next event");
    fStopButton->SetToolTipText("Terminate this run");
    // comment out until way to go to EndOfRun is implemented

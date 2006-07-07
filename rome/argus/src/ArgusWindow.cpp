@@ -129,8 +129,8 @@ void ArgusWindow::CloseWindow()
    gROME->WindowClosed();
 }
 
-ArgusTab* ArgusWindow::GetTabObject(const char* tabName) 
-{ 
+ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
+{
    for (int i=0;i<fTabObjects->GetEntries();i++) {
       if (!strcmp(tabName,((ArgusTab*)fTabObjects->At(i))->GetTitle()))
          return (ArgusTab*)fTabObjects->At(i);

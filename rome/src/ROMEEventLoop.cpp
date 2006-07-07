@@ -15,7 +15,7 @@
 #pragma warning( push )
 #pragma warning( disable : 4800 )
 #endif // R__VISUAL_CPLUSPLUS
-#include <TSystem.h> 
+#include <TSystem.h>
 #include <TThread.h>
 #include <TFolder.h>
 #if defined( R__VISUAL_CPLUSPLUS )

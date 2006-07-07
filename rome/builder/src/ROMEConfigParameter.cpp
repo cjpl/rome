@@ -10,9 +10,9 @@
 #include "ROMEBuilder.h"
 #include "ROMEConfigParameter.h"
 
-ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, ROMEString widgetType) 
+ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, ROMEString widgetType)
 {
-   fName = name; 
+   fName = name;
    fArraySize = arraySize;
    fWidgetType = widgetType;
    fReadModifiedTrueLines = new ROMEStrArray(1);
@@ -59,7 +59,7 @@ void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
    va_end(ap);
 }
 
-ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize,ROMEString groupIdentifier,ROMEString nameIdentifier,ROMEString arrayIdentifier,ROMEString tagName,int multiplicity) 
+ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize,ROMEString groupIdentifier,ROMEString nameIdentifier,ROMEString arrayIdentifier,ROMEString tagName,int multiplicity)
 {
    fGroupName = groupName;
    fArraySize = arraySize;
@@ -77,8 +77,8 @@ ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEStri
    else
       fTagName = tagName;
    fMultiplicity = multiplicity;
-   fParameters = new TObjArray(10); 
-   fSubGroups = new TObjArray(10); 
+   fParameters = new TObjArray(10);
+   fSubGroups = new TObjArray(10);
    fReadGroupArrayInitLines = new ROMEStrArray(1);
    fWriteStartLines = new ROMEStrArray(1);
    fWriteEndLines = new ROMEStrArray(1);

@@ -392,7 +392,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    return true;
 }
 
-Bool_t ROMEBuilder::ReadXMLDefinitionFile() 
+Bool_t ROMEBuilder::ReadXMLDefinitionFile()
 {
    int i,j;
    char* name;
@@ -647,7 +647,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                         }
                         taskHierarchyMultiplicity[numOfTaskHierarchy] = 1;
                         for (i=0;i<numOfTaskHierarchy;i++) {
-                           if (taskHierarchyName[i]==taskHierarchyName[numOfTaskHierarchy] && 
+                           if (taskHierarchyName[i]==taskHierarchyName[numOfTaskHierarchy] &&
                                taskHierarchyParentIndex[i]==taskHierarchyParentIndex[numOfTaskHierarchy])
                               taskHierarchyMultiplicity[numOfTaskHierarchy]++;
                         }
@@ -3283,7 +3283,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]] = "";
                      xml->GetValue(mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]],mfWinLibFlag[numOfMFWinLibs][numOfMFWinLibFlags[numOfMFWinLibs]]);
                      numOfMFWinLibFlags[numOfMFWinLibs]++;
-                  }   
+                  }
                   if (type == 15 && !strcmp((const char*)name,"Library")) {
                      numOfMFWinLibs++;
                      break;
@@ -3313,7 +3313,7 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
                      mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]] = "";
                      xml->GetValue(mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]],mfUnixLibFlag[numOfMFUnixLibs][numOfMFUnixLibFlags[numOfMFUnixLibs]]);
                      numOfMFUnixLibFlags[numOfMFUnixLibs]++;
-                  }   
+                  }
                   if (type == 15 && !strcmp((const char*)name,"Library")) {
                      numOfMFUnixLibs++;
                      break;

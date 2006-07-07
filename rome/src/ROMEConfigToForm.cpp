@@ -3,7 +3,7 @@
 //                                                                            //
 // ROMEConfigToForm                                                           //
 //                                                                            //
-// This class generates a dialog window dynamically out of a 
+// This class generates a dialog window dynamically out of a
 // ROME configuration file.
 //                                                                            //
 //                                                                            //
