@@ -65,6 +65,21 @@
       </Field>
     </Folder>
   </Folders>
+  <Tasks>
+    <Task>
+      <TaskName>FillHisto</TaskName>
+      <Histogram>
+        <HistName>MyHisto</HistName>
+        <HistFolderName>myhistos</HistFolderName>
+        <HistType>TH1F</HistType>
+        <HistArraySize>1</HistArraySize>
+        <HistXLabel>X</HistXLabel>
+        <HistXNbins>256</HistXNbins>
+        <HistXmin>0</HistXmin>
+        <HistXmax>1024</HistXmax>
+      </Histogram>
+    </Task>
+  </Tasks>
   <MidasBanks>
     <EventDefinition>
       <EventName>Trigger</EventName>    
