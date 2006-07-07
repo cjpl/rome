@@ -76,6 +76,8 @@
 
 #define XML_INDENT "  "
 
+static int mxml_suppress_date_flag = 0; /* suppress writing date at the top of file. */
+
 /*------------------------------------------------------------------*/
 
 int mxml_write_line(MXML_WRITER *writer, const char *line)
@@ -125,13 +127,22 @@ MXML_WRITER *mxml_open_buffer()
    strcpy(str, ctime(&now));
    str[24] = 0;
    sprintf(line, "<!-- created by MXML on %s -->\n", str);
-   mxml_write_line(writer, line);
+   if (mxml_suppress_date_flag == 0)
+      mxml_write_line(writer, line);
 
    /* initialize stack */
    writer->level = 0;
    writer->element_is_open = 0;
 
    return writer;
+}
+
+/*------------------------------------------------------------------*/
+
+void mxml_suppress_date(int suppress)
+ /* suppress writing date at the top of file. */
+{
+   mxml_suppress_date_flag = suppress;
 }
 
 /*------------------------------------------------------------------*/
@@ -163,7 +174,8 @@ MXML_WRITER *mxml_open_file(const char *file_name)
    strcpy(str, ctime(&now));
    str[24] = 0;
    sprintf(line, "<!-- created by MXML on %s -->\n", str);
-   mxml_write_line(writer, line);
+   if (mxml_suppress_date_flag == 0)
+      mxml_write_line(writer, line);
 
    /* initialize stack */
    writer->level = 0;

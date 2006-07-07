@@ -71,6 +71,8 @@ public:
    Bool_t      WriteElement(const char* name,const char* value);
    Bool_t      WriteValue(const char* value);
    Bool_t      WriteComment(const char* text);
+   static void SuppressWritingDate(Bool_t suppress = kTRUE) { mxml_suppress_date(suppress ? 1 : 0); }
+
    // path
    Bool_t      OpenFileForPath(const char* file);
    Bool_t      OpenBufferForPath(char* buffer);

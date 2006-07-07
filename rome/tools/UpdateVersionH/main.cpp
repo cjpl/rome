@@ -17,6 +17,7 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 #include "ROMEString.h"
+#include "ROMEXML.h"
 
 //------
 // change following values when release
@@ -61,33 +62,107 @@ void ParseSVNKeyword(ROMEString& str)
 
 int main(int argc, char *argv[])
 {
-   // overwrite ROMEVersion.h when development version.
-   if (isStableVersion)
-      return 0;
+   TTimeStamp timestamp;
+   timestamp.Set();
+
+   //
+   // Reading XML
+   //
+
+   ROMEString xmlFileName = gSystem->ExpandPathName("$(ROMESYS)/tools/UpdateVersionH/revision.xml");
+   ROMEXML *xml = new ROMEXML();
+
+   xml->OpenFileForPath(xmlFileName.Data());
+   ROMEString path;
+
+   path = "Entry";
+   Int_t nEntry = xml->NumberOfOccurrenceOfPath(path.Data());
+
+   Int_t iEntry;
+   ROMEString *user = new ROMEString[nEntry + 1];
+   ROMEString *host = new ROMEString[nEntry + 1];
+   ROMEString *directory = new ROMEString[nEntry + 1];
+   ROMEString *lastcompile = new ROMEString[nEntry + 1];
+   ROMEString revisionString;
+   Bool_t foundIdenticalEntry = kFALSE;
+
+   user[nEntry] = gSystem->GetUserInfo()->fUser;
+   host[nEntry] = gSystem->HostName();
+   directory[nEntry] = gSystem->WorkingDirectory();
+   lastcompile[nEntry] = timestamp.AsString();
+
+   path.SetFormatted("Revision", iEntry);
+   xml->GetPathValue(path,revisionString);
+   for(iEntry = 0; iEntry < nEntry; iEntry++) {
+      path.SetFormatted("Entry[%d]/User", iEntry);
+      xml->GetPathValue(path,user[iEntry]);
+      path.SetFormatted("Entry[%d]/Host", iEntry);
+      xml->GetPathValue(path,host[iEntry]);
+      path.SetFormatted("Entry[%d]/Directory", iEntry);
+      xml->GetPathValue(path,directory[iEntry]);
+      path.SetFormatted("Entry[%d]/LastCompile", iEntry);
+      xml->GetPathValue(path,lastcompile[iEntry]);
+      if (user[iEntry] == user[nEntry] &&
+          host[iEntry] == host[nEntry] &&
+          directory[iEntry] == directory[nEntry]) {
+         lastcompile[iEntry] = lastcompile[nEntry];
+         foundIdenticalEntry = kTRUE;
+      }
+   }
+   delete xml;
+
+   //
+   // Writing XML
+   //
+
+#if 0 // this is not necessary. maybe..
+if (
+   // Ryu
+   user[nEntry] != "sawada" &&
+   user[nEntry] != "ryu"
+   // Matthias
+   ) {
+#endif
+
+   ROMEXML::SuppressWritingDate();
+   xml = new ROMEXML();
+   xml->OpenFileForWrite(xmlFileName);
+   xml->SetTranslate(0);
+   xml->WriteElement("Revision", revisionString.Data());
+   for(iEntry = 0; iEntry < nEntry; iEntry++) {
+      xml->StartElement("Entry");
+      xml->WriteElement("User", user[iEntry].Data());
+      xml->WriteElement("Host", host[iEntry].Data());
+      xml->WriteElement("Directory", directory[iEntry].Data());
+      xml->WriteElement("LastCompile", lastcompile[iEntry].Data());
+      xml->EndElement();
+   }
+   if (!foundIdenticalEntry) {
+      xml->StartElement("Entry");
+      xml->WriteElement("User", user[nEntry].Data());
+      xml->WriteElement("Host", host[nEntry].Data());
+      xml->WriteElement("Directory", directory[nEntry].Data());
+      xml->WriteElement("LastCompile", lastcompile[nEntry].Data());
+      xml->EndElement();
+   }
+   xml->EndDocument();
+   delete xml;
+
+#if 0 // this is not necessary. maybe..
+}
+#endif
+
+   //
+   // Writing ROMEVersion.h
+   //
 
    ROMEString hfile = gSystem->ExpandPathName("$(ROMESYS)/include/");
    hfile.AppendFormatted("ROMEVersion.h");
    ROMEString buffer;
 
-   // get current revision
-   ifstream currentH(hfile.Data());
-   if (!currentH.good()) {
-      cerr<<"failed to open "<<hfile<<" for read."<<endl;
-      return 1;
-   }
-   buffer.ReadFile(currentH);
-   currentH.close();
-   Int_t pos1, pos2;
-   pos1 = buffer.Index("ROME_REVISION");
-   pos2 = buffer.Index("\n", 1, pos1 + 1, TString::kExact);
-   TString revLine = buffer(pos1, pos2 - pos1);
-   pos1 = revLine.Index("$");
-   pos2 = revLine.Index("$", 1, pos1 + 1, TString::kExact);
-   ROMEString revNumber = revLine(pos1, pos2 - pos1 + 1);
-   ParseSVNKeyword(revNumber);
+   ParseSVNKeyword(revisionString);
 
    // current time
-   TTimeStamp timestamp;
    UInt_t year;
    UInt_t month;
    UInt_t day;
@@ -117,8 +192,7 @@ int main(int argc, char *argv[])
    buffer.AppendFormatted("*/\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#define ROME_RELEASE \"%d.%d\"\n", romeMajor, romeMinor);
-   buffer.AppendFormatted("#define %s\n", revLine.Data());
-   buffer.AppendFormatted("#define ROME_REVISION_CODE %s\n", revNumber.Data());
+   buffer.AppendFormatted("#define ROME_REVISION_CODE %s\n", revisionString.Data());
    buffer.AppendFormatted("#define ROME_STABLE %d\n", isStableVersion);
    buffer.AppendFormatted("#define ROME_RELEASE_DATE \"%s %2d %d\"\n", monthName[month], day, year);
    buffer.AppendFormatted("#define ROME_RELEASE_TIME \"%02d:%02d:%02d\"\n", hour, min, sec);
