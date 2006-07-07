@@ -6438,7 +6438,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          // Tree/Fill
          subSubGroup->AddParameter(new ROMEConfigParameter("Fill","1","CheckButton"));
-         subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subSubGroup->GetLastParameter()->AddSetLine("if ((##==\"true\") || gAnalyzer->GetTreeObjectAt(%d)->isWrite())",i);
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(true);",i);
          subSubGroup->GetLastParameter()->AddSetLine("else");
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(false);",i);

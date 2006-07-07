@@ -4,7 +4,7 @@
   <User>sawada</User>
   <Host>megonln01.psi.ch</Host>
   <Directory>/scratch3/users/sawada/rome</Directory>
-  <LastCompile>Fri, 07 Jul 2006 10:09:15 +0000 (GMT) +899715000 nsec</LastCompile>
+  <LastCompile>Fri, 07 Jul 2006 15:35:03 +0000 (GMT) +139297000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>ryu</User>
@@ -17,10 +17,4 @@
   <Host>PC4636</Host>
   <Directory>c:\rome</Directory>
   <LastCompile>Fri, 07 Jul 2006 14:51:35 W. Europe Standard Time +443850201 nsec</LastCompile>
-</Entry>
-<Entry>
-  <User>ryu</User>
-  <Host>thresher.psi.ch</Host>
-  <Directory>/Users/ryu/Analysis//rome/</Directory>
-  <LastCompile>Fri, 07 Jul 2006 15:14:38 UTC +160325000 nsec</LastCompile>
 </Entry>

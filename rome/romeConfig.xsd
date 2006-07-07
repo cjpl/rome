@@ -624,7 +624,7 @@
 			</xs:element>
 			<xs:element name="Fill" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Trees are filled. Default is false.</xs:documentation>
+					<xs:documentation>Trees are filled. It will be changed to true when 'Write' is true. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="CompressionLevel" type="xs:integer" default="0" minOccurs="0">
