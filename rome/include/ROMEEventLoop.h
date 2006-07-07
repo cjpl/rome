@@ -24,6 +24,15 @@ class TFile;
 
 class ROMEEventLoop : public ROMETask {
 protected:
+   enum {
+      kReturn,
+      kBreak,
+      kContinue
+   };
+protected:
+   Long64_t      fCurrentEvent;                    //! Current Event Number inside Eventloop
+   Bool_t        fFirstUserInput;                  //! Flags the first user input
+
    // Stop at
    Long64_t      fStopAtRun;                       //! Stop execution at this run
    Long64_t      fStopAtEvent;                     //! Stop execution at this event
@@ -73,6 +82,9 @@ public:
    void         SetContinuousMode(Bool_t mode) { fContinuous = mode; }
    Bool_t       isContinuousMode() { return fContinuous; }
 
+   Int_t        RunEvent();
+   void         GotoEvent(Long64_t eventNumber) { fCurrentEvent = eventNumber; };
+
    virtual void AddTreeBranches() = 0;
 protected:
    // Run Status
@@ -98,7 +110,7 @@ protected:
    // event methods
    Bool_t       DAQInit();
    Bool_t       DAQBeginOfRun(Long64_t runNumber);
-   Bool_t       DAQEvent(Long64_t event);
+   Bool_t       DAQEvent();
    Bool_t       UserInput();
    Bool_t       WriteEvent();
    Bool_t       Update();

@@ -1270,3 +1270,23 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
    fNumberOfDataBases = number;
 }
 
+
+
+void ROMEAnalyzer::NextEvent() 
+{ 
+   ((ROMEEventLoop*)fMainTask)->RunEvent(); 
+#if defined( R__VISUAL_CPLUSPLUS )
+   ROMEPrint::Print("Executed Event %I64d                                                     \n",GetCurrentEventNumber());
+#else
+   ROMEPrint::Print("Executed Event %lld                                                      \n",GetCurrentEventNumber());
+#endif
+}
+void ROMEAnalyzer::GotoEvent(Long64_t eventNumber) 
+{ 
+   ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber); 
+#if defined( R__VISUAL_CPLUSPLUS )
+   ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
+#else
+   ROMEPrint::Print("Stepped to Event %lld                                                    \n",eventNumber);
+#endif
+}
