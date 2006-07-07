@@ -10585,7 +10585,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    // prepare new file.
    buffer.Resize(0);
    headerDescription.Resize(0);
-   WriteHeader(buffer, mainAuthor, false);
+   WriteHeader(buffer, mainAuthor, true);
    headerDescription.AppendFormatted("This header contains Subversion revision code of %s%s.\n\n", shortCut.Data(), mainProgName.Data());
    headerDescription.AppendFormatted("It makes sense when you use Subversion.\n");
    headerDescription.AppendFormatted("\n");
