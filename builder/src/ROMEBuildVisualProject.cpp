@@ -557,7 +557,6 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    delete xml;
 }
 
-
 void ROMEBuilder::RelativeWindowsPath(ROMEString &path,const char *referencePath)
 {
    int ind,inde,i,equalChars;
