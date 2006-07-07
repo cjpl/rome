@@ -45,7 +45,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h"/>
+				CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h ROMEXML.h ROMEPrint.h"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -115,7 +115,19 @@
 				RelativePath=".\main.cpp">
 			</File>
 			<File
+				RelativePath="..\..\src\mxml.c">
+			</File>
+			<File
+				RelativePath="..\..\src\ROMEPrint.cpp">
+			</File>
+			<File
 				RelativePath="..\..\src\ROMEString.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\ROMEXML.cpp">
+			</File>
+			<File
+				RelativePath="..\..\src\strlcpy.c">
 			</File>
 			<File
 				RelativePath=".\UpdateVersionHDict.cpp">
@@ -126,7 +138,19 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath="..\..\include\mxml.h">
+			</File>
+			<File
+				RelativePath="..\..\include\ROMEPrint.h">
+			</File>
+			<File
 				RelativePath="..\..\include\ROMEString.h">
+			</File>
+			<File
+				RelativePath="..\..\include\ROMEXML.h">
+			</File>
+			<File
+				RelativePath="..\..\include\strlcpy.h">
 			</File>
 		</Filter>
 		<Filter

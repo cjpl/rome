@@ -36,8 +36,14 @@ BldDictHeaders = include/ROMEString.h \
                  include/ROMEPrint.h \
                  include/ROMEXML.h
 
-UpHObjects = obj/UpdateVersionHmain.obj obj/ROMEString.obj obj/UpdateVersionHDict.obj
-UpHDictHeaders = include/ROMEString.h
+UpHObjects =    obj/UpdateVersionHmain.obj \
+		obj/ROMEString.obj \
+		obj/ROMEPrint.obj \
+		obj/ROMEXML.obj \
+		obj/mxml.obj \
+		obj/strlcpy.obj \
+		obj/UpdateVersionHDict.obj
+UpHDictHeaders = include/ROMEString.h include/ROMEXML.h include/ROMEPrint.h
 
 
 all:startecho obj ROMEBuilder.exe endecho

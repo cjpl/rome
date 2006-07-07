@@ -28,6 +28,7 @@
 #include "ROMETask.h"
 #include "ROMENetFolder.h"
 #include "ROMEConfig.h"
+#include "ROMEEventLoop.h"
 #include "TArrayL64.h"
 #if defined ( HAVE_MIDAS ) && !defined ( __MAKECINT__ )
 #   include "midas.h"
@@ -563,6 +564,10 @@ public:
    Bool_t          IsWindowBusy();
    Bool_t          IsEventFilled() { return fEventFilled; }
    void            SetEventFilled(Bool_t flag) { fEventFilled = flag; }
+
+   // Program Steering
+   void            NextEvent();
+   void            GotoEvent(Long64_t eventNumber);
 
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;

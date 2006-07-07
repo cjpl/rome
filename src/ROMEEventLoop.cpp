@@ -74,8 +74,7 @@ ROMEEventLoop::~ROMEEventLoop()
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
-   bool firstUserInput = true;
-   ROMEString text;
+   fFirstUserInput = true;
    if (!strcmp(option,"init")) {
       this->InitTrees();
       return;
@@ -101,7 +100,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Declarations
    //--------------
-   Long64_t i,ii,eventLoopIndex;
+   Long64_t ii,eventLoopIndex;
 
    // Initialisation
    //----------------
@@ -181,9 +180,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       // Loop over Events
       //------------------
-      firstUserInput = true;
+      fCurrentEvent = -1;
+      fFirstUserInput = true;
       ROMEPrint::Debug("Entering event loop\n");
-      for (i=0;!this->isTerminate()&&!this->isEndOfRun();i++) {
+      for (;!this->isTerminate()&&!this->isEndOfRun();) {
          // set terminal in every events because it is necessary when
          // program resumes from suspend.
 /*         if (gROME->isBatchMode())
@@ -192,103 +192,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             gROME->ss_getchar(0);*/
 // ---> This code killes ss_kbhit() please fix it   Matthias
 
-         if (gROME->IsWindowClosed()) {
-            if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-               this->DAQTerminate();
-               gROME->SetTerminationFlag();
-               ROMEPrint::Print("\n\nTerminating Program !\n");
-               return;
-            }
-            this->SetStopped();
-            this->SetTerminate();
-            break;
-         }
-         if (gROME->isOffline()) {
-            // check event numbers
-            int status = gROME->CheckEventNumber(i);
-            if (status==0) {
-               continue;
-            }
-            if (status==-1) {
-               this->SetStopped();
-               this->SetEndOfRun();
-               break;
-            }
-         }
-         // Update
-         if (!this->Update()) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            ROMEPrint::Print("\n\nTerminating Program !\n");
+         int status = this->RunEvent();
+         if (status==kReturn)
             return;
-         }
-
-         // User Input
-         if (!gROME->IsStandAloneARGUS()) {
-            if (!firstUserInput) {
-               if (!this->UserInput()) {
-                  this->DAQTerminate();
-                  gROME->SetTerminationFlag();
-                  ROMEPrint::Print("\n\nTerminating Program !\n");
-                  return;
-               }
-               if (this->isTerminate()) {
-                  break;
-               }
-            }
-            firstUserInput = false;
-         }
-
-         // Set Fill Event equal true
-         gROME->SetFillEvent();
-
-         // Read Event
-         if (!this->DAQEvent(i)) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            ROMEPrint::Print("\n\nTerminating Program !\n");
-            return;
-         }
-         if (this->isEndOfRun()) {
-            this->SetStopped();
+         if (status==kBreak)
             break;
-         }
-         if (this->isBeginOfRun()) {
-            this->SetAnalyze();
-            break;
-         }
-         if (this->isTerminate()) {
-            break;
-         }
-         if (this->isContinue()) {
-            continue;
-         }
-
-         // Event Tasks
-         if (ROMEEventLoop::fTaskSwitchesChanged) {
-            this->UpdateTaskSwitches();
-            ROMEEventLoop::fTaskSwitchesChanged = false;
-         }
-         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-            text.SetFormatted("Event%d",gROME->GetEventID());
-            ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
-            ExecuteTasks(text.Data());
-            CleanTasks();
-         }
-         if (gROME->isTerminationFlag()) {
-            ROMEPrint::Print("\n\nTerminating Program !\n");
-            return;
-         }
-         if (this->isEndOfRun())
-            break;
-
-         // Write Event
-         if (!this->WriteEvent() && gROME->isFillEvent()) {
-            this->Terminate();
-            gROME->SetTerminationFlag();
-            ROMEPrint::Print("\n\nTerminating Program !\n");
-            return;
-         }
       }
 
       if (this->isEndOfRun() || this->isTerminate()) {
@@ -361,6 +269,112 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 }
 
+Int_t ROMEEventLoop::RunEvent()
+{
+   fCurrentEvent++;
+
+   ROMEString text;
+   // Run one Event.
+   if (gROME->IsWindowClosed()) {
+      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+         this->DAQTerminate();
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return kReturn;
+      }
+      this->SetStopped();
+      this->SetTerminate();
+      return kBreak;
+   }
+   if (gROME->isOffline()) {
+      // check event numbers
+      int status = gROME->CheckEventNumber(fCurrentEvent);
+      if (status==0) {
+         return kContinue;
+      }
+      if (status==-1) {
+         this->SetStopped();
+         this->SetEndOfRun();
+         return kBreak;
+      }
+   }
+   // Update
+   if (!this->Update()) {
+      this->Terminate();
+      gROME->SetTerminationFlag();
+      ROMEPrint::Print("\n\nTerminating Program !\n");
+      return kReturn;
+   }
+
+   // User Input
+   if (!gROME->IsStandAloneARGUS()) {
+      if (!fFirstUserInput) {
+         if (!this->UserInput()) {
+            this->DAQTerminate();
+            gROME->SetTerminationFlag();
+            ROMEPrint::Print("\n\nTerminating Program !\n");
+            return kReturn;
+         }
+         if (this->isTerminate()) {
+            return kBreak;
+         }
+      }
+      fFirstUserInput = false;
+   }
+
+   // Set Fill Event equal true
+   gROME->SetFillEvent();
+
+   // Read Event
+   if (!this->DAQEvent()) {
+      this->Terminate();
+      gROME->SetTerminationFlag();
+      ROMEPrint::Print("\n\nTerminating Program !\n");
+      return kReturn;
+   }
+   if (this->isEndOfRun()) {
+      this->SetStopped();
+      return kBreak;
+   }
+   if (this->isBeginOfRun()) {
+      this->SetAnalyze();
+      return kBreak;
+   }
+   if (this->isTerminate()) {
+      return kBreak;
+   }
+   if (this->isContinue()) {
+      return kContinue;
+   }
+
+   // Event Tasks
+   if (ROMEEventLoop::fTaskSwitchesChanged) {
+      this->UpdateTaskSwitches();
+      ROMEEventLoop::fTaskSwitchesChanged = false;
+   }
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      text.SetFormatted("Event%d",gROME->GetEventID());
+      ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
+      ExecuteTasks(text.Data());
+      CleanTasks();
+   }
+   if (gROME->isTerminationFlag()) {
+      ROMEPrint::Print("\n\nTerminating Program !\n");
+      return kReturn;
+   }
+   if (this->isEndOfRun())
+      return kBreak;
+
+   // Write Event
+   if (!this->WriteEvent() && gROME->isFillEvent()) {
+      this->Terminate();
+      gROME->SetTerminationFlag();
+      ROMEPrint::Print("\n\nTerminating Program !\n");
+      return kReturn;
+   }
+
+   return kContinue;
+}
 Bool_t ROMEEventLoop::DAQInit()
 {
    // Initialize the analyzer. Called before the init tasks.
@@ -522,7 +536,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    return true;
 }
 
-Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
+Bool_t ROMEEventLoop::DAQEvent()
 {
    // Reads an event. Called before the Event tasks.
    ROMEPrint::Debug("Executing DAQ Event\n");
@@ -538,7 +552,7 @@ Bool_t ROMEEventLoop::DAQEvent(Long64_t event)
       return true;
    }
 
-   if (!gROME->GetActiveDAQ()->EventDAQ(event))
+   if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent))
       return false;
    if (this->isContinue()) {
       return true;
@@ -604,9 +618,9 @@ Bool_t ROMEEventLoop::Update()
        ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("%I64d events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);
+         ROMEPrint::Print("processed event number %I64d                                              \r",fCurrentEvent);
 #else
-         ROMEPrint::Print("%lld events processed                                                    \r",(Long64_t)gROME->GetTriggerStatistics()->processedEvents);
+         ROMEPrint::Print("processed event number %lld                                               \r",fCurrentEvent);
 #endif
       }
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {

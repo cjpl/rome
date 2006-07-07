@@ -37,6 +37,7 @@ ROMETask::ROMETask(const char *name,const char *title,int level):TTask(name,titl
    fName = name;
    fEventID = -1;
    fLevel = level;
+   fHistoFolder = 0;
 }
 
 void ROMETask::Exec(Option_t *option)
