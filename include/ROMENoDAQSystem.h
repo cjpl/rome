@@ -19,13 +19,13 @@ public:
    const char *GetName() { return "none"; }
 
    Bool_t      Init() { return true; }
-   Bool_t      BeginOfRun() { 
+   Bool_t      BeginOfRun() {
                   this->SetRunning();
                   return true;
                }
-   Bool_t      Event(Long64_t event) { 
+   Bool_t      Event(Long64_t event) {
                   gROME->SetCurrentEventNumber(event);
-                  if (gROME->IsStandAloneARGUS()) SetContinue(); 
+                  if (gROME->IsStandAloneARGUS()) SetContinue();
                   return true;
                }
    Bool_t      EndOfRun() { return true; }
