@@ -466,8 +466,6 @@ Bool_t ROMEBuilder::StartBuilder()
    gSystem->MakeDirectory(path.Data());
    path.SetFormatted("%sinclude/generated", outDir.Data());
    gSystem->MakeDirectory(path.Data());
-   path.SetFormatted("%sinclude/version", outDir.Data());
-   gSystem->MakeDirectory(path.Data());
    if (numOfTask > 0) {
       path.SetFormatted("%ssrc/tasks", outDir.Data());
       gSystem->MakeDirectory(path.Data());
