@@ -3026,6 +3026,7 @@ Bool_t ROMEBuilder::WriteTabH()
 
    return kTRUE;
 }
+
 Bool_t ROMEBuilder::WriteBaseTabH()
 {
    Int_t i, j;
@@ -5412,6 +5413,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer)
 {
    int i,j;
@@ -5452,6 +5454,7 @@ Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameter
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer)
 {
    int i,j;
@@ -5500,6 +5503,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigToFormH() {
    ROMEString hFile;
    ROMEString buffer;
@@ -5545,6 +5549,7 @@ Bool_t ROMEBuilder::WriteConfigToFormH() {
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigCpp() {
    int i;
    ROMEString pointer;
@@ -5928,6 +5933,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
 
    return true;
 }
+
 Bool_t ROMEBuilder::AddConfigParameters()
 {
    int i,j;
@@ -6558,6 +6564,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    }
    return true;
 }
+
 Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
    int i,j;
@@ -6677,6 +6684,7 @@ Bool_t  ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,
 
    return true;
 }
+
 Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t parentIndex)
 {
    int i;
@@ -6711,6 +6719,7 @@ Bool_t  ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,I
 
    return true;
 }
+
 Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer)
 {
    int i;
@@ -6823,6 +6832,7 @@ Bool_t ROMEBuilder::CheckConfigParameters(ROMEConfigParameterGroup *parGroup)
    }
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab)
 {
    int i;
@@ -6916,6 +6926,7 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes)
 {
    int i,j;
@@ -6998,6 +7009,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
    }
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes)
 {
    int i,j;
@@ -7105,6 +7117,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
    }
    return true;
 }
+
 Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer)
 {
    int i,j,tabT;
@@ -7992,6 +8005,7 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteRootDAQCpp() {
    int i,j;
 
@@ -8195,6 +8209,7 @@ Bool_t ROMEBuilder::WriteRootDAQH() {
 
    return true;
 }
+
 Bool_t ROMEBuilder::WriteRootDAQClassesH() {
    int i,j;
    for (i=0;i<numOfRootTree;i++) {
@@ -8206,6 +8221,7 @@ Bool_t ROMEBuilder::WriteRootDAQClassesH() {
    }
    return true;
 }
+
 Bool_t ROMEBuilder::WriteRootDAQClassH(Int_t iTree,Int_t iBranch) {
    ROMEString hFile;
    ROMEString buffer;

@@ -1258,7 +1258,6 @@ Bool_t ROMEBuilder::ReadXMLNetFolder()
    return kTRUE;
 }
 
-
 Bool_t ROMEBuilder::ReadXMLTask()
 {
    // read the task definitions out of the xml file
@@ -3455,7 +3454,6 @@ Bool_t ROMEBuilder::ReadXMLUserMakefile()
    }
    return true;
 }
-
 
 void ROMEBuilder::ParseSVNKeyword(ROMEString& str)
 {
