@@ -10571,7 +10571,7 @@ Bool_t ROMEBuilder::WriteVersionH()
    }
 
    // current time
-   const char* const monthName[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
+//   const char* const monthName[] = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
    TTimeStamp timestamp;
    UInt_t year;
    UInt_t month;
@@ -10596,12 +10596,12 @@ Bool_t ROMEBuilder::WriteVersionH()
    buffer.AppendFormatted("#define %sVersion_H\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#define %s_SVN_REVISION_CODE %s\n",shortCut.ToUpper(tmp),revNumber.Data());
-
+/*
    buffer.AppendFormatted("#define %s_RELEASE_DATE \"%s %2d %d\"\n",shortCut.ToUpper(tmp)
                           , monthName[month], day, year);
    buffer.AppendFormatted("#define %s_RELEASE_TIME \"%02d:%02d:%02d\"\n",shortCut.ToUpper(tmp)
                           , hour, min, sec);
-
+*/
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#endif\n\n");
 
