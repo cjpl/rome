@@ -94,13 +94,13 @@ int main(int argc, char *argv[])
    path.SetFormatted("Revision", iEntry);
    xml->GetPathValue(path,revisionString);
    for(iEntry = 0; iEntry < nEntry; iEntry++) {
-      path.SetFormatted("Entry[%d]/User", iEntry);
+      path.SetFormatted("Entry[%d]/User", iEntry + 1);
       xml->GetPathValue(path,user[iEntry]);
-      path.SetFormatted("Entry[%d]/Host", iEntry);
+      path.SetFormatted("Entry[%d]/Host", iEntry + 1);
       xml->GetPathValue(path,host[iEntry]);
-      path.SetFormatted("Entry[%d]/Directory", iEntry);
+      path.SetFormatted("Entry[%d]/Directory", iEntry + 1);
       xml->GetPathValue(path,directory[iEntry]);
-      path.SetFormatted("Entry[%d]/LastCompile", iEntry);
+      path.SetFormatted("Entry[%d]/LastCompile", iEntry + 1);
       xml->GetPathValue(path,lastcompile[iEntry]);
       if (user[iEntry] == user[nEntry] &&
           host[iEntry] == host[nEntry] &&
