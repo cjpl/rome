@@ -15,18 +15,12 @@
 <Entry>
   <User>schneebeli_m</User>
   <Host>PC4636</Host>
-  <Directory>c:\rome\tools\UpdateVersionH</Directory>
-  <LastCompile>Fri, 07 Jul 2006 14:51:06 W. Europe Standard Time +582997601 nsec</LastCompile>
-</Entry>
-<Entry>
-  <User>schneebeli_m</User>
-  <Host>PC4636</Host>
   <Directory>c:\rome</Directory>
   <LastCompile>Fri, 07 Jul 2006 14:51:35 W. Europe Standard Time +443850201 nsec</LastCompile>
 </Entry>
 <Entry>
-  <User>schneebeli_m</User>
-  <Host>PC4636</Host>
-  <Directory>c:\rome\bin</Directory>
-  <LastCompile>Fri, 07 Jul 2006 14:53:51 W. Europe Standard Time +575427001 nsec</LastCompile>
+  <User>ryu</User>
+  <Host>thresher.psi.ch</Host>
+  <Directory>/Users/ryu/Analysis//rome/</Directory>
+  <LastCompile>Fri, 07 Jul 2006 15:14:38 UTC +160325000 nsec</LastCompile>
 </Entry>

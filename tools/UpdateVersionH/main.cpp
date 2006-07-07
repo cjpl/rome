@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 
    user[nEntry] = gSystem->GetUserInfo()->fUser;
    host[nEntry] = gSystem->HostName();
-   directory[nEntry] = gSystem->WorkingDirectory();
+   directory[nEntry] = gSystem->ExpandPathName("$(ROMESYS)");
    lastcompile[nEntry] = timestamp.AsString();
 
    path.SetFormatted("Revision", iEntry);
