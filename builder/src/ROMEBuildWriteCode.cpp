@@ -3385,7 +3385,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("ClassImp(%sAnalyzer);\n",shortCut.Data());
+   buffer.AppendFormatted("ClassImp(%sAnalyzer)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("%sAnalyzer *gAnalyzer;  // global Analyzer Handle\n",shortCut.Data());
 
@@ -4703,7 +4703,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("ClassImp(%sWindow);\n", shortCut.Data());
+   buffer.AppendFormatted("ClassImp(%sWindow)\n", shortCut.Data());
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
 

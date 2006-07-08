@@ -71,7 +71,7 @@ public:
    XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,XMLToFormElementSignal* signal = NULL) {
       Init(type,title,value,path,width,entries,0,signal);
    }
-   void XMLToFormElement::Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal);
+   void Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal);
    virtual ~XMLToFormElement();
 
    // Widget Data Getters
