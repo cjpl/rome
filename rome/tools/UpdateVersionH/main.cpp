@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
    // Reading XML
    //
 
-   ROMEString xmlFileName = gSystem->ExpandPathName("$(ROMESYS)/tools/UpdateVersionH/revision.xml");
+   ROMEString xmlFileName = gSystem->ExpandPathName("$(ROMESYS)/.revision.xml");
    ROMEXML *xml = new ROMEXML();
 
    xml->OpenFileForPath(xmlFileName.Data());
