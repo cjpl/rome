@@ -163,6 +163,7 @@ LibDictHeaders := include/ROMEString.h \
 #
 
 all: $(TARGET)
+	@./bin/updateVersionH.exe
 
 obj:
 	@if [ ! -d  obj ] ; then \
@@ -170,8 +171,7 @@ obj:
 		mkdir obj; \
 	fi;
 
-bin/romebuilder.exe: builder/src/main.cpp $(BldObjects) ./bin/updateVersionH.exe
-	@./bin/updateVersionH.exe
+bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
