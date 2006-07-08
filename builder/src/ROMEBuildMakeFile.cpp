@@ -1487,15 +1487,6 @@ void ROMEBuilder::WriteMakefile() {
 #endif
    buffer.AppendFormatted("\n");
 
-// all
-#if defined( R__VISUAL_CPLUSPLUS )
-   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-#else
-   buffer.AppendFormatted("all:startecho obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-#endif
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("\n");
-
 // Objects
 // -------
    WriteMakefileObjects(buffer,romeSources);
@@ -1579,6 +1570,18 @@ void ROMEBuilder::WriteMakefile() {
 
 #endif // R__UNIX
 
+   WriteMakefileUserDictObject(buffer);
+   WriteMakefileUserDictDependFiles(buffer);
+
+// all
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#else
+   buffer.AppendFormatted("all:startecho obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+#endif
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+
 // user makefile
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("!INCLUDE Makefile.winusr\n");
@@ -1586,8 +1589,6 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("-include Makefile.usr\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
-   WriteMakefileUserDictObject(buffer);
-   WriteMakefileUserDictDependFiles(buffer);
 
 // echos
    buffer.AppendFormatted("startecho:\n");
