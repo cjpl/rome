@@ -5800,6 +5800,10 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   xml->SetTranslate(0);\n");
+   buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
+   buffer.AppendFormatted("   xml->WriteComment(\"Please check ROME homepage for details of tags\\n\"\n");
+   buffer.AppendFormatted("      \"http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm\");\n");
+   buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
    buffer.AppendFormatted("   xml->StartElement(\"Configuration\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",fXSDFile.Data());\n");
@@ -11028,6 +11032,6 @@ ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
 ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& result)
 {
    result = org;
-   result.ReplaceAll("\n", "\\n");
+   result.ReplaceAll("\n", "\\n\"\n\"");
    return result;
 }
