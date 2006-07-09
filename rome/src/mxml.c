@@ -440,6 +440,22 @@ int mxml_write_value(MXML_WRITER *writer, const char *data)
 
 /*------------------------------------------------------------------*/
 
+int mxml_write_empty_line(MXML_WRITER *writer)
+/* write empty line */
+{
+   if (writer->element_is_open) {
+      mxml_write_line(writer, ">\n");
+      writer->element_is_open = FALSE;
+   }
+
+   if (mxml_write_line(writer, "\n") != 1)
+      return FALSE;
+
+   return TRUE;
+}
+
+/*------------------------------------------------------------------*/
+
 int mxml_write_comment(MXML_WRITER *writer, const char *string)
 /* write a comment to an XML file, enclosed in "<!--" and "-->" */
 {

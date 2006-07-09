@@ -251,6 +251,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    steerFieldArraySize = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldInit = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldComment = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldShortDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldCLOption = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldCLDescription = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    numOfSteerFieldAffiliations = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
@@ -1061,9 +1062,6 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             // field comment
             if (type == 1 && !strcmp((const char*)name,"FieldComment")) {
                xml->GetValue(valueComment[numOfFolder][numOfValue[numOfFolder]],valueComment[numOfFolder][numOfValue[numOfFolder]]);
-               if (valueComment[numOfFolder][numOfValue[numOfFolder]][0]!='/') {
-                  valueComment[numOfFolder][numOfValue[numOfFolder]].Insert(0,"// ");
-               }
             }
             // field array size
             if (type == 1 && !strcmp((const char*)name,"ArraySize")) {
@@ -3038,6 +3036,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          steerFieldType[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldArraySize[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "1";
          steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
+         steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = 0;
@@ -3104,9 +3103,10 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
             // steering parameter field comment
             if (type == 1 && !strcmp((const char*)name,"SPFieldComment")) {
                xml->GetValue(steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
-               if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]][0]!='/') {
-                  steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Insert(0,"// ");
-               }
+            }
+            // steering parameter field comment
+            if (type == 1 && !strcmp((const char*)name,"SPFieldShortDescription")) {
+               xml->GetValue(steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
             }
             // steering parameter command line option
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineOption")) {
@@ -3125,6 +3125,10 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
             }
             // steering parameter field end
             if (type == 15 && !strcmp((const char*)name,"SteeringParameterField")) {
+               // description
+               if (steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()
+                   && !steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length())
+                  steerFieldShortDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = steerFieldComment[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]];
                if (steerArraySize[iTask][actualSteerIndex].Length() && steerArraySize[iTask][actualSteerIndex]!="1" && steerFieldCLOption[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]].Length()) {
                   cout << "Error. Command line option of field '"<< steerFieldName[iTask][numOfSteering[iTask]][numOfSteerFields[iTask][numOfSteering[iTask]]] <<"' in arrayed steering parameter group '"<<steerName[iTask][actualSteerIndex]<<"' is not supported!" << endl;
                   cout << "Terminating program." << endl;

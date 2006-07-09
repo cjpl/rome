@@ -235,6 +235,7 @@ protected:
    ROMEString ***steerFieldArraySize;
    ROMEString ***steerFieldInit;
    ROMEString ***steerFieldComment;
+   ROMEString ***steerFieldShortDescription;
    ROMEString ***steerFieldCLOption;
    ROMEString ***steerFieldCLDescription;
    Int_t      ***numOfSteerFieldAffiliations;
@@ -633,6 +634,7 @@ private:
 
    ROMEString& ProcessCommentCPP(ROMEString& org, ROMEString& result);
    ROMEString& ProcessCommentHTML(ROMEString& org, ROMEString& result);
+   ROMEString& ProcessCommentString(ROMEString& org, ROMEString& result);
 };
 
 #endif   // ROMEBuilder_H

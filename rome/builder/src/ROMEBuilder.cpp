@@ -138,6 +138,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] steerFieldArraySize;
    delete [] steerFieldInit;
    delete [] steerFieldComment;
+   delete [] steerFieldShortDescription;
    delete [] steerFieldCLOption;
    delete [] steerFieldCLDescription;
    delete [] numOfSteerFieldAffiliations;
