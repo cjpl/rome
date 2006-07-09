@@ -174,6 +174,10 @@ Bool_t ROMEXML::WriteAttribute(const char* name,const char* value) {
    return true;
 }
 
+Bool_t ROMEXML::WriteEmptyLine() {
+   return mxml_write_empty_line(writer);
+}
+
 Bool_t ROMEXML::WriteElement(const char* name,const char* value) {
    if (!mxml_start_element(writer,name))
       return false;

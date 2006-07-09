@@ -59,7 +59,7 @@ void ROMEConfigParameter::AddComboBoxEntry(const char* va_(fmt),...) {
    va_end(ap);
 }
 
-ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize,ROMEString groupIdentifier,ROMEString nameIdentifier,ROMEString arrayIdentifier,ROMEString tagName,int multiplicity)
+ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEString arraySize,ROMEString groupIdentifier,ROMEString nameIdentifier,ROMEString arrayIdentifier,ROMEString tagName,int multiplicity,Bool_t emptyline)
 {
    fGroupName = groupName;
    fArraySize = arraySize;
@@ -84,4 +84,5 @@ ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEStri
    fWriteEndLines = new ROMEStrArray(1);
    fHierarchyLevel = 0;
    fWriteAlways = false;
+   fWriteEmptyLine = emptyline;
 }

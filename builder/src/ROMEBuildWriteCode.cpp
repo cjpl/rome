@@ -5804,6 +5804,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   xml->WriteAttribute(\"xmlns:xsi\",\"http://www.w3.org/2001/XMLSchema-instance\");\n");
    buffer.AppendFormatted("   xml->WriteAttribute(\"xsi:noNamespaceSchemaLocation\",fXSDFile.Data());\n");
    buffer.AppendFormatted("   WriteProgramConfiguration(xml);\n");
+   buffer.AppendFormatted("   xml->WriteEmptyLine();\n");
    buffer.AppendFormatted("   xml->StartElement(\"MainConfiguration\");\n");
    buffer.AppendFormatted("   WriteConfiguration(xml,0);\n");
    buffer.AppendFormatted("   xml->EndElement();\n");
@@ -6472,6 +6473,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subGroup->AddSubGroup(subSubGroup);
          for (j=0;j<numOfBranch[i];j++) {
             subSubSubGroup = new ROMEConfigParameterGroup(branchName[i][j],"1","Branch");
+            subSubSubGroup->SetWriteEmptyLine(kFALSE);
             //Tree/Branch/Active
             subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
             subSubSubGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
@@ -6540,6 +6542,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->AddSubGroup(subSubGroup);
       for (j=0;j<numOfBank[i];j++) {
          subSubSubGroup = new ROMEConfigParameterGroup(bankName[i][j],"1","Bank");
+         subSubSubGroup->SetWriteEmptyLine(kFALSE);
          subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
          subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
@@ -6728,10 +6731,13 @@ Bool_t  ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGr
    ROMEString formatValue;
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
+   ROMEString tmp;
    for (i=0;i<numOfSteerFields[numTask][numSteer];i++) {
       if (!steerFieldUsed[numTask][numSteer][i])
          continue;
       subGroup = new ROMEConfigParameterGroup(steerFieldName[numTask][numSteer][i].Data(),"1","SteeringParameterField","SPName");
+      subGroup->SetWriteEmptyLine(kFALSE);
+      subGroup->SetComment(ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
       parGroup->AddSubGroup(subGroup);
       if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
          maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
@@ -7202,12 +7208,17 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
             buf.ReplaceAll("##",temp);
             buffer.AppendFormatted("%s   %s\n",sTab.Data(),buf.Data());
          }
+         if (parGroup->GetParameterAt(i)->GetComment().Length())
+            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",writeString.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
          buffer.AppendFormatted("%selse ",sTab.Data());
       }
-      buffer.AppendFormatted("if (fConfigData[index]->%sf%sModified)\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+      buffer.AppendFormatted("if (fConfigData[index]->%sf%sModified) {\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+      if (parGroup->GetParameterAt(i)->GetComment().Length())
+         buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
       buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",fConfigData[index]->%sf%s.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
+         buffer.AppendFormatted("%s}\n",sTab.Data());
    }
    // Sub Groups
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
@@ -7227,6 +7238,8 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
             buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sArrayModified || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          else
             buffer.AppendFormatted("%sif (fConfigData[index]->%sf%sArrayModified) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         if (i != 0 && parGroup->GetSubGroupAt(i)->GetWriteEmptyLine())
+            buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
          buffer.AppendFormatted("%s   xml->StartElement(\"%ss\");\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
          buffer.AppendFormatted("%s   for (i=0;i<fConfigData[index]->%sf%sArraySize;i++) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      if (fConfigData[index]->%sf%sModified[i]) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -7253,17 +7266,24 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
       for (j=0;j<parGroup->GetSubGroupAt(i)->GetNumberOfWriteStartLines();j++) {
          buffer.AppendFormatted("%s   %s\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetWriteStartLineAt(j));
       }
+      if (i != 0 && parGroup->GetSubGroupAt(i)->GetWriteEmptyLine())
+         buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
       if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data());
+         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
+            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
       }
-      else
+      else {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
+      }
       if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Length()) {
          if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
          else
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
+            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
          temp = parGroup->GetSubGroupAt(i)->GetArrayIdentifier();
          if (temp.EndsWith("="))
             temp.Resize(temp.Length()-1);
@@ -10033,12 +10053,6 @@ void ROMEBuilder::WriteHTMLDoku()
       else
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
       for (j=0;j<numOfValue[i];j++) {
-         ROMEString comment = valueComment[i][j];
-         if (valueComment[i][j].Length()>3) {
-            if (valueComment[i][j][0]=='/') {
-               comment = valueComment[i][j](3,valueComment[i][j].Length()-3);
-            }
-         }
          buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td>",trodd ? "odd" : "even",valueName[i][j].Data(),valueType[i][j].Data());
          if (folderDataBase[i]) {
             if (valueDBPath[i][j].Length() || valueDBName[i][j].Length())
@@ -10046,7 +10060,7 @@ void ROMEBuilder::WriteHTMLDoku()
             else
                buffer.AppendFormatted("<td><center>No</center></td>");
          }
-         buffer.AppendFormatted("<td>&nbsp;%s&nbsp;</td></tr>\n",ProcessCommentHTML(comment,tmp).Data());
+         buffer.AppendFormatted("<td>&nbsp;%s&nbsp;</td></tr>\n",ProcessCommentHTML(valueComment[i][j],tmp).Data());
          trodd = !trodd;
       }
       buffer.AppendFormatted("</table><br>\n");
@@ -10287,20 +10301,13 @@ void ROMEBuilder::WriteHTMLDoku()
 void ROMEBuilder::WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group)
 {
    int k;
-   ROMEString comment;
    ROMEString groupName;
    ROMEString tmp;
    bool trodd = true;
    for (k=0;k<numOfSteerFields[numTask][numSteer];k++) {
       if (!steerFieldUsed[numTask][numSteer][k])
          continue;
-      comment = steerFieldComment[numTask][numSteer][k];
-      if (steerFieldComment[numTask][numSteer][k].Length()>3) {
-         if (steerFieldComment[numTask][numSteer][k][0]=='/') {
-            comment = steerFieldComment[numTask][numSteer][k](3,steerFieldComment[numTask][numSteer][k].Length()-3);
-         }
-      }
-      buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),ProcessCommentHTML(comment,tmp).Data());
+      buffer.AppendFormatted("<tr class=\"%s\"><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td><td>&nbsp;%s&nbsp;</td></tr>\n",trodd ? "odd" : "even",steerFieldName[numTask][numSteer][k].Data(),steerFieldType[numTask][numSteer][k].Data(),ProcessCommentHTML(steerFieldComment[numTask][numSteer][k],tmp).Data());
       trodd = !trodd;
    }
    // Groups
@@ -11006,6 +11013,8 @@ ROMEString& ROMEBuilder::ProcessCommentCPP(ROMEString& org, ROMEString& result)
 {
    result = org;
    result.ReplaceAll("\n", "\n// ");
+   if (! result.BeginsWith("//"))
+      result.Insert(0, "// ");
    return result;
 }
 
@@ -11013,5 +11022,12 @@ ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
 {
    result = org;
    result.ReplaceAll("\n", "<br>\n");
+   return result;
+}
+
+ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& result)
+{
+   result = org;
+   result.ReplaceAll("\n", "\\n");
    return result;
 }

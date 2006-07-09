@@ -61,6 +61,7 @@ public:
    Bool_t      GetAttribute(const char* name,ROMEString& value,const char* defaultValue="");
    Bool_t      GetValue(ROMEString& value,ROMEString& defaultValue);
    Bool_t      GetValue(ROMEString& value,const char* defaultValue="");
+
    // write
    Bool_t      OpenFileForWrite(const char* file);
    Int_t       SetTranslate(Int_t flag);
@@ -72,6 +73,7 @@ public:
    Bool_t      WriteValue(const char* value);
    Bool_t      WriteComment(const char* text);
    static void SuppressWritingDate(Bool_t suppress = kTRUE) { mxml_suppress_date(suppress ? 1 : 0); }
+   Bool_t      WriteEmptyLine();
 
    // path
    Bool_t      OpenFileForPath(const char* file);
