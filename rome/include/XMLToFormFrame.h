@@ -53,6 +53,7 @@ private:
    Int_t      fFrameTabIndex;     //!
    Bool_t     fFrameCreated;      //!
    Int_t      fFrameMaxWidth;     //!
+   ROMEString fFrameToolTip;      //!
    // Widget Data Fields
    TObjArray  fElements;          //!
    Int_t      fNumberOfElements;  //!
@@ -87,7 +88,7 @@ public:
    Int_t               fNumberOfVFrames;  //!
 
 public:
-   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex);
+   XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex,const char* toolTip = "");
    virtual ~XMLToFormFrame();
 
    void AddSubFrame(XMLToFormFrame* subFrame) {
@@ -112,6 +113,7 @@ public:
    Int_t   GetFrameMaxWidth() { return fFrameMaxWidth; }
    void    SetFrameCreated(Bool_t created) { fFrameCreated = created; }
    Bool_t  IsFrameCreated() { return fFrameCreated; }
+   TString GetFrameToolTip() { return fFrameToolTip; }
    // Element Data Getter
    XMLToFormElement* GetElementAt(Int_t i) { return ((XMLToFormElement*)fElements.At(i)); }
    Int_t   GetNumberOfElements() { return fNumberOfElements; }

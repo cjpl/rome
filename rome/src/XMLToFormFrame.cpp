@@ -28,7 +28,7 @@
 
 ClassImp(XMLToFormFrame)
 
-XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex)
+XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,const char* path,Bool_t vertical,Int_t type,Bool_t visible,Int_t tabIndex,const char* toolTip)
 {
    fFrameCreated = false;
    fFrameTitle = title;
@@ -37,6 +37,7 @@ XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,con
    fFrameType = type;
    fFrameVisible = visible;
    fFrameTabIndex = tabIndex;
+   fFrameToolTip = toolTip;
    fElements.RemoveAll();
    fNumberOfElements = 0;
    fSubFrames.RemoveAll();

@@ -27,7 +27,7 @@ public:
            GContext_t norm = GetDefaultGC()(),
            FontStruct_t font = GetDefaultFontStruct(),
            UInt_t options = kChildFrame,
-           Pixel_t back = GetDefaultFrameBackground()) : TGLabel(p, text, norm, font, options, back) { };
+           Pixel_t back = GetDefaultFrameBackground()) : TGLabel(p, text, norm, font, options, back) { fTip = NULL; };
 
    void SetToolTipText(const char *text, Long_t delayms);
    Bool_t HandleCrossing(Event_t *event);
