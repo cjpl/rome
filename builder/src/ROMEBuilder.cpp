@@ -18,6 +18,8 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 
+ROMEXML* configXSD;
+
 ROMEBuilder::~ROMEBuilder()
 {
    // Free memory
