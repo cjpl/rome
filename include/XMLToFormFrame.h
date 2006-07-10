@@ -20,7 +20,7 @@ class XMLToFormFrame;
 class TGCompositeFrame;
 class TGTab;
 class TGHotString;
-class TGLabel;
+class ROMELabel;
 class TGHorizontalFrame;
 class TGVerticalFrame;
 class TGListTreeItem;
@@ -63,13 +63,14 @@ private:
 public:
    // GUI Frame Fields
    TGLayoutHints      *fLFrame;           //!
+   TGLayoutHints      *fLFrameExpand;     //!
    TGLayoutHints      *fLInnerFrame;      //!
    TGLayoutHints      *fLInnerCheckButtonFrame;  //!
    XMLToFormFrame     *fParentFrame;      //!
    TGCompositeFrame   *fFrame;            //!
    TGTab              *fTab;              //!
    TGHotString        *fTitleString;      //!
-   TGLabel            *fTitleLabel;       //!
+   ROMELabel            *fTitleLabel;       //!
    TGLayoutHints      *fLTitleLabel;      //!
    Int_t               fIndex;            //!
    TGCompositeFrame   *fListTreeFrame;    //!

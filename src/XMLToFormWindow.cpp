@@ -18,7 +18,7 @@
 #include <TGTab.h>
 #include <TGLayout.h>
 #include <TGTextEntry.h>
-#include <TGLabel.h>
+#include <ROMELabel.h>
 #include <TGFrame.h>
 #include <TGListTree.h>
 #include <TGListView.h>
@@ -40,7 +40,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
 {
    int j,k;
    int index,additionalWidth;
-   TGLabel *tempLabel;
+   ROMELabel *tempLabel;
    ROMEString value;
    ROMEString currentPath;
    ROMEString savePath;
@@ -55,7 +55,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
          frame->fParentFrame->fTab->GetTabTab(frame->GetFrameTabIndex())->SetText(frame->fTitleString);
       }
       else if (!frame->IsFrameListTree() && !frame->IsFrameListTreeItem()) {
-         frame->fTitleLabel = new TGLabel(frame->fFrame, frame->GetFrameTitle().Data());
+         frame->fTitleLabel = new ROMELabel(frame->fFrame, frame->GetFrameTitle().Data());
 #if defined( R__VISUAL_CPLUSPLUS )
 //            frame->fTitleLabel->SetTextFont("arial bold", kTRUE);
 #else
@@ -81,14 +81,14 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             additionalWidth = 8;
          else
             additionalWidth = 0;
-         tempLabel = new TGLabel(0,frame->GetElementAt(j)->GetTitle().Data());
+         tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetTitle().Data());
          if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth+additionalWidth)
             frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth+additionalWidth);
          if (frame->GetFrameMaxWidth()<frame->GetElementAt(j)->GetWidth())
             frame->SetFrameMaxWidth(frame->GetElementAt(j)->GetWidth()+2*frame->elementPad);
          delete tempLabel;
          for (k=0;k<frame->GetElementAt(j)->GetNumberOfEntries();k++) {
-            tempLabel = new TGLabel(0,frame->GetElementAt(j)->GetEntryAt(k).Data());
+            tempLabel = new ROMELabel(0,frame->GetElementAt(j)->GetEntryAt(k).Data());
             if (frame->GetElementAt(j)->GetWidth()<(int)tempLabel->GetSize().fWidth)
                frame->GetElementAt(j)->SetWidth(tempLabel->GetSize().fWidth);
             if (frame->GetFrameMaxWidth()<frame->GetElementAt(j)->GetWidth())
@@ -142,7 +142,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fEditVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fEditLabel = new TGLabel(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fEditLabel = new ROMELabel(frame->GetElementAt(j)->fEditVFrames, frame->GetElementAt(j)->GetTitle().Data());
             // edit
             frame->GetElementAt(j)->fEditBoxBuffer = new TGTextBuffer(50);
             frame->GetElementAt(j)->fEditBoxBuffer->AddText(0, frame->GetElementAt(j)->GetValue().Data());
@@ -154,6 +154,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                frame->GetElementAt(j)->fEditBox->SetFocus();
                fFirstEdit = false;
             }
+            // tool tip
+            if (frame->GetElementAt(j)->GetToolTip().Length()>0)
+               frame->GetElementAt(j)->fEditLabel->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
          }
          // buttons
          if (frame->GetElementAt(j)->GetType()=="Button") {
@@ -181,6 +184,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                frame->GetElementAt(j)->fButton = new TGTextButton(frame->fHHFrames[frame->fNumberOfHHFrames-1], frame->GetElementAt(j)->GetTitle().Data());
             frame->GetElementAt(j)->fButton->Associate(this);
             frame->GetElementAt(j)->fButton->Resize(frame->GetElementAt(j)->GetWidth(), 22);
+            // tool tip
+            if (frame->GetElementAt(j)->GetToolTip().Length()>0)
+               frame->GetElementAt(j)->fButton->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
          }
          // combobox
          if (frame->GetElementAt(j)->GetType()=="ComboBox") {
@@ -202,7 +208,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fComboVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fComboLabel = new TGLabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fComboLabel = new ROMELabel(frame->GetElementAt(j)->fComboVFrames, frame->GetElementAt(j)->GetTitle().Data());
             // edit
             frame->GetElementAt(j)->fComboBox = new TGComboBox(frame->GetElementAt(j)->fComboVFrames);
             frame->GetElementAt(j)->fComboBox->Associate(this);
@@ -211,6 +217,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
                frame->GetElementAt(j)->fComboBox->AddEntry(frame->GetElementAt(j)->GetEntryAt(k).Data(),k);
             }
             frame->GetElementAt(j)->fComboBox->Select(frame->GetElementAt(j)->GetSelectedEntry());
+            // tool tip
+            if (frame->GetElementAt(j)->GetToolTip().Length()>0)
+               frame->GetElementAt(j)->fComboLabel->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
          }
          // checkbuttons
          if (frame->GetElementAt(j)->GetType()=="CheckButton") {
@@ -232,7 +241,7 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             // vframe
             frame->GetElementAt(j)->fCheckButtonVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
             // label
-            frame->GetElementAt(j)->fCheckButtonLabel = new TGLabel(frame->GetElementAt(j)->fCheckButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            frame->GetElementAt(j)->fCheckButtonLabel = new ROMELabel(frame->GetElementAt(j)->fCheckButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
             // button
             if (frame->GetElementAt(j)->GetButtonID()!=-1)
                frame->GetElementAt(j)->fCheckButton = new TGCheckButton(frame->GetElementAt(j)->fCheckButtonVFrames,"",frame->GetElementAt(j)->GetButtonID());
@@ -243,6 +252,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             if (frame->GetElementAt(j)->GetSignal()!=NULL)
                frame->GetElementAt(j)->fCheckButton->Connect(frame->GetElementAt(j)->GetSignal()->GetSignal().Data(),"XMLToFormWindow",this,"SignalHandler()");
             frame->GetElementAt(j)->fCheckButton->Associate(this);
+            // tool tip
+            if (frame->GetElementAt(j)->GetToolTip().Length()>0)
+               frame->GetElementAt(j)->fCheckButtonLabel->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
          }
       }
    }
@@ -271,11 +283,12 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
          currentSubFrame = frame->GetSubFrameAt(i);
          currentSubFrame->fIndex = i+1;
          currentSubFrame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
+         currentSubFrame->fLFrameExpand = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
          currentSubFrame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          currentSubFrame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          if (currentSubFrame->IsFrameListTree()) {
             currentSubFrame->fHFrame = new TGHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
-            frame->fFrame->AddFrame(currentSubFrame->fHFrame,currentSubFrame->fLFrame);
+            frame->fFrame->AddFrame(currentSubFrame->fHFrame,currentSubFrame->fLFrameExpand);
             currentSubFrame->fListTreeCanvas = new TGCanvas(currentSubFrame->fHFrame,fListTreeWidth,fListTreeHeight);
             currentSubFrame->fHFrame->AddFrame(currentSubFrame->fListTreeCanvas,new TGLayoutHints(kLHintsLeft | kLHintsExpandY));
             currentSubFrame->fListTree = new TGListTree(currentSubFrame->fListTreeCanvas, kHorizontalFrame);
@@ -518,7 +531,7 @@ void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
       frame->fFrame = new TGVerticalFrame(this,0,0,kRaisedFrame);
    else
       frame->fFrame = new ROMEHorizontalFrame(this,0,0,kRaisedFrame);
-   frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
+   frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
    frame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    frame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    AddFrame(frame->fFrame,frame->fLFrame);
