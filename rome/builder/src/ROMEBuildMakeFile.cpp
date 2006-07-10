@@ -94,6 +94,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormElementSignal.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
    if (this->mysql)
@@ -128,6 +129,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
       romeLinkDefSuffix->Add("");
    }
    romeDictHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
@@ -270,6 +273,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/XMLToFormFrame.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToFormElement.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEHorizontalFrame.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMELabel.cpp");
    }
    if (this->orca)
       romeSources->Add("$(ROMESYS)/src/ROMEOrcaDAQ.cpp");

@@ -18,7 +18,7 @@
 #include <TGTab.h>
 #include <TGCanvas.h>
 #include <TGListTree.h>
-#include <TGLabel.h>
+#include <ROMELabel.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -42,6 +42,7 @@ XMLToFormFrame::XMLToFormFrame(XMLToFormFrame *parentFrame,const char* title,con
    fSubFrames.RemoveAll();
    fNumberOfSubFrames = 0;
    fLFrame = NULL;
+   fLFrameExpand = NULL;
    fLInnerFrame = NULL;
    fLInnerCheckButtonFrame = NULL;
    fParentFrame = parentFrame;
@@ -71,6 +72,7 @@ XMLToFormFrame::~XMLToFormFrame()
 {
 #if 0 // deleting GUI objects may cause error
    SafeDelete(fLFrame);
+   SafeDelete(fLFrameExpand);
    SafeDelete(fLInnerFrame);
    SafeDelete(fLInnerCheckButtonFrame);
    SafeDelete(fFrame);

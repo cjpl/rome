@@ -19,7 +19,7 @@
 #include <TGTab.h>
 #include <TGLayout.h>
 #include <TGTextEntry.h>
-#include <TGLabel.h>
+#include <ROMELabel.h>
 #include <TGFrame.h>
 #include <TGComboBox.h>
 #include "ROMEiostream.h"

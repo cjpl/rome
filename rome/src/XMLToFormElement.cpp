@@ -16,7 +16,7 @@
 #endif // R__VISUAL_CPLUSPLUS
 #include <TGString.h>
 #include <TGFrame.h>
-#include <TGLabel.h>
+#include <ROMELabel.h>
 #include <TGTextEntry.h>
 #include <TGButton.h>
 #include <TGComboBox.h>
@@ -28,9 +28,9 @@
 
 ClassImp(XMLToFormElement)
 
-void XMLToFormElement::Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal)
+void XMLToFormElement::Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,const char* toolTip,XMLToFormElementSignal* signal)
 {
-   fType = type; fTitle = title; fValue = value; fPath = path; fSignal = signal; fButtonID = buttonID; fWidth = width;
+   fType = type; fTitle = title; fValue = value; fPath = path; fSignal = signal; fButtonID = buttonID; fWidth = width; fToolTip = toolTip;
    if (entries!=NULL) {
       for (Int_t i=0;i<entries->GetEntriesFast();i++) {
          if (entries->At(i)==value)

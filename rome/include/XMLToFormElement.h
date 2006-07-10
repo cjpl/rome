@@ -9,7 +9,7 @@
 
 class TGHotString;
 class TGVerticalFrame;
-class TGLabel;
+class ROMELabel;
 class TGLayoutHints;
 class TGTextEntry;
 class TGTextBuffer;
@@ -29,6 +29,7 @@ private:
    Int_t                   fWidth;         //!
    XMLToFormElementSignal *fSignal;        //!
    Int_t                   fParentFrameIndex; //!
+   ROMEString              fToolTip;       //!
    // ComboBox
    ROMEStrArray            fEntry;         //!
    Int_t                   fSelectedEntry; //!
@@ -37,10 +38,10 @@ private:
    Bool_t                  fButtonChecked; //!
 
 public:
-   TGHotString            *fWidgetTitle;      //!
+   TGHotString            *fWidgetTitle;   //!
    // EditBox
    TGVerticalFrame        *fEditVFrames;   //!
-   TGLabel                *fEditLabel;     //!
+   ROMELabel              *fEditLabel;     //!
    TGLayoutHints          *fLEditLabel;    //!
    TGTextEntry            *fEditBox;       //!
    TGTextBuffer           *fEditBoxBuffer; //!
@@ -50,28 +51,28 @@ public:
    TGLayoutHints          *fLButton; //!
    // ComboBox
    TGVerticalFrame        *fComboVFrames;//!
-   TGLabel                *fComboLabel;  //!
+   ROMELabel              *fComboLabel;  //!
    TGLayoutHints          *fLComboLabel; //!
    TGComboBox             *fComboBox;    //!
    TGLayoutHints          *fLComboBox;   //!
    // CheckButton
    TGVerticalFrame        *fCheckButtonVFrames;//!
-   TGLabel                *fCheckButtonLabel;  //!
+   ROMELabel              *fCheckButtonLabel;  //!
    TGLayoutHints          *fLCheckButtonLabel; //!
    TGCheckButton          *fCheckButton;       //!
    TGLayoutHints          *fLCheckButton;      //!
 
 public:
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,NULL,0,signal);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
+      Init(type,title,value,path,width,NULL,0,toolTip,signal);
    }
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,Int_t buttonID,XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,NULL,buttonID,signal);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,Int_t buttonID,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
+      Init(type,title,value,path,width,NULL,buttonID,toolTip,signal);
    }
-   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,XMLToFormElementSignal* signal = NULL) {
-      Init(type,title,value,path,width,entries,0,signal);
+   XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
+      Init(type,title,value,path,width,entries,0,toolTip,signal);
    }
-   void Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,XMLToFormElementSignal* signal);
+   void Init(const char* type,const char* title,const char* value,const char* path,Int_t width,ROMEStrArray *entries,Int_t buttonID,const char* toolTip,XMLToFormElementSignal* signal);
    virtual ~XMLToFormElement();
 
    // Widget Data Getters
@@ -92,6 +93,7 @@ public:
    Int_t   GetParentFrameIndex() { return fParentFrameIndex; }
    void    SetParentFrameIndex(Int_t index) { fParentFrameIndex = index; }
    XMLToFormElementSignal *GetSignal() { return fSignal; }
+   TString GetToolTip() { return fToolTip; }
 
    ClassDef(XMLToFormElement, 0)
 };

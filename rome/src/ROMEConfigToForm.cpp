@@ -96,12 +96,12 @@ void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
    // ROME
    signal = new XMLToFormElementSignal("Clicked()","State");
    signal->AddReceiver("Tasks","Enable");
-   frame->AddElement(new XMLToFormElement("CheckButton","ROME",rome.Data(),"",0,0,signal));
+   frame->AddElement(new XMLToFormElement("CheckButton","ROME",rome.Data(),"",0,0,"Check, if you want to run an analyzer",signal));
    // ARGUS
    signal = new XMLToFormElementSignal("Clicked()","State");
    signal->AddReceiver("Tabs","Enable");
    signal->AddReceiver("Argus","Enable");
-   frame->AddElement(new XMLToFormElement("CheckButton","ARGUS",argus.Data(),"",0,1,signal));
+   frame->AddElement(new XMLToFormElement("CheckButton","ARGUS",argus.Data(),"",0,1,"Check, if you want to run a monitor",signal));
 }
 
 void ROMEConfigToForm::FillButtonFrame(XMLToFormFrame *frame)
