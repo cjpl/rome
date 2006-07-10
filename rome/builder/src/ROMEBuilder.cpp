@@ -284,8 +284,8 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!ReadXMLDefinitionFile())
       return false;
 
-   int tabNumber;
-   int histoNumber;
+   int tabNumber=numOfTab;
+   int histoNumber=0;
    int is,ie,ind;
    // Check Histos & Tabs
    for (i=0;i<numOfTaskHierarchy;i++) {

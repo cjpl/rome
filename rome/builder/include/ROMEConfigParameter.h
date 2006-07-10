@@ -12,11 +12,13 @@
 #include "ROMEStrArray.h"
 
 class ROMEConfigParameter : public TObject {
+
 private:
    ROMEString            fName;
    ROMEString            fArraySize;
    ROMEString            fWidgetType;
    ROMEString            fComment;
+   Int_t                 fCommentLevel;
    ROMEStrArray*         fReadModifiedTrueLines;
    ROMEStrArray*         fSetLines;
    ROMEStrArray*         fWriteLines;
@@ -27,10 +29,12 @@ public:
    ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox");
    ROMEString&    GetName() { return fName; }
    ROMEString&    GetComment() { return fComment; }
+   Int_t          GetCommentLevel() { return fCommentLevel; }
    ROMEString&    GetArraySize() { return fArraySize; }
    ROMEString&    GetWidgetType() { return fWidgetType; }
+   inline void    SetComment(Int_t level, const char* comment);
 
-   void           SetComment(const char* comment) { fComment = comment; }
+   void           ReadComment(Int_t level, const char* parentName, const char* path = 0);
 
    Int_t          GetNumberOfReadModifiedTrueLines() { return fReadModifiedTrueLines->GetEntriesFast(); }
    const char*    GetReadModifiedTrueLineAt(Int_t i) { return fReadModifiedTrueLines->At(i).Data(); }
@@ -57,6 +61,12 @@ public:
 };
 
 
+void ROMEConfigParameter::SetComment(Int_t level, const char* comment)
+{
+   fCommentLevel = level;
+   fComment = comment;
+}
+
 class ROMEConfigParameterGroup : public TObject {
 private:
    ROMEString         fGroupName;
@@ -66,6 +76,7 @@ private:
    ROMEString         fArrayIdentifier;
    ROMEString         fTagName;
    ROMEString         fComment;
+   Int_t              fCommentLevel;
    Int_t              fMultiplicity;
    TObjArray*         fParameters;
    TObjArray*         fSubGroups;
@@ -85,6 +96,7 @@ public:
    ROMEString&                GetArrayIdentifier() { return fArrayIdentifier; }
    ROMEString&                GetTagName() { return fTagName; }
    ROMEString&                GetComment() { return fComment; }
+   Int_t                      GetCommentLevel() { return fCommentLevel; }
    Int_t                      GetMultiplicity() { return fMultiplicity; }
    Int_t                      GetHierarchyLevel() { return fHierarchyLevel; }
    Bool_t                     GetWriteEmptyLine() { return fWriteEmptyLine; }
@@ -93,7 +105,9 @@ public:
    void                       SetWriteAlways() { fWriteAlways = true; }
    void                       SetHierarchyLevel(Int_t level) { fHierarchyLevel = level; }
    void                       SetWriteEmptyLine(Bool_t flag) { fWriteEmptyLine = flag; }
-   void                       SetComment(const char* comment) { fComment = comment; }
+   inline void                SetComment(Int_t level, const char* comment);
+
+   void                       ReadComment(Int_t level, const char* tab = 0, const char* path = 0);
 
    Int_t                      GetNumberOfParameters() { return fParameters->GetEntriesFast(); }
    ROMEConfigParameter*       GetParameterAt(Int_t i) { return ((ROMEConfigParameter*)fParameters->At(i)); }
@@ -117,5 +131,11 @@ public:
    const char*                GetWriteEndLineAt(Int_t i) { return fWriteEndLines->At(i).Data(); }
    void                       AddWriteEndLine(const char* line) { fWriteEndLines->AddLast(line); }
 };
+
+void ROMEConfigParameterGroup::SetComment(Int_t level, const char* comment)
+{
+   fCommentLevel = level;
+   fComment = comment;
+}
 
 #endif   // ROMEConfigParameter_H

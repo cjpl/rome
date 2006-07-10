@@ -23,7 +23,7 @@
 			<xs:enumeration value="text"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:complexType name="RunParameterDesc">
+	<xs:complexType name="RunParametersDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the run parameters.</xs:documentation>
 		</xs:annotation>
@@ -45,7 +45,7 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="ModeDesc">
+	<xs:complexType name="ModesDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the modes in which the framework can run.</xs:documentation>
 		</xs:annotation>
@@ -68,6 +68,16 @@
 			<xs:element name="QuitMode" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If true, the program doesn't start a root session at the end. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="VerboseLevel" type="xs:string" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="ConfigCommentLevel" type="xs:string" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ShowSplashScreen" type="xs:boolean" default="true" minOccurs="0">
@@ -734,12 +744,12 @@
 			<xs:documentation>Description of the configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="RunParameters" type="RunParameterDesc" minOccurs="0">
+			<xs:element name="RunParameters" type="RunParametersDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the run parameters. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Modes" type="ModeDesc" minOccurs="0">
+			<xs:element name="Modes" type="ModesDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the modes in which the framework can run. (optional)</xs:documentation>
 				</xs:annotation>
@@ -769,7 +779,7 @@
 					<xs:documentation>Describes the file paths the framework is using. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Histograms" type="HistogramReadDesc" minOccurs="0">
+			<xs:element name="HistogramRead" type="HistogramReadDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the histogram reading. (optional)</xs:documentation>
 				</xs:annotation>

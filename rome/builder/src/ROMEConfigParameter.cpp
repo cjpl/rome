@@ -8,6 +8,7 @@
 #include <TObjArray.h>
 #include "ROMEString.h"
 #include "ROMEBuilder.h"
+#include "ROMEXML.h"
 #include "ROMEConfigParameter.h"
 
 ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, ROMEString widgetType)
@@ -21,6 +22,18 @@ ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, 
    fAdditionalWriteLines = new ROMEStrArray(1);
    fComboBoxEntries = new ROMEStrArray(1);
    fWriteLinesAlways = true;
+}
+
+void ROMEConfigParameter::ReadComment(Int_t level, const char* parentName, const char* path)
+{
+   fCommentLevel = level;
+
+   ROMEString pathString;
+   if (!path)
+      pathString.SetFormatted("/xs:schema/xs:complexType[@name='%sDesc']/xs:sequence/xs:element[@name=%s]/xs:annotation/xs:documentation", parentName, fName.Data());
+   else
+      pathString = path;
+   configXSD->GetPathValue(pathString, fComment, "");
 }
 
 void ROMEConfigParameter::AddSetLine(const char* va_(fmt),...) {
@@ -85,4 +98,21 @@ ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEStri
    fHierarchyLevel = 0;
    fWriteAlways = false;
    fWriteEmptyLine = emptyline;
+}
+
+void ROMEConfigParameterGroup::ReadComment(Int_t level, const char* tag, const char* path)
+{
+   fCommentLevel = level;
+
+   ROMEString pathString;
+   if (!path) {
+      if (tag)
+         pathString.SetFormatted("/xs:schema/xs:complexType[@name='%sDesc']/xs:annotation/xs:documentation", tag);
+      else
+         pathString.SetFormatted("/xs:schema/xs:complexType[@name='%sDesc']/xs:annotation/xs:documentation", fGroupName.Data());
+   }
+   else {
+      pathString = path;
+   }
+   configXSD->GetPathValue(pathString, fComment, "");
 }
