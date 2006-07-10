@@ -11032,6 +11032,10 @@ ROMEString& ROMEBuilder::ProcessCommentHTML(ROMEString& org, ROMEString& result)
 ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& result)
 {
    result = org;
-   result.ReplaceAll("\n", "\\n\"\n\"");
+   // this is not complete, because when comment have many lines
+   // string in code will be long and it may cause compile error.
+   // this should be like    result.ReplaceAll("\n", "\\n\"\n\"");
+   // but it does not work yet.
+   result.ReplaceAll("\n", "\\n");
    return result;
 }
