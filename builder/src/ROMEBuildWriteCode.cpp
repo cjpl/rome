@@ -2559,11 +2559,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
       buffer.AppendFormatted("#include <TCanvas.h>\n");
+      buffer.AppendFormatted("#include <TFrame.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       if (tabHistoDisplay[iTab]) {
          buffer.AppendFormatted("#include <TH1F.h>\n",shortCut.Data());
          buffer.AppendFormatted("#include <TH2F.h>\n",shortCut.Data());
@@ -7212,15 +7213,15 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
             buf.ReplaceAll("##",temp);
             buffer.AppendFormatted("%s   %s\n",sTab.Data(),buf.Data());
          }
-         if (parGroup->GetParameterAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
+//         if (parGroup->GetParameterAt(i)->GetComment().Length())
+//            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",writeString.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
          buffer.AppendFormatted("%selse ",sTab.Data());
       }
       buffer.AppendFormatted("if (fConfigData[index]->%sf%sModified) {\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
-      if (parGroup->GetParameterAt(i)->GetComment().Length())
-         buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
+//      if (parGroup->GetParameterAt(i)->GetComment().Length())
+//         buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
       buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",fConfigData[index]->%sf%s.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
    }
@@ -7274,8 +7275,8 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
          buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
       if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+//         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
+//            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
       }
       else {
@@ -7286,8 +7287,8 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
          else
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+//         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
+//            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
          temp = parGroup->GetSubGroupAt(i)->GetArrayIdentifier();
          if (temp.EndsWith("="))
             temp.Resize(temp.Length()-1);

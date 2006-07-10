@@ -20,8 +20,7 @@
 
 void ROMEBuilder::AddIncludeDirectories()
 {
-   numOfIncludeDirectories = 5;
-   if (hasFolderUserCode) numOfIncludeDirectories++;
+   numOfIncludeDirectories = 6;
    if (numOfDAQ > 0) numOfIncludeDirectories++;
    if (numOfDB > 0) numOfIncludeDirectories++;
    if (numOfTab >0) numOfIncludeDirectories++;
@@ -36,6 +35,11 @@ void ROMEBuilder::AddIncludeDirectories()
    includeDirectories->AddFormatted("$(ROMESYS)/argus/include/");
    includeDirectories->AddFormatted("include/");
    includeDirectories->AddFormatted("./");
+   includeDirectories->AddFormatted("include/generated");
+   if (numOfDAQ > 0) includeDirectories->AddFormatted("include/daqs");
+   if (numOfDB > 0) includeDirectories->AddFormatted("include/databases");
+   if (numOfTab >0) includeDirectories->AddFormatted("include/tabs");
+   if (numOfTask >0) includeDirectories->AddFormatted("include/tasks");
 #if defined( R__VISUAL_CPLUSPLUS )
    if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
    if (midas) includeDirectories->AddFormatted("$(MIDASSYS)/include/");
@@ -278,10 +282,12 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMESQLDataBase.cpp");
    }
    if (romeDictHeaders->GetEntriesFast()>0) {
-      if (!librome)
+      if (!librome) {
          romeSources->Add("dict/ROMEDict.cpp");
-      else
+      }
+      else {
          romeSources->Add("dict/ROMESDict.cpp");
+      }
    }
 }
 
@@ -313,8 +319,9 @@ void ROMEBuilder::AddArgusSources()
       argusSources->Add("$(ROMESYS)/argus/src/ArgusTab.cpp");
       argusSources->Add("$(ROMESYS)/argus/src/ArgusHistoDisplay.cpp");
    }
-   if (argusHeaders->GetEntriesFast()>0)
+   if (argusHeaders->GetEntriesFast()>0) {
       argusSources->Add("dict/ARGUSDict.cpp");
+   }
 }
 
 void ROMEBuilder::AddGeneratedHeaders()
@@ -490,14 +497,18 @@ void ROMEBuilder::AddGeneratedSources()
          continue;
       generatedSources->AddFormatted("src/generated/%sT%s_Base.cpp",shortCut.Data(),tabName[i].Data());
    }
-   if (generatedDictHeaders->GetEntriesFast()>0)
+   if (generatedDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedDict.cpp",shortCut.Data());
-   if (generatedFolderDictHeaders->GetEntriesFast()>0)
+   }
+   if (generatedFolderDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedFolderDict.cpp",shortCut.Data());
-   if (generatedTaskDictHeaders->GetEntriesFast()>0)
+   }
+   if (generatedTaskDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedTaskDict.cpp",shortCut.Data());
-   if (generatedTabDictHeaders->GetEntriesFast()>0)
+   }
+   if (generatedTabDictHeaders->GetEntriesFast()>0) {
       generatedSources->AddFormatted("dict/%sGeneratedTabDict.cpp",shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddFolderHeaders()
@@ -534,8 +545,9 @@ void ROMEBuilder::AddFolderSources()
          }
       }
    }
-   if (folderHeaders->GetEntriesFast()>0)
+   if (folderHeaders->GetEntriesFast()>0) {
       folderSources->AddFormatted("dict/%sFolderDict.cpp",shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddTaskHeaders()
@@ -560,8 +572,9 @@ void ROMEBuilder::AddTaskSources()
          continue;
       taskSources->AddFormatted("src/tasks/%sT%s.cpp",shortCut.Data(),taskName[i].Data());
    }
-   if (taskHeaders->GetEntriesFast()>0)
+   if (taskHeaders->GetEntriesFast()>0) {
       taskSources->AddFormatted("dict/%sTaskDict.cpp",shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddTabHeaders()
@@ -586,8 +599,9 @@ void ROMEBuilder::AddTabSources()
          continue;
       tabSources->AddFormatted("src/tabs/%sT%s.cpp",shortCut.Data(),tabName[i].Data());
    }
-   if (tabHeaders->GetEntriesFast()>0)
+   if (tabHeaders->GetEntriesFast()>0) {
       tabSources->AddFormatted("dict/%sTabDict.cpp",shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddDAQHeaders()
@@ -610,8 +624,9 @@ void ROMEBuilder::AddDAQSources()
          continue;
       daqSources->AddFormatted("src/daqs/%s%sDAQ.cpp",shortCut.Data(),daqName[i].Data());
    }
-   if (daqHeaders->GetEntriesFast() > 0)
+   if (daqHeaders->GetEntriesFast() > 0) {
       daqSources->AddFormatted("dict/%sDAQDict.cpp", shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddDatabaseHeaders()
@@ -630,8 +645,9 @@ void ROMEBuilder::AddDatabaseSources()
    for (i=0;i<numOfDB;i++) {
       databaseSources->AddFormatted("src/databases/%s%sDataBase.cpp",shortCut.Data(),dbName[i].Data());
    }
-   if (databaseHeaders->GetEntriesFast() > 0)
+   if (databaseHeaders->GetEntriesFast() > 0) {
       databaseSources->AddFormatted("dict/%sDBDict.cpp", shortCut.Data());
+   }
 }
 
 void ROMEBuilder::AddRootLibraries()
@@ -1054,6 +1070,10 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
       return;
    ROMEString str;
    ROMEString tmp;
+   ROMEString bufferT;
+   ROMEString includes;
+   ROMEString includesWOPath;
+   int ind;
    int i;
    // depend file
 #if defined( R__UNIX )
@@ -1063,40 +1083,70 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #endif
    //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName);
+   dictionaryNames->AddFormatted(dictionaryName);
 
-   buffer.AppendFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
+   // Output files
+   bufferT.SetFormatted("dict/%s.h dict/%s.cpp:",dictionaryName,dictionaryName);
+   buffer.AppendFormatted(bufferT.Data());
+   bufferT.ReplaceAll(" ",";");
+   bufferT.ReplaceAll(":","");
+   dictionaryOutputs->AddFormatted(bufferT.Data());
+
+   // Dependencies
+   includes = "";
    for (i=0;i<headers->GetEntriesFast();i++) {
-      buffer.AppendFormatted(" %s",headers->At(i).Data());
+      str = headers->At(i).Data();
+      includes.AppendFormatted(" %s",str.Data());
+      ind = str.Last('/');
+      str = str(ind+1,str.Length()-ind-1);
+      includesWOPath.AppendFormatted(" %s",str.Data());
    }
-   if (linkDefName)
-      buffer.AppendFormatted(" %s",linkDefName);
+   if (linkDefName)  {
+      includes.AppendFormatted(" %s",linkDefName);
+   }
+
+   includesWOPath = includesWOPath.Strip(TString::kLeading);
+   buffer.AppendFormatted("%s",includes.Data());
+   includesWOPath.ReplaceAll(" ",";");
+   dictionaryDependencies->AddFormatted(includesWOPath.Data());
+   includesWOPath.ReplaceAll(";"," ");
+   
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
+
+   // Echo
    buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
 #if defined( R__UNIX )
    buffer.AppendFormatted("\t@if [ -e dict/%s.cpp ]; then $(RM) dict/%s.cpp; fi;\n",dictionaryName,dictionaryName);
    buffer.AppendFormatted("\t@if [ -e dict/%s.h ]; then $(RM) dict/%s.h; fi;\n",dictionaryName,dictionaryName);
 #endif
+
+   // Command
+   ROMEString arguments;
+   ROMEString includedirs;
    WriteRootCintCall(buffer);
-   buffer.AppendFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
+   arguments.SetFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
    for (i=0;i<affiliations.GetEntriesFast();i++)
-      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+      arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+   buffer.AppendFormatted(arguments.Data());
+
    for (i=0;i<includeDirectories->GetEntriesFast();i++) {
       str = includeDirectories->At(i).Data();
 #if defined( R__VISUAL_CPLUSPLUS )
-      str.ReplaceAll("$(","%");
-      str.ReplaceAll(")","%");
+//      str.ReplaceAll("$(","%%");
+//      str.ReplaceAll(")","%%");
 #endif
-      buffer.AppendFormatted(" -I%s",str.Data());
+      includedirs.AppendFormatted(" -I%s",str.Data());
    }
    for (i=0;i<numOfMFDictIncDirs;i++)
-      buffer.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
-   buffer.AppendFormatted(" $(DictionaryIncludes)");
-   for (i=0;i<headers->GetEntriesFast();i++) {
-      buffer.AppendFormatted(" %s",headers->At(i).Data());
-   }
-   if (linkDefName)
-      buffer.AppendFormatted(" %s",linkDefName);
+      includedirs.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
+   includedirs.AppendFormatted(" $(DictionaryIncludes)");
+   buffer.AppendFormatted(includedirs.Data());
+
+   buffer.AppendFormatted("%s",includes.Data());
    buffer.AppendFormatted("\n\n");
+
+   includedirs.ReplaceAll(" $(DictionaryIncludes)","");
+   dictionaryCommands->AddFormatted("rootcint%s%s %s",arguments.Data(),includedirs.Data(),includesWOPath.Data());
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
@@ -1433,6 +1483,11 @@ void ROMEBuilder::WriteMakefile() {
    ROMEString buffer;
    ROMEString tmp,tmp2,tmp3,tmp4;
 
+   dictionaryNames = new ROMEStrArray(50);
+   dictionaryOutputs = new ROMEStrArray(50);
+   dictionaryDependencies = new ROMEStrArray(50);
+   dictionaryCommands = new ROMEStrArray(50);
+
    AddIncludeDirectories();
    AddRomeHeaders();
    AddRomeDictHeaders();
@@ -1684,7 +1739,12 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t-$(RM) obj/%s*.obj obj/%s*.d G__auto*LinkDef.h\n",shortCut.Data(),shortCut.Data());
 
 #if defined( R__VISUAL_CPLUSPLUS )
-   WriteMakefileBuildRule(buffer,"$(ROMESYS)\\bin\\romebuilder.exe");
+   ROMEString str;
+   char* romesys = getenv("ROMESYS");
+   str.SetFormatted("%s/bin/romebuilder.exe",romesys);
+   str.ReplaceAll("/","\\");
+   str.ReplaceAll("\\\\","\\");
+   WriteMakefileBuildRule(buffer,str.Data());
 #else
    WriteMakefileBuildRule(buffer,"$(ROMESYS)/bin/romebuilder.exe");
 #endif // R__VISUAL_CPLUSPLUS

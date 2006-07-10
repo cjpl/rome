@@ -34,7 +34,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCore.lib libCint.lib"
-				OutputFile="$(OutDir)\$(ProjectName).exe"
+				OutputFile="bin/ROMEBuilder.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(ROOTSYS)\lib"
 				GenerateDebugInformation="TRUE"
@@ -42,13 +42,12 @@
 			<Tool
 				Name="VCMIDLTool"/>
 			<Tool
-				Name="VCPostBuildEventTool"
-				Description="Updating ROME Version"
-				CommandLine="updateVersionH.exe"/>
+				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Root Dictionary Generation"
-				CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h include/ROMEPrint.h"/>
+				Description="Updating ROME Version"
+				CommandLine="updateVersionH.exe"
+				ExcludedFromBuild="FALSE"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -114,6 +113,18 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath=".\createDict">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating ROMEBuilder Dictionary"
+						CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h include/ROMEPrint.h"
+						AdditionalDependencies="include/ROMEString.h;include/ROMEStrArray.h;include/ROMEStr2DArray.h;include/ROMEPrint.h;include/ROMEXML.h"
+						Outputs="ROMEBuilderDict.cpp;ROMEBuilderDict.h"/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath=".\builder\src\main.cpp">
 			</File>

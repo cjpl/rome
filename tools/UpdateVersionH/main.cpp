@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
    directory[nEntry] = gSystem->ExpandPathName("$(ROMESYS)");
    lastcompile[nEntry] = timestamp.AsString();
 
-   path.SetFormatted("Revision", iEntry);
+   path.SetFormatted("Revision");
    xml->GetPathValue(path,revisionString);
    for(iEntry = 0; iEntry < nEntry; iEntry++) {
       path.SetFormatted("Entry[%d]/User", iEntry + 1);

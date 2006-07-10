@@ -32,12 +32,12 @@
 #include <fcntl.h>
 #include <time.h>
 
-#include "ROMEAnalyzer.h"
 #include "ROMETreeInfo.h"
 #include "ROMERint.h"
 #include "ROMEConfig.h"
 #include "ArgusWindow.h"
 #include "ArgusAnalyzerController.h"
+#include "ROMEAnalyzer.h"
 
 #if defined( HAVE_MIDAS )
 #   include "midas.h"

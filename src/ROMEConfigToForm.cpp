@@ -12,11 +12,11 @@
 
 #include "TError.h"
 #include "ROMEConfigToForm.h"
-#include "ROMEAnalyzer.h"
 #include "XMLToFormWindow.h"
 #include "XMLToFormFrame.h"
 #include "XMLToFormElement.h"
 #include "XMLToFormElementSignal.h"
+#include "ROMEAnalyzer.h"
 
 ClassImp(ROMEConfigToForm)
 
