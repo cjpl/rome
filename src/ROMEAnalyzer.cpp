@@ -402,6 +402,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
 
    char answer = 0;
    bool overwrite = true;
+   char* cstop;
    if ( !configFile.Length() || gSystem->AccessPathName(configFile.Data(), kFileExists)) {
       if (isBatchMode() || isDaemonMode()) {
          if (configFile.Length()) {
@@ -465,6 +466,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             if (answer != 'y' && answer != 'Y')
                overwrite = false;
          }
+         ROMEPrint::PrintAlways("\nPlease specify amount of comments in file [0-5] (default=1): ");
+         cin.getline(answerLine, sizeof(answerLine));
+         if (strlen(answerLine))
+            fConfiguration->SetCommentLevel(strtol(answerLine,&cstop,10));
          if (overwrite) {
             if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
                ROMEPrint::Print("\nTerminate program.\n");

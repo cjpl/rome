@@ -19,6 +19,7 @@
 #include <Riostream.h>
 #include "ROMEBuilder.h"
 #include "ROMEXML.h"
+#include "ROMEConfig.h"
 #include "ROMEConfigParameter.h"
 
 Bool_t ROMEBuilder::WriteFolderCpp()
@@ -5420,6 +5421,7 @@ Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameter
    int i,j;
    ROMEString newPointer;
    ROMEString newConfigPointer;
+   ROMEString temp;
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
       if (parGroup->GetParameterAt(i)->GetArraySize()=="1") {
          buffer.AppendFormatted("   // %s%s\n",tabPointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
@@ -5430,14 +5432,14 @@ Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameter
          for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfComboBoxEntries();j++)
             buffer.AppendFormatted("   entries.AddLast(\"%s\");\n",parGroup->GetParameterAt(i)->GetComboBoxEntryAt(j));
          buffer.AppendFormatted("   tempFrame = %s;\n",pointer.Data());
-         buffer.AppendFormatted("   tempFrame->AddElement(new XMLToFormElement(\"%s\",\"%s\",writeString.Data(),\"\",0,&entries,\"%s\"));\n",parGroup->GetParameterAt(i)->GetWidgetType().Data(),parGroup->GetParameterAt(i)->GetName().Data(),parGroup->GetParameterAt(i)->GetComment().Data());
+         buffer.AppendFormatted("   tempFrame->AddElement(new XMLToFormElement(\"%s\",\"%s\",writeString.Data(),\"\",0,&entries,\"%s\"));\n",parGroup->GetParameterAt(i)->GetWidgetType().Data(),parGroup->GetParameterAt(i)->GetName().Data(),ProcessCommentString(parGroup->GetParameterAt(i)->GetComment(),temp).Data());
       }
    }
 
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       buffer.AppendFormatted("   // %s%s\n",tabPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       buffer.AppendFormatted("   tempFrame = %s;\n",pointer.Data());
-      buffer.AppendFormatted("   tempFrame->AddSubFrame(new XMLToFormFrame(tempFrame,\"%s\",\"\",true,XMLToFormFrame::kListTreeItem,true,%d,\"%s\"));\n",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),i,parGroup->GetSubGroupAt(i)->GetComment().Data());
+      buffer.AppendFormatted("   tempFrame->AddSubFrame(new XMLToFormFrame(tempFrame,\"%s\",\"\",true,XMLToFormFrame::kListTreeItem,true,%d,\"%s\"));\n",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),i,ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
       newConfigPointer.SetFormatted("%sf%s->",configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       if (parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
          newPointer.SetFormatted("%s->GetSubFrameAt(%d)",pointer.Data(),i);
@@ -5447,7 +5449,7 @@ Bool_t ROMEBuilder::WriteConfigToFormTabs(ROMEString &buffer,ROMEConfigParameter
          newPointer.SetFormatted("%s->GetSubFrameAt(%d)->GetSubFrameAt(i)",pointer.Data(),i);
          buffer.AppendFormatted("   for (i=0;i<((%sConfig*)gAnalyzer->GetConfiguration())->fConfigData[0]->%sf%sArraySize;i++) {\n",shortCut.Data(),configPointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("      str.SetFormatted(\"%s %%d\",i);\n",parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-         buffer.AppendFormatted("      %s->GetSubFrameAt(%d)->AddSubFrame(new XMLToFormFrame(%s->GetSubFrameAt(%d),str.Data(),\"\",true,XMLToFormFrame::kListTreeItem,true,0,\"%s\"));\n",pointer.Data(),i,pointer.Data(),i,parGroup->GetSubGroupAt(i)->GetComment().Data());
+         buffer.AppendFormatted("      %s->GetSubFrameAt(%d)->AddSubFrame(new XMLToFormFrame(%s->GetSubFrameAt(%d),str.Data(),\"\",true,XMLToFormFrame::kListTreeItem,true,0,\"%s\"));\n",pointer.Data(),i,pointer.Data(),i,ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
          WriteConfigToFormTabs(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data());
          buffer.AppendFormatted("   }\n");
       }
@@ -5952,29 +5954,38 @@ Bool_t ROMEBuilder::AddConfigParameters()
    for (i=0;i<nIndex;i++)
       index[i] = -1;
    maxConfigParameterHierarchyLevel = 0;
+   configXSD = new ROMEXML();
+   configXSD->OpenFileForPath(gSystem->ExpandPathName("$(ROMESYS)/romeConfig.xsd"));
 
    mainParGroup = new ROMEConfigParameterGroup("ConfigData");
    // RunParameters
    subGroup = new ROMEConfigParameterGroup("RunParameters");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
+
    // RunNumbers
    subGroup->AddParameter(new ROMEConfigParameter("RunNumbers"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddReadModifiedTrueLine("fConfigData[index]->fLastRunNumberIndex = 0;");
    subGroup->GetLastParameter()->AddReadModifiedTrueLine("gAnalyzer->DecodeNumbers(fConfigData[index]->fRunParameters->fRunNumbers,fConfigData[index]->fRunNumberArray);");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetRunNumberStringOriginal();");
    // EventNumbers
    subGroup->AddParameter(new ROMEConfigParameter("EventNumbers"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetEventNumbers(##);");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetEventNumberStringOriginal();");
    // InputFileNames
    subGroup->AddParameter(new ROMEConfigParameter("InputFileNames"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddReadModifiedTrueLine("fConfigData[index]->fLastInputFileNameIndex = 0;");
    subGroup->GetLastParameter()->AddReadModifiedTrueLine("gAnalyzer->DecodeInputFileNames(fConfigData[index]->fRunParameters->fInputFileNames,fConfigData[index]->fInputFileNameArray);");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetInputFileNamesStringOriginal();");
    mainParGroup->AddSubGroup(subGroup);
    // Modes
    subGroup = new ROMEConfigParameterGroup("Modes");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
    // Modes/AnalyzingMode
    subGroup->AddParameter(new ROMEConfigParameter("AnalyzingMode","1","ComboBox"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"online\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOnline();");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -5987,6 +5998,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddComboBoxEntry("online");
    // Modes/DAQSystem
    subGroup->AddParameter(new ROMEConfigParameter("DAQSystem","1","ComboBox"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (false) {}");
    for (i=0;i<daqNameArray->GetEntriesFast();i++) {
       str = daqNameArray->At(i);
@@ -6015,6 +6027,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 // comment out for the moment.
    // Modes/BatchMode
    subGroup->AddParameter(new ROMEConfigParameter("BatchMode","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetBatchMode(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6026,6 +6039,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
 #endif
    // Modes/QuitMode
    subGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6036,6 +6050,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/VerboseLevel
    subGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"mute\")");
    subGroup->GetLastParameter()->AddSetLine("   ROMEPrint::SetVerboseLevel(ROMEPrint::kMute);");
    subGroup->GetLastParameter()->AddSetLine("else if (##==\"error\")");
@@ -6063,8 +6078,20 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddComboBoxEntry("warning");
    subGroup->GetLastParameter()->AddComboBoxEntry("normal");
    subGroup->GetLastParameter()->AddComboBoxEntry("verbose");
+   // Modes/ConfigCommentLevel
+   subGroup->AddParameter(new ROMEConfigParameter("ConfigCommentLevel","1","ComboBox"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetConfiguration()->SetCommentLevel(strtol(##,&cstop,10));");
+   subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\", gAnalyzer->GetConfiguration()->GetCommentLevel());");
+   subGroup->GetLastParameter()->AddComboBoxEntry("0");
+   subGroup->GetLastParameter()->AddComboBoxEntry("1");
+   subGroup->GetLastParameter()->AddComboBoxEntry("2");
+   subGroup->GetLastParameter()->AddComboBoxEntry("3");
+   subGroup->GetLastParameter()->AddComboBoxEntry("4");
+   subGroup->GetLastParameter()->AddComboBoxEntry("5");
    // Modes/ShowSplashScreen
    subGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSplashScreen(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6075,6 +6102,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/GraphicalConfigEdit
    subGroup->AddParameter(new ROMEConfigParameter("GraphicalConfigEdit","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetGraphicalConfigEdit(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6087,12 +6115,15 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // Argus
    if (numOfTab>0) {
       subGroup = new ROMEConfigParameterGroup("Argus");
+      subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
       // Argus/WindowScale
       subGroup->AddParameter(new ROMEConfigParameter("WindowScale"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetWindowScale(##.ToFloat());");
       subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%2.1f\",gAnalyzer->GetWindow()->GetWindowScale());");
       // Argus/StatusBar
       subGroup->AddParameter(new ROMEConfigParameter("StatusBar","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetStatusBarSwitch(kFALSE);");
       subGroup->GetLastParameter()->AddSetLine("else");
@@ -6103,6 +6134,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // Argus/UpdateFrequency
       subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
       subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetWindow()->IsActive()) {");
       for (i=0;i<numOfTab;i++) {
@@ -6115,8 +6147,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
       mainParGroup->AddSubGroup(subGroup);
       // Argus/AnalyzerController
       subSubGroup = new ROMEConfigParameterGroup("AnalyzerController");
+      subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
       // Argus/AnalyzerController/Active
       subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, subSubGroup->GetGroupName());
       subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->SetControllerActive(kTRUE);");
       subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6127,6 +6161,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // Argus/AnalyzerController/NetFolderName
       subSubGroup->AddParameter(new ROMEConfigParameter("NetFolderName"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subSubGroup->GetGroupName());
       subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetControllerNetFolder(##.Data());");
       subSubGroup->GetLastParameter()->AddWriteLine("writeString = \"\";");
       subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->GetControllerNetFolder()!=NULL)");
@@ -6134,8 +6169,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->AddSubGroup(subSubGroup);
       // Argus/SocketToROME
       subSubGroup = new ROMEConfigParameterGroup("SocketToROME");
+      subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
       // Argus/SocketToROME/Active
       subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, subSubGroup->GetGroupName());
       subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketToROMEActive(kTRUE);");
       subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6146,27 +6183,33 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // Argus/SocketToROME/Host
       subSubGroup->AddParameter(new ROMEConfigParameter("Host"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subSubGroup->GetGroupName());
       subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEHost(##.Data());");
       subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetSocketToROMEHost();");
       // Argus/SocketToROME/Port
       subSubGroup->AddParameter(new ROMEConfigParameter("Port"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subSubGroup->GetGroupName());
       subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetSocketToROMEPort(##.Data());");
       subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetSocketToROMEPort());");
       subGroup->AddSubGroup(subSubGroup);
    }
    // DataBase
    subGroup = new ROMEConfigParameterGroup("DataBase","unknown");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
    subGroup->AddReadGroupArrayInitLine("gAnalyzer->InitDataBases(fConfigData[index]->fDataBaseArraySize);");
    // DataBase/Name
    subGroup->AddParameter(new ROMEConfigParameter("Name"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseName(i,##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseName(i);");
    // DataBase/Connection
    subGroup->AddParameter(new ROMEConfigParameter("Connection"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetDataBaseConnection(i,##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBaseConnection(i);");
    // DataBase/Type
    subGroup->AddParameter(new ROMEConfigParameter("Type","1","ComboBox"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"sql\") {");
    if (sql) {
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetDataBase(i,new ROMESQLDataBase());");
@@ -6228,6 +6271,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetDataBase(i)->GetType();");
    // DataBase/EventBased
    subGroup->AddParameter(new ROMEConfigParameter("EventBased","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetEventBasedDataBase(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6239,23 +6283,29 @@ Bool_t ROMEBuilder::AddConfigParameters()
    mainParGroup->AddSubGroup(subGroup);
    // Online
    subGroup = new ROMEConfigParameterGroup("Online");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
    // Online/Host
    subGroup->AddParameter(new ROMEConfigParameter("Host"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineHost(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineHost();");
    // Online/Experiment
    subGroup->AddParameter(new ROMEConfigParameter("Experiment"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineExperiment(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineExperiment();");
    mainParGroup->AddSubGroup(subGroup);
    // SocketInterface
    subGroup = new ROMEConfigParameterGroup("SocketInterface");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
    // SocketInterface/PortNumber
    subGroup->AddParameter(new ROMEConfigParameter("PortNumber"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetPortNumber(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetPortNumber());");
    // SocketInterface/AvailableOffline
    subGroup->AddParameter(new ROMEConfigParameter("AvailableOffline","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetSocketOffline(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6267,23 +6317,28 @@ Bool_t ROMEBuilder::AddConfigParameters()
    mainParGroup->AddSubGroup(subGroup);
    // Paths
    subGroup = new ROMEConfigParameterGroup("Paths");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
    // Paths/InputFilePath
    subGroup->AddParameter(new ROMEConfigParameter("InputFilePath"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##[##.Length()-1]!='/' && ##[##.Length()-1]!='\\\\')");
    subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetInputDir(##);");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetInputDir();");
    // Paths/OutputFilePath
    subGroup->AddParameter(new ROMEConfigParameter("OutputFilePath"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##[##.Length()-1]!='/' && ##[##.Length()-1]!='\\\\')");
    subGroup->GetLastParameter()->AddSetLine("   ##.Append(\"/\");");
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOutputDir(##);");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOutputDir();");
    mainParGroup->AddSubGroup(subGroup);
-   // Histograms
-   subGroup = new ROMEConfigParameterGroup("Histograms");
-   // Histograms/Read
+   // HistogramRead
+   subGroup = new ROMEConfigParameterGroup("HistogramRead");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,);
+   // HistogramRead/Read
    subGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetHistosRead(true);");
    subGroup->GetLastParameter()->AddSetLine("else");
@@ -6292,8 +6347,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
-   // Histograms/RunNumber
+   // HistogramRead/RunNumber
    subGroup->AddParameter(new ROMEConfigParameter("RunNumber"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.ToInteger());");
    subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetHistosRun());");
    mainParGroup->AddSubGroup(subGroup);
@@ -6305,18 +6361,22 @@ Bool_t ROMEBuilder::AddConfigParameters()
          continue;
       if (folderDataBase[i] && !folderSupport[i]) {
          subSubGroup = new ROMEConfigParameterGroup(folderName[i],"1","Folder");
+         subSubGroup->SetComment(ROMEConfig::kCommentLevelObj, folderShortDescription[i]);
          subGroup->AddSubGroup(subSubGroup);
          for (j=0;j<numOfValue[i];j++) {
             if (valueDimension[i][j]>1)
                continue;
             subSubSubGroup = new ROMEConfigParameterGroup(valueName[i][j],"1","Field");
+            subSubSubGroup->SetComment(ROMEConfig::kCommentLevelObj, valueComment[i][j]);
             // DataBaseName
             subSubSubGroup->AddParameter(new ROMEConfigParameter("DataBaseName"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Field");
             subSubSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->Set%s_%sDBName(##.Data());",folderName[i].Data(),valueName[i][j].Data());
             subSubSubGroup->GetLastParameter()->DontWriteLinesAlways();
             subSubSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->Get%s_%sDBName();",folderName[i].Data(),valueName[i][j].Data());
             // DataBasePath
             subSubSubGroup->AddParameter(new ROMEConfigParameter("DataBasePath"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Field");
             subSubSubGroup->GetLastParameter()->AddSetLine("path = ##.Data();");
             subSubSubGroup->GetLastParameter()->AddSetLine("ind = path.Last('\"');");
             subSubSubGroup->GetLastParameter()->AddSetLine("if (ind==-1 || ind==path.Length()-1) {");
@@ -6367,8 +6427,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // NetFolder
    for (i=0;i<numOfNetFolder;i++) {
       subGroup = new ROMEConfigParameterGroup(netFolderName[i],"1","NetFolder");
+      subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"NetFolder");
       // NetFolder/Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "NetFolder");
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderActive(%d,kTRUE);",i);
       subGroup->GetLastParameter()->AddSetLine("else");
@@ -6379,6 +6441,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // NetFolder/Reconnect
       subGroup->AddParameter(new ROMEConfigParameter("Reconnect","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "NetFolder");
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetNetFolderReconnect(%d,kTRUE);",i);
       subGroup->GetLastParameter()->AddSetLine("else");
@@ -6389,14 +6452,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       // NetFolder/Root
       subGroup->AddParameter(new ROMEConfigParameter("Root"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "NetFolder");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderRoot(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderHost(%d);",i);
       // NetFolder/Host
       subGroup->AddParameter(new ROMEConfigParameter("Host"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "NetFolder");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderHost(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetNetFolderPort(%d));",i);
       // NetFolder/Port
       subGroup->AddParameter(new ROMEConfigParameter("Port"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "NetFolder");
       subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetNetFolderPort(%d,const_cast<char*>(##.Data()));",i);
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
       mainParGroup->AddSubGroup(subGroup);
@@ -6419,6 +6485,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
       mainParGroup->AddSubGroup(subGroup);
       // Trees/Accumulate
       subGroup->AddParameter(new ROMEConfigParameter("Accumulate","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName(),"/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Trees']/xs:annotation/xs:documentation");
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetTreeAccumulation(true);");
       subGroup->GetLastParameter()->AddSetLine("else");
@@ -6429,8 +6496,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       for (i=0;i<numOfTree;i++) {
          subSubGroup = new ROMEConfigParameterGroup(treeName[i],"1","Tree");
+         subSubGroup->SetComment(ROMEConfig::kCommentLevelObj, treeDescription[i]);
          // Tree/Read
          subSubGroup->AddParameter(new ROMEConfigParameter("Read","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetRead(true);",i);
          subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6441,6 +6510,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          // Tree/Write
          subSubGroup->AddParameter(new ROMEConfigParameter("Write","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetWrite(true);",i);
          subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6451,6 +6521,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          // Tree/Fill
          subSubGroup->AddParameter(new ROMEConfigParameter("Fill","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("if ((##==\"true\") || gAnalyzer->GetTreeObjectAt(%d)->isWrite())",i);
          subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetFill(true);",i);
          subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6461,10 +6532,12 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
          // Tree/CompressionLevel
          subSubGroup->AddParameter(new ROMEConfigParameter("CompressionLevel"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetCompressionLevel(##.ToInteger());",i);
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());",i);
          // Tree/MaxNumberOfEntries
          subSubGroup->AddParameter(new ROMEConfigParameter("MaxNumberOfEntries"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetMaxEntries(((Long_t)##.ToInteger()));",i);
 #if defined( R__VISUAL_CPLUSPLUS )
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%I64d\",gAnalyzer->GetTreeObjectAt(%d)->GetMaxEntries());",i);
@@ -6473,14 +6546,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
 #endif
          // Tree/TreeOutputFileName
          subSubGroup->AddParameter(new ROMEConfigParameter("TreeOutputFileName"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
          subGroup->AddSubGroup(subSubGroup);
          for (j=0;j<numOfBranch[i];j++) {
             subSubSubGroup = new ROMEConfigParameterGroup(branchName[i][j],"1","Branch");
+            subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"Branch");
             subSubSubGroup->SetWriteEmptyLine(kFALSE);
             //Tree/Branch/Active
             subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+            subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "Branch");
             subSubSubGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
             subSubSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetBranchActiveAt(%d, false);",i,j);
             subSubSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6502,8 +6578,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // midas banks
    if (numOfEvent>0) {
       subGroup = new ROMEConfigParameterGroup("Midas");
+      subGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"Midas","/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:annotation/xs:documentation");
       mainParGroup->AddSubGroup(subGroup);
       subGroup->AddParameter(new ROMEConfigParameter("MidasByteSwap","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, subGroup->GetGroupName(),"/xs:schema/xs:complexType[@name='ConfigurationDesc']/xs:sequence/xs:element[@name='Midas']/xs:complexType/xs:sequence/xs:element[@name=MidasByteSwap]/xs:annotation/xs:documentation");
       subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
       subGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->SetByteSwap(true);");
@@ -6525,7 +6603,9 @@ Bool_t ROMEBuilder::AddConfigParameters()
    }
    for (i=0;i<numOfEvent;i++) {
       subSubGroup = new ROMEConfigParameterGroup(eventName[i],"1","Event");
+      subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"Event");
       subSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "Event");
       subSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
       subSubGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
       subSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sEventActive(true);",eventName[i].Data());
@@ -6547,8 +6627,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->AddSubGroup(subSubGroup);
       for (j=0;j<numOfBank[i];j++) {
          subSubSubGroup = new ROMEConfigParameterGroup(bankName[i][j],"1","Bank");
+         subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"Bank");
          subSubSubGroup->SetWriteEmptyLine(kFALSE);
          subSubSubGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+         subSubSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "Bank");
          subSubSubGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->IsMidasDAQ()) {");
          subSubSubGroup->GetLastParameter()->AddSetLine("   if (##==\"true\")");
          subSubSubGroup->GetLastParameter()->AddSetLine("      gAnalyzer->GetMidasDAQ()->Set%sBankActive(true);",bankName[i][j].Data());
@@ -6570,6 +6652,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->AddSubGroup(subSubSubGroup);
       }
    }
+   delete configXSD;
    return true;
 }
 
@@ -6588,8 +6671,10 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
          continue;
       name.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
       subGroup = new ROMEConfigParameterGroup(name.Data(),"1","Task","TaskName","",taskHierarchyName[i].Data(),taskHierarchyMultiplicity[i]);
+      subGroup->SetComment(ROMEConfig::kCommentLevelObj, taskShortDescription[i]);
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "Task");
       subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTaskObjectAt(%d)->SetActive(true);",taskHierarchyObjectIndex[i]);
       subGroup->GetLastParameter()->AddSetLine("else {");
@@ -6606,71 +6691,89 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
       parGroup->AddSubGroup(subGroup);
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          subSubGroup = new ROMEConfigParameterGroup(histoName[taskHierarchyClassIndex[i]][j],"1","Histogram","HistName");
+         subSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,,"Histogram");
          subSubGroup->AddParameter(new ROMEConfigParameter("HistTitle"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sTitle(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sTitle();",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistFolderTitle"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sFolderTitle(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sFolderTitle();",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistArraySize"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sArraySize(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sArraySize());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistArrayStartIndex"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sArrayStartIndex(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sArrayStartIndex());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistXLabel"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sXLabel(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sXLabel();",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistYLabel"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sYLabel(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sYLabel();",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistZLabel"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sZLabel(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sZLabel();",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistXNbins"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sXNbins(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sXNbins());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistXmin"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sXmin(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sXmin());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistXmax"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sXmax(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sXmax());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistYNbins"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sYNbins(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sYNbins());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistYmin"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sYmin(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sYmin());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistYmax"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sYmax(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sYmax());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistZNbins"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sZNbins(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sZNbins());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistZmin"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sZmin(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sZmin());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistZmax"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sZmax(##.Data());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->DontWriteLinesAlways();
          subSubGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%f\",((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Get%sZmax());",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->AddParameter(new ROMEConfigParameter("HistAccumulate","1","CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam,, "Histogram");
          subSubGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
          subSubGroup->GetLastParameter()->AddSetLine("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->Set%sAccumulation(false);",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],histoName[taskHierarchyClassIndex[i]][j].Data());
          subSubGroup->GetLastParameter()->AddSetLine("else");
@@ -6706,8 +6809,10 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       if (tabParentIndex[i] != parentIndex)
          continue;
       subGroup = new ROMEConfigParameterGroup(tabName[i],"1","Tab","TabName");
+      subGroup->SetComment(ROMEConfig::kCommentLevelObj, tabShortDescription[i]);
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
+      subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll,, "Tab");
       subGroup->GetLastParameter()->AddSetLine("if (##==\"false\")");
       subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->GetTabSwitches()->%s%s = kFALSE;", tabName[i].Data(),tabSuffix[i].Data());
       subGroup->GetLastParameter()->AddSetLine("else");
@@ -6742,7 +6847,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          continue;
       subGroup = new ROMEConfigParameterGroup(steerFieldName[numTask][numSteer][i].Data(),"1","SteeringParameterField","SPName");
       subGroup->SetWriteEmptyLine(kFALSE);
-      subGroup->SetComment(ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
+      subGroup->SetComment(ROMEConfig::kCommentLevelSP, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
       parGroup->AddSubGroup(subGroup);
       if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
          maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
@@ -7213,15 +7318,19 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
             buf.ReplaceAll("##",temp);
             buffer.AppendFormatted("%s   %s\n",sTab.Data(),buf.Data());
          }
-         if (parGroup->GetParameterAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
+         if (parGroup->GetParameterAt(i)->GetComment().Length()) {
+            buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTab.Data(),parGroup->GetParameterAt(i)->GetCommentLevel());
+            buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTab.Data(),ProcessCommentString(parGroup->GetParameterAt(i)->GetComment(),temp).Data());
+         }
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",writeString.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
          buffer.AppendFormatted("%selse ",sTab.Data());
       }
       buffer.AppendFormatted("if (fConfigData[index]->%sf%sModified) {\n",pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
-      if (parGroup->GetParameterAt(i)->GetComment().Length())
-         buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTab.Data(),parGroup->GetParameterAt(i)->GetComment().Data());
+      if (parGroup->GetParameterAt(i)->GetComment().Length()) {
+         buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTab.Data(),parGroup->GetParameterAt(i)->GetCommentLevel());
+         buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTab.Data(),ProcessCommentString(parGroup->GetParameterAt(i)->GetComment(),temp).Data());
+      }
       buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",fConfigData[index]->%sf%s.Data());\n",sTab.Data(),parGroup->GetParameterAt(i)->GetName().Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName().Data());
          buffer.AppendFormatted("%s}\n",sTab.Data());
    }
@@ -7275,20 +7384,28 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
          buffer.AppendFormatted("%s   xml->WriteEmptyLine();\n",sTab.Data());
       if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Length()>0) {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+            buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetCommentLevel());
+            buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+         }
          buffer.AppendFormatted("%s   xml->WriteElement(\"%s\",\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
       }
       else {
          buffer.AppendFormatted("%s   xml->StartElement(\"%s\");\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data());
+         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+            buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetCommentLevel());
+            buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+         }
       }
       if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Length()) {
          if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
          else
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         if (parGroup->GetSubGroupAt(i)->GetComment().Length())
-            buffer.AppendFormatted("%s   xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+         if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
+            buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetCommentLevel());
+            buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
+         }
          temp = parGroup->GetSubGroupAt(i)->GetArrayIdentifier();
          if (temp.EndsWith("="))
             temp.Resize(temp.Length()-1);
@@ -11038,5 +11155,6 @@ ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& resul
    // this should be like    result.ReplaceAll("\n", "\\n\"\n\"");
    // but it does not work yet.
    result.ReplaceAll("\n", "\\n");
+   result.ReplaceAll("\"", "\\\"");
    return result;
 }

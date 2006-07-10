@@ -80,6 +80,7 @@ protected:
    ROMEStr2DArray affiliationList;
 
    ROMEXML*      xml;
+   ROMEXML*      configXSD;
 
    ROMEString    shortCut;
    ROMEString    experimentName;

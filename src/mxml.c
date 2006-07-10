@@ -803,10 +803,14 @@ int mxml_find_nodes1(PMXML_NODE tree, char *xml_path, PMXML_NODE **nodelist, int
             p2 = strchr(p2, ']')+1;
             if ((p3 = strchr(condition, '=')) != NULL) {
 
-               if (condition[0] == '@')
+               if (condition[0] == '@') {
                   cond_type[num_cond] = 1;
+                  strlcpy(cond_name[num_cond], &condition[1], sizeof(cond_name[num_cond]) - 1);
+               }
+               else {
+                  strlcpy(cond_name[num_cond], condition, sizeof(cond_name[num_cond]));
+               }
 
-               strlcpy(cond_name[num_cond], condition, sizeof(cond_name[num_cond]));
                *strchr(cond_name[num_cond], '=') = 0;
                while (cond_name[num_cond][0] && isspace(cond_name[num_cond][strlen(cond_name[num_cond])-1]))
                   cond_name[num_cond][strlen(cond_name[num_cond])-1] = 0;
