@@ -405,6 +405,10 @@ protected:
    ROMEString    styleSheet;
 
 // Makefile
+   ROMEStrArray* dictionaryNames;
+   ROMEStrArray* dictionaryOutputs;
+   ROMEStrArray* dictionaryDependencies;
+   ROMEStrArray* dictionaryCommands;
    ROMEStrArray* includeDirectories;
    ROMEStrArray* romeHeaders;
    ROMEStrArray* romeDictHeaders;
@@ -603,6 +607,7 @@ private:
    void    WriteVisualProjectSln(Int_t version,ROMEString& projectGUID);
    void    WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROMEString& projectGUID);
    void    WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,const char* folderName,const char* filter);
+   void    WriteVisualProjectProjFileDictCreators(ROMEXML *xml);
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
    void    WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);

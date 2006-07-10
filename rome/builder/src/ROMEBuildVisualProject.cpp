@@ -209,8 +209,8 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    // VCPreBuildEventTool
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCPreBuildEventTool");
-   xml->WriteAttribute("Description","running Builder");
-   xml->WriteAttribute("CommandLine","nmake -f Makefile.win build");
+   xml->WriteAttribute("Description","Running ROMEBuilder");
+   xml->WriteAttribute("CommandLine","nmake -f Makefile.win /NOLOGO build");
    xml->EndElement();
 
    // VCPreLinkEventTool
@@ -308,10 +308,45 @@ void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,c
          str.ReplaceAll("/","\\");
          RelativeWindowsPath(str,outDir.Data());
          xml->WriteAttribute("RelativePath",str.Data());
-         if (str.Index("\\dict\\")!=-1 || str.Index("dict\\")==0)
+         if (str.Index("\\dict\\")!=-1 || str.Index("dict\\")==0) {
             WriteVisualProjectProjWarningLevel(xml,"0");
+            ROMEString buffer;
+            buffer.SetFormatted("This file is used inside the visual studio to generate the %s.", files->At(i).Data());
+            str.ReplaceAll(".cpp","");
+            WriteFile(str.Data(),buffer.Data(),0);
+         }
          xml->EndElement();
       }
+      xml->EndElement();
+   }
+}
+
+void ROMEBuilder::WriteVisualProjectProjFileDictCreators(ROMEXML *xml)
+{
+   int i;
+   ROMEString dictName;
+   ROMEString str;
+   ROMEString buffer;
+   for (i=0;i<dictionaryNames->GetEntriesFast();i++) {
+      xml->StartElement("File");
+      dictName = "dict/";
+      dictName += dictionaryNames->At(i).Data();
+      dictName.ReplaceAll("/","\\");
+      RelativeWindowsPath(dictName,outDir.Data());
+      xml->WriteAttribute("RelativePath",dictName.Data());
+      xml->StartElement("FileConfiguration");
+      xml->WriteAttribute("Name","Debug|Win32");
+      xml->StartElement("Tool");
+      xml->WriteAttribute("Name","VCCustomBuildTool");
+      xml->WriteAttribute("CommandLine",dictionaryCommands->At(i).Data());
+      str.SetFormatted("Creating %s dictionary",dictionaryNames->At(i).Data());
+      xml->WriteAttribute("Description",str.Data());
+      xml->WriteAttribute("AdditionalDependencies",dictionaryDependencies->At(i).Data());
+      xml->WriteAttribute("Outputs",dictionaryOutputs->At(i).Data());
+      xml->EndElement();
+      xml->EndElement();
+      buffer.SetFormatted("This file is used inside the visual studio to generate the %s dictionary", dictionaryNames->At(i).Data());
+      WriteFile(dictName.Data(),buffer.Data(),0);
       xml->EndElement();
    }
 }
@@ -451,6 +486,7 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
       default:
          return;
    }
+
    ROMEString projectGUID = "12345678-1234-1234-1234-123456789012";
    WriteVisualProjectSln(version,projectGUID);
 
@@ -544,6 +580,16 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    xml->EndElement();
 
    // End Library Files
+   xml->EndElement();
+
+   // Dictionary Creator Files
+   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","Dictionary Creator Files");
+   xml->WriteAttribute("Filter","");
+
+   WriteVisualProjectProjFileDictCreators(xml);
+
+   // End Header Files
    xml->EndElement();
 
    // End Files

@@ -492,6 +492,7 @@ void XMLToFormWindow::HideFrame(XMLToFormFrame *frame)
 {
    int i;
 
+   cout << frame->GetFrameTitle().Data() << endl;
    if (frame->IsFrameListTreeItem()) {
       frame->fListTreeFrame->HideFrame(frame->fFrame);
    }
