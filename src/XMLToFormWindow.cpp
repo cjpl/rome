@@ -56,6 +56,9 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
       }
       else if (!frame->IsFrameListTree() && !frame->IsFrameListTreeItem()) {
          frame->fTitleLabel = new ROMELabel(frame->fFrame, frame->GetFrameTitle().Data());
+         // tool tip
+         if (frame->GetFrameToolTip().Length()>0)
+            frame->fTitleLabel->SetToolTipText(frame->GetFrameToolTip().Data(),0);
 #if defined( R__VISUAL_CPLUSPLUS )
 //            frame->fTitleLabel->SetTextFont("arial bold", kTRUE);
 #else
