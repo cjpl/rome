@@ -55,6 +55,8 @@ const char* const kFlagSign = "-";
 #endif
 const char* const kHeaderEndMark = "/////////////////////////////////////----///////////////////////////////////////";
 
+extern ROMEXML* configXSD;
+
 class ROMEBuilder
 {
 public:
@@ -80,7 +82,6 @@ protected:
    ROMEStr2DArray affiliationList;
 
    ROMEXML*      xml;
-   ROMEXML*      configXSD;
 
    ROMEString    shortCut;
    ROMEString    experimentName;
