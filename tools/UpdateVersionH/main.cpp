@@ -26,6 +26,7 @@ const Int_t romeMinor = 5;
 const Int_t isStableVersion = 0; // 0: development version, 1: stable version
 //------
 
+/*
 const char* const monthName[] = {
    "Jan"
    , "Feb"
@@ -40,6 +41,7 @@ const char* const monthName[] = {
    , "Nov"
    , "Dec"
 };
+*/
 
 Int_t GetROMEVersion(Int_t a, Int_t b) { return (a << 8) + b; }
 
@@ -115,42 +117,38 @@ int main(int argc, char *argv[])
    // Writing XML
    //
 
-#if 0 // this is not necessary. maybe..
-if (
-   // Ryu
-   user[nEntry] != "sawada" &&
-   user[nEntry] != "ryu"
-   // Matthias
-   ) {
-#endif
+   if (
+      // Ryu
+      user[nEntry] == "sawada" ||
+      user[nEntry] == "ryu" ||
+      // Matthias
+      user[nEntry] == "schneebeli_m"
+      ) {
 
-   ROMEXML::SuppressWritingDate();
-   xml = new ROMEXML();
-   xml->OpenFileForWrite(xmlFileName);
-   xml->SetTranslate(0);
-   xml->WriteElement("Revision", revisionString.Data());
-   for(iEntry = 0; iEntry < nEntry; iEntry++) {
-      xml->StartElement("Entry");
-      xml->WriteElement("User", user[iEntry].Data());
-      xml->WriteElement("Host", host[iEntry].Data());
-      xml->WriteElement("Directory", directory[iEntry].Data());
-      xml->WriteElement("LastCompile", lastcompile[iEntry].Data());
-      xml->EndElement();
+      ROMEXML::SuppressWritingDate();
+      xml = new ROMEXML();
+      xml->OpenFileForWrite(xmlFileName);
+      xml->SetTranslate(0);
+      xml->WriteElement("Revision", revisionString.Data());
+      for(iEntry = 0; iEntry < nEntry; iEntry++) {
+         xml->StartElement("Entry");
+         xml->WriteElement("User", user[iEntry].Data());
+         xml->WriteElement("Host", host[iEntry].Data());
+         xml->WriteElement("Directory", directory[iEntry].Data());
+         xml->WriteElement("LastCompile", lastcompile[iEntry].Data());
+         xml->EndElement();
+      }
+      if (!foundIdenticalEntry) {
+         xml->StartElement("Entry");
+         xml->WriteElement("User", user[nEntry].Data());
+         xml->WriteElement("Host", host[nEntry].Data());
+         xml->WriteElement("Directory", directory[nEntry].Data());
+         xml->WriteElement("LastCompile", lastcompile[nEntry].Data());
+         xml->EndElement();
+      }
+      xml->EndDocument();
+      delete xml;
    }
-   if (!foundIdenticalEntry) {
-      xml->StartElement("Entry");
-      xml->WriteElement("User", user[nEntry].Data());
-      xml->WriteElement("Host", host[nEntry].Data());
-      xml->WriteElement("Directory", directory[nEntry].Data());
-      xml->WriteElement("LastCompile", lastcompile[nEntry].Data());
-      xml->EndElement();
-   }
-   xml->EndDocument();
-   delete xml;
-
-#if 0 // this is not necessary. maybe..
-}
-#endif
 
    ROMEString hfile = gSystem->ExpandPathName("$(ROMESYS)/include/");
    hfile.AppendFormatted("ROMEVersion.h");
