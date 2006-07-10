@@ -32,6 +32,7 @@
 #include "XMLToFormFrame.h"
 #include "XMLToFormWindow.h"
 #include "XMLToFormElementSignal.h"
+#include "ROMEHorizontalFrame.h"
 
 ClassImp(XMLToFormWindow)
 
@@ -281,7 +282,7 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
             currentSubFrame->fListTree->Associate(currentSubFrame->fHFrame);
             currentSubFrame->fListTreeItem = currentSubFrame->fListTree->AddItem(0,"Config");
             currentSubFrame->fListTree->OpenItem(currentSubFrame->fListTreeItem);
-            currentSubFrame->fFrame = new TGHorizontalFrame(currentSubFrame->fHFrame,0,0,kRaisedFrame);
+            currentSubFrame->fFrame = new ROMEHorizontalFrame(currentSubFrame->fHFrame,0,0,kRaisedFrame);
             currentSubFrame->fHFrame->AddFrame(currentSubFrame->fFrame,currentSubFrame->fLFrame);
             currentSubFrame->fListTree->Connect("Clicked(TGListTreeItem*,Int_t)", "XMLToFormWindow", this, "ListTreeClicked(TGListTreeItem*,Int_t)");
          }
@@ -296,7 +297,7 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
                currentSubFrame->fListTreeHFrame = currentSubFrame->fParentFrame->fListTreeHFrame;
             }
             currentSubFrame->fListTreeItem = currentSubFrame->fListTree->AddItem(currentSubFrame->fParentFrame->fListTreeItem,currentSubFrame->GetFrameTitle());
-            currentSubFrame->fFrame = new TGHorizontalFrame(currentSubFrame->fListTreeFrame,0,0,kRaisedFrame);
+            currentSubFrame->fFrame = new ROMEHorizontalFrame(currentSubFrame->fListTreeFrame,0,0,kRaisedFrame);
             currentSubFrame->fListTreeFrame->AddFrame(currentSubFrame->fFrame,currentSubFrame->fLFrame);
          }
          else if (currentSubFrame->IsFrameTab()) {
@@ -306,7 +307,7 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
             if (currentSubFrame->IsFrameVertical())
                currentSubFrame->fFrame = new TGVerticalFrame(frame->fFrame,0,0,kRaisedFrame);
             else
-               currentSubFrame->fFrame = new TGHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
+               currentSubFrame->fFrame = new ROMEHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
          }
       }
    }
@@ -492,7 +493,6 @@ void XMLToFormWindow::HideFrame(XMLToFormFrame *frame)
 {
    int i;
 
-   cout << frame->GetFrameTitle().Data() << endl;
    if (frame->IsFrameListTreeItem()) {
       frame->fListTreeFrame->HideFrame(frame->fFrame);
    }
@@ -517,7 +517,7 @@ void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
    if (frame->IsFrameVertical())
       frame->fFrame = new TGVerticalFrame(this,0,0,kRaisedFrame);
    else
-      frame->fFrame = new TGHorizontalFrame(this,0,0,kRaisedFrame);
+      frame->fFrame = new ROMEHorizontalFrame(this,0,0,kRaisedFrame);
    frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kFixedHeight, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
    frame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    frame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
