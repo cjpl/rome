@@ -466,7 +466,7 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
             if (answer != 'y' && answer != 'Y')
                overwrite = false;
          }
-         ROMEPrint::PrintAlways("\nPlease specify amount of comments in file [0-5] (default=1): ");
+         ROMEPrint::PrintAlways("\nPlease specify amount of comments in file [0-5], default=1(few comments): ");
          cin.getline(answerLine, sizeof(answerLine));
          if (strlen(answerLine))
             fConfiguration->SetCommentLevel(strtol(answerLine,&cstop,10));
