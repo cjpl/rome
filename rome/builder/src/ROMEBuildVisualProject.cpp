@@ -7,6 +7,7 @@
 ********************************************************************/
 #include "ROMEXML.h"
 #include "ROMEBuilder.h"
+#include "Riostream.h"
 
 void ROMEBuilder::WriteVisualProjectSln(Int_t version,ROMEString& projectGUID)
 {
@@ -209,8 +210,6 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    // VCPreBuildEventTool
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCPreBuildEventTool");
-   xml->WriteAttribute("Description","Running ROMEBuilder");
-   xml->WriteAttribute("CommandLine","nmake -f Makefile.win /NOLOGO build");
    xml->EndElement();
 
    // VCPreLinkEventTool
@@ -346,9 +345,41 @@ void ROMEBuilder::WriteVisualProjectProjFileDictCreators(ROMEXML *xml)
       xml->EndElement();
       xml->EndElement();
       buffer.SetFormatted("This file is used inside the visual studio to generate the %s dictionary", dictionaryNames->At(i).Data());
-      WriteFile(dictName.Data(),buffer.Data(),0);
+      fstream *fileStream;
+      if ((fileStream = new fstream(dictName.Data(),ios::in))) {
+         delete fileStream;
+      }
+      else
+         WriteFile(dictName.Data(),buffer.Data(),0);
       xml->EndElement();
    }
+}
+
+void ROMEBuilder::WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml)
+{
+   ROMEString name;
+   ROMEString str;
+   ROMEString buffer;
+   xml->StartElement("File");
+   name = "$(ROMESYS)/bin/ROMEBuilder.exe";
+   name.ReplaceAll("/","\\");
+   name.ReplaceAll("\\\\","\\");
+   RelativeWindowsPath(name,outDir.Data());
+   xml->WriteAttribute("RelativePath",name.Data());
+   xml->StartElement("FileConfiguration");
+   xml->WriteAttribute("Name","Debug|Win32");
+   xml->StartElement("Tool");
+   xml->WriteAttribute("Name","VCCustomBuildTool");
+   xml->WriteAttribute("CommandLine","nmake -f Makefile.win /NOLOGO build");
+   xml->WriteAttribute("Description","Running ROMEBuilder");
+   str.SetFormatted("$(ROMESYS)/bin/ROMEBuilder.exe;%s",xmlFile.Data());
+   xml->WriteAttribute("AdditionalDependencies",str.Data());
+   xml->WriteAttribute("Outputs","Makefile.win");
+   xml->EndElement();
+   xml->EndElement();
+   buffer.SetFormatted("This file is used inside the visual studio to run the ROMEBuilder");
+   WriteFile(name.Data(),buffer.Data(),0);
+   xml->EndElement();
 }
 
 void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
@@ -589,8 +620,18 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
 
    WriteVisualProjectProjFileDictCreators(xml);
 
-   // End Header Files
+   // End Dictionary Creator Files
    xml->EndElement();
+
+   // ROMEBuilder Files
+/*   xml->StartElement("Filter");
+   xml->WriteAttribute("Name","ROMEBuilder Files");
+   xml->WriteAttribute("Filter","");
+
+   WriteVisualProjectProjFileROMEBuilder(xml);
+
+   // End ROMEBuilder Files
+   xml->EndElement();*/
 
    // End Files
    xml->EndElement();

@@ -1086,8 +1086,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    ROMEString tmp;
    ROMEString bufferT;
    ROMEString includes;
-   ROMEString includesWOPath;
-   int ind;
+   ROMEString includesForVS;
    int i;
    // depend file
 #if defined( R__UNIX )
@@ -1109,21 +1108,17 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // Dependencies
    includes = "";
    for (i=0;i<headers->GetEntriesFast();i++) {
-      str = headers->At(i).Data();
-      includes.AppendFormatted(" %s",str.Data());
-      ind = str.Last('/');
-      str = str(ind+1,str.Length()-ind-1);
-      includesWOPath.AppendFormatted(" %s",str.Data());
+      includes.AppendFormatted(" %s",headers->At(i).Data());
    }
    if (linkDefName)  {
       includes.AppendFormatted(" %s",linkDefName);
    }
 
-   includesWOPath = includesWOPath.Strip(TString::kLeading);
    buffer.AppendFormatted("%s",includes.Data());
-   includesWOPath.ReplaceAll(" ",";");
-   dictionaryDependencies->AddFormatted(includesWOPath.Data());
-   includesWOPath.ReplaceAll(";"," ");
+   includesForVS = includes.Strip(TString::kLeading);
+   includesForVS.ReplaceAll(" ",";");
+   dictionaryDependencies->AddFormatted(includesForVS.Data());
+   includesForVS.ReplaceAll(";"," ");
    
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
 
@@ -1160,7 +1155,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted("\n\n");
 
    includedirs.ReplaceAll(" $(DictionaryIncludes)","");
-   dictionaryCommands->AddFormatted("rootcint%s%s %s",arguments.Data(),includedirs.Data(),includesWOPath.Data());
+   dictionaryCommands->AddFormatted("rootcint%s%s %s",arguments.Data(),includedirs.Data(),includesForVS.Data());
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)

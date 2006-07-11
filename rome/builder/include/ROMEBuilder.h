@@ -610,6 +610,7 @@ private:
    void    WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROMEString& projectGUID);
    void    WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,const char* folderName,const char* filter);
    void    WriteVisualProjectProjFileDictCreators(ROMEXML *xml);
+   void    WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml);
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
    void    WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
