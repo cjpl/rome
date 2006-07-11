@@ -871,6 +871,12 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("ifndef CXX\n");
    buffer.AppendFormatted("CXX = g++\n");
    buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef CC\n");
+   buffer.AppendFormatted("CC = gcc\n");
+   buffer.AppendFormatted("endif\n\n");
+   buffer.AppendFormatted("ifndef FF\n");
+   buffer.AppendFormatted("FF = g77\n");
+   buffer.AppendFormatted("endif\n\n");
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("rootlibs := $(shell $(ROOTSYS)/bin/root-config --libs)\n");
@@ -1224,18 +1230,26 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    ROMEString path;
    ROMEString name;
    ROMEString ext;
+   ROMEString compiler;
 
    for (i=0;i<sources->GetEntriesFast();i++) {
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
+      if (ext == "c")
+         compiler = "$(CC)";
+      else if (ext == "F" || ext == "f")
+         compiler = "$(FF)";
+      else
+         compiler = "$(CXX)";
+
       path.ReplaceAll("\\","/");
 #if defined( R__UNIX )
       if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-      buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<  || ($(RM) obj/%s.d; exit 1;)\n",name.Data(),name.Data());
+      buffer.AppendFormatted("\t%s $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<  || ($(RM) obj/%s.d; exit 1;)\n",compiler.Data(),name.Data(),name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\t$(CXX) -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",name.Data(),sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("\t%s -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",compiler.Data(),name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
