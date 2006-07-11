@@ -26,6 +26,9 @@ ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, 
 
 void ROMEConfigParameter::ReadComment(Int_t level, const char* parentName, const char* path)
 {
+   // Read comment from romeConfig.xsd
+   // if(path==NULL) read use default path.
+   // if(path!=NULL) use given path
    fCommentLevel = level;
 
    ROMEString pathString;
@@ -102,6 +105,9 @@ ROMEConfigParameterGroup::ROMEConfigParameterGroup(ROMEString groupName,ROMEStri
 
 void ROMEConfigParameterGroup::ReadComment(Int_t level, const char* tag, const char* path)
 {
+   // Read comment from romeConfig.xsd
+   // if (path==NULL) read use default path.
+   // if (path!=NULL) use given path
    fCommentLevel = level;
 
    ROMEString pathString;
