@@ -18,7 +18,7 @@ protected:
    void   FillButtonFrame(XMLToFormFrame *frame);
    void   FillRunModeFrame(XMLToFormFrame *frame);
 
-   virtual void AddTabs(XMLToFormFrame *frame) = 0;
+   virtual void AddConfig(XMLToFormFrame *frame) = 0;
 
    ClassDef(ROMEConfigToForm, 0) // Translate ROME configuration to form
 };

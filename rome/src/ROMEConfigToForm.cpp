@@ -77,7 +77,7 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    nFrames++;
    // Tab Frame
    frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kListTree,true,nFrames));
-   AddTabs(frame->GetSubFrameAt(nFrames));
+   AddConfig(frame->GetSubFrameAt(nFrames));
    nFrames++;
    // Button Frame
    frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
