@@ -4260,8 +4260,8 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
          }
       }
    }
-   buffer.AppendFormatted("   ROMEPrint::Error(\"\\nWrong path in configuration file.\\n\");\n");
-   buffer.AppendFormatted("   ROMEPrint::Error(\"   %%s\\n\", path.Data());\n");
+//   buffer.AppendFormatted("   ROMEPrint::Error(\"\\nWrong path in configuration file.\\n\");\n");
+//   buffer.AppendFormatted("   ROMEPrint::Error(\"   %%s\\n\", path.Data());\n");
    buffer.AppendFormatted("   return -1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
