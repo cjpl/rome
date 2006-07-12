@@ -980,11 +980,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    }
    buffer.AppendFormatted("\n");
    // flags
-   buffer.AppendFormatted("Flags := $(%sCXXFLAGS) $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("Flags := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToUpper(tmp));
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("LDFLAGS := $(%sLDFLAGS)\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ifndef RM\n");
    buffer.AppendFormatted("RM %s rm -f\n",kEqualSign);
@@ -1225,26 +1223,36 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    ROMEString path;
    ROMEString name;
    ROMEString ext;
+#if defined( R__UNIX )
+   ROMEString temp;
    ROMEString compiler;
+   ROMEString compileOption;
+#endif
 
    for (i=0;i<sources->GetEntriesFast();i++) {
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
-      if (ext == "c")
+#if defined( R__UNIX )
+      if (ext == "c") {
          compiler = "$(CC)";
-      else if (ext == "F" || ext == "f")
+         compileOption.SetFormatted("$(%sCFLAGS)", shortCut.ToUpper(temp));
+      }
+      else if (ext == "F" || ext == "f") {
          compiler = "$(FF)";
-      else
+         compileOption.SetFormatted("$(%sFFLAGS)", shortCut.ToUpper(temp));
+      }
+      else {
          compiler = "$(CXX)";
+         compileOption.SetFormatted("$(%sCXXFLAGS)", shortCut.ToUpper(temp));
+      }
 
       path.ReplaceAll("\\","/");
-#if defined( R__UNIX )
       if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
          buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-      buffer.AppendFormatted("\t%s $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<  || ($(RM) obj/%s.d; exit 1;)\n",compiler.Data(),name.Data(),name.Data());
+      buffer.AppendFormatted("\t%s %s $(Flags) $(Includes) -MM -MF $@ -MT obj/%s.obj $<  || ($(RM) obj/%s.d; exit 1;)\n",compiler.Data(),compileOption.Data(),name.Data(),name.Data());
       buffer.AppendFormatted("obj/%s.obj: %s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data(),name.Data());
-      buffer.AppendFormatted("\t%s -c $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",compiler.Data(),name.Data(),sources->At(i).Data(),name.Data());
+      buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) %s -o obj/%s.obj\n",compiler.Data(),compileOption.Data(),name.Data(),sources->At(i).Data(),name.Data());
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
       int j;
@@ -1710,7 +1718,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+   buffer.AppendFormatted("\t$(CXX) $(%sLDFLAGS) -o $@ $(objects) $(Libraries)\n",shortCut.ToUpper(tmp));
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then \\\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\t$(MAKE) so; \\\n");
    buffer.AppendFormatted("\tfi;\n");
@@ -1720,7 +1728,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__MACOSX )
    buffer.AppendFormatted("$(MACOSXTARGET) ");
 #endif // R__MACOSX
-   buffer.AppendFormatted("$(CXX) $(LDFLAGS) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("$(CXX) $(%sLDFLAGS) $(soflags) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
