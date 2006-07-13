@@ -298,6 +298,11 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabObjectTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   numOfTabObjectLines = static_cast<Int_t**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
+   tabObjectLineX1 = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects,maxNumberOfTabObjectLines));
+   tabObjectLineY1 = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects,maxNumberOfTabObjectLines));
+   tabObjectLineX2 = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects,maxNumberOfTabObjectLines));
+   tabObjectLineY2 = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects,maxNumberOfTabObjectLines));
    tabObjectTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
@@ -1863,10 +1868,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
                tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
                tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
                tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
+               numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = 0;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
 
+                  // object name
                   if (type == 1 && !strcmp(name, "ObjectName")) {
                      xml->GetValue(tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
                      if (makeOutput) {
@@ -1875,10 +1882,46 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].WriteLine();
                      }
                   }
+                  // object title
                   if (type == 1 && !strcmp(name, "ObjectTitle"))
                      xml->GetValue(tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  // object
                   if (type == 1 && !strcmp(name, "Object"))
                      xml->GetValue(tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  // object line
+                  if (type == 1 && !strcmp(name, "ObjectLine")) {
+                     if (numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] >= maxNumberOfTabObjectLines) {
+                        cout << "Maximal number of object lines for object '" << tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' reached : " << maxNumberOfTabObjectLines << " !" << endl;
+                        cout << "Terminating program." << endl;
+                        return kFALSE;
+                     }
+                     while (xml->NextLine()) {
+                        type = xml->GetType();
+                        name = xml->GetName();
+
+                        // object line x1
+                        if (type == 1 && !strcmp(name, "ObjectLineX1")) {
+                           xml->GetValue(tabObjectLineX1[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]], tabObjectLineX1[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]]);
+                        }
+                        // object line y1
+                        if (type == 1 && !strcmp(name, "ObjectLineY1")) {
+                           xml->GetValue(tabObjectLineY1[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]], tabObjectLineY1[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]]);
+                        }
+                        // object line x2
+                        if (type == 1 && !strcmp(name, "ObjectLineX2")) {
+                           xml->GetValue(tabObjectLineX2[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]], tabObjectLineX2[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]]);
+                        }
+                        // object line y2
+                        if (type == 1 && !strcmp(name, "ObjectLineY2")) {
+                           xml->GetValue(tabObjectLineY2[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]], tabObjectLineY2[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]][numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]]);
+                        }
+                        // end
+                        if (type == 15 && !strcmp(name, "ObjectLine")) {
+                           numOfTabObjectLines[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]++;
+                           break;
+                        }
+                     }
+                  }
                   // end
                   if (type == 15 && !strcmp(name, "DisplayObject")) {
                      // check input

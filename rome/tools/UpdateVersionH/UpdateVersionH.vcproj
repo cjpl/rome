@@ -45,7 +45,7 @@
 				Name="VCPostBuildEventTool"/>
 			<Tool
 				Name="VCPreBuildEventTool"
-				CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h ROMEXML.h ROMEPrint.h"/>
+				ExcludedFromBuild="TRUE"/>
 			<Tool
 				Name="VCPreLinkEventTool"/>
 			<Tool
@@ -111,6 +111,18 @@
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
+			<File
+				RelativePath=".\createUpdateVersionHDict">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating UpdateVersionH Dictionary"
+						CommandLine="rootcint -f UpdateVersionHDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ ROMEString.h ROMEXML.h ROMEPrint.h"
+						AdditionalDependencies="include/ROMEString.h;include/ROMEXML.h;include/ROMEPrint.h"
+						Outputs="UpdateVersionHDict.cpp;UpdateVersionHDict.h"/>
+				</FileConfiguration>
+			</File>
 			<File
 				RelativePath=".\main.cpp">
 			</File>

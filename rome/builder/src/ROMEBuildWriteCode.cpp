@@ -2570,6 +2570,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("#include <TH1F.h>\n",shortCut.Data());
          buffer.AppendFormatted("#include <TH2F.h>\n",shortCut.Data());
          buffer.AppendFormatted("#include <TGraph.h>\n",shortCut.Data());
+         buffer.AppendFormatted("#include <TLine.h>\n",shortCut.Data());
          if (readGlobalSteeringParameters)
             buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
       }
@@ -2617,8 +2618,9 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // InitTab
       int nx=1,ny=1;
       buffer.AppendFormatted("void %sT%s_Base::BaseInit() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   int i;\n");
+      buffer.AppendFormatted("   int i,j;\n");
       buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
+      buffer.AppendFormatted("   j=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   Init();\n");
       if (numOfTabHistos[iTab]>0) {
@@ -2681,21 +2683,36 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          }
          if (numOfTabObjects[iTab]>0) {
             buffer.AppendFormatted("   fUserTH1F = new TH1F*[fNumberOfUserTH1F+1];\n");
+            buffer.AppendFormatted("   fUserTH1FLines = new TLine**[fNumberOfUserTH1F+1];\n");
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH1F+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTH1F_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTH1F[i] = new TH1F(str.Data(),\"\",1,0,1);\n");
+            buffer.AppendFormatted("      fUserTH1FLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("         fUserTH1FLines[i][j] = new TLine();\n");
+            buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   fUserTH2F = new TH2F*[fNumberOfUserTH2F+1];\n");
+            buffer.AppendFormatted("   fUserTH2FLines = new TLine**[fNumberOfUserTH2F+1];\n");
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH2F+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTH2F_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTH2F[i] = new TH2F(str.Data(),\"\",1,0,1,1,0,1);\n");
+            buffer.AppendFormatted("      fUserTH2FLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("         fUserTH2FLines[i][j] = new TLine();\n");
+            buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   fUserTGraph = new TGraph*[fNumberOfUserTGraph+1];\n");
+            buffer.AppendFormatted("   fUserTGraphLines = new TLine**[fNumberOfUserTGraph+1];\n");
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTGraph+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTGraph_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTGraph[i] = new TGraph(1);\n");
             buffer.AppendFormatted("      fUserTGraph[i]->SetTitle(str.Data());\n");
             buffer.AppendFormatted("      fUserTGraph[i]->SetPoint(0,0,0);\n");
+            buffer.AppendFormatted("      fUserTGraphLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("         fUserTGraphLines[i][j] = new TLine();\n");
+            buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   fDisplayType = k%sDisplay;\n",tabObjectType[iTab][0].Data());
             buffer.AppendFormatted("   fDisplayObjIndex = 0;\n");
@@ -2910,7 +2927,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
          for (i=0;i<numOfTabObjects[iTab];i++)
             buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str));
-         buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+         if (numOfTabObjects[iTab]>0)
+            buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
       }
       buffer.AppendFormatted("}\n");
       // Tab Unselected
@@ -2924,21 +2942,23 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Menu Clicked
       buffer.AppendFormatted("void %sT%s_Base::BaseMenuClicked(TGPopupMenu *menu,Long_t param) {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("   int i;\n");
-         buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
-         buffer.AppendFormatted("   switch (param) {\n");
-         for (i=0;i<numOfTabObjects[iTab];i++) {
-            buffer.AppendFormatted("      case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
-            buffer.AppendFormatted("         {\n");
-            buffer.AppendFormatted("            fDisplayObjIndex = %d;\n",i);
-            buffer.AppendFormatted("            fDisplayType = k%sDisplay;\n",tabObjectType[iTab][i].Data());
-            buffer.AppendFormatted("            SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
-            buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
-            buffer.AppendFormatted("            BaseEventHandler();\n");
-            buffer.AppendFormatted("            break;\n");
-            buffer.AppendFormatted("         }\n");
+         if (numOfTabObjects[iTab]>0) {
+            buffer.AppendFormatted("   int i;\n");
+            buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
+            buffer.AppendFormatted("   switch (param) {\n");
+            for (i=0;i<numOfTabObjects[iTab];i++) {
+               buffer.AppendFormatted("      case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
+               buffer.AppendFormatted("         {\n");
+               buffer.AppendFormatted("            fDisplayObjIndex = %d;\n",i);
+               buffer.AppendFormatted("            fDisplayType = k%sDisplay;\n",tabObjectType[iTab][i].Data());
+               buffer.AppendFormatted("            SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
+               buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s,M_DISPLAY_%s,M_DISPLAY_%s);\n",tabObjectName[iTab][i].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1),tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+               buffer.AppendFormatted("            BaseEventHandler();\n");
+               buffer.AppendFormatted("            break;\n");
+               buffer.AppendFormatted("         }\n");
+            }
+            buffer.AppendFormatted("   }\n");
          }
-         buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseMenuClicked(menu,param);\n");
       }
       buffer.AppendFormatted("   MenuClicked(menu,param);\n");

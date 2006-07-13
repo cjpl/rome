@@ -185,6 +185,11 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabObjectTitle;
    delete [] tabObject;
    delete [] tabObjectType;
+   delete [] numOfTabObjectLines;
+   delete [] tabObjectLineX1;
+   delete [] tabObjectLineY1;
+   delete [] tabObjectLineX2;
+   delete [] tabObjectLineY2;
    delete [] tabObjectTaskHierarchyIndex;
    delete [] tabObjectTaskIndex;
    delete [] tabObjectHistoIndex;
