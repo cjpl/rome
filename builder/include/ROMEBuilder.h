@@ -50,9 +50,11 @@ const char* const cloSeparator = ":";
 #if defined( R__VISUAL_CPLUSPLUS )
 const char* const kEqualSign = "=";
 const char* const kFlagSign = "/";
+const char* const kObjectSuffix = ".obj";
 #else
 const char* const kEqualSign =":=";
 const char* const kFlagSign = "-";
+const char* const kObjectSuffix = ".o";
 #endif
 const char* const kHeaderEndMark = "/////////////////////////////////////----///////////////////////////////////////";
 
@@ -589,8 +591,10 @@ private:
    void    WriteMakefileUserDictObject(ROMEString& buffer);
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
+   void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
+   void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
