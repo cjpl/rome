@@ -37,6 +37,7 @@
 #include <TH1F.h>
 #include <TH2F.h>
 #include <TF1.h>
+#include <TLine.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <Windows4Root.h>
 #   include <direct.h>
@@ -73,6 +74,14 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fNumberOfUserTGraph = kMaxNumberOfPads;
    fNumberOfUserTH1F = kMaxNumberOfPads;
    fNumberOfUserTH2F = kMaxNumberOfPads;
+
+   fNumberOfUserTGraphLines = 0;
+   fNumberOfUserTH1FLines = 0;
+   fNumberOfUserTH2FLines = 0;
+
+   fUserTGraphLines = NULL;
+   fUserTH1FLines = NULL;
+   fUserTH2FLines = NULL;
 
    fMenuBar = 0;
    fMenuDisplay = 0;
@@ -390,7 +399,7 @@ void ArgusHistoDisplay::SetStatus(Int_t mode,const char *text,double progress,In
 
 void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
-   Int_t i;
+   Int_t i,j;
    Bool_t clear = true;
    if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fDisplayType)
       clear = false;
@@ -419,14 +428,26 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->cd();
          if (fDisplayType==kTGraphDisplay) {
             fTGraph[i]->Draw("AL");
+            if (fNumberOfUserTGraphLines!=NULL) {
+               for (j=0;j<fNumberOfUserTGraphLines[i];j++)
+                  fUserTGraphLines[i][j]->Draw();
+            }
             SetStatisticBox(true);
          }
          else if (fDisplayType==kTH1FDisplay) {
             fTH1F[i]->Draw();
+            if (fNumberOfUserTH1FLines!=NULL) {
+               for (j=0;j<fNumberOfUserTH1FLines[i];j++)
+                  fUserTH1FLines[i][j]->Draw();
+            }
             SetStatisticBox(true);
          }
          else if (fDisplayType==kTH2FDisplay) {
             fTH2F[i]->Draw();
+            if (fNumberOfUserTH2FLines!=NULL) {
+               for (j=0;j<fNumberOfUserTH2FLines[i];j++)
+                  fUserTH2FLines[i][j]->Draw();
+            }
             SetStatisticBox(true);
          }
       }

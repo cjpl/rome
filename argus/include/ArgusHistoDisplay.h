@@ -28,6 +28,7 @@ class TGraph;
 class TH1F;
 class TH2F;
 class TPad;
+class TLine;
 class XMLToForm;
 
 class ArgusHistoDisplay : public ArgusTab
@@ -92,6 +93,13 @@ protected:
    TH1F                *fTH1F[kMaxNumberOfPads];   //! 
    TH2F                *fTH2F[kMaxNumberOfPads];   //! 
    TGraph              *fTGraph[kMaxNumberOfPads]; //! 
+
+   TLine             ***fUserTGraphLines;    //!
+   TLine             ***fUserTH1FLines;      //!
+   TLine             ***fUserTH2FLines;      //!
+   Int_t               *fNumberOfUserTGraphLines; //!
+   Int_t               *fNumberOfUserTH1FLines;   //!
+   Int_t               *fNumberOfUserTH2FLines;   //!
 
    XMLToForm           *fDialog; //! 
 

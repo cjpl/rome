@@ -39,6 +39,7 @@ const Int_t maxNumberOfMFWinLibFlags = 5;
 const Int_t maxNumberOfMFUnixLibFlags = 5;
 const Int_t maxNumberOfMFSourceFlags = 5;
 const Int_t maxNumberOfAffiliations = 20;
+const Int_t maxNumberOfTabObjectLines = 5;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -287,6 +288,11 @@ protected:
    ROMEString  **tabObjectTitle;
    ROMEString  **tabObject;
    ROMEString  **tabObjectType;
+   Int_t       **numOfTabObjectLines;
+   ROMEString ***tabObjectLineX1;
+   ROMEString ***tabObjectLineY1;
+   ROMEString ***tabObjectLineX2;
+   ROMEString ***tabObjectLineY2;
    Int_t       **tabObjectTaskHierarchyIndex;
    Int_t       **tabObjectTaskIndex;
    Int_t       **tabObjectHistoIndex;
