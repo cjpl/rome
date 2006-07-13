@@ -46,7 +46,7 @@ UpHObjects =    obj/UpdateVersionHmain.obj \
 UpHDictHeaders = include/ROMEString.h include/ROMEXML.h include/ROMEPrint.h
 
 
-all:startecho obj ROMEBuilder.exe endecho
+all:startecho obj UpdateVersion ROMEBuilder.exe endecho
 
 startecho:
 	@echo -------------
@@ -58,14 +58,18 @@ endecho:
 obj:
 	@echo making directory bin ...
 	@mkdir obj
-#
-# ROME exe
-#
-ROMEBuilder.exe: $(BldObjects) bin/updateVersionH.exe
-	@echo linking ROMEBuilder ...
+
+UpdateVersion: bin/updateVersionH.exe
+	@echo updating version ...
 	@cd bin
 	@updateVersionH.exe
 	@cd ..
+
+#
+# ROME exe
+#
+ROMEBuilder.exe: $(BldObjects)
+	@echo linking ROMEBuilder ...
 	@cl /nologo /Febin/ROMEBuilder.exe $(BldObjects) $(Libraries)
 
 #

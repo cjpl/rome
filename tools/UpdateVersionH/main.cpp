@@ -122,7 +122,8 @@ int main(int argc, char *argv[])
       user[nEntry] == "sawada" ||
       user[nEntry] == "ryu" ||
       // Matthias
-      user[nEntry] == "schneebeli_m"
+      user[nEntry] == "schneebeli_m" ||
+      user[nEntry] == "egger_j"
       ) {
 
       ROMEXML::SuppressWritingDate();
