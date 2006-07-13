@@ -20,9 +20,7 @@
 # ROMEOPTIMIZE = yes
 
 # Compiler
-ifndef CXX
-CXX = g++
-endif
+CXX ?= g++
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -185,8 +183,8 @@ include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
 
 librome.a: $(LibObjects)
-	rm -f $@
-	ar -cr $@ $^
+	-$(RM) $@
+	$(AR) -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
@@ -198,13 +196,16 @@ obj/%Dict.o: %Dict.cpp %Dict.h
 	$(CXX) $(CFLAGS) -c $(INCLUDE) -o $@ $<
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
+	$(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(LibDictHeaders)
 
 ROMEBuilderDict.h ROMEBuilderDict.cpp: $(BldDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
+	$(ROOTSYS)/bin/rootcint -f ROMEBuilderDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(BldDictHeaders)
 
 UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
-	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) $(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(UpHDictHeaders)
+	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
+	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(CFLAGS) $(INCLUDE) $(UpHDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
@@ -219,4 +220,7 @@ obj/%.o: src/%.cpp include/%.h
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
-	-rm -f $(BldObjects) $(UpHObjects) $(LibObjects) ROMELibDict.h ROMELibDict.cpp ROMEBuilderDict.h ROMEBuilderDict.cpp
+	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) \
+	ROMELibDict.h ROMELibDict.cpp \
+	ROMEBuilderDict.h ROMEBuilderDict.cpp \
+	UpdateVersionDictH.h UpdateVersionDictH.cpp
