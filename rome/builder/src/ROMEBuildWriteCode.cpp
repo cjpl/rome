@@ -5466,7 +5466,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          buffer.AppendFormatted("   XMLToFormFrame *tempFrame[100];\n");
          buffer.AppendFormatted("   int nTabs;\n");
          buffer.AppendFormatted("   nTabs=0;\n");
-         buffer.AppendFormatted("   int i=0;\n");
+         buffer.AppendFormatted("   int i;\n");
+         buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   tempFrame[0] = frame;\n");
       }
