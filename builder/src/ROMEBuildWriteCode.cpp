@@ -5041,7 +5041,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("   ClassDef(%sWindow,1)\n", shortCut.Data());
+   buffer.AppendFormatted("   ClassDef(%sWindow,0)\n", shortCut.Data());
    buffer.AppendFormatted("};\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#endif\n");
