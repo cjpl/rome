@@ -19,7 +19,8 @@ enum {
    kCommentLevelGroup = 2,  // 1 + ConfigParameterGroup
    kCommentLevelParam = 3,  // 2 + ConfigParameter
    kCommentLevelObj   = 4,  // 3 + ObjectDescription (task, tab, folder....)
-   kCommentLevelAll   = 5   // everything
+   kCommentLevelAll   = 5,  // everything
+   kCommentLevelNever = 1000// never show in config file. (but in GUI config)
 };
 
 protected:

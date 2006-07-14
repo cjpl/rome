@@ -6938,6 +6938,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          subGroup->AddParameter(new ROMEConfigParameter("SPValue","1"));
          subGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelSP, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
+         subGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelNever, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
          subGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="std::string")
             subGroup->GetLastParameter()->AddSetLine("   %s->Set%s(##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
