@@ -247,6 +247,9 @@ protected:
    ROMEString ****steerFieldAffiliation;
    Bool_t     ***steerFieldUsed;
 
+   Int_t         numOfGSPInclude;
+   ROMEString   *gspInclude;
+   Bool_t       *gspLocalFlag;
    ROMEString    usedCLO;
 
 // tab
