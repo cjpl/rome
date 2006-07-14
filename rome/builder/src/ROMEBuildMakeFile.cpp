@@ -778,6 +778,17 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("#                     src/generated include/generated obj dict Makefile\n");
    buffer.AppendFormatted("# make -k depclean  : remove depend files (obj/*.d)\n");
    buffer.AppendFormatted("# make -k %sclean   : remove %s specific intermediate files\n", shortCut.ToLower(tmp), shortCut.Data());
+   buffer.AppendFormatted("#\n");
+   buffer.AppendFormatted("# Some influential environment variables:\n");
+   buffer.AppendFormatted("# CC                : C compiler command\n");
+   buffer.AppendFormatted("# CXX               : C++ compiler command\n");
+   buffer.AppendFormatted("# FC                : Fortran compiler command\n");
+   buffer.AppendFormatted("# %sOPT             : optimization and debug flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sINC             : additional include flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sCFLAGS          : additional C compile flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sCXXFLAGS        : additional C++ compile flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sFFLAGS          : additional Fortran compile flag\n", shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("# %sLDFLAGS         : additional link flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("\n");
 }
 
@@ -959,7 +970,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    }
    // DAQ Libraries
    for (i=0;i<daqLibraries->GetEntriesFast();i++) {
-      buffer.AppendFormatted("daqlibs    += %s\n",daqLibraries->At(i).Data());
+      buffer.AppendFormatted("daqlibs   += %s\n",daqLibraries->At(i).Data());
    }
    buffer.AppendFormatted("clibs     := -lz $(SYSLIBS)\n");
    buffer.AppendFormatted("\n");
@@ -1022,21 +1033,18 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
 {
    int i;
-   buffer.AppendFormatted("## Include directories\n");
-   buffer.AppendFormatted("Includes %s",kEqualSign);
-   for (i=0;i<includeDirectories->GetEntriesFast();i++) {
-      buffer.AppendFormatted(" %sI%s",kFlagSign,includeDirectories->At(i).Data());
+   ROMEString separator = " ";
+   ROMEString tmp;
 #if defined( R__UNIX )
-      if (i != includeDirectories->GetEntriesFast() - 1)
-         buffer.AppendFormatted(" \\\n           ");
+   separator = " \\\n            ";
 #endif // R__UNIX
+   buffer.AppendFormatted("## Include directories\n");
+   buffer.AppendFormatted("Includes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
+   for (i=0;i<includeDirectories->GetEntriesFast();i++) {
+      buffer.AppendFormatted("%s%sI%s",separator.Data(),kFlagSign,includeDirectories->At(i).Data());
    }
    for (i=0;i<numOfMFIncDirs;i++) {
-      buffer.AppendFormatted(" %sI%s",kFlagSign,mfIncDir[i].Data());
-#if defined( R__UNIX )
-      if (i != numOfMFIncDirs - 1)
-         buffer.AppendFormatted(" \\\n           ");
-#endif // R__UNIX
+      buffer.AppendFormatted("%s%sI%s",separator.Data(),kFlagSign,mfIncDir[i].Data());
    }
 #if defined( R__VISUAL_CPLUSPLUS )
    if (this->midas)
@@ -1253,20 +1261,8 @@ void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
    ROMEString dictionaryName;
    dictionaryName.SetFormatted("%sUserDict",shortCut.Data());
  
-   buffer.AppendFormatted("DictionaryHeaders %s", kEqualSign);
-   for (i=0;i<numOfMFDictHeaders;i++) {
-      if (!mfDictHeaderUsed[i])
-         continue;
-#if defined( R__UNIX )
-      if (numOfMFDictHeaders > 1)
-         buffer.AppendFormatted(" \\\n      ");
-#endif // R__UNIX
-      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
-   }
-   buffer.AppendFormatted("\n");
-
    if (numOfMFDictIncDirs > 0) {
-#if defined( R__UNIX ) 
+#if defined( R__UNIX )
       buffer.AppendFormatted("DictionaryIncludes +=");
 #else
       buffer.AppendFormatted("DictionaryIncludes %s $(DictionaryIncludes)", kEqualSign);
@@ -1285,6 +1281,17 @@ void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
       }
       buffer.AppendFormatted("\n");
    }
+   buffer.AppendFormatted("DictionaryHeaders %s", kEqualSign);
+   for (i=0;i<numOfMFDictHeaders;i++) {
+      if (!mfDictHeaderUsed[i])
+         continue;
+#if defined( R__UNIX )
+      if (numOfMFDictHeaders > 1)
+         buffer.AppendFormatted(" \\\n      ");
+#endif // R__UNIX
+      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+   }
+   buffer.AppendFormatted("\n");
 }
 
 void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
@@ -1678,15 +1685,15 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionaryList(buffer,shortCut+"TabDict",tabHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"DAQDict",daqHeaders);
    WriteMakefileDictionaryList(buffer,shortCut+"DBDict",databaseHeaders);
-   buffer.AppendFormatted("DictionaryIncludes %s",kEqualSign);
+   buffer.AppendFormatted("DictionaryIncludes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
 #if defined( R__VISUAL_CPLUSPLUS )
    if (this->midas)
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
 #else
    if (this->midas)
-      buffer.AppendFormatted(" -I$(MIDASSYS)/include -DHAVE_MIDAS");
+      buffer.AppendFormatted(" \\\n                      -I$(MIDASSYS)/include -DHAVE_MIDAS");
    if (this->sql)
-      buffer.AppendFormatted(" $(sqlcflags)");
+      buffer.AppendFormatted(" \\\n                      $(sqlcflags)");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("\n");
    WriteMakefileUserDictionaryList(buffer);
