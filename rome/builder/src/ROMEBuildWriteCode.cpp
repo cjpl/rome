@@ -6734,7 +6734,7 @@ Bool_t ROMEBuilder::AddTaskConfigParameters(ROMEConfigParameterGroup *parGroup,I
          continue;
       name.SetFormatted("%s%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
       subGroup = new ROMEConfigParameterGroup(name.Data(),"1","Task","TaskName","",taskHierarchyName[i].Data(),taskHierarchyMultiplicity[i]);
-      subGroup->SetComment(ROMEConfig::kCommentLevelObj, taskShortDescription[i]);
+      subGroup->SetComment(ROMEConfig::kCommentLevelObj, taskShortDescription[taskHierarchyClassIndex[i]]);
       // Active
       subGroup->AddParameter(new ROMEConfigParameter("Active","1","CheckButton"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelAll, "Task");

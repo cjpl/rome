@@ -146,6 +146,8 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfSteerFieldAffiliations;
    delete [] steerFieldAffiliation;
    delete [] steerFieldUsed;
+   delete [] gspInclude;
+   delete [] gspLocalFlag;
 
    // tab
    delete [] tabName;
