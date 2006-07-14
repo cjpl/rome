@@ -3287,6 +3287,17 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 
    // Header
    buffer.AppendFormatted("#include <Rtypes.h>\n");
+   // includes
+   for (i=0;i<numOfGSPInclude;i++) {
+      if (gspLocalFlag[i]) {
+         tmp.SetFormatted("#include \"%s\"",gspInclude[i].Data());
+      }
+      else {
+         tmp.SetFormatted("#include <%s>",gspInclude[i].Data());
+      }
+      if (!buffer.Contains(tmp))
+         buffer.AppendFormatted("%s\n",tmp.Data());
+   }
    // Folder includes
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])

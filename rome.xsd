@@ -1551,6 +1551,11 @@
 					</xs:annotation>
 					<xs:complexType>
 						<xs:sequence>
+							<xs:element name="Include" type="IncludeDesc" minOccurs="0" maxOccurs="unbounded">
+								<xs:annotation>
+									<xs:documentation>Defines an include, which is added to the global steering parameter. (optional)</xs:documentation>
+								</xs:annotation>
+							</xs:element>
 							<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
 								<xs:annotation>
 									<xs:documentation>Describes a global steering parameter field of the framework. (optional)</xs:documentation>
