@@ -21,8 +21,6 @@ ROMESQLite3::ROMESQLite3() {
 }
 
 ROMESQLite3::~ROMESQLite3() {
-   SafeDelete(db);
-   SafeDelete(stmt);
    DisConnect();
 }
 

@@ -456,7 +456,7 @@ Bool_t ROMESQLDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lon
    int iArray,jArray;
    int iCount;
    bool keepCursor=false;
-   ROMEPath *path;
+   ROMEPath *path = 0;
    ROMEString fieldName;
    ROMEString sqlQuery;
    ROMEString orderField;
