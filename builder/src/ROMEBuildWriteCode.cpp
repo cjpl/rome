@@ -2158,21 +2158,24 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kFALSE);
       buffer.AppendFormatted("\n\n");
 
-      if (numOfHistos[iTask]>0) {
-         buffer.AppendFormatted("#include <RConfig.h>\n");
+      buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("#pragma warning( push )\n");
          buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+      if (numOfHistos[iTask]>0) {
          buffer.AppendFormatted("#include <TH1.h>\n");
          buffer.AppendFormatted("#include <TH2.h>\n");
          buffer.AppendFormatted("#include <TH3.h>\n");
          buffer.AppendFormatted("#include <TProfile.h>\n");
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
+      }
+      if (numOfSteering[iTask]>0) {
+         buffer.AppendFormatted("#include <TString.h>\n"); // TString is often used for steering parameter.
+      }
 #if defined( R__VISUAL_CPLUSPLUS )
          buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-      }
       buffer.AppendFormatted("#include \"ROMETask.h\"\n");
 
       for (i=0;i<numOfTaskInclude[iTask];i++) {
@@ -3093,6 +3096,9 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("#include <TProfile.h>\n");
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
       }
+      if (numOfSteering[iTab+numOfTask+1] > 0) {
+         buffer.AppendFormatted("#include <TString.h>\n"); // TString is often used for steering parameter.
+      }
    #if defined( R__VISUAL_CPLUSPLUS )
       buffer.AppendFormatted("#pragma warning( pop )\n");
    #endif // R__VISUAL_CPLUSPLUS
@@ -3287,6 +3293,11 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
 
    // Header
    buffer.AppendFormatted("#include <Rtypes.h>\n");
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( push )\n");
+   buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
+#endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include <TString.h>\n"); // TString is often used for steering parameter.
    // includes
    for (i=0;i<numOfGSPInclude;i++) {
       if (gspLocalFlag[i]) {
@@ -3315,6 +3326,9 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
          }
       }
    }
+#if defined( R__VISUAL_CPLUSPLUS )
+   buffer.AppendFormatted("#pragma warning( pop )\n");
+#endif // R__VISUAL_CPLUSPLUS
 
    WriteSteeringClass(buffer,0,iTask,0);
 
