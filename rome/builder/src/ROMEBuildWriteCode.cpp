@@ -758,7 +758,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("      ? %sOutOfBoundsError(where, at)\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("      : kTRUE;\n");
                buffer.AppendFormatted("}\n");
-               buffer.AppendFormatted("Bool_t %s::%sOutOfBoundsError(const char* where, Int_t i)",clsName.Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("Bool_t %s::%sOutOfBoundsError(const char* where, Int_t /*i*/)",clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("{\n");
                buffer.AppendFormatted("   Error(where,\"%s is not allocated. Please allocate with %s::Set%sSize(Int_t number)\");\n",valueName[iFold][i].Data(),clsName.Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   return kFALSE;\n");
