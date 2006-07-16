@@ -32,7 +32,7 @@ public:
    virtual ~ROMERomeDAQ();
 
    Int_t        GetTimeStamp() { return fTimeStamp; }
-   const char  *GetName() { return "rome"; }
+   const char  *GetName() const { return "rome"; }
 
    Bool_t       Init();
    Bool_t       BeginOfRun();

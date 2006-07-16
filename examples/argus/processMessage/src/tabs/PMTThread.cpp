@@ -39,7 +39,7 @@ void PMTThread::EventHandler()
 {
 }
 
-void PMTThread::MenuClicked(TGPopupMenu *menu,Long_t param)
+void PMTThread::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 
@@ -50,7 +50,7 @@ void PMTThread::TabUnSelected()
 {
 }
 
-Bool_t PMTThread::ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2)
+Bool_t PMTThread::ProcessMessageThread(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

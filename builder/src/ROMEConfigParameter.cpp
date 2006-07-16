@@ -13,7 +13,7 @@
 
 ROMEConfigParameter::ROMEConfigParameter(ROMEString name, ROMEString arraySize, ROMEString widgetType)
 {
-   fName = name;
+   SetName(name);
    fArraySize = arraySize;
    fWidgetType = widgetType;
    fReadModifiedTrueLines = new ROMEStrArray(1);

@@ -50,7 +50,7 @@ void HWTEnglish::EventHandler()
 {
 }
 
-void HWTEnglish::MenuClicked(TGPopupMenu *menu,Long_t param)
+void HWTEnglish::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

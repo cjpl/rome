@@ -42,7 +42,7 @@ void PMTMixed::EventHandler()
 {
 }
 
-void PMTMixed::MenuClicked(TGPopupMenu *menu,Long_t param)
+void PMTMixed::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 
@@ -71,7 +71,7 @@ Bool_t PMTMixed::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
    return RunProcessMessageThread(msg, param1, param2);
 }
 
-Bool_t PMTMixed::ProcessMessageThread(Long_t msg, Long_t param1, Long_t param2)
+Bool_t PMTMixed::ProcessMessageThread(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

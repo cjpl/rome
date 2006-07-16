@@ -77,6 +77,7 @@ public:
 
    // Widget Data Getters
    TString GetType() { return fType; }
+   const char* GetTitle() const { return fTitle.Data(); }
    TString GetTitle() { return fTitle; }
    TString GetValue() { return fValue; }
    void    SetValue(const char* value) { fValue = value; }

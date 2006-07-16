@@ -64,7 +64,7 @@ void HGTTab::Update()
    return;
 }
 
-bool HGTTab::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
+bool HGTTab::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
@@ -86,7 +86,7 @@ void HGTTab::EventHandler()
 {
 }
 
-void HGTTab::MenuClicked(TGPopupMenu *menu,Long_t param)
+void HGTTab::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

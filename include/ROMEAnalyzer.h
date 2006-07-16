@@ -588,7 +588,7 @@ protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);
 
    virtual Bool_t  ReadParameters(int argc, char *argv[]);
-   virtual Bool_t  ReadUserParameter(const char *opt, const char *value, Int_t &i) { return false; }
+   virtual Bool_t  ReadUserParameter(const char */*opt*/, const char */*value*/, Int_t &/*i*/) { return false; }
    virtual void    ParameterUsage();
    virtual void    UserParameterUsage(){}
 

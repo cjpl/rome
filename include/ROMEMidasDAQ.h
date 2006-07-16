@@ -137,7 +137,7 @@ public:
 
    // Additional Getters
    Int_t          GetTimeStamp() { return fTimeStamp; }
-   const char    *GetName() { return "midas"; }
+   const char    *GetName() const { return "midas"; }
 
    Bool_t         Init();
    Bool_t         BeginOfRun();
@@ -145,7 +145,7 @@ public:
    Bool_t         EndOfRun();
    Bool_t         Terminate();
 
-   virtual Bool_t IsActiveEventID(Int_t id){ return true; }
+   virtual Bool_t IsActiveEventID(Int_t /*id*/){ return true; }
    virtual Bool_t InitODB() = 0;
    virtual Bool_t InitHeader() = 0;
    virtual void   InitMidasBanks() = 0;
@@ -156,7 +156,7 @@ public:
    BOOL           bk_is32(void *event);
    INT            bk_find(BANK_HEADER* pbkh, const char *name, DWORD* bklen, DWORD* bktype,void *pdata);
 #endif
-   virtual void  *ByteSwapStruct( char* aName, void* aData ) { return aData; }       // Must be overwritten by analyzermidas code.
+   virtual void  *ByteSwapStruct( char* /*aName*/, void* aData ) { return aData; }       // Must be overwritten by analyzermidas code.
 
    ClassDef(ROMEMidasDAQ, 0) // Base DAQ class for Midas system
 };

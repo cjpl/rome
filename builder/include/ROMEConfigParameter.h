@@ -7,14 +7,13 @@
 #ifndef ROMEConfigParameter_H
 #define ROMEConfigParameter_H
 
-#include <TObject.h>
+#include <TNamed.h>
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 
-class ROMEConfigParameter : public TObject {
-
+class ROMEConfigParameter : public TNamed
+{
 private:
-   ROMEString            fName;
    ROMEString            fArraySize;
    ROMEString            fWidgetType;
    ROMEString            fComment;
@@ -27,7 +26,6 @@ private:
    Bool_t                fWriteLinesAlways;
 public:
    ROMEConfigParameter(ROMEString name, ROMEString arraySize = "1", ROMEString widgetType = "EditBox");
-   ROMEString&    GetName() { return fName; }
    ROMEString&    GetComment() { return fComment; }
    Int_t          GetCommentLevel() { return fCommentLevel; }
    ROMEString&    GetArraySize() { return fArraySize; }

@@ -8,17 +8,10 @@
 #define ROMEPrint_H
 
 #include <RConfig.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#   pragma warning( push )
-#   pragma warning( disable : 4800 )
-#endif // R__VISUAL_CPLUSPLUS
-#include <TObject.h>
-#if defined( R__VISUAL_CPLUSPLUS )
-#   pragma warning( pop )
-#endif // R__VISUAL_CPLUSPLUS
+#include <Rtypes.h>
 #include <Varargs.h>
 
-class ROMEPrint : public TObject
+class ROMEPrint
 {
 public:
    // Verbose level

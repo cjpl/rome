@@ -61,7 +61,7 @@ void FOTTab::EventHandler()
 {
 }
 
-void FOTTab::MenuClicked(TGPopupMenu *menu,Long_t param)
+void FOTTab::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

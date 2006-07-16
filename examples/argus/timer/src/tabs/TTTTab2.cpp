@@ -50,7 +50,7 @@ void TTTTab2::EventHandler()
 {
 }
 
-void TTTTab2::MenuClicked(TGPopupMenu *menu,Long_t param)
+void TTTTab2::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 
@@ -61,7 +61,7 @@ void TTTTab2::TabUnSelected()
 {
 }
 
-bool TTTTab2::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
+bool TTTTab2::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

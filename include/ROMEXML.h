@@ -15,12 +15,11 @@ extern "C" {
 }
 #endif
 
-#include <TObject.h>
 #include "ROMEString.h"
 
 class ROMEStrArray;
 
-class ROMEXML : public TObject
+class ROMEXML
 {
 protected:
    // read & path

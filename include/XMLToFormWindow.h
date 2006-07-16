@@ -54,10 +54,12 @@ protected:
    void   BuildSubFrames(XMLToFormFrame *frame);
    void   SaveCurrentValues(XMLToFormFrame *frame);
    void   RemoveFrame(XMLToFormFrame *frame);
+   void   RemoveFrame(TGFrame *frame) { TGCompositeFrame::RemoveFrame(frame); }
    void   AddFrame(XMLToFormFrame *frame);
    void   AddSubFrames(XMLToFormFrame *frame);
    void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };
    void   HideFrame(XMLToFormFrame *frame);
+   void   HideFrame(TGFrame *frame) { TGCompositeFrame::HideFrame(frame); }
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 

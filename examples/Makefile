@@ -1,3 +1,29 @@
+RESTRICT_TEST = yes
+
+ifeq ($(RESTRICT_TEST), yes)
+export FLOPT    =-Wall -W -Woverloaded-virtual -Werror
+export FOOPT    =-Wall -W -Woverloaded-virtual -Werror
+export HGOPT    =-Wall -W -Woverloaded-virtual -Werror
+export HGUIOPT  =-Wall -W -Woverloaded-virtual -Werror
+export HWOPT    =-Wall -W -Woverloaded-virtual -Werror
+export MROPT    =-Wall -W -Woverloaded-virtual -Werror
+export NFOPT    =-Wall -W -Woverloaded-virtual -Werror
+export PMOPT    =-Wall -W -Woverloaded-virtual -Werror
+export RDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
+export RDBOPT   =-Wall -W -Woverloaded-virtual -Werror
+export RUNHOPT  =-Wall -W -Woverloaded-virtual -Werror
+export SBOPT    =-Wall -W -Woverloaded-virtual -Werror
+export SBSOPT   =-Wall -W -Woverloaded-virtual -Werror
+export SBSHOPT  =-Wall -W -Woverloaded-virtual -Werror
+export SDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
+export SMDOPT   =-Wall -W -Woverloaded-virtual -Werror
+export TBOPT    =-Wall -W -Woverloaded-virtual -Werror
+export THOPT    =-Wall -W -Woverloaded-virtual -Werror
+export TMOPT    =-Wall -W -Woverloaded-virtual -Werror
+export TTOPT    =-Wall -W -Woverloaded-virtual -Werror
+export TWROPT   =-Wall -W -Woverloaded-virtual -Werror
+endif
+
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
                taskhierarchy/thexample.exe \
@@ -103,10 +129,11 @@ argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -v -midas
 
 clean :
-	find $(ROMESYS)/examples -name "*.obj" -exec rm {} \;
+	find $(ROMESYS)/examples -name "*.o" -exec rm {} \;
 
 depclean :
 	find $(ROMESYS)/examples -name "*.d" -exec rm {} \;
 
 remove :
 	rm $(ROMEProjects) $(ARGUSProjects)
+
