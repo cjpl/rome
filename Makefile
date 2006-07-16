@@ -223,4 +223,4 @@ clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) \
 	ROMELibDict.h ROMELibDict.cpp \
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
-	UpdateVersionDictH.h UpdateVersionDictH.cpp
+	UpdateVersionHDict.h UpdateVersionHDict.cpp
