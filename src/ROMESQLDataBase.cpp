@@ -325,7 +325,7 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
    return true;
 }
 
-Bool_t ROMESQLDataBase::Init(const char* name,const char* dataBase,const char* connection) {
+Bool_t ROMESQLDataBase::Init(const char* name,const char* /*dataBase*/,const char* connection) {
    ROMEString path = connection;
    ROMEString server;
    ROMEString user;
