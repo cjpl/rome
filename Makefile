@@ -27,7 +27,7 @@ CXX ?= g++
 #####################################################################
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
-TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe
+TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 
 ifeq ($(ROMEDEBUG), yes)
   OPT += -g
@@ -178,6 +178,9 @@ bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
 	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+
+bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
+	$(CXX) $(OPT) $(CFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
