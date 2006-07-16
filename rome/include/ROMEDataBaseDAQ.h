@@ -19,7 +19,7 @@ public:
    virtual ~ROMEDataBaseDAQ() {}
 
    Int_t       GetTimeStamp() { return fTimeStamp; }
-   const char *GetName() { return "database"; }
+   const char *GetName() const { return "database"; }
 
    Bool_t      Init();
    Bool_t      BeginOfRun();

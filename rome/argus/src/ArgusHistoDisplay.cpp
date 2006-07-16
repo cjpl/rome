@@ -195,7 +195,7 @@ void ArgusHistoDisplay::BaseInit()
    SetupPads(1, 1,true);
 }
 
-void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu *menu,Long_t param)
+void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu */*menu*/,Long_t param)
 {
    fTabActive = true;
    Int_t exitID=1,i,j;

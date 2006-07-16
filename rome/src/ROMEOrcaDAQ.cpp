@@ -26,7 +26,7 @@ Bool_t ROMEOrcaDAQ::BeginOfRun() {
    return true;
 }
 
-Bool_t ROMEOrcaDAQ::Event(Long64_t event) {
+Bool_t ROMEOrcaDAQ::Event(Long64_t /*event*/) {
    return true;
 }
 

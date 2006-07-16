@@ -20,17 +20,17 @@ ROMEODBOnlineDataBase::ROMEODBOnlineDataBase() {
 ROMEODBOnlineDataBase::~ROMEODBOnlineDataBase() {
 }
 
-Bool_t ROMEODBOnlineDataBase::Init(const char* name,const char* path,const char* connection) {
+Bool_t ROMEODBOnlineDataBase::Init(const char* name,const char* /*path*/,const char* /*connection*/) {
    fName = name;
    return true;
 }
 
-Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
+Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray */*values*/,const char */*dataBasePath*/,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
    return true;
 }
 
-Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber)
+Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* /*values*/,const char */*dataBasePath*/,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
    return true;
 }

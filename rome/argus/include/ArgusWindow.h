@@ -55,7 +55,7 @@ protected:
       
 public:
    ArgusWindow(); 
-   ArgusWindow(const TGWindow* p, Char_t* title);
+   ArgusWindow(const TGWindow* p);
    virtual ~ArgusWindow();
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
@@ -93,8 +93,8 @@ public:
    ArgusTab       *GetTabObjectAt(Int_t index) { return (ArgusTab*)fTabObjects->At(index); }
    ArgusTab       *GetTabObject(const char* tabName);
    Int_t           GetTabObjectEntries() { return fTabObjects ? fTabObjects->GetEntries() : 0; }
-   // Active
-   Bool_t          IsActive() { return fArgusActive; }
+   // Active. This might be dangerouse because it overload TGFrame::IsActive
+   Bool_t          IsActive() const { return fArgusActive; }
 
    // Event Handler
    virtual void    StopEventHandler() = 0;

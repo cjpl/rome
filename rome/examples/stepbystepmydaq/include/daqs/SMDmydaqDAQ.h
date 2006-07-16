@@ -13,7 +13,7 @@ protected:
 public:
    SMDmydaqDAQ();
    Int_t  GetTimeStamp() { return 0; };
-   const char* GetName() { return "mydaq"; };
+   const char* GetName() const { return "mydaq"; };
 
    Bool_t Init();
    Bool_t BeginOfRun();

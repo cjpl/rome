@@ -418,6 +418,7 @@ void XMLToFormWindow::AddSubFrames(XMLToFormFrame *frame)
       }
    }
 }
+
 void XMLToFormWindow::RemoveFrame(XMLToFormFrame *frame)
 {
    int j;
@@ -505,6 +506,7 @@ void XMLToFormWindow::CreateFrame(XMLToFormFrame *frame)
       }
    }
 }
+
 void XMLToFormWindow::HideFrame(XMLToFormFrame *frame)
 {
    int i;
@@ -605,7 +607,7 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
    MapWindow();
 }
 
-Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t btn) {
+Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
    XMLToFormFrame *frame = SearchFrame(fMainFrame,item->GetText(),"");
    if (frame==NULL)
       return true;
@@ -621,7 +623,8 @@ Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t btn) {
    fTreeListActiveFrame = frame;
    return true;
 }
-Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
+
+Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t /*parm2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
@@ -749,7 +752,7 @@ void XMLToFormWindow::SignalHandler()
 }
 void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
 {
-   bool senderState;
+   bool senderState = false;
    XMLToFormFrame *recvFrame;
    int i,j;
    for (i=0;i<frame->GetNumberOfElements();i++) {

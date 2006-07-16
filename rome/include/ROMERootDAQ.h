@@ -21,7 +21,7 @@ public:
    virtual ~ROMERootDAQ();
 
    Int_t        GetTimeStamp() { return 0; }
-   const char  *GetName() { return "root"; }
+   const char  *GetName() const { return "root"; }
 
    Bool_t       Init();
    Bool_t       BeginOfRun();

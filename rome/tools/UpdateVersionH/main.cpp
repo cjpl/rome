@@ -62,7 +62,7 @@ void ParseSVNKeyword(ROMEString& str)
    return;
 }
 
-int main(int argc, char *argv[])
+int main()
 {
    TTimeStamp timestamp;
    timestamp.Set();

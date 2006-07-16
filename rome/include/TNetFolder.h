@@ -44,7 +44,7 @@ public:
   virtual void        Copy( TObject & ) const { MayNotUse("Copy(TObject &)"); }
   virtual char const *FindFullPathName( char const * );
   virtual TObject    *FindObject( char const * ) const;
-  virtual TObject    *FindObject( const TObject* obj ) const { MayNotUse("FindObject"); return NULL; }
+  virtual TObject    *FindObject( const TObject* /* obj */) const { MayNotUse("FindObject"); return NULL; }
   virtual TObject    *FindObjectAny( char const * ) const;
   TObjArray          *GetListOfFolders();
   Bool_t              IsFolder() const { return kTRUE; }

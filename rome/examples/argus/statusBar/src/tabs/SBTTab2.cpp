@@ -32,7 +32,7 @@ void SBTTab2::EventHandler()
 {
 }
 
-void SBTTab2::MenuClicked(TGPopupMenu *menu,Long_t param)
+void SBTTab2::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

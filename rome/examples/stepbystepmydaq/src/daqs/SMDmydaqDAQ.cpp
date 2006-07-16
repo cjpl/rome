@@ -33,7 +33,7 @@ Bool_t SMDmydaqDAQ::BeginOfRun()
    return true;
 }
 
-Bool_t SMDmydaqDAQ::Event(Long64_t event)
+Bool_t SMDmydaqDAQ::Event(Long64_t /*event*/)
 {
    //-- Check event number
    if (gAnalyzer->GetCurrentEventNumber() >= fNumberOfEvent) {

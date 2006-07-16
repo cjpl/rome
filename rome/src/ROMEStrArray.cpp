@@ -20,7 +20,7 @@ ROMEStrArray::ROMEStrArray(Int_t s, Int_t lowerBound)
    array = new TObjArray(s,lowerBound);
 }
 
-ROMEStrArray::ROMEStrArray(ROMEStrArray& strArray)
+ROMEStrArray::ROMEStrArray(ROMEStrArray& strArray) : TObject(strArray)
 {
    const Int_t nStr = strArray.GetEntriesFast();
    array = new TObjArray(nStr);
@@ -35,7 +35,7 @@ ROMEStrArray::~ROMEStrArray()
    SafeDelete(array);
 }
 
-void ROMEStrArray::Delete(Option_t *option)
+void ROMEStrArray::Delete(Option_t * /*option*/)
 {
    const Int_t nStr = array->GetEntriesFast();
    for (int i=0;i<nStr;i++) {

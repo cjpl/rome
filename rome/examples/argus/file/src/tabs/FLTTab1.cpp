@@ -71,7 +71,7 @@ void FLTTab1::Init()
    AddFrame(fBUpdate, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 10, 10, 4, 4));
 }
 
-void FLTTab1::MenuClicked(TGPopupMenu *menu, Long_t param)
+void FLTTab1::MenuClicked(TGPopupMenu * /*menu*/, Long_t /*param*/)
 {
 }
 
@@ -124,7 +124,7 @@ void FLTTab1::Update()
    return;
 }
 
-bool FLTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
+bool FLTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    // Process messages coming from widgets associated with the dialog.  
    switch (GET_MSG(msg)) {

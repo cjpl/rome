@@ -501,8 +501,8 @@ private:
    Int_t   WriteSteeringInterpreterValue(ROMEString &buffer,const char* type,Int_t codeNumber,Int_t numSteer,Int_t numTask,ROMEString& steerPointer,Int_t tab);
    void    WriteObjectInterpreterValue(ROMEString &buffer,const char* type,const char* fctName);
    void    WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int_t type);
-   void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder,Int_t scl,Int_t nameLen,Int_t typeLen);
-   void    WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder,Int_t scl);
+   void    WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder);
+   void    WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder);
    Bool_t  WriteTaskCpp();
    Bool_t  WriteBaseTaskCpp();
    Bool_t  WriteTaskH();

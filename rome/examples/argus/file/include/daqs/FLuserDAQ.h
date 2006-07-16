@@ -19,7 +19,7 @@ protected:
 public:
    FLuserDAQ();
    Int_t  GetTimeStamp() { return 0; };
-   const char* GetName() { return "user"; };
+   const char* GetName() const { return "user"; };
 
    Bool_t Init();
    Bool_t BeginOfRun();

@@ -16,7 +16,7 @@ public:
    virtual ~ROMENoDAQSystem() {}
 
    Int_t       GetTimeStamp() { return -1; }
-   const char *GetName() { return "none"; }
+   const char *GetName() const { return "none"; }
 
    Bool_t      Init() { return true; }
    Bool_t      BeginOfRun() {

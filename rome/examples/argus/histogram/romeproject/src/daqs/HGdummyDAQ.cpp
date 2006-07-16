@@ -18,7 +18,7 @@ bool HGdummyDAQ::BeginOfRun()
    return true;
 }
 
-bool HGdummyDAQ::Event(Long64_t event)
+bool HGdummyDAQ::Event(Long64_t /*event*/)
 {
    gAnalyzer->SetCurrentEventNumber(gAnalyzer->GetCurrentEventNumber() + 1);
    if (gAnalyzer->GetCurrentEventNumber() > 10000)

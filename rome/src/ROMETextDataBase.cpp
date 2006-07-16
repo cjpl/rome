@@ -62,7 +62,7 @@ ROMETextDataBase::~ROMETextDataBase() {
    SafeDelete(fTime);
 }
 
-Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* connection) {
+Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* /*connection*/) {
    // set directory
    // "connection" has no mean for this class.
    if(strlen(path)){
@@ -78,7 +78,7 @@ Bool_t ROMETextDataBase::Init(const char* name,const char* path,const char* conn
    return true;
 }
 
-Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
    Ssiz_t     ps,pe;
    Int_t      iRow;
    Int_t      iCol = 0;
@@ -175,7 +175,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
    return true;
 }
 
-Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber) {
+Bool_t ROMETextDataBase::Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/) {
    fstream*   fileStream;
    ROMEString fileBuffer;
    ROMEString buffer;

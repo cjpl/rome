@@ -125,7 +125,7 @@ Bool_t ROMEXML::GetValue(ROMEString& value,ROMEString& defaultValue) {
    return GetValue(value,defaultValue.Data());
 }
 
-Bool_t ROMEXML::GetValue(ROMEString& value,const char* defaultValue) {
+Bool_t ROMEXML::GetValue(ROMEString& value,const char* /*defaultValue*/) {
    value = mxml_get_value(currentNode);
    return true;
 }

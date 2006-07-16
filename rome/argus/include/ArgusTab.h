@@ -42,9 +42,9 @@ public:
    void StopEventHandler();
 
    // User Methods
-   const char* GetTitle() { return fTitle.Data(); }
+   const char* GetTitle() const { return fTitle.Data(); }
    void        SetTitle(const char* title) { fTitle = title; }
-   Bool_t      IsActive() { return fActive; }
+   Bool_t      IsActive() const { return fActive; } // This might be dangerouse because it overload TGFrame::IsActive
    void        SetActive(Bool_t active) { fActive = active; }
    Int_t       GetUpdateFrequency();
    void        SetUpdateFrequency(Int_t duration);

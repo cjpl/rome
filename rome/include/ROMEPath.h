@@ -11,7 +11,7 @@
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 
-class ROMEPath : public TObject
+class ROMEPath
 {
 protected:
    // decode

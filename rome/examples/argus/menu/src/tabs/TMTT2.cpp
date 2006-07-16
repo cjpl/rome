@@ -49,7 +49,7 @@ void TMTT2::EventHandler()
 {
 }
 
-void TMTT2::MenuClicked(TGPopupMenu *menu,Long_t param)
+void TMTT2::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

@@ -35,7 +35,7 @@ void SBTTab1::EventHandler()
 {
 }
 
-void SBTTab1::MenuClicked(TGPopupMenu *menu,Long_t param)
+void SBTTab1::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

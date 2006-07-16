@@ -37,7 +37,7 @@ void NFTHistos::EventHandler()
    gPad->Update();
 }
 
-void NFTHistos::MenuClicked(TGPopupMenu *menu,Long_t param)
+void NFTHistos::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 

@@ -10,7 +10,7 @@
 #include "ROMEStr2DArray.h"
 #include "ROMEString.h"
 
-class ROMEDataBase : public TObject
+class ROMEDataBase
 {
 protected:
    ROMEString fName;

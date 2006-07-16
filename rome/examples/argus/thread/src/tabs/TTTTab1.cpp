@@ -71,7 +71,7 @@ void TTTTab1::EventHandler()
 {
 }
 
-void TTTTab1::MenuClicked(TGPopupMenu *menu,Long_t param)
+void TTTTab1::MenuClicked(TGPopupMenu * /*menu*/,Long_t /*param*/)
 {
 }
 
@@ -112,7 +112,7 @@ void TTTTab1::func_1_2()
    fCanvas->GetCanvas()->Update();
 }
 
-bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t param2)
+bool TTTTab1::ProcessMessage(Long_t msg, Long_t param1, Long_t /*param2*/)
 {
    switch (GET_MSG(msg)) {
    case kC_COMMAND:

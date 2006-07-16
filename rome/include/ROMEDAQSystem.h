@@ -37,7 +37,6 @@ public:
    virtual ~ROMEDAQSystem() {}
 
    virtual Int_t       GetTimeStamp() = 0;
-   virtual const char *GetName() = 0;
 
    Bool_t         InitDAQ();
    Bool_t         BeginOfRunDAQ();

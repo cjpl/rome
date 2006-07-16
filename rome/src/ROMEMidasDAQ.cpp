@@ -34,7 +34,7 @@
 
 #if defined( HAVE_MIDAS )
 #   define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
-void ProcessMessage(Int_t hBuf, Int_t id, EVENT_HEADER *pheader, void *message)
+void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, void * /*message*/)
 {
 // This method is called, when a system message from the online system occurs
 }
