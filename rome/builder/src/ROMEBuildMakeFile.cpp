@@ -26,8 +26,10 @@ void ROMEBuilder::AddIncludeDirectories()
    if (numOfTab >0) numOfIncludeDirectories++;
    if (numOfTask >0) numOfIncludeDirectories++;
 #if defined( R__VISUAL_CPLUSPLUS )
-   if (mysql) numOfIncludeDirectories++;
    if (midas) numOfIncludeDirectories++;
+   if (mysql) numOfIncludeDirectories++;
+   if (sqlite) numOfIncludeDirectories++;
+   if (sqlite3) numOfIncludeDirectories++;
 #endif
    includeDirectories = new ROMEStrArray(numOfIncludeDirectories);
    includeDirectories->AddFormatted("$(ROOTSYS)/include/");
@@ -41,9 +43,11 @@ void ROMEBuilder::AddIncludeDirectories()
    if (numOfTab >0) includeDirectories->AddFormatted("include/tabs");
    if (numOfTask >0) includeDirectories->AddFormatted("include/tasks");
 #if defined( R__VISUAL_CPLUSPLUS )
-   if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
    if (midas) includeDirectories->AddFormatted("$(MIDASSYS)/include/");
-#endif
+   if (mysql) includeDirectories->AddFormatted("$(ROMESYS)/include/mysql/");
+   if (sqlite) includeDirectories->AddFormatted("$(ROMESYS)/include/sqlite/");
+   if (sqlite3) includeDirectories->AddFormatted("$(ROMESYS)/include/sqlite3/");
+#endif // R__VISUAL_CPLUSPLUS
 }
 
 void ROMEBuilder::AddRomeHeaders()
@@ -1036,7 +1040,6 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 
 void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
 {
-   int i;
    ROMEString separator = " ";
    ROMEString tmp;
 #if defined( R__UNIX )
@@ -1044,24 +1047,25 @@ void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
 #endif // R__UNIX
    buffer.AppendFormatted("## Include directories\n");
    buffer.AppendFormatted("Includes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
+   GetIncludeDirString(tmp,separator.Data(),kFlagSign);
+   buffer.AppendFormatted("%s",tmp.Data());
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("\n");
+}
+void ROMEBuilder::GetIncludeDirString(ROMEString& buffer,const char* separator,const char* flagSign)
+{
+   int i;
+   buffer = "";
    for (i=0;i<includeDirectories->GetEntriesFast();i++) {
-      buffer.AppendFormatted("%s%sI%s",separator.Data(),kFlagSign,includeDirectories->At(i).Data());
+      if (i>0)
+         buffer.AppendFormatted(separator);
+      buffer.AppendFormatted("%sI%s",flagSign,includeDirectories->At(i).Data());
    }
    for (i=0;i<numOfMFIncDirs;i++) {
-      buffer.AppendFormatted("%s%sI%s",separator.Data(),kFlagSign,mfIncDir[i].Data());
+      if (i>0 || includeDirectories->GetEntriesFast()>0)
+         buffer.AppendFormatted(separator);
+      buffer.AppendFormatted("%sI%s",flagSign,mfIncDir[i].Data());
    }
-#if defined( R__VISUAL_CPLUSPLUS )
-   if (this->midas)
-      buffer.AppendFormatted(" /I$(MIDASSYS)/include/");
-   if (this->mysql)
-      buffer.AppendFormatted(" /I$(ROMESYS)/include/mysql/");
-   if (this->sqlite)
-      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite/");
-   if (this->sqlite3)
-      buffer.AppendFormatted(" /I$(ROMESYS)/include/sqlite3/");
-#endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("\n");
 }
 
 void ROMEBuilder::WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources)
@@ -1143,18 +1147,27 @@ void ROMEBuilder::WriteMakefileUserDictDependFiles(ROMEString& buffer)
 
 void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers)
 {
+   ROMEString separator = " ";
+   ROMEString tmp;
+#if defined( R__UNIX )
+   separator = " \\\n     ";
+#endif // R__UNIX
+
    buffer.AppendFormatted("%sionaryHeaders %s ", dictionaryName, kEqualSign);
 
+   GetDictHeaderString(tmp,dictionaryName,headers,separator.Data());
+   buffer.AppendFormatted("%s\n\n",tmp.Data());
+}
+void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* separator)
+{
    int i;
 
+   buffer = "";
    for (i=0;i<headers->GetEntriesFast();i++) {
-#if defined( R__UNIX )
-      if (headers->GetEntriesFast() > 1)
-      buffer.AppendFormatted(" \\\n     ");
-#endif // R__UNIX
-      buffer.AppendFormatted(" %s",headers->At(i).Data());
+      if (i>0)
+         buffer.AppendFormatted(separator);
+      buffer.AppendFormatted(headers->At(i).Data());
    }
-   buffer.AppendFormatted("\n\n");
 }
 
 void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName)
@@ -1165,8 +1178,6 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    ROMEString str;
    ROMEString tmp;
    ROMEString bufferT;
-   ROMEString includes;
-   ROMEString includesForVS;
    int i;
    // depend file
 #if defined( R__UNIX )
@@ -1187,24 +1198,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    dictionaryOutputs->AddFormatted(bufferT.Data());
 
    // Dependencies
-   includes = "";
-   for (i=0;i<headers->GetEntriesFast();i++) {
-      includes.AppendFormatted(" %s",headers->At(i).Data());
-   }
-   if (linkDefName)  {
-      includes.AppendFormatted(" %s",linkDefName);
-   }
-
-#if defined( R__UNIX )
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
-#else
-   buffer.AppendFormatted("%s",includes.Data());
-#endif
-
-   includesForVS = includes.Strip(TString::kLeading);
-   includesForVS.ReplaceAll(" ",";");
-   dictionaryDependencies->AddFormatted(includesForVS.Data());
-   includesForVS.ReplaceAll(";"," ");
    
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
 
@@ -1217,6 +1211,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // Command
    ROMEString arguments;
    ROMEString includedirs;
+   ROMEString includes;
    WriteRootCintCall(buffer);
    arguments.SetFormatted(" -f dict/%s.cpp -c -p",dictionaryName);
    for (i=0;i<affiliations.GetEntriesFast();i++)
@@ -1224,28 +1219,14 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted(arguments.Data());
    buffer.AppendFormatted(" $(Includes)");
    buffer.AppendFormatted(" $(DictionaryIncludes)");
-
-   for (i=0;i<includeDirectories->GetEntriesFast();i++) {
-      str = includeDirectories->At(i).Data();
-#if defined( R__VISUAL_CPLUSPLUS )
-//      str.ReplaceAll("$(","%%");
-//      str.ReplaceAll(")","%%");
-#endif
-      includedirs.AppendFormatted(" -I%s",str.Data());
-   }
-   for (i=0;i<numOfMFDictIncDirs;i++)
-      includedirs.AppendFormatted(" -I%s",mfDictIncDir[i].Data());
-   includedirs.AppendFormatted(" $(DictionaryIncludes)");
-#if defined( R__UNIX )
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
-#else
-   buffer.AppendFormatted(includedirs.Data());
-   buffer.AppendFormatted("%s",includes.Data());
-#endif // R__UNIX
    buffer.AppendFormatted("\n\n\n");
 
-   includedirs.ReplaceAll(" $(DictionaryIncludes)","");
-   dictionaryCommands->AddFormatted("rootcint%s%s %s",arguments.Data(),includedirs.Data(),includesForVS.Data());
+   GetDictHeaderString(bufferT,dictionaryName,headers,";");
+   dictionaryDependencies->AddFormatted(bufferT.Data());
+   GetIncludeDirString(includedirs," ","-");
+   GetDictHeaderString(includes,dictionaryName,headers," ");
+   dictionaryCommands->AddFormatted("rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
@@ -1260,9 +1241,13 @@ void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
 
 void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
 {
-   int i;
    ROMEString str;
    ROMEString tmp;
+   ROMEString separator = " ";
+#if defined( R__UNIX )
+   separator = " \\\n      ";
+#endif // R__UNIX
+
    ROMEString dictionaryName;
    dictionaryName.SetFormatted("%sUserDict",shortCut.Data());
  
@@ -1272,36 +1257,49 @@ void ROMEBuilder::WriteMakefileUserDictionaryList(ROMEString& buffer)
 #else
       buffer.AppendFormatted("DictionaryIncludes %s $(DictionaryIncludes)", kEqualSign);
 #endif // R__UNIX
-      for (i=0;i<numOfMFDictIncDirs;i++) {
-         str = mfDictIncDir[i].Data();
-#if defined( R__VISUAL_CPLUSPLUS )
-         str.ReplaceAll("$(","%");
-         str.ReplaceAll(")","%");
-#endif
-#if defined( R__UNIX )
-         if (numOfMFDictIncDirs > 1)
-            buffer.AppendFormatted(" \\\n      ");
-#endif // R__UNIX
-         buffer.AppendFormatted(" -I%s",str.Data());
-      }
-      buffer.AppendFormatted("\n");
+      GetUserDictIncludeDirString(tmp,separator.Data());
+      buffer.AppendFormatted("%s\n",tmp.Data());
    }
    buffer.AppendFormatted("DictionaryHeaders %s", kEqualSign);
+   GetUserDictHeaderString(tmp,separator.Data());
+   buffer.AppendFormatted("%s\n",tmp.Data());
+}
+void ROMEBuilder::GetUserDictIncludeDirString(ROMEString& buffer,const char* separator)
+{
+   int i;
+   buffer = "";
+   ROMEString str;
+   for (i=0;i<numOfMFDictIncDirs;i++) {
+      str = mfDictIncDir[i].Data();
+#if defined( R__VISUAL_CPLUSPLUS )
+      str.ReplaceAll("$(","%");
+      str.ReplaceAll(")","%");
+#endif
+      if (i>0)
+         buffer.AppendFormatted(separator);
+      buffer.AppendFormatted("-I%s",str.Data());
+   }
+}
+
+void ROMEBuilder::GetUserDictHeaderString(ROMEString& buffer,const char* separator)
+{
+   int i;
+   bool first = true;
+   buffer = "";
    for (i=0;i<numOfMFDictHeaders;i++) {
       if (!mfDictHeaderUsed[i])
          continue;
-#if defined( R__UNIX )
-      if (numOfMFDictHeaders > 1)
-         buffer.AppendFormatted(" \\\n      ");
-#endif // R__UNIX
-      buffer.AppendFormatted(" %s",mfDictHeaderName[i].Data());
+      if (!first)
+         buffer.AppendFormatted(separator);
+      buffer.AppendFormatted(mfDictHeaderName[i].Data());
+      first = false;
    }
-   buffer.AppendFormatted("\n");
 }
 
 void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 {
    int i;
+   ROMEString bufferT;
    ROMEString str;
    ROMEString tmp;
    ROMEString dictionaryName;
@@ -1314,22 +1312,45 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted(" \\\n\t   || ($(RM) obj/%sUserDictionary.d; exit 1;)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #endif
+   //dummy source file
    WriteMakefileDictDummyCpp(dictionaryName.Data());
+   dictionaryNames->AddFormatted(dictionaryName);
 
-   buffer.AppendFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(),shortCut.Data());
+   // Output files
+   bufferT.SetFormatted("dict/%sUserDict.h dict/%sUserDict.cpp:",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted(bufferT.Data());
+   bufferT.ReplaceAll(" ",";");
+   bufferT.ReplaceAll(":","");
+   dictionaryOutputs->AddFormatted(bufferT.Data());
+
+   // Dependencies
    buffer.AppendFormatted(" $(DictionaryHeaders)\n");
+
+   // Command
 #if defined( R__UNIX )
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then $(RM) dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then $(RM) dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
 #endif
+   ROMEString arguments;
+   ROMEString includedirs;
+   ROMEString includes;
    WriteRootCintCall(buffer);
-   buffer.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
+   arguments.AppendFormatted(" -f dict/%sUserDict.cpp -c -p",shortCut.Data());
    for (i=0;i<affiliations.GetEntriesFast();i++)
-      buffer.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+      arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
+   buffer.AppendFormatted(arguments.Data());
    buffer.AppendFormatted(" $(Includes)");
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(DictionaryHeaders)");
    buffer.AppendFormatted("\n\n");
+
+   GetUserDictHeaderString(bufferT,";");
+   dictionaryDependencies->AddFormatted(bufferT.Data());
+   GetIncludeDirString(includedirs," ","-");
+   GetUserDictIncludeDirString(bufferT," ");
+   includedirs.AppendFormatted(" %s",bufferT.Data());
+   GetUserDictHeaderString(includes," ");
+   dictionaryCommands->AddFormatted("rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
 }
 
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources)

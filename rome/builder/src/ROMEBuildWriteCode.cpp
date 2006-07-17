@@ -2468,8 +2468,8 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.AppendFormatted("\n");
       // Header
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"tabs/%sT%s.h\"\n", shortCut.Data(), tabName[iTab].Data());
 
       buffer.AppendFormatted("\n");

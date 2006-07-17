@@ -583,6 +583,7 @@ private:
    void    WriteMakefileHeader(ROMEString& buffer);
    void    WriteMakefileLibsAndFlags(ROMEString& buffer);
    void    WriteMakefileIncludes(ROMEString& buffer);
+   void    GetIncludeDirString(ROMEString& buffer,const char* separator,const char* flagSign);
    void    WriteMakefileDictIncludes(ROMEString& buffer);
    void    WriteMakefileObjects(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileDependFiles(ROMEString& buffer,ROMEStrArray* sources);
@@ -590,9 +591,12 @@ private:
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
    void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
+   void    GetDictHeaderString(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* separator);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
+   void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
+   void    GetUserDictHeaderString(ROMEString& buffer,const char* separator);
    void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
