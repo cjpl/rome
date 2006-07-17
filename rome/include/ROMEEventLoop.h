@@ -16,7 +16,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-
+#include "ROME.h"
 #include "ROMETask.h"
 
 class ROMETreeInfo;

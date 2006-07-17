@@ -2733,10 +2733,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
 
       // Display
       buffer.AppendFormatted("void %sT%s_Base::Display(bool processEvents) {\n", shortCut.Data(), tabName[iTab].Data());
-      if (!tabHistoDisplay[iTab]) {
-         buffer.AppendFormatted("   if (processEvents);\n"); // compiler warning suppression
-      }
-      else {
+      if (tabHistoDisplay[iTab]) {
          buffer.AppendFormatted("   int i,j,chn,chnT;\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   for (i=0 ; i<fNumberOfPads ; i++) {\n");
@@ -2799,6 +2796,10 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   Modified(processEvents);\n");
+      }
+      else {
+         buffer.AppendFormatted("   return;\n");
+         buffer.AppendFormatted("   WarningSuppression(processEvents)\n");
       }
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -3742,8 +3743,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // ReadUserParameter
    buffer.AppendFormatted("Bool_t %sAnalyzer::ReadUserParameter(const char* opt, const char* value, Int_t& i) {\n",shortCut.Data());
-   buffer.AppendFormatted("   if(value);\n"); // compiler warning suppression
-   buffer.AppendFormatted("   if(i);\n"); // compiler warning suppression
    // Global Steering Parameter
    buffer.AppendFormatted("   ROMEString option = opt;\n");
    buffer.AppendFormatted("   ROMEString tmp;\n");
@@ -3796,6 +3795,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
    buffer.AppendFormatted("   return false;\n");
+   buffer.AppendFormatted("   WarningSuppression(value);\n");
+   buffer.AppendFormatted("   WarningSuppression(i);\n");
    buffer.AppendFormatted("}\n\n");
 
    // UserParameterUsage
@@ -3945,7 +3946,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Folder dump and load
    buffer.AppendFormatted("Bool_t %sAnalyzer::DumpFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
-   buffer.AppendFormatted("   if(only_database);\n"); // compiler warning suppression
    buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
    buffer.AppendFormatted("   TFile out(filename, \"RECREATE\");\n");
    for (i=0;i<numOfFolder;i++) {
@@ -3968,11 +3968,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   out.Write();\n");
    buffer.AppendFormatted("   out.Close();\n");
    buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("   WarningSuppression(only_database);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("Bool_t %sAnalyzer::LoadFolders(const char* filename, Bool_t only_database) {\n", shortCut.Data());
-   buffer.AppendFormatted("   if(only_database);\n"); // compiler warning suppression
    buffer.AppendFormatted("   if(!filename) return kFALSE;\n");
    buffer.AppendFormatted("   TFile in(filename);\n");
    buffer.AppendFormatted("   if(in.IsZombie()) {\n");
@@ -4005,6 +4005,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
    }
    buffer.AppendFormatted("   return kTRUE;\n");
+   buffer.AppendFormatted("   WarningSuppression(only_database);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -5042,9 +5043,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    // AddMenuNetFolder
    buffer.AppendFormatted("Bool_t %sWindow::AddMenuNetFolder(TGPopupMenu* menu)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   if (!numOfNetFolder) {
-      buffer.AppendFormatted("   if (menu);\n"); // compiler warning suppression
-   }
    buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 )\n");
    buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 )\n");
    buffer.AppendFormatted("      return kFALSE;\n");
@@ -5056,6 +5054,9 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("   return active;\n");
+   if (!numOfNetFolder) {
+      buffer.AppendFormatted("   WarningSuppression(menu);\n");
+   }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -7870,7 +7871,6 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted( "\n//Used for byte swapping banks which are structs\n" );
    buffer.AppendFormatted( "void* %sMidasDAQ::ByteSwapStruct( char* aName, void* pData )\n", shortCut.Data() );
    buffer.AppendFormatted( "{\n" );
-   buffer.AppendFormatted( "   if (aName);\n" ); // compiler warning suppression
 
    for ( long iEvent = 0; iEvent < numOfEvent; iEvent++ )
    {
@@ -7924,6 +7924,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    }                // End loop through events.
 
    buffer.AppendFormatted( "    return( pData );\n" );
+   buffer.AppendFormatted( "    WarningSuppression(aName);\n" );
    buffer.AppendFormatted( "}\n" );
 
    // Write File
@@ -9816,11 +9817,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
       buffer.AppendFormatted("   switch (treeIndex) {\n");
    }
-   else {
-      buffer.AppendFormatted("   if (buffer);\n"); // compiler warning suppression
-      buffer.AppendFormatted("   if (treeIndex);\n"); // compiler warning suppression
-      buffer.AppendFormatted("   if (runNumber);\n"); // compiler warning suppression
-   }
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("      case %d:\n",i);
       buffer.AppendFormatted("         romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
@@ -9836,6 +9832,12 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    if (numOfTree>0) {
       buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("   return;\n");
+   if (numOfTree<=0) {
+      buffer.AppendFormatted("   WarningSuppression(buffer);\n");
+      buffer.AppendFormatted("   WarningSuppression(treeIndex);\n");
+      buffer.AppendFormatted("   WarningSuppression(runNumber);\n");
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");

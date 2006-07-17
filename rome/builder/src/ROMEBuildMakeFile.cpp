@@ -1161,6 +1161,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 {
    if (!headers->GetEntriesFast())
       return;
+
    ROMEString str;
    ROMEString tmp;
    ROMEString bufferT;
@@ -1193,7 +1194,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    if (linkDefName)  {
       includes.AppendFormatted(" %s",linkDefName);
    }
-   
+
 #if defined( R__UNIX )
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
 #else
