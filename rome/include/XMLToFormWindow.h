@@ -60,6 +60,7 @@ protected:
    void   AddFrame(TGFrame* f, TGLayoutHints* l = 0) { TGTransientFrame::AddFrame(f,l); };
    void   HideFrame(XMLToFormFrame *frame);
    void   HideFrame(TGFrame *frame) { TGCompositeFrame::HideFrame(frame); }
+   void   GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest);
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 

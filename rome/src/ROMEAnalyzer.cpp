@@ -494,10 +494,10 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          ROMEPrint::Print("\nTerminate program.\n");
          return false;
       }
-      if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-         ROMEPrint::Print("\nTerminate program.\n");
-         return false;
-      }
+   }
+   if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
+      ROMEPrint::Print("\nTerminate program.\n");
+      return false;
    }
 
    ROMEPrint::Debug("Reading command line options\n");

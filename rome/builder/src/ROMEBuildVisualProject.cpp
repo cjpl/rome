@@ -327,31 +327,33 @@ void ROMEBuilder::WriteVisualProjectProjFileDictCreators(ROMEXML *xml)
    ROMEString str;
    ROMEString buffer;
    for (i=0;i<dictionaryNames->GetEntriesFast();i++) {
-      xml->StartElement("File");
-      dictName = "dict/";
-      dictName += dictionaryNames->At(i).Data();
-      dictName.ReplaceAll("/","\\");
-      RelativeWindowsPath(dictName,outDir.Data());
-      xml->WriteAttribute("RelativePath",dictName.Data());
-      xml->StartElement("FileConfiguration");
-      xml->WriteAttribute("Name","Debug|Win32");
-      xml->StartElement("Tool");
-      xml->WriteAttribute("Name","VCCustomBuildTool");
-      xml->WriteAttribute("CommandLine",dictionaryCommands->At(i).Data());
-      str.SetFormatted("Creating %s dictionary",dictionaryNames->At(i).Data());
-      xml->WriteAttribute("Description",str.Data());
-      xml->WriteAttribute("AdditionalDependencies",dictionaryDependencies->At(i).Data());
-      xml->WriteAttribute("Outputs",dictionaryOutputs->At(i).Data());
-      xml->EndElement();
-      xml->EndElement();
-      buffer.SetFormatted("This file is used inside the visual studio to generate the %s dictionary", dictionaryNames->At(i).Data());
-      fstream *fileStream;
-      if ((fileStream = new fstream(dictName.Data(),ios::in))) {
-         delete fileStream;
+      if (dictionaryDependencies->At(i).Length()>0) {
+         xml->StartElement("File");
+         dictName = "dict/";
+         dictName += dictionaryNames->At(i).Data();
+         dictName.ReplaceAll("/","\\");
+         RelativeWindowsPath(dictName,outDir.Data());
+         xml->WriteAttribute("RelativePath",dictName.Data());
+         xml->StartElement("FileConfiguration");
+         xml->WriteAttribute("Name","Debug|Win32");
+         xml->StartElement("Tool");
+         xml->WriteAttribute("Name","VCCustomBuildTool");
+         xml->WriteAttribute("CommandLine",dictionaryCommands->At(i).Data());
+         str.SetFormatted("Creating %s dictionary",dictionaryNames->At(i).Data());
+         xml->WriteAttribute("Description",str.Data());
+         xml->WriteAttribute("AdditionalDependencies",dictionaryDependencies->At(i).Data());
+         xml->WriteAttribute("Outputs",dictionaryOutputs->At(i).Data());
+         xml->EndElement();
+         xml->EndElement();
+         buffer.SetFormatted("This file is used inside the visual studio to generate the %s dictionary", dictionaryNames->At(i).Data());
+         fstream *fileStream;
+         if ((fileStream = new fstream(dictName.Data(),ios::in))) {
+            delete fileStream;
+         }
+         else
+            WriteFile(dictName.Data(),buffer.Data(),0);
+         xml->EndElement();
       }
-      else
-         WriteFile(dictName.Data(),buffer.Data(),0);
-      xml->EndElement();
    }
 }
 

@@ -72,15 +72,15 @@ void ROMEConfigToForm::XMLToClass(XMLToFormFrame *frame)
    nFrames = 0;
 
    // Run Mode Frame
-   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"RunMode",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
    FillRunModeFrame(frame->GetSubFrameAt(nFrames));
    nFrames++;
    // Tab Frame
-   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kListTree,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"Config",frame->GetFramePath().Data(),true,XMLToFormFrame::kListTree,true,nFrames));
    AddConfig(frame->GetSubFrameAt(nFrames));
    nFrames++;
    // Button Frame
-   frame->AddSubFrame(new XMLToFormFrame(frame,"",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
+   frame->AddSubFrame(new XMLToFormFrame(frame,"Buttons",frame->GetFramePath().Data(),true,XMLToFormFrame::kFrame,true,nFrames));
    FillButtonFrame(frame->GetSubFrameAt(nFrames));
    nFrames++;
 }
