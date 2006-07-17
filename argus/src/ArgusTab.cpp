@@ -84,10 +84,8 @@ void ArgusTab::StartEventHandler() {
 }
 
 void ArgusTab::StopEventHandler() {
-   //  fEventHandlerTimer->TurnOff(); // <-- this line causes seg fault under Linux. (reason is unknown.)
    if (fEventHandlerTimer!=NULL) {
-      this->Disconnect(fEventHandlerTimer);
-      SafeDelete(fEventHandlerTimer);
+      fEventHandlerTimer->TurnOff();
    }
 }
 
