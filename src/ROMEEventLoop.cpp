@@ -630,9 +630,9 @@ Bool_t ROMEEventLoop::Update()
        ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("processed event number %I64d                                              \r",fCurrentEvent);
+         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
 #else
-         ROMEPrint::Print("processed event number %lld                                               \r",fCurrentEvent);
+         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber());
 #endif
       }
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
@@ -688,7 +688,7 @@ Bool_t ROMEEventLoop::UserInput()
          if (ch == -1) {
             ch = getchar();
          }
-         if (ch == 'q' || gROME->IsUserEventQ()) {
+         if (ch == 'q' || ch == 'Q' || gROME->IsUserEventQ()) {
             ROMEPrint::Print("                                  \r");
             ROMEPrint::Print("Do you really want to quit [y/n] ?");
             ch = 0;
@@ -702,19 +702,19 @@ Bool_t ROMEEventLoop::UserInput()
                return false;
             }
          }
-         if (ch == 'e' || gROME->IsUserEventE()) {
+         if (ch == 'e' || ch == 'E' || gROME->IsUserEventE()) {
             this->SetTerminate();
             wait = false;
          }
-         if (ch == 's' || gROME->IsUserEventS()) {
+         if (ch == 's' || ch == 'S' || gROME->IsUserEventS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Stopped at event %I64d                      \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped before event %I64d                  \r",gROME->GetCurrentEventNumber());
 #else
-            ROMEPrint::Print("Stopped at event %lld                      \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped before event %lld                  \r",gROME->GetCurrentEventNumber());
 #endif
             wait = true;
          }
-         if (ch == 'r' || gROME->IsUserEventR()) {
+         if (ch == 'r' || ch == 'R' || gROME->IsUserEventR()) {
 
             if (fContinuous)
                ROMEPrint::Print("                                  \r");
@@ -723,19 +723,25 @@ Bool_t ROMEEventLoop::UserInput()
 
             wait = false;
          }
-         if (ch == 'o' || gROME->IsUserEventO()) {
+         if (ch == 'o' || ch == 'O' || gROME->IsUserEventO()) {
             ROMEPrint::Print("Step by step mode                 \n");
+#if defined( R__VISUAL_CPLUSPLUS )
+            ROMEPrint::Print("Stopped before event %I64d                  \r",gROME->GetCurrentEventNumber());
+#else
+            ROMEPrint::Print("Stopped before event %lld                  \r",gROME->GetCurrentEventNumber());
+#endif
             fContinuous = false;
+            wait = true;
             gROME->GetWindow()->StopEventHandler();
             gROME->GetWindow()->TriggerEventHandler();
          }
-         if (ch == 'c' || gROME->IsUserEventC()) {
+         if (ch == 'c' || ch == 'C' || gROME->IsUserEventC()) {
             ROMEPrint::Print("Continues mode                    \n");
             fContinuous = true;
             wait = false;
             gROME->GetWindow()->StartEventHandler();
          }
-         if (ch == 'g' || gROME->IsUserEventG()) {
+         if (ch == 'g' || ch == 'G' || gROME->IsUserEventG()) {
             if (gROME->IsUserEventG()) {
                fStopAtRun = gROME->GetUserEventGRunNumber();
                fStopAtEvent = gROME->GetUserEventGEventNumber();
@@ -783,7 +789,7 @@ Bool_t ROMEEventLoop::UserInput()
             }
             wait = false;
          }
-         if (ch == 'i' || gROME->IsUserEventI()) {
+         if (ch == 'i' || ch == 'I' || gROME->IsUserEventI()) {
             interpreter = true;
          }
          gROME->DeleteUserEvent();

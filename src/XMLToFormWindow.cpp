@@ -608,7 +608,14 @@ void XMLToFormWindow::PlaceWindow(const TGWindow * main)
 }
 
 Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
-   XMLToFormFrame *frame = SearchFrame(fMainFrame,item->GetText(),"");
+   ROMEString path;
+   TGListTreeItem *currentItem = item;
+   while (currentItem!=NULL) {
+      path.InsertFormatted(0,"%s/",currentItem->GetText());
+      currentItem = currentItem->GetParent();
+   }
+   path.Strip(TString::kTrailing,'/');
+   XMLToFormFrame *frame = SearchFrame(fMainFrame,path.Data(),"");
    if (frame==NULL)
       return true;
    if (!frame->IsFrameListTreeItem())
@@ -692,24 +699,58 @@ void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
 
 XMLToFormFrame* XMLToFormWindow::SearchFrame(XMLToFormFrame *frame,const char* title,const char* label)
 {
+   ROMEString titleStr;
+   if (title!=NULL)
+      titleStr = title;
+   ROMEString labelStr;
+   if (label!=NULL)
+      labelStr = label;
+   if (titleStr.Length()==0 && labelStr.Length()==0)
+      return frame;
+   ROMEString first;
+   ROMEString rest;
    XMLToFormFrame *returnFrame;
    int i;
-   if (title!=NULL) {
-      if (!strcmp(frame->GetFrameTitle().Data(),title))
-         return frame;
+   if (titleStr.Length()>0) {
+      GetFirstPathItem(titleStr.Data(),first,rest);
+      if (frame->GetFrameTitle()==first) {
+         returnFrame = SearchFrame(frame,rest,"");
+         if (returnFrame!=NULL)
+            return returnFrame;
+      }
    }
-   if (label!=NULL) {
+   else if (labelStr.Length()>0) {
+      GetFirstPathItem(labelStr.Data(),first,rest);
       for (i=0;i<frame->GetNumberOfElements();i++) {
-         if (!strcmp(frame->GetElementAt(i)->GetTitle().Data(),label))
-            return frame;
+         if (frame->GetElementAt(i)->GetTitle()==first) {
+            returnFrame = SearchFrame(frame,"",rest);
+            if (returnFrame!=NULL)
+               return returnFrame;
+         }
       }
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
-      returnFrame = SearchFrame(frame->GetSubFrameAt(i),title,label);
+      returnFrame = SearchFrame(frame->GetSubFrameAt(i),titleStr.Data(),labelStr.Data());
       if (returnFrame!=NULL)
          return returnFrame;
    }
    return NULL;
+}
+void XMLToFormWindow::GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest)
+{
+   ROMEString pathString = path;
+   ROMEString restPath;
+   int ind = pathString.First('/');
+   if (ind==0) {
+      pathString = pathString(1,pathString.Length()-1);
+      ind = pathString.First('/');
+   }
+   if (ind>-1) {
+      restPath = pathString(ind+1,pathString.Length()-ind-1);
+      pathString = pathString(0,ind);
+   }
+   rest = restPath.Data();
+   firstItem = pathString.Data();
 }
 
 bool XMLToFormWindow::SearchWidget(const char* path,XMLToFormFrame** frame,int *index,XMLToFormFrame* mainFrame)

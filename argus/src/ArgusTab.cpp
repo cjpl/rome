@@ -36,8 +36,6 @@ void ArgusTab::ArgusInit() {
    // Init EventHandler
    fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);
    fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
-   fEventHandlerWaitTimer = new TTimer(1, kTRUE);
-   fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
    BaseInit();
    if (GetUpdateFrequency()>0) {
       fEventHandlerTimer->TurnOn();
@@ -50,14 +48,19 @@ ArgusTab::~ArgusTab() {
 }
 
 void ArgusTab::ArgusEventHandler() {
+   if (fBusy)
+      return;
    if (gROME->IsROMEAndARGUS()) {
-      if (fEventHandlerWaitTimer==NULL)
-         return;
       if (!gROME->IsEventFilled()) {
+         fEventHandlerWaitTimer = new TTimer(10, kTRUE);
+         fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
          fEventHandlerWaitTimer->TurnOn();
          return;
       }
-      fEventHandlerWaitTimer->TurnOff();
+      if (fEventHandlerWaitTimer!=NULL) {
+         this->Disconnect(fEventHandlerWaitTimer);
+         SafeDelete(fEventHandlerWaitTimer);
+      }
    }
    fBusy = true;
    BaseEventHandler();
