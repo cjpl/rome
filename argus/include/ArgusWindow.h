@@ -23,6 +23,7 @@
 #   pragma warning( pop )
 #endif
 
+#include "ROME.h"
 #include "ROMEString.h"
 #include "ROMENetFolder.h"
 #include "ArgusAnalyzerController.h"

@@ -18,6 +18,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
+#include "ROME.h"
 #include "ROMEiostream.h"
 #include "ROMEString.h"
 #include "ROMEStrArray.h"

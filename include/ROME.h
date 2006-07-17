@@ -24,4 +24,5 @@
 #   define SafeDeleteArray(p) { delete [] p; p = 0; }
 #endif
 
+#define WarningSuppression(x) { if (x) { int warning_suppression; warning_suppression = 0; } }
 #endif   // ROME_H
