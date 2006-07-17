@@ -5081,7 +5081,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      buffer.AppendFormatted("   if (f%s%sTab->IsActive())\n", tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("   if (fTabSwitches.%s%s)\n", tabName[i].Data(),tabSuffix[i].Data());
       buffer.AppendFormatted("      f%s%sTab->StopEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
    }
    buffer.AppendFormatted("}\n");
