@@ -735,6 +735,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/rome/examples/taskhierarchy/";
          xmlFile = "C:/rome/examples/taskhierarchy/taskhierarchy.xml";
       }
+      else if (!strcmp(argv[i],"-displayobjects")) {
+         noLink = true;
+         outDir = "C:/rome/examples/displayobjects/";
+         xmlFile = "C:/rome/examples/displayobjects/displayObjects.xml";
+      }
       else if (!strcmp(argv[i],"-netfolder")) {
          noLink = true;
          outDir = "C:/rome/examples/netfolder/";

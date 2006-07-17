@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Mon Jul 17 10:16:10 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>true</Active>
+    </ARGUS>
+  </ProgramConfiguration>
+
+  <MainConfiguration>
+    <RunParameters>
+      <!-- Description of the run parameters. -->
+      <!-- The run numbers of runs, which have to be analyzed. The following syntax must be used : 1,3-5,7,9-12. All runs must be specified in the 'MainConfiguration' even if they are overriden by a 'RunConfiguration'. (required for offline) -->
+      <RunNumbers></RunNumbers>
+      <!-- The event numbers, which have to be analyzed. Use the same syntax as for the run numbers. (optional) -->
+      <EventNumbers></EventNumbers>
+      <!-- The input file names containing the runs, which have to be analyzed. If no input file is specified the DAQ systems will work with a run number based file IO. All files must be specified in the 'MainConfiguration' even if they are overriden by a 'RunConfiguration'. (optional) -->
+      <InputFileNames></InputFileNames>
+    </RunParameters>
+
+    <Modes>
+      <!-- Description of the modes in which the framework can run. -->
+      <!-- Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline -->
+      <AnalyzingMode>offline</AnalyzingMode>
+      <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none. -->
+      <DAQSystem>none</DAQSystem>
+      <!-- If true, the program doesn't start a root session at the end. Default is false. -->
+      <QuitMode>false</QuitMode>
+      <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
+      <VerboseLevel>normal</VerboseLevel>
+      <!-- Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1. -->
+      <ConfigCommentLevel>5</ConfigCommentLevel>
+      <!-- Program shows a splash screen, when starting up. Default is true. -->
+      <ShowSplashScreen>false</ShowSplashScreen>
+      <!-- Configuration file can be modified in a GUI at start up. -->
+      <GraphicalConfigEdit>true</GraphicalConfigEdit>
+    </Modes>
+
+    <Argus>
+      <!-- Describes the argus specific properties. -->
+      <!-- Basic size of main window. -->
+      <WindowScale>1.0</WindowScale>
+      <!-- Display a status bar in the window. -->
+      <StatusBar>true</StatusBar>
+      <!-- Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0. -->
+      <UpdateFrequency>2000</UpdateFrequency>
+      <AnalyzerController>
+        <!-- Description of the Analyzer Contoller Settings. -->
+        <!-- Activate flag. -->
+        <Active>false</Active>
+        <!-- Name of the NetFolder to steer the analysis. -->
+        <NetFolderName></NetFolderName>
+      </AnalyzerController>
+
+      <SocketToROME>
+        <!-- Description of the socket interface to the ROME analyzer. This section is needed if the ARGUS display should connect to a ROME analyzer of the current project.. -->
+        <!-- Activate flag. -->
+        <Active>true</Active>
+        <!-- Host which runs the ROME analyzer. -->
+        <Host>localhost</Host>
+        <!-- Port number for the socket connection. -->
+        <Port>9090</Port>
+      </SocketToROME>
+    </Argus>
+
+    <DataBases/>
+
+    <Online>
+      <!-- Description of the online specific configuration. -->
+      <!-- The name of the host of the online experiment. (required) -->
+      <Host></Host>
+      <!-- The name of the online experiment. (required) -->
+      <Experiment></Experiment>
+    </Online>
+
+    <SocketInterface>
+      <!-- Description of the socket interface. External programs can access the objects inside the framework over a root socket interface. -->
+      <!-- The number of the port for the socket interface. Default is 9090. -->
+      <PortNumber>9090</PortNumber>
+      <!-- The socket interface is per default not available in offline mode. This flag makes it available also offline. Default is false. -->
+      <AvailableOffline>false</AvailableOffline>
+    </SocketInterface>
+
+    <Paths>
+      <!-- Description of the file paths the framework is using. -->
+      <!-- The path of all input files. (required) -->
+      <InputFilePath>./</InputFilePath>
+      <!-- The path of all output files. (optional) -->
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+
+    <HistogramRead>
+      <!-- Description of the histogram reading. -->
+      <!-- Read flag. (required) -->
+      <Read>false</Read>
+      <!-- Run number of the required histogram file. (required) -->
+      <RunNumber>0</RunNumber>
+    </HistogramRead>
+
+    <Tasks>
+      <Task>
+        <TaskName>FillHisto</TaskName>
+        <!-- Inactive tasks are not executed by the framework. Default is true. -->
+        <Active>true</Active>
+        <Histogram>
+          <!-- Description of the histogram configuration. -->
+          <HistName>MyHisto</HistName>
+          <!-- If this value is true the histograms content will be accumulated over all runs. Default is false. -->
+          <HistAccumulate>false</HistAccumulate>
+        </Histogram>
+
+        <Histogram>
+          <!-- Description of the histogram configuration. -->
+          <HistName>MyOtherHisto</HistName>
+          <!-- If this value is true the histograms content will be accumulated over all runs. Default is false. -->
+          <HistAccumulate>false</HistAccumulate>
+        </Histogram>
+      </Task>
+    </Tasks>
+
+    <Tabs>
+      <Tab>
+        <TabName>Histos</TabName>
+        <!-- Inactive tasks are not executed by the framework. -->
+        <Active>true</Active>
+      </Tab>
+    </Tabs>
+  </MainConfiguration>
+</Configuration>
