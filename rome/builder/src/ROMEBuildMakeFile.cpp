@@ -982,7 +982,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
 
    // Flags
-   buffer.AppendFormatted("Flags     := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("Flags     := $(oscflags) $(rootcflags) $(sqlcflags) $(daqcflags)");
    for (i=0;i<numOfMFPreDefs;i++)
       buffer.AppendFormatted(" -D%s",mfPreDefName[i].Data());
    buffer.AppendFormatted("\n");
@@ -1390,7 +1390,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       buffer.AppendFormatted("\t%s %s $(Flags) $(Includes) -MM -MF $@ -MT obj/%s%s $<\n",compiler.Data(),compileOption.Data(),name.Data(),kObjectSuffix);
       buffer.AppendFormatted("\n");
 
-      buffer.AppendFormatted("obj/%s%s: %s $(%sDep)\n",name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data(),name.Data());
+      buffer.AppendFormatted("obj/%s%s: %s $(%sDep)\n",name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
       buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) $< -o $@\n",compiler.Data(),compileOption.Data(),name.Data());
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("\n");
@@ -1841,7 +1841,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
