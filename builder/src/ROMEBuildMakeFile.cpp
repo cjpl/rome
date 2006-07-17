@@ -1156,8 +1156,12 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
    buffer.AppendFormatted("%sionaryHeaders %s ", dictionaryName, kEqualSign);
 
    GetDictHeaderString(tmp,dictionaryName,headers,separator.Data());
-   buffer.AppendFormatted("%s\n\n",tmp.Data());
+
+   // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
+   buffer.Append(tmp);
+   buffer.Append("\n\n");
 }
+
 void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* separator)
 {
    int i;
@@ -1226,7 +1230,15 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    dictionaryDependencies->AddFormatted(bufferT.Data());
    GetIncludeDirString(includedirs," ","-");
    GetDictHeaderString(includes,dictionaryName,headers," ");
-   dictionaryCommands->AddFormatted("rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
+
+   // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
+   ROMEString command = "rootcint";
+   command.Append(arguments);
+   command.Append(" ");
+   command.Append(includedirs);
+   command.Append(" ");
+   command.Append(includes);
+   dictionaryCommands->Add(command);
 }
 
 void ROMEBuilder::WriteMakefileDictDummyCpp(const char* dictionaryName)
