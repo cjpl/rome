@@ -28,7 +28,6 @@ protected:
    Int_t      fUpdateFrequency;      //! Update Frequency
    TTimer    *fEventHandlerTimer;    //! Timer for the EventHandler function
    TTimer    *fEventHandlerWaitTimer;//! Timer for the EventHandler function while waiting
-   Bool_t     fEventHandlerUserStop; //! True if the user stopped the EventHandler
    Bool_t     fBusy;                 //! Busy flag
 
 public:

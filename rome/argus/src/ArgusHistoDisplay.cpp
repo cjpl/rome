@@ -105,11 +105,20 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fUserTH1F = 0;
    fUserTH2F = 0;
 
+   fNumberOfTGraphLines = kMaxNumberOfLines;
+   fNumberOfTH1FLines = kMaxNumberOfLines;
+   fNumberOfTH2FLines = kMaxNumberOfLines;
+
    for (i = 0; i < kMaxNumberOfPads; i++) {
-      fPad[kMaxNumberOfPads] = 0;
-      fTH1F[kMaxNumberOfPads] = 0;
-      fTH2F[kMaxNumberOfPads] = 0;
-      fTGraph[kMaxNumberOfPads] = 0;
+      fPad[i] = 0;
+      fTH1F[i] = 0;
+      fTH2F[i] = 0;
+      fTGraph[i] = 0;
+      for (j = 0; j < kMaxNumberOfLines; j++) {
+         fTH1FLines[i][j] = new TLine(0,0,0,0);
+         fTH2FLines[i][j] = new TLine(0,0,0,0);
+         fTGraphLines[i][j] = new TLine(0,0,0,0);
+      }
    }
 }
 
@@ -428,26 +437,20 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->cd();
          if (fDisplayType==kTGraphDisplay) {
             fTGraph[i]->Draw("AL");
-            if (fNumberOfUserTGraphLines!=NULL) {
-               for (j=0;j<fNumberOfUserTGraphLines[i];j++)
-                  fUserTGraphLines[i][j]->Draw();
-            }
+            for (j=0;j<fNumberOfTGraphLines;j++)
+               fTGraphLines[i][j]->Draw();
             SetStatisticBox(true);
          }
          else if (fDisplayType==kTH1FDisplay) {
             fTH1F[i]->Draw();
-            if (fNumberOfUserTH1FLines!=NULL) {
-               for (j=0;j<fNumberOfUserTH1FLines[i];j++)
-                  fUserTH1FLines[i][j]->Draw();
-            }
+            for (j=0;j<fNumberOfTH1FLines;j++)
+               fTH1FLines[i][j]->Draw();
             SetStatisticBox(true);
          }
          else if (fDisplayType==kTH2FDisplay) {
             fTH2F[i]->Draw();
-            if (fNumberOfUserTH2FLines!=NULL) {
-               for (j=0;j<fNumberOfUserTH2FLines[i];j++)
-                  fUserTH2FLines[i][j]->Draw();
-            }
+            for (j=0;j<fNumberOfTH2FLines;j++)
+               fTH2FLines[i][j]->Draw();
             SetStatisticBox(true);
          }
       }
