@@ -664,7 +664,7 @@ Bool_t ROMEEventLoop::UserInput()
    bool hit = false;
    ROMEString text;
 
-   if ((fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
+   if (gROME->HasUserEvent() || (fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
 #if defined( R__VISUAL_CPLUSPLUS )
       ROMEPrint::Print("Stopped at event %I64d                      \r",gROME->GetCurrentEventNumber());
 #else
@@ -718,17 +718,22 @@ Bool_t ROMEEventLoop::UserInput()
 
             if (fContinuous)
                ROMEPrint::Print("                                  \r");
+            else
+               gROME->GetWindow()->TriggerEventHandler();
 
             wait = false;
          }
          if (ch == 'o' || gROME->IsUserEventO()) {
             ROMEPrint::Print("Step by step mode                 \n");
             fContinuous = false;
+            gROME->GetWindow()->StopEventHandler();
+            gROME->GetWindow()->TriggerEventHandler();
          }
          if (ch == 'c' || gROME->IsUserEventC()) {
             ROMEPrint::Print("Continues mode                    \n");
             fContinuous = true;
             wait = false;
+            gROME->GetWindow()->StartEventHandler();
          }
          if (ch == 'g' || gROME->IsUserEventG()) {
             if (gROME->IsUserEventG()) {

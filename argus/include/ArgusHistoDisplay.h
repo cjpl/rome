@@ -37,7 +37,8 @@ protected:
    enum {
       kMaxNumberOfPads = 120,
       kMaxNumberOfPadsX = 6,
-      kMaxNumberOfPadsY = 20
+      kMaxNumberOfPadsY = 20,
+      kMaxNumberOfLines = 5
    };
    enum DisplayTypes {
       kNoDisplay,
@@ -84,22 +85,29 @@ protected:
    Int_t                fNumberOfUserTH1F;   //!
    Int_t                fNumberOfUserTH2F;   //!
 
-   TRootEmbeddedCanvas *fCanvas;                   //! 
-   TPad                *fPad[kMaxNumberOfPads];    //! 
-
-   Int_t                fNumberOfPads;             //! 
-   Int_t                fNumberOfPadsX;            //! 
-   Int_t                fNumberOfPadsY;            //! 
-   TH1F                *fTH1F[kMaxNumberOfPads];   //! 
-   TH2F                *fTH2F[kMaxNumberOfPads];   //! 
-   TGraph              *fTGraph[kMaxNumberOfPads]; //! 
-
    TLine             ***fUserTGraphLines;    //!
    TLine             ***fUserTH1FLines;      //!
    TLine             ***fUserTH2FLines;      //!
-   Int_t               *fNumberOfUserTGraphLines; //!
-   Int_t               *fNumberOfUserTH1FLines;   //!
-   Int_t               *fNumberOfUserTH2FLines;   //!
+   Int_t                fNumberOfUserTGraphLines; //!
+   Int_t                fNumberOfUserTH1FLines;   //!
+   Int_t                fNumberOfUserTH2FLines;   //!
+
+   TH1F                *fTH1F[kMaxNumberOfPads];   //! 
+   TH2F                *fTH2F[kMaxNumberOfPads];   //! 
+   TGraph              *fTGraph[kMaxNumberOfPads]; //! 
+   Int_t                fNumberOfPads;             //! 
+   Int_t                fNumberOfPadsX;            //! 
+   Int_t                fNumberOfPadsY;            //! 
+
+   TLine               *fTGraphLines[kMaxNumberOfPads][kMaxNumberOfLines]; //!
+   TLine               *fTH1FLines[kMaxNumberOfPads][kMaxNumberOfLines];   //!
+   TLine               *fTH2FLines[kMaxNumberOfPads][kMaxNumberOfLines];   //!
+   Int_t                fNumberOfTGraphLines; //!
+   Int_t                fNumberOfTH1FLines;   //!
+   Int_t                fNumberOfTH2FLines;   //!
+
+   TRootEmbeddedCanvas *fCanvas;                   //! 
+   TPad                *fPad[kMaxNumberOfPads];    //! 
 
    XMLToForm           *fDialog; //! 
 

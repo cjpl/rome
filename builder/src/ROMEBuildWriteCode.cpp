@@ -2625,6 +2625,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   j=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   ROMEString str;\n");
+      if (tabHistoDisplay[iTab]) {
+         buffer.AppendFormatted("   fNumberOfUserTGraphLines = 0;\n");
+         buffer.AppendFormatted("   fNumberOfUserTH1FLines = 0;\n");
+         buffer.AppendFormatted("   fNumberOfUserTH2FLines = 0;\n");
+      }
       buffer.AppendFormatted("   Init();\n");
       if (numOfTabHistos[iTab]>0) {
          buffer.AppendFormatted("   // Init Histos\n");
@@ -2690,8 +2695,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH1F+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTH1F_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTH1F[i] = new TH1F(str.Data(),\"\",1,0,1);\n");
-            buffer.AppendFormatted("      fUserTH1FLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
-            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      fUserTH1FLines[i] = new TLine*[fNumberOfUserTH1FLines];\n",0);
+            buffer.AppendFormatted("      for (j=0;j<fNumberOfUserTH1FLines;j++) {\n",0);
             buffer.AppendFormatted("         fUserTH1FLines[i][j] = new TLine();\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
@@ -2700,8 +2705,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("   for (i=0;i<fNumberOfUserTH2F+1;i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"fUserTH2F_%%d_%%s\",i,fInheritanceName.Data());\n");
             buffer.AppendFormatted("      fUserTH2F[i] = new TH2F(str.Data(),\"\",1,0,1,1,0,1);\n");
-            buffer.AppendFormatted("      fUserTH2FLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
-            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      fUserTH2FLines[i] = new TLine*[fNumberOfUserTH2FLines];\n",0);
+            buffer.AppendFormatted("      for (j=0;j<fNumberOfUserTH2FLines;j++) {\n",0);
             buffer.AppendFormatted("         fUserTH2FLines[i][j] = new TLine();\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
@@ -2712,8 +2717,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("      fUserTGraph[i] = new TGraph(1);\n");
             buffer.AppendFormatted("      fUserTGraph[i]->SetTitle(str.Data());\n");
             buffer.AppendFormatted("      fUserTGraph[i]->SetPoint(0,0,0);\n");
-            buffer.AppendFormatted("      fUserTGraphLines[i] = new TLine*[%d];\n",maxNumberOfTabObjectLines);
-            buffer.AppendFormatted("      for (j=0;j<%d;j++) {\n",maxNumberOfTabObjectLines);
+            buffer.AppendFormatted("      fUserTGraphLines[i] = new TLine*[fNumberOfUserTGraphLines];\n",0);
+            buffer.AppendFormatted("      for (j=0;j<fNumberOfUserTGraphLines;j++) {\n",0);
             buffer.AppendFormatted("         fUserTGraphLines[i][j] = new TLine();\n");
             buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
@@ -2732,7 +2737,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   if (processEvents);\n"); // compiler warning suppression
       }
       else {
-         buffer.AppendFormatted("   int i,chn;\n");
+         buffer.AppendFormatted("   int i,j,chn,chnT;\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   for (i=0 ; i<fNumberOfPads ; i++) {\n");
          buffer.AppendFormatted("      if (fPadConfigActive)\n");
@@ -2740,23 +2745,56 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("      else\n");
          buffer.AppendFormatted("         chn = fChannelNumber+i;\n");
          buffer.AppendFormatted("      if (fDisplayType==kTGraphDisplay) {\n");
-         buffer.AppendFormatted("         if (chn>=fNumberOfUserTGraph)\n");
-         buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[fNumberOfUserTGraph];\n");
-         buffer.AppendFormatted("         else\n");
-         buffer.AppendFormatted("            *fTGraph[i] = *fUserTGraph[chn];\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTGraph) {\n");
+         buffer.AppendFormatted("            chnT = fNumberOfUserTGraph;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else {\n");
+         buffer.AppendFormatted("            chnT = chn;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         *fTGraph[i] = *fUserTGraph[chnT];\n");
+         buffer.AppendFormatted("         fTGraph[i]->SetTitle(fUserTGraph[chnT]->GetTitle());\n");
+         buffer.AppendFormatted("         fNumberOfTGraphLines = TMath::Min(kMaxNumberOfLines,fNumberOfUserTGraphLines);\n");
+         buffer.AppendFormatted("         for (j=0;j<fNumberOfTGraphLines;j++) {;\n");
+         buffer.AppendFormatted("            fTGraphLines[i][j]->SetX1(fUserTGraphLines[chnT][j]->GetX1());\n");
+         buffer.AppendFormatted("            fTGraphLines[i][j]->SetY1(fUserTGraphLines[chnT][j]->GetY1());\n");
+         buffer.AppendFormatted("            fTGraphLines[i][j]->SetX2(fUserTGraphLines[chnT][j]->GetX2());\n");
+         buffer.AppendFormatted("            fTGraphLines[i][j]->SetY2(fUserTGraphLines[chnT][j]->GetY2());\n");
+         buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("         SetLimits(fTGraph[i]);\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      if (fDisplayType==kTH1FDisplay) {\n");
-         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH1F)\n");
-         buffer.AppendFormatted("            *fTH1F[i] = *fUserTH1F[fNumberOfUserTH1F];\n");
-         buffer.AppendFormatted("         else\n");
-         buffer.AppendFormatted("            *fTH1F[i] = *fUserTH1F[chn];\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH1F) {\n");
+         buffer.AppendFormatted("            chnT = fNumberOfUserTH1F;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else {\n");
+         buffer.AppendFormatted("            chnT = chn;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         *fTH1F[i] = *fUserTH1F[chnT];\n");
+         buffer.AppendFormatted("         fTH1F[i]->SetTitle(fUserTH1F[chnT]->GetTitle());\n");
+         buffer.AppendFormatted("         fNumberOfTH1FLines = TMath::Min(kMaxNumberOfLines,fNumberOfUserTH1FLines);\n");
+         buffer.AppendFormatted("         for (j=0;j<fNumberOfTH1FLines;j++) {;\n");
+         buffer.AppendFormatted("            fTH1FLines[i][j]->SetX1(fUserTH1FLines[chnT][j]->GetX1());\n");
+         buffer.AppendFormatted("            fTH1FLines[i][j]->SetY1(fUserTH1FLines[chnT][j]->GetY1());\n");
+         buffer.AppendFormatted("            fTH1FLines[i][j]->SetX2(fUserTH1FLines[chnT][j]->GetX2());\n");
+         buffer.AppendFormatted("            fTH1FLines[i][j]->SetY2(fUserTH1FLines[chnT][j]->GetY2());\n");
+         buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      if (fDisplayType==kTH2FDisplay) {\n");
-         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH2F)\n");
-         buffer.AppendFormatted("            *fTH2F[i] = *fUserTH2F[fNumberOfUserTH2F];\n");
-         buffer.AppendFormatted("         else\n");
-         buffer.AppendFormatted("            *fTH2F[i] = *fUserTH2F[chn];\n");
+         buffer.AppendFormatted("         if (chn>=fNumberOfUserTH2F) {\n");
+         buffer.AppendFormatted("            chnT = fNumberOfUserTH2F;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         else {\n");
+         buffer.AppendFormatted("            chnT = chn;\n");
+         buffer.AppendFormatted("         }\n");
+         buffer.AppendFormatted("         *fTH2F[i] = *fUserTH2F[chnT];\n");
+         buffer.AppendFormatted("         fTH2F[i]->SetTitle(fUserTH2F[chnT]->GetTitle());\n");
+         buffer.AppendFormatted("         fNumberOfTH2FLines = TMath::Min(kMaxNumberOfLines,fNumberOfUserTH2FLines);\n");
+         buffer.AppendFormatted("         for (j=0;j<fNumberOfTH2FLines;j++) {;\n");
+         buffer.AppendFormatted("            fTH2FLines[i][j]->SetX1(fUserTH2FLines[chnT][j]->GetX1());\n");
+         buffer.AppendFormatted("            fTH2FLines[i][j]->SetY1(fUserTH2FLines[chnT][j]->GetY1());\n");
+         buffer.AppendFormatted("            fTH2FLines[i][j]->SetX2(fUserTH2FLines[chnT][j]->GetX2());\n");
+         buffer.AppendFormatted("            fTH2FLines[i][j]->SetY2(fUserTH2FLines[chnT][j]->GetY2());\n");
+         buffer.AppendFormatted("         }\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("   }\n");
          buffer.AppendFormatted("\n");
@@ -5043,6 +5081,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("void %sWindow::StartEventHandler()\n", shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("   if (f%s%sTab->IsActive())\n", tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("      f%s%sTab->StartEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
    // Write File
    WriteFile(cppFile.Data(), buffer.Data(), 6);
@@ -5274,6 +5322,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    // Event Handler
    buffer.AppendFormatted("   // Event Handler\n");
    buffer.AppendFormatted("   void StopEventHandler();\n");
+   buffer.AppendFormatted("   void StartEventHandler();\n");
    buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 

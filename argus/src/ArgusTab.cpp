@@ -27,7 +27,6 @@ ClassImp(ArgusTab)
 ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
    fActive  = kFALSE;
    fUpdateFrequency  = 0;
-   fEventHandlerUserStop  = false;
    fEventHandlerTimer = NULL;
    fEventHandlerWaitTimer = NULL;
    fBusy = false;
@@ -40,7 +39,7 @@ void ArgusTab::ArgusInit() {
    fEventHandlerWaitTimer = new TTimer(1, kTRUE);
    fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
    BaseInit();
-   if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {
+   if (GetUpdateFrequency()>0) {
       fEventHandlerTimer->TurnOn();
    }
 }
@@ -71,16 +70,22 @@ void ArgusTab::StartEventHandler(Int_t milliSeconds) {
 }
 
 void ArgusTab::StartEventHandler() {
-   if (!fEventHandlerTimer->NumberOfSignals())
+   if (fEventHandlerTimer==NULL) {
+      fEventHandlerTimer = new TTimer(fUpdateFrequency, kTRUE);
       fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
-   fEventHandlerTimer->SetTime(fUpdateFrequency);
-   fEventHandlerTimer->TurnOn();
+   }
+   if (GetUpdateFrequency()>0) {
+      fEventHandlerTimer->SetTime(fUpdateFrequency);
+      fEventHandlerTimer->TurnOn();
+   }
 }
 
 void ArgusTab::StopEventHandler() {
    //  fEventHandlerTimer->TurnOff(); // <-- this line causes seg fault under Linux. (reason is unknown.)
-   this->Disconnect(fEventHandlerTimer);
-   fEventHandlerUserStop  = true;
+   if (fEventHandlerTimer!=NULL) {
+      this->Disconnect(fEventHandlerTimer);
+      SafeDelete(fEventHandlerTimer);
+   }
 }
 
 Int_t ArgusTab::GetUpdateFrequency()
@@ -93,7 +98,7 @@ void ArgusTab::SetUpdateFrequency(Int_t duration)
    fUpdateFrequency = duration;
    if (fEventHandlerTimer!=NULL) {
       fEventHandlerTimer->TurnOff();
-      if (GetUpdateFrequency()>0 && !fEventHandlerUserStop) {
+      if (GetUpdateFrequency()>0) {
          fEventHandlerTimer->SetTime(fUpdateFrequency);
          if (!fEventHandlerTimer->NumberOfSignals())
             fEventHandlerTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
