@@ -755,6 +755,11 @@
 					<xs:documentation>Object reference. This can be either the name of a histogram or TH1F, TH2F or TGraph. If a histogram name is specified this histogram will be displayed. If a histogram or graph class name is specified then the objects have to be filled by the user code. </xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="ObjectTaskHierarchyIndex" type="xs:integer" minOccurs="0" default="0">
+				<xs:annotation>
+					<xs:documentation>Index of the task holding the object in the task hierarchy. Index starts with 0. Default is 0. </xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="DisplayObjectsDesc">
