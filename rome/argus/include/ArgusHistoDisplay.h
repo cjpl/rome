@@ -26,6 +26,7 @@ class TRootEmbeddedCanvas;
 class TText;
 class TPad;
 class TGraph;
+class TLine;
 class XMLToForm;
 
 class ArgusHistoDisplay : public ArgusTab
@@ -97,6 +98,9 @@ public:
 
    void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
    TGraph* GetUserTGraphAt(Int_t index);
+//   TGraph* GetObAt(Int_t index);
+   void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
+   TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
 
 protected:
    void BaseInit();
