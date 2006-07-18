@@ -296,6 +296,8 @@ protected:
    Int_t       **tabObjectTaskHierarchyIndex;
    Int_t       **tabObjectTaskIndex;
    Int_t       **tabObjectHistoIndex;
+   Int_t       **tabObjectTaskHierarchyNumber;
+   ROMEStrArray  tabObjectSupportedHistos;
 
 // tree
    Int_t         numOfTree;

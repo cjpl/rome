@@ -24,11 +24,8 @@ class TGPopupMenu;
 class TGHProgressBar;
 class TRootEmbeddedCanvas;
 class TText;
-class TGraph;
-class TH1F;
-class TH2F;
 class TPad;
-class TLine;
+class TGraph;
 class XMLToForm;
 
 class ArgusHistoDisplay : public ArgusTab
@@ -39,12 +36,6 @@ protected:
       kMaxNumberOfPadsX = 6,
       kMaxNumberOfPadsY = 20,
       kMaxNumberOfLines = 5
-   };
-   enum DisplayTypes {
-      kNoDisplay,
-      kTGraphDisplay,
-      kTH1FDisplay,
-      kTH2FDisplay
    };
    enum MenuEnumeration {
       M_ROOT = 900,
@@ -71,40 +62,24 @@ protected:
    TRootEmbeddedCanvas *fStatusText;    //! 
    TText               *fText;          //! 
 
-   Int_t                fDisplayType;     //! 
+   Int_t                fCurrentDisplayType;//! 
    Int_t                fDisplayTypeOld;  //! 
    Int_t                fDisplayObjIndex; //! 
    Bool_t               fInherited;       //! 
    ROMEString           fInheritanceName; //! 
    Bool_t               fTabActive;       //! 
 
-   TGraph             **fUserTGraph;         //! 
-   TH1F               **fUserTH1F;           //! 
-   TH2F               **fUserTH2F;           //! 
-   Int_t                fNumberOfUserTGraph; //!
-   Int_t                fNumberOfUserTH1F;   //!
-   Int_t                fNumberOfUserTH2F;   //!
+   TObjArray           *fUserObjects;     //!
+   TObjArray           *fObjects;         //!
+   TObjArray           *fUserLines;       //!
+   TObjArray           *fLines;           //!
+   Int_t                fNumberOfUserTGraph;//!
+   Int_t                fNumberOfUserLines;//!
+   Int_t                fNumberOfLines;   //!
 
-   TLine             ***fUserTGraphLines;    //!
-   TLine             ***fUserTH1FLines;      //!
-   TLine             ***fUserTH2FLines;      //!
-   Int_t                fNumberOfUserTGraphLines; //!
-   Int_t                fNumberOfUserTH1FLines;   //!
-   Int_t                fNumberOfUserTH2FLines;   //!
-
-   TH1F                *fTH1F[kMaxNumberOfPads];   //! 
-   TH2F                *fTH2F[kMaxNumberOfPads];   //! 
-   TGraph              *fTGraph[kMaxNumberOfPads]; //! 
    Int_t                fNumberOfPads;             //! 
    Int_t                fNumberOfPadsX;            //! 
    Int_t                fNumberOfPadsY;            //! 
-
-   TLine               *fTGraphLines[kMaxNumberOfPads][kMaxNumberOfLines]; //!
-   TLine               *fTH1FLines[kMaxNumberOfPads][kMaxNumberOfLines];   //!
-   TLine               *fTH2FLines[kMaxNumberOfPads][kMaxNumberOfLines];   //!
-   Int_t                fNumberOfTGraphLines; //!
-   Int_t                fNumberOfTH1FLines;   //!
-   Int_t                fNumberOfTH2FLines;   //!
 
    TRootEmbeddedCanvas *fCanvas;                   //! 
    TPad                *fPad[kMaxNumberOfPads];    //! 
@@ -120,6 +95,10 @@ public:
    ArgusHistoDisplay();
    virtual ~ArgusHistoDisplay();
 
+   void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
+   TGraph* GetUserTGraphAt(Int_t index);
+
+protected:
    void BaseInit();
    void BaseMenuClicked(TGPopupMenu *menu,Long_t param);
    void BaseTabSelected();
