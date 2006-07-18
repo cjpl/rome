@@ -281,6 +281,7 @@ Bool_t ROMEBuilder::StartBuilder()
    bool found;
    ROMEString str;
 
+   tabObjectSupportedHistos.AddLast("TGraph");
    tabObjectSupportedHistos.AddLast("TH1C");
    tabObjectSupportedHistos.AddLast("TH1S");
    tabObjectSupportedHistos.AddLast("TH1I");
