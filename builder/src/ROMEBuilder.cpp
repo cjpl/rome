@@ -190,6 +190,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabObjectTaskHierarchyIndex;
    delete [] tabObjectTaskIndex;
    delete [] tabObjectHistoIndex;
+   delete [] tabObjectTaskHierarchyNumber;
 
    // tree
    delete [] numOfBranch;
@@ -279,6 +280,22 @@ Bool_t ROMEBuilder::StartBuilder()
    int i,j,k,l;
    bool found;
    ROMEString str;
+
+   tabObjectSupportedHistos.AddLast("TH1C");
+   tabObjectSupportedHistos.AddLast("TH1S");
+   tabObjectSupportedHistos.AddLast("TH1I");
+   tabObjectSupportedHistos.AddLast("TH1F");
+   tabObjectSupportedHistos.AddLast("TH1D");
+   tabObjectSupportedHistos.AddLast("TH2C");
+   tabObjectSupportedHistos.AddLast("TH2S");
+   tabObjectSupportedHistos.AddLast("TH2I");
+   tabObjectSupportedHistos.AddLast("TH2F");
+   tabObjectSupportedHistos.AddLast("TH2D");
+   tabObjectSupportedHistos.AddLast("TH3C");
+   tabObjectSupportedHistos.AddLast("TH3S");
+   tabObjectSupportedHistos.AddLast("TH3I");
+   tabObjectSupportedHistos.AddLast("TH3F");
+   tabObjectSupportedHistos.AddLast("TH3D");
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
@@ -776,6 +793,11 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
          outDir = "C:/Data/Testprojects/laura/";
          xmlFile = "C:/Data/Testprojects/laura/rootDAQClean.xml";
+      }
+      else if (!strcmp(argv[i],"-jan")) {
+         noLink = true;
+         outDir = "C:/Data/Testprojects/jan/test/";
+         xmlFile = "C:/Data/Testprojects/jan/test/WIGammaTestCP.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {

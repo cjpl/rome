@@ -34,10 +34,9 @@
 #include <TGMenu.h>
 #include <TFrame.h>
 #include <TFile.h>
-#include <TH1F.h>
-#include <TH2F.h>
 #include <TF1.h>
 #include <TLine.h>
+#include <TH1.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   include <Windows4Root.h>
 #   include <direct.h>
@@ -64,24 +63,15 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
          M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
       }
    }
-   fDisplayType = kNoDisplay;
-   fDisplayTypeOld = kNoDisplay;
+   fCurrentDisplayType = 0;
+   fDisplayTypeOld = 0;
    fDisplayObjIndex = 0;
    fInherited = false;
    fInheritanceName = "";
    fPadConfigActive = false;
    fTabActive = false;
-   fNumberOfUserTGraph = kMaxNumberOfPads;
-   fNumberOfUserTH1F = kMaxNumberOfPads;
-   fNumberOfUserTH2F = kMaxNumberOfPads;
 
-   fNumberOfUserTGraphLines = 0;
-   fNumberOfUserTH1FLines = 0;
-   fNumberOfUserTH2FLines = 0;
-
-   fUserTGraphLines = NULL;
-   fUserTH1FLines = NULL;
-   fUserTH2FLines = NULL;
+   fNumberOfUserTGraph = 0;
 
    fMenuBar = 0;
    fMenuDisplay = 0;
@@ -101,30 +91,18 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    for (i = 0; i < kMaxNumberOfPadsX; i++)
       fMenuViewDivideColumn[i] = 0;
 
-   fUserTGraph = 0;
-   fUserTH1F = 0;
-   fUserTH2F = 0;
-
-   fNumberOfTGraphLines = kMaxNumberOfLines;
-   fNumberOfTH1FLines = kMaxNumberOfLines;
-   fNumberOfTH2FLines = kMaxNumberOfLines;
-
    for (i = 0; i < kMaxNumberOfPads; i++) {
       fPad[i] = 0;
-      fTH1F[i] = 0;
-      fTH2F[i] = 0;
-      fTGraph[i] = 0;
-      for (j = 0; j < kMaxNumberOfLines; j++) {
-         fTH1FLines[i][j] = new TLine(0,0,0,0);
-         fTH2FLines[i][j] = new TLine(0,0,0,0);
-         fTGraphLines[i][j] = new TLine(0,0,0,0);
-      }
    }
+   fUserObjects = new TObjArray();
+   fObjects = new TObjArray();
+   fUserLines = new TObjArray();
+   fLines = new TObjArray();
 }
 
 ArgusHistoDisplay::~ArgusHistoDisplay()
 {
-   Int_t i;
+   Int_t i,j,k;
 #if 0
    SafeDelete(fMenuBar);
    SafeDelete(fMenuDisplay);
@@ -145,29 +123,64 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
       SafeDelete(fMenuViewDivideColumn[i]);
 #endif
 
-   for (i = 0; i < fNumberOfUserTGraph; i++)
-      SafeDelete(fUserTGraph[i]);
-   SafeDeleteArray(fUserTGraph)
-
-   for (i = 0; i < fNumberOfUserTH1F; i++)
-      SafeDelete(fUserTH1F[i]);
-   SafeDeleteArray(fUserTH1F)
-
-   for (i = 0; i < fNumberOfUserTH2F; i++)
-      SafeDelete(fUserTH2F[i]);
-   SafeDeleteArray(fUserTH2F)
-
    for (i = 0; i < kMaxNumberOfPads; i++) {
       SafeDelete(fPad[i]);
-      SafeDelete(fTH1F[i]);
-      SafeDelete(fTH2F[i]);
-      SafeDelete(fTGraph[i]);
    }
+   // User Objects
+   for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
+      for (j = 0; j < ((TObjArray*)fUserObjects->At(i))->GetEntriesFast(); j++) {
+         delete(((TObjArray*)fUserObjects->At(i))->At(j));
+      }
+      delete(fUserObjects->At(i));
+   }
+   SafeDelete(fUserObjects);
+   // Objects
+   for (i = 0; i < fObjects->GetEntriesFast(); i++) {
+      for (j = 0; j < ((TObjArray*)fObjects->At(i))->GetEntriesFast(); j++) {
+         delete(((TObjArray*)fObjects->At(i))->At(j));
+      }
+      delete(fObjects->At(i));
+   }
+   SafeDelete(fObjects);
+   // User Lines
+   for (i = 0; i < fUserLines->GetEntriesFast(); i++) {
+      for (j = 0; j < ((TObjArray*)fUserLines->At(i))->GetEntriesFast(); j++) {
+         for (k = 0; k < ((TObjArray*)((TObjArray*)fUserLines->At(i))->At(j))->GetEntriesFast(); k++) {
+            delete(((TObjArray*)((TObjArray*)fUserLines->At(i))->At(j))->At(k));
+         }
+         delete(((TObjArray*)fUserLines->At(i))->At(j));
+      }
+      delete(fUserLines->At(i));
+   }
+   SafeDelete(fUserLines);
+   // Lines
+   for (i = 0; i < fLines->GetEntriesFast(); i++) {
+      for (j = 0; j < ((TObjArray*)fLines->At(i))->GetEntriesFast(); j++) {
+         for (k = 0; k < ((TObjArray*)((TObjArray*)fLines->At(i))->At(j))->GetEntriesFast(); k++) {
+            delete(((TObjArray*)((TObjArray*)fLines->At(i))->At(j))->At(k));
+         }
+         delete(((TObjArray*)fLines->At(i))->At(j));
+      }
+      delete(fLines->At(i));
+   }
+   SafeDelete(fLines);
 }
+
+TGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
+{
+   int i;
+   for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
+      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>index) {
+         if (((TObjArray*)fUserObjects->At(i))->At(index)->ClassName()=="TGraph")
+            return ((TGraph*)((TObjArray*)fUserObjects->At(i))->At(index));
+      }
+   }
+   return NULL;
+}
+
 
 void ArgusHistoDisplay::BaseInit()
 {
-   Int_t i;
    ROMEString str;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
@@ -184,17 +197,6 @@ void ArgusHistoDisplay::BaseInit()
    gROME->GetWindow()->GetStatusBar()->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
 
    SetWindowName("DRS");
-
-   for (i=0 ; i<kMaxNumberOfPads ; i++) {
-      str.SetFormatted("fTH1F_%d_%s",i,fInheritanceName.Data());
-      fTH1F[i] = new TH1F(str.Data(),"",1,0,1);
-      str.SetFormatted("fTH2F_%d_%s",i,fInheritanceName.Data());
-      fTH2F[i] = new TH2F(str.Data(),"",1,0,1,1,0,1);
-      str.SetFormatted("fTGraph_%d_%s",i,fInheritanceName.Data());
-      fTGraph[i] = new TGraph(1);
-      fTGraph[i]->SetTitle(str.Data());
-      fTGraph[i]->SetPoint(0,0,0);
-   }
 
    SetSize(GetDefaultSize());
    fChannelNumber = 0;
@@ -408,12 +410,12 @@ void ArgusHistoDisplay::SetStatus(Int_t mode,const char *text,double progress,In
 
 void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
-   Int_t i,j;
+   Int_t i,j,k;
    Bool_t clear = true;
-   if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fDisplayType)
+   if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType)
       clear = false;
 
-   fDisplayTypeOld = fDisplayType;
+   fDisplayTypeOld = fCurrentDisplayType;
 
    fChannelNumber = fChannelNumber+gPad->GetNumber()-1;
    if (fChannelNumber < 0)
@@ -435,23 +437,16 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->SetTopMargin(1.0f);
          fPad[i]->SetBottomMargin(1.0f);
          fPad[i]->cd();
-         if (fDisplayType==kTGraphDisplay) {
-            fTGraph[i]->Draw("AL");
-            for (j=0;j<fNumberOfTGraphLines;j++)
-               fTGraphLines[i][j]->Draw();
-            SetStatisticBox(true);
-         }
-         else if (fDisplayType==kTH1FDisplay) {
-            fTH1F[i]->Draw();
-            for (j=0;j<fNumberOfTH1FLines;j++)
-               fTH1FLines[i][j]->Draw();
-            SetStatisticBox(true);
-         }
-         else if (fDisplayType==kTH2FDisplay) {
-            fTH2F[i]->Draw();
-            for (j=0;j<fNumberOfTH2FLines;j++)
-               fTH2FLines[i][j]->Draw();
-            SetStatisticBox(true);
+         for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
+            if (fCurrentDisplayType==j) {
+               if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()=="TGraph")
+                  ((TObjArray*)fObjects->At(j))->At(i)->Draw("AL");
+               else
+                  ((TObjArray*)fObjects->At(j))->At(i)->Draw();
+               for (k=0;k<TMath::Min(kMaxNumberOfLines,fNumberOfUserLines);k++)
+                  ((TObjArray*)((TObjArray*)fLines->At(j))->At(i))->At(k)->Draw();
+               SetStatisticBox(true);
+            }
          }
       }
    }
@@ -465,7 +460,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 
 void ArgusHistoDisplay::Modified(Bool_t processEvents)
 {
-   Int_t i;
+   Int_t i,j;
    double x1,x2,y1,y2;
 
    if (!fCanvas)
@@ -473,15 +468,21 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
-         fTGraph[i]->GetXaxis()->SetRangeUser(x1,x2-1);
-         fTGraph[i]->GetYaxis()->SetRangeUser(y1,y2);
-         fTH1F[i]->GetXaxis()->SetRangeUser(x1,x2-1);
-         fTH1F[i]->GetYaxis()->SetRangeUser(y1,y2);
+         for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
+            if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()!="TGraph") {
+               ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
+               ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+            }
+            else {
+               ((TH1*)((TObjArray*)fObjects->At(j))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
+               ((TH1*)((TObjArray*)fObjects->At(j))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+            }
+         }
       }
-      if (fDisplayType==kTH1FDisplay)
-         SetStatisticBox(true);
-      if (fDisplayType==kTH2FDisplay)
-         SetStatisticBox(true);
+      for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
+         if (fCurrentDisplayType==j && ((TObjArray*)fObjects->At(j))->At(i)->ClassName()!="TGraph")
+            SetStatisticBox(true);
+      }
       fPad[i]->Modified();
    }
 
