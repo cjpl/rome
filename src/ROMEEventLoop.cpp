@@ -271,10 +271,21 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
 Int_t ROMEEventLoop::RunEvent()
 {
+   // Run one Event.
    fCurrentEvent++;
 
+   // Update
+   if (fCurrentEvent>0) {
+      if (!this->Update()) {
+         this->Terminate();
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return kReturn;
+      }
+   }
+
    ROMEString text;
-   // Run one Event.
+
    if (gROME->IsWindowClosed()) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
          this->DAQTerminate();
@@ -297,13 +308,6 @@ Int_t ROMEEventLoop::RunEvent()
          this->SetEndOfRun();
          return kBreak;
       }
-   }
-   // Update
-   if (!this->Update()) {
-      this->Terminate();
-      gROME->SetTerminationFlag();
-      ROMEPrint::Print("\n\nTerminating Program !\n");
-      return kReturn;
    }
 
    // User Input
@@ -630,9 +634,9 @@ Bool_t ROMEEventLoop::Update()
        ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
+         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber()-1);
 #else
-         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber());
+         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber()-1);
 #endif
       }
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
@@ -666,9 +670,9 @@ Bool_t ROMEEventLoop::UserInput()
 
    if (gROME->HasUserEvent() || (fStopAtRun==gROME->GetCurrentRunNumber() && fStopAtEvent==gROME->GetCurrentEventNumber()) || (gROME->GetCurrentEventNumber()==0 && !fContinuous)) {
 #if defined( R__VISUAL_CPLUSPLUS )
-      ROMEPrint::Print("Stopped at event %I64d                      \r",gROME->GetCurrentEventNumber());
+      ROMEPrint::Print("Stopped after event %I64d                   \r",gROME->GetCurrentEventNumber()-1);
 #else
-      ROMEPrint::Print("Stopped at event %lld                      \r",gROME->GetCurrentEventNumber());
+      ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber()-1);
 #endif
       wait = true;
    }
@@ -708,9 +712,9 @@ Bool_t ROMEEventLoop::UserInput()
          }
          if (ch == 's' || ch == 'S' || gROME->IsUserEventS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Stopped before event %I64d                  \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped after event %I64d                   \r",gROME->GetCurrentEventNumber()-1);
 #else
-            ROMEPrint::Print("Stopped before event %lld                  \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber()-1);
 #endif
             wait = true;
          }
@@ -726,9 +730,9 @@ Bool_t ROMEEventLoop::UserInput()
          if (ch == 'o' || ch == 'O' || gROME->IsUserEventO()) {
             ROMEPrint::Print("Step by step mode                 \n");
 #if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("Stopped before event %I64d                  \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped after event %I64d                   \r",gROME->GetCurrentEventNumber()-1);
 #else
-            ROMEPrint::Print("Stopped before event %lld                  \r",gROME->GetCurrentEventNumber());
+            ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber()-1);
 #endif
             fContinuous = false;
             wait = true;
@@ -796,9 +800,9 @@ Bool_t ROMEEventLoop::UserInput()
       }
       if (interpreter) {
 #if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("\nStart root session at the end of event number %I64d of run number %I64d\n",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+         ROMEPrint::Print("\nStart root session at the end of event number %I64d of run number %I64d\n",gROME->GetCurrentEventNumber()-1,gROME->GetCurrentRunNumber());
 #else
-         ROMEPrint::Print("\nStart root session at the end of event number %lld of run number %lld\n",gROME->GetCurrentEventNumber(),gROME->GetCurrentRunNumber());
+         ROMEPrint::Print("\nStart root session at the end of event number %lld of run number %lld\n",gROME->GetCurrentEventNumber()-1,gROME->GetCurrentRunNumber());
 #endif
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();
