@@ -178,6 +178,18 @@ TGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
    return NULL;
 }
 
+TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
+{
+   int i;
+   for (i = 0; i < fUserLines->GetEntriesFast(); i++) {
+      if (((TObjArray*)fUserLines->At(i))->GetEntriesFast()>histoIndex) {
+         if (((TObjArray*)((TObjArray*)fUserLines->At(i))->At(histoIndex))->GetEntriesFast()>lineIndex) {
+            return ((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(i))->At(histoIndex))->At(lineIndex));
+         }
+      }
+   }
+   return NULL;
+}
 
 void ArgusHistoDisplay::BaseInit()
 {

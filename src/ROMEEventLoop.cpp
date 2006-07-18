@@ -74,6 +74,7 @@ ROMEEventLoop::~ROMEEventLoop()
 
 void ROMEEventLoop::ExecuteTask(Option_t *option)
 {
+//   ROMEPrint::SetVerboseLevel(ROMEPrint::kDebug);
    fFirstUserInput = true;
    if (!strcmp(option,"init")) {
       this->InitTrees();
@@ -104,7 +105,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Initialisation
    //----------------
-
    if (!this->DAQInit()) {
       this->Terminate();
       gROME->SetTerminationFlag();
@@ -180,6 +180,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       // Loop over Events
       //------------------
+      gROME->GetWindow()->StartEventHandler();
       fCurrentEvent = -1;
       fFirstUserInput = true;
       ROMEPrint::Debug("Entering event loop\n");
