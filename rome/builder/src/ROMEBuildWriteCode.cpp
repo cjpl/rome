@@ -2682,7 +2682,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             if (tabObjectSupportedHistos.At(i)=="TGraph") {
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(1));\n",tabObjectSupportedHistos.At(i).Data());
                buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetTitle(str.Data());\n",tabObjectSupportedHistos.At(i).Data());
-               buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetPoint(0,0,0);\n");
+               buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetPoint(0,0,0);\n",tabObjectSupportedHistos.At(i).Data());
             }
             else if (tabObjectSupportedHistos.At(i).Contains("1"))
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1));\n",tabObjectSupportedHistos.At(i).Data());
@@ -2710,8 +2710,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectSupportedHistos.At(j).Data());
                if (tabObjectSupportedHistos.At(j)=="TGraph") {
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(1));\n",tabObjectSupportedHistos.At(j).Data());
-                  buffer.AppendFormatted("      ((TObjArray*)((TObjArray*)fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
-                  buffer.AppendFormatted("      ((TObjArray*)((TObjArray*)fUserObjects->Last())->Last())->SetPoint(0,0,0);\n");
+                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
+                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetPoint(0,0,0);\n");
                }
                else if (tabObjectSupportedHistos.At(j).Contains("1"))
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1));\n",tabObjectSupportedHistos.At(j).Data());
@@ -2807,7 +2807,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("         if (fCurrentDisplayType==j) {\n");
          buffer.AppendFormatted("            if (chn<((TObjArray*)fUserObjects->At(j))->GetEntriesFast()) {\n");
          for (j=0;j<tabObjectSupportedHistos.GetEntriesFast();j++) {
-            buffer.AppendFormatted("               if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()==\"%s\")\n",tabObjectSupportedHistos.At(j).Data());
+            buffer.AppendFormatted("               if (!strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),\"%s\"))\n",tabObjectSupportedHistos.At(j).Data());
             buffer.AppendFormatted("                  *((%s*)((TObjArray*)fObjects->At(j))->At(i)) = *((%s*)((TObjArray*)fUserObjects->At(j))->At(chn));\n",tabObjectSupportedHistos.At(j).Data(),tabObjectSupportedHistos.At(j).Data());
          }
          buffer.AppendFormatted("               ((TNamed*)((TObjArray*)fObjects->At(j))->At(i))->SetTitle(((TNamed*)((TObjArray*)fUserObjects->At(j))->At(chn))->GetTitle());\n");
@@ -2817,11 +2817,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("                  ((TLine*)((TObjArray*)((TObjArray*)fLines->At(j))->At(i))->At(k))->SetX2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(j))->At(chn))->At(k))->GetX2());\n");
          buffer.AppendFormatted("                  ((TLine*)((TObjArray*)((TObjArray*)fLines->At(j))->At(i))->At(k))->SetY2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(j))->At(chn))->At(k))->GetY2());\n");
          buffer.AppendFormatted("               }\n");
-         buffer.AppendFormatted("               if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()==\"TGraph\")\n");
+         buffer.AppendFormatted("               if (!strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),\"TGraph\"))\n");
          buffer.AppendFormatted("                  SetLimits(((TGraph*)((TObjArray*)fObjects->At(j))->At(i)));\n");
          buffer.AppendFormatted("            }\n");
          buffer.AppendFormatted("            else {\n");
-         buffer.AppendFormatted("               if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()==\"TGraph\")\n");
+         buffer.AppendFormatted("               if (!strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),\"TGraph\"))\n");
          buffer.AppendFormatted("                  ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->Set(0);\n");
          buffer.AppendFormatted("               else \n");
          buffer.AppendFormatted("                  ((TH1*)((TObjArray*)fObjects->At(j))->At(i))->Reset();\n");

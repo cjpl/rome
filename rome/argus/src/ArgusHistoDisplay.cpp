@@ -171,7 +171,7 @@ TGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
    int i;
    for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
       if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>index) {
-         if (((TObjArray*)fUserObjects->At(i))->At(index)->ClassName()=="TGraph")
+         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(index)->ClassName(),"TGraph"))
             return ((TGraph*)((TObjArray*)fUserObjects->At(i))->At(index));
       }
    }
@@ -187,6 +187,13 @@ TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
             return ((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(i))->At(histoIndex))->At(lineIndex));
          }
       }
+   }
+   return NULL;
+}
+TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
+{
+   if (((TObjArray*)fObjects->At(fCurrentDisplayType))->GetEntriesFast()>index) {
+      return ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(index);
    }
    return NULL;
 }
@@ -451,7 +458,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->cd();
          for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
             if (fCurrentDisplayType==j) {
-               if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()=="TGraph")
+               if (!strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph"))
                   ((TObjArray*)fObjects->At(j))->At(i)->Draw("AL");
                else
                   ((TObjArray*)fObjects->At(j))->At(i)->Draw();
@@ -481,7 +488,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
          for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
-            if (((TObjArray*)fObjects->At(j))->At(i)->ClassName()!="TGraph") {
+            if (strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph")) {
                ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
                ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
             }
@@ -492,7 +499,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
          }
       }
       for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
-         if (fCurrentDisplayType==j && ((TObjArray*)fObjects->At(j))->At(i)->ClassName()!="TGraph")
+         if (fCurrentDisplayType==j && strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph"))
             SetStatisticBox(true);
       }
       fPad[i]->Modified();
