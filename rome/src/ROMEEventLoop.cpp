@@ -702,8 +702,8 @@ Bool_t ROMEEventLoop::UserInput()
                   ch = gROME->ss_getchar(0);
                }
             }
+            ROMEPrint::Print("\r                                                                                \r");
             if (ch == 'y' || ch == 'Y') {
-               ROMEPrint::Print("\r                                                                                \r");
                return false;
             }
          }
@@ -810,7 +810,9 @@ Bool_t ROMEEventLoop::UserInput()
          prompt += " [%d]";
          gROME->GetApplication()->SetPrompt(prompt.Data());
          gROME->GetApplication()->Run(true);
+#if defined( R__VISUAL_CPLUSPLUS )
          gSystem->Init();
+#endif
          gROME->GetApplication()->ProcessLine(gROME->GetCintInitialisation());
          ROMEPrint::Print("\r                                                                                \r");
       }
