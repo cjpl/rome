@@ -1453,7 +1453,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       buffer.AppendFormatted("\n");
 
       if (ext == "h")
-         buffer.AppendFormatted("include/precompiled/%s.h.gch: include/%s $(%sDep)\n",name.Data(),sources->At(i).Data(),name.Data());
+         buffer.AppendFormatted("include/%s.gch: include/%s $(%sDep)\n",sources->At(i).Data(),sources->At(i).Data(),name.Data());
       else
          buffer.AppendFormatted("obj/%s%s: %s $(%sDep)\n",name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
       buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) $< -o $@\n",compiler.Data(),compileOption.Data(),name.Data());
@@ -1955,7 +1955,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("## Compile statements\n");
    ROMEString additionalFlag;
    if (pch)
-      additionalFlag.SetFormatted("-include precompiled/%sPrecompile.h", shortCut.Data());
+      additionalFlag.SetFormatted("-include generated/%sPrecompile.h", shortCut.Data());
 
    WriteMakefileCompileStatements(buffer,romeSources,additionalFlag.Data());
    WriteMakefileCompileStatements(buffer,argusSources,additionalFlag.Data());
