@@ -52,7 +52,7 @@ Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
    cout<<endl<<"ROMESQLite3::MakeQuery : "<<query<<endl;
 #endif
    if(store){
-      sqlite3_prepare(db, query, 0, &stmt, NULL);
+      sqlite3_prepare(db, query, -1, &stmt, NULL);
       if(GetErrorCode() != SQLITE_OK){
          cout<<query<<endl;
          cout << "Query error :" << GetErrorMessage() << endl;
