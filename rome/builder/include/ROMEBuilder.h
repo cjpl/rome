@@ -80,6 +80,7 @@ protected:
    Bool_t        sqlite3;
    Bool_t        noVP;
    Bool_t        librome;
+   Bool_t        pch;
    ROMEStrArray  flags;
    ROMEStrArray  affiliations;
    ROMEStr2DArray affiliationList;
@@ -455,6 +456,9 @@ protected:
    ROMEStrArray* daqLibraries;
    ROMEStrArray* daqFlags;
 
+   ROMEStrArray* precompiledHeaders;
+   ROMEStrArray* precompiledIncludeHeaders;
+
 // Configuration
    ROMEConfigParameterGroup* mainParGroup;
    int maxConfigParameterHierarchyLevel;
@@ -553,9 +557,11 @@ private:
    Bool_t  WriteVersionH();
    Bool_t  WriteLinkDefHs();
    Bool_t  WriteLinkDefH(ROMEStrArray* headers, ROMEStrArray* ldsuffix, const char* filename);
+   Bool_t  WritePrecompiledHeaders();
 
    // Makefile Methods
    void    AddIncludeDirectories();
+   void    AddPrecompiledHeaders();
    void    AddRomeHeaders();
    void    AddRomeDictHeaders();
    void    AddRomeSources();
@@ -599,13 +605,14 @@ private:
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);
    void    GetUserDictIncludeDirString(ROMEString& buffer,const char* separator);
    void    GetUserDictHeaderString(ROMEString& buffer,const char* separator);
-   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources);
+   void    WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag = 0);
    void    WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer);
    void    WriteMakefileAdditionalSourceDependFiles(ROMEString& buffer);
-   void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer);
+   void    WriteMakefileAdditionalSourceFilesCompileStatments(ROMEString& buffer,const char* flag = 0);
    void    WriteMakefileBuildRule(ROMEString& buffer,const char* builder);
    void    WriteRootCintCall(ROMEString& buffer);
    void    WriteUserMakeFile();
+   void    WriteMakefilePrecompiledHeaders(ROMEString& buffer);
    void    WriteHTMLDoku();
    void    WriteHTMLStyle(ROMEString &buffer);
    void    WriteHTMLSteering(ROMEString &buffer,Int_t numSteer,Int_t numTask,const char* group);

@@ -392,6 +392,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    mfSourceFileAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfMFSources,maxNumberOfAffiliations));
    mfSourceFileUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfMFSources));
 
+   // precompiled headers;
+   precompiledHeaders = new ROMEStrArray(1);
+   precompiledIncludeHeaders = new ROMEStrArray(3);
+
    delete xml;
    return true;
 }
