@@ -25,6 +25,10 @@ CXX ?= g++
 #####################################################################
 # Nothing needs to be modified after this line 
 #####################################################################
+GCC_MAJOR     := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f1)
+GCC_MINOR     := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f2)
+GCC_PATCH     := $(shell $(CXX) -dumpversion 2>&1 | cut -d'.' -f3)
+
 INCLUDE := -Iinclude/ -Iargus/include/ -Ibuilder/include/ $(shell $(ROOTSYS)/bin/root-config --cflags)
 LIBRARY := $(shell $(ROOTSYS)/bin/root-config --glibs) -lHtml
 TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
@@ -48,6 +52,8 @@ ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
   TARGET += librome.a
 endif
+
+CFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
 
 -include Makefile.arch
 

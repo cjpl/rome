@@ -272,6 +272,9 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfMFSourceAffiliations;
    delete [] mfSourceFileAffiliation;
    delete [] mfSourceFileUsed;
+
+   delete precompiledHeaders;
+   delete precompiledIncludeHeaders;
 }
 
 Bool_t ROMEBuilder::StartBuilder()
@@ -664,6 +667,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    sqlite = false;
    sqlite3 = false;
    noVP = false;
+   pch = false;
 #if defined (HAVE_LIBROME)
    librome = true;
 #else
@@ -838,6 +842,13 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-orca")) {
          orca = true;
       }
+      else if (!strcmp(argv[i],"-pch")) {
+#if (GCC_MAJOR >= 4) || ( (GCC_MAJOR == 3) && (GCC_MINOR >= 4))
+         pch = true;
+#else
+         cout << "Precompiled header is available with gcc 3.4 or later." << endl;
+#endif
+      }
       else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
          while (argv[i][0]!='-') {
@@ -907,6 +918,7 @@ void ROMEBuilder::Usage()
    cout << "  -o        Outputfile path" << endl;
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
+   cout << "  -pch      Use precompiled header (no Argument)" << endl;
    cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
    cout << "  -orca     Generated program can be connected to a orca DAQ system (no Argument)" << endl;
    cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;

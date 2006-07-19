@@ -10978,6 +10978,45 @@ Bool_t ROMEBuilder::WriteLinkDefH(ROMEStrArray *headers, ROMEStrArray *ldsuffix,
    return true;
 }
 
+Bool_t ROMEBuilder::WritePrecompiledHeaders()
+{
+   // Write XXXVersion.h
+   ROMEString hFile;
+   ROMEString buffer;
+   ROMEString headerDescription;
+   ROMEString tmp, tmp2, tmp3;
+   ROMEString path;
+   ROMEString fileName;
+   ROMEString fileExtension;
+
+   Int_t nstrarray = 1; // currently only one precompiled header
+   ROMEStrArray** strarray = new ROMEStrArray*[nstrarray];
+   strarray[0] = precompiledIncludeHeaders;
+   Int_t i ,j;
+
+   for (i = 0; i < nstrarray; i++) {
+      AnalyzeFileName(precompiledHeaders->At(i).Data(),path,fileName,fileExtension);
+      hFile.SetFormatted("%sinclude/%s", outDir.Data(), precompiledHeaders->At(i).Data());
+      buffer.Resize(0);
+      headerDescription.Resize(0);
+      WriteHeader(buffer, mainAuthor, true);
+      headerDescription.AppendFormatted("Header including headers to be precompiled.\n\n");
+      WriteDescription(buffer, gSystem->BaseName(hFile.Data()), headerDescription.Data(), false);
+      buffer.AppendFormatted("\n\n");
+      buffer.AppendFormatted("#ifndef %s_H\n",fileName.Data());
+      buffer.AppendFormatted("#define %s_H\n",fileName.Data());
+      buffer.AppendFormatted("\n");
+      for (j = 0; j < strarray[i]->GetEntriesFast(); j++)
+         buffer.AppendFormatted("#include \"%s\"\n", strarray[i]->At(j).Data());
+      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("#endif\n\n");
+      WriteFile(hFile.Data(),buffer.Data(),6);
+   }
+
+   delete [] strarray;
+   return true;
+}
+
 Bool_t ROMEBuilder::ReplaceHeader(const char* filename,const char* header,const char* body,Int_t nspace,const char* str1, const char* str2)
 {
    bool writeFile = false;
