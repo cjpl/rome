@@ -57,7 +57,7 @@ Bool_t ROMESQLite3::MakeQuery(const char* query, Bool_t store)
          return false;
       }
       if(!StoreResult()){
-         ROMEPrint::Error("Query error : %s\n", query);
+         ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
          return false;
       }
    }
