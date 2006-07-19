@@ -32,6 +32,8 @@ public:
 
 Bool_t ROMEInterruptHandler::Notify()
 {
+   static Int_t nNotified = 0;
+   nNotified++;
    gROME->ss_getchar(1);
    gROME->restoreOutput();
    if (strcmp(gROME->GetActiveDAQ()->GetName(), "midas") == 0
@@ -42,7 +44,11 @@ Bool_t ROMEInterruptHandler::Notify()
    }
    if (gROME->GetApplication()->isUseRintInterruptHandler())
       return gROME->GetApplication()->GetRintInterruptHandler()->Notify();
-   gROME->GetApplication()->Terminate(0);
+
+   if (nNotified >= 2)
+      gSystem->Abort();
+   else
+      gROME->GetApplication()->Terminate(0);
    return kTRUE;
 }
 
