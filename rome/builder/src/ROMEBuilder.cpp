@@ -967,6 +967,7 @@ Bool_t ROMEBuilder::WriteFile(const char* filename,const char* body,Int_t nspace
       }
       if (makeOutput) cout << setw(nspace)<< "" << filename << endl;
       *fileStream<<body;
+      fileStream->close();
       delete fileStream;
    }
    return backupCreated;

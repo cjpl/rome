@@ -10996,7 +10996,7 @@ Bool_t ROMEBuilder::WritePrecompiledHeaders()
 
    for (i = 0; i < nstrarray; i++) {
       AnalyzeFileName(precompiledHeaders->At(i).Data(),path,fileName,fileExtension);
-      hFile.SetFormatted("%sinclude/%s", outDir.Data(), precompiledHeaders->At(i).Data());
+      hFile.SetFormatted("include/%s", precompiledHeaders->At(i).Data()); // we are in outDir.
       buffer.Resize(0);
       headerDescription.Resize(0);
       WriteHeader(buffer, mainAuthor, true);
