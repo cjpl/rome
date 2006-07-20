@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Mon Jul 17 10:16:10 2006 -->
+<!-- created by MXML on Thu Jul 20 11:01:44 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -130,6 +130,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <TabName>Histos</TabName>
         <!-- Inactive tasks are not executed by the framework. -->
         <Active>true</Active>
+        <NumberOfPadsX>4</NumberOfPadsX>
+        <NumberOfPadsY>4</NumberOfPadsY>
+        <PadConfiguration>false</PadConfiguration>
       </Tab>
     </Tabs>
   </MainConfiguration>

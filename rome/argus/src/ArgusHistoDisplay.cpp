@@ -70,6 +70,9 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fInheritanceName = "";
    fPadConfigActive = false;
    fTabActive = false;
+   fNumberOfPadsX = 1;
+   fNumberOfPadsY = 1;
+   fPadConfigActive = false;
 
    fNumberOfUserTGraph = 0;
 
@@ -222,7 +225,7 @@ void ArgusHistoDisplay::BaseInit()
    MapSubwindows();
    MapWindow();
 
-   SetupPads(1, 1,true);
+   SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
 }
 
 void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
@@ -367,6 +370,11 @@ void ArgusHistoDisplay::BaseTabSelected()
             fMenuView->RCheckEntry(M_ARGUS_DISPLAY_VIEW[i][j],M_ARGUS_DISPLAY_VIEW[0][0],M_ARGUS_DISPLAY_VIEW[fNumberOfPadsX-1][fNumberOfPadsY-1]);
       }
    }
+   if (fPadConfigActive)
+      fMenuView->CheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
+   else
+      fMenuView->UnCheckEntry(M_ARGUS_DISPLAY_VIEW_PAD_CONFIG);
+
    SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);
    fChannelNumber = 0;
 }

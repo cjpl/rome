@@ -6976,6 +6976,29 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
       subGroup->GetLastParameter()->AddWriteLine("else");
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      if (tabHistoDisplay[i]) {
+         // Number Of Pads X
+         subGroup->AddParameter(new ROMEConfigParameter("NumberOfPadsX"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetNumberOfPadsX(##.ToInteger());", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->Get%s%sTab()->GetNumberOfPadsX());", tabName[i].Data(),tabSuffix[i].Data());
+         // Number Of Pads Y
+         subGroup->AddParameter(new ROMEConfigParameter("NumberOfPadsY"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->Get%s%sTab()->SetNumberOfPadsY(##.ToInteger());", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->Get%s%sTab()->GetNumberOfPadsY());", tabName[i].Data(),tabSuffix[i].Data());
+         // Pad Configuration
+         subGroup->AddParameter(new ROMEConfigParameter("PadConfiguration","1","CheckButton"));
+         subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tab");
+         subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetPadConfigActive(kTRUE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddSetLine("else");
+         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetPadConfigActive(kFALSE);", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetWindow()->Get%s%sTab()->IsPadConfigActive())", tabName[i].Data(),tabSuffix[i].Data());
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subGroup->GetLastParameter()->AddWriteLine("else");
+         subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+      }
       parGroup->AddSubGroup(subGroup);
       if (numOfSteering[i+numOfTask+1]>0) {
          steerPointerT.SetFormatted("gAnalyzer->GetWindow()->Get%s%sTab()->GetSP()", tabName[i].Data(), tabSuffix[i].Data());

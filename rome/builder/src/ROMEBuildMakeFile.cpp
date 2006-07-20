@@ -1715,7 +1715,7 @@ void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tmp,tmp2,tmp3,tmp4;
-   Int_t i;
+   Int_t i=0;
    ROMEString path, name, ext;
 
    dictionaryNames = new ROMEStrArray(50);
