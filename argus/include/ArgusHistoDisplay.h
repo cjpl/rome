@@ -102,6 +102,14 @@ public:
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
 
+   void SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
+   int  GetNumberOfPadsX() { return fNumberOfPadsX; };
+   void SetNumberOfPadsY(int n) { fNumberOfPadsY = n; };
+   int  GetNumberOfPadsY() { return fNumberOfPadsY; };
+   void   SetPadConfigActive(Bool_t flag) { fPadConfigActive = flag; };
+   Bool_t IsPadConfigActive() { return fPadConfigActive; };
+
+
 protected:
    void BaseInit();
    void BaseMenuClicked(TGPopupMenu *menu,Long_t param);

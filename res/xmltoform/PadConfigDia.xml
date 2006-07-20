@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- created by MXML on Tue May 30 18:52:17 2006 -->
+<XMLToForm>
+  <MaximalWindowWidth>700</MaximalWindowWidth>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#0</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#1</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#2</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#3</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#4</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#5</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#6</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#7</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#8</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#9</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#10</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#11</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#12</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#13</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#14</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#15</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#16</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#17</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#18</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#19</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#20</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#21</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#22</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#23</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#24</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#25</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#26</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#27</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#28</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#29</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#30</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#31</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#32</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#33</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#34</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <FrameType>horizontal</FrameType>
+    <Frame>
+      <FrameTitle>#35</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#36</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#37</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#38</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+    <Frame>
+      <FrameTitle>#39</FrameTitle>
+      <EditBox>
+        <Label>Object Index</Label>
+        <Value>0</Value>
+      </EditBox>
+    </Frame>
+  </Frame>
+  <Frame>
+    <Button>
+      <Text>Ok</Text>
+      <ID>1</ID>
+    </Button>
+    <Button>
+      <Text>Cancel</Text>
+      <ID>0</ID>
+    </Button>
+  </Frame>
+</XMLToForm>

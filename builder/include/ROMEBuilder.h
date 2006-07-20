@@ -656,6 +656,7 @@ private:
    void    Usage();
    void    AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile);
    Bool_t  WriteFile(const char* filename,const char* content,Int_t nspace = 0, Bool_t backup = false);
+   Bool_t  CopyFile(const char* oldFileName,const char* newFileName);
 
    void* AllocateInt(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);
    void* AllocateBool(Int_t x1, Int_t x2=0, Int_t x3=0, Int_t x4=0, Int_t x5=0, Int_t x6=0);

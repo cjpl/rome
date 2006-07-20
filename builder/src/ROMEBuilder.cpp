@@ -283,6 +283,8 @@ Bool_t ROMEBuilder::StartBuilder()
    int i,j,k,l;
    bool found;
    ROMEString str;
+   ROMEString oldFile;
+   ROMEString newFile;
 
    tabObjectSupportedHistos.AddLast("TGraph");
    tabObjectSupportedHistos.AddLast("TH1C");
@@ -522,6 +524,15 @@ Bool_t ROMEBuilder::StartBuilder()
       path.SetFormatted("%sinclude/databases", outDir.Data());
       gSystem->MakeDirectory(path.Data());
    }
+   path.SetFormatted("%sres", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
+   path.SetFormatted("%sres/xmltoform", outDir.Data());
+   gSystem->MakeDirectory(path.Data());
+
+   char* romesys = getenv("ROMESYS");
+   oldFile.SetFormatted("%s/res/xmltoform/PadConfigDia.xml", romesys);
+   newFile.SetFormatted("%sres/xmltoform/PadConfigDia.xml", outDir.Data());
+   CopyFile(oldFile.Data(),newFile.Data());
 
    // write classes
    if (!AddConfigParameters()) return false;
@@ -1454,4 +1465,26 @@ void* ROMEBuilder::AllocateROMEString(Int_t x1, Int_t x2, Int_t x3, Int_t x4, In
    };
 
    return 0;
+}
+
+Bool_t ROMEBuilder::CopyFile(const char* oldFileName,const char* newFileName)
+{
+   fstream *fileStreamI;
+   fstream *fileStreamO;
+   ROMEString fileBuffer;
+   if ((fileStreamI = new fstream(oldFileName,ios::in))) {
+      fileBuffer.ReadFile(*fileStreamI);
+      fileStreamI->close();
+      delete fileStreamI;
+   }
+   else
+      return false;
+   if ((fileStreamO = new fstream(newFileName,ios::out | ios::trunc))) {
+      *fileStreamO<<fileBuffer.Data();
+      fileStreamO->close();
+      delete fileStreamO;
+   }
+   else
+      return false;
+   return true;
 }
