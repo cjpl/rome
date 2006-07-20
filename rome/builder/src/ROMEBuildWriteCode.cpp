@@ -6192,17 +6192,6 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
 #endif
-   // Modes/QuitMode
-   subGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
-   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
-   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(true);");
-   subGroup->GetLastParameter()->AddSetLine("else");
-   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(false);");
-   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isQuitMode())");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
-   subGroup->GetLastParameter()->AddWriteLine("else");
-   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/VerboseLevel
    subGroup->AddParameter(new ROMEConfigParameter("VerboseLevel","1","ComboBox"));
    subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
@@ -6244,6 +6233,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddComboBoxEntry("3");
    subGroup->GetLastParameter()->AddComboBoxEntry("4");
    subGroup->GetLastParameter()->AddComboBoxEntry("5");
+   // Modes/QuitMode
+   subGroup->AddParameter(new ROMEConfigParameter("QuitMode","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(true);");
+   subGroup->GetLastParameter()->AddSetLine("else");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetQuitMode(false);");
+   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isQuitMode())");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+   subGroup->GetLastParameter()->AddWriteLine("else");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    // Modes/ShowSplashScreen
    subGroup->AddParameter(new ROMEConfigParameter("ShowSplashScreen","1","CheckButton"));
    subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
@@ -6263,6 +6263,17 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("else");
    subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetGraphicalConfigEdit(false);");
    subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isGraphicalConfigEdit())");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+   subGroup->GetLastParameter()->AddWriteLine("else");
+   subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+   // Modes/PreserveConfig
+   subGroup->AddParameter(new ROMEConfigParameter("PreserveConfig","1","CheckButton"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("if (##==\"true\")");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetPreserveConfig(true);");
+   subGroup->GetLastParameter()->AddSetLine("else");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetPreserveConfig(false);");
+   subGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->isPreserveConfig())");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
