@@ -102,6 +102,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fQuitMode = batch || daemon;
    fSplashScreen = !nographics;
    fGraphicalConfigEdit = true;
+   fPreserveConfig = false;
    fDontReadNextEvent = false;
    fInputDir = "./";
    fOutputDir = "./";
@@ -495,9 +496,11 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
          return false;
       }
    }
-   if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
-      ROMEPrint::Print("\nTerminate program.\n");
-      return false;
+   if (!isPreserveConfig()) {
+      if (!this->fConfiguration->WriteConfigurationFile(configFile.Data())) {
+         ROMEPrint::Print("\nTerminate program.\n");
+         return false;
+      }
    }
 
    ROMEPrint::Debug("Reading command line options\n");

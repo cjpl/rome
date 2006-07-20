@@ -90,6 +90,11 @@
 					<xs:documentation>Configuration file can be modified in a GUI at start up.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="PreserveConfig" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Flag if configuration XML file is overwritten by program. When this is true, program does not overwrite configuration file.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="AnalyzerControllerDesc">
