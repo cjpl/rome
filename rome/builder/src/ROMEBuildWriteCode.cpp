@@ -7036,6 +7036,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          continue;
       subGroup = new ROMEConfigParameterGroup(steerFieldName[numTask][numSteer][i].Data(),"1","SteeringParameterField","SPName");
       subGroup->SetWriteEmptyLine(kFALSE);
+      subGroup->SetComment(ROMEConfig::kCommentLevelSP, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
       parGroup->AddSubGroup(subGroup);
       if (subGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
          maxConfigParameterHierarchyLevel = subGroup->GetHierarchyLevel();
@@ -7073,9 +7074,8 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
       }
       else {
          subGroup->AddParameter(new ROMEConfigParameter("SPValue","1"));
-         subGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelSP, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
-         setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          subGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelNever, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
+         setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          subGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="std::string")
             subGroup->GetLastParameter()->AddSetLine("   %s->Set%s(##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data());
