@@ -171,6 +171,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fHistoRun = 0;
    fRomeOutputFile = 0;
    fWindow = 0;
+   fWindowUpdateFrequency = 0;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -948,24 +949,6 @@ Int_t ROMEAnalyzer::ss_getchar(UInt_t reset)
 #endif
 }
 
-UInt_t ROMEAnalyzer::ss_millitime()
-{
-#if defined( R__UNIX )
-   {
-      struct timeval tv;
-
-      gettimeofday(&tv, 0);
-
-      return tv.tv_sec * 1000 + tv.tv_usec / 1000;
-   }
-
-#elif defined( R__VISUAL_CPLUSPLUS )
-
-   return (UInt_t) GetTickCount();
-
-#endif
-}
-
 Int_t ROMEAnalyzer::ss_daemon_init(Bool_t keep_stdout)
 {
 #if defined( R__UNIX )   // only implemented for UNIX
@@ -1213,16 +1196,6 @@ void ROMEAnalyzer::InitNetFolders(Int_t number)
 Bool_t ROMEAnalyzer::StartWindow()
 {
    return fWindow->Start();
-}
-
-Int_t ROMEAnalyzer::GetUpdateFrequency()
-{
-   return fWindow->GetUpdateFrequency();
-}
-
-void ROMEAnalyzer::SetUpdateFrequency(Int_t frequency)
-{
-   fWindow->SetUpdateFrequency(frequency);
 }
 
 Bool_t ROMEAnalyzer::IsWindowBusy() {

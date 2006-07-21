@@ -21,6 +21,7 @@
 
 class ROMETreeInfo;
 class TFile;
+class TTime;
 
 class ROMEEventLoop : public ROMETask {
 protected:
@@ -38,17 +39,17 @@ protected:
    Long64_t      fStopAtEvent;                     //! Stop execution at this event
 
    // Statistics update
-   Int_t         fStatisticsTimeOfLastEvent;       //! Time of last Event
+   ULong_t       fStatisticsTimeOfLastEvent;       //! Time of last Event
    Double_t      fStatisticsLastEvent;             //! Last Event
 
    // Progress Display
    Int_t         fProgressDelta;                   //! Maximal time difference
-   time_t        fProgressTimeOfLastEvent;         //! Last time for display
+   ULong_t       fProgressTimeOfLastEvent;         //! Last time for display
    Long64_t      fProgressLastEvent;               //! Last Event
    Bool_t        fProgressWrite;                   //! Write flag
 
    // user input
-   time_t        fUserInputLastTime;               //! Last time for user input
+   ULong_t       fUserInputLastTime;               //! Last time for user input
    Bool_t        fContinuous;                      //! Continuous Mode
 
    // Output Tree Files
@@ -61,7 +62,9 @@ protected:
 
    ROMEStopwatch fFileIOWatch;                     //! Records Time used by File IO
 
-   Int_t         fSavedUpdateFrequency;            //! Saved update frequency for wait
+   // Monitor
+   Bool_t    fUpdateWindow;                           //! Window update activation flag
+   ULong_t   fLastUpdateTime;                         //! Time of the last window update
 public:
    // Static Task Switches Changes Flag
    static Bool_t fTaskSwitchesChanged;               //! Flag Task Switches Changes

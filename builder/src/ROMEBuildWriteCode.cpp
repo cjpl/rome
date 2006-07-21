@@ -5089,26 +5089,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("void %sWindow::StopEventHandler()\n", shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("   if (fTabSwitches.%s%s)\n", tabName[i].Data(),tabSuffix[i].Data());
-      buffer.AppendFormatted("      f%s%sTab->StopEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
-   }
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("void %sWindow::StartEventHandler()\n", shortCut.Data());
-   buffer.AppendFormatted("{\n");
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("   if (fTabSwitches.%s%s)\n", tabName[i].Data(),tabSuffix[i].Data());
-      buffer.AppendFormatted("      f%s%sTab->StartEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
-   }
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("\n");
 
    // Write File
    WriteFile(cppFile.Data(), buffer.Data(), 6);
@@ -5339,8 +5319,6 @@ Bool_t ROMEBuilder::WriteWindowH()
 
    // Event Handler
    buffer.AppendFormatted("   // Event Handler\n");
-   buffer.AppendFormatted("   void StopEventHandler();\n");
-   buffer.AppendFormatted("   void StartEventHandler();\n");
    buffer.AppendFormatted("   void TriggerEventHandler();\n");
    buffer.AppendFormatted("\n");
 
@@ -6301,15 +6279,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
       // Argus/UpdateFrequency
       subGroup->AddParameter(new ROMEConfigParameter("UpdateFrequency"));
       subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
-      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetWindow()->SetUpdateFrequency(##.ToInteger());");
-      subGroup->GetLastParameter()->AddSetLine("if (gAnalyzer->GetWindow()->IsActive()) {");
-      for (i=0;i<numOfTab;i++) {
-         if (!tabUsed[i])
-            continue;
-         subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetWindow()->Get%s%sTab()->SetUpdateFrequency(##.ToInteger());", tabName[i].Data(), tabSuffix[i].Data());
-      }
-      subGroup->GetLastParameter()->AddSetLine("}");
-      subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindow()->GetUpdateFrequency());");
+      subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetWindowUpdateFrequency(##.ToInteger());");
+      subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetWindowUpdateFrequency());");
       mainParGroup->AddSubGroup(subGroup);
       // Argus/AnalyzerController
       subSubGroup = new ROMEConfigParameterGroup("AnalyzerController");

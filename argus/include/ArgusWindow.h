@@ -80,10 +80,6 @@ public:
    Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
    TGStatusBar*    GetStatusBar() { return fStatusBar; }
 
-   // Update Frequency
-   void            SetUpdateFrequency(Int_t duration);
-   Int_t           GetUpdateFrequency() { return fUpdateFrequency; }
-   
    // Menu
    TGMenuBar*      GetMenuBar() { return fMenuBar; }
    void            CloseWindow();
@@ -98,8 +94,6 @@ public:
    Bool_t          IsActive() const { return fArgusActive; }
 
    // Event Handler
-   virtual void    StopEventHandler() = 0;
-   virtual void    StartEventHandler() = 0;
    virtual void    TriggerEventHandler() = 0;
 protected:
    void            InitArgus();
