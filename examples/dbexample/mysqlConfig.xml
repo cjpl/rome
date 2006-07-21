@@ -1,40 +1,82 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Wed Jun 15 13:04:10 2005 -->
+<!-- created by MXML on Fri Jul 21 19:31:34 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <ProgramConfiguration>
+    <ROME>
+      <Active>true</Active>
+    </ROME>
+    <ARGUS>
+      <Active>false</Active>
+    </ARGUS>
+  </ProgramConfiguration>
+
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers></EventNumbers>
+    <RunParameters>
+      <RunNumbers></RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
+    </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
-      <BatchMode>false</BatchMode>
+      <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
+      <QuitMode>true</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
+      <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <DataBases>
+
       <DataBase>
         <Name>mydatabase</Name>
+        <Connection>mysql://username:password@hostname/databasename</Connection>
         <Type>sql</Type>
-        <Connection>mysql://username:password@hostname/dbname</Connection>
+        <EventBased>false</EventBased>
       </DataBase>
     </DataBases>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>false</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+
+    <HistogramRead>
+      <Read>false</Read>
+      <RunNumber>0</RunNumber>
+    </HistogramRead>
+
     <Tasks>
       <Task>
         <TaskName>PrintFolders</TaskName>
         <Active>true</Active>
       </Task>
+
+      <Task>
+        <TaskName>WriteFolders</TaskName>
+        <Active>true</Active>
+      </Task>
+
+      <Task>
+        <TaskName>MakeQuery</TaskName>
+        <Active>true</Active>
+      </Task>
     </Tasks>
-    <Midas/>
   </MainConfiguration>
 </Configuration>

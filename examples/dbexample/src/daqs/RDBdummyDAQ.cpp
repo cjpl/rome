@@ -22,6 +22,8 @@ bool RDBdummyDAQ::BeginOfRun()
 bool RDBdummyDAQ::Event(Long64_t event)
 {
    gAnalyzer->SetCurrentEventNumber(event);
+   if (event >= 2)
+      SetEndOfRun();
    return true;
 }
 
