@@ -1558,9 +1558,10 @@ Bool_t ROMEBuilder::WriteTaskCpp()
       WriteDescription(header, clsName.Data(), clsDescription.Data(), kTRUE);
 
       buffer.Resize(0);
+      buffer.AppendFormatted("\n\n");
       // Header
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
-      buffer.AppendFormatted("\n\n#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("#include \"tasks/%sT%s.h\"\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("// uncomment if you want to include headers of all folders\n");
@@ -2466,7 +2467,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
 
       buffer.Resize(0);
 
-      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("\n\n");
       // Header
       buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n", shortCut.Data());
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n", shortCut.Data());
@@ -2555,7 +2556,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       delete fileStream;
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
 
-      buffer.AppendFormatted("\n");
+      buffer.AppendFormatted("\n\n");
       // Header
       buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
