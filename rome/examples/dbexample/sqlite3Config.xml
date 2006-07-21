@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Feb 24 14:56:15 2006 -->
+<!-- created by MXML on Fri Jul 21 19:36:47 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
@@ -9,47 +13,70 @@
       <Active>false</Active>
     </ARGUS>
   </ProgramConfiguration>
+
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers></EventNumbers>
-    <InputFileNames></InputFileNames>
+    <RunParameters>
+      <RunNumbers></RunNumbers>
+      <EventNumbers></EventNumbers>
+      <InputFileNames></InputFileNames>
+    </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
-      <BatchMode>false</BatchMode>
-      <QuitMode>false</QuitMode>
+      <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
+      <QuitMode>true</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
+      <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <DataBases>
+
       <DataBase>
         <Name>mydatabase</Name>
-        <Type>sql</Type>
         <Connection>sqlite3://sqlDataBase/RDBDataBase.sqlite3</Connection>
+        <Type>sql</Type>
         <EventBased>false</EventBased>
       </DataBase>
     </DataBases>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>false</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Histograms>
+
+    <HistogramRead>
       <Read>false</Read>
-      <Run>0</Run>
-    </Histograms>
+      <RunNumber>0</RunNumber>
+    </HistogramRead>
+
     <Tasks>
       <Task>
         <TaskName>PrintFolders</TaskName>
         <Active>true</Active>
       </Task>
+
+      <Task>
+        <TaskName>WriteFolders</TaskName>
+        <Active>true</Active>
+      </Task>
+
+      <Task>
+        <TaskName>MakeQuery</TaskName>
+        <Active>true</Active>
+      </Task>
     </Tasks>
-    <Midas/>
   </MainConfiguration>
 </Configuration>

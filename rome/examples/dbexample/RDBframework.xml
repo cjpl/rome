@@ -95,9 +95,15 @@
 	<Tasks>
 		<Task>
 			<TaskName>PrintFolders</TaskName>
-			<Author>Ryu Sawada</Author>
-			<TaskVersion>1</TaskVersion>
 			<TaskDescription>This task shows containts of folders.</TaskDescription>
+		</Task>
+		<Task>
+			<TaskName>WriteFolders</TaskName>
+			<TaskDescription>This is an example to write database.</TaskDescription>
+		</Task>
+		<Task>
+			<TaskName>MakeQuery</TaskName>
+			<TaskDescription>This is an example to use SQL query from analyzer.</TaskDescription>
 		</Task>
 	</Tasks>
 	<UserDAQSystems>

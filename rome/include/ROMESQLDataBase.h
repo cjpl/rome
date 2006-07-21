@@ -51,12 +51,19 @@ public:
    Bool_t       Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
    char        *GetType() { return "sql"; }
    char        *GetDescription() { return "SQL data base using the file system to store tables"; }
-   Bool_t       MakeQuery(char* query,Bool_t store){return fSQL->MakeQuery(query,store);}
-   Int_t        GetNumberOfRows(){return fSQL->GetNumberOfRows();}
-   Bool_t       NextRow(){return fSQL->NextRow();}
-   Int_t        GetNumberOfFields(){return fSQL->GetNumberOfFields();}
-   char        *GetField(Int_t fieldNumber){return fSQL->GetField(fieldNumber);}
-   void         FreeResult(){fSQL->FreeResult();}
+
+   Bool_t       MakeQuery(const char* query,Bool_t store){ return fSQL->MakeQuery(query,store); }
+   Int_t        GetNumberOfRows(){ return fSQL->GetNumberOfRows(); }
+   Bool_t       NextRow(){ return fSQL->NextRow(); }
+   Int_t        GetNumberOfFields(){ return fSQL->GetNumberOfFields(); }
+   char        *GetField(Int_t fieldNumber){ return fSQL->GetField(fieldNumber); }
+   void         FreeResult(){ fSQL->FreeResult(); }
+   Int_t        GetErrorCode() { return fSQL->GetErrorCode(); }
+   char        *GetErrorMessage() { return fSQL->GetErrorMessage(); }
+   Bool_t       StartTransaction( const char* option ){ return fSQL->StartTransaction(option); }
+   Bool_t       CommitTransaction( const char* option ){ return fSQL->CommitTransaction(option); }
+   Bool_t       RollbackTransaction( const char* option ){ return fSQL->RollbackTransaction(option); }
+
    virtual void Print(Option_t *);
 //   Bool_t   DataSeek(my_ulonglong offset);
 /*
