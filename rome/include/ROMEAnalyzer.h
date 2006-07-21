@@ -218,6 +218,7 @@ protected:
    // Monitor
    ArgusWindow   *fWindow;                       //! Handle to Argus Window
    Int_t          fWindowUpdateFrequency;        //! The update frequency of the Argus window
+   Bool_t         fRequestEventHandling;         //! Event handling request flag
 
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
@@ -566,6 +567,9 @@ public:
    Int_t           GetWindowUpdateFrequency() { return fWindowUpdateFrequency; };
    void            SetWindowUpdateFrequency(Int_t frequency) { fWindowUpdateFrequency = frequency; };
    Bool_t          IsWindowBusy();
+   void            RequestEventHandling() { fRequestEventHandling = true; }
+   void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
+   Bool_t          IsEventHandlingRequested() { return fRequestEventHandling; }
 
    // Program Steering
    void            NextEvent();

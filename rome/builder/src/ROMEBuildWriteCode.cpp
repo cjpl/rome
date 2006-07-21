@@ -3011,7 +3011,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                if (tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]>-1)
                   buffer.AppendFormatted(taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]].Data());
                buffer.AppendFormatted(");\n");
-               buffer.AppendFormatted("            BaseEventHandler();\n");
+               buffer.AppendFormatted("            gAnalyzer->RequestEventHandling();\n");
                buffer.AppendFormatted("            break;\n");
                buffer.AppendFormatted("         }\n");
             }

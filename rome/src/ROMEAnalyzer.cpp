@@ -172,6 +172,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fRomeOutputFile = 0;
    fWindow = 0;
    fWindowUpdateFrequency = 0;
+   fRequestEventHandling = false;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
