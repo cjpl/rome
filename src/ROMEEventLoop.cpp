@@ -642,7 +642,7 @@ Bool_t ROMEEventLoop::Update()
    }
 
    if (!gROME->isBatchMode() &&
-       ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
+       ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
          ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber()-1);
@@ -654,9 +654,10 @@ Bool_t ROMEEventLoop::Update()
          if (gROME->GetWindow()->IsControllerActive())
             gROME->GetWindow()->GetAnalyzerController()->Update();
 
-         if (fUpdateWindow) {
-            if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) {
+         if (fUpdateWindow || gROME->IsEventHandlingRequested()) {
+            if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency()) || gROME->IsEventHandlingRequested()) {
                gROME->GetWindow()->TriggerEventHandler();
+               gROME->ClearEventHandlingRequest();
                fLastUpdateTime = (ULong_t)gSystem->Now();
             }
          }
