@@ -273,9 +273,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 Int_t ROMEEventLoop::RunEvent()
 {
    // Run one Event.
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent()\n");
    fCurrentEvent++;
 
    // Update
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : Update\n");
    if (fCurrentEvent>0) {
       if (!this->Update()) {
          this->Terminate();
@@ -287,6 +289,8 @@ Int_t ROMEEventLoop::RunEvent()
 
    ROMEString text;
 
+   // Check If Window Closed
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : IsWindowClosed\n");
    if (gROME->IsWindowClosed()) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
          this->DAQTerminate();
@@ -298,8 +302,9 @@ Int_t ROMEEventLoop::RunEvent()
       this->SetTerminate();
       return kBreak;
    }
+   // Check Event Numbers
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : CheckEventNumber\n");
    if (gROME->isOffline()) {
-      // check event numbers
       int status = gROME->CheckEventNumber(fCurrentEvent);
       if (status==0) {
          return kContinue;
@@ -343,6 +348,7 @@ Int_t ROMEEventLoop::RunEvent()
    gROME->SetFillEvent();
 
    // Read Event
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : DAQEvent\n");
    if (!this->DAQEvent()) {
       this->Terminate();
       gROME->SetTerminationFlag();
@@ -365,6 +371,7 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Event Tasks
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : ExecuteTasks\n");
    if (ROMEEventLoop::fTaskSwitchesChanged) {
       this->UpdateTaskSwitches();
       ROMEEventLoop::fTaskSwitchesChanged = false;
@@ -383,6 +390,7 @@ Int_t ROMEEventLoop::RunEvent()
       return kBreak;
 
    // Write Event
+   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
    if (!this->WriteEvent() && gROME->isFillEvent()) {
       this->Terminate();
       gROME->SetTerminationFlag();
@@ -560,14 +568,14 @@ Bool_t ROMEEventLoop::DAQEvent()
 
    Statistics *stat = gROME->GetTriggerStatistics();
 
-   gROME->SetEventFilled(false);
-   this->SetAnalyze();
-   this->ResetFolders();
-
    if (gROME->IsDontReadNextEvent()) {
       gROME->SetDontReadNextEvent(false);
       return true;
    }
+
+   this->SetAnalyze();
+   gROME->SetEventFilled(false);
+   this->ResetFolders();
 
    if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent))
       return false;

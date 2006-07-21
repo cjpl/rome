@@ -1256,7 +1256,9 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    for (i=0;i<affiliations.GetEntriesFast();i++)
       arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    buffer.AppendFormatted(arguments.Data());
+#if defined( R__UNIX )
    buffer.AppendFormatted(" $(Includes)");
+#endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
    buffer.AppendFormatted("\n\n\n");
@@ -1389,7 +1391,9 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    for (i=0;i<affiliations.GetEntriesFast();i++)
       arguments.AppendFormatted(" -DHAVE_%s",((ROMEString)affiliations.At(i)).ToUpper(tmp));
    buffer.AppendFormatted(arguments.Data());
+#if defined( R__UNIX )
    buffer.AppendFormatted(" $(Includes)");
+#endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(DictionaryHeaders)");
    buffer.AppendFormatted("\n\n");
@@ -1469,45 +1473,41 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       ROMEString str;
       path.ReplaceAll("$(","%");
       path.ReplaceAll(")","%");
+      buffer.AppendFormatted("!INCLUDE obj/%s.d\n",name.Data());
       if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
          buffer.AppendFormatted("obj/%s.obj: dict/%s.cpp\n",name.Data(),name.Data(),name.Data());
-      else {
-         buffer.AppendFormatted("!INCLUDE obj/%s.d\n",name.Data());
+      else
          buffer.AppendFormatted("obj/%s.obj: %s\n",name.Data(),sources->At(i).Data(),name.Data());
-      }
-      if (!(path.Index("/dict/")!=-1 || path.Index("dict/")==0)) {
-         buffer.AppendFormatted("\t@cd obj/\n",name.Data());
-         buffer.AppendFormatted("\t@start /MIN %s\n",name.Data());
-         buffer.AppendFormatted("\t@cd ../\n",name.Data());
-      }
+      buffer.AppendFormatted("\t@cd obj/\n",name.Data());
+      buffer.AppendFormatted("\t@start /MIN %s\n",name.Data());
+      buffer.AppendFormatted("\t@cd ../\n",name.Data());
       buffer.AppendFormatted("\t@cl /nologo /c $(Flags) $(Includes) %s /Foobj/%s.obj\n",sources->At(i).Data(),name.Data());
-      if (!(path.Index("/dict/")!=-1 || path.Index("dict/")==0)) {
-         batBuffer.AppendFormatted("cd ../\n");
-         batBuffer.AppendFormatted("cd %s\n",path.Data());
-         batBuffer.AppendFormatted("rmkdepend");
-         for (j=0;j<includeDirectories->GetEntriesFast();j++) {
-            str = includeDirectories->At(j).Data();
-            str.ReplaceAll("$(","%");
-            str.ReplaceAll(")","%");
-            batBuffer.AppendFormatted(" -I%s",str.Data());
-         }
-         for (j=0;j<numOfMFIncDirs;j++) {
-            str = mfIncDir[j].Data();
-            str.ReplaceAll("$(","%");
-            str.ReplaceAll(")","%");
-            batBuffer.AppendFormatted(" -I%s",str.Data());
-         }
-         batBuffer.AppendFormatted(" -f %sobj/%s.d -o .obj -p obj/ %s.%s\n",outDir.Data(),name.Data(),name.Data(),ext.Data());
-         batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s ./ -r %s\n",outDir.Data(),name.Data(),path.Data());
-         batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s \" *.h\" -r \" %s/*.h\" -v \" /\\\"\n",outDir.Data(),name.Data(),path.Data());
-         batBuffer.AppendFormatted("cd %sobj\n",outDir.Data());
-         batBuffer.AppendFormatted("exit\n",outDir.Data());
-         batFileName.SetFormatted("%sobj/%s.bat",outDir.Data(),name.Data());
-         WriteFile(batFileName.Data(),batBuffer.Data(),6);
-         dFileName.SetFormatted("%sobj/%s.d",outDir.Data(),name.Data());
-         if (gSystem->AccessPathName(dFileName.Data(),kFileExists))
-            WriteFile(dFileName.Data(),dBuffer.Data(),6);
+
+      batBuffer.AppendFormatted("cd ../\n");
+      batBuffer.AppendFormatted("cd %s\n",path.Data());
+      batBuffer.AppendFormatted("rmkdepend");
+      for (j=0;j<includeDirectories->GetEntriesFast();j++) {
+         str = includeDirectories->At(j).Data();
+         str.ReplaceAll("$(","%");
+         str.ReplaceAll(")","%");
+         batBuffer.AppendFormatted(" -I%s",str.Data());
       }
+      for (j=0;j<numOfMFIncDirs;j++) {
+         str = mfIncDir[j].Data();
+         str.ReplaceAll("$(","%");
+         str.ReplaceAll(")","%");
+         batBuffer.AppendFormatted(" -I%s",str.Data());
+      }
+      batBuffer.AppendFormatted(" -f %sobj/%s.d -o .obj -p obj/ %s.%s\n",outDir.Data(),name.Data(),name.Data(),ext.Data());
+      batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s ./ -r %s\n",outDir.Data(),name.Data(),path.Data());
+      batBuffer.AppendFormatted("ReplaceInFile -f %sobj/%s.d -s \" *.h\" -r \" %s/*.h\" -v \" /\\\"\n",outDir.Data(),name.Data(),path.Data());
+      batBuffer.AppendFormatted("cd %sobj\n",outDir.Data());
+      batBuffer.AppendFormatted("exit\n",outDir.Data());
+      batFileName.SetFormatted("%sobj/%s.bat",outDir.Data(),name.Data());
+      WriteFile(batFileName.Data(),batBuffer.Data(),6);
+      dFileName.SetFormatted("%sobj/%s.d",outDir.Data(),name.Data());
+      if (gSystem->AccessPathName(dFileName.Data(),kFileExists))
+         WriteFile(dFileName.Data(),dBuffer.Data(),6);
 #endif // R__VISUAL_CPLUSPLUS
    }
 }
@@ -1696,6 +1696,8 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
       buffer.AppendFormatted(" -sqlite3");
    if (pch)
       buffer.AppendFormatted(" -pch");
+   if (minRebuild)
+      buffer.AppendFormatted(" -minrb");
    if (flags.GetEntriesFast())
       buffer.AppendFormatted(" -f");
    int i;
@@ -1791,6 +1793,8 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDictionaryList(buffer,shortCut+"DBDict",databaseHeaders);
    buffer.AppendFormatted("DictionaryIncludes %s $(%sINC)",kEqualSign, shortCut.ToUpper(tmp));
 #if defined( R__VISUAL_CPLUSPLUS )
+   GetIncludeDirString(tmp," ","-");
+   buffer.Append(tmp);
    if (this->midas)
       buffer.AppendFormatted(" -I$(MIDASSYS)/include/");
 #else

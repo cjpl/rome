@@ -47,11 +47,13 @@ void ArgusTab::ArgusEventHandler() {
       return;
    if (gROME->IsROMEAndARGUS()) {
       if (!gROME->IsEventFilled()) {
-         fEventHandlerWaitTimer = new TTimer(10, kTRUE);
+         cout << "--------------------------------------------------------------------->" << endl;
+/*         fEventHandlerWaitTimer = new TTimer(100, kTRUE);
          fEventHandlerWaitTimer->Connect("Timeout()", "ArgusTab", this, "ArgusEventHandler()");
-         fEventHandlerWaitTimer->TurnOn();
+         fEventHandlerWaitTimer->TurnOn();*/
          return;
       }
+         cout << "=============================================================>" << endl;
       if (fEventHandlerWaitTimer!=NULL) {
          this->Disconnect(fEventHandlerWaitTimer);
          SafeDelete(fEventHandlerWaitTimer);
