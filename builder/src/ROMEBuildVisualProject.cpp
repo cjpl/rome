@@ -297,6 +297,9 @@ void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,c
 {
    int i;
    ROMEString str;
+   ROMEString path;
+   ROMEString name;
+   ROMEString ext;
    if (files->GetEntriesFast()>0) {
       xml->StartElement("Filter");
       xml->WriteAttribute("Name",folderName);
@@ -305,10 +308,11 @@ void ROMEBuilder::WriteVisualProjectProjFiles(ROMEXML *xml,ROMEStrArray* files,c
          xml->StartElement("File");
          str = files->At(i).Data();
          str.ReplaceAll("/","\\");
+         AnalyzeFileName(str.Data(),path,name,ext);
          RelativeWindowsPath(str,outDir.Data());
          xml->WriteAttribute("RelativePath",str.Data());
          if (str.Index("\\dict\\")!=-1 || str.Index("dict\\")==0) {
-            WriteVisualProjectProjWarningLevel(xml,"0");
+            WriteVisualProjectProjFileConfiguration(xml,"0",NULL);
             ROMEString buffer;
             buffer.SetFormatted("This file is used inside the visual studio to generate the %s.", files->At(i).Data());
             str.ReplaceAll(".cpp","");
@@ -438,7 +442,7 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
          str.ReplaceAll("/","\\");
          RelativeWindowsPath(str,outDir.Data());
          xml->WriteAttribute("RelativePath",str.Data());
-         WriteVisualProjectProjWarningLevel(xml,"0");
+         WriteVisualProjectProjFileConfiguration(xml,"0",NULL);
          xml->EndElement();
       }
       xml->EndElement();
@@ -495,13 +499,21 @@ void ROMEBuilder::WriteVisualProjectProjUserHeaders(ROMEXML *xml)
    }
 }
 
-void ROMEBuilder::WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level)
+void ROMEBuilder::WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const char *warningLevel,const char* preCompiledHeaderFile)
 {
+   ROMEString str;
    xml->StartElement("FileConfiguration");
    xml->WriteAttribute("Name","Debug|Win32");
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCCLCompilerTool");
-   xml->WriteAttribute("WarningLevel",level);
+   if (warningLevel!=NULL)
+      xml->WriteAttribute("WarningLevel",warningLevel);
+   if (preCompiledHeaderFile!=NULL) {
+      xml->WriteAttribute("UsePrecompiledHeader","2");
+      xml->WriteAttribute("PrecompiledHeaderThrough","");
+      str.SetFormatted("$(IntDir)/%s.pch",preCompiledHeaderFile);
+      xml->WriteAttribute("PrecompiledHeaderFile",str.Data());
+   }
    xml->EndElement();
    xml->EndElement();
 }

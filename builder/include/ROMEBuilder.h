@@ -81,6 +81,7 @@ protected:
    Bool_t        noVP;
    Bool_t        librome;
    Bool_t        pch;
+   Bool_t        minRebuild;
    ROMEStrArray  flags;
    ROMEStrArray  affiliations;
    ROMEStr2DArray affiliationList;
@@ -633,7 +634,7 @@ private:
    void    WriteVisualProjectProjFileDictCreators(ROMEXML *xml);
    void    WriteVisualProjectProjFileROMEBuilder(ROMEXML *xml);
    void    WriteVisualProjectProjUserSources(ROMEXML *xml);
-   void    WriteVisualProjectProjWarningLevel(ROMEXML *xml,const char *level);
+   void    WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const char *warningLevel,const char* preCompiledHeaderFile);
    void    WriteVisualProjectProjUserHeaders(ROMEXML *xml);
 
    // Type Utility Methods

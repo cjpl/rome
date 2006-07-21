@@ -679,6 +679,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    sqlite3 = false;
    noVP = false;
    pch = false;
+   minRebuild = false;
 #if defined (HAVE_LIBROME)
    librome = true;
 #else
@@ -812,8 +813,9 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
-         outDir = "C:/Data/Testprojects/jan/test/";
-         xmlFile = "C:/Data/Testprojects/jan/test/WIGammaTestCP.xml";
+         minRebuild = true;
+         outDir = "C:/Data/Testprojects/jan/wi-rome-ls-intel/";
+         xmlFile = "C:/Data/Testprojects/jan/wi-rome-ls-intel/WIArgon.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {
@@ -852,6 +854,13 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-orca")) {
          orca = true;
+      }
+      else if (!strcmp(argv[i],"-minrb")) {
+#if defined( R__VISUAL_CPLUSPLUS )
+         minRebuild = true;
+#   else
+         cout << "Minimal rebuild is only available on windows." << endl;
+#   endif
       }
       else if (!strcmp(argv[i],"-pch")) {
 #if (GCC_MAJOR >= 4) || ( (GCC_MAJOR == 3) && (GCC_MINOR >= 4))
@@ -930,6 +939,7 @@ void ROMEBuilder::Usage()
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
    cout << "  -pch      Use precompiled header (no Argument)" << endl;
+   cout << "  -minrb    Enables minimal rebuild, only on windows (no Argument)" << endl;
    cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
    cout << "  -orca     Generated program can be connected to a orca DAQ system (no Argument)" << endl;
    cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;

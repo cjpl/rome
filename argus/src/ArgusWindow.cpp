@@ -76,6 +76,7 @@ ArgusWindow::~ArgusWindow()
 
 Bool_t ArgusWindow::Start()
 {
+   ROMEPrint::Debug("ArgusWindow::Start()\n");
    // Initialize Analyzer Controller
    if (fControllerActive)
       fController = new ArgusAnalyzerController(gClient->GetRoot(),this,100,100,fControllerNetFolder);
@@ -102,8 +103,10 @@ Bool_t ArgusWindow::Start()
    // Create tab widget
    fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
 
+   ROMEPrint::Debug("Creating Tabs\n");
    if (!CreateTabs())
       return kFALSE;
+   ROMEPrint::Debug("Tabs Created\n");
 
    AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
    ROMEString name;
@@ -116,6 +119,7 @@ Bool_t ArgusWindow::Start()
    fCurrentTabID = 1;
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
 
+   ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    return kTRUE;
 }
 
