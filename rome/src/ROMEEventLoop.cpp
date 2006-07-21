@@ -18,6 +18,7 @@
 #include <TSystem.h>
 #include <TThread.h>
 #include <TFolder.h>
+#include <TTime.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -30,7 +31,6 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include <time.h>
 
 #include "ROMETreeInfo.h"
 #include "ROMERint.h"
@@ -63,8 +63,8 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fTreeUpdateIndex = 0;
    fStopAtRun = -1;
    fStopAtEvent = -1;
-   fSavedUpdateFrequency = -1;
    fHistoFile = 0;
+   fLastUpdateTime = 0;
 }
 
 ROMEEventLoop::~ROMEEventLoop()
@@ -180,7 +180,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       // Loop over Events
       //------------------
-      gROME->GetWindow()->StartEventHandler();
+      fUpdateWindow = true;
       fCurrentEvent = -1;
       fFirstUserInput = true;
       ROMEPrint::Debug("Entering event loop\n");
@@ -236,13 +236,15 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (gROME->IsShowRunStat()) {
          ROMEPrint::Print("run times :                      All Methods   Event Methods\n");
          ROMEPrint::Print("-----------                      ------------  -------------\n");
+         Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
          ROMEPrint::Print("\n");
       }
    }
    if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
-      gROME->GetWindow()->StopEventHandler();
+      fUpdateWindow = false;
+      gROME->GetWindow()->TriggerEventHandler();
    }
 
    // Root Interpreter
@@ -322,7 +324,8 @@ Int_t ROMEEventLoop::RunEvent()
          if (!this->UserInput()) {
             gROME->SetTerminationFlag();
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
-               gROME->GetWindow()->StopEventHandler();
+               fUpdateWindow = false;
+               gROME->GetWindow()->TriggerEventHandler();
             }
             // Terminate
             if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -470,6 +473,8 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    stat->eventsPerSecond = 0;
    stat->writtenEvents = 0;
    fStatisticsTimeOfLastEvent = 0;
+   fProgressTimeOfLastEvent = 0;
+   fLastUpdateTime = 0;
    fStatisticsLastEvent = 0;
 
    if (gROME->isOffline() && (gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())) {
@@ -574,7 +579,6 @@ Bool_t ROMEEventLoop::DAQEvent()
    }
 
    this->SetAnalyze();
-   gROME->SetEventFilled(false);
    this->ResetFolders();
 
    if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent))
@@ -582,7 +586,6 @@ Bool_t ROMEEventLoop::DAQEvent()
    if (this->isContinue()) {
       return true;
    }
-   gROME->SetEventFilled(true);
 
    if (gROME->IsEventBasedDataBase()) {
       if (!gROME->ReadSingleDataBaseFolders()) {
@@ -597,8 +600,7 @@ Bool_t ROMEEventLoop::DAQEvent()
 
    // Update Statistics
    stat->processedEvents++;
-   int time;
-   time = gROME->ss_millitime();
+   ULong_t time = (ULong_t)gSystem->Now();
    if (fStatisticsTimeOfLastEvent == 0)
       fStatisticsTimeOfLastEvent = time;
    if (time - fStatisticsTimeOfLastEvent != 0)
@@ -628,12 +630,12 @@ Bool_t ROMEEventLoop::Update()
    // Progress Display
    if (fProgressDelta>1) {
       if ((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5) >= fProgressLastEvent + fProgressDelta) {
-         time(&fProgressTimeOfLastEvent);
+         fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
          fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
          fProgressWrite = true;
       }
       else {
-         if (time(NULL) > fProgressTimeOfLastEvent+1) {
+         if ((ULong_t)gSystem->Now() > ((ULong_t)fProgressTimeOfLastEvent+1)) {
             fProgressDelta /= 10;
          }
       }
@@ -651,6 +653,13 @@ Bool_t ROMEEventLoop::Update()
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
          if (gROME->GetWindow()->IsControllerActive())
             gROME->GetWindow()->GetAnalyzerController()->Update();
+
+         if (fUpdateWindow) {
+            if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) {
+               gROME->GetWindow()->TriggerEventHandler();
+               fLastUpdateTime = (ULong_t)gSystem->Now();
+            }
+         }
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
@@ -685,9 +694,9 @@ Bool_t ROMEEventLoop::UserInput()
 #endif
       wait = true;
    }
-   else if (fContinuous && time(NULL) < fUserInputLastTime+0.1)
+   else if (fContinuous && ((ULong_t)gSystem->Now() < ((ULong_t)fUserInputLastTime+0.3)))
       return true;
-   time(&fUserInputLastTime);
+   fUserInputLastTime = (ULong_t)gSystem->Now();
 
    while (wait||first) {
       first = false;
@@ -745,14 +754,14 @@ Bool_t ROMEEventLoop::UserInput()
 #endif
             fContinuous = false;
             wait = true;
-            gROME->GetWindow()->StopEventHandler();
+            fUpdateWindow = false;
             gROME->GetWindow()->TriggerEventHandler();
          }
          if (ch == 'c' || ch == 'C' || gROME->IsUserEventC()) {
             ROMEPrint::Print("Continues mode                    \n");
             fContinuous = true;
             wait = false;
-            gROME->GetWindow()->StartEventHandler();
+            fUpdateWindow = true;
          }
          if (ch == 'g' || ch == 'G' || gROME->IsUserEventG()) {
             if (gROME->IsUserEventG()) {
@@ -826,19 +835,10 @@ Bool_t ROMEEventLoop::UserInput()
       }
 
       if (wait) {
-         if (fSavedUpdateFrequency==-1) {
-            fSavedUpdateFrequency = gROME->GetUpdateFrequency();
-            gROME->SetUpdateFrequency(0);
-         }
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }
-      else {
-         if (fSavedUpdateFrequency!=-1) {
-            gROME->SetUpdateFrequency(fSavedUpdateFrequency);
-            fSavedUpdateFrequency = -1;
-         }
-      }
+
       if (gROME->IsWindowClosed()) {
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS())
             return false;
@@ -847,7 +847,7 @@ Bool_t ROMEEventLoop::UserInput()
       }
    }
    if (hit)
-      time(&fProgressTimeOfLastEvent);
+      fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
 
    return true;
 }

@@ -145,19 +145,6 @@ ArgusTab* ArgusWindow::GetTabObject(const char* tabName)
    return 0;
 }
 
-void ArgusWindow::SetUpdateFrequency(Int_t duration)
-{
-   fUpdateFrequency = duration;
-   if (fArgusActive) {
-      ArgusTab *tab;
-      for (int i=0;i<GetTabObjectEntries();i++) {
-         tab = GetTabObjectAt(i);
-         if (tab)
-            tab->SetUpdateFrequency(duration);
-      }
-   }
-}
-
 void ArgusWindow::SetControllerNetFolder(const char* folderName)
 {
    if (!gROME->IsNetFolderActive(folderName))

@@ -19,16 +19,11 @@
 #include "ROME.h"
 #include "ROMEString.h"
 
-class TTimer;
-
 class ArgusTab : public TGCompositeFrame {
 
 protected:
    ROMEString fTitle;              //! Tab Title
    Bool_t     fActive;               //! is Active
-   Int_t      fUpdateFrequency;      //! Update Frequency
-   TTimer    *fEventHandlerTimer;    //! Timer for the EventHandler function
-   TTimer    *fEventHandlerWaitTimer;//! Timer for the EventHandler function while waiting
    Bool_t     fBusy;                 //! Busy flag
 
 public:
@@ -37,17 +32,12 @@ public:
 
    void ArgusInit();
    void ArgusEventHandler();
-   void StartEventHandler(Int_t milliSeconds);
-   void StartEventHandler();
-   void StopEventHandler();
 
    // User Methods
    const char* GetTitle() const { return fTitle.Data(); }
    void        SetTitle(const char* title) { fTitle = title; }
    Bool_t      IsActive() const { return fActive; } // This might be dangerouse because it overload TGFrame::IsActive
    void        SetActive(Bool_t active) { fActive = active; }
-   Int_t       GetUpdateFrequency();
-   void        SetUpdateFrequency(Int_t duration);
    Bool_t      IsBusy() { return fBusy; }
 
    virtual void BaseInit() = 0;

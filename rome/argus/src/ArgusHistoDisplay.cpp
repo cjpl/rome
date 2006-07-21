@@ -23,7 +23,6 @@
 #include <TGTextEntry.h>
 #include <TGListBox.h>
 #include <TRootEmbeddedCanvas.h>
-#include <TTimer.h>
 #include <TText.h>
 #include <TStyle.h>
 #include <TGraphErrors.h>

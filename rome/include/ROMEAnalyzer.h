@@ -217,7 +217,7 @@ protected:
 
    // Monitor
    ArgusWindow   *fWindow;                       //! Handle to Argus Window
-   Bool_t         fEventFilled;                  //! Event filled flag
+   Int_t          fWindowUpdateFrequency;        //! The update frequency of the Argus window
 
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
@@ -563,11 +563,9 @@ public:
    // Monitor
    ArgusWindow    *GetWindow() { return fWindow; }
    Bool_t          StartWindow();
-   Int_t           GetUpdateFrequency();
-   void            SetUpdateFrequency(Int_t frequency);
+   Int_t           GetWindowUpdateFrequency() { return fWindowUpdateFrequency; };
+   void            SetWindowUpdateFrequency(Int_t frequency) { fWindowUpdateFrequency = frequency; };
    Bool_t          IsWindowBusy();
-   Bool_t          IsEventFilled() { return fEventFilled; }
-   void            SetEventFilled(Bool_t flag) { fEventFilled = flag; }
 
    // Program Steering
    void            NextEvent();
@@ -578,7 +576,6 @@ public:
 
    Int_t           ss_getchar(UInt_t reset);
    UInt_t          ss_kbhit();
-   UInt_t          ss_millitime();
    Int_t           ss_daemon_init(Bool_t keep_stdout);
    Int_t           ss_batch_init();
    Bool_t          strtobool(const char *str);
