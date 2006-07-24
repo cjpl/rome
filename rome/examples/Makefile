@@ -60,7 +60,7 @@ multirun/mranalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i multirun/multirun.xml -o multirun -v;
 
 dbexample/rdbframework.exe :
-	$(ROMESYS)/bin/romebuilder.exe -i dbexample/RDBframework.xml -o dbexample -v;
+	$(ROMESYS)/bin/romebuilder.exe -i dbexample/RDBframework.xml -o dbexample -v -mysql -sqlite3;
 
 taskhierarchy/thexample.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchy/taskhierarchy.xml -o taskhierarchy -v;

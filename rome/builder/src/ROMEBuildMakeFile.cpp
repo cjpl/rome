@@ -1442,26 +1442,18 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
 
       path.ReplaceAll("\\","/");
 
-      if (path.Index("/dict/")!=-1 || path.Index("dict/")==0)
-         buffer.AppendFormatted("obj/%s.d: ./dict/%s.cpp\n",name.Data(),name.Data());
-      else if (ext == "h")
-         buffer.AppendFormatted("obj/%s.d: ./include/%s\n",name.Data(),sources->At(i).Data());
-      else
-         buffer.AppendFormatted("obj/%s.d: %s\n",name.Data(),sources->At(i).Data());
-
-      buffer.AppendFormatted("\t-@$(RM) $@\n");
-      if (ext == "h")
-         buffer.AppendFormatted("\t%s %s $(Flags) $(Includes) -MM -MF $@ -MT include/%s.gch $<\n",compiler.Data(),compileOption.Data(),sources->At(i).Data());
-      else
-         buffer.AppendFormatted("\t%s %s $(Flags) $(Includes) -MM -MF $@ -MT obj/%s%s $<\n",compiler.Data(),compileOption.Data(),name.Data(),kObjectSuffix);
-      buffer.AppendFormatted("\n");
-
-      if (ext == "h")
-         buffer.AppendFormatted("include/%s.gch: include/%s $(%sDep)\n",sources->At(i).Data(),sources->At(i).Data(),name.Data());
-      else
-         buffer.AppendFormatted("obj/%s%s: %s $(%sDep)\n",name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
-      buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) $< -o $@\n",compiler.Data(),compileOption.Data(),name.Data());
-      buffer.AppendFormatted("\n");
+      if (ext == "h") {
+         buffer.AppendFormatted("include/%s.gch obj/%s.d: ./include/%s $(%sDep)\n"
+                                ,sources->At(i).Data(),name.Data(),sources->At(i).Data(),name.Data());
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o include/%s.gch\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),sources->At(i).Data());
+      }
+      else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
+         buffer.AppendFormatted("obj/%s%s obj/%s.d: %s $(%sDep)\n"
+                                ,name.Data(),kObjectSuffix,name.Data(),sources->At(i).Data(),name.Data());
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD $< -o obj/%s%s\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),kObjectSuffix);
+      }
       buffer.AppendFormatted("\n");
 #endif // R__UNIX
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -1879,9 +1871,9 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
    if (pch)
-      buffer.AppendFormatted("all:startecho pch obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("all:startecho pch obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    else
-      buffer.AppendFormatted("all:startecho obj dep %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -1920,7 +1912,7 @@ void ROMEBuilder::WriteMakefile() {
 // Link Statement
 // --------------
    buffer.AppendFormatted("## Link statements\n");
-   buffer.AppendFormatted("%s%s.exe: $(objects)",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("%s%s.exe: $(objects) $(dependfiles) ",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    if (librome)
       buffer.AppendFormatted(" $(ROMESYS)/librome.a");
    buffer.AppendFormatted(" $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
@@ -1933,7 +1925,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   buffer.AppendFormatted("lib%s%s.so: $(objects) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+   buffer.AppendFormatted("lib%s%s.so: $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    buffer.AppendFormatted("\t");
    buffer.AppendFormatted("$(CXX) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
@@ -1942,13 +1934,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\n\n");
 #endif // R__UNIX
 
-// Dependence
-// ------------------
-   buffer.AppendFormatted("## Dependence file generation\n");
-   buffer.AppendFormatted("dep: $(dependfiles)\n");
-   buffer.AppendFormatted("\n");
-
-// Dependence
+// PCH
 // ------------------
    buffer.AppendFormatted("## Precompiled header file generation\n");
    buffer.AppendFormatted("pch: $(PCHHEADERS)\n");
