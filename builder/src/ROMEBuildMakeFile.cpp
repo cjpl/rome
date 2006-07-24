@@ -6,7 +6,6 @@
 
 ********************************************************************/
 #include <RConfig.h>
-#include <Riostream.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
 #pragma warning( disable : 4800 )
@@ -16,6 +15,7 @@
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
 
+#include <Riostream.h>
 #include "ROMEBuilder.h"
 
 void ROMEBuilder::AddIncludeDirectories()

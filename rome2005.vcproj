@@ -25,8 +25,8 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
-				Description="Root Dictionary Generation"
-				CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h include/ROMEPrint.h"
+				Description="Updating ROME Version"
+				CommandLine="updateVersionH.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -44,14 +44,16 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="$(ROOTSYS)\include\;$(ROMESYS)\include\;$(ROMESYS)\builder\include\"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CRT_SECURE_NO_DEPRECATE;SHOW_TIME"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="1"
 				RuntimeTypeInfo="true"
+				GenerateXMLDocumentationFiles="false"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 				DisableSpecificWarnings="4996"
+				ShowIncludes="false"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -61,10 +63,12 @@
 			/>
 			<Tool
 				Name="VCPreLinkEventTool"
+				CommandLine=""
 			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="libCore.lib libCint.lib"
+				ShowProgress="0"
 				OutputFile="$(OutDir)\$(ProjectName).exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(ROOTSYS)\lib"
@@ -178,8 +182,32 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\createDict"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generating ROMEBuilder Dictionary"
+						CommandLine="rootcint -f ROMEBuilderDict.cpp -c -p -I$(ROOTSYS)/include/ -I$(ROMESYS)/include/ -I$(ROMESYS)/builder/include/ include/ROMEString.h include/ROMEStrArray.h include/ROMEStr2DArray.h include/ROMEXML.h include/ROMEPrint.h&#x0D;&#x0A;"
+						AdditionalDependencies="include/ROMEString.h;include/ROMEStrArray.h;include/ROMEStr2DArray.h;include/ROMEPrint.h;include/ROMEXML.h"
+						Outputs="ROMEBuilderDict.cpp;ROMEBuilderDict.h"
+					/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\builder\src\main.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						BrowseInformation="0"
+						SuppressStartupBanner="true"
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\src\mxml.c"
@@ -188,6 +216,14 @@
 			<File
 				RelativePath=".\builder\src\ROMEBuilder.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						PrecompiledHeaderFile=""
+					/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\ROMEBuilderDict.cpp"
