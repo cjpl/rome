@@ -51,6 +51,9 @@ endif
 ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
   TARGET += librome.a
+  LIBROMEFILE = librome.a
+else
+  LIBROMEFILE =
 endif
 
 CFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
@@ -186,7 +189,7 @@ obj:
 		mkdir obj; \
 	fi;
 
-bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
+bin/romebuilder.exe: builder/src/main.cpp $(BldObjects) $(LIBROMEFILE)
 	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
@@ -223,7 +226,7 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
-obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h
+obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
 	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
