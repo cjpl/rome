@@ -50,7 +50,6 @@ endif
 
 ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
-  TARGET += librome.a
   LIBROMEFILE = librome.a
 else
   LIBROMEFILE =
@@ -189,7 +188,7 @@ obj:
 		mkdir obj; \
 	fi;
 
-bin/romebuilder.exe: builder/src/main.cpp $(BldObjects) $(LIBROMEFILE)
+bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
 	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
