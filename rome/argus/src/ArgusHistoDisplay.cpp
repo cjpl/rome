@@ -436,7 +436,7 @@ void ArgusHistoDisplay::SetStatus(Int_t mode,const char *text,double progress,In
 
 void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 {
-   Int_t i,j,k;
+   Int_t i,k;
    Bool_t clear = true;
    if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType)
       clear = false;
@@ -463,17 +463,13 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->SetTopMargin(1.0f);
          fPad[i]->SetBottomMargin(1.0f);
          fPad[i]->cd();
-         for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
-            if (fCurrentDisplayType==j) {
-               if (!strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph"))
-                  ((TObjArray*)fObjects->At(j))->At(i)->Draw("AL");
-               else
-                  ((TObjArray*)fObjects->At(j))->At(i)->Draw();
-               for (k=0;k<TMath::Min(kMaxNumberOfLines,fNumberOfUserLines);k++)
-                  ((TObjArray*)((TObjArray*)fLines->At(j))->At(i))->At(k)->Draw();
-               SetStatisticBox(true);
-            }
-         }
+         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph"))
+            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("AL");
+         else
+            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw();
+         for (k=0;k<TMath::Min(kMaxNumberOfLines,fNumberOfUserLines);k++)
+            ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
+         SetStatisticBox(true);
       }
    }
 
@@ -486,7 +482,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
 
 void ArgusHistoDisplay::Modified(Bool_t processEvents)
 {
-   Int_t i,j;
+   Int_t i;
    double x1,x2,y1,y2;
 
    if (!fCanvas)
@@ -494,20 +490,17 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
-         for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
-            if (strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph")) {
-               ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
-               ((TGraph*)((TObjArray*)fObjects->At(j))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
-            }
-            else {
-               ((TH1*)((TObjArray*)fObjects->At(j))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
-               ((TH1*)((TObjArray*)fObjects->At(j))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
-            }
+         if (strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph")) {
+            ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
+            ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
+         }
+         else {
+            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
+            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
          }
       }
-      for (j=0 ; j<fObjects->GetEntriesFast() ; j++) {
-         if (fCurrentDisplayType==j && strcmp(((TObjArray*)fObjects->At(j))->At(i)->ClassName(),"TGraph"))
-            SetStatisticBox(true);
+      if (strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph")) {
+         SetStatisticBox(true);
       }
       fPad[i]->Modified();
    }

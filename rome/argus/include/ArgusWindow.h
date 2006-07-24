@@ -26,6 +26,7 @@
 #include "ROME.h"
 #include "ROMEString.h"
 #include "ROMENetFolder.h"
+#include "ROMEStopwatch.h"
 #include "ArgusAnalyzerController.h"
 #include "ArgusTab.h"
 
@@ -36,6 +37,8 @@ class ArgusWindow : public TGMainFrame
 {
 protected:
    Bool_t                   fArgusActive;      //! active flag
+   ROMEStopwatch            fWatchAll;         //! Records time used by window
+   ROMEString               fTimeAllString;    //! Elapsed Time of all in a readable format
    TGStatusBar             *fStatusBar;        //! status bar
    Bool_t                   fStatusBarSwitch;  //! status bar switch
    Int_t                    fUpdateFrequency;  //! update frequency
@@ -61,6 +64,7 @@ public:
    Bool_t          Start();
    virtual Bool_t  CreateTabs() = 0;
    virtual Bool_t  AddMenuNetFolder(TGPopupMenu* menu) = 0;
+   void            ShowTimeStatistics();
 
    // Analyzer Controller
    ArgusAnalyzerController   *GetAnalyzerController() { return fController; }

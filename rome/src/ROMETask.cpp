@@ -38,6 +38,9 @@ ROMETask::ROMETask(const char *name,const char *title,int level):TTask(name,titl
    fEventID = -1;
    fLevel = level;
    fHistoFolder = 0;
+   fWatchAll.Reset();
+   fWatchUser.Reset();
+   fWatchUserEvent.Reset();
 }
 
 void ROMETask::Exec(Option_t *option)
@@ -51,33 +54,36 @@ void ROMETask::Exec(Option_t *option)
    char *cstop;
    if (gROME->isTerminationFlag())
       return;
+   fWatchAll.Start(false);
    if (!strncmp(option,"Init",4)) {
       fCurrentEventMethod = "Init";
-      fWatchEvent.Reset();
-      fWatchAll.Reset();
       BookHisto();
       ROMEPrint::Debug("Executing %s::Init\n", ClassName());
+      fWatchUser.Start(false);
       Init();
+      fWatchUser.Stop();
    }
    else if (!strncmp(option,"BeginOfRun",10)) {
       fCurrentEventMethod = "BeginOfRun";
       ResetHisto();
-      fWatchAll.Start(false);
       ROMEPrint::Debug("Executing %s::BeginOfRun\n", ClassName());
+      fWatchUser.Start(false);
       BeginOfRun();
-      fWatchAll.Stop();
+      fWatchUser.Stop();
    }
    else if (!strncmp(option,"EndOfRun",8)) {
       fCurrentEventMethod = "EndOfRun";
-      fWatchAll.Start(false);
       ROMEPrint::Debug("Executing %s::EndOfRun\n", ClassName());
+      fWatchUser.Start(false);
       EndOfRun();
-      fWatchAll.Stop();
+      fWatchUser.Stop();
    }
    else if (!strncmp(option,"Terminate",9)) {
       fCurrentEventMethod = "Terminate";
       ROMEPrint::Debug("Executing %s::Terminate\n", ClassName());
+      fWatchUser.Start(false);
       Terminate();
+      fWatchUser.Stop();
    }
    else if (!strncmp(option,"Time",4)) {
       int i;
@@ -101,24 +107,31 @@ void ROMETask::Exec(Option_t *option)
       for (i=0;i<30-name.Length()-fLevel-nchars;i++)
          ROMEPrint::Print(".");
       ROMEPrint::Print(" : %s", GetTimeOfAll());
-      if (fWatchEvent.RealTime()>0) {
+      if (fWatchUser.RealTime()>0) {
          ROMEPrint::Print("  ");
-         ROMEPrint::Print("%s\n", GetTimeOfEvents());
+         ROMEPrint::Print("%s", GetTimeOfUser());
+         if (fWatchUserEvent.RealTime()>0) {
+            ROMEPrint::Print("  ");
+            ROMEPrint::Print("%s\n", GetTimeOfUserEvents());
+         }
+         else
+            ROMEPrint::Print("\n");
       }
       else
          ROMEPrint::Print("\n");
    }
    else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
       fCurrentEventMethod = "Event";
-      fWatchAll.Start(false);
-      fWatchEvent.Start(false);
       if (gROME->isFillEvent()) {
          ROMEPrint::Debug("Executing %s::Event\n", ClassName());
+         fWatchUser.Start(false);
+         fWatchUserEvent.Start(false);
          Event();
+         fWatchUserEvent.Stop();
+         fWatchUser.Stop();
       }
-      fWatchEvent.Stop();
-      fWatchAll.Stop();
    }
+   fWatchAll.Stop();
 }
 
 void ROMETask::StartRootInterpreter(const char* message) {
@@ -140,15 +153,21 @@ void ROMETask::StartRootInterpreter(const char* message) {
 }
 
 // Time methods
-const char* ROMETask::GetTimeOfEvents()
-{
-   // Returns the elapsed time in a readable format
-   fWatchEvent.GetRealTimeString(fTimeEventString);
-   return fTimeEventString.Data();
-}
 const char* ROMETask::GetTimeOfAll()
 {
    // Returns the elapsed time in a readable format
    fWatchAll.GetRealTimeString(fTimeAllString);
    return fTimeAllString.Data();
+}
+const char* ROMETask::GetTimeOfUser()
+{
+   // Returns the elapsed time in a readable format
+   fWatchUser.GetRealTimeString(fTimeUserString);
+   return fTimeUserString.Data();
+}
+const char* ROMETask::GetTimeOfUserEvents()
+{
+   // Returns the elapsed time in a readable format
+   fWatchUserEvent.GetRealTimeString(fTimeUserEventString);
+   return fTimeUserEventString.Data();
 }

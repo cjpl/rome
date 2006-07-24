@@ -82,7 +82,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
 
 // Event loop
-   fWatchEvent.Reset();
+   fWatchUserEvent.Reset();
+   fWatchUser.Reset();
    fWatchAll.Reset();
    fWatchAll.Start(false);
    if (fgBeginTask) {
@@ -234,11 +235,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       fWatchAll.Stop();
       if (gROME->IsShowRunStat()) {
-         ROMEPrint::Print("run times :                      All Methods   Event Methods\n");
-         ROMEPrint::Print("-----------                      ------------  -------------\n");
+         ROMEPrint::Print("run times :                           All      User Methods   User Events\n");
+         ROMEPrint::Print("-----------                      ------------  ------------  ------------\n");
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
+         gROME->GetWindow()->ShowTimeStatistics();
          ROMEPrint::Print("\n");
       }
    }
@@ -643,13 +645,6 @@ Bool_t ROMEEventLoop::Update()
    }
    if (!gROME->isBatchMode() &&
        ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
-      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
-#else
-         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber());
-#endif
-      }
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
          if (gROME->GetWindow()->IsControllerActive())
             gROME->GetWindow()->GetAnalyzerController()->Update();
@@ -662,6 +657,15 @@ Bool_t ROMEEventLoop::Update()
          }
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
+      }
+      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+#if defined( R__VISUAL_CPLUSPLUS )
+         ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
+         ROMEPrint::Debug("\n");
+#else
+         ROMEPrint::Print("processed event number %lld                                               \r",gROME->GetCurrentEventNumber());
+         ROMEPrint::Debug("\n");
+#endif
       }
       gROME->ClearEventHandlingRequest();
       fProgressWrite = false;
