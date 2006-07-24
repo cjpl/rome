@@ -162,7 +162,10 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    xml->WriteAttribute("Optimization","0");
    xml->WriteAttribute("AdditionalIncludeDirectories",includeDirs.Data());
    xml->WriteAttribute("PreprocessorDefinitions",preProcDefs.Data());
-   xml->WriteAttribute("MinimalRebuild","FALSE");
+   if (minRebuild)
+      xml->WriteAttribute("MinimalRebuild","TRUE");
+   else
+      xml->WriteAttribute("MinimalRebuild","FALSE");
    xml->WriteAttribute("BasicRuntimeChecks","2");
    xml->WriteAttribute("RuntimeLibrary","2");
    xml->WriteAttribute("RuntimeTypeInfo","TRUE");
