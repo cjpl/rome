@@ -33,6 +33,7 @@ ClassImp(ArgusAnalyzerController)
 ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWindow *main, UInt_t w, UInt_t h, ROMENetFolder * nf, UInt_t options)
 :TGTransientFrame(p, main, w, h, options)
 {
+   fInitialized = false;
    fNetFolder = nf;
    fRunNumber = gROME->GetCurrentRunNumber();
    fLastRunNumber = fRunNumber;
@@ -159,6 +160,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
 
    MapWindow();
 //   fClient->WaitFor(this);
+   fInitialized = true;
 }
 
 ArgusAnalyzerController::~ArgusAnalyzerController()
@@ -216,11 +218,11 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                fPlayButton->SetToolTipText("Start continuous analysis");
                if (gROME->IsStandAloneARGUS()) {
                   if (fNetFolder) {
-                     fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
+                     fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
                   }
                }
                else {
-                  gROME->SetUserEventO();
+                  gROME->SetUserEventS();
                }
             }
             break;
@@ -272,7 +274,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             /* change run number in analyzer */
             break;
          case T_EventNumber:
-            /* change event number in analyzer */
+            fEventNumber = fEventNumberEntry->GetIntNumber();
             break;
             // comment out until step and interval is implemented
             //         case T_EventStep:
@@ -291,7 +293,19 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             fRunNumber = fRunNumberEntry->GetIntNumber();
             break;
          case T_EventNumber:
-            fEventNumber = fEventNumberEntry->GetIntNumber();
+            if (fInitialized) {
+               fEventNumber = fEventNumberEntry->GetIntNumber();
+               if (gROME->IsStandAloneARGUS()) {
+                  if (fNetFolder) {
+                     ROMEString str;
+                     str.SetFormatted("gAnalyzer->SetUserEventJ(%d);",fEventNumber);
+                     fNetFolder->ExecuteCommand(str.Data());
+                  }
+               }
+               else {
+                  gROME->SetUserEventJ(fEventNumber);
+               }
+            }
             break;
             // comment out until step and interval is implemented
             //         case T_EventStep:

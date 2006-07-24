@@ -52,6 +52,7 @@ protected:
    TGPictureButton    *fStopButton;
 //   TGPictureButton  *fFrwdButton;
    Bool_t              fOnDisplay;
+   Bool_t              fInitialized;
 
    enum CommandIdentifiers{
       B_Play,

@@ -125,6 +125,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fUserEventR = false;
    fUserEventO = false;
    fUserEventC = false;
+   fUserEventJ = false;
+   fUserEventJEventNumber = 0;
    fUserEventG = false;
    fUserEventGRunNumber = 0;
    fUserEventGEventNumber = 0;
@@ -271,6 +273,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          ROMEPrint::Print("c : Continuous Analysis\n");
          ROMEPrint::Print("o : Step by step Analysis\n");
          ROMEPrint::Print("g : Run until event #\n");
+         ROMEPrint::Print("j : Jump to event #\n");
          ROMEPrint::Print("i : Root interpreter\n");
          ROMEPrint::Print("\n");
       }
@@ -1256,19 +1259,9 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
 
 void ROMEAnalyzer::NextEvent()
 {
-   ((ROMEEventLoop*)fMainTask)->RunEvent();
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEPrint::Print("Executed Event %I64d                                                     \n",GetCurrentEventNumber());
-#else
-   ROMEPrint::Print("Executed Event %lld                                                      \n",GetCurrentEventNumber());
-#endif
+   ((ROMEEventLoop*)fMainTask)->NextEvent();
 }
 void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
 {
    ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber);
-#if defined( R__VISUAL_CPLUSPLUS )
-   ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
-#else
-   ROMEPrint::Print("Stepped to Event %lld                                                    \n",eventNumber);
-#endif
 }

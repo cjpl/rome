@@ -139,6 +139,8 @@ protected:
    Bool_t         fUserEventR;                   //! Flag for User Event of Type R
    Bool_t         fUserEventO;                   //! Flag for User Event of Type O
    Bool_t         fUserEventC;                   //! Flag for User Event of Type C
+   Bool_t         fUserEventJ;                   //! Flag for User Event of Type J
+   Long64_t       fUserEventJEventNumber;        //! Event Number for User Event of Type J
    Bool_t         fUserEventG;                   //! Flag for User Event of Type G
    Long64_t       fUserEventGRunNumber;          //! Run Number for User Event of Type G
    Long64_t       fUserEventGEventNumber;        //! Event Number for User Event of Type G
@@ -422,6 +424,11 @@ public:
    void            SetUserEventR() { fUserEvent = true; fUserEventR = true; }
    void            SetUserEventO() { fUserEvent = true; fUserEventO = true; }
    void            SetUserEventC() { fUserEvent = true; fUserEventC = true; }
+   void            SetUserEventJ(Long64_t eventNumber) {
+                      fUserEvent = true;
+                      fUserEventJ = true;
+                      fUserEventJEventNumber = eventNumber;
+                   }
    void            SetUserEventG(Long64_t runNumber,Long64_t eventNumber) {
                       fUserEvent = true;
                       fUserEventG = true;
@@ -439,6 +446,7 @@ public:
                       fUserEventR = false;
                       fUserEventO = false;
                       fUserEventC = false;
+                      fUserEventJ = false;
                       fUserEventG = false;
                       fUserEventI = false;
                    }
@@ -448,6 +456,8 @@ public:
    Bool_t          IsUserEventR() { return fUserEventR; }
    Bool_t          IsUserEventO() { return fUserEventO; }
    Bool_t          IsUserEventC() { return fUserEventC; }
+   Bool_t          IsUserEventJ() { return fUserEventJ; }
+   Long64_t        GetUserEventJEventNumber() { return fUserEventJEventNumber; }
    Bool_t          IsUserEventG() { return fUserEventG; }
    Long64_t        GetUserEventGRunNumber() { return fUserEventGRunNumber; }
    Long64_t        GetUserEventGEventNumber() { return fUserEventGEventNumber; }
