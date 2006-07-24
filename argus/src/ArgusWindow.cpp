@@ -59,6 +59,8 @@ void ArgusWindow::InitArgus()
    fTabObjects = 0;
    fController = 0;
    fControllerNetFolder = 0;
+
+   fWatchAll.Reset();
 }
 
 ArgusWindow::~ArgusWindow()
@@ -76,6 +78,8 @@ ArgusWindow::~ArgusWindow()
 
 Bool_t ArgusWindow::Start()
 {
+   // Start Argus Window
+   fWatchAll.Start(false);
    ROMEPrint::Debug("ArgusWindow::Start()\n");
    // Initialize Analyzer Controller
    if (fControllerActive)
@@ -104,8 +108,10 @@ Bool_t ArgusWindow::Start()
    fTab = new TGTab(this, static_cast<UInt_t>(600 * GetWindowScale()), static_cast<UInt_t>(400 * GetWindowScale()));
 
    ROMEPrint::Debug("Creating Tabs\n");
-   if (!CreateTabs())
+   if (!CreateTabs()) {
+      fWatchAll.Stop();
       return kFALSE;
+   }
    ROMEPrint::Debug("Tabs Created\n");
 
    AddFrame(fTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
@@ -120,6 +126,7 @@ Bool_t ArgusWindow::Start()
    ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), 0, 0);
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
+   fWatchAll.Stop();
    return kTRUE;
 }
 
@@ -151,3 +158,15 @@ void ArgusWindow::SetControllerNetFolder(const char* folderName)
       return;
    fControllerNetFolder = gROME->GetNetFolder(folderName);
 }
+
+// Time methods
+void ArgusWindow::ShowTimeStatistics()
+{
+   int i;
+   ROMEString str;
+   ROMEPrint::Print("window........................ : %s\n", fWatchAll.GetRealTimeString(str));
+   for (i=0;i<fTabObjects->GetEntriesFast();i++) {
+      ((ArgusTab*)fTabObjects->At(i))->ShowTimeStatistics();
+   }
+}
+

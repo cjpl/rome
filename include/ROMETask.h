@@ -18,10 +18,12 @@ private:
    ROMEString     fName;               // Task name
    Int_t          fLevel;              // Level in Task tree
 protected:
-   ROMEStopwatch  fWatchEvent;         //! Records time used by Task Events
    ROMEStopwatch  fWatchAll;           //! Records time used by Task
-   ROMEString     fTimeEventString;    //! Elapsed Time of events in a readable format
+   ROMEStopwatch  fWatchUser;          //! Records time used by the user part of the task
+   ROMEStopwatch  fWatchUserEvent;     //! Records time used by the user part of the task's event methods
    ROMEString     fTimeAllString;      //! Elapsed Time of all in a readable format
+   ROMEString     fTimeUserString;     //! Elapsed Time of user in a readable format
+   ROMEString     fTimeUserEventString;//! Elapsed Time of user events in a readable format
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
    int            fEventID;            // TriggerID for event method
@@ -39,7 +41,8 @@ public:
 
 protected:
    void         StartRootInterpreter(const char* message = NULL);
-   const char  *GetTimeOfEvents();
+   const char  *GetTimeOfUserEvents();
+   const char  *GetTimeOfUser();
    const char  *GetTimeOfAll();
 
    virtual void BookHisto() = 0;

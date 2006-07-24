@@ -18,13 +18,20 @@
 #endif
 #include "ROME.h"
 #include "ROMEString.h"
+#include "ROMEStopwatch.h"
 
 class ArgusTab : public TGCompositeFrame {
 
 protected:
-   ROMEString fTitle;              //! Tab Title
-   Bool_t     fActive;               //! is Active
-   Bool_t     fBusy;                 //! Busy flag
+   ROMEString     fTitle;            //! Tab Title
+   Bool_t         fActive;           //! is Active
+   Bool_t         fBusy;             //! Busy flag
+   ROMEStopwatch  fWatchAll;         //! Records time used by tab
+   ROMEString     fTimeAllString;    //! Elapsed Time of all in a readable format
+   ROMEStopwatch  fWatchUser;        //! Records time used by user
+   ROMEString     fTimeUserString;   //! Elapsed Time of user in a readable format
+   ROMEStopwatch  fWatchUserEvent;   //! Records time used by user events
+   ROMEString     fTimeUserEventString;//! Elapsed Time of user events in a readable format
 
 public:
    ArgusTab();
@@ -32,6 +39,11 @@ public:
 
    void ArgusInit();
    void ArgusEventHandler();
+
+   void        ShowTimeStatistics();
+   const char *GetTimeOfAll();
+   const char *GetTimeOfUser();
+   const char *GetTimeOfUserEvents();
 
    // User Methods
    const char* GetTitle() const { return fTitle.Data(); }
