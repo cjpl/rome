@@ -702,6 +702,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          makeOutput = false;
          midas = true;
          noLink = true;
+         minRebuild = true;
          sql = true;
          mysql = true;
          outDir = "C:/meg/meganalyzer/";
@@ -712,6 +713,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          makeOutput = false;
          midas = false;
          noLink = true;
+         minRebuild = true;
          sql = false;
          mysql = false;
          outDir = "C:/meg/meganalyzer/";
@@ -727,6 +729,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          makeOutput = false;
          midas = true;
          noLink = true;
+         minRebuild = true;
          sql = false;
          mysql = false;
          outDir = "C:/meg/meganalyzer/";
@@ -737,6 +740,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          makeOutput = false;
          midas = true;
          noLink = true;
+         minRebuild = true;
          sql = false;
          mysql = false;
          outDir = "C:/meg/meganalyzer/";
@@ -751,51 +755,61 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-stepbystep")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/stepbystep/";
          xmlFile = "C:/rome/examples/stepbystep/stepbystep.xml";
       }
       else if (!strcmp(argv[i],"-readwrite")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/tree_write_read/";
          xmlFile = "C:/rome/examples/tree_write_read/tree_write_read.xml";
       }
       else if (!strcmp(argv[i],"-multi")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
       }
       else if (!strcmp(argv[i],"-taskhierarchy")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/taskhierarchy/";
          xmlFile = "C:/rome/examples/taskhierarchy/taskhierarchy.xml";
       }
       else if (!strcmp(argv[i],"-taskhierarchyandhistos")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/taskhierarchyandhistos/";
          xmlFile = "C:/rome/examples/taskhierarchyandhistos/taskhierarchyandhistos.xml";
       }
       else if (!strcmp(argv[i],"-displayobjects")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/displayobjects/";
          xmlFile = "C:/rome/examples/displayobjects/displayObjects.xml";
       }
       else if (!strcmp(argv[i],"-netfolder")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/netfolder/";
          xmlFile = "C:/rome/examples/netfolder/netfolder.xml";
       }
       else if (!strcmp(argv[i],"-database")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/dbexample/";
          xmlFile = "C:/rome/examples/dbexample/RDBframework.xml";
       }
       else if (!strcmp(argv[i],"-histogui")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/histogui/";
          xmlFile = "C:/rome/examples/histogui/histogui.xml";
       }
       else if (!strcmp(argv[i],"-rootDAQ")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/rome/examples/rootDAQ/";
          xmlFile = "C:/rome/examples/rootDAQ/rootDAQ.xml";
       }
@@ -803,16 +817,19 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          makeOutput = true;
          midas = true;
          noLink = true;
+         minRebuild = true;
          outDir = "C:/lpframework/";
          xmlFile = "C:/lpframework/lpframework.xml";
       }
       else if (!strcmp(argv[i],"-laura")) {
          noLink = true;
+         minRebuild = true;
          outDir = "C:/Data/Testprojects/laura/";
          xmlFile = "C:/Data/Testprojects/laura/rootDAQClean.xml";
       }
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
+         minRebuild = true;
          minRebuild = true;
          outDir = "C:/Data/Testprojects/jan/wi-rome-ls-intel/";
          xmlFile = "C:/Data/Testprojects/jan/wi-rome-ls-intel/WIArgon.xml";

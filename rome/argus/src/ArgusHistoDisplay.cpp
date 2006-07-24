@@ -221,9 +221,9 @@ void ArgusHistoDisplay::BaseInit()
 
    SetSize(GetDefaultSize());
    fChannelNumber = 0;
+   fDisplayTypeOld = -1;
    MapSubwindows();
    MapWindow();
-
    SetupPads(fNumberOfPadsX, fNumberOfPadsY,true);
 }
 
