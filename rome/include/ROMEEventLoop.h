@@ -33,6 +33,7 @@ protected:
 protected:
    Long64_t      fCurrentEvent;                    //! Current Event Number inside Eventloop
    Bool_t        fFirstUserInput;                  //! Flags the first user input
+   Bool_t        fStop;                            //! Stop execution
 
    // Stop at
    Long64_t      fStopAtRun;                       //! Stop execution at this run
@@ -86,7 +87,8 @@ public:
    Bool_t       isContinuousMode() { return fContinuous; }
 
    Int_t        RunEvent();
-   void         GotoEvent(Long64_t eventNumber) { fCurrentEvent = eventNumber; };
+   void         NextEvent();
+   void         GotoEvent(Long64_t eventNumber);
 
    virtual void AddTreeBranches() = 0;
 protected:

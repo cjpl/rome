@@ -193,6 +193,10 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
+            if (fTreeNextSeqNumber[j]>event) {
+               fTreeNextSeqNumber[j] = event;
+               fTreePosition[j] = event;
+            }
             while (fTreeNextSeqNumber[j]>-1 && fTreeNextSeqNumber[j]<event) {
                fTreePosition[j]++;
                if (tree->GetEntriesFast()>fTreePosition[j]) {
