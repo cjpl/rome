@@ -1,12 +1,14 @@
 RESTRICT_TEST = yes
 
 ifeq ($(RESTRICT_TEST), yes)
+export DOOPT    =-Wall -W -Woverloaded-virtual -Werror
 export FLOPT    =-Wall -W -Woverloaded-virtual -Werror
 export FOOPT    =-Wall -W -Woverloaded-virtual -Werror
 export HGOPT    =-Wall -W -Woverloaded-virtual -Werror
 export HGUIOPT  =-Wall -W -Woverloaded-virtual -Werror
 export HWOPT    =-Wall -W -Woverloaded-virtual -Werror
 export MROPT    =-Wall -W -Woverloaded-virtual -Werror
+export MIDOPT   =-Wall -W -Woverloaded-virtual -Werror
 export NFOPT    =-Wall -W -Woverloaded-virtual -Werror
 export PMOPT    =-Wall -W -Woverloaded-virtual -Werror
 export RDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
@@ -19,6 +21,7 @@ export SDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
 export SMDOPT   =-Wall -W -Woverloaded-virtual -Werror
 export TBOPT    =-Wall -W -Woverloaded-virtual -Werror
 export THOPT    =-Wall -W -Woverloaded-virtual -Werror
+export THHOPT   =-Wall -W -Woverloaded-virtual -Werror
 export TMOPT    =-Wall -W -Woverloaded-virtual -Werror
 export TTOPT    =-Wall -W -Woverloaded-virtual -Werror
 export TWROPT   =-Wall -W -Woverloaded-virtual -Werror
@@ -35,7 +38,9 @@ ROMEProjects = multirun/mranalyzer.exe \
                stepbystepdbdaq/sdaqanalyzer.exe \
                stepbystepmydaq/smdanalyzer.exe \
                runheader/runhanalyzer.exe \
-               rootDAQ/rdaqanalyzer.exe
+               rootDAQ/rdaqanalyzer.exe \
+               displayobjects/doexample.exe \
+               taskhierarchyandhistos/thhexample.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -48,6 +53,7 @@ ARGUSProjects = argus/file/flmonitor.exe \
                 argus/histogram/romeproject/hgframework.exe \
                 argus/histogram/hgmonitor.exe
 ifdef MIDASSYS
+ROMEProjects  += midas/midanalyzer.exe
 ARGUSProjects += argus/folders/romeproject/foframework.exe \
                  argus/folders/fomonitor.exe
 endif
@@ -91,6 +97,15 @@ runheader/runhanalyzer.exe :
 
 rootDAQ/rdaqanalyzer.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i rootDAQ/rootDAQ.xml -o rootDAQ -v;
+
+midas/midanalyzer.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i midas/midas.xml -o midas -v -midas;
+
+taskhierarchyandhistos/thhexample.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i taskhierarchyandhistos/taskhierarchyandhistos.xml -o taskhierarchyandhistos -v;
+
+displayobjects/doexample.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i displayobjects/displayObjects.xml -o displayobjects -v;
 
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -v 
