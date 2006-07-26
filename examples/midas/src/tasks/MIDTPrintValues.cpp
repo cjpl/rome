@@ -6,6 +6,15 @@
 //                                                                            //
 // The event methods have been written by .                                   //
 //                                                                            //
+// Please note: The following information is only correct after executing     //
+// the ROMEBuilder.                                                           //
+//                                                                            //
+// This task accesses the following folders :                                 //
+//                                                                            //
+//                                                                            //
+// Followings are include files of folders. ROMEBuilder will update it with   //
+// reading this source code when it is executed next time.                    //
+#include "generated/MIDODB.h"
 #include "generated/MIDMidasDAQ.h"
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
@@ -15,6 +24,7 @@
 
 #include "generated/MIDAnalyzer.h"
 #include "tasks/MIDTPrintValues.h"
+#include "MIDODB.h"
 #include "ROMEiostream.h"
 
 // uncomment if you want to include headers of all folders
@@ -29,11 +39,14 @@ void MIDTPrintValues::Init()
 
 void MIDTPrintValues::BeginOfRun()
 {
+   cout << "Run Number : " << gAnalyzer->GetODB()->GetRunNumber() << endl;
+   cout << "Start Time : " << gAnalyzer->GetODB()->GetStartTime().Data() << endl;
 }
 
 void MIDTPrintValues::Event()
 {
    int i;
+   cout << "\nEvent : " << gAnalyzer->GetCurrentEventNumber() << endl;
    cout << "ADC0" << endl;
    for (i=0;i<gAnalyzer->GetMidasDAQ()->GetADC0BankEntries();i++) {
       cout << gAnalyzer->GetMidasDAQ()->GetADC0BankAt(i) << endl;
