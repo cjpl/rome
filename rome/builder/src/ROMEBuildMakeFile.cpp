@@ -2044,7 +2044,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("ifeq ($(SkipDepInclude), no)\n");
-   buffer.AppendFormatted("-include $(dependfiles)\n");
+   buffer.AppendFormatted("-include obj/*.d\n");
    buffer.AppendFormatted("endif\n");
 #endif // R__VISUAL_CPLUSPLUS
 
