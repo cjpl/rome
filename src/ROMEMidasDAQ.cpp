@@ -53,6 +53,7 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
    fByteSwap = true;
 #endif
    fOdbOffline = 0;
+   fDataEvent = false;
 }
 
 ROMEMidasDAQ::~ROMEMidasDAQ() {
@@ -190,6 +191,11 @@ Bool_t ROMEMidasDAQ::Init() {
 #endif
    }
    else if (gROME->isOffline()) {
+      if (!gROME->IsRunNumberBasedIO()) {
+         ROMEPrint::Print("The midas DAQ does not yet support InputFileNames.\n");
+         return false;
+      }
+
       ROMEPrint::Print("Program is running offline.\n");
    }
    return true;
@@ -221,26 +227,6 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
             fGZippedMidasFile = true;
          }
       }
-      else {
-         filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetCurrentInputFileName().Data());
-         if (filename.Index(".gz")!=-1) {
-            gzfilename = filename;
-            fGZippedMidasFile = true;
-            fMidasGzFileHandle = gzopen(gzfilename.Data(),"rb");
-            if (fMidasGzFileHandle==NULL) {
-               ROMEPrint::Error("Failed to open input file '%s'.\n", gzfilename.Data());
-               return false;
-            }
-         }
-         else {
-            fGZippedMidasFile = false;
-            fMidasFileHandle = open(filename.Data(),O_RDONLY_BINARY);
-            if (fMidasFileHandle == -1) {
-               ROMEPrint::Error("Failed to open input file '%s'.\n", filename.Data());
-               return false;
-            }
-         }
-      }
 
       ROMEPrint::Print("Reading Midas-File ");
       if(!fGZippedMidasFile){
@@ -249,7 +235,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
       else
          ROMEPrint::Print("%s\n", gzfilename.Data());
 
-      while (!isBeginOfRun() && !isEndOfRun() && !isTerminate())
+      while (!isBeginOfRun() && !isEndOfRun() && !isTerminate() && !fDataEvent)
          if (!Event(0))
             return false;
       SetAnalyze();
@@ -318,6 +304,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // read event header
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
+      fDataEvent = false;
 
 //      while (fLastEventRead<=event) {
 //         fLastEventRead++;
@@ -360,9 +347,6 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             if (gROME->isDataBaseActive("odb"))
                ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
             this->SetBeginOfRun();
-            if (!gROME->IsRunNumberBasedIO()) {
-               gROME->SetCurrentRunNumber(pevent->serial_number);
-            }
             return true;
          }
          if (pevent->event_id < 0) {
@@ -395,6 +379,7 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       gROME->SetEventID(pevent->event_id);
       gROME->SetCurrentEventNumber(event);
       fTimeStamp = pevent->time_stamp;
+      fDataEvent = true;
 
       this->InitMidasBanks();
    }
