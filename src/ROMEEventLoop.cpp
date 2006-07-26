@@ -63,6 +63,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fTreeUpdateIndex = 0;
    fStopAtRun = -1;
    fStopAtEvent = -1;
+   fStop = false;
    fHistoFile = 0;
    fLastUpdateTime = 0;
 }
@@ -240,7 +241,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
-         gROME->GetWindow()->ShowTimeStatistics();
+         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())
+            gROME->GetWindow()->ShowTimeStatistics();
          ROMEPrint::Print("\n");
       }
    }
