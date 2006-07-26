@@ -103,7 +103,6 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMENetFolder.o \
               obj/ROMENetFolderServer.o \
               obj/ROMEODBOfflineDataBase.o \
-              obj/ROMEODBOnlineDataBase.o \
               obj/ROMEOrcaDAQ.o \
               obj/ROMEPath.o \
               obj/ROMERomeDAQ.o \
@@ -144,7 +143,6 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEDataBase.h \
                   include/ROMENoDataBase.h \
                   include/ROMEODBOfflineDataBase.h \
-                  include/ROMEODBOnlineDataBase.h \
                   include/ROMETextDataBase.h \
                   include/ROMEXMLDataBase.h \
                   include/ROMETree.h \

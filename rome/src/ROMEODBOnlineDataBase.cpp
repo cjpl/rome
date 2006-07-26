@@ -31,6 +31,7 @@ Bool_t ROMEODBOnlineDataBase::Init(const char* name,const char* /*path*/,const c
 
 Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
 {
+#if defined ( HAVE_MIDAS )
    if (gROME->isOnline()) {
       HNDLE hKey;
       char name[500];
@@ -56,7 +57,10 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
       }
       values->SetAt(value,0,0);
    }
+#endif // HAVE_MIDAS
    return true;
+   WarningSuppression(values);
+   WarningSuppression(dataBasePath);
 }
 
 Bool_t ROMEODBOnlineDataBase::Write(ROMEStr2DArray* /*values*/,const char * /*dataBasePath*/,Long64_t /*runNumber*/,Long64_t /*eventNumber*/)
