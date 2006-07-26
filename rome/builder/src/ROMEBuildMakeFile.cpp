@@ -1451,8 +1451,8 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
          buffer.AppendFormatted("obj/%s%s obj/%s.d: %s $(%sDep)\n"
                                 ,name.Data(),kObjectSuffix,name.Data(),sources->At(i).Data(),name.Data());
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD $< -o obj/%s%s\n"
-                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o obj/%s%s\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
       }
       buffer.AppendFormatted("\n");
 #endif // R__UNIX
@@ -1828,8 +1828,14 @@ void ROMEBuilder::WriteMakefile() {
    WriteMakefileDependFiles(buffer,daqSources);
    WriteMakefileDependFiles(buffer,databaseSources);
    WriteMakefileAdditionalSourceDependFiles(buffer);
-*/
    buffer.AppendFormatted("dependfiles %s $(objects:%s=.d)\n", kEqualSign,kObjectSuffix);
+   if (pch) {
+      for (i = 0; i < precompiledHeaders->GetEntriesFast(); i++) {
+         AnalyzeFileName(precompiledHeaders->At(i),path,name,ext);
+         buffer.AppendFormatted("dependfiles += obj/%s.d\n",name.Data());
+      }
+   }
+*/
    if (romeDictHeaders->GetEntries() > 0) {
       if (!librome)
          buffer.AppendFormatted("dependfiles += obj/ROMEDictionary.d\n");
@@ -1854,12 +1860,6 @@ void ROMEBuilder::WriteMakefile() {
       buffer.AppendFormatted("dependfiles += obj/%sTabDictionary.d\n",shortCut.Data());
    if (numOfMFDictHeaders>0)
       buffer.AppendFormatted("dependfiles += obj/%sUserDictionary.d\n",shortCut.Data());
-   if (pch) {
-      for (i = 0; i < precompiledHeaders->GetEntriesFast(); i++) {
-         AnalyzeFileName(precompiledHeaders->At(i),path,name,ext);
-         buffer.AppendFormatted("dependfiles += obj/%s.d\n",name.Data());
-      }
-   }
    buffer.AppendFormatted("\n");
 #endif // R__UNIX
 
@@ -1887,7 +1887,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
    // this must be after including Makefile.usr
    WriteMakefileUserDictObject(buffer);
-   WriteMakefileUserDictDependFiles(buffer);
+//   WriteMakefileUserDictDependFiles(buffer);
 
 // echos
    buffer.AppendFormatted("startecho:\n");
