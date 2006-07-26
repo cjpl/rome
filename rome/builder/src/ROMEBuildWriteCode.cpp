@@ -5722,7 +5722,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    // Header
    buffer.AppendFormatted("\n");
 
-   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -5739,12 +5739,11 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    for (i=0;i<numOfDB;i++)
       buffer.AppendFormatted("#include \"databases/%s%sDataBase.h\"\n",shortCut.Data(),dbName[i].Data());
 
-   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
-   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"ROMEXML.h\"\n");
    buffer.AppendFormatted("#include \"ROMEString.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
    buffer.AppendFormatted("#include \"ROMEXMLDataBase.h\"\n");
@@ -5755,6 +5754,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    if (sql)
       buffer.AppendFormatted("#include \"ROMESQLDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENoDAQSystem.h\"\n");
+   buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
 
    buffer.AppendFormatted("\nClassImp(%sConfig)\n",shortCut.Data());
 

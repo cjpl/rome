@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Wed Jul 26 12:10:11 2006 -->
+<!-- created by MXML on Wed Jul 26 15:41:25 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -28,7 +28,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     <Modes>
       <!-- Description of the modes in which the framework can run. -->
       <!-- Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline -->
-      <AnalyzingMode>offline</AnalyzingMode>
+      <AnalyzingMode>online</AnalyzingMode>
       <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none. -->
       <DAQSystem>midas</DAQSystem>
       <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
@@ -45,7 +45,20 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <PreserveConfig>false</PreserveConfig>
     </Modes>
 
-    <DataBases/>
+    <DataBases>
+
+      <DataBase>
+        <!-- Describes a data base, to which the framework should be connected. -->
+        <!-- The name of the data base connection. (required) -->
+        <Name>odb</Name>
+        <!-- The connection string to initialize the database. For xml: "path;databasename". For sql: "mysql://username:password@servername:portnumber/databasename". For text: "your/database/directory". (required) -->
+        <Connection>odb</Connection>
+        <!-- The type of the data base. (required) -->
+        <Type>odb</Type>
+        <!-- If this is true the database gets read at each event. The '#' in the path means then event number. Default is false. (optional) -->
+        <EventBased>false</EventBased>
+      </DataBase>
+    </DataBases>
 
     <Online>
       <!-- Description of the online specific configuration. -->

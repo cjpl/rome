@@ -32,6 +32,8 @@
 #   endif
 #endif
 
+//#define MIDAS_DEBUG
+
 #if defined( HAVE_MIDAS )
 #   define MIDAS_DEBUG // define if you want to run the analyzer in the debugger
 void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, void * /*message*/)
@@ -187,6 +189,7 @@ Bool_t ROMEMidasDAQ::Init() {
 #else
       ROMEPrint::Error("Need Midas support for Online Mode !!\n");
       ROMEPrint::Error("Please link the midas library into this project.\n");
+      ROMEPrint::Error("--> Run the ROMEBuilder with the '-midas' option.\n");
       return false;
 #endif
    }
@@ -259,14 +262,14 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          }
          if (trans == TR_STOP || fStopRequest) {
             fStopRequest = true;
-            INT numberOfBytes;
-            bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
-            if (numberOfBytes <= 0) {
+//            INT numberOfBytes;
+//            bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+//            if (numberOfBytes <= 0) {
                this->SetEndOfRun();
                this->SetStopped();
                fStopRequest = false;
                return true;
-            }
+//            }
          }
       }
       int status = cm_yield(100);

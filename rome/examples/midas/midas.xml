@@ -19,6 +19,24 @@
 				<FieldComment>TDC Values</FieldComment>
 			</Field>
 		</Folder>
+		<Folder>
+			<FolderName>ODB</FolderName>
+			<DataBaseAccess>true</DataBaseAccess>
+			<Field>
+				<FieldName>RunNumber</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Runinfo/Run Number</FieldComment>
+				<DataBaseName>odb</DataBaseName>
+				<DataBasePath>"Runinfo/Run Number"</DataBasePath>
+			</Field>
+			<Field>
+				<FieldName>StartTime</FieldName>
+				<FieldType>ROMEString</FieldType>
+				<FieldComment>Runinfo/Start time</FieldComment>
+				<DataBaseName>odb</DataBaseName>
+				<DataBasePath>"Runinfo/Start time"</DataBasePath>
+			</Field>
+		</Folder>
 	</Folders>
 	<Tasks>
 		<Task>

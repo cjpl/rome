@@ -774,6 +774,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-midas")) {
          noLink = true;
          minRebuild = true;
+         midas = true;
          outDir = "C:/rome/examples/midas/";
          xmlFile = "C:/rome/examples/midas/midas.xml";
       }
