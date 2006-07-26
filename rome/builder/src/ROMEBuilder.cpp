@@ -771,7 +771,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
       }
-      else if (!strcmp(argv[i],"-midas")) {
+      else if (!strcmp(argv[i],"-midasdaq")) {
          noLink = true;
          minRebuild = true;
          midas = true;
