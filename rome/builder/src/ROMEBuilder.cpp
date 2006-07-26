@@ -771,6 +771,12 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          outDir = "C:/rome/examples/multirun/";
          xmlFile = "C:/rome/examples/multirun/multirun.xml";
       }
+      else if (!strcmp(argv[i],"-midas")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/midas/";
+         xmlFile = "C:/rome/examples/midas/midas.xml";
+      }
       else if (!strcmp(argv[i],"-taskhierarchy")) {
          noLink = true;
          minRebuild = true;
