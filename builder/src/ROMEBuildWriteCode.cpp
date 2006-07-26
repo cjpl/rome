@@ -3819,6 +3819,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   return false;\n");
    buffer.AppendFormatted("   WarningSuppression(value);\n");
    buffer.AppendFormatted("   WarningSuppression(i);\n");
+   buffer.AppendFormatted("   return false;\n");
    buffer.AppendFormatted("}\n\n");
 
    // UserParameterUsage
@@ -3991,6 +3992,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   out.Close();\n");
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("   WarningSuppression(only_database);\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -4028,6 +4030,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("   WarningSuppression(only_database);\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -5078,6 +5081,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("   return active;\n");
    if (!numOfNetFolder) {
       buffer.AppendFormatted("   WarningSuppression(menu);\n");
+      buffer.AppendFormatted("   return active;\n");
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -7958,6 +7962,7 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
 
    buffer.AppendFormatted( "    return( pData );\n" );
    buffer.AppendFormatted( "    WarningSuppression(aName);\n" );
+   buffer.AppendFormatted( "    return( pData );\n" );
    buffer.AppendFormatted( "}\n" );
 
    // Write File
