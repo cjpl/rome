@@ -84,6 +84,7 @@ const Int_t kMaxMidasEventTypes = 5;
 
 class ROMEMidasDAQ : public ROMEDAQSystem {
 protected:
+   Bool_t        fDataEvent;                               //! Flags data events
    Bool_t        fByteSwap;
    char          fRawDataEvent[2][0x80000];                //! Midas Inputdata Stack for the current Event and the last Event
    Int_t         fCurrentRawDataEvent;                     //! Index of the current event buffer
