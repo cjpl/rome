@@ -67,8 +67,8 @@ protected:
    Bool_t    fUpdateWindow;                           //! Window update activation flag
    ULong_t   fLastUpdateTime;                         //! Time of the last window update
 public:
-   // Static Task Switches Changes Flag
-   static Bool_t fTaskSwitchesChanged;               //! Flag Task Switches Changes
+   // Static Switches
+   static Bool_t fHotLinksChanged;                  //! Flags Changing in Hot Links
 
 public:
    ROMEEventLoop();
@@ -128,8 +128,8 @@ protected:
    virtual void CleanUpFolders() = 0;
    virtual void ResetFolders() = 0;
 
-   virtual void InitTaskSwitches() = 0;
-   virtual void UpdateTaskSwitches() = 0;
+   virtual void InitHotLinks() = 0;
+   virtual void UpdateHotLinks() = 0;
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;

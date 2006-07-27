@@ -146,6 +146,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] numOfSteerFieldAffiliations;
    delete [] steerFieldAffiliation;
    delete [] steerFieldUsed;
+   delete [] steerFieldHotLink;
    delete [] gspInclude;
    delete [] gspLocalFlag;
 
@@ -311,6 +312,7 @@ Bool_t ROMEBuilder::StartBuilder()
    if (!ReadXMLDefinitionFile())
       return false;
 
+   haveSteerFieldHotLinks = false;
    int tabNumber=numOfTab;
    int histoNumber=0;
    int is,ie,ind;
@@ -1150,6 +1152,27 @@ void ROMEBuilder::setValue(ROMEString* buf,const char *destination,const char *s
       else
          buf->AppendFormatted("%s",source);
    }
+}
+bool ROMEBuilder::toMidasODBType(ROMEString& type,ROMEString& midasODBType)
+{
+   // converts c++ types to midas odb compatible types
+   if (type == "int" ||
+      type == "Int_t")
+      midasODBType = "INT";
+   else if (type == "bool" ||
+            type == "Bool_t")
+      midasODBType = "BOOL";
+   else if (type == "float" ||
+            type == "Float_t")
+      midasODBType = "FLOAT";
+   else if (type == "double" ||
+            type == "Double_t")
+      midasODBType = "DOUBLE";
+   else {
+      cout << type << " no conversion to a midas odb type available" << endl;
+      return false;
+   }
+   return true;
 }
 
 Bool_t ROMEBuilder::isNumber(const char* str)

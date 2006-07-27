@@ -41,8 +41,22 @@
 	<Tasks>
 		<Task>
 			<TaskName>PrintValues</TaskName>
+			<SteeringParameters>
+				<SteeringParameterField>
+					<SPFieldName>TaskTestValue</SPFieldName>
+					<SPFieldType>int</SPFieldType>
+					<SPFieldHotLink>true</SPFieldHotLink>
+				</SteeringParameterField>
+			</SteeringParameters>
 		</Task>
 	</Tasks>
+	<GlobalSteeringParameters>
+		<SteeringParameterField>
+			<SPFieldName>TestValue</SPFieldName>
+			<SPFieldType>int</SPFieldType>
+			<SPFieldHotLink>true</SPFieldHotLink>
+		</SteeringParameterField>
+	</GlobalSteeringParameters>
 	<MidasBanks>
 		<EventDefinition>
 			<EventName>Trigger</EventName>

@@ -257,6 +257,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    numOfSteerFieldAffiliations = static_cast<Int_t***>(AllocateInt(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    steerFieldAffiliation = static_cast<ROMEString****>(AllocateROMEString(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField,maxNumberOfAffiliations));
    steerFieldUsed = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
+   steerFieldHotLink = static_cast<Bool_t***>(AllocateBool(maxNumberOfTasks+maxNumberOfTabs+1,maxNumberOfSteering,maxNumberOfSteeringField));
    gspInclude = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfInclude));
    gspLocalFlag = static_cast<Bool_t*>(AllocateBool(maxNumberOfInclude));
 
@@ -3114,6 +3115,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = "";
          numOfSteerFieldAffiliations[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = 0;
          steerFieldUsed[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = true;
+         steerFieldHotLink[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = false;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -3195,6 +3197,14 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
             // steering parameter command line option description
             if (type == 1 && !strcmp((const char*)name,"SPFieldCommandLineDescription")) {
                xml->GetValue(steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]],steerFieldCLDescription[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]]);
+            }
+            // steering parameter hot link
+            if (type == 1 && !strcmp((const char*)name,"SPFieldHotLink")) {
+               xml->GetValue(tmp,"false");
+               if (tmp == "true") {
+                  steerFieldHotLink[iTask][actualSteerIndex][numOfSteerFields[iTask][actualSteerIndex]] = true;
+                  haveSteerFieldHotLinks = true;
+               }
             }
             // steering parameter field end
             if (type == 15 && !strcmp((const char*)name,"SteeringParameterField")) {

@@ -33,6 +33,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
 {
 #if defined ( HAVE_MIDAS )
    if (gROME->isOnline()) {
+#if defined( HAVE_MIDAS )
       HNDLE hKey;
       char name[500];
       int type,num_values,item_size;
@@ -56,6 +57,7 @@ Bool_t ROMEODBOnlineDataBase::Read(ROMEStr2DArray *values,const char *dataBasePa
          return false;
       }
       values->SetAt(value,0,0);
+#endif // HAVE_MIDAS
    }
 #endif // HAVE_MIDAS
    return true;
