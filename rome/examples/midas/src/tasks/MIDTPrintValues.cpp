@@ -15,6 +15,7 @@
 // Followings are include files of folders. ROMEBuilder will update it with   //
 // reading this source code when it is executed next time.                    //
 #include "generated/MIDODB.h"
+#include "generated/MIDGlobalSteering.h"
 #include "generated/MIDMidasDAQ.h"
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +24,7 @@
 /////////////////////////////////////----///////////////////////////////////////
 
 #include "generated/MIDAnalyzer.h"
+#include "generated/MIDGlobalSteering.h"
 #include "tasks/MIDTPrintValues.h"
 #include "MIDODB.h"
 #include "ROMEiostream.h"
@@ -47,6 +49,8 @@ void MIDTPrintValues::Event()
 {
    int i;
    cout << "\nEvent : " << gAnalyzer->GetCurrentEventNumber() << endl;
+   cout << "TaskTestValue : " << gAnalyzer->GetPrintValuesTask()->GetSP()->GetTaskTestValue() << endl;
+   cout << "TestValue : " << gAnalyzer->GetGSP()->GetTestValue() << endl;
    cout << "ADC0" << endl;
    for (i=0;i<gAnalyzer->GetMidasDAQ()->GetADC0BankEntries();i++) {
       cout << gAnalyzer->GetMidasDAQ()->GetADC0BankAt(i) << endl;

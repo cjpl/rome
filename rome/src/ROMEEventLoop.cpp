@@ -49,8 +49,8 @@
 TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
-// Task switches handle initialization
-bool ROMEEventLoop::fTaskSwitchesChanged = false;
+// Hot Links handle initialization
+bool ROMEEventLoop::fHotLinksChanged = false;
 
 ClassImp(ROMEEventLoop)
 
@@ -149,10 +149,10 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       }
 
       if (this->isRunning()) {
-         // Task Switches
-         if (ROMEEventLoop::fTaskSwitchesChanged) {
-            this->UpdateTaskSwitches();
-            ROMEEventLoop::fTaskSwitchesChanged = false;
+         // Hot Links
+         if (ROMEEventLoop::fHotLinksChanged) {
+            this->UpdateHotLinks();
+            ROMEEventLoop::fHotLinksChanged = false;
          }
 
          // Begin of Run Tasks
@@ -378,12 +378,13 @@ Int_t ROMEEventLoop::RunEvent()
       return kContinue;
    }
 
+   // Hot Links
+   if (ROMEEventLoop::fHotLinksChanged) {
+      this->UpdateHotLinks();
+      ROMEEventLoop::fHotLinksChanged = false;
+   }
    // Event Tasks
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : ExecuteTasks\n");
-   if (ROMEEventLoop::fTaskSwitchesChanged) {
-      this->UpdateTaskSwitches();
-      ROMEEventLoop::fTaskSwitchesChanged = false;
-   }
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       text.SetFormatted("Event%d",gROME->GetEventID());
       ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
@@ -418,7 +419,7 @@ Bool_t ROMEEventLoop::DAQInit()
    this->SetAnalyze();
    gROME->SetCurrentEventNumber(0);
 
-   this->InitTaskSwitches();
+   this->InitHotLinks();
    this->InitSingleFolders();
 
    // Check IO System

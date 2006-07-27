@@ -248,6 +248,8 @@ protected:
    Int_t      ***numOfSteerFieldAffiliations;
    ROMEString ****steerFieldAffiliation;
    Bool_t     ***steerFieldUsed;
+   Bool_t     ***steerFieldHotLink;
+   Bool_t        haveSteerFieldHotLinks;
 
    Int_t         numOfGSPInclude;
    ROMEString   *gspInclude;
@@ -625,6 +627,7 @@ private:
    Bool_t  RemoveFile(const char* filename, const char* str = 0);
    void    RemoveDepFiles(const char* str = 0);
    void    RelativeWindowsPath(ROMEString &path,const char *referencePath);
+   ROMEString& GetSteerPath(ROMEString& steerPath,int iTask,int iSteer,int iField,const char* seperator);
 
    // Visual Project Methods
    void    WriteVisualProjects(Int_t version);
@@ -652,6 +655,7 @@ private:
    Bool_t  isPointerType(const char *type) { TString tmp=type; return isPointerType(tmp); };
    Bool_t  isPointerType(TString &type) { ROMEString tmp = type; tmp.StripSpaces(); return tmp(tmp.Length()-1)=='*'; };
    ROMEString& convertType(const char *value,const char *oldType,const char *newType,ROMEString& stringBuffer);
+   bool    toMidasODBType(ROMEString& type,ROMEString& midasODBType);
 
    // General Utility Methods
    void    Usage();

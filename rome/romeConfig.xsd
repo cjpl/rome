@@ -60,16 +60,6 @@
 					<xs:documentation>Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="BatchMode" type="xs:boolean" default="false" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If the program runs in batch mode, it makes no graphical output. Default is false.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="QuitMode" type="xs:boolean" default="false" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If true, the program doesn't start a root session at the end. Default is false.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="VerboseLevel" type="xs:string" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal.</xs:documentation>
@@ -78,6 +68,11 @@
 			<xs:element name="ConfigCommentLevel" type="xs:string" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Amount of comments in configuration xml file. 0 to 5. You have more comments when this is larger. degault is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="QuitMode" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the program doesn't start a root session at the end. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ShowSplashScreen" type="xs:boolean" default="true" minOccurs="0">
@@ -583,17 +578,17 @@
 					<xs:documentation>Inactive tasks are not executed by the framework.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="NumberOfPadsX" type="xs:integer">
+			<xs:element name="NumberOfPadsX" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The initial number of pads in horizontal direction. This tag is only used for tabs with display objects.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="NumberOfPadsY" type="xs:integer">
+			<xs:element name="NumberOfPadsY" type="xs:integer" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>The initial number of pads in vertical direction. This tag is only used for tabs with display objects.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="PadConfiguration" type="xs:boolean">
+			<xs:element name="PadConfiguration" type="xs:boolean" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Tells the tab to activate the pad configuration. This tag is only used for tabs with display objects.</xs:documentation>
 				</xs:annotation>
