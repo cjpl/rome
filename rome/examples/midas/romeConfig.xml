@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu Jul 27 10:07:19 2006 -->
+<!-- created by MXML on Thu Jul 27 10:35:24 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -66,6 +66,8 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Host></Host>
       <!-- The name of the online experiment. (required) -->
       <Experiment></Experiment>
+      <!-- The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional) -->
+      <AnalyzerName>OtherMIDAnalyzer</AnalyzerName>
     </Online>
 
     <SocketInterface>

@@ -175,6 +175,7 @@ protected:
    // Online
    ROMEString     fOnlineHost;                   //! Name of the Online Host
    ROMEString     fOnlineExperiment;             //! Name of the Online Experiment
+   ROMEString     fOnlineAnalyzerName;           //! The name of the analyzer in the midas environment
 
    // Socket
    Int_t          fPortNumber;                   //! Port Number for TSocket
@@ -482,9 +483,11 @@ public:
    // Online
    const char     *GetOnlineHost() { return fOnlineHost.Data(); }
    const char     *GetOnlineExperiment() { return fOnlineExperiment.Data(); }
+   const char     *GetOnlineAnalyzerName() { return fOnlineAnalyzerName.Data(); }
 
    void            SetOnlineHost(const char *host) { fOnlineHost = host; }
    void            SetOnlineExperiment(const char *experiment) { fOnlineExperiment = experiment; }
+   void            SetOnlineAnalyzerName(const char *analyzerName) { fOnlineAnalyzerName = analyzerName; }
 
    // Socket
    Int_t           GetPortNumber() { return fPortNumber; }

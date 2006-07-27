@@ -27,6 +27,7 @@
 #include "generated/MIDGlobalSteering.h"
 #include "tasks/MIDTPrintValues.h"
 #include "MIDODB.h"
+#include "TSystem.h"
 #include "ROMEiostream.h"
 
 // uncomment if you want to include headers of all folders
@@ -60,6 +61,7 @@ void MIDTPrintValues::Event()
       cout << gAnalyzer->GetMidasDAQ()->GetTDC0BankAt(i) << endl;
    }
    cout << endl;
+   gSystem->Sleep(10);
 }
 
 void MIDTPrintValues::EndOfRun()

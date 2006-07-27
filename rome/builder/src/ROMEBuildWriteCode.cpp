@@ -6510,6 +6510,11 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineExperiment(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineExperiment();");
+   // Online/AnalyzerName
+   subGroup->AddParameter(new ROMEConfigParameter("AnalyzerName"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineAnalyzerName(##.Data());");
+   subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineAnalyzerName();");
    mainParGroup->AddSubGroup(subGroup);
    // SocketInterface
    subGroup = new ROMEConfigParameterGroup("SocketInterface");
