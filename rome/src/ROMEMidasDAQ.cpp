@@ -45,7 +45,6 @@ void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, vo
 ClassImp(ROMEMidasDAQ)
 
 ROMEMidasDAQ::ROMEMidasDAQ() {
-   fStopRequest = false;
    fCurrentRawDataEvent = 0;
    fLastEventRead = -1;
    fEventFilePositions = new TArrayL(100000);
@@ -56,6 +55,7 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
 #endif
    fOdbOffline = 0;
    fDataEvent = false;
+   fRequestAll = false;
 }
 
 ROMEMidasDAQ::~ROMEMidasDAQ() {
@@ -94,6 +94,8 @@ Bool_t ROMEMidasDAQ::Init() {
       }
       const int nRequest = this->GetNumberOfEventRequests();
       for (i=0;i<nRequest;i++) {
+         if (this->GetEventRequestRate(i)==1)
+            fRequestAll = true;
          bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
             this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
@@ -252,27 +254,36 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 
    if (gROME->isOnline()) {
 #if defined( HAVE_MIDAS )
+      INT size;
+      void* mEvent;
+      int status;
       int runNumber,trans; // use int instead of INT or Int_t
-      if (cm_query_transition(&trans, &runNumber, NULL) || fStopRequest) {
+      if (cm_query_transition(&trans, &runNumber, NULL)) {
          if (trans == TR_START) {
             gROME->SetCurrentRunNumber(runNumber);
             this->SetBeginOfRun();
             this->SetRunning();
             return true;
          }
-         if (trans == TR_STOP || fStopRequest) {
-            fStopRequest = true;
-//            INT numberOfBytes;
-//            bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
-//            if (numberOfBytes <= 0) {
-               this->SetEndOfRun();
-               this->SetStopped();
-               fStopRequest = false;
-               return true;
-//            }
+         if (trans == TR_STOP) {
+            if (fRequestAll) {
+               INT numberOfBytes;
+               bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+               while (numberOfBytes <= 0) {
+                  size = this->GetRawDataEventSize();
+                  mEvent = this->GetRawDataEvent();
+                  status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
+                  if (status != BM_SUCCESS)
+                     break;
+                  bm_get_buffer_level(fMidasOnlineBuffer, &numberOfBytes);
+               }
+            }
+            this->SetEndOfRun();
+            this->SetStopped();
+            return true;
          }
       }
-      int status = cm_yield(100);
+      status = cm_yield(100);
       if (status == RPC_SHUTDOWN || status == SS_ABORT) {
          this->SetTerminate();
          return false;
@@ -281,8 +292,8 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          this->SetContinue();
          return true;
       }
-      INT size = this->GetRawDataEventSize();
-      void* mEvent = this->GetRawDataEvent();
+      size = this->GetRawDataEventSize();
+      mEvent = this->GetRawDataEvent();
       status = bm_receive_event(fMidasOnlineBuffer, mEvent, &size, ASYNC);
       if (status != BM_SUCCESS) {
          this->SetContinue();

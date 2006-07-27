@@ -99,7 +99,7 @@ protected:
    Seek_t        fMidasFileHandle;                         //! Handle to a un-gzipped Midas Inputfile
    gzFile        fMidasGzFileHandle;                       //! Handle to Midas gzipped Inputfile
    Bool_t        fGZippedMidasFile;                        //! True if input file is gzipped.
-   Bool_t        fStopRequest;                             //! True if a Stop transition message was received
+   Bool_t        fRequestAll;                              //! True if one request type requests all events
 
    EVENT_HEADER *fOdbOffline;                              //! Handle to the Midas Online Data Base (Offline)
 
@@ -147,7 +147,9 @@ public:
    Bool_t         Terminate();
 
    virtual Bool_t IsActiveEventID(Int_t /*id*/){ return true; }
+#if defined( HAVE_MIDAS )
    virtual Bool_t InitODB() = 0;
+#endif // HAVE_MIDAS
    virtual Bool_t InitHeader() = 0;
    virtual void   InitMidasBanks() = 0;
 

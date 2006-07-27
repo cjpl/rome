@@ -4503,47 +4503,49 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
 
    // Hot Links Structures
-   ROMEString steerPath;
-   buffer.AppendFormatted("// Hot Links Structures\n");
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("typedef struct{\n");
-      buffer.AppendFormatted("   Int_t Active; //! Task Active\n");
-      for (j=0;j<numOfSteering[i];j++) {
-         for (k=0;k<numOfSteerFields[i][j];k++) {
-            if (steerFieldHotLink[i][j][k]) {
-               GetSteerPath(steerPath,i,j,k,"_");
-               buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[i][j][k].Data(),steerPath.Data(),steerPath.Data());
+   if (midas) {
+      ROMEString steerPath;
+      buffer.AppendFormatted("// Hot Links Structures\n");
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("typedef struct{\n");
+         buffer.AppendFormatted("   Int_t Active; //! Task Active\n");
+         for (j=0;j<numOfSteering[i];j++) {
+            for (k=0;k<numOfSteerFields[i][j];k++) {
+               if (steerFieldHotLink[i][j][k]) {
+                  GetSteerPath(steerPath,i,j,k,"_");
+                  buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[i][j][k].Data(),steerPath.Data(),steerPath.Data());
+               }
             }
          }
+         buffer.AppendFormatted("} %s%sHotLinks; // Task %s%s\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
       }
-      buffer.AppendFormatted("} %s%sHotLinks; // Task %s%s\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-   }
-   for (j=0;j<numOfSteering[numOfTaskHierarchy];j++) {
       buffer.AppendFormatted("typedef struct{\n");
-      for (k=0;k<numOfSteerFields[numOfTaskHierarchy][j];k++) {
-         if (steerFieldHotLink[numOfTaskHierarchy][j][k]) {
-            GetSteerPath(steerPath,numOfTaskHierarchy,j,k,"_");
-            buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[numOfTaskHierarchy][j][k].Data(),steerPath.Data(),steerPath.Data());
+      for (j=0;j<numOfSteering[numOfTaskHierarchy];j++) {
+         for (k=0;k<numOfSteerFields[numOfTaskHierarchy][j];k++) {
+            if (steerFieldHotLink[numOfTaskHierarchy][j][k]) {
+               GetSteerPath(steerPath,numOfTaskHierarchy,j,k,"_");
+               buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[numOfTaskHierarchy][j][k].Data(),steerPath.Data(),steerPath.Data());
+            }
          }
       }
       buffer.AppendFormatted("} GSPHotLinks; // Global Steering Parameters\n");
-   }
-   for (i=0;i<numOfTab;i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("typedef struct{\n");
-      buffer.AppendFormatted("   Int_t Active; //! Tab Active\n");
-      for (j=0;j<numOfSteering[numOfTaskHierarchy+1+i];j++) {
-         for (k=0;k<numOfSteerFields[numOfTaskHierarchy+1+i][j];k++) {
-            if (steerFieldHotLink[numOfTaskHierarchy+1+i][j][k]) {
-               GetSteerPath(steerPath,numOfTaskHierarchy+1+i,j,k,"_");
-               buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[numOfTaskHierarchy+1+i][j][k].Data(),steerPath.Data(),steerPath.Data());
+      for (i=0;i<numOfTab;i++) {
+         if (!tabUsed[i])
+            continue;
+         buffer.AppendFormatted("typedef struct{\n");
+         buffer.AppendFormatted("   Int_t Active; //! Tab Active\n");
+         for (j=0;j<numOfSteering[numOfTaskHierarchy+1+i];j++) {
+            for (k=0;k<numOfSteerFields[numOfTaskHierarchy+1+i][j];k++) {
+               if (steerFieldHotLink[numOfTaskHierarchy+1+i][j][k]) {
+                  GetSteerPath(steerPath,numOfTaskHierarchy+1+i,j,k,"_");
+                  buffer.AppendFormatted("   %s %s; //! %s Steering Parameter\n",steerFieldType[numOfTaskHierarchy+1+i][j][k].Data(),steerPath.Data(),steerPath.Data());
+               }
             }
          }
+         buffer.AppendFormatted("} %s%sHotLinks; // Tab %s%s\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
       }
-      buffer.AppendFormatted("} %s%sHotLinks; // Tab %s%s\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
    }
 
    // Class
@@ -4612,19 +4614,21 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
 
    // Hot Links
-   buffer.AppendFormatted("   // Hot Links\n");
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("   %s%sHotLinks f%s%sHotLinks;               //! %s%s Hot Links\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+   if (midas) {
+      buffer.AppendFormatted("   // Hot Links\n");
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("   %s%sHotLinks f%s%sHotLinks;               //! %s%s Hot Links\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      }
+      buffer.AppendFormatted("   GSPHotLinks fGSPHotLinks;               //! GSP Hot Links\n");
+      for (i=0;i<numOfTab;i++) {
+         if (!tabUsed[i])
+            continue;
+         buffer.AppendFormatted("   %s%sHotLinks f%s%sHotLinks;               //! %s%s Hot Links\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
+      }
+      buffer.AppendFormatted("\n");
    }
-   buffer.AppendFormatted("   GSPHotLinks fGSPHotLinks;               //! GSP Hot Links\n");
-   for (i=0;i<numOfTab;i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("   %s%sHotLinks f%s%sHotLinks;               //! %s%s Hot Links\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
-   }
-   buffer.AppendFormatted("\n");
 
    // Methods
    buffer.AppendFormatted("public:\n");
@@ -4675,19 +4679,21 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n");
 
    // Hot Links
-   buffer.AppendFormatted("   // Hot Links\n");
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+   if (midas) {
+      buffer.AppendFormatted("   // Hot Links\n");
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+      }
+      buffer.AppendFormatted("   GSPHotLinks* GetGSPHotLinks() { return &fGSPHotLinks; };\n");
+      for (i=0;i<numOfTab;i++) {
+         if (!tabUsed[i])
+            continue;
+         buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
+      }
+      buffer.AppendFormatted("\n");
    }
-   buffer.AppendFormatted("   GSPHotLinks* GetGSPHotLinks() { return &fGSPHotLinks; };\n");
-   for (i=0;i<numOfTab;i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("   %s%sHotLinks* Get%s%sHotLinks() { return &f%s%sHotLinks; };\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
-   }
-   buffer.AppendFormatted("\n");
 
    // Tree Getters
    buffer.AppendFormatted("   // Trees\n");
@@ -7720,11 +7726,13 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
-   // Task switches call back
-   buffer.AppendFormatted("// Hot Links call back\n");
-   buffer.AppendFormatted("void HotLinksChanged(HNDLE /*hDB*/,HNDLE /*hKey*/,void * /*info*/) {\n");
-   buffer.AppendFormatted("   ROMEEventLoop::fHotLinksChanged = true;\n");
-   buffer.AppendFormatted("}\n\n");
+   // Hot Links call back
+   if (midas) {
+      buffer.AppendFormatted("// Hot Links call back\n");
+      buffer.AppendFormatted("void HotLinksChanged(HNDLE /*hDB*/,HNDLE /*hKey*/,void * /*info*/) {\n");
+      buffer.AppendFormatted("   ROMEEventLoop::fHotLinksChanged = true;\n");
+      buffer.AppendFormatted("}\n\n");
+   }
 
    // Fill Bank Header to Folder
    buffer.AppendFormatted("// Fill Bank Header to Folder\n");
@@ -7743,105 +7751,107 @@ Bool_t ROMEBuilder::WriteMidasDAQCpp() {
    buffer.AppendFormatted("}\n\n");
 
    // Initialize ODB
-   ROMEString midType;
-   buffer.AppendFormatted("// InitODB\n");
-   buffer.AppendFormatted("Bool_t %sMidasDAQ::InitODB() {\n",shortCut.Data());
    if (midas) {
-      ROMEString steerPath;
-      buffer.AppendFormatted("   HNDLE hKey;\n");
-      buffer.AppendFormatted("   ROMEString str;\n");
-      buffer.AppendFormatted("   ROMEString hotLinkString;\n");
-      buffer.AppendFormatted("   // Hot Links\n");
-      for (i=0;i<numOfTaskHierarchy;i++) {
-         if (!taskUsed[taskHierarchyClassIndex[i]])
-            continue;
-         buffer.AppendFormatted("   str = \"/%s%s/Tasks/%s%s\";\n",shortCut.Data(),mainProgName.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-         buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
-         for (j=0;j<numOfSteering[i];j++) {
-            for (k=0;k<numOfSteerFields[i][j];k++) {
-               if (steerFieldHotLink[i][j][k]) {
-                  GetSteerPath(steerPath,i,j,k,"_");
-                  if (!toMidasODBType(steerFieldType[i][j][k],midType)) {
-                     cout << "Steering parameter field " << steerFieldName[i][j][k].Data() << " of task " << taskHierarchyName[i].Data() << " can not be a hot link" << endl;
+      ROMEString midType;
+      buffer.AppendFormatted("// InitODB\n");
+      buffer.AppendFormatted("Bool_t %sMidasDAQ::InitODB() {\n",shortCut.Data());
+      if (midas) {
+         ROMEString steerPath;
+         buffer.AppendFormatted("   HNDLE hKey;\n");
+         buffer.AppendFormatted("   ROMEString str;\n");
+         buffer.AppendFormatted("   ROMEString hotLinkString;\n");
+         buffer.AppendFormatted("   // Hot Links\n");
+         for (i=0;i<numOfTaskHierarchy;i++) {
+            if (!taskUsed[taskHierarchyClassIndex[i]])
+               continue;
+            buffer.AppendFormatted("   str = \"/%s%s/Tasks/%s%s\";\n",shortCut.Data(),mainProgName.Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+            buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
+            for (j=0;j<numOfSteering[i];j++) {
+               for (k=0;k<numOfSteerFields[i][j];k++) {
+                  if (steerFieldHotLink[i][j][k]) {
+                     GetSteerPath(steerPath,i,j,k,"_");
+                     if (!toMidasODBType(steerFieldType[i][j][k],midType)) {
+                        cout << "Steering parameter field " << steerFieldName[i][j][k].Data() << " of task " << taskHierarchyName[i].Data() << " can not be a hot link" << endl;
+                        return false;
+                     }
+                     buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
+                  }
+               }
+            }
+            buffer.AppendFormatted("\";\n");
+            buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
+            buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
+            buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->Get%s%sHotLinks(),sizeof(%s%sHotLinks),0) != DB_SUCCESS) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->Get%s%sHotLinks(), sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
+         }
+         bool hasHotLink = false;
+         buffer.AppendFormatted("   str = \"/%s%s/Global Steering Parameters\";\n",shortCut.Data(),mainProgName.Data());
+         buffer.AppendFormatted("   hotLinkString =  \"\\n");
+         for (j=0;j<numOfSteering[numOfTaskHierarchy];j++) {
+            for (k=0;k<numOfSteerFields[numOfTaskHierarchy][j];k++) {
+               if (steerFieldHotLink[numOfTaskHierarchy][j][k]) {
+                  if (!toMidasODBType(steerFieldType[numOfTaskHierarchy][j][k],midType)) {
+                     cout << "General steering parameter field " << steerFieldName[numOfTaskHierarchy][j][k].Data() << " can not be a hot link" << endl;
                      return false;
                   }
+                  hasHotLink = true;
+                  GetSteerPath(steerPath,numOfTaskHierarchy,j,k,"_");
                   buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
                }
             }
          }
          buffer.AppendFormatted("\";\n");
-         buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
-         buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
-         buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->Get%s%sHotLinks(),sizeof(%s%sHotLinks),0) != DB_SUCCESS) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->Get%s%sHotLinks(), sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
-      }
-      bool hasHotLink = false;
-      buffer.AppendFormatted("   str = \"/%s%s/Global Steering Parameters\";\n",shortCut.Data(),mainProgName.Data());
-      buffer.AppendFormatted("   hotLinkString =  \"\\n");
-      for (j=0;j<numOfSteering[numOfTaskHierarchy];j++) {
-         for (k=0;k<numOfSteerFields[numOfTaskHierarchy][j];k++) {
-            if (steerFieldHotLink[numOfTaskHierarchy][j][k]) {
-               if (!toMidasODBType(steerFieldType[numOfTaskHierarchy][j][k],midType)) {
-                  cout << "General steering parameter field " << steerFieldName[numOfTaskHierarchy][j][k].Data() << " can not be a hot link" << endl;
-                  return false;
-               }
-               hasHotLink = true;
-               GetSteerPath(steerPath,numOfTaskHierarchy,j,k,"_");
-               buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
-            }
+         if (hasHotLink) {
+            buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
+            buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
+            buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetGSPHotLinks(),sizeof(GSPHotLinks),0) != DB_SUCCESS) {\n");
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n");
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
          }
-      }
-      buffer.AppendFormatted("\";\n");
-      if (hasHotLink) {
-         buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
-         buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
-         buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->GetGSPHotLinks(),sizeof(GSPHotLinks),0) != DB_SUCCESS) {\n");
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->GetGSPHotLinks(), sizeof(GSPHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n");
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
-      }
-      for (i=0;i<numOfTab;i++) {
-         if (!tabUsed[i])
-            continue;
-         buffer.AppendFormatted("   str = \"/%s%s/Tabs/%s%s\";\n",shortCut.Data(),mainProgName.Data(),tabName[i].Data(),tabSuffix[i].Data());
-         buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
-         for (j=0;j<numOfSteering[numOfTaskHierarchy+1+i];j++) {
-            for (k=0;k<numOfSteerFields[numOfTaskHierarchy+1+i][j];k++) {
-               if (steerFieldHotLink[numOfTaskHierarchy+1+i][j][k]) {
-                  if (!toMidasODBType(steerFieldType[numOfTaskHierarchy+1+i][j][k],midType)) {
-                     cout << "Steering parameter field " << steerFieldName[numOfTaskHierarchy+1+i][j][k].Data() << " of tab " << tabName[i].Data() << " can not be a hot link" << endl;
-                     return false;
+         for (i=0;i<numOfTab;i++) {
+            if (!tabUsed[i])
+               continue;
+            buffer.AppendFormatted("   str = \"/%s%s/Tabs/%s%s\";\n",shortCut.Data(),mainProgName.Data(),tabName[i].Data(),tabSuffix[i].Data());
+            buffer.AppendFormatted("   hotLinkString =  \"Active = BOOL : 0\\n");
+            for (j=0;j<numOfSteering[numOfTaskHierarchy+1+i];j++) {
+               for (k=0;k<numOfSteerFields[numOfTaskHierarchy+1+i][j];k++) {
+                  if (steerFieldHotLink[numOfTaskHierarchy+1+i][j][k]) {
+                     if (!toMidasODBType(steerFieldType[numOfTaskHierarchy+1+i][j][k],midType)) {
+                        cout << "Steering parameter field " << steerFieldName[numOfTaskHierarchy+1+i][j][k].Data() << " of tab " << tabName[i].Data() << " can not be a hot link" << endl;
+                        return false;
+                     }
+                     GetSteerPath(steerPath,numOfTaskHierarchy+1+i,j,k,"_");
+                     buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
                   }
-                  GetSteerPath(steerPath,numOfTaskHierarchy+1+i,j,k,"_");
-                  buffer.AppendFormatted("%s = %s : 0\\n",steerPath.Data(),midType.Data());
                }
             }
+            buffer.AppendFormatted("\";\n");
+            buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
+            buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
+            buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->Get%s%sHotLinks(),sizeof(%s%sHotLinks),0) != DB_SUCCESS) {\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->Get%s%sHotLinks(), sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
+            buffer.AppendFormatted("      return false;\n");
+            buffer.AppendFormatted("   }\n");
          }
-         buffer.AppendFormatted("\";\n");
-         buffer.AppendFormatted("   db_check_record(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)hotLinkString.Data(), TRUE);\n");
-         buffer.AppendFormatted("   db_find_key(gAnalyzer->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);\n");
-         buffer.AppendFormatted("   if (db_set_record(gAnalyzer->GetMidasOnlineDataBase(),hKey,gAnalyzer->Get%s%sHotLinks(),sizeof(%s%sHotLinks),0) != DB_SUCCESS) {\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot write to hot links.\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   if (db_open_record(gAnalyzer->GetMidasOnlineDataBase(), hKey, gAnalyzer->Get%s%sHotLinks(), sizeof(%s%sHotLinks), MODE_READ, HotLinksChanged, NULL) != DB_SUCCESS) {\n",tabName[i].Data(),tabSuffix[i].Data(),tabName[i].Data(),tabSuffix[i].Data());
-         buffer.AppendFormatted("      ROMEPrint::Warning(\"Cannot open hot links, probably other analyzer is using it\\n\");\n");
-         buffer.AppendFormatted("      return false;\n");
-         buffer.AppendFormatted("   }\n");
       }
+      buffer.AppendFormatted("   return true;\n");
+      buffer.AppendFormatted("}\n\n");
    }
-   buffer.AppendFormatted("   return true;\n");
-   buffer.AppendFormatted("}\n\n");
 
    // Midas Bank Initialisation
    buffer.AppendFormatted("// Midas Bank Initialisation\n");
@@ -8293,7 +8303,9 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
 
    // protected
    buffer.AppendFormatted("protected:\n");
-   buffer.AppendFormatted("   Bool_t  InitODB();\n");
+   if (midas) {
+      buffer.AppendFormatted("   Bool_t  InitODB();\n");
+   }
    buffer.AppendFormatted("   Bool_t  InitHeader();\n");
    buffer.AppendFormatted("   Bool_t  IsActiveEventID(Int_t id);\n");
    buffer.AppendFormatted("   void   *ByteSwapStruct( char* aName, void* pData );\n");
@@ -10010,49 +10022,51 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
-   // Initialize Hot Links
-   ROMEString steerPointer;
-   ROMEString steerPath;
-   buffer.AppendFormatted("void %sEventLoop::InitHotLinks() {\n",shortCut.Data());
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("   gAnalyzer->Get%s%sHotLinks()->Active = gAnalyzer->GetTaskObjectAt(%d)->IsActive();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyObjectIndex[i]);
-      for (j=0;j<numOfSteering[i];j++) {
-         for (k=0;k<numOfSteerFields[i][j];k++) {
-            if (steerFieldHotLink[i][j][k]) {
-               GetSteerPath(steerPath,i,j,k,"_");
-               GetSteerPath(steerPointer,i,j,k,"()->Get");
-               buffer.AppendFormatted("   gAnalyzer->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+   if (midas) {
+      // Initialize Hot Links
+      ROMEString steerPointer;
+      ROMEString steerPath;
+      buffer.AppendFormatted("void %sEventLoop::InitHotLinks() {\n",shortCut.Data());
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("   gAnalyzer->Get%s%sHotLinks()->Active = gAnalyzer->GetTaskObjectAt(%d)->IsActive();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),taskHierarchyObjectIndex[i]);
+         for (j=0;j<numOfSteering[i];j++) {
+            for (k=0;k<numOfSteerFields[i][j];k++) {
+               if (steerFieldHotLink[i][j][k]) {
+                  GetSteerPath(steerPath,i,j,k,"_");
+                  GetSteerPath(steerPointer,i,j,k,"()->Get");
+                  buffer.AppendFormatted("   gAnalyzer->Get%s%sHotLinks()->%s = ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data(),shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+               }
             }
          }
       }
-   }
-   buffer.AppendFormatted("}\n\n");
+      buffer.AppendFormatted("}\n\n");
 
-   // Update Task Switches
-   buffer.AppendFormatted("void %sEventLoop::UpdateHotLinks() {\n",shortCut.Data());
-   for (i=0;i<numOfTaskHierarchy;i++) {
-      if (!taskUsed[taskHierarchyClassIndex[i]])
-         continue;
-      buffer.AppendFormatted("   if (gAnalyzer->Get%s%sHotLinks()->Active)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
-      buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(true);\n",taskHierarchyObjectIndex[i]);
-      buffer.AppendFormatted("   else\n");
-      buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(false);\n",taskHierarchyObjectIndex[i]);
-      for (j=0;j<numOfSteering[i];j++) {
-         for (k=0;k<numOfSteerFields[i][j];k++) {
-            if (steerFieldHotLink[i][j][k]) {
-               GetSteerPath(steerPath,i,j,k,"_");
-               GetSteerPath(steerPointer,i,j,k,"()->Get");
-               buffer.AppendFormatted("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s(",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
-               buffer[buffer.Last('G')] = 'S';
-               buffer.AppendFormatted("gAnalyzer->Get%s%sHotLinks()->%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data());
-               buffer.AppendFormatted(");\n");
+      // Update Hot Links
+      buffer.AppendFormatted("void %sEventLoop::UpdateHotLinks() {\n",shortCut.Data());
+      for (i=0;i<numOfTaskHierarchy;i++) {
+         if (!taskUsed[taskHierarchyClassIndex[i]])
+            continue;
+         buffer.AppendFormatted("   if (gAnalyzer->Get%s%sHotLinks()->Active)\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data());
+         buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(true);\n",taskHierarchyObjectIndex[i]);
+         buffer.AppendFormatted("   else\n");
+         buffer.AppendFormatted("      gAnalyzer->GetTaskObjectAt(%d)->SetActive(false);\n",taskHierarchyObjectIndex[i]);
+         for (j=0;j<numOfSteering[i];j++) {
+            for (k=0;k<numOfSteerFields[i][j];k++) {
+               if (steerFieldHotLink[i][j][k]) {
+                  GetSteerPath(steerPath,i,j,k,"_");
+                  GetSteerPath(steerPointer,i,j,k,"()->Get");
+                  buffer.AppendFormatted("   ((%sT%s_Base*)gAnalyzer->GetTaskObjectAt(%d))->GetSP()->Get%s(",shortCut.Data(),taskName[taskHierarchyClassIndex[i]].Data(),taskHierarchyObjectIndex[i],steerPointer.Data());
+                  buffer[buffer.Last('G')] = 'S';
+                  buffer.AppendFormatted("gAnalyzer->Get%s%sHotLinks()->%s",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),steerPath.Data());
+                  buffer.AppendFormatted(");\n");
+               }
             }
          }
       }
+      buffer.AppendFormatted("}\n\n");
    }
-   buffer.AppendFormatted("}\n\n");
 
    // Read Histograms
    buffer.AppendFormatted("void %sEventLoop::ReadHistograms() {\n",shortCut.Data());
@@ -10166,11 +10180,13 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex,const char* runNumber=\"\");\n");
    buffer.AppendFormatted("\n");
 
-   // Switches
-   buffer.AppendFormatted("   // Switches\n");
-   buffer.AppendFormatted("   void InitHotLinks();\n");
-   buffer.AppendFormatted("   void UpdateHotLinks();\n");
-   buffer.AppendFormatted("\n");
+   // Hot Links
+   if (midas) {
+      buffer.AppendFormatted("   // Hot Links\n");
+      buffer.AppendFormatted("   void InitHotLinks();\n");
+      buffer.AppendFormatted("   void UpdateHotLinks();\n");
+      buffer.AppendFormatted("\n");
+   }
 
    buffer.AppendFormatted("   void ReadHistograms();\n");
    buffer.AppendFormatted("\n");
