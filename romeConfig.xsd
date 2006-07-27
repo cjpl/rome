@@ -217,6 +217,11 @@
 					<xs:documentation>The name of the online experiment. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="AnalyzerName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
 	<xs:complexType name="SocketInterfaceDesc">

@@ -72,8 +72,8 @@ Bool_t ROMEMidasDAQ::Init() {
       ROMEPrint::Print("Program is running online.\n");
 
       // Connect to the experiment
-      if (cm_connect_experiment((char*)gROME->GetOnlineHost(), (char*)gROME->GetOnlineExperiment(),(char*)gROME->GetProgramName(), NULL) != SUCCESS) {
-         ROMEPrint::Error("\nCannot connect to experiment\n");
+      if (cm_connect_experiment((char*)gROME->GetOnlineHost(), (char*)gROME->GetOnlineExperiment(),(char*)gROME->GetOnlineAnalyzerName(), NULL) != SUCCESS) {
+         ROMEPrint::Error("\nCan not connect to experiment\n");
          return false;
       }
 
@@ -111,13 +111,13 @@ Bool_t ROMEMidasDAQ::Init() {
       // Registers a callback function for run transitions.
       if (cm_register_transition(TR_START, NULL ,500) != CM_SUCCESS ||
          cm_register_transition(TR_STOP, NULL, 500) != CM_SUCCESS) {
-         ROMEPrint::Error("\nCannot connect to experiment\n");
+         ROMEPrint::Error("\nCan not connect to experiment\n");
          return false;
       }
 
       // Connect to the online database
       if (cm_get_experiment_database(gROME->GetMidasOnlineDataBasePointer(), NULL)!= CM_SUCCESS) {
-         ROMEPrint::Error("\nCannot connect to the online database\n");
+         ROMEPrint::Error("\nCan not connect to the online database\n");
          return false;
       }
 
@@ -125,7 +125,7 @@ Bool_t ROMEMidasDAQ::Init() {
       int state = 0;
       int statesize = sizeof(state);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/State",&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
-         ROMEPrint::Error("\nCannot read run status from the online database\n");
+         ROMEPrint::Error("\nCan not read run status from the online database\n");
          return false;
       }
       if (state!=3) {
@@ -137,7 +137,7 @@ Bool_t ROMEMidasDAQ::Init() {
       Int_t runNumber = 0;
       Int_t size = sizeof(runNumber);
       if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
-         ROMEPrint::Error("\nCannot read runnumber from the online database\n");
+         ROMEPrint::Error("\nCan not read runnumber from the online database\n");
          return false;
       }
       gROME->SetCurrentRunNumber(runNumber);
@@ -152,8 +152,7 @@ Bool_t ROMEMidasDAQ::Init() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         ROMEPrint::Warning("\nCannot open trigger statistics record, probably other analyzer is using it\n");
-         return false;
+         ROMEPrint::Warning("\nCan not open trigger statistics record, probably other analyzer is using it\n");
       }
 
       // Scaler Statistics
@@ -163,8 +162,7 @@ Bool_t ROMEMidasDAQ::Init() {
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
-         ROMEPrint::Warning("\nCannot open scaler statistics record, probably other analyzer is using it\n");
-         return false;
+         ROMEPrint::Warning("\nCan not open scaler statistics record, probably other analyzer is using it\n");
       }
 
       // Tree Switches
@@ -176,12 +174,10 @@ Bool_t ROMEMidasDAQ::Init() {
          db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
          if (db_set_record(gROME->GetMidasOnlineDataBase(),hKey,gROME->GetTreeObjectAt(i)->GetSwitches(),gROME->GetTreeObjectAt(i)->GetSwitchesSize(),0) != DB_SUCCESS) {
-            ROMEPrint::Warning("\nCannot write to tree switches record.\n");
-            return false;
+            ROMEPrint::Warning("\nCan not write to tree switches record.\n");
          }
          if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTreeObjectAt(i)->GetSwitches(), gROME->GetTreeObjectAt(i)->GetSwitchesSize(), MODE_READ, NULL, NULL) != DB_SUCCESS) {
-            ROMEPrint::Warning("\nCannot open tree switches record, probably other analyzer is using it\n");
-            return false;
+            ROMEPrint::Warning("\nCan not open tree switches record, probably other analyzer is using it\n");
          }
       }
 
