@@ -67,8 +67,10 @@ protected:
    Bool_t    fUpdateWindow;                           //! Window update activation flag
    ULong_t   fLastUpdateTime;                         //! Time of the last window update
 public:
-   // Static Switches
+   // Static Hot Links
+#if defined( HAVE_MIDAS )
    static Bool_t fHotLinksChanged;                  //! Flags Changing in Hot Links
+#endif // HAVE_MIDAS
 
 public:
    ROMEEventLoop();
@@ -128,8 +130,10 @@ protected:
    virtual void CleanUpFolders() = 0;
    virtual void ResetFolders() = 0;
 
+#if defined( HAVE_MIDAS )
    virtual void InitHotLinks() = 0;
    virtual void UpdateHotLinks() = 0;
+#endif // HAVE_MIDAS
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;

@@ -50,7 +50,9 @@ TTask *TTask::fgBeginTask  = 0;
 TTask *TTask::fgBreakPoint = 0;
 
 // Hot Links handle initialization
+#if defined( HAVE_MIDAS )
 bool ROMEEventLoop::fHotLinksChanged = false;
+#endif // HAVE_MIDAS
 
 ClassImp(ROMEEventLoop)
 
@@ -150,10 +152,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       if (this->isRunning()) {
          // Hot Links
+#if defined( HAVE_MIDAS )
          if (ROMEEventLoop::fHotLinksChanged) {
             this->UpdateHotLinks();
             ROMEEventLoop::fHotLinksChanged = false;
          }
+#endif // HAVE_MIDAS
 
          // Begin of Run Tasks
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -379,10 +383,13 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Hot Links
+#if defined( HAVE_MIDAS )
    if (ROMEEventLoop::fHotLinksChanged) {
       this->UpdateHotLinks();
       ROMEEventLoop::fHotLinksChanged = false;
    }
+#endif // HAVE_MIDAS
+
    // Event Tasks
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : ExecuteTasks\n");
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -419,7 +426,9 @@ Bool_t ROMEEventLoop::DAQInit()
    this->SetAnalyze();
    gROME->SetCurrentEventNumber(0);
 
+#if defined( HAVE_MIDAS )
    this->InitHotLinks();
+#endif // HAVE_MIDAS
    this->InitSingleFolders();
 
    // Check IO System
