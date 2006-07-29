@@ -21,6 +21,7 @@
 
 # Compiler
 CXX ?= g++
+CC  ?= gcc
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -36,16 +37,20 @@ TARGET :=  obj include/ROMEVersion.h bin/romebuilder.exe bin/rome-config
 # reset when ROMEDEBUG or ROMEOPTIMIZE is yes
 ifeq ($(ROMEDEBUG), yes)
   CFLAGS =
+  CXXFLAGS =
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
   CFLAGS =
+  CXXFLAGS =
 endif
 
 ifeq ($(ROMEDEBUG), yes)
   CFLAGS += -g
+  CXXFLAGS += -g
 endif
 ifeq ($(ROMEOPTIMIZE), yes)
   CFLAGS += -O
+  CXXFLAGS += -O
 endif
 
 ifeq ($(LIBROME), yes)
@@ -56,6 +61,7 @@ else
 endif
 
 CFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
+CXXFLAGS += -DGCC_MAJOR=$(GCC_MAJOR) -DGCC_MINOR=$(GCC_MINOR)
 
 -include Makefile.arch
 
@@ -187,13 +193,13 @@ obj:
 	fi;
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
-	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
@@ -203,13 +209,13 @@ librome.a: $(LibObjects)
 	$(AR) -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	$(CXX) $(CFLAGS) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
@@ -224,16 +230,16 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
 
 clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) \
