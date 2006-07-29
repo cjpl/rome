@@ -35,11 +35,11 @@ public:
    ROMEXMLDataBase();
    virtual ~ROMEXMLDataBase();
 
-   Bool_t Init(const char* name,const char* path,const char* connection);
-   Bool_t Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);
-   Bool_t Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
-   char  *GetType() { return "xml"; }
-   char  *GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
+   Bool_t      Init(const char* name,const char* path,const char* connection);
+   Bool_t      Read(ROMEStr2DArray *values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   Bool_t      Write(ROMEStr2DArray* values,const char *path,Long64_t runNumber,Long64_t eventNumber);
+   const char *GetType() { return "xml"; }
+   const char *GetDescription() { return "XML data base reflecting the structure of an SQL data base"; }
 
    ClassDef(ROMEXMLDataBase, 0) // XML database access
 };

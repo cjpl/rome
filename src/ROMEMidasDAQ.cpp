@@ -81,7 +81,7 @@ Bool_t ROMEMidasDAQ::Init() {
       atexit((void (*)(void))cm_disconnect_experiment);
 
       // open the "system" buffer, 1M size
-      bm_open_buffer("SYSTEM", EVENT_BUFFER_SIZE, &fMidasOnlineBuffer);
+      bm_open_buffer(const_cast<char*>("SYSTEM"), EVENT_BUFFER_SIZE, &fMidasOnlineBuffer);
 
       // set the buffer cache size
       bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);
@@ -124,7 +124,7 @@ Bool_t ROMEMidasDAQ::Init() {
       // Check Run Status
       int state = 0;
       int statesize = sizeof(state);
-      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/State",&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
+      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,const_cast<char*>("/Runinfo/State"),&state,&statesize,TID_INT,false)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCan not read run status from the online database\n");
          return false;
       }
@@ -136,7 +136,7 @@ Bool_t ROMEMidasDAQ::Init() {
       // Get Runnumber
       Int_t runNumber = 0;
       Int_t size = sizeof(runNumber);
-      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,"/Runinfo/Run number",&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
+      if (db_get_value(gROME->GetMidasOnlineDataBase(),0,const_cast<char*>("/Runinfo/Run number"),&runNumber,&size,TID_INT,false)!= CM_SUCCESS) {
          ROMEPrint::Error("\nCan not read runnumber from the online database\n");
          return false;
       }
@@ -148,7 +148,7 @@ Bool_t ROMEMidasDAQ::Init() {
       str = "//Trigger/Statistics";
       str.Insert(1,gROME->GetProgramName());
       // Trigger Statistics
-      char *triggerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
+      char *triggerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetTriggerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
@@ -156,7 +156,7 @@ Bool_t ROMEMidasDAQ::Init() {
       }
 
       // Scaler Statistics
-      char *fScalerStatisticsString =  "Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n";
+      char *fScalerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
       str="//Scaler/Statistics";
       str.Insert(1,gROME->GetProgramName());
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);

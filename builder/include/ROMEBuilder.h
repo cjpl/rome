@@ -602,7 +602,7 @@ private:
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
    void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
-   void    GetDictHeaderString(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* separator);
+   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);

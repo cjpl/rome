@@ -49,8 +49,8 @@ public:
    Bool_t       Init(const char* name,const char* dataBase,const char* connection);
    Bool_t       Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
    Bool_t       Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
-   char        *GetType() { return "sql"; }
-   char        *GetDescription() { return "SQL data base using the file system to store tables"; }
+   const char  *GetType() { return "sql"; }
+   const char  *GetDescription() { return "SQL data base using the file system to store tables"; }
 
    Bool_t       MakeQuery(const char* query,Bool_t store){ return fSQL->MakeQuery(query,store); }
    Int_t        GetNumberOfRows(){ return fSQL->GetNumberOfRows(); }

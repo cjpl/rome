@@ -82,7 +82,7 @@ Int_t ROMEString::NumberOfOccurrence(const char* subString)
 
 istream& ROMEString::ReadFile(istream& str) {
    Resize(0);
-   char *buffer = "";
+   char *buffer;
    int bufferSize = 2000;
    int bufferLength = bufferSize-1;
    while (bufferLength==bufferSize-1) {
@@ -98,7 +98,7 @@ istream& ROMEString::ReadFile(istream& str) {
 
 istream& ROMEString::ReadLine(istream& str) {
    Resize(0);
-   char *buffer = "";
+   char *buffer;
    int bufferSize = 2000;
    int bufferLength = bufferSize-1;
    while (bufferLength==bufferSize-1) {

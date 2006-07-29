@@ -1190,14 +1190,14 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
 
    buffer.AppendFormatted("%sionaryHeaders %s ", dictionaryName, kEqualSign);
 
-   GetDictHeaderString(tmp,dictionaryName,headers,separator.Data());
+   GetDictHeaderString(tmp,headers,separator.Data());
 
    // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
    buffer.Append(tmp);
    buffer.Append("\n\n");
 }
 
-void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* separator)
+void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator)
 {
    int i;
 
@@ -1209,7 +1209,7 @@ void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,const char* dictionaryN
    }
 }
 
-void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName)
+void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* /* linkDefName */)
 {
    if (!headers->GetEntriesFast())
       return;
@@ -1263,10 +1263,10 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted(" $(%sionaryHeaders)",dictionaryName);
    buffer.AppendFormatted("\n\n\n");
 
-   GetDictHeaderString(bufferT,dictionaryName,headers,";");
+   GetDictHeaderString(bufferT,headers,";");
    dictionaryDependencies->AddFormatted(bufferT.Data());
    GetIncludeDirString(includedirs," ","-");
-   GetDictHeaderString(includes,dictionaryName,headers," ");
+   GetDictHeaderString(includes,headers," ");
 
    // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
    ROMEString command = "rootcint";
@@ -1709,7 +1709,6 @@ void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
    ROMEString tmp,tmp2,tmp3,tmp4;
-   Int_t i=0;
    ROMEString path, name, ext;
 
    dictionaryNames = new ROMEStrArray(50);

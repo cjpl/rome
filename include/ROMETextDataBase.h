@@ -27,8 +27,8 @@ public:
    Bool_t      Init(const char* name,const char* path,const char* connection);
    Bool_t      Read(ROMEStr2DArray *values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
    Bool_t      Write(ROMEStr2DArray* values,const char *dataBasePath,Long64_t runNumber,Long64_t eventNumber);
-   char       *GetType() { return "text"; }
-   char       *GetDescription() { return "Text data base using the file system to store tables"; }
+   const char *GetType() { return "text"; }
+   const char *GetDescription() { return "Text data base using the file system to store tables"; }
 
 protected:
    void        RemoveComment(ROMEString &buffer,Bool_t initialize = false);
