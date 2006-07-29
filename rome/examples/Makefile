@@ -1,31 +1,32 @@
 RESTRICT_TEST = yes
 
 ifeq ($(RESTRICT_TEST), yes)
-export DOOPT    =-Wall -W -Woverloaded-virtual -Werror
-export FLOPT    =-Wall -W -Woverloaded-virtual -Werror
-export FOOPT    =-Wall -W -Woverloaded-virtual -Werror
-export HGOPT    =-Wall -W -Woverloaded-virtual -Werror
-export HGUIOPT  =-Wall -W -Woverloaded-virtual -Werror
-export HWOPT    =-Wall -W -Woverloaded-virtual -Werror
-export MROPT    =-Wall -W -Woverloaded-virtual -Werror
-export MIDOPT   =-Wall -W -Woverloaded-virtual -Werror
-export NFOPT    =-Wall -W -Woverloaded-virtual -Werror
-export PMOPT    =-Wall -W -Woverloaded-virtual -Werror
-export RDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
-export RDBOPT   =-Wall -W -Woverloaded-virtual -Werror
-export RUNHOPT  =-Wall -W -Woverloaded-virtual -Werror
-export SBOPT    =-Wall -W -Woverloaded-virtual -Werror
-export SBSOPT   =-Wall -W -Woverloaded-virtual -Werror
-export SBSHOPT  =-Wall -W -Woverloaded-virtual -Werror
-export SDAQOPT  =-Wall -W -Woverloaded-virtual -Werror
-export SMDOPT   =-Wall -W -Woverloaded-virtual -Werror
-export TBOPT    =-Wall -W -Woverloaded-virtual -Werror
-export THOPT    =-Wall -W -Woverloaded-virtual -Werror
-export THHOPT   =-Wall -W -Woverloaded-virtual -Werror
-export TMOPT    =-Wall -W -Woverloaded-virtual -Werror
-export TTOPT    =-Wall -W -Woverloaded-virtual -Werror
-export TWROPT   =-Wall -W -Woverloaded-virtual -Werror
+OPT = -Wall -W -Woverloaded-virtual -Werror
 endif
+export DOOPT    =$(OPT)
+export FLOPT    =$(OPT)
+export FOOPT    =$(OPT)
+export HGOPT    =$(OPT)
+export HGUIOPT  =$(OPT)
+export HWOPT    =$(OPT)
+export MROPT    =$(OPT)
+export MIDOPT   =$(OPT)
+export NFOPT    =$(OPT)
+export PMOPT    =$(OPT)
+export RDAQOPT  =$(OPT)
+export RDBOPT   =$(OPT)
+export RUNHOPT  =$(OPT)
+export SBOPT    =$(OPT)
+export SBSOPT   =$(OPT)
+export SBSHOPT  =$(OPT)
+export SDAQOPT  =$(OPT)
+export SMDOPT   =$(OPT)
+export TBOPT    =$(OPT)
+export THOPT    =$(OPT)
+export THHOPT   =$(OPT)
+export TMOPT    =$(OPT)
+export TTOPT    =$(OPT)
+export TWROPT   =$(OPT)
 
 ROMEProjects = multirun/mranalyzer.exe \
                dbexample/rdbframework.exe \
