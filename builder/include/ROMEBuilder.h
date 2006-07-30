@@ -549,6 +549,8 @@ private:
    Bool_t  WriteRootDAQH();
    Bool_t  WriteRootDAQClassesH();
    Bool_t  WriteRootDAQClassH(Int_t iTree,Int_t iBranch);
+   Bool_t  WriteNetFolderServerCpp();
+   Bool_t  WriteNetFolderServerH();
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();
    Bool_t  WriteDBCpp();
@@ -602,7 +604,7 @@ private:
    void    WriteMakefileUserDictDependFiles(ROMEString& buffer);
    void    WriteMakefileDictionary(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers,const char* linkDefName = 0);
    void    WriteMakefileDictionaryList(ROMEString& buffer,const char* dictionaryName,ROMEStrArray* headers);
-   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator);
+   void    GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath=false);
    void    WriteMakefileDictDummyCpp(const char* dictionaryName);
    void    WriteMakefileUserDictionary(ROMEString& buffer);
    void    WriteMakefileUserDictionaryList(ROMEString& buffer);

@@ -405,6 +405,9 @@ Int_t ROMEEventLoop::RunEvent()
    if (this->isEndOfRun())
       return kBreak;
 
+   // Store Event
+   gROME->FillFolderStorage();
+
    // Write Event
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
    if (!this->WriteEvent() && gROME->isFillEvent()) {

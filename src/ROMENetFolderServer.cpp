@@ -48,17 +48,15 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
       //get run number
       Long64_t runNumber = gROME->GetCurrentRunNumber();
 
-      //write occurence
       TMessage message(kMESS_OBJECT);
       message<<runNumber;
       socket->Send(message);
       return 1;
    }
    if (strncmp(str, "GetCurrentEventNumber", 21) == 0) {
-      //get run number
+      //get event number
       Long64_t eventNumber = gROME->GetCurrentEventNumber();
 
-      //write occurence
       TMessage message(kMESS_OBJECT);
       message<<eventNumber;
       socket->Send(message);

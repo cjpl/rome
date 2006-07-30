@@ -66,6 +66,7 @@
 #include <TFile.h>
 #include <TArrayI.h>
 #include <TArrayL.h>
+#include <TMutex.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -90,6 +91,7 @@ ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics)
 {
 // Initialisations
+   fMutex = new TMutex();
    fProgramMode = kStandAloneROME;
    fWindowClosed = false;
    fApplication = app;
@@ -258,9 +260,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       if (isSplashScreen()) startSplashScreen();
 
       if (isOnline() || isSocketOffline()) {
-         ROMENetFolderServer *tnet = new ROMENetFolderServer();
-         tnet->StartServer(GetApplication(),GetPortNumber(),"ROME");
-         ROMEPrint::Print("Root server listening on port %d\n", GetPortNumber());
+         StartNetFolderServer();
       }
 
       if (!this->isBatchMode()) {

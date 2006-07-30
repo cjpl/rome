@@ -367,6 +367,7 @@ void ROMEBuilder::AddGeneratedHeaders()
    generatedHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sWindow.h",shortCut.Data());
    generatedHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
+   generatedHeaders->AddFormatted("include/generated/%sNetFolderServer.h",shortCut.Data());
    if (readGlobalSteeringParameters)
       generatedHeaders->AddFormatted("include/generated/%sGlobalSteering.h",shortCut.Data());
    if (numOfEvent>0)
@@ -425,6 +426,8 @@ void ROMEBuilder::AddGeneratedDictHeaders()
    generatedDictHeaders->AddFormatted("include/generated/%sConfig.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    generatedDictHeaders->AddFormatted("include/generated/%sEventLoop.h",shortCut.Data());
+   generatedLinkDefSuffix->Add("");
+   generatedDictHeaders->AddFormatted("include/generated/%sNetFolderServer.h",shortCut.Data());
    generatedLinkDefSuffix->Add("");
    if (numOfEvent>0) {
       generatedDictHeaders->AddFormatted("include/generated/%sMidasDAQ.h",shortCut.Data());
@@ -507,6 +510,7 @@ void ROMEBuilder::AddGeneratedSources()
    generatedSources->AddFormatted("src/generated/%sWindow.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sWindow2.cpp",shortCut.Data());
    generatedSources->AddFormatted("src/generated/%sConfig.cpp",shortCut.Data());
+   generatedSources->AddFormatted("src/generated/%sNetFolderServer.cpp",shortCut.Data());
    if (numOfEvent>0)
       generatedSources->AddFormatted("src/generated/%sMidasDAQ.cpp",shortCut.Data());
    if (numOfTree>0)
@@ -1197,15 +1201,19 @@ void ROMEBuilder::WriteMakefileDictionaryList(ROMEString& buffer,const char* dic
    buffer.Append("\n\n");
 }
 
-void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator)
+void ROMEBuilder::GetDictHeaderString(ROMEString& buffer,ROMEStrArray* headers,const char* separator,Bool_t withoutPath)
 {
    int i;
 
+   ROMEString str;
    buffer = "";
    for (i=0;i<headers->GetEntriesFast();i++) {
       if (i>0)
          buffer.AppendFormatted(separator);
-      buffer.AppendFormatted(headers->At(i).Data());
+      str = headers->At(i);
+      if (withoutPath)
+         str = str(str.Last('/')+1,str.Length());
+      buffer.AppendFormatted(str.Data());
    }
 }
 
@@ -1266,7 +1274,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    GetDictHeaderString(bufferT,headers,";");
    dictionaryDependencies->AddFormatted(bufferT.Data());
    GetIncludeDirString(includedirs," ","-");
-   GetDictHeaderString(includes,headers," ");
+   GetDictHeaderString(includes,headers," ",true);
 
    // Use Append instead of AppendFormatted because includes can be long and AppendFormatted may not work. (limit is 2048 chars)
    ROMEString command = "rootcint";

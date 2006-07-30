@@ -598,6 +598,8 @@ Bool_t ROMEBuilder::StartBuilder()
    }
    if (!WriteEventLoopCpp()) return false;
    if (!WriteEventLoopH()) return false;
+   if (!WriteNetFolderServerCpp()) return false;
+   if (!WriteNetFolderServerH()) return false;
    if (!WriteMain()) return false;
    if (!WriteReadTreesC()) return false;
    if (!WriteVersionH()) return false;

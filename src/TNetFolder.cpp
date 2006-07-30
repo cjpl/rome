@@ -178,7 +178,7 @@ TObject *TNetFolder::FindObject(const char *name) const
    m.Reset();
    m << fFolder;
    if (!localThis->Send(m))
-      return localThis-> FindObject(name);
+      return localThis->FindObject(name);
 
    TMessage *mr = 0;
    if (!localThis->Recv(mr))

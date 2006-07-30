@@ -3,6 +3,7 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 	<xs:annotation>
 		<xs:documentation>Schema for a ROME framework definition file.</xs:documentation>
+		<xs:documentation/>
 	</xs:annotation>
 	<xs:simpleType name="IncludeTypeDesc">
 		<xs:restriction base="xs:string">
@@ -119,25 +120,6 @@
 			</xs:element>
 		</xs:choice>
 	</xs:complexType>
-	<xs:complexType name="IncludeDesc">
-		<xs:annotation>
-			<xs:documentation>Description of includes.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="IncludeName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The file name of the include e.g. TString.h. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="IncludeType" type="IncludeTypeDesc" default="global" minOccurs="0">
-					<xs:annotation>
-						<xs:documentation>The type of the include can be global or local. Local means that the include file is expected to be on the working directory (#include"TString.h"). Global means that the include is searched in the directories specified in the path environment variable (#include&lt;TString.h&gt;). Default is global</xs:documentation>
-					</xs:annotation>
-				</xs:element>
-			</xs:choice>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="SteeringParameterFieldDesc">
 		<xs:annotation>
 			<xs:documentation>Description of steering parameter fields. A steering parameter field represents one steer value.</xs:documentation>
@@ -226,6 +208,25 @@
 				<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>The sub groups of this steering parameter group. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="IncludeDesc">
+		<xs:annotation>
+			<xs:documentation>Description of includes.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="IncludeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The file name of the include e.g. TString.h. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="IncludeType" type="IncludeTypeDesc" default="global" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The type of the include can be global or local. Local means that the include file is expected to be on the working directory (#include"TString.h"). Global means that the include is searched in the directories specified in the path environment variable (#include&lt;TString.h&gt;). Default is global</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
@@ -477,7 +478,7 @@
 				</xs:element>
 				<xs:element name="HistArrayStartIndex" type="xs:integer" default="0" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation> Start index of histogram array name enumeration. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+						<xs:documentation>Start index of histogram array name enumeration. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="HistXLabel" type="xs:string" minOccurs="0">
@@ -757,12 +758,12 @@
 			</xs:element>
 			<xs:element name="Object" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>Object reference. This can be either the name of a histogram or TH1F, TH2F or TGraph. If a histogram name is specified this histogram will be displayed. If a histogram or graph class name is specified then the objects have to be filled by the user code. </xs:documentation>
+					<xs:documentation>Object reference. This can be either the name of a histogram or TH1F, TH2F or TGraph. If a histogram name is specified this histogram will be displayed. If a histogram or graph class name is specified then the objects have to be filled by the user code.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ObjectTaskHierarchyIndex" type="xs:integer" default="0" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Index of the task holding the object in the task hierarchy. Index starts with 0. Default is 0. </xs:documentation>
+					<xs:documentation>Index of the task holding the object in the task hierarchy. Index starts with 0. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
