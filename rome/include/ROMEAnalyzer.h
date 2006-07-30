@@ -40,6 +40,7 @@ typedef Int_t HNDLE;
 class TObjArray;
 class TSocket;
 class TTree;
+class TMutex;
 class ROMEDAQSystem;
 class ROMEAnalyzer;
 class ArgusWindow;
@@ -231,6 +232,9 @@ protected:
    streambuf     *fOldbuf;                       //! original buffer of stdout
    ofstream      *fRomeOutputFile;               //! Redirected output currently not used
 #endif // __CINT__
+
+   TMutex        *fMutex;                        // Main Mutex
+
 
 public:
    ROMEAnalyzer() {}
@@ -588,6 +592,9 @@ public:
    void            NextEvent();
    void            GotoEvent(Long64_t eventNumber);
 
+   // Mutex
+   TMutex         *GetMutex() { return fMutex; };
+
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
@@ -602,6 +609,8 @@ public:
    void            redirectOutput();
    void            restoreOutput();
 
+   virtual void    FillFolderStorage() = 0;
+
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);
 
@@ -614,6 +623,8 @@ protected:
    virtual void    consoleStartScreen() = 0;
    Bool_t          ConnectSocketToROME();
    virtual Bool_t  ConnectSocketToROMENetFolder() = 0;
+   virtual void    StartNetFolderServer() = 0;
+
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class
 };

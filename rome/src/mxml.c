@@ -394,7 +394,7 @@ int mxml_end_element(MXML_WRITER *writer)
 int mxml_write_attribute(MXML_WRITER *writer, const char *name, const char *value)
 /* write an attribute to the currently open XML element */
 {
-   char name_enc[2000], val_enc[2000], line[4000];
+   char name_enc[4000], val_enc[4000], line[8000];
 
    if (!writer->element_is_open)
       return FALSE;

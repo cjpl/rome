@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Tue Feb 07 16:53:44 2006 -->
+<!-- created by MXML on Thu Jul 27 14:31:46 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
@@ -9,50 +13,80 @@
       <Active>false</Active>
     </ARGUS>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <RunParameters>
-		<RunNumbers>1</RunNumbers>
-		<EventNumbers>1-100000</EventNumbers>
-		<InputFileNames></InputFileNames>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers>1-100000</EventNumbers>
+      <InputFileNames></InputFileNames>
     </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
-      <BatchMode>false</BatchMode>
+      <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
       <QuitMode>false</QuitMode>
       <ShowSplashScreen>false</ShowSplashScreen>
+      <GraphicalConfigEdit>true</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <Argus>
       <WindowScale>1.0</WindowScale>
       <StatusBar>true</StatusBar>
       <UpdateFrequency>100</UpdateFrequency>
       <AnalyzerController>
         <Active>false</Active>
+        <NetFolderName></NetFolderName>
       </AnalyzerController>
+
+      <SocketToROME>
+        <Active>true</Active>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketToROME>
     </Argus>
+
     <DataBases/>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
+      <AnalyzerName></AnalyzerName>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>true</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Histograms>
+
+    <HistogramRead>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
-    </Histograms>
+    </HistogramRead>
+
     <Tasks>
       <Task>
         <TaskName>FillHistoAndFolder</TaskName>
         <Active>true</Active>
+        <Histogram>
+          <HistName>Histo1</HistName>
+          <HistAccumulate>true</HistAccumulate>
+        </Histogram>
       </Task>
     </Tasks>
-    <Midas/>
+
+    <Tabs>
+      <Tab>
+        <TabName>Histos</TabName>
+        <Active>true</Active>
+      </Tab>
+    </Tabs>
   </MainConfiguration>
 </Configuration>
