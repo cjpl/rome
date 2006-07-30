@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 #include "ROMEiostream.h"
 #include <TString.h>
+#include <TSystem.h>
 #include "ROMESQLite3.h"
 
 ClassImp(ROMESQLite3)
@@ -76,7 +77,7 @@ Bool_t ROMESQLite3::StoreResult()
    while(sqlite3_step(stmt) != SQLITE_DONE){
       switch (GetErrorCode()){
          case SQLITE_BUSY:
-            usleep(10);
+            gSystem->Sleep(1);
             continue;
             break;
          case SQLITE_ROW:

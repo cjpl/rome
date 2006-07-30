@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 #include "ROMEiostream.h"
 #include <TString.h>
+#include <TSystem.h>
 #include "ROMESQLite.h"
 
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -88,12 +89,7 @@ Bool_t ROMESQLite::StoreResult()
    while((status = sqlite_step(vm, &nFields, &values, &colNames)) != SQLITE_DONE){
       switch (status){
          case SQLITE_BUSY:
-#if defined( R__VISUAL_CPLUSPLUS )
-            Sleep(10);
-#endif
-#if defined( R__UNIX )
-            usleep(10);
-#endif
+            gSystem->Sleep(1);
             continue;
             break;
          case SQLITE_ROW:
