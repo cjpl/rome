@@ -113,9 +113,11 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-      buffer.AppendFormatted(" )\n");
+      buffer.AppendFormatted(" ) : TObject()\n");
       buffer.AppendFormatted("{\n");
+/* temporary commentout
       buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
+*/
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
             relation = "->";
@@ -421,7 +423,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   int i;\n");
                buffer.AppendFormatted("   if (%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   for (i=0;i<number;i++) {\n");
-               buffer.AppendFormatted("      new((*%s)[i]) %s;\n",valueName[iFold][i].Data(),tmp.Data());
+               buffer.AppendFormatted("      new((*%s)[i]) %s(kTRUE);\n",valueName[iFold][i].Data(),tmp.Data());
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
