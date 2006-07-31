@@ -86,7 +86,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
 
       // Constructor
-      buffer.AppendFormatted("%s::%s() {\n",clsName.Data(),clsName.Data());
+      buffer.AppendFormatted("%s::%s() : TObject() {\n",clsName.Data(),clsName.Data());
+      buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
             buffer.AppendFormatted("   %s = NULL;\n",valueName[iFold][i].Data());
@@ -115,9 +116,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted(" ) : TObject()\n");
       buffer.AppendFormatted("{\n");
-/* temporary commentout
       buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
-*/
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
             relation = "->";
