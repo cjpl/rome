@@ -891,10 +891,10 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
 #   endif
       }
       else if (!strcmp(argv[i],"-pch")) {
-#if (GCC_MAJOR >= 4) || ( (GCC_MAJOR == 3) && (GCC_MINOR >= 4))
+#if defined( __GNUC__ ) && (( __GNUC__ >= 4 ) || (( __GNUC__ == 3 ) && ( __GNUC_MINOR__ >= 4 )))
          pch = true;
 #else
-         cout << "Precompiled header is available with gcc 3.4 or later." << endl;
+         cout << "Precompiled header is available with GCC 3.4 or later." << endl;
 #endif
       }
       else if (!strcmp(argv[i],"-f")&&i<argc-1) {
