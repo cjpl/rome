@@ -84,9 +84,11 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       // Includes
       buffer.AppendFormatted("#include \"generated/%s.h\"",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
+      buffer.AppendFormatted("\n");
 
       // Constructor
-      buffer.AppendFormatted("%s::%s() : TObject() {\n",clsName.Data(),clsName.Data());
+      buffer.AppendFormatted("%s::%s()\n",clsName.Data(),clsName.Data());
+      buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
@@ -114,7 +116,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-      buffer.AppendFormatted(" ) : TObject()\n");
+      buffer.AppendFormatted(" )\n");
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
       for (i=0;i<numOfValue[iFold];i++) {
