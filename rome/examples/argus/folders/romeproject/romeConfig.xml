@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jul  7 19:29:18 2006 -->
+<!-- created by MXML on Wed Aug  2 15:28:28 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
     <ROME>
@@ -9,37 +13,48 @@
       <Active>false</Active>
     </ARGUS>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <RunParameters>
       <RunNumbers></RunNumbers>
       <EventNumbers></EventNumbers>
       <InputFileNames></InputFileNames>
     </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>midas</DAQSystem>
-      <QuitMode>false</QuitMode>
       <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
+      <QuitMode>true</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
-      <GraphicalConfigEdit>true</GraphicalConfigEdit>
+      <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <DataBases/>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
+      <AnalyzerName></AnalyzerName>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>false</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Histograms>
+
+    <HistogramRead>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
-    </Histograms>
+    </HistogramRead>
+
     <Tasks>
       <Task>
         <TaskName>FillHisto</TaskName>
@@ -50,6 +65,7 @@
         </Histogram>
       </Task>
     </Tasks>
+
     <Midas>
       <MidasByteSwap>false</MidasByteSwap>
       <Event>
@@ -64,6 +80,7 @@
           <Active>true</Active>
         </Bank>
       </Event>
+
       <Event>
         <EventName>Scaler</EventName>
         <Active>true</Active>

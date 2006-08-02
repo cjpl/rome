@@ -146,6 +146,8 @@ public:
    Bool_t         EndOfRun();
    Bool_t         Terminate();
 
+   Bool_t         ReadODBOffline();
+
    virtual Bool_t IsActiveEventID(Int_t /*id*/){ return true; }
 #if defined( HAVE_MIDAS )
    virtual Bool_t InitODB() = 0;
