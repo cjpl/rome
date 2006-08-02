@@ -381,12 +381,16 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             this->SetContinue();
             return true;
          }
+#if 0 // temporary comment out
          if (event==pevent->serial_number)
             break;
          if (event<pevent->serial_number) {
             this->SetContinue();
             return true;
          }
+#else
+         break;
+#endif
       }
 
       // initalize event
