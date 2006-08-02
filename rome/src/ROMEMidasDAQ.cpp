@@ -428,8 +428,8 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
    if (gROME->isOffline()) {
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
-      Long_t posOld;
-      Long_t gzPosOld;
+      Long_t posOld = -1;
+      Long_t gzPosOld = -1;
 
       // store current position
       if(!fGZippedMidasFile)
@@ -478,10 +478,14 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
             ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
       }
       else {
-         if(!fGZippedMidasFile)
-            lseek(fMidasFileHandle, posOld, SEEK_SET);
-         else
-            gzseek(fMidasGzFileHandle, gzPosOld, SEEK_SET);
+         if(!fGZippedMidasFile) {
+            if(posOld != -1)
+               lseek(fMidasFileHandle, posOld, SEEK_SET);
+         }
+         else {
+            if (gzPosOld != -1)
+               gzseek(fMidasGzFileHandle, gzPosOld, SEEK_SET);
+         }
       }
       this->SetBeginOfRun();
    }
