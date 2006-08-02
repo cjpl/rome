@@ -10,7 +10,7 @@
   <User>ryu</User>
   <Host>thresher.psi.ch</Host>
   <Directory>/Users/ryu/Analysis/rome</Directory>
-  <LastCompile>Wed, 26 Jul 2006 19:13:31 UTC + 82672000 nsec</LastCompile>
+  <LastCompile>Wed, 02 Aug 2006 19:08:57 UTC +511556000 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>schneebeli_m</User>
@@ -71,4 +71,10 @@
   <Host>80-219-213-19.dclient.hispeed.ch</Host>
   <Directory>/Users/ryu/Analysis/rome</Directory>
   <LastCompile>Mon, 24 Jul 2006 21:55:02 UTC +886016000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>ryu</User>
+  <Host>84-74-166-226.dclient.hispeed.ch</Host>
+  <Directory>/Users/ryu/Analysis/rome</Directory>
+  <LastCompile>Wed, 02 Aug 2006 20:40:37 UTC +922737000 nsec</LastCompile>
 </Entry>
