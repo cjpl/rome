@@ -54,7 +54,6 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
    fByteSwap = true;
 #endif
    fOdbOffline = 0;
-   fDataEvent = false;
    fRequestAll = false;
 }
 
@@ -236,7 +235,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
       else
          ROMEPrint::Print("%s\n", gzfilename.Data());
 
-      while (!isBeginOfRun() && !isEndOfRun() && !isTerminate() && !fDataEvent)
+      while (!isBeginOfRun() && !isEndOfRun() && !isTerminate())
          if (!ReadODBOffline())
             return false;
       SetAnalyze();
@@ -314,7 +313,6 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // read event header
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
-      fDataEvent = false;
 
       while (1) {
          Long_t n;
@@ -397,7 +395,6 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       gROME->SetEventID(pevent->event_id);
       gROME->SetCurrentEventNumber(event);
       fTimeStamp = pevent->time_stamp;
-      fDataEvent = true;
 
       this->InitMidasBanks();
    }
@@ -429,13 +426,12 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
       Long_t posOld = -1;
-      Long_t gzPosOld = -1;
 
       // store current position
       if(!fGZippedMidasFile)
          posOld = lseek(fMidasFileHandle, 0L, SEEK_CUR);
       else
-         gzPosOld = gzseek(fMidasGzFileHandle, 0L, SEEK_CUR);
+         posOld = gzseek(fMidasGzFileHandle, 0L, SEEK_CUR);
 
       Long_t n;
       if(!fGZippedMidasFile)
@@ -478,13 +474,11 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
             ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
       }
       else {
-         if(!fGZippedMidasFile) {
-            if(posOld != -1)
+         if(posOld != -1) {
+            if(!fGZippedMidasFile)
                lseek(fMidasFileHandle, posOld, SEEK_SET);
-         }
-         else {
-            if (gzPosOld != -1)
-               gzseek(fMidasGzFileHandle, gzPosOld, SEEK_SET);
+            else
+               gzseek(fMidasGzFileHandle, posOld, SEEK_SET);
          }
       }
       this->SetBeginOfRun();
