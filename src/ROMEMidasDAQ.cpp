@@ -409,6 +409,9 @@ Bool_t ROMEMidasDAQ::Event(Long64_t /* event */) {
 }
 
 Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
+   if (event < 0)
+      return Seek(0);
+
    if (gROME->isOnline()) {
       return -1;
    }

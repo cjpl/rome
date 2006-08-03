@@ -47,7 +47,7 @@ public:
    virtual Bool_t   Init() = 0;
    virtual Bool_t   BeginOfRun() = 0;
    virtual Bool_t   Event(Long64_t event) = 0;
-   virtual Long64_t Seek(Long64_t event) { AbstractMethod("Seek"); return -1; }
+   virtual Long64_t Seek(Long64_t /* event */) { AbstractMethod("Seek"); return -1; }
    virtual Bool_t   EndOfRun() = 0;
    virtual Bool_t   Terminate() = 0;
 

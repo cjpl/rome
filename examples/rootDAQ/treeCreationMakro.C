@@ -22,6 +22,7 @@ public:
 
    ClassDef(Branch1,1)
 };
+
 void treeCreationMakro() {
 // Case 1:
    //create the file, the Tree and a few branches
@@ -44,7 +45,8 @@ void treeCreationMakro() {
       pp[1] = py;
       pp[2] = pz;
       np = i;
-      t1.Fill(); }
+      t1.Fill();
+   }
    t1.Write();
 
 // Case 2:

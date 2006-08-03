@@ -19,11 +19,15 @@ protected:
    Int_t         fTreeIndex;                       //! Index of tree in current file
    Int_t         fInputFileNameIndex;              //! Index of current input file name
    ROMEString    fCurrentTreeName;                 //! Name of the current tree
+   Long64_t      fSequentialNumber;                //! Current sequential number
+   Long64_t      fMaxSeqNumber;                    //! Maximum among trees
 
    // Tree Info
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
+   Long64_t**    fTreePositionArray;               //! Array of array with tree read positions
    Long64_t*     fTreePosition;                    //! Array with tree read positions
    Long64_t*     fTreeNextSeqNumber;               //! Array with the trees next sequential number
+   Long64_t*     fTreeNEntries;                    //! Number of entries
 
    Int_t         fTimeStamp;                       //! Current time stamp
 
@@ -37,6 +41,7 @@ public:
    Bool_t       Init();
    Bool_t       BeginOfRun();
    Bool_t       Event(Long64_t event);
+   Long64_t     Seek(Long64_t event);
    Bool_t       EndOfRun();
    Bool_t       Terminate();
 
