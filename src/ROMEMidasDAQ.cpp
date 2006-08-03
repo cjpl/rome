@@ -32,6 +32,8 @@
 #   endif
 #endif
 
+const Int_t kEventFilePositionsResizeIncrement = 100000;
+
 //#define MIDAS_DEBUG
 
 #if defined( HAVE_MIDAS )
@@ -46,8 +48,9 @@ ClassImp(ROMEMidasDAQ)
 
 ROMEMidasDAQ::ROMEMidasDAQ() {
    fCurrentRawDataEvent = 0;
+   fCurrentSequentialNumber = 0;
+   fEventFilePositions = new TArrayL(kEventFilePositionsResizeIncrement);
    fLastEventRead = -1;
-   fEventFilePositions = new TArrayL(100000);
 #if defined( R__BYTESWAP )
    fByteSwap = false;
 #else
@@ -243,7 +246,7 @@ Bool_t ROMEMidasDAQ::BeginOfRun() {
    return true;
 }
 
-Bool_t ROMEMidasDAQ::Event(Long64_t event) {
+Bool_t ROMEMidasDAQ::Event(Long64_t /* event */) {
    // Switch Raw Data Buffer
    this->SwitchRawDataBuffer();
 
@@ -313,14 +316,147 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
       // read event header
       EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
       bool readError = false;
+      Long_t n;
 
-      while (1) {
+      if(!fGZippedMidasFile) {
+         if (fCurrentSequentialNumber > fLastEventRead) {
+            if (fEventFilePositions->GetSize() <= fCurrentSequentialNumber)
+               fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
+            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), fCurrentSequentialNumber);
+            fLastEventRead = fCurrentSequentialNumber;
+         }
+         n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
+      }
+      else {
+         if (fCurrentSequentialNumber > fLastEventRead) {
+            if (fEventFilePositions->GetSize() <= fCurrentSequentialNumber)
+               fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
+            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), fCurrentSequentialNumber);
+            fLastEventRead = fCurrentSequentialNumber;
+         }
+         n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
+      }
+      fCurrentSequentialNumber++;
+
+      if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
+         readError = true;
+      }
+      else {
+#if !defined( R__BYTESWAP )
+         ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
+         ROMEUtilities::ByteSwap((UShort_t *)&pevent->trigger_mask);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->serial_number);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->time_stamp);
+         ROMEUtilities::ByteSwap((UInt_t   *)&pevent->data_size);
+#endif
+         n = 0;
+         if (pevent->data_size <= 0) {
+            readError = true;
+         }
+         else {
+            if(!fGZippedMidasFile)
+               n = read(fMidasFileHandle,pevent+1,pevent->data_size);
+            else
+               n = gzread(fMidasGzFileHandle,pevent+1,pevent->data_size);
+            if (n != static_cast<Long_t>(pevent->data_size))
+               readError = true;
+            // if ((int) ((BANK_HEADER*)(pevent+1))->data_size <= 0) readError = true;
+         }
+      }
+      // check input
+      if (readError) {
+         if (n > 0) ROMEPrint::Warning("Unexpected end of file\n");
+         this->SetEndOfRun();
+         return true;
+      }
+      // Get Handle to ODB header
+      if (pevent->event_id == EVENTID_BOR) {
+         if (gROME->isDataBaseActive("odb"))
+            ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
+         this->SetBeginOfRun();
+         return true;
+      }
+      if (pevent->event_id == EVENTID_EOR) {
+         this->SetEndOfRun();
+         return true;
+      }
+      if (pevent->event_id < 0) {
+         this->SetContinue();
+         return true;
+      }
+      if (fByteSwap) {
+         //byte swapping
+         if(pevent->event_id != EVENTID_BOR &&
+            pevent->event_id != EVENTID_EOR &&
+            pevent->event_id != EVENTID_MESSAGE)
+            if(IsActiveEventID( pevent->event_id ))
+               bk_swap(pevent + 1, 0);
+      }
+      if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
+         this->SetContinue();
+         return true;
+      }
+
+      // initalize event
+      gROME->SetEventID(pevent->event_id);
+      gROME->SetCurrentEventNumber(pevent->serial_number);
+      fTimeStamp = pevent->time_stamp;
+
+      this->InitMidasBanks();
+   }
+   this->InitHeader();
+   return true;
+}
+
+Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
+   if (gROME->isOnline()) {
+      return -1;
+   }
+   else if (gROME->isOffline()) {
+      // Switch Raw Data Buffer
+      this->SwitchRawDataBuffer();
+
+      if (event <= fLastEventRead) {
+         if(fEventFilePositions->At(event) != -1) {
+            if(!fGZippedMidasFile)
+               lseek(fMidasFileHandle, fEventFilePositions->At(event), SEEK_SET);
+            else
+               gzseek(fMidasGzFileHandle, fEventFilePositions->At(event), SEEK_SET);
+            return event;
+         }
+         else {
+            return -1;
+         }
+      }
+
+      // read event header
+      EVENT_HEADER *pevent = (EVENT_HEADER*)this->GetRawDataEvent();
+      bool readError = false;
+      while (fLastEventRead != event) {
          Long_t n;
-         if(!fGZippedMidasFile)
+         if(!fGZippedMidasFile) {
+            if (fCurrentSequentialNumber > fLastEventRead) {
+               if (fEventFilePositions->GetSize() <= fCurrentSequentialNumber)
+                  fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
+               fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), fCurrentSequentialNumber);
+               fLastEventRead = fCurrentSequentialNumber;
+            }
             n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
-         else
+         }
+         else {
+            if (fCurrentSequentialNumber > fLastEventRead) {
+               if (fEventFilePositions->GetSize() <= fCurrentSequentialNumber)
+                  fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
+               fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), fCurrentSequentialNumber);
+               fLastEventRead = fCurrentSequentialNumber;
+            }
             n = gzread(fMidasGzFileHandle,pevent, sizeof(EVENT_HEADER));
-         if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) readError = true;
+         }
+         fCurrentSequentialNumber++;
+
+         if (n < static_cast<Long_t>(sizeof(EVENT_HEADER))) {
+            readError = true;
+         }
          else {
 #if !defined( R__BYTESWAP )
             ROMEUtilities::ByteSwap((UShort_t *)&pevent->event_id);
@@ -346,24 +482,14 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
             this->SetEndOfRun();
             return true;
          }
-         // Get Handle to ODB header
+         if (pevent->event_id == EVENTID_EOR) {
+            return Seek(fLastEventRead - 1); // the before EOR.
+         }
          if (pevent->event_id == EVENTID_BOR) {
-            if (event>0 && event!=pevent->serial_number)
-               continue;
-            if (gROME->isDataBaseActive("odb"))
-               ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
-            this->SetBeginOfRun();
-            return true;
+            return -1;
          }
          if (pevent->event_id < 0) {
-            if (event>0 && event!=pevent->serial_number)
-               continue;
-            this->SetContinue();
-            return true;
-         }
-         if (pevent->event_id == EVENTID_EOR) {
-            this->SetEndOfRun();
-            return true;
+            return -1;
          }
          if (fByteSwap) {
             //byte swapping
@@ -373,33 +499,13 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
                if(IsActiveEventID( pevent->event_id ))
                   bk_swap(pevent + 1, 0);
          }
-         if (pevent->data_size<((BANK_HEADER*)(pevent+1))->data_size) {
-            if (event>0 && event!=pevent->serial_number)
-               continue;
-            this->SetContinue();
-            return true;
+         if (pevent->data_size < ((BANK_HEADER*)(pevent+1))->data_size) {
+            continue;
          }
-#if 0 // temporary comment out
-         if (event==pevent->serial_number)
-            break;
-         if (event<pevent->serial_number) {
-            this->SetContinue();
-            return true;
-         }
-#else
-         break;
-#endif
       }
-
-      // initalize event
-      gROME->SetEventID(pevent->event_id);
-      gROME->SetCurrentEventNumber(event);
-      fTimeStamp = pevent->time_stamp;
-
-      this->InitMidasBanks();
+      return fLastEventRead;
    }
-   this->InitHeader();
-   return true;
+   return -1;
 }
 
 Bool_t ROMEMidasDAQ::EndOfRun() {

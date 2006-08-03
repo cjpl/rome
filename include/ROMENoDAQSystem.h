@@ -28,6 +28,7 @@ public:
                   if (gROME->IsStandAloneARGUS()) SetContinue();
                   return true;
                }
+   Long64_t    Seek(Long64_t event) { return event; }
    Bool_t      EndOfRun() { return true; }
    Bool_t      Terminate() { return true; }
 
