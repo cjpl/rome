@@ -3632,6 +3632,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fProgramName = \"%s%s\";\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("   fOnlineAnalyzerName = fProgramName;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   gAnalyzer = this;\n");
    buffer.AppendFormatted("   gROME = static_cast<ROMEAnalyzer*>(this);\n");
@@ -6619,6 +6620,8 @@ Bool_t ROMEBuilder::AddConfigParameters()
    // Online/AnalyzerName
    subGroup->AddParameter(new ROMEConfigParameter("AnalyzerName"));
    subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("if (##.Length())");
+   subGroup->GetLastParameter()->AddSetLine("   gAnalyzer->SetOnlineAnalyzerName(##.Data());");
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineAnalyzerName(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineAnalyzerName();");
    mainParGroup->AddSubGroup(subGroup);
@@ -9236,6 +9239,9 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
 
    buffer.AppendFormatted("int %sNetFolderServer::ResponseFunction(TSocket *socket) {\n",shortCut.Data());
    buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
+   buffer.AppendFormatted("   if (!socket->IsValid())\n");
+   buffer.AppendFormatted("      return 0;\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Read Command\n");
    buffer.AppendFormatted("   char str[200];\n");
    buffer.AppendFormatted("   if (socket->Recv(str, sizeof(str)) <= 0) {\n");
@@ -9250,6 +9256,9 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::CheckCommand(TSocket *socket,char *str) {\n",shortCut.Data());
    buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
+   buffer.AppendFormatted("   if (!socket->IsValid())\n");
+   buffer.AppendFormatted("      return 1;\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   // Check Command\n");
    buffer.AppendFormatted("   if (strncmp(str, \"GetCurrentRunNumber\", 19) == 0) {\n");
    buffer.AppendFormatted("      //get run number\n");
@@ -9269,6 +9278,8 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   TSocket *socket = (TSocket *) arg;\n");
+   buffer.AppendFormatted("   if (!socket->IsValid())\n");
+   buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   while (%sNetFolderServer::ResponseFunction(socket))\n",shortCut.Data());
    buffer.AppendFormatted("   {}\n");
@@ -9284,6 +9295,24 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("// each connection.\n");
    buffer.AppendFormatted("   int port = *(int*)arg;\n");
    buffer.AppendFormatted("   TServerSocket *lsock = new TServerSocket(port, kTRUE);\n");
+   buffer.AppendFormatted("   if (!lsock->IsValid()) {\n");
+   buffer.AppendFormatted("      switch(lsock->GetErrorCode()) {\n");
+   buffer.AppendFormatted("         case -1:\n");
+   buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Low level socket() call failed. Failed to connect port %%d\\n\", port);\n");
+   buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("         case -2:\n");
+   buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Low level bind() call failed. Failed to connect port %%d\\n\", port);\n");
+   buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("         case -3:\n");
+   buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Low level listen() call failed. Failed to connect port %%d\\n\", port);\n");
+   buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("         default:\n");
+   buffer.AppendFormatted("            ROMEPrint::Error(\"Error: Failed to connect port %%d\\n\", port);\n");
+   buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("      };\n");
+   buffer.AppendFormatted("      return THREADRETURN;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   do {\n");
    buffer.AppendFormatted("      TSocket *sock = lsock->Accept();\n");
    buffer.AppendFormatted("\n");

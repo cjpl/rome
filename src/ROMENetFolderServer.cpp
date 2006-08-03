@@ -29,6 +29,9 @@ ClassImp(ROMENetFolderServer)
 
 int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (!socket->IsValid())
+      return 0;
+
    // Read Command
    char str[200];
    if (socket->Recv(str, sizeof(str)) <= 0) {
@@ -43,6 +46,9 @@ int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
 
 int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (!socket->IsValid())
+      return 1;
+
    // Check Command
    if (strncmp(str, "GetCurrentRunNumber", 19) == 0) {
       //get run number
@@ -72,6 +78,9 @@ THREADTYPE ROMENetFolderServer::Server(void *arg)
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
 
+   if (!socket->IsValid())
+      return THREADRETURN;
+
    while (ROMENetFolderServer::ResponseFunction(socket))
    {}
 #endif // ROOT_VERSION
@@ -87,6 +96,24 @@ THREADTYPE ROMENetFolderServer::ServerLoop(void *arg)
 // each connection.
    int port = *(int*)arg;
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
+   if (!lsock->IsValid()) {
+      switch(lsock->GetErrorCode()) {
+         case -1:
+            ROMEPrint::Error("Error: Low level socket() call failed. Failed to connect port %d\n", port);
+            break;
+         case -2:
+            ROMEPrint::Error("Error: Low level bind() call failed. Failed to connect port %d\n", port);
+            break;
+         case -3:
+            ROMEPrint::Error("Error: Low level listen() call failed. Failed to connect port %d\n", port);
+            break;
+         default:
+            ROMEPrint::Error("Error: Failed to connect port %d\n", port);
+            break;
+      };
+      return THREADRETURN;
+   }
+
    do {
       TSocket *sock = lsock->Accept();
 

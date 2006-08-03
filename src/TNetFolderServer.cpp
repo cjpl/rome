@@ -37,6 +37,9 @@ ClassImp(TNetFolderServer)
 TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (!socket->IsValid())
+      return NULL;
+
    //read pointer to current folder
    TMessage *message = 0;
    socket->Recv(message);
@@ -51,6 +54,9 @@ TFolder *TNetFolderServer::ReadFolderPointer(TSocket *socket)
 
 int TNetFolderServer::ResponseFunction(TSocket *socket) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (!socket->IsValid())
+      return 0;
+
    // Read Command
    char str[200];
    if (socket->Recv(str, sizeof(str)) <= 0) {
@@ -62,8 +68,12 @@ int TNetFolderServer::ResponseFunction(TSocket *socket) {
 #endif // ROOT_VERSION
    return 1;
 }
+
 int TNetFolderServer::CheckCommand(TSocket *socket,char *str) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (!socket->IsValid())
+      return 1;
+
    // Check Command
    if (strcmp(str, "GetListOfFolders") == 0) {
       TMessage message(kMESS_OBJECT);
@@ -221,6 +231,8 @@ THREADTYPE TNetFolderServer::Server(void *arg)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
+   if (!socket->IsValid())
+      return THREADRETURN;
 
    while (TNetFolderServer::ResponseFunction(socket))
    {}
@@ -237,9 +249,25 @@ THREADTYPE TNetFolderServer::ServerLoop(void *arg)
 // each connection.
    int port = *(int*)arg;
    TServerSocket *lsock = new TServerSocket(port, kTRUE);
+   if (!lsock->IsValid()) {
+      switch(lsock->GetErrorCode()) {
+         case -1:
+            cerr<<"Error: Low level socket() call failed. Failed to connect port "<<port<<endl;
+            break;
+         case -2:
+            cerr<<"Error: Low level bind() call failed. Failed to connect port "<<port<<endl;
+            break;
+         case -3:
+            cerr<<"Error: Low level listen() call failed. Failed to connect port "<<port<<endl;
+            break;
+         default:
+            cerr<<"Error: Failed to connect port "<<port<<endl;;
+            break;
+      };
+      return THREADRETURN;
+   }
    do {
       TSocket *sock = lsock->Accept();
-
       TThread *thread = new TThread("Server", TNetFolderServer::Server, sock);
       thread->Run();
 
