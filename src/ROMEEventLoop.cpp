@@ -560,7 +560,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
          if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
             GetTreeFileName(filename,j,runNumberString.Data());
             filename.Insert(0,gROME->GetOutputDir());
-            if (filename==romeTree->GetFileName()) {
+            if (filename == romeTree->GetFileName()) {
                romeTree->SetFile(new TFile(filename.Data(),"UPDATE"));
                romeTree->SetFileUpdate();
                fTreeUpdateIndex++;
@@ -949,7 +949,8 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
             else {
                ROMEPrint::Print("Writing Root-File ");
             }
-            ROMEPrint::Print("%s\n", romeTree->GetFileName().Data());
+            romeTree->UpdateFilePointer();
+            ROMEPrint::Print("%s\n", romeTree->GetFile()->GetName());
             romeTree->GetFile()->cd();
             if (tree->Write(0,TObject::kOverwrite)==0) {
                ROMEPrint::Warning("--> Please check if you have write access to the directory.\n");
