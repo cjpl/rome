@@ -8889,26 +8889,7 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
       // File name
       cppFile.SetFormatted("%ssrc/daqs/%s%sDAQ.cpp",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
 
-#if 1
-// this special treatment is neccesary only for several month from Feb.2006
-      if (!gSystem->AccessPathName(cppFile.Data(),kFileExists)) {
-         fstream *fileStream = new fstream(cppFile.Data(),ios::in);
-         ROMEString fileBuffer;
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         if (fileBuffer.Contains("Event(int event)")
-             || fileBuffer.Contains("Event(Int_t event)")
-             || fileBuffer.Contains("Event(long event)")) {
-            cerr<<"type of event number was changed to Long64."<<endl
-                <<"Please modify "<<shortCut.Data()<<daqName[iDAQ].Data()<<".h and "
-                <<shortCut.Data()<<daqName[iDAQ].Data()<<".cpp"<<endl;
-            return false;
-         }
-      }
-      else {
-#else
       if (gSystem->AccessPathName(cppFile.Data(),kFileExists)) {
-#endif
          // Description
          buffer.Resize(0);
          WriteHeader(buffer, mainAuthor.Data(), kFALSE);
@@ -8944,6 +8925,11 @@ Bool_t ROMEBuilder::WriteDAQCpp() {
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
+         buffer.AppendFormatted("Long64_t %s%sDAQ::Seek(Long64_t event)\n",shortCut.Data(),daqName[iDAQ].Data());
+         buffer.AppendFormatted("{\n");
+         buffer.AppendFormatted("   return -1;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("\n");
          buffer.AppendFormatted("Bool_t %s%sDAQ::EndOfRun()\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   return true;\n");
@@ -8976,26 +8962,7 @@ Bool_t ROMEBuilder::WriteDAQH() {
       // File name
       hFile.SetFormatted("%sinclude/daqs/%s%sDAQ.h",outDir.Data(),shortCut.Data(),daqName[iDAQ].Data());
 
-#if 1
-// this special treatment is neccesary only for several month from Feb.2006
-      if (!gSystem->AccessPathName(hFile.Data(),kFileExists)) {
-         fstream *fileStream = new fstream(hFile.Data(),ios::in);
-         ROMEString fileBuffer;
-         fileBuffer.ReadFile(*fileStream);
-         delete fileStream;
-         if (fileBuffer.Contains("Event(int event)")
-             || fileBuffer.Contains("Event(long event)")
-             || fileBuffer.Contains("Event(Int_t event)")) {
-            cerr<<"type of event number was changed to Long64."<<endl
-                <<"Please modify."<<shortCut<<daqName[iDAQ]<<".h and "
-                <<shortCut<<daqName[iDAQ]<<".cpp"<<endl;
-            return false;
-         }
-      }
-      else {
-#else
       if (gSystem->AccessPathName(hFile.Data(),kFileExists)) {
-#endif
          // Description
          buffer.Resize(0);
          WriteHeader(buffer, mainAuthor.Data(), kFALSE);
@@ -9020,14 +8987,15 @@ Bool_t ROMEBuilder::WriteDAQH() {
          buffer.AppendFormatted("   virtual ~%s%sDAQ() {}\n",shortCut.Data(),daqName[iDAQ].Data());
 
          // Methods
-         buffer.AppendFormatted("   Int_t  GetTimeStamp() { return 0; }\n");
+         buffer.AppendFormatted("   Int_t    GetTimeStamp() { return 0; }\n");
          buffer.AppendFormatted("   const char* GetName() const { return \"%s\"; }\n",daqName[iDAQ].Data());
          buffer.AppendFormatted("\n");
-         buffer.AppendFormatted("   Bool_t Init();\n");
-         buffer.AppendFormatted("   Bool_t BeginOfRun();\n");
-         buffer.AppendFormatted("   Bool_t Event(Long64_t event);\n");
-         buffer.AppendFormatted("   Bool_t EndOfRun();\n");
-         buffer.AppendFormatted("   Bool_t Terminate();\n");
+         buffer.AppendFormatted("   Bool_t   Init();\n");
+         buffer.AppendFormatted("   Bool_t   BeginOfRun();\n");
+         buffer.AppendFormatted("   Bool_t   Event(Long64_t event);\n");
+         buffer.AppendFormatted("   Long64_t Seek(Long64_t event);\n");
+         buffer.AppendFormatted("   Bool_t   EndOfRun();\n");
+         buffer.AppendFormatted("   Bool_t   Terminate();\n");
 
          buffer.AppendFormatted("   ClassDef(%s%sDAQ, 0)\n",shortCut.Data(),daqName[iDAQ].Data());
          buffer.AppendFormatted("};\n\n");

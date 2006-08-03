@@ -105,7 +105,9 @@ protected:
    Int_t         fTimeStamp;                               //! Current time stamp
 
    TArrayL*      fEventFilePositions;                      //! File pointer to event
+   Long64_t      fCurrentSequentialNumber;                 //! Current sequential event number in file
    Long64_t      fLastEventRead;                           //! Last events read
+
 public:
    ROMEMidasDAQ();
    virtual ~ROMEMidasDAQ();
@@ -141,6 +143,7 @@ public:
 
    Bool_t         Init();
    Bool_t         BeginOfRun();
+   Long64_t       Seek(Long64_t event);
    Bool_t         Event(Long64_t event);
    Bool_t         EndOfRun();
    Bool_t         Terminate();

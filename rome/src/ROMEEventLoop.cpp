@@ -191,14 +191,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       fFirstUserInput = true;
       ROMEPrint::Debug("Entering event loop\n");
       for (;!this->isTerminate()&&!this->isEndOfRun();) {
-         // set terminal in every events because it is necessary when
-         // program resumes from suspend.
-/*         if (gROME->isBatchMode())
-            gROME->redirectOutput();
-         else
-            gROME->ss_getchar(0);*/
-// ---> This code killes ss_kbhit() please fix it   Matthias
-
          int status = this->RunEvent();
          if (status==kReturn)
             return;
@@ -726,7 +718,7 @@ Bool_t ROMEEventLoop::UserInput()
       return true;
    fUserInputLastTime = (ULong_t)gSystem->Now();
 
-   while (wait||first) {
+   while (wait || first) {
       first = false;
       if (!fContinuous)
          wait = true;
@@ -813,6 +805,7 @@ Bool_t ROMEEventLoop::UserInput()
             if (gROME->IsUserEventJ()) {
                GotoEvent(gROME->GetUserEventJEventNumber()-1);
                fStop = true;
+               fContinuous = false;
                wait = false;
             }
             else {
@@ -832,12 +825,14 @@ Bool_t ROMEEventLoop::UserInput()
                }
                ROMEPrint::Print("                                  \r");
                inumber = strtol(number.Data(),&cstop,10);
-               if (inumber!=0) {
+               if (inumber != 0) {
                   GotoEvent(inumber-1);
                   fStop = true;
+                  fContinuous = false;
                   wait = false;
                }
             }
+            ch = 'j';
          }
          if (ch == 'g' || ch == 'G' || gROME->IsUserEventG()) {
             if (gROME->IsUserEventG()) {
@@ -1052,11 +1047,15 @@ void ROMEEventLoop::NextEvent()
 }
 void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
-   fCurrentEvent = eventNumber;
-   gROME->SetCurrentEventNumber(eventNumber);
+   eventNumber = gROME->GetActiveDAQ()->Seek(eventNumber);
+   if (eventNumber != -1) {
 #if defined( R__VISUAL_CPLUSPLUS )
-   ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
+      ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
 #else
-   ROMEPrint::Print("Stepped to Event %lld                                                    \n",eventNumber);
+      ROMEPrint::Print("Stepped to Event %lld                                                    \n",eventNumber);
 #endif
+   }
+   else {
+      ROMEPrint::Print("Failed to step                                                           \n");
+   }
 }
