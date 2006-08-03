@@ -145,7 +145,7 @@ Bool_t ROMEMidasDAQ::Init() {
       HNDLE hKey;
       ROMEString str;
       str = "//Trigger/Statistics";
-      str.Insert(1,gROME->GetProgramName());
+      str.Insert(1, gROME->GetOnlineAnalyzerName());
       // Trigger Statistics
       char *triggerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), triggerStatisticsString, TRUE);
@@ -157,7 +157,7 @@ Bool_t ROMEMidasDAQ::Init() {
       // Scaler Statistics
       char *fScalerStatisticsString = const_cast<char*>("Events received = DOUBLE : 0\nEvents per sec. = DOUBLE : 0\nEvents written = DOUBLE : 0\n");
       str="//Scaler/Statistics";
-      str.Insert(1,gROME->GetProgramName());
+      str.Insert(1,gROME->GetOnlineAnalyzerName());
       db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), fScalerStatisticsString, TRUE);
       db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
       if (db_open_record(gROME->GetMidasOnlineDataBase(), hKey, gROME->GetScalerStatistics(), sizeof(Statistics), MODE_WRITE, NULL, NULL) != DB_SUCCESS) {
@@ -168,7 +168,7 @@ Bool_t ROMEMidasDAQ::Init() {
       const Int_t nTree = gROME->GetTreeObjectEntries();
       for (i=0;i<nTree;i++) {
          str="//Tree switches/";
-         str.Insert(1,gROME->GetProgramName());
+         str.Insert(1,gROME->GetOnlineAnalyzerName());
          str.Append(gROME->GetTreeObjectAt(i)->GetTree()->GetName());
          db_check_record(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), (char*)gROME->GetTreeObjectAt(i)->GetSwitchesString(), TRUE);
          db_find_key(gROME->GetMidasOnlineDataBase(), 0, (char*)str.Data(), &hKey);
