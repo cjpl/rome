@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu Jun 29 18:39:54 2006 -->
+<!-- created by MXML on Thu Aug  3 20:36:14 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
@@ -9,37 +13,48 @@
       <Active>false</Active>
     </ARGUS>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <RunParameters>
       <RunNumbers>1</RunNumbers>
       <EventNumbers></EventNumbers>
       <InputFileNames>tree1.root</InputFileNames>
     </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>root</DAQSystem>
-      <QuitMode>false</QuitMode>
       <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
+      <QuitMode>false</QuitMode>
       <ShowSplashScreen>false</ShowSplashScreen>
       <GraphicalConfigEdit>true</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <DataBases/>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
+      <AnalyzerName>RDAQAnalyzer</AnalyzerName>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>false</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Histograms>
+
+    <HistogramRead>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
-    </Histograms>
+    </HistogramRead>
+
     <Tasks>
       <Task>
         <TaskName>PrintData</TaskName>

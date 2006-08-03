@@ -41,6 +41,7 @@ Bool_t ROMERootDAQ::Init() {
 Bool_t ROMERootDAQ::BeginOfRun() {
    int i;
    ROMEString filename;
+   fCurrentSequentialNumber = 0;
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
    fRootFiles = new TFile*[nInputFile];
    for (i=0;i<nInputFile;i++) {
@@ -58,16 +59,32 @@ Bool_t ROMERootDAQ::BeginOfRun() {
    return true;
 }
 
-Bool_t ROMERootDAQ::Event(Long64_t event) {
+Bool_t ROMERootDAQ::Event(Long64_t /* event */) {
    int j;
    // read event
    for (j=0;j<fTrees->GetEntriesFast();j++) {
-      if (((TTree*)fTrees->At(j))->GetEntry(event)<=0) {
+      if (((TTree*)fTrees->At(j))->GetEntry(fCurrentSequentialNumber) <= 0) {
          this->SetEndOfRun();
          return true;
       }
    }
+   gROME->SetCurrentEventNumber(fCurrentSequentialNumber);
+   fCurrentSequentialNumber++;
    return true;
+}
+
+Long64_t ROMERootDAQ::Seek(Long64_t event) {
+   if (event < 0)
+      return Seek(0);
+
+   int j;
+   fCurrentSequentialNumber = event;
+   // read event
+   for (j=0;j<fTrees->GetEntriesFast();j++) {
+      if(fCurrentSequentialNumber >= ((TTree*)fTrees->At(j))->GetEntries())
+         fCurrentSequentialNumber = ((TTree*)fTrees->At(j))->GetEntries() - 1;
+   }
+   return fCurrentSequentialNumber;
 }
 
 Bool_t ROMERootDAQ::EndOfRun() {

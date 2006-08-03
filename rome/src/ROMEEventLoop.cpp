@@ -589,6 +589,8 @@ Bool_t ROMEEventLoop::DAQEvent()
    }
 
    this->SetAnalyze();
+
+   ROMEPrint::Debug("Reset folders\n");
    this->ResetFolders();
 
    if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent))

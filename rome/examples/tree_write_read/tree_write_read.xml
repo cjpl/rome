@@ -5,9 +5,17 @@
 	</Experiment>
 	<Folders>
 		<Folder>
-			<FolderName>Data</FolderName>
+			<FolderName>Data1</FolderName>
 			<Field>
-				<FieldName>Value</FieldName>
+				<FieldName>Value1</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Value of Folder Data</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Data2</FolderName>
+			<Field>
+				<FieldName>Value2</FieldName>
 				<FieldType>Int_t</FieldType>
 				<FieldComment>Value of Folder Data</FieldComment>
 			</Field>
@@ -23,10 +31,17 @@
 	</Tasks>
 	<Trees>
 		<Tree>
-			<TreeName>DataTree</TreeName>
+			<TreeName>DataTree1</TreeName>
 			<Branch>
 				<BranchName>DataBranch</BranchName>
-				<RelatedFolder>Data</RelatedFolder>
+				<RelatedFolder>Data1</RelatedFolder>
+			</Branch>
+		</Tree>
+		<Tree>
+			<TreeName>DataTree2</TreeName>
+			<Branch>
+				<BranchName>DataBranch</BranchName>
+				<RelatedFolder>Data2</RelatedFolder>
 			</Branch>
 		</Tree>
 	</Trees>

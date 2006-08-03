@@ -10,6 +10,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <TBranchElement.h>
+#include <TMath.h>
 #include "ROMEAnalyzer.h"
 #include "ROMERomeDAQ.h"
 #include "ROMETreeInfo.h"
@@ -21,11 +22,19 @@ ROMERomeDAQ::ROMERomeDAQ() {
    fTreeIndex = 0;
    fInputFileNameIndex = -1;
    fRootFiles = 0;
+   fTreePosition = 0;
+   fTreePositionArray = 0;
+   fTreeNextSeqNumber = 0;
+   fTreeNEntries = 0;
 }
 
 ROMERomeDAQ::~ROMERomeDAQ() {
    SafeDelete(fTreeInfo);
    SafeDeleteArray(fRootFiles);
+   SafeDeleteArray(fTreePosition);
+   SafeDeleteArray(fTreePositionArray);
+   SafeDeleteArray(fTreeNextSeqNumber);
+   SafeDeleteArray(fTreeNEntries);
 }
 
 Bool_t ROMERomeDAQ::Init() {
@@ -50,12 +59,19 @@ Bool_t ROMERomeDAQ::Init() {
          }
       }
    }
+
+   const Int_t nTree = gROME->GetTreeObjectEntries();
+   fTreePosition = new Long64_t[nTree];
+   fTreePositionArray = new Long64_t*[nTree];
+   fTreeNextSeqNumber = new Long64_t[nTree];
+   fTreeNEntries = new Long64_t[nTree];
    return true;
 }
 
 Bool_t ROMERomeDAQ::BeginOfRun() {
    const Int_t nTree = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
+   fSequentialNumber = 0;
    Int_t nKey;
    if (gROME->isOffline()) {
       this->SetRunning();
@@ -71,8 +87,6 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
       if ((gROME->IsRunNumberBasedIO() || gROME->IsRunNumberAndFileNameBasedIO()))
          gROME->GetCurrentRunNumberString(runNumberString);
       bool treeRead = false;
-      fTreePosition = new Long64_t[nTree];
-      fTreeNextSeqNumber = new Long64_t[nTree];
       for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
@@ -150,6 +164,8 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
             }
             romeTree->SetTree(tree);
             fTreePosition[j] = 0;
+            fTreeNextSeqNumber[j] = 0;
+            fTreeNEntries[j] = tree->GetEntries();
          }
          else {
             fRootFiles[j] = 0;
@@ -176,68 +192,66 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
             }
          }
       }
+
+      // Prepare sequential number array
+      Int_t iEvent;
+      fMaxSeqNumber = 0;
+      fTreeInfo->SetSequentialNumber(0);
+      for (j=0;j<nTree;j++) {
+         romeTree = gROME->GetTreeObjectAt(j);
+         tree = romeTree->GetTree();
+         if (romeTree->isRead()) {
+            fTreePositionArray[j] = new Long64_t[fTreeNEntries[j]];
+            for(iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
+               tree->GetBranch("Info")->GetEntry(iEvent);
+               fTreePositionArray[j][iEvent] = fTreeInfo->GetSequentialNumber();
+            }
+            if (fMaxSeqNumber < fTreeInfo->GetSequentialNumber())
+               fMaxSeqNumber = fTreeInfo->GetSequentialNumber();
+         }
+         else {
+            fTreePositionArray[j] = 0;
+         }
+      }
    }
    return true;
 }
 
-Bool_t ROMERomeDAQ::Event(Long64_t event) {
+Bool_t ROMERomeDAQ::Event(Long64_t /* event */) {
    if (gROME->isOffline()) {
       int j;
       ROMETree *romeTree;
       TTree *tree;
       bool found = false;
-      bool endfound = true;
       const Int_t nTree = gROME->GetTreeObjectEntries();
+
+      if (fSequentialNumber > fMaxSeqNumber) {
+         this->SetEndOfRun();
+         return true;
+      }
+
+      if(Seek(fSequentialNumber) == -1)
+         return kFALSE;
+
       // read event
       for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
-            if (fTreeNextSeqNumber[j]>event) {
-               fTreeNextSeqNumber[j] = event;
-               fTreePosition[j] = event;
-            }
-            while (fTreeNextSeqNumber[j]>-1 && fTreeNextSeqNumber[j]<event) {
-               fTreePosition[j]++;
-               if (tree->GetEntriesFast()>fTreePosition[j]) {
-                  tree->GetBranch("Info")->GetEntry(fTreePosition[j]);
-                  fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
-               }
-               else {
-                  fTreeNextSeqNumber[j] = -1;
-               }
-            }
-            if (fTreeNextSeqNumber[j]==event) {
+            if (fTreeNextSeqNumber[j] == fSequentialNumber) {
                found = true;
-               if (tree->GetEntriesFast()>fTreePosition[j]+1) {
-                  tree->GetBranch("Info")->GetEntry(fTreePosition[j]+1);
-                  fTreeNextSeqNumber[j] = fTreeInfo->GetSequentialNumber();
-               }
-               else {
-                  fTreeNextSeqNumber[j] = -1;
-               }
-               tree->GetBranch("Info")->GetEntry(fTreePosition[j]);
-               gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
                if (gROME->IsRunNumberBasedIO())
                   tree->SetDirectory(fRootFiles[j]);
                else if (gROME->IsFileNameBasedIO() || gROME->IsRunNumberAndFileNameBasedIO())
                   tree->SetDirectory(fRootFiles[fInputFileNameIndex]);
                tree->GetEntry(fTreePosition[j]);
-               fTreePosition[j]++;
+               gROME->SetCurrentEventNumber(fTreeInfo->GetEventNumber());
             }
          }
       }
-      for (j=0;j<nTree;j++) {
-         romeTree = gROME->GetTreeObjectAt(j);
-         tree = romeTree->GetTree();
-         if (romeTree->isRead())
-            if (fTreeNextSeqNumber[j] != -1)
-               endfound = false;
-      }
-      if (endfound) {
-         this->SetEndOfRun();
-         return true;
-      }
+
+      fSequentialNumber++;
+
       if (!found) {
          this->SetContinue();
          return true;
@@ -247,11 +261,43 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
    return true;
 }
 
+Long64_t ROMERomeDAQ::Seek(Long64_t event)
+{
+   if (gROME->isOffline()) {
+      fSequentialNumber = event;
+      if (fSequentialNumber < 0)
+         fSequentialNumber = 0;
+      if (fSequentialNumber > fMaxSeqNumber)
+         fSequentialNumber = fMaxSeqNumber;
+
+      int j;
+      const Int_t nTree = gROME->GetTreeObjectEntries();
+
+      for (j=0;j<nTree;j++) {
+         if (gROME->GetTreeObjectAt(j)->isRead()) {
+            fTreePosition[j] = TMath::BinarySearch(fTreeNEntries[j], fTreePositionArray[j], fSequentialNumber);
+            if (fTreePosition[j] >= 0
+                && fTreePosition[j] < fTreeNEntries[j]
+                && fTreePositionArray[j][fTreePosition[j]] == fSequentialNumber) {
+               fTreeNextSeqNumber[j] = fTreePositionArray[j][fTreePosition[j]];
+            }
+            else {
+               fTreeNextSeqNumber[j] = -1;
+            }
+         }
+      }
+      return fSequentialNumber;
+   }
+
+   return -1;
+}
+
 Bool_t ROMERomeDAQ::EndOfRun() {
    if (gROME->isOffline()) {
+      const Int_t nTree = gROME->GetTreeObjectEntries();
+      int j;
       if (gROME->IsRunNumberBasedIO()) {
-         const Int_t nTree = gROME->GetTreeObjectEntries();
-         for (int j=0;j<nTree;j++) {
+         for (j=0;j<nTree;j++) {
             if (gROME->GetTreeObjectAt(j)->isRead()) {
                gROME->GetTreeObjectAt(j)->GetTree()->Delete("");
                fRootFiles[j]->Close();
@@ -259,6 +305,10 @@ Bool_t ROMERomeDAQ::EndOfRun() {
             }
          }
          SafeDeleteArray(fRootFiles);
+      }
+      // delete sequential number array
+      for (j=0;j<nTree;j++) {
+         SafeDeleteArray(fTreePositionArray[j]);
       }
    }
    return true;
