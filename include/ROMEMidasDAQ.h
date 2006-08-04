@@ -105,8 +105,9 @@ protected:
    Int_t         fTimeStamp;                               //! Current time stamp
 
    TArrayL*      fEventFilePositions;                      //! File pointer to event
-   Long64_t      fCurrentSequentialNumber;                 //! Current sequential event number in file
-   Long64_t      fLastEventRead;                           //! Last events read
+   Long64_t      fValidEventFilePositions;                 //! Max number of valid index of fEventFilePositions
+   Long64_t      fCurrentPosition;                         //! Current position in file [event]
+   Long64_t      fMaxDataEvent;                            //! Maximum number of sequential number of data events in the run.
 
 public:
    ROMEMidasDAQ();
