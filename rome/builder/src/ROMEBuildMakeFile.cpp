@@ -54,7 +54,6 @@ void ROMEBuilder::AddPrecompiledHeaders()
 {
    precompiledHeaders->RemoveAll();
    precompiledHeaders->AddFormatted("generated/%sPrecompile.h", shortCut.Data());
-
    precompiledIncludeHeaders->RemoveAll();
    precompiledIncludeHeaders->AddFormatted("generated/%sAnalyzer.h",shortCut.Data());
    precompiledIncludeHeaders->AddFormatted("generated/%sWindow.h",shortCut.Data());
@@ -1074,9 +1073,6 @@ void ROMEBuilder::WriteMakefileIncludes(ROMEString& buffer)
 
 void ROMEBuilder::WriteMakefilePrecompiledHeaders(ROMEString& buffer)
 {
-   if (!pch)
-      return;
-
    ROMEString separator = " ";
    ROMEString tmp;
 #if defined( R__UNIX )
@@ -1750,8 +1746,8 @@ void ROMEBuilder::WriteMakefile() {
    AddMysqlLibraries();
    AddDAQLibraries();
    AddDAQFlags();
+   AddPrecompiledHeaders();
    if (pch) {
-      AddPrecompiledHeaders();
       WritePrecompiledHeaders();
    }
 
@@ -1877,10 +1873,7 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #else
-   if (pch)
-      buffer.AppendFormatted("all:startecho pch obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-   else
-      buffer.AppendFormatted("all:startecho obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("all:startecho pch obj %s%s.exe endecho",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #endif
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
@@ -1944,7 +1937,13 @@ void ROMEBuilder::WriteMakefile() {
 // PCH
 // ------------------
    buffer.AppendFormatted("## Precompiled header file generation\n");
-   buffer.AppendFormatted("pch: $(PCHHEADERS)\n");
+   if (pch) {
+      buffer.AppendFormatted("pch: $(PCHHEADERS)\n");
+   }
+   else {
+      buffer.AppendFormatted("pch:\n");
+      buffer.AppendFormatted("\t-$(RM) $(PCHHEADERS)\n");
+   }
    buffer.AppendFormatted("\n");
 
 // Compile Statements
