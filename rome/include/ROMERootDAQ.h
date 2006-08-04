@@ -15,7 +15,6 @@ class ROMERootDAQ : public ROMEDAQSystem {
 protected:
    TFile       **fRootFiles;                //! Input Root files
    TObjArray    *fTrees;                    //! Array of Trees
-   Long64_t      fCurrentSequentialNumber;  // ! current position in file
 
 public:
    ROMERootDAQ();

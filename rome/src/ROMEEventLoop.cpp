@@ -1047,14 +1047,15 @@ void ROMEEventLoop::NextEvent()
    ROMEPrint::Print("Executed Event %lld                                                      \n",gROME->GetCurrentEventNumber());
 #endif
 }
+
 void ROMEEventLoop::GotoEvent(Long64_t eventNumber)
 {
-   eventNumber = gROME->GetActiveDAQ()->Seek(eventNumber);
-   if (eventNumber != -1) {
+   fCurrentEvent = gROME->GetActiveDAQ()->Seek(eventNumber);
+   if (fCurrentEvent != -1) {
 #if defined( R__VISUAL_CPLUSPLUS )
-      ROMEPrint::Print("Stepped to Event %I64d                                                   \n",eventNumber);
+      ROMEPrint::Print("Stepped to Event %I64d                                                   \n",fCurrentEvent);
 #else
-      ROMEPrint::Print("Stepped to Event %lld                                                    \n",eventNumber);
+      ROMEPrint::Print("Stepped to Event %lld                                                    \n",fCurrentEvent);
 #endif
    }
    else {
