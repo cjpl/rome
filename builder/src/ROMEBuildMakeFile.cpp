@@ -1942,7 +1942,7 @@ void ROMEBuilder::WriteMakefile() {
    }
    else {
       buffer.AppendFormatted("pch:\n");
-      buffer.AppendFormatted("\t-$(RM) $(PCHHEADERS)\n");
+      buffer.AppendFormatted("\t-@$(RM) $(PCHHEADERS)\n");
    }
    buffer.AppendFormatted("\n");
 
