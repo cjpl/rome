@@ -832,6 +832,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
 
       // FastCopy
       buffer.AppendFormatted("void %s::FastCopy(%s%s* destination) {\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
+/*
       buffer.AppendFormatted("   memcpy(destination,this,sizeof(%s%s));\n",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
@@ -866,6 +867,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
+*/
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
