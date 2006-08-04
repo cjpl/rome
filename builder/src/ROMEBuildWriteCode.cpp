@@ -4986,12 +4986,17 @@ Bool_t ROMEBuilder::WriteWindowCpp()
 
    buffer.AppendFormatted("%sWindow::%sWindow() : ArgusWindow()\n", shortCut.Data(), shortCut.Data());
    buffer.AppendFormatted("{\n");
+   if (numOfTab>0)
+      buffer.AppendFormatted("   fTabObjects = new TObjArray(%d);\n",numOfTab);
+   else
+      buffer.AppendFormatted("   fTabObjects = NULL;\n");
    buffer.AppendFormatted("   fStatusBarSwitch = kTRUE;\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("   fTabSwitches.%s%s = kTRUE;\n",tabName[i].Data(),tabSuffix[i].Data());
    }
+   buffer.AppendFormatted("   ConstructTabs();\n"); // this is necessary to handle config parameters
    buffer.AppendFormatted("}\n\n");
 
    buffer.AppendFormatted("%sWindow::%sWindow(const TGWindow* p) : ArgusWindow(p)\n", shortCut.Data(), shortCut.Data());
