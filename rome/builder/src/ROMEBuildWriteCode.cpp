@@ -832,7 +832,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
 
       // FastCopy
       buffer.AppendFormatted("void %s::FastCopy(%s%s* destination) {\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
-/*
+#if defined (ENABLE_FASTCOPY)
       buffer.AppendFormatted("   memcpy(destination,this,sizeof(%s%s));\n",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
@@ -867,7 +867,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-*/
+#endif
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
@@ -4110,6 +4110,13 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Fill Folder Storage
    buffer.AppendFormatted("void %sAnalyzer::FillFolderStorage() {\n", shortCut.Data());
+   buffer.AppendFormatted("   R__LOCKGUARD2(fMutex);\n");
+#if !defined (ENABLE_FASTCOPY)
+#if (ROOT_VERSION_CODE < ROOT_VERSION(4,1,0))
+   buffer.AppendFormatted("   fFolderStorageTree->Reset();\n");
+#endif
+   buffer.AppendFormatted("   fFolderStorageTree->Fill();\n");
+#else
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -4124,8 +4131,25 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          }
       }
    }
+#endif
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
+
+#if !defined (ENABLE_FASTCOPY)
+   Int_t iFold;
+   // Add folder storage tree branches
+   buffer.AppendFormatted("// Add branches\n");
+   buffer.AppendFormatted("void %sAnalyzer::AddFolderStorageTreeBranches()\n{\n",shortCut.Data());
+   for (iFold=0;iFold<numOfFolder;iFold++) {
+      if (numOfValue[iFold]<=0 || folderSupport[iFold] || !folderUsed[iFold])
+         continue;
+      if (folderArray[iFold]=="1")
+         buffer.AppendFormatted("   f%sStorageBranch = fFolderStorageTree->Branch(\"%s\", \"%s%s\", &f%sFolder,32000, 0);\n",folderName[iFold].Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data(),folderName[iFold].Data());
+      else
+         buffer.AppendFormatted("   f%sStorageBranch = fFolderStorageTree->Branch(\"%s\", \"TClonesArray\",&f%sFolders, 32000, 0);\n",folderName[iFold].Data(),folderName[iFold].Data(),folderName[iFold].Data());
+   }
+   buffer.AppendFormatted("}\n\n");
+#endif
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -4552,6 +4576,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n\n");
 
    // includes
+#if !defined (ENABLE_FASTCOPY)
+   buffer.AppendFormatted("#include <TMutex.h>\n");
+#endif
    buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
    buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -4667,6 +4694,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
                buffer.AppendFormatted("   TClonesArray* f%sFolders; // Handle to %s%s Folders\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   TClonesArray* f%sFoldersStorage; // Handle to %s%s Folders Storage\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
+#if !defined (ENABLE_FASTCOPY)
+            buffer.AppendFormatted("   TBranch* f%sStorageBranch; // TBranch for %s%s Storage\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+#endif
          }
       }
    }
@@ -4737,6 +4767,9 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       WriteFolderGetterInclude(buffer,i);
    }
    buffer.AppendFormatted("   void FillFolderStorage();\n");
+#if !defined (ENABLE_FASTCOPY)
+   buffer.AppendFormatted("   void AddFolderStorageTreeBranches();\n");
+#endif
    buffer.AppendFormatted("\n");
 
    // Set size
@@ -9866,13 +9899,30 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
       if (folderArray[numFolder]=="1") {
          buffer.AppendFormatted("   %s%s* Get%s();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   %s%s** Get%sAddress();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   %s%s* Get%sStorage() { return f%sFolderStorage; };\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("   %s%s* Get%sStorage() {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
+#if !defined (ENABLE_FASTCOPY)
+         buffer.AppendFormatted("      R__LOCKGUARD2(fMutex);\n");
+         buffer.AppendFormatted("      void *p = f%sStorageBranch->GetAddress();\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(&f%sFolderStorage);\n",folderName[numFolder].Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->GetEntry(0);\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(p);\n",folderName[numFolder].Data());
+#endif
+         buffer.AppendFormatted("      return f%sFolderStorage;\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   }\n");
       }
       else {
          buffer.AppendFormatted("   %s%s* Get%sAt(Int_t index);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ss();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   TClonesArray* Get%ssStorage() { return f%sFoldersStorage; };\n",folderName[numFolder].Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("   TClonesArray* Get%ssStorage() {\n",folderName[numFolder].Data());
+#if !defined (ENABLE_FASTCOPY)
+         buffer.AppendFormatted("      void *p = f%sStorageBranch->GetAddress();\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(&f%sFoldersStorage);\n",folderName[numFolder].Data(),folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->GetEntry(0);\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(p);\n",folderName[numFolder].Data());
+#endif
+         buffer.AppendFormatted("      return f%sFoldersStorage;\n",folderName[numFolder].Data());
+         buffer.AppendFormatted("   }\n");
       }
    }
 }
@@ -10077,8 +10127,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    }
    for (i=0;i<numOfTree;i++) {
       buffer.AppendFormatted("   tree = gAnalyzer->GetTreeObjectAt(%d)->GetTree();\n",i);
-      buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99);\n");
-      buffer.AppendFormatted("   tree->GetBranch(\"Info\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",i);
+      buffer.AppendFormatted("   tree->Branch(\"Info\",\"ROMETreeInfo\",&fTreeInfo,32000,99)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n", i);
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
@@ -10088,12 +10137,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
             continue;
          buffer.AppendFormatted("   if(gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)) {\n",i,j);
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("      tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
+            buffer.AppendFormatted("      tree->Branch(\"%s\",\"%s%s\",gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),shortCut.Data(),folderName[iFold].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data(),i);
          }
          else {
-            buffer.AppendFormatted("      tree->Branch(\"%s\",\"TClonesArray\",gAnalyzer->Get%sAddress(),%s,%s);\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data());
+            buffer.AppendFormatted("      tree->Branch(\"%s\", \"TClonesArray\", gAnalyzer->Get%sAddress(),%s,%s)->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),branchFolder[i][j].Data(),branchBufferSize[i][j].Data(),branchSplitLevel[i][j].Data(),i);
          }
-         buffer.AppendFormatted("      tree->GetBranch(\"%s\")->SetCompressionLevel(gAnalyzer->GetTreeObjectAt(%d)->GetCompressionLevel());\n",branchName[i][j].Data(),i);
          buffer.AppendFormatted("   }\n");
       }
    }

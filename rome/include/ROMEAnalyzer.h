@@ -40,7 +40,7 @@ typedef Int_t HNDLE;
 class TObjArray;
 class TSocket;
 class TTree;
-class TMutex;
+class TVirtualMutex;
 class ROMEDAQSystem;
 class ROMEAnalyzer;
 class ArgusWindow;
@@ -233,8 +233,10 @@ protected:
    ofstream      *fRomeOutputFile;               //! Redirected output currently not used
 #endif // __CINT__
 
-   TMutex        *fMutex;                        // Main Mutex
-
+   TVirtualMutex *fMutex;                        // Main Mutex
+#if !defined(ENABLE_FASTCOPY)
+   TTree         *fFolderStorageTree;            //! tree to store folders for wring
+#endif
 
 public:
    ROMEAnalyzer() {}
@@ -593,7 +595,7 @@ public:
    void            GotoEvent(Long64_t eventNumber);
 
    // Mutex
-   TMutex         *GetMutex() { return fMutex; };
+   TVirtualMutex  *GetMutex() { return fMutex; };
 
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
@@ -624,7 +626,9 @@ protected:
    Bool_t          ConnectSocketToROME();
    virtual Bool_t  ConnectSocketToROMENetFolder() = 0;
    virtual void    StartNetFolderServer() = 0;
-
+#if !defined(ENABLE_FASTCOPY)
+   virtual void    AddFolderStorageTreeBranches() = 0;
+#endif
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class
 };

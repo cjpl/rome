@@ -398,7 +398,8 @@ Int_t ROMEEventLoop::RunEvent()
       return kBreak;
 
    // Store Event
-   gROME->FillFolderStorage();
+   if (gROME->isOnline() || gROME->isSocketOffline())      
+      gROME->FillFolderStorage();
 
    // Write Event
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
@@ -411,6 +412,7 @@ Int_t ROMEEventLoop::RunEvent()
 
    return kContinue;
 }
+
 Bool_t ROMEEventLoop::DAQInit()
 {
    // Initialize the analyzer. Called before the init tasks.
