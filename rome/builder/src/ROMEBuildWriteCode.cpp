@@ -189,11 +189,11 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("{\n");
       for (i=0;i<numOfValue[iFold];i++) {
          if (isFolder(valueType[iFold][i].Data()))
-            buffer.AppendFormatted("   delete %s;\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
          else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].Contains("*"))
-            buffer.AppendFormatted("   delete %s;\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("   SafeDelete(%s);\n",valueName[iFold][i].Data());
          else if (valueDimension[iFold][i]!=0 && valueArray[iFold][i][0]=="variable")
-            buffer.AppendFormatted("   delete [] %s;\n",valueName[iFold][i].Data());
+            buffer.AppendFormatted("   SafeDeleteArray(%s);\n",valueName[iFold][i].Data());
       }
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -463,10 +463,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   if (number==%sSize) return;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   if (number<0) return;\n");
                buffer.AppendFormatted("   if (number>%sActualSize) {\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %s *tmp = new %s[number];\n",valueType[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("      memcpy(tmp,%s,%sSize*sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("      delete [] %s;\n",valueName[iFold][i].Data());
-               buffer.AppendFormatted("      %s = tmp;\n",valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s *tmp = %s;\n",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("      %s = new %s[number];\n",valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("      memcpy(%s,tmp,%sSize*sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
+               buffer.AppendFormatted("      delete [] tmp;\n");
                buffer.AppendFormatted("      %sActualSize = number;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   %sSize = number;\n",valueName[iFold][i].Data());
@@ -831,8 +831,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\n");
 
       // FastCopy
-      buffer.AppendFormatted("void %s::FastCopy(%s%s* destination) {\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
 #if defined (ENABLE_FASTCOPY)
+      buffer.AppendFormatted("void %s::FastCopy(%s%s* destination) {\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("   memcpy(destination,this,sizeof(%s%s));\n",shortCut.Data(),folderName[iFold].Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueType[iFold][i].Contains("*"))
@@ -867,8 +867,10 @@ Bool_t ROMEBuilder::WriteFolderCpp()
             }
          }
       }
-#endif
       buffer.AppendFormatted("}\n");
+#else
+      buffer.AppendFormatted("void %s::FastCopy(%s%s*) {}\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
+#endif
       buffer.AppendFormatted("\n");
 
       // Write File
@@ -2172,7 +2174,11 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,level,histoSuffix,histoFolder) {}\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   virtual ~%sT%s() {}\n",shortCut.Data(),taskName[iTask].Data());
+         buffer.AppendFormatted("   virtual ~%sT%s() {",shortCut.Data(),taskName[iTask].Data());
+         if (numOfSteering[iTask]>0) {
+            buffer.AppendFormatted(" SafeDelete(fSteering);");
+         }
+         buffer.AppendFormatted(" }\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
@@ -3558,6 +3564,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("#include \"ROMEODBOnlineDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("#include \"%s%s%sDAQ.h\"\n",daqDirArray->At(i).Data(),daqTypeArray->At(i).Data(),daqNameArray->At(i).Data());
+   }
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("ClassImp(%sAnalyzer)\n",shortCut.Data());
@@ -3751,6 +3760,48 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // End of Constructor
+   buffer.AppendFormatted("}\n\n");
+
+   // Destructor
+   buffer.AppendFormatted("%sAnalyzer::~%sAnalyzer()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   // Database Folder Fields
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderDataBase[i] && !folderSupport[i]) {
+         for (j=0;j<numOfValue[i];j++) {
+            if ( valueDimension[i][j]>1 )
+               continue;
+            buffer.AppendFormatted("   SafeDelete(f%s_%sDBCode);\n",folderName[i].Data(),valueName[i][j].Data());
+         }
+      }
+   }
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("   SafeDelete(f%sFolder);\n",folderName[i].Data());
+               buffer.AppendFormatted("   SafeDelete(f%sFolderStorage);\n",folderName[i].Data());
+            }
+            else {
+               buffer.AppendFormatted("   SafeDelete(f%sFolders);\n",folderName[i].Data());
+               buffer.AppendFormatted("   SafeDelete(f%sFoldersStorage);\n",folderName[i].Data());
+            }
+         }
+      }
+   }
+   if (numOfSteering[numOfTask]>0) {
+      buffer.AppendFormatted("   SafeDelete(fGlobalSteeringParameters);\n");
+   }
+   for (i=0;i<daqNameArray->GetEntriesFast();i++) {
+      buffer.AppendFormatted("   SafeDelete(f%sDAQ);\n",daqNameArray->At(i).Data());
+   }
+   buffer.AppendFormatted("   SafeDelete(fWindow);\n",shortCut.Data());
+   buffer.AppendFormatted("   SafeDelete(fConfiguration);\n",shortCut.Data());
+   // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
    int ndb = 0;
@@ -3982,7 +4033,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Connect SocketToROME NetFolder
    buffer.AppendFormatted("// Connect SocketToROME NetFolder\n");
    buffer.AppendFormatted("Bool_t %sAnalyzer::ConnectSocketToROMENetFolder() {\n",shortCut.Data());
-   buffer.AppendFormatted("   delete fSocketToROMENetFolder;\n");
+   buffer.AppendFormatted("   SafeDelete(fSocketToROMENetFolder);\n");
    buffer.AppendFormatted("   fSocketToROMENetFolder = new ROMENetFolder(\"%s\",\"RootNetFolder\", fSocketToROME, true);\n",shortCut.Data());
    buffer.AppendFormatted("   if (!fSocketToROMENetFolder->GetPointer()) {\n");
    buffer.AppendFormatted("      Warning(\"ConnectSocketToROMENetFolder\", \"Failed to connect to the ROME analyzer.\");\n");
@@ -4455,7 +4506,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    WriteConfigToFormSave(buffer,mainParGroup,"","","");
    buffer.AppendFormatted("      GetConfiguration()->CheckConfigurationModified(0);\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   delete dialog;\n");
+   buffer.AppendFormatted("   SafeDelete(dialog);\n");
    buffer.AppendFormatted("   return exitID!=-1;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
@@ -4757,7 +4808,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics);\n",shortCut.Data());
-   buffer.AppendFormatted("   virtual ~%sAnalyzer() {}\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sAnalyzer();\n",shortCut.Data());
 
    // Folder Getters
    buffer.AppendFormatted("   // Folders\n");
@@ -5975,11 +6026,21 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
 
    // Constructor
    buffer.AppendFormatted("\n// Constructor\n");
-   buffer.AppendFormatted("%sConfig::%sConfig() {\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("%sConfig::%sConfig()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData*[1];\n");
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
    buffer.AppendFormatted("   fNumberOfRunConfigs = 0;\n");
    buffer.AppendFormatted("}\n\n");
+
+   // Destructor
+   buffer.AppendFormatted("%sConfig::~%sConfig()\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   for (i = 0; i < fNumberOfRunConfigs + 1; i++)\n");
+   buffer.AppendFormatted("      SafeDelete(fConfigData[i]);\n");
+   buffer.AppendFormatted("   SafeDeleteArray(fConfigData);\n");
+   buffer.AppendFormatted("}\n");
 
    // Read Configuration File
    buffer.AppendFormatted("\n// Read Configuration File\n");
@@ -5991,7 +6052,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   if (!ReadProgramConfiguration(xml))\n");
    buffer.AppendFormatted("      return false;\n");
    buffer.AppendFormatted("   fNumberOfRunConfigs = xml->NumberOfOccurrenceOfPath(\"/Configuration/RunConfiguration\");\n");
-   buffer.AppendFormatted("   delete [] fConfigData;\n");
+   buffer.AppendFormatted("   SafeDeleteArray(fConfigData);\n");
    buffer.AppendFormatted("   fConfigData = new ConfigData*[fNumberOfRunConfigs+1];\n");
    buffer.AppendFormatted("   fConfigData[0] = new ConfigData();\n");
    buffer.AppendFormatted("   ROMEString path = \"/Configuration/MainConfiguration\";\n");
@@ -6270,7 +6331,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("public:\n");
    // Constructor
    buffer.AppendFormatted("   %sConfig();\n",shortCut.Data());
-   buffer.AppendFormatted("   virtual ~%sConfig() {}\n",shortCut.Data());
+   buffer.AppendFormatted("   virtual ~%sConfig();\n",shortCut.Data());
 
    // methods
    buffer.AppendFormatted("   Bool_t WriteConfigurationFile(const char *file);\n");
