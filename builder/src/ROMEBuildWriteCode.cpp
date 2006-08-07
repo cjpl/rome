@@ -82,6 +82,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\n\n");
 
       // Includes
+      buffer.AppendFormatted("#include \"ROME.h\"");
       buffer.AppendFormatted("#include \"generated/%s.h\"",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
       buffer.AppendFormatted("\n");
@@ -5988,6 +5989,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    // Header
    buffer.AppendFormatted("\n");
 
+   buffer.AppendFormatted("#include \"ROME.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
