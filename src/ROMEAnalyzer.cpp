@@ -189,8 +189,6 @@ ROMEAnalyzer::~ROMEAnalyzer() {
    ss_getchar(1);
    restoreOutput();
    SafeDelete(fTreeObjects);
-   SafeDelete(fConfiguration);
-   SafeDelete(fActiveDAQ);
    SafeDelete(fHistoFolders);
    SafeDelete(fRomeOutputFile);
    SafeDelete(fSocketToROME);
