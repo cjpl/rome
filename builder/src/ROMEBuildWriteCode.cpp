@@ -82,7 +82,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\n\n");
 
       // Includes
-      buffer.AppendFormatted("#include \"ROME.h\"");
+      buffer.AppendFormatted("#include \"ROME.h\"\n");
       buffer.AppendFormatted("#include \"generated/%s.h\"",clsName.Data());
       buffer.AppendFormatted("\nClassImp(%s)\n",clsName.Data());
       buffer.AppendFormatted("\n");
