@@ -2175,11 +2175,7 @@ Bool_t ROMEBuilder::WriteTaskH()
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("public:\n");
          buffer.AppendFormatted("   %sT%s(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder):%sT%s_Base(name,title,level,histoSuffix,histoFolder) {}\n",shortCut.Data(),taskName[iTask].Data(),shortCut.Data(),taskName[iTask].Data());
-         buffer.AppendFormatted("   virtual ~%sT%s() {",shortCut.Data(),taskName[iTask].Data());
-         if (numOfSteering[iTask]>0) {
-            buffer.AppendFormatted(" SafeDelete(fSteering);");
-         }
-         buffer.AppendFormatted(" }\n");
+         buffer.AppendFormatted("   virtual ~%sT%s() {}\n",shortCut.Data(),taskName[iTask].Data());
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("protected:\n");
          buffer.AppendFormatted("   // Event Methods\n");
@@ -2361,7 +2357,11 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       // Constructor and Event Methods
       buffer.AppendFormatted("   // Constructor\n");
       buffer.AppendFormatted("   %sT%s_Base(const char *name,const char *title,int level,const char *histoSuffix,TFolder *histoFolder);\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("   virtual ~%sT%s_Base() {}\n",shortCut.Data(),taskName[iTask].Data());
+      buffer.AppendFormatted("   virtual ~%sT%s_Base() {",shortCut.Data(),taskName[iTask].Data());
+      if (numOfSteering[iTask]>0) {
+         buffer.AppendFormatted(" SafeDelete(fSteering);");
+      }
+      buffer.AppendFormatted("}\n");
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
       if (numOfSteering[iTask]>0) {
@@ -2434,7 +2434,6 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
          buffer.AppendFormatted("   Bool_t is%sAccumulation()                { return f%sAccumulation; }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          buffer.AppendFormatted("   void Set%sAccumulation(Bool_t flag)      { f%sAccumulation = flag; }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
       }
-
 
       // Object Interpreter
       buffer.AppendFormatted("   Int_t GetObjectInterpreterCode(const char* objectPath);\n");
@@ -9532,12 +9531,13 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
    }
    buffer.AppendFormatted("\n%spublic:\n",blank.Data());
    // Constructor
-   buffer.AppendFormatted("%s   %s%s() { ",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("%s   %s%s()\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("{\n");
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (!steerFieldUsed[numTask][numSteer][j])
          continue;
       if (steerFieldArraySize[numTask][numSteer][j]!="1") {
-         buffer.AppendFormatted("int j; ");
+         buffer.AppendFormatted("int j;\n");
          break;
       }
    }
@@ -9546,17 +9546,40 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
          continue;
       if (steerFieldArraySize[numTask][numSteer][j]=="1") {
          if (steerFieldType[numTask][numSteer][j]=="std::string")
-            buffer.AppendFormatted("f%s = %s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+            buffer.AppendFormatted("   f%s = %s;\n",steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
          else
-            buffer.AppendFormatted("f%s = (%s)%s; ",steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+            buffer.AppendFormatted("   f%s = (%s)%s;\n",steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
       else {
          if (steerFieldType[numTask][numSteer][j]=="std::string")
-            buffer.AppendFormatted("for (j=0;j<%s;j++) f%s[j] = %s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+            buffer.AppendFormatted("   for (j=0;j<%s;j++) f%s[j] = %s;\n",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
          else
-            buffer.AppendFormatted("for (j=0;j<%s;j++) f%s[j] = (%s)%s; ",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
+            buffer.AppendFormatted("   for (j=0;j<%s;j++) f%s[j] = (%s)%s;\n",steerFieldArraySize[numTask][numSteer][j].Data(),steerFieldName[numTask][numSteer][j].Data(),steerFieldType[numTask][numSteer][j].Data(),steerFieldInit[numTask][numSteer][j].Data());
       }
    }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
+         continue;
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]!="1") {
+         buffer.AppendFormatted("int i;\n");
+         break;
+      }
+   }
+   for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
+      if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
+         continue;
+      if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]=="1") {
+         buffer.AppendFormatted("   f%s = new %s();\n",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
+      else {
+         buffer.AppendFormatted("   f%s = new %s*[%s]; for (i=0;i<%s;i++) f%s[i] = new %s();\n",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+      }
+   }
+   buffer.AppendFormatted("}\n");
+
+   // Destructor
+   buffer.AppendFormatted("%s   ~%s%s()\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("{\n");
    for (i=0;i<numOfSteerChildren[numTask][numSteer];i++) {
       if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
          continue;
@@ -9569,14 +9592,14 @@ Bool_t ROMEBuilder::WriteSteeringClass(ROMEString &buffer,Int_t numSteer,Int_t n
       if (!steerUsed[numTask][steerChildren[numTask][numSteer][i]])
          continue;
       if (steerArraySize[numTask][steerChildren[numTask][numSteer][i]]=="1") {
-         buffer.AppendFormatted("f%s = new %s(); ",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+         buffer.AppendFormatted("   delete f%s;\n",steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       }
       else {
-         buffer.AppendFormatted("f%s = new %s*[%s]; for (i=0;i<%s;i++) f%s[i] = new %s(); ",steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
+         buffer.AppendFormatted("    for (i=0;i<%s;i++) delete f%s[i]; delete [] f%s;\n",steerArraySize[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
       }
    }
-   buffer.AppendFormatted("}\n");
-   buffer.AppendFormatted("%s   ~%s%s() {};\n",blank.Data(),sc.Data(),steerName[numTask][numSteer].Data());
+   buffer.AppendFormatted("};\n");
+
    // Getters
    for (j=0;j<numOfSteerFields[numTask][numSteer];j++) {
       if (!steerFieldUsed[numTask][numSteer][j])
