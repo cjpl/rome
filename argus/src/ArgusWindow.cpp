@@ -98,6 +98,7 @@ Bool_t ArgusWindow::Start()
    fMenuFile->Associate(this);
    if (AddMenuNetFolder(fMenuNetFolder))
       fMenuFile->AddPopup("&Connect NetFolder", fMenuNetFolder);
+   fMenuFile->AddEntry("Start C&ontroller", M_FILE_CONTROLLER);
    fMenuFile->AddEntry("E&xit", M_FILE_EXIT);
    fMenuNetFolder->Associate(this);
    fMenuBar = new TGMenuBar(this, 1, 1, kHorizontalFrame);

@@ -54,6 +54,7 @@ protected:
    Float_t                  fWindowScale;      //! Window scale
    
    enum CommandIdentifiers{
+      M_FILE_CONTROLLER,
       M_FILE_EXIT
    };
       

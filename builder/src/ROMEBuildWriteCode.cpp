@@ -5167,6 +5167,12 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("         case M_FILE_EXIT:\n");
    buffer.AppendFormatted("            CloseWindow();\n");
    buffer.AppendFormatted("            break;\n");
+   buffer.AppendFormatted("         case M_FILE_CONTROLLER:\n");
+   buffer.AppendFormatted("            if (!fControllerActive) {\n");
+   buffer.AppendFormatted("               fController = new ArgusAnalyzerController(gClient->GetRoot(),this,100,100,fControllerNetFolder);\n");
+   buffer.AppendFormatted("               fControllerActive = kTRUE;\n");
+   buffer.AppendFormatted("            }\n");
+   buffer.AppendFormatted("            break;\n");
    for (i = 0; i < numOfNetFolder; i++) {
       buffer.AppendFormatted("         case M_FILE_CONNECT_%s:\n", netFolderName[i].Data());
       buffer.AppendFormatted("            gAnalyzer->ConnectNetFolder(\"%s\");\n", netFolderName[i].Data());
