@@ -1447,14 +1447,14 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       path.ReplaceAll("\\","/");
 
       if (ext == "h") {
-         buffer.AppendFormatted("include/%s.gch obj/%s.d: ./include/%s $(%sDep)\n"
-                                ,sources->At(i).Data(),name.Data(),sources->At(i).Data(),name.Data());
+         buffer.AppendFormatted("include/%s.gch : ./include/%s $(%sDep)\n"
+                                ,sources->At(i).Data(),sources->At(i).Data(),name.Data());
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o include/%s.gch\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),sources->At(i).Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
-         buffer.AppendFormatted("obj/%s%s obj/%s.d: %s $(%sDep)\n"
-                                ,name.Data(),kObjectSuffix,name.Data(),sources->At(i).Data(),name.Data());
+         buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
+                                ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o obj/%s%s\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
       }
