@@ -68,6 +68,14 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fStop = false;
    fHistoFile = 0;
    fLastUpdateTime = 0;
+   fBeginOfRunMacro = "";
+   fBeginOfEventMacro = "";
+   fEndOfEventMacro = "";
+   fEndOfRunMacro = "";
+   fHaveBeginOfRunMacro = kFALSE;
+   fHaveBeginOfEventMacro = kFALSE;
+   fHaveEndOfEventMacro = kFALSE;
+   fHaveEndOfRunMacro = kFALSE;
 }
 
 ROMEEventLoop::~ROMEEventLoop()
@@ -159,10 +167,16 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          }
 #endif // HAVE_MIDAS
 
+         fHaveBeginOfRunMacro = (fBeginOfRunMacro.Length() > 0);
+         fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
+         fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
+         fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
          // Begin of Run Tasks
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
             ROMEPrint::Debug("Executing BeginOfRun tasks\n");
             ExecuteTasks("BeginOfRun");
+            if (fHaveBeginOfRunMacro)
+               gROME->GetApplication()->ProcessFile(fBeginOfRunMacro.Data());
             CleanTasks();
          }
          eventLoopIndex++;
@@ -217,6 +231,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
             ROMEPrint::Debug("Executing EndOfRun tasks\n");
             ExecuteTasks("EndOfRun");
+            if (fHaveEndOfRunMacro)
+               gROME->GetApplication()->ProcessFile(fEndOfRunMacro.Data());
             CleanTasks();
          }
          // Disconnect
@@ -359,6 +375,8 @@ Int_t ROMEEventLoop::RunEvent()
       ROMEPrint::Print("\n\nTerminating Program !\n");
       return kReturn;
    }
+   if (fHaveBeginOfEventMacro)
+      gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
    if (this->isEndOfRun()) {
       this->SetStopped();
       return kBreak;
@@ -388,6 +406,8 @@ Int_t ROMEEventLoop::RunEvent()
       text.SetFormatted("Event%d",gROME->GetEventID());
       ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
       ExecuteTasks(text.Data());
+      if (fHaveEndOfEventMacro)
+         gROME->GetApplication()->ProcessFile(fEndOfEventMacro.Data());
       CleanTasks();
    }
    if (gROME->isTerminationFlag()) {

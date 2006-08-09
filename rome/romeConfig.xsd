@@ -389,6 +389,33 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
+	<xs:complexType name="MacrosDesc">
+		<xs:annotation>
+			<xs:documentation>Description of macros.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BeginOfRun" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the begin of run. It is executed after DAQ::BeginOfRun, before Tasks::BeginOfRun. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BeginOfEvent" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the begin of event. It is executed after DAQ::Event, before Tasks::Event. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndOfEvent" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndOfRun" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the end of run. It is executed after Tasks::EndOfRun. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
 	<xs:complexType name="SteeringParameterGroupArrayDesc">
 		<xs:annotation>
 			<xs:documentation>Description of an array group of the steering parameter group.</xs:documentation>
@@ -831,6 +858,11 @@
 						</xs:element>
 					</xs:sequence>
 				</xs:complexType>
+			</xs:element>
+			<xs:element name="Macros" type="MacrosDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the macross in which the framework can run. (optional)</xs:documentation>
+				</xs:annotation>
 			</xs:element>
 			<xs:element name="Tasks" minOccurs="0">
 				<xs:annotation>

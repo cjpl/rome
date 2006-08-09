@@ -399,7 +399,6 @@ public:
                       DecodeNumbers(fEventNumberString,fEventNumber);
                    }
 
-
    // Input File Names
    ROMEString      GetInputFileNameAt(Int_t i) { return fInputFileNames.At(i); }
    ROMEString      GetCurrentInputFileName() { return fCurrentInputFileName; }
