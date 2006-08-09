@@ -202,13 +202,13 @@ librome.a: $(LibObjects)
 	$(AR) -cr $@ $^
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CC) $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	$(CXX) $(CXXFLAGS) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CXXFLAGS) -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
 
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
@@ -223,19 +223,24 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 clean:
-	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) \
+	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
 	ROMELibDict.h ROMELibDict.cpp \
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
 	UpdateVersionHDict.h UpdateVersionHDict.cpp
+
+ifneq ($(MAKECMDGOALS), clean)
+-include obj/*.d
+endif
+
