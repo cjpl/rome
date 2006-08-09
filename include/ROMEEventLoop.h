@@ -64,8 +64,19 @@ protected:
    ROMEStopwatch fFileIOWatch;                     //! Records Time used by File IO
 
    // Monitor
-   Bool_t    fUpdateWindow;                           //! Window update activation flag
-   ULong_t   fLastUpdateTime;                         //! Time of the last window update
+   Bool_t        fUpdateWindow;                    //! Window update activation flag
+   ULong_t       fLastUpdateTime;                  //! Time of the last window update
+
+   // Macro names
+   TString       fBeginOfRunMacro;                 //! name of macro to execute at the begin of run
+   TString       fBeginOfEventMacro;               //! name of macro to execute at the begin of run
+   TString       fEndOfEventMacro;                 //! name of macro to execute at the end of event
+   TString       fEndOfRunMacro;                   //! name of macro to execute at the end of run
+   Bool_t        fHaveBeginOfRunMacro;             //! flag if it has macro to execute at the begin of run
+   Bool_t        fHaveBeginOfEventMacro;           //! flag if it has macro to execute at the begin of run
+   Bool_t        fHaveEndOfEventMacro;             //! flag if it has macro to execute at the end of event
+   Bool_t        fHaveEndOfRunMacro;               //! flag if it has macro to execute at the end of run
+
 public:
    // Static Hot Links
 #if defined( HAVE_MIDAS )
@@ -91,6 +102,16 @@ public:
    Int_t        RunEvent();
    void         NextEvent();
    void         GotoEvent(Long64_t eventNumber);
+
+   // macros
+   void         SetBeginOfRunMacro(const char* name) { fBeginOfRunMacro = name; }
+   void         SetBeginOfEventMacro(const char* name) { fBeginOfEventMacro = name; }
+   void         SetEndOfEventMacro(const char* name) { fEndOfEventMacro = name; }
+   void         SetEndOfRunMacro(const char* name) { fEndOfRunMacro = name; }
+   const char*  GetBeginOfRunMacro() { return fBeginOfRunMacro.Data(); }
+   const char*  GetBeginOfEventMacro() { return fBeginOfEventMacro.Data(); }
+   const char*  GetEndOfEventMacro() { return fEndOfEventMacro.Data(); }
+   const char*  GetEndOfRunMacro() { return fEndOfRunMacro.Data(); }
 
    virtual void AddTreeBranches() = 0;
 protected:

@@ -4336,6 +4336,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    if (readGlobalSteeringParameters)
       buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
@@ -5728,6 +5729,7 @@ Bool_t ROMEBuilder::WriteConfigToFormCpp() {
    buffer.AppendFormatted("#include \"XMLToFormFrame.h\"\n");
    buffer.AppendFormatted("#include \"ROMEDataBase.h\"\n");
    buffer.AppendFormatted("#include \"ROMENetFolder.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -5995,6 +5997,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("#include \"ROME.h\"\n");
+   buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -6712,6 +6715,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddWriteLine("else");
    subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
    mainParGroup->AddSubGroup(subGroup);
+
    // Online
    subGroup = new ROMEConfigParameterGroup("Online");
    subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
@@ -6733,6 +6737,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetOnlineAnalyzerName(##.Data());");
    subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetOnlineAnalyzerName();");
    mainParGroup->AddSubGroup(subGroup);
+
    // SocketInterface
    subGroup = new ROMEConfigParameterGroup("SocketInterface");
    subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
@@ -6791,6 +6796,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    subGroup->GetLastParameter()->AddSetLine("gAnalyzer->SetHistosRun(##.ToInteger());");
    subGroup->GetLastParameter()->AddWriteLine("writeString.SetFormatted(\"%%d\",gAnalyzer->GetHistosRun());");
    mainParGroup->AddSubGroup(subGroup);
+
    // Folders
    subGroup = new ROMEConfigParameterGroup("Folders");
    mainParGroup->AddSubGroup(subGroup);
@@ -6862,6 +6868,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
          }
       }
    }
+
    // NetFolder
    for (i=0;i<numOfNetFolder;i++) {
       subGroup = new ROMEConfigParameterGroup(netFolderName[i],"1","NetFolder");
@@ -6905,6 +6912,32 @@ Bool_t ROMEBuilder::AddConfigParameters()
       subGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetNetFolderRoot(%d);",i);
       mainParGroup->AddSubGroup(subGroup);
    }
+
+   // Macros
+   subGroup = new ROMEConfigParameterGroup("Macros");
+   subGroup->ReadComment(ROMEConfig::kCommentLevelGroup);
+   // Macros/BeginOfRun
+   subGroup->AddParameter(new ROMEConfigParameter("BeginOfRun"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfRunMacro(##.Data());", shortCut.Data());
+   subGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfRunMacro();", shortCut.Data());
+   // Macros/BeginOfEvent
+   subGroup->AddParameter(new ROMEConfigParameter("BeginOfEvent"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetBeginOfEventMacro(##.Data());", shortCut.Data());
+   subGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetBeginOfEventMacro();", shortCut.Data());
+   // Macros/EndOfEvent
+   subGroup->AddParameter(new ROMEConfigParameter("EndOfEvent"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfEventMacro(##.Data());", shortCut.Data());
+   subGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfEventMacro();", shortCut.Data());
+   // Macros/EndOfRun
+   subGroup->AddParameter(new ROMEConfigParameter("EndOfRun"));
+   subGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, subGroup->GetGroupName());
+   subGroup->GetLastParameter()->AddSetLine("static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->SetEndOfRunMacro(##.Data());", shortCut.Data());
+   subGroup->GetLastParameter()->AddWriteLine("writeString = static_cast<%sEventLoop*>(gAnalyzer->GetMainTask())->GetEndOfRunMacro();", shortCut.Data());
+   mainParGroup->AddSubGroup(subGroup);
+
    // Tasks
    if (numOfTask>0) {
       subGroup = new ROMEConfigParameterGroup("Tasks");

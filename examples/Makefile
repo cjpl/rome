@@ -9,6 +9,7 @@ export FOOPT    =$(OPT)
 export HGOPT    =$(OPT)
 export HGUIOPT  =$(OPT)
 export HWOPT    =$(OPT)
+export MCROPT    =$(OPT)
 export MROPT    =$(OPT)
 export MIDOPT   =$(OPT)
 export NFOPT    =$(OPT)
@@ -41,7 +42,8 @@ ROMEProjects = multirun/mranalyzer.exe \
                runheader/runhanalyzer.exe \
                rootDAQ/rdaqanalyzer.exe \
                displayobjects/doexample.exe \
-               taskhierarchyandhistos/thhexample.exe
+               taskhierarchyandhistos/thhexample.exe \
+               macros/mcranalyzer.exe
 
 ARGUSProjects = argus/file/flmonitor.exe \
                 argus/timer/ttmonitor.exe \
@@ -107,6 +109,9 @@ taskhierarchyandhistos/thhexample.exe:
 
 displayobjects/doexample.exe:
 	$(ROMESYS)/bin/romebuilder.exe -i displayobjects/displayObjects.xml -o displayobjects -v;
+
+macros/mcranalyzer.exe:
+	$(ROMESYS)/bin/romebuilder.exe -i macros/macros.xml -o macros -v;
 
 argus/file/flmonitor.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/file/file.xml -o argus/file -v 
