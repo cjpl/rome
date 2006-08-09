@@ -2003,7 +2003,7 @@ void ROMEBuilder::WriteMakefile() {
 
    buffer.AppendFormatted("## Cleaning rules\n");
    buffer.AppendFormatted("depclean:\n");
-   buffer.AppendFormatted("\t-$(RM) obj/*.d\n");
+   buffer.AppendFormatted("\t-$(RM) obj/*.d $(PCHHEADERS)\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("clean: depclean userclean\n");
    buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
