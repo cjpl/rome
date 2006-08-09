@@ -44,7 +44,7 @@ Bool_t MCRdummyDAQ::Event(Long64_t event)
    return true;
 }
 
-Long64_t MCRdummyDAQ::Seek(Long64_t event)
+Long64_t MCRdummyDAQ::Seek(Long64_t /* event */)
 {
    return -1;
 }
