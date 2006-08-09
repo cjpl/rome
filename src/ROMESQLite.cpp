@@ -56,7 +56,8 @@ Bool_t ROMESQLite::DisConnect()
 
 Bool_t ROMESQLite::MakeQuery(const char* query, Bool_t store)
 {
-   ROMEPrint::Debug("\nROMESQLite::MakeQuery : %s\n", query);
+   if (strlen(query) < 2048)
+      ROMEPrint::Debug("\nROMESQLite::MakeQuery : %s\n", query);
    if(store){
       if( (errnum = sqlite_compile(db, query, NULL, &vm, &errmsg)) != SQLITE_OK){
          ROMEPrint::Error("%s\n", query);

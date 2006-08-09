@@ -46,7 +46,8 @@ Bool_t ROMEPgSQL::DisConnect()
 
 Bool_t ROMEPgSQL::MakeQuery(const char* query, Bool_t store)
 {
-   ROMEPrint::Debug("ROMEPgSQL::MakeQuery : %s\n", query);
+   if (strlen(query) < 2048)
+      ROMEPrint::Debug("ROMEPgSQL::MakeQuery : %s\n", query);
    result = PQexec(connection, query);
    if ((PQresultStatus(result) != PGRES_COMMAND_OK) &&
        (PQresultStatus(result) != PGRES_TUPLES_OK)) {
