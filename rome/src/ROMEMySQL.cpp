@@ -39,7 +39,8 @@ Bool_t ROMEMySQL::DisConnect()
 
 Bool_t ROMEMySQL::MakeQuery(const char* query, Bool_t store)
 {
-   ROMEPrint::Debug("ROMEMySQL::MakeQuery : %s\n", query);
+   if (strlen(query) < 2048)
+      ROMEPrint::Debug("ROMEMySQL::MakeQuery : %s\n", query);
    if (mysql_query(&mysql,query)) {
       ROMEPrint::Error("%s\n", query);
       ROMEPrint::Error("Query error : %s\n", GetErrorMessage());
