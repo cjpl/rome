@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Wed Aug  9 18:52:22 2006 -->
+<!-- created by MXML on Thu Aug 10 11:10:26 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -83,9 +83,9 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
 
     <Macros>
       <!-- Description of macros. -->
-      <!-- Macro file name which is executed at the begin of run. It is executed after DAQ::BeginOfRun, before Tasks::BeginOfRun. (optional) -->
+      <!-- Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional) -->
       <BeginOfRun>bor.C</BeginOfRun>
-      <!-- Macro file name which is executed at the begin of event. It is executed after DAQ::Event, before Tasks::Event. (optional) -->
+      <!-- Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional) -->
       <BeginOfEvent>boe.C</BeginOfEvent>
       <!-- Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional) -->
       <EndOfEvent>eoe.C</EndOfEvent>
@@ -100,5 +100,37 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Active>true</Active>
       </Task>
     </Tasks>
+
+    <Trees>
+      <!-- Describes the trees in the framework. -->
+      <Accumulate>false</Accumulate>
+      <Tree>
+        <TreeName>DataTree</TreeName>
+        <!-- Trees can be read into the framework to start the analysis from a previously saved state. Default is false. -->
+        <Read>false</Read>
+        <!-- Trees are written to disc. Default is false. -->
+        <Write>true</Write>
+        <!-- Trees are filled. It will be changed to true when 'Write' is true. Default is false. -->
+        <Fill>true</Fill>
+        <!-- Compression level for all branches of the tree. Default is 0. -->
+        <CompressionLevel>1</CompressionLevel>
+        <!-- If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0. -->
+        <MaxNumberOfEntries>0</MaxNumberOfEntries>
+        <!-- The name of the trees output file. This value overwrites the value specified in the definition file. (optional) -->
+        <TreeOutputFileName></TreeOutputFileName>
+        <Branch>
+          <!-- Description of a branch. -->
+          <BranchName>pmt</BranchName>
+          <!-- Inactive branches are not filled by the framework. (optional) -->
+          <Active>true</Active>
+        </Branch>
+        <Branch>
+          <!-- Description of a branch. -->
+          <BranchName>sum</BranchName>
+          <!-- Inactive branches are not filled by the framework. (optional) -->
+          <Active>true</Active>
+        </Branch>
+      </Tree>
+    </Trees>
   </MainConfiguration>
 </Configuration>

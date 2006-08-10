@@ -30,7 +30,7 @@ Bool_t MCRdummyDAQ::BeginOfRun()
 
 Bool_t MCRdummyDAQ::Event(Long64_t event)
 {
-   if (event >= 100) {
+   if (event >= 100000) {
       SetEndOfRun();
       return kTRUE;
    }

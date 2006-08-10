@@ -396,12 +396,12 @@
 		<xs:sequence>
 			<xs:element name="BeginOfRun" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the begin of run. It is executed after DAQ::BeginOfRun, before Tasks::BeginOfRun. (optional)</xs:documentation>
+					<xs:documentation>Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="BeginOfEvent" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the begin of event. It is executed after DAQ::Event, before Tasks::Event. (optional)</xs:documentation>
+					<xs:documentation>Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="EndOfEvent" type="xs:string" minOccurs="0">
