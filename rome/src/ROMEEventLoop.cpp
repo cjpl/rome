@@ -416,6 +416,9 @@ Int_t ROMEEventLoop::RunEvent()
    }
    if (this->isEndOfRun())
       return kBreak;
+   if (this->isContinue()) {
+      return kContinue;
+   }
 
    // Store Event
    if (gROME->isOnline() || gROME->isSocketOffline())      

@@ -32,4 +32,17 @@
 			<DAQSystemName>dummy</DAQSystemName>
 		</UserDAQSystem>
 	</UserDAQSystems>
+	<Trees>
+		<Tree>
+			<TreeName>DataTree</TreeName>
+			<Branch>
+				<BranchName>pmt</BranchName>
+				<RelatedFolder>PMTData</RelatedFolder>
+			</Branch>
+			<Branch>
+				<BranchName>sum</BranchName>
+				<RelatedFolder>Sum</RelatedFolder>
+			</Branch>
+		</Tree>
+	</Trees>
 </ROMEFrameworkDefinition>
