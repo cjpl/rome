@@ -1225,6 +1225,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
+
    buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | \\\n\tsed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@ ",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
    buffer.AppendFormatted(" || ($(RM) $@; exit 1;)\n");
    buffer.AppendFormatted("\n");
@@ -1537,7 +1538,9 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
    ROMEString path;
    ROMEString name;
    ROMEString ext;
+   Bool_t inIfDef = kFALSE;
    for (i=0;i<numOfMFSources;i++) {
+      inIfDef = kFALSE;
       if (!mfSourceFileUsed[i])
          continue;
       bool *commandLineFlag = new bool[numOfMFSourceFlags[i]];
@@ -1555,12 +1558,16 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          buffer.AppendFormatted("!IFDEF %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-         buffer.AppendFormatted("ifdef %s\n",mfSourceFileFlag[i][j].Data());
+         buffer.AppendFormatted("\nifdef %s\n",mfSourceFileFlag[i][j].Data());
+         inIfDef = kTRUE;
 #endif // R__UNIX
       }
       AnalyzeFileName(mfSourceFileName[i].Data(),path,name,ext);
 #if defined( R__UNIX )
-      buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
+      if (!inIfDef)
+         buffer.AppendFormatted(" \\\n           obj/%s%s",name.Data(),kObjectSuffix);
+      else
+         buffer.AppendFormatted("objects += obj/%s%s",name.Data(),kObjectSuffix);
 #else
       buffer.AppendFormatted("objects %s $(objects) obj/%s%s\n",kEqualSign,name.Data(),kObjectSuffix);
 #endif // R__UNIX
@@ -1571,7 +1578,7 @@ void ROMEBuilder::WriteMakefileAdditionalSourceFilesObjects(ROMEString& buffer)
          buffer.AppendFormatted("!ENDIF # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-         buffer.AppendFormatted("endif # %s\n",mfSourceFileFlag[i][j].Data());
+         buffer.AppendFormatted("\nendif # %s\n",mfSourceFileFlag[i][j].Data());
 #endif // R__UNIX
       }
       delete [] commandLineFlag;
