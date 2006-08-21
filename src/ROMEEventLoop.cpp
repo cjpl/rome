@@ -476,7 +476,11 @@ Bool_t ROMEEventLoop::DAQInit()
    ROMETree *romeTree;
    TTree *tree;
    const Int_t nTree = gROME->GetTreeObjectEntries();
+   Int_t k;
+   Bool_t identicalFileNameFound;
+   TFile *identicalFilePointer;
    for (j=0;j<nTree;j++) {
+      identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
@@ -484,7 +488,17 @@ Bool_t ROMEEventLoop::DAQInit()
             GetTreeFileName(filename,j);
             filename.Insert(0,gROME->GetOutputDir());
             romeTree->SetFileName(filename);
-            romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+            for(k = 0; k < j; k++) {
+               if (filename == gROME->GetTreeObjectAt(k)->GetFileName()) {
+                  identicalFileNameFound = kTRUE;
+                  identicalFilePointer = gROME->GetTreeObjectAt(k)->GetFile();
+                  break;
+               }
+            }
+            if (!identicalFileNameFound) // file is not open yet
+               romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+            else // file is already open
+               romeTree->SetFile(identicalFilePointer);
          }
       }
       else {
@@ -569,8 +583,12 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    ROMETree *romeTree;
    TTree *tree;
    gROME->GetCurrentRunNumberString(runNumberString);
+   Int_t k;
+   Bool_t identicalFileNameFound;
+   TFile *identicalFilePointer;
    const Int_t nTree = gROME->GetTreeObjectEntries();
    for (int j=0;j<nTree;j++) {
+      identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
@@ -578,14 +596,34 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
             GetTreeFileName(filename,j,runNumberString.Data());
             filename.Insert(0,gROME->GetOutputDir());
             if (filename == romeTree->GetFileName()) {
-               romeTree->SetFile(new TFile(filename.Data(),"UPDATE"));
+               for(k = 0; k < j; k++) {
+                  if (filename == gROME->GetTreeObjectAt(k)->GetFileName()) {
+                     identicalFileNameFound = kTRUE;
+                     identicalFilePointer = gROME->GetTreeObjectAt(k)->GetFile();
+                     break;
+                  }
+               }
+               if (!identicalFileNameFound) // file is not open yet
+                  romeTree->SetFile(new TFile(filename.Data(),"UPDATE"));
+               else // file is already open
+                  romeTree->SetFile(identicalFilePointer);
                romeTree->SetFileUpdate();
                fTreeUpdateIndex++;
                treename.SetFormatted("%s_%d",tree->GetName(),fTreeUpdateIndex);
                tree->SetName(treename.Data());
             }
             else {
-               romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+               for(k = 0; k < j; k++) {
+                  if (filename == gROME->GetTreeObjectAt(k)->GetFileName()) {
+                     identicalFileNameFound = kTRUE;
+                     identicalFilePointer = gROME->GetTreeObjectAt(k)->GetFile();
+                     break;
+                  }
+               }
+               if (!identicalFileNameFound) // file is not open yet
+                  romeTree->SetFile(new TFile(filename.Data(),"RECREATE"));
+               else // file is already open
+                  romeTree->SetFile(identicalFilePointer);
                romeTree->SetFileOverWrite();
                fTreeUpdateIndex = 0;
             }
@@ -960,7 +998,10 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
    ROMETree *romeTree;
    TTree *tree;
    const Int_t nTree = gROME->GetTreeObjectEntries();
+   Int_t k;
+   Bool_t identicalFileNameFound;
    for (int j=0;j<nTree;j++) {
+      identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
@@ -980,8 +1021,16 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
                ROMEPrint::Warning("    have different input and output directories.\n");
             }
             tree->SetDirectory(0);
-            romeTree->GetFile()->Close();
-            romeTree->GetFile()->Delete();
+            for(k = nTree - 1; k > j; k--) {
+               if (gROME->GetTreeObjectAt(k)->GetFileName() == gROME->GetTreeObjectAt(j)->GetFileName()) {
+                  identicalFileNameFound = kTRUE;
+                  break;
+               }
+            }
+            if (!identicalFileNameFound) { // file can be closed here
+               romeTree->GetFile()->Close();
+               romeTree->GetFile()->Delete();
+            }
          }
          if (!gROME->isTreeAccumulation())
             tree->Reset();
@@ -1019,7 +1068,10 @@ Bool_t ROMEEventLoop::DAQTerminate()
    ROMETree *romeTree;
    TTree *tree;
    const Int_t nTree = gROME->GetTreeObjectEntries();
+   Int_t k;
+   Bool_t identicalFileNameFound;
    for (int j=0;j<nTree;j++) {
+      identicalFileNameFound = kFALSE;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
@@ -1031,9 +1083,17 @@ Bool_t ROMEEventLoop::DAQTerminate()
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
             }
-         }
-         if (romeTree->GetFile()!=NULL) {
-            romeTree->GetFile()->Close();
+            for(k = nTree - 1; k > j; k--) {
+               if (gROME->GetTreeObjectAt(k)->GetFileName() == gROME->GetTreeObjectAt(j)->GetFileName()) {
+                  identicalFileNameFound = kTRUE;
+                  break;
+               }
+            }
+            if (!identicalFileNameFound) { // file can be closed here
+               if (romeTree->GetFile()!=NULL) {
+                  romeTree->GetFile()->Close();
+               }
+            }
          }
       }
    }
