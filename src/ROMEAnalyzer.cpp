@@ -1334,9 +1334,9 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
       }
       else {
 #if defined( R__VISUAL_CPLUSPLUS )
-         format = "%I64d";
+         format = "%05I64d";
 #else
-         format = "%lld";
+         format = "%05lld";
 #endif
       }
       buffer.Remove(startStr, endStr - startStr);
@@ -1360,9 +1360,9 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
       }
       else {
 #if defined( R__VISUAL_CPLUSPLUS )
-         format = "%I64d";
+         format = "%05I64d";
 #else
-         format = "%lld";
+         format = "%05lld";
 #endif
       }
       buffer.Remove(startStr, endStr - startStr);
