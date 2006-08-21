@@ -354,25 +354,11 @@ public:
    void            SetHistosRead(Bool_t flag) { fHistoRead = flag; }
    void            SetHistosRun(Int_t runNumber) { fHistoRun = runNumber; }
 
+   void            ReplaceWithRunAndEventNumber(ROMEString &buffer);
    // Run Number
-   void            GetRunNumberStringAt(ROMEString &buffer,Int_t i) {
-                      if (i>=fRunNumber.GetSize())
-                         buffer.SetFormatted("%0*d",5,0);
-                      else
-#if defined( R__VISUAL_CPLUSPLUS )
-                         buffer.SetFormatted("%0*I64d",5,fRunNumber.At(i));
-#else
-                         buffer.SetFormatted("%0*lld",5,fRunNumber.At(i));
-#endif
-                   }
+   void            GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format = 0);
    Long64_t        GetRunNumberAt(Int_t i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
-   void            GetCurrentRunNumberString(ROMEString &buffer) {
-#if defined( R__VISUAL_CPLUSPLUS )
-                      buffer.SetFormatted("%0*I64d",5,fCurrentRunNumber);
-#else
-                      buffer.SetFormatted("%0*lld",5,fCurrentRunNumber);
-#endif
-                   }
+   void            GetCurrentRunNumberString(ROMEString &buffer, const char* format = 0);
    Long64_t        GetCurrentRunNumber() { return fCurrentRunNumber; }
    Int_t           GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    const char     *GetRunNumberStringOriginal() { return fRunNumberString.Data(); }

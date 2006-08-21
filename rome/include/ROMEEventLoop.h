@@ -158,7 +158,7 @@ protected:
 
    virtual void InitTrees() = 0;
    virtual void FillTrees() = 0;
-   virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex,const char* runNumber="") = 0;
+   virtual void GetTreeFileName(ROMEString& buffer,Int_t treeIndex) = 0;
 
    virtual void ReadHistograms() = 0;
 

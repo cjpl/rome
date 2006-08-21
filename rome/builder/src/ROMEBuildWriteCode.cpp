@@ -10448,7 +10448,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
    // get tree file names
    buffer.AppendFormatted("// Get Tree File Names\n");
-   buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer,Int_t treeIndex,const char* runNumber) {\n",shortCut.Data());
+   buffer.AppendFormatted("void %sEventLoop::GetTreeFileName(ROMEString& buffer,Int_t treeIndex) {\n",shortCut.Data());
    if (numOfTree>0) {
       buffer.AppendFormatted("   ROMETree *romeTree;\n");
       buffer.AppendFormatted("   switch (treeIndex) {\n");
@@ -10463,7 +10463,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       else
          buffer.AppendFormatted("            buffer.SetFormatted(%s);\n",treeFileName[i].Data());
       buffer.AppendFormatted("         }\n");
-      buffer.AppendFormatted("         buffer.ReplaceAll(\"#\",runNumber);\n");
+      buffer.AppendFormatted("         gROME->ReplaceWithRunAndEventNumber(buffer);\n");
       buffer.AppendFormatted("         break;\n");
    }
    if (numOfTree>0) {
@@ -10633,7 +10633,7 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   // Tree Methodes\n");
    buffer.AppendFormatted("   void InitTrees();\n");
    buffer.AppendFormatted("   void FillTrees();\n");
-   buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex,const char* runNumber=\"\");\n");
+   buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex);\n");
    buffer.AppendFormatted("\n");
 
    // Hot Links
@@ -12001,6 +12001,7 @@ ROMEString& ROMEBuilder::ProcessCommentString(ROMEString& org, ROMEString& resul
    result.ReplaceAll("\n", "\\n\"\n\"");
    return result;
 }
+
 ROMEString& ROMEBuilder::GetSteerPath(ROMEString& steerPath,int iTask,int iSteer,int iField,const char* seperator)
 {
    steerPath.SetFormatted("%s",steerFieldName[iTask][iSteer][iField].Data());

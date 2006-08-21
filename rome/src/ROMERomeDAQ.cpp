@@ -49,6 +49,7 @@ Bool_t ROMERomeDAQ::Init() {
          fRootFiles = new TFile*[nInputFile];
          for (i=0;i<nInputFile;i++) {
             filename.SetFormatted("%s%s",gROME->GetInputDir(),gROME->GetInputFileNameAt(i).Data());
+            gROME->ReplaceWithRunAndEventNumber(filename);
             fRootFiles[i] = new TFile(filename.Data(),"READ");
             if (fRootFiles[i]->IsZombie()) {
                ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
@@ -88,8 +89,15 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             treeRead = true;
+
             if (gROME->IsRunNumberBasedIO()) {
-               filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
+               if(gROME->GetTreeObjectAt(j)->GetConfigFileName().Length()) {
+                  filename = gROME->GetTreeObjectAt(j)->GetConfigFileName();
+                  gROME->ReplaceWithRunAndEventNumber(filename);
+               }
+               else {
+                  filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
+               }
                fRootFiles[j] = new TFile(filename.Data(),"READ");
                if (fRootFiles[j]->IsZombie()) {
                   ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
