@@ -1283,9 +1283,9 @@ void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* 
    }
    else {
 #if defined( R__VISUAL_CPLUSPLUS )
-      form.SetFormatted("%05I64d");
+      form = "%05I64d";
 #else
-      form.SetFormatted("%05lld");
+      form = "%05lld";
 #endif
    }
    if (i>=fRunNumber.GetSize())
@@ -1302,9 +1302,9 @@ void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* for
    }
    else {
 #if defined( R__VISUAL_CPLUSPLUS )
-      form.SetFormatted("%05I64d");
+      form = "%05I64d";
 #else
-      form.SetFormatted("%05lld");
+      form = "%05lld";
 #endif
    }
    buffer.SetFormatted(form.Data(),fCurrentRunNumber);
