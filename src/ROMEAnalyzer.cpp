@@ -1265,13 +1265,109 @@ void ROMEAnalyzer::InitDataBases(Int_t number)
    fNumberOfDataBases = number;
 }
 
-
-
 void ROMEAnalyzer::NextEvent()
 {
    ((ROMEEventLoop*)fMainTask)->NextEvent();
 }
+
 void ROMEAnalyzer::GotoEvent(Long64_t eventNumber)
 {
    ((ROMEEventLoop*)fMainTask)->GotoEvent(eventNumber);
+}
+
+void ROMEAnalyzer::GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format)
+{
+   ROMEString form;
+   if (format) {
+      form = format;
+   }
+   else {
+#if defined( R__VISUAL_CPLUSPLUS )
+      form.SetFormatted("%05I64d");
+#else
+      form.SetFormatted("%05lld");
+#endif
+   }
+   if (i>=fRunNumber.GetSize())
+      buffer.SetFormatted(form.Data(),0);
+   else
+      buffer.SetFormatted(form.Data(),fRunNumber.At(i));
+}
+
+void ROMEAnalyzer::GetCurrentRunNumberString(ROMEString &buffer, const char* format)
+{
+   ROMEString form;
+   if (format) {
+      form = format;
+   }
+   else {
+#if defined( R__VISUAL_CPLUSPLUS )
+      form.SetFormatted("%05I64d");
+#else
+      form.SetFormatted("%05lld");
+#endif
+   }
+   buffer.SetFormatted(form.Data(),fCurrentRunNumber);
+}
+
+void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
+{
+// replace ## with event number.
+// replace # with run number
+// format can be specified like "file#(%05d).root"
+
+   Int_t startStr = 0;
+   Int_t endStr = 0;
+   Int_t startForm = 0;
+   Int_t endForm = 0;
+   ROMEString format;
+   ROMEString insertStr;
+
+   // event number
+   while((startStr = buffer.Index("##", strlen("##"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("##");
+      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
+         startForm = endStr + 1;
+         format = buffer(startForm, endForm - startForm);
+         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
+         endStr = startStr + strlen("##");
+      }
+      else {
+#if defined( R__VISUAL_CPLUSPLUS )
+         format = "%I64d";
+#else
+         format = "%lld";
+#endif
+      }
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted(format.Data(), fCurrentEventNumber);
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
+
+   // run number
+   startStr = 0;
+   endStr = 0;
+   startForm = 0;
+   endForm = 0;
+   while((startStr = buffer.Index("#", strlen("#"), endStr, TString::kExact)) != -1) {
+      endStr = startStr + strlen("#");
+      if (buffer[endStr] == '(' && (endForm = buffer.Index(")", 1, endStr + 1, TString::kExact)) != -1) {
+         startForm = endStr + 1;
+         format = buffer(startForm, endForm - startForm);
+         buffer.Remove(startForm - 1, endForm - startForm + strlen("()"));
+         endStr = startStr + strlen("#");
+      }
+      else {
+#if defined( R__VISUAL_CPLUSPLUS )
+         format = "%I64d";
+#else
+         format = "%lld";
+#endif
+      }
+      buffer.Remove(startStr, endStr - startStr);
+      insertStr.SetFormatted(format.Data(), fCurrentRunNumber);
+      buffer.Insert(startStr, insertStr);
+      endStr = startStr + insertStr.Length();
+   }
 }

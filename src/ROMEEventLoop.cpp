@@ -515,7 +515,6 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    // Connect the Analyzer to the current run. Called before the BeginOfRun tasks.
    ROMEPrint::Debug("Executing DAQ BeginOfRun\n");
 
-   ROMEString runNumberString;
    // Statistics
    Statistics *stat = gROME->GetTriggerStatistics();
    stat->processedEvents = 0;
@@ -553,7 +552,6 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 
    // Set Run Number
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
-   gROME->GetCurrentRunNumberString(runNumberString);
 
    // Reset Sequential Number
    fSequentialNumber = 0;
@@ -582,7 +580,6 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    ROMEString treename;
    ROMETree *romeTree;
    TTree *tree;
-   gROME->GetCurrentRunNumberString(runNumberString);
    Int_t k;
    Bool_t identicalFileNameFound;
    TFile *identicalFilePointer;
@@ -593,7 +590,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
          if (romeTree->isWrite() && !gROME->isTreeAccumulation()) {
-            GetTreeFileName(filename,j,runNumberString.Data());
+            GetTreeFileName(filename,j);
             filename.Insert(0,gROME->GetOutputDir());
             if (filename == romeTree->GetFileName()) {
                for(k = 0; k < j; k++) {
@@ -1062,9 +1059,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
    // Close all files
    ROMEPrint::Debug("Executing DAQ Terminate\n");
 
-   ROMEString runNumberString;
    ROMEString filename;
-   gROME->GetCurrentRunNumberString(runNumberString);
    ROMETree *romeTree;
    TTree *tree;
    const Int_t nTree = gROME->GetTreeObjectEntries();

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Mon Aug 21 14:28:24 2006 -->
+<!-- created by MXML on Mon Aug 21 18:50:28 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -83,7 +83,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Fill>false</Fill>
         <CompressionLevel>0</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
-        <TreeOutputFileName>Data.root</TreeOutputFileName>
+        <TreeOutputFileName>Data#(%07d).root</TreeOutputFileName>
         <Branch>
           <BranchName>DataBranch</BranchName>
           <Active>true</Active>
@@ -97,7 +97,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Fill>false</Fill>
         <CompressionLevel>0</CompressionLevel>
         <MaxNumberOfEntries>0</MaxNumberOfEntries>
-        <TreeOutputFileName>Data.root</TreeOutputFileName>
+        <TreeOutputFileName>Data#(%07d).root</TreeOutputFileName>
         <Branch>
           <BranchName>DataBranch</BranchName>
           <Active>true</Active>
