@@ -481,6 +481,7 @@ Bool_t ROMEEventLoop::DAQInit()
    TFile *identicalFilePointer;
    for (j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
+      identicalFilePointer = 0;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
@@ -586,6 +587,7 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
    const Int_t nTree = gROME->GetTreeObjectEntries();
    for (int j=0;j<nTree;j++) {
       identicalFileNameFound = kFALSE;
+      identicalFilePointer = 0;
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isFill()) {
          tree = romeTree->GetTree();
