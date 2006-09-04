@@ -10473,7 +10473,6 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    if (numOfTree<=0) {
       buffer.AppendFormatted("   WarningSuppression(buffer);\n");
       buffer.AppendFormatted("   WarningSuppression(treeIndex);\n");
-      buffer.AppendFormatted("   WarningSuppression(runNumber);\n");
    }
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
