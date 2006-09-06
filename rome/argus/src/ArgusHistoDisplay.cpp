@@ -179,6 +179,17 @@ TGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
    }
    return NULL;
 }
+TH1* ArgusHistoDisplay::GetUserHistoAt(Int_t index,const char* type)
+{
+   int i;
+   for (i = 0; i < fUserObjects->GetEntriesFast(); i++) {
+      if (((TObjArray*)fUserObjects->At(i))->GetEntriesFast()>index) {
+         if (!strcmp(((TObjArray*)fUserObjects->At(i))->At(index)->ClassName(),type))
+            return ((TH1*)((TObjArray*)fUserObjects->At(i))->At(index));
+      }
+   }
+   return NULL;
+}
 
 TLine* ArgusHistoDisplay::GetUserLineAt(Int_t histoIndex,Int_t lineIndex)
 {

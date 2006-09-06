@@ -722,7 +722,8 @@ Bool_t ROMEEventLoop::Update()
 
          if (fUpdateWindow || gROME->IsEventHandlingRequested()) {
             if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency()) || gROME->IsEventHandlingRequested()) {
-               gROME->GetWindow()->TriggerEventHandler();
+               if (!gROME->IsStandAloneARGUS())
+                  gROME->GetWindow()->TriggerEventHandler();
                fLastUpdateTime = (ULong_t)gSystem->Now();
             }
          }
