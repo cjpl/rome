@@ -27,6 +27,7 @@ class TText;
 class TPad;
 class TGraph;
 class TLine;
+class TH1;
 class XMLToForm;
 
 class ArgusHistoDisplay : public ArgusTab
@@ -98,6 +99,7 @@ public:
 
    void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
    TGraph* GetUserTGraphAt(Int_t index);
+   TH1* GetUserHistoAt(Int_t index,const char* type);
    TObject* GetCurrentObjectAt(Int_t index);
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);

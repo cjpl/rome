@@ -1918,12 +1918,16 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      }
                      found = false;
                      for (i=0;i<tabObjectSupportedHistos.GetEntriesFast() && !found;i++) {
-                        if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TGraph") {
-                           found = true;
-                           tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
-                           tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
-                           tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
-                           tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                        for (k=0;k<tabObjectSupportedHistos.GetEntriesFast();k++) {
+                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TGraph" ||
+                               tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == tabObjectSupportedHistos.At(k)) {
+                              found = true;
+                              tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
+                              tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                              tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                              tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                              break;
+                           }
                         }
                      }
                      int num = 0;
