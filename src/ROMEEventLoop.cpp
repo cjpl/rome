@@ -263,6 +263,18 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       gROME->GetWindow()->TriggerEventHandler();
    }
 
+   // Terminate
+   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+      if (!this->DAQTerminate()) {
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return;
+      }
+      ROMEPrint::Debug("Executing Terminate tasks\n");
+      ExecuteTasks("Terminate");
+      CleanTasks();
+   }
+
    // Root Interpreter
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEString prompt = gROME->GetProgramName();
@@ -275,17 +287,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       }
    }
 
-   // Terminate
-   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      if (!this->DAQTerminate()) {
-         gROME->SetTerminationFlag();
-         ROMEPrint::Print("\n\nTerminating Program !\n");
-         return;
-      }
-      ROMEPrint::Debug("Executing Terminate tasks\n");
-      ExecuteTasks("Terminate");
-      CleanTasks();
-   }
 }
 
 Int_t ROMEEventLoop::RunEvent()
@@ -629,9 +630,11 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
             romeTree->SetFileName(filename);
          }
          else {
-            romeTree->SetFile(0);
-            filename = "";
-            romeTree->SetFileName(filename);
+            if (!gROME->isTreeAccumulation()) {
+               romeTree->SetFile(0);
+               filename = "";
+               romeTree->SetFileName(filename);
+            }
          }
       }
    }
@@ -1073,6 +1076,7 @@ Bool_t ROMEEventLoop::DAQTerminate()
       romeTree = gROME->GetTreeObjectAt(j);
       if (romeTree->isWrite() && romeTree->isFill()) {
          if (gROME->isTreeAccumulation()) {
+            romeTree->UpdateFilePointer();
             romeTree->GetFile()->cd();
             tree = romeTree->GetTree();
             ROMEPrint::Print("\nWriting Root-File %s\n", romeTree->GetFileName().Data());
