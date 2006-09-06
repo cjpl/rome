@@ -1359,10 +1359,13 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
          endStr = startStr + strlen("#");
       }
       else {
+         if (gROME->isTreeAccumulation())
+            format = gROME->GetRunNumberStringOriginal();
+         else
 #if defined( R__VISUAL_CPLUSPLUS )
-         format = "%05I64d";
+            format = "%05I64d";
 #else
-         format = "%05lld";
+            format = "%05lld";
 #endif
       }
       buffer.Remove(startStr, endStr - startStr);
