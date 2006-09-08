@@ -841,9 +841,14 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
-         minRebuild = true;
          outDir = "C:/Data/Testprojects/jan/wi-rome-ls-intel/";
          xmlFile = "C:/Data/Testprojects/jan/wi-rome-ls-intel/WIArgon.xml";
+      }
+      else if (!strcmp(argv[i],"-gsptest")) {
+         noLink = true;
+         minRebuild = true;
+         outDir = "C:/rome/examples/GSPTest/";
+         xmlFile = "C:/rome/examples/GSPTest/gsptest.xml";
       }
       // -- only for testing (end) --
       else if (!strcmp(argv[i],"-v")) {

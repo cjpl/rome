@@ -151,6 +151,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fPortNumber = 9090;
    fSocketOffline = false;
    fDataBaseHandle = 0;
+   fDataBaseName = 0;
+   fDataBaseDir = 0;
    fDataBaseConnection = 0;
    fNumberOfDataBases = 0;
    fConfiguration = 0;
