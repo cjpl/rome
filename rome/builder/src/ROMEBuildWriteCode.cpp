@@ -5960,7 +5960,15 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
          buffer.AppendFormatted("{\n");
          buffer.AppendFormatted("   int i;\n");
          buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
-         buffer.AppendFormatted("   ROMEString str = \"\";\n");
+         buffer.AppendFormatted("   bool writeFlag;\n");
+         buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   ROMEString str;\n");
+         buffer.AppendFormatted("   ROMEString subStr = \"\";\n");
+         buffer.AppendFormatted("   ROMEString writeString;\n");
+         buffer.AppendFormatted("   ROMEString path = \"\";\n");
+         buffer.AppendFormatted("   ROMEString subPath = \"\";\n");
+         buffer.AppendFormatted("   int ind;\n");
+         buffer.AppendFormatted("   ind = 0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   char *cstop;\n");
          buffer.AppendFormatted("   cstop = NULL;\n"); // to suppress unused warning
          tab = 0;
