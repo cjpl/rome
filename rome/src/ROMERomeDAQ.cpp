@@ -192,21 +192,21 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          }
       }
 
-      // Prepare sequential number array
+      // Prepare event number array
       Int_t iEvent;
-      fMaxSeqNumber = 0;
-      fTreeInfo->SetSequentialNumber(0);
+      fMaxEventNumber = 0;
+      fTreeInfo->SetEventNumber(0);
       for (j=0;j<nTree;j++) {
          romeTree = gROME->GetTreeObjectAt(j);
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
-            fTreePositionArray[j] = new Long64_t[fTreeNEntries[j]];
+            fTreePositionArray[j] = new Long64_t[(int)fTreeNEntries[j]]; // Warning : potential loss of data (int)
             for(iEvent = 0; iEvent < fTreeNEntries[j]; iEvent++) {
                tree->GetBranch("Info")->GetEntry(iEvent);
-               fTreePositionArray[j][iEvent] = fTreeInfo->GetSequentialNumber();
+               fTreePositionArray[j][iEvent] = fTreeInfo->GetEventNumber();
             }
-            if (fMaxSeqNumber < fTreeInfo->GetSequentialNumber())
-               fMaxSeqNumber = fTreeInfo->GetSequentialNumber();
+            if (fMaxEventNumber < fTreeInfo->GetEventNumber())
+               fMaxEventNumber = fTreeInfo->GetEventNumber();
          }
          else {
             fTreePositionArray[j] = 0;
@@ -224,7 +224,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
       bool found = false;
       const Int_t nTree = gROME->GetTreeObjectEntries();
 
-      if (event > fMaxSeqNumber) {
+      if (event > fMaxEventNumber) {
          this->SetEndOfRun();
          return true;
       }
@@ -263,8 +263,8 @@ Long64_t ROMERomeDAQ::Seek(Long64_t event)
    if (gROME->isOffline()) {
       if (event < 0)
          event = 0;
-      if (event > fMaxSeqNumber)
-         event = fMaxSeqNumber;
+      if (event > fMaxEventNumber)
+         event = fMaxEventNumber;
 
       return event;
    }

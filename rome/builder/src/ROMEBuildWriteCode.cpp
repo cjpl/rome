@@ -4628,15 +4628,15 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("\n\n");
 
    // includes
-#if !defined (ENABLE_FASTCOPY)
-   buffer.AppendFormatted("#include <TMutex.h>\n");
-#endif
    buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
    buffer.AppendFormatted("#include <RConfig.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
+#if !defined (ENABLE_FASTCOPY)
+   buffer.AppendFormatted("#include <TMutex.h>\n");
+#endif
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFile.h>\n");
@@ -10434,13 +10434,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       }
       buffer.AppendFormatted("      if (write) {\n");
       buffer.AppendFormatted("         written = true;\n");
-      buffer.AppendFormatted("         fTreeInfo->SetSequentialNumber(fSequentialNumber);\n");
       buffer.AppendFormatted("         romeTree->GetTree()->Fill();\n");
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
    }
    buffer.AppendFormatted("   if (written) {\n");
-   buffer.AppendFormatted("      fSequentialNumber++;\n");
    buffer.AppendFormatted("      stat->writtenEvents++;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("}\n");

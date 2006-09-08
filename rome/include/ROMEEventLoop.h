@@ -55,7 +55,6 @@ protected:
 
    // Output Tree Files
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
-   Long64_t      fSequentialNumber;                //! Sequential Number
    Int_t         fTreeUpdateIndex;                 //! Index of the tree (for trees in the same file)
 
    // Histo File
