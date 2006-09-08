@@ -4477,7 +4477,6 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    // Show Configuration
    buffer.AppendFormatted("Bool_t %sAnalyzer::ShowConfigurationFile()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   int i=0;\n");
    buffer.AppendFormatted("   bool writeFlag;\n");
    buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString str;\n");
@@ -5336,7 +5335,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("Bool_t %sWindow::AddMenuNetFolder(TGPopupMenu* menu)\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 )\n");
-   buffer.AppendFormatted("   if (gAnalyzer->GetNumberOfNetFolders() <= 0 )\n");
    buffer.AppendFormatted("      return kFALSE;\n");
    buffer.AppendFormatted("   Bool_t active = kFALSE;\n");
    for (i = 0; i < numOfNetFolder; i++) {
@@ -6001,6 +5999,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
             for (j=0;j<parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups();j++)
                buffer.AppendFormatted("%s   if (!Save%s(dialog)) return false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data(),shortCut.Data());
          }
+         buffer.AppendFormatted("   return true;\n");
+         buffer.AppendFormatted("   WarningSuppression(dialog);\n");
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("}\n");
          if ((level==0 && parGroup->GetSubGroupAt(i)->GetGroupName()=="Tasks")) {
