@@ -19,7 +19,7 @@ protected:
    Int_t         fTreeIndex;                       //! Index of tree in current file
    Int_t         fInputFileNameIndex;              //! Index of current input file name
    ROMEString    fCurrentTreeName;                 //! Name of the current tree
-   Long64_t      fMaxSeqNumber;                    //! Maximum among trees
+   Long64_t      fMaxEventNumber;                  //! Maximum Event Number among trees
 
    // Tree Info
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object

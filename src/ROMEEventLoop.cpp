@@ -59,7 +59,6 @@ ClassImp(ROMEEventLoop)
 ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title,0)
 {
    fTreeInfo = new ROMETreeInfo();
-   fSequentialNumber = 0;
    fContinuous = true;
    fUserInputLastTime = 0;
    fTreeUpdateIndex = 0;
@@ -554,10 +553,6 @@ Bool_t ROMEEventLoop::DAQBeginOfRun(Long64_t eventLoopIndex)
 
    // Set Run Number
    fTreeInfo->SetRunNumber(gROME->GetCurrentRunNumber());
-
-   // Reset Sequential Number
-   fSequentialNumber = 0;
-
 
    // Update Data Base
    if (!gROME->ReadSingleDataBaseFolders()) {

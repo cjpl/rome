@@ -512,7 +512,7 @@ public:
    Statistics     *GetScalerStatistics() { return &fScalerStatistics; }
 
    // Start Method
-   virtual Bool_t  Start(int argc=0, char **argv=NULL);
+   Bool_t  Start(int argc=0, char **argv=NULL);
 
    // Run/Event Number Handling
    void            DecodeNumbers(ROMEString &str,TArrayL64 &arr);
