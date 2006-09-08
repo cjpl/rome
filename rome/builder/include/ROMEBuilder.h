@@ -528,7 +528,7 @@ private:
    Bool_t  WriteConfigToFormCpp();
    Bool_t  WriteConfigToFormH();
    Bool_t  WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString tabPointer,ROMEString configPointer,int level,int tab);
-   Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer,int tab,ROMEString indexes);
+   Bool_t  WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,ROMEString pointer,ROMEString tabPointer,ROMEString configPointer,int level,int tab,ROMEString indexes);
    Bool_t  WriteConfigCpp();
    Bool_t  WriteConfigH();
    Bool_t  AddConfigParameters();
