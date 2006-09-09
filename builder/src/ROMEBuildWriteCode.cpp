@@ -5816,12 +5816,6 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
    }
 
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArraySize()!="unknown") {
-         buffer.AppendFormatted("%sint i%d;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         break;
-      }
-   }
-   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       if (level==0 || (level==1 && parGroup->GetGroupName()=="Tasks")) {
          buffer.AppendFormatted("void %sConfigToForm::Add%s(XMLToFormFrame *frame)\n",shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("{\n");
@@ -5838,8 +5832,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
          buffer.AppendFormatted("   XMLToFormFrame *tempFrame[100];\n");
          buffer.AppendFormatted("   int nTabs;\n");
          buffer.AppendFormatted("   nTabs=0;\n");
-         buffer.AppendFormatted("   int i;\n");
-         buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   int i,ii[100];\n");
+         buffer.AppendFormatted("   i = 0;ii[0]=0;\n"); // to suppress unused warning
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   tempFrame[%d] = frame;\n",level);
       }
@@ -5874,8 +5868,8 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
             buffer.AppendFormatted("%s}\n",sTab.Data());
          }
          else {
-            buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-            buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d\",i%d);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%sfor (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   str.SetFormatted(\"%s %%d\",ii[%d]);\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             comment = ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data();
             buffer.AppendFormatted("%s   comment = \"\";\n",sTab.Data());
             if (comment.Length()>0) {
@@ -5883,7 +5877,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSubMethods(ROMEString &buffer,ROMEConfigPar
                buffer.AppendFormatted("%s      comment = \"%s\";\n",sTab.Data(),comment.Data());
             }
             buffer.AppendFormatted("%s   tempFrame[%d]->AddSubFrame(new XMLToFormFrame(tempFrame[%d],str.Data(),\"\",true,XMLToFormFrame::kListTreeItem,true,0,comment.Data()));\n",sTab.Data(),level,level);
-            buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(i%d);\n",sTab.Data(),level+1,level,parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   tempFrame[%d] = tempFrame[%d]->GetSubFrameAt(ii[%d]);\n",sTab.Data(),level+1,level,parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             WriteConfigToFormSubMethods(buffer,parGroup->GetSubGroupAt(i),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data(),level+1,tab+1);
             buffer.AppendFormatted("%s}\n",sTab.Data());
          }
@@ -5947,17 +5941,11 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
       }
    }
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArraySize()!="unknown") {
-         buffer.AppendFormatted("%s   int i%d;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         break;
-      }
-   }
-   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       if (level==0 || (level==1 && parGroup->GetGroupName()=="Tasks")) {
          buffer.AppendFormatted("Bool_t %sAnalyzer::Save%s(%sConfigToForm *dialog)\n",shortCut.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),shortCut.Data());
          buffer.AppendFormatted("{\n");
-         buffer.AppendFormatted("   int i;\n");
-         buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
+         buffer.AppendFormatted("   int i,ii[100];\n");
+         buffer.AppendFormatted("   i = 0;ii[0]=0;\n"); // to suppress unused warning
          buffer.AppendFormatted("   bool writeFlag;\n");
          buffer.AppendFormatted("   writeFlag = true;\n"); // to suppress unused warning
          buffer.AppendFormatted("   ROMEString str;\n");
@@ -5987,9 +5975,9 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
             buffer.AppendFormatted("%s   }\n",sTab.Data());
          }
          else {
-            buffer.AppendFormatted("%s   for (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   for (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             newPointer.SetFormatted("%s%s %%d/",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
-            newIndexes.AppendFormatted(",i%d",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            newIndexes.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             WriteConfigToFormSave(buffer,parGroup->GetSubGroupAt(i),newPointer.Data(),tabPointer+parGroup->GetSubGroupAt(i)->GetGroupName().Data()+"/",newConfigPointer.Data(),level+1,tab+1,newIndexes);
             buffer.AppendFormatted("%s   }\n",sTab.Data());
          }
@@ -6210,10 +6198,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
-   for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d;\n",i);
-      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
-   }
+   buffer.AppendFormatted("   int ii[100];\n",i);
+   buffer.AppendFormatted("   ii[0] = 0;\n",i); // to suppress unused warning
    WriteConfigRead(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -6223,10 +6209,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::CheckConfigurationModified(Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
-   for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d;\n",i);
-      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
-   }
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    WriteConfigCheckModified(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -6301,10 +6285,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Set Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::SetConfiguration(Int_t modIndex,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
-   for (i=0;i<maxConfigParameterHierarchyLevel+1;i++) {
-      buffer.AppendFormatted("   int i%d;\n",i);
-      buffer.AppendFormatted("   i%d = 0;\n",i); // to suppress unused warning
-   }
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char* cstop;\n");
    buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    buffer.AppendFormatted("   ROMEString path = \"\";\n");
@@ -6377,6 +6359,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
    buffer.AppendFormatted("   int i;\n");
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    WriteConfigWrite(buffer,mainParGroup,1,"","");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n");
@@ -7450,23 +7434,23 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          subSubGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(i%d,##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(ii[%d],##.Data());",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else
-            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(i%d,(%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
+            subSubGroup->GetLastParameter()->AddSetLine("   %s->Set%sAt(ii[%d],(%s)%s);",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel(),steerFieldType[numTask][numSteer][i].Data(),decodedValue.Data());
          GetFormat(&formatValue,steerFieldType[numTask][numSteer][i].Data());
          subSubGroup->GetLastParameter()->AddWriteLine("if (%s) {",taskPointer.Data());
          if (steerFieldType[numTask][numSteer][i]=="TString" || steerFieldType[numTask][numSteer][i]=="ROMEString")
-            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(ii[%d]).Data());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else if (steerFieldType[numTask][numSteer][i]=="std::string")
-            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d).c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(ii[%d]).c_str());",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          else if (isBoolType(steerFieldType[numTask][numSteer][i].Data())) {
-            subSubGroup->GetLastParameter()->AddWriteLine("   if (%s->Get%sAt(i%d))",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   if (%s->Get%sAt(ii[%d]))",steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
             subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"true\";");
             subSubGroup->GetLastParameter()->AddWriteLine("   else");
             subSubGroup->GetLastParameter()->AddWriteLine("      writeString = \"false\";");
          }
          else
-            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(i%d));",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
+            subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"%s\",%s->Get%sAt(ii[%d]));",formatValue.Data(),steerPointer.Data(),steerFieldName[numTask][numSteer][i].Data(),subSubGroup->GetHierarchyLevel());
          subSubGroup->GetLastParameter()->AddWriteLine("}");
          subSubGroup->GetLastParameter()->AddWriteLine("else {");
          subSubGroup->GetLastParameter()->AddWriteLine("   writeString.SetFormatted(\"\");");
@@ -7514,7 +7498,7 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          subGroup->AddSubGroup(subSubGroup);
          if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
             maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
-         steerPointerT.SetFormatted("%s->Get%sAt(i%d)",steerPointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),subSubGroup->GetHierarchyLevel());
+         steerPointerT.SetFormatted("%s->Get%sAt(ii[%d])",steerPointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data(),subSubGroup->GetHierarchyLevel());
       }
       else
          steerPointerT.SetFormatted("%s->Get%s()",steerPointer.Data(),steerName[numTask][steerChildren[numTask][numSteer][i]].Data());
@@ -7679,7 +7663,7 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          buffer.AppendFormatted("%s      fConfigData[index]->%sf%s[i] = new ConfigData::%s();\n",sTab.Data(),groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-         buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         buffer.AppendFormatted("%sfor (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
       }
       indexesT = indexes;
       classNameT.SetFormatted("%s%s::",className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -7699,8 +7683,8 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
          else
             groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
-         indexesT.AppendFormatted(",i%d",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         indexesT.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          WriteConfigRead(buffer,parGroup->GetSubGroupAt(i),tab+1,groupNameT,classNameT,pointerT,indexesT);
       }
       else {
@@ -7740,7 +7724,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
          buffer.AppendFormatted("%s   for (i=0;i<fConfigData[index]->%sf%sArraySize;i++) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-         buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         buffer.AppendFormatted("%sfor (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
       }
       indexesT = indexes;
       classNameT.SetFormatted("%s%s::",className.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -7760,8 +7744,8 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
             groupNameT.SetFormatted("%s%s[%s='%s'][%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetNameIdentifier().Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
          else
             groupNameT.SetFormatted("%s%s[%s%%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetArrayIdentifier().Data());
-         indexesT.AppendFormatted(",i%d",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         indexesT.AppendFormatted(",ii[%d]",parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          WriteConfigCheckModified(buffer,parGroup->GetSubGroupAt(i),tab+1,groupNameT,classNameT,pointerT,indexesT);
       }
       else {
@@ -7779,7 +7763,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
             if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
                buffer.AppendFormatted("fConfigData[index]->%sf%s[i]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
             else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1")
-               buffer.AppendFormatted("fConfigData[index]->%sf%s[i%d]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
+               buffer.AppendFormatted("fConfigData[index]->%sf%s[ii[%d]]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
             else
                buffer.AppendFormatted("fConfigData[index]->%sf%s->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetParameterAt(j)->GetName());
             if (j<parGroup->GetSubGroupAt(i)->GetNumberOfParameters()-1 || parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups()!=0)
@@ -7789,7 +7773,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
             if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
                buffer.AppendFormatted("fConfigData[index]->%sf%s[i]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
             else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1")
-               buffer.AppendFormatted("fConfigData[index]->%sf%s[i%d]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
+               buffer.AppendFormatted("fConfigData[index]->%sf%s[ii[%d]]->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
             else
                buffer.AppendFormatted("fConfigData[index]->%sf%s->f%sModified",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
             if (j<parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups()-1)
@@ -7801,7 +7785,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
             buffer.AppendFormatted("%s   fConfigData[index]->%sf%sArrayModified = true;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-            buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified[i%d] = true;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified[ii[%d]] = true;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
             buffer.AppendFormatted("%s   fConfigData[index]->%sf%sArrayModified = true;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          else {
@@ -7813,7 +7797,7 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
             buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified[i] = false;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1")
-            buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified[i%d] = false;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified[ii[%d]] = false;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          else {
             buffer.AppendFormatted("%s   fConfigData[index]->%sf%sModified = false;\n",sTabT.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
@@ -7867,9 +7851,9 @@ Bool_t ROMEBuilder::WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *
          pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-         buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         buffer.AppendFormatted("%sfor (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          tabT += 1;
-         pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
       }
       WriteConfigSet(buffer,parGroup->GetSubGroupAt(i),tabT,groupNameT,pointerT);
       if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown") {
@@ -7931,12 +7915,6 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
    }
    // Sub Groups
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1" && parGroup->GetSubGroupAt(i)->GetArraySize()!="unknown") {
-         buffer.AppendFormatted("%sint i%d;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
-         break;
-      }
-   }
-   for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
       sTabT = sTab;
       tabT = tab;
       groupNameT.SetFormatted("%s%s/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
@@ -7957,14 +7935,14 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
          pointerT.SetFormatted("%sf%s[i]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
       else if (parGroup->GetSubGroupAt(i)->GetArraySize()!="1") {
-         buffer.AppendFormatted("%sfor (i%d=0;i%d<%s;i%d++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         buffer.AppendFormatted("%sfor (ii[%d]=0;ii[%d]<%s;ii[%d]++) {\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel(),parGroup->GetSubGroupAt(i)->GetArraySize().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
-            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[i%d] || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[ii[%d]] || index==0) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          else
-            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[i%d]) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   if (fConfigData[index]->%sf%sModified[ii[%d]]) {\n",sTab.Data(),pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          tabT += 1;
          sTabT += "   ";
-         pointerT.SetFormatted("%sf%s[i%d]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+         pointerT.SetFormatted("%sf%s[ii[%d]]->",pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
       }
       else {
          if (parGroup->GetSubGroupAt(i)->IsWriteAlways())
@@ -7996,7 +7974,7 @@ Bool_t ROMEBuilder::WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup
          if (parGroup->GetSubGroupAt(i)->GetArraySize()=="unknown")
             buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i);\n",sTabT.Data());
          else
-            buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",i%d);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
+            buffer.AppendFormatted("%s   str.SetFormatted(\"%%d\",ii[%d]);\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetHierarchyLevel());
          if (parGroup->GetSubGroupAt(i)->GetComment().Length()) {
             buffer.AppendFormatted("%s   if (fCommentLevel >= %d)\n",sTabT.Data(),parGroup->GetSubGroupAt(i)->GetCommentLevel());
             buffer.AppendFormatted("%s      xml->WriteComment(\"%s\");\n",sTabT.Data(),ProcessCommentString(parGroup->GetSubGroupAt(i)->GetComment(),temp).Data());
