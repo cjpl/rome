@@ -83,6 +83,7 @@
 #include "ROMEConfig.h"
 #include "ArgusTab.h"
 #include "ROMEDataBase.h"
+#include "ROMEXML.h"
 
 ClassImp(ROMEAnalyzer)
 
@@ -249,6 +250,9 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 #if !defined (ENABLE_FASTCOPY)
    AddFolderStorageTreeBranches();
 #endif
+
+   // disable writing date and time in XML files written by mxml.
+   ROMEXML::SuppressWritingDate();
 
    ROMEPrint::Debug("Executing init tasks\n");
    fMainTask->ExecuteTask("init");
