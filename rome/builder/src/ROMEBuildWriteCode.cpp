@@ -7429,7 +7429,10 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          subGroup->AddSubGroup(subSubGroup);
          if (subSubGroup->GetHierarchyLevel()>maxConfigParameterHierarchyLevel)
             maxConfigParameterHierarchyLevel = subSubGroup->GetHierarchyLevel();
-         subSubGroup->AddParameter(new ROMEConfigParameter("SPFieldArrayValue","1"));
+         if (isBoolType(steerFieldType[numTask][numSteer][i].Data()))
+            subSubGroup->AddParameter(new ROMEConfigParameter("SPFieldArrayValue","1","CheckButton"));
+         else
+            subSubGroup->AddParameter(new ROMEConfigParameter("SPFieldArrayValue","1"));
          subSubGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelSP, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          subSubGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
@@ -7457,7 +7460,10 @@ Bool_t ROMEBuilder::AddSteeringConfigParameters(ROMEConfigParameterGroup *parGro
          subSubGroup->GetLastParameter()->AddWriteLine("}");
       }
       else {
-         subGroup->AddParameter(new ROMEConfigParameter("SPValue","1"));
+         if (isBoolType(steerFieldType[numTask][numSteer][i].Data()))
+            subGroup->AddParameter(new ROMEConfigParameter("SPValue","1","CheckButton"));
+         else
+            subGroup->AddParameter(new ROMEConfigParameter("SPValue","1"));
          subGroup->GetLastParameter()->SetComment(ROMEConfig::kCommentLevelNever, ProcessCommentString(steerFieldShortDescription[numTask][numSteer][i],tmp).Data());
          setValue(&decodedValue,"","##",steerFieldType[numTask][numSteer][i].Data(),1);
          subGroup->GetLastParameter()->AddSetLine("if (%s)",taskPointer.Data());
