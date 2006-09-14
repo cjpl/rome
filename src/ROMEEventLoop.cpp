@@ -291,6 +291,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 Int_t ROMEEventLoop::RunEvent()
 {
    // Run one Event.
+   fCurrentEvent = gROME->GetCurrentEventNumber();
    fCurrentEvent++;
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
@@ -656,6 +657,9 @@ Bool_t ROMEEventLoop::DAQEvent()
    if (!gROME->GetActiveDAQ()->EventDAQ(fCurrentEvent))
       return false;
    if (this->isContinue()) {
+      return true;
+   }
+   if (this->isEndOfRun()) {
       return true;
    }
 
