@@ -41,13 +41,14 @@ protected:
    TGHorizontalFrame  *fHorizontalFrame[2];
    TGNumberEntryField *fRunNumberEntry;
    TGNumberEntryField *fEventNumberEntry;
-//   TGNumberEntry      *fEventStepEntry;
-//   TGNumberEntry      *fEventIntervalEntry;
+   TGNumberEntry      *fEventStepEntry;
+   TGNumberEntry      *fEventIntervalEntry;
    TGLabel            *fRunNumberLabel;
    TGLabel            *fEventNumberLabel;
-//   TGLabel            *fEventStepLabel;
-//   TGLabel            *fEventIntervalLabel;
+   TGLabel            *fEventStepLabel;
+   TGLabel            *fEventIntervalLabel;
    TGPictureButton    *fPlayButton;
+   TGPictureButton    *fBackButton;
    TGPictureButton    *fNextButton;
    TGPictureButton    *fStopButton;
 //   TGPictureButton  *fFrwdButton;
@@ -56,6 +57,7 @@ protected:
 
    enum CommandIdentifiers{
       B_Play,
+      B_Back,
       B_Next,
       B_Stop,
       B_Frwd,
