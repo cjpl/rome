@@ -236,14 +236,10 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                   command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() - fEventStep + 1);
 #endif
                   fNetFolder->ExecuteCommand(command.Data());
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
                }
             }
             else {
                gROME->SetUserEventJ(gROME->GetCurrentEventNumber() - fEventStep + 1);
-               gROME->SetUserEventO();
-               gROME->SetUserEventR();
             }
             break;
          case B_Next:
@@ -256,14 +252,10 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                   command.SetFormatted("gAnalyzer->SetUserEventJ(%lld);", gROME->GetCurrentEventNumber() + fEventStep + 1);
 #endif
                   fNetFolder->ExecuteCommand(command.Data());
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventO();");
-                  fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
                }
             }
             else {
                gROME->SetUserEventJ(gROME->GetCurrentEventNumber() + fEventStep + 1);
-               gROME->SetUserEventO();
-               gROME->SetUserEventR();
             }
             break;
          case B_Stop:
@@ -304,12 +296,12 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          case T_EventNumber:
             fEventNumber = fEventNumberEntry->GetIntNumber();
             break;
-          case T_EventStep:
-             fEventStep = fEventStepEntry->GetIntNumber();
-             break;
-          case T_EventInterval:
-             fEventInterval = fEventIntervalEntry->GetIntNumber();
-             break;
+         case T_EventStep:
+            fEventStep = fEventStepEntry->GetIntNumber();
+            break;
+         case T_EventInterval:
+            fEventInterval = fEventIntervalEntry->GetIntNumber();
+            break;
          default:
             break;
          }
@@ -325,12 +317,12 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                if (gROME->IsStandAloneARGUS()) {
                   if (fNetFolder) {
                      ROMEString str;
-                     str.SetFormatted("gAnalyzer->SetUserEventJ(%d);",fEventNumber);
+                     str.SetFormatted("gAnalyzer->SetUserEventJ(%d);",fEventNumber + 1);
                      fNetFolder->ExecuteCommand(str.Data());
                   }
                }
                else {
-                  gROME->SetUserEventJ(fEventNumber);
+                  gROME->SetUserEventJ(fEventNumber + 1);
                }
             }
             break;
