@@ -291,7 +291,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 Int_t ROMEEventLoop::RunEvent()
 {
    // Run one Event.
-   fCurrentEvent = gROME->GetCurrentEventNumber();
    fCurrentEvent++;
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
@@ -716,6 +715,7 @@ Bool_t ROMEEventLoop::Update()
          }
       }
    }
+
    if (!gROME->isBatchMode() &&
        ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
