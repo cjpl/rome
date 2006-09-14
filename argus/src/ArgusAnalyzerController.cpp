@@ -52,10 +52,10 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    // Horizontal frame which contains picture buttons
    fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 4 + 4, 32 + 4);
 
-   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
    fPreviousButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/previous.xpm"), B_Previous);
-   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
+   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
    fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
+   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
 
@@ -75,17 +75,17 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->SetToolTipText("Go to end of run");
 
-   fPlayButton->Associate(this);
    fPreviousButton->Associate(this);
-   fNextButton->Associate(this);
+   fPlayButton->Associate(this);
    fStopButton->Associate(this);
+   fNextButton->Associate(this);
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->Associate(this);
 
-   fHorizontalFrame[0]->AddFrame(fPlayButton, new TGLayoutHints(kLHintsCenterY, 2, 0, 2, 2));
    fHorizontalFrame[0]->AddFrame(fPreviousButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fNextButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
+   fHorizontalFrame[0]->AddFrame(fPlayButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
    fHorizontalFrame[0]->AddFrame(fStopButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
+   fHorizontalFrame[0]->AddFrame(fNextButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
    // comment out until way to go to EndOfRun is implemented
    //   fHorizontalFrame[0]->AddFrame(fFrwdButton, new TGLayoutHints(kLHintsCenterY, 0, 2, 2, 2));
 
