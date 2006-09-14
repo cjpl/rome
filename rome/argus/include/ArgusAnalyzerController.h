@@ -48,7 +48,7 @@ protected:
    TGLabel            *fEventStepLabel;
    TGLabel            *fEventIntervalLabel;
    TGPictureButton    *fPlayButton;
-   TGPictureButton    *fBackButton;
+   TGPictureButton    *fPreviousButton;
    TGPictureButton    *fNextButton;
    TGPictureButton    *fStopButton;
 //   TGPictureButton  *fFrwdButton;
@@ -57,7 +57,7 @@ protected:
 
    enum CommandIdentifiers{
       B_Play,
-      B_Back,
+      B_Previous,
       B_Next,
       B_Stop,
       B_Frwd,
