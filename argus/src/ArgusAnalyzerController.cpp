@@ -53,7 +53,7 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 4 + 4, 32 + 4);
 
    fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
-   fBackButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/back.xpm"), B_Back);
+   fPreviousButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/previous.xpm"), B_Previous);
    fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
    fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
    // comment out until way to go to EndOfRun is implemented
@@ -69,21 +69,21 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
       fPlayButton->SetToolTipText("Start continuous analysis");
    }
 
-   fBackButton->SetToolTipText("Go to previous event");
+   fPreviousButton->SetToolTipText("Go to previous event");
    fNextButton->SetToolTipText("Go to next event");
    fStopButton->SetToolTipText("Terminate this run");
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->SetToolTipText("Go to end of run");
 
    fPlayButton->Associate(this);
-   fBackButton->Associate(this);
+   fPreviousButton->Associate(this);
    fNextButton->Associate(this);
    fStopButton->Associate(this);
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton->Associate(this);
 
    fHorizontalFrame[0]->AddFrame(fPlayButton, new TGLayoutHints(kLHintsCenterY, 2, 0, 2, 2));
-   fHorizontalFrame[0]->AddFrame(fBackButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
+   fHorizontalFrame[0]->AddFrame(fPreviousButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
    fHorizontalFrame[0]->AddFrame(fNextButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
    fHorizontalFrame[0]->AddFrame(fStopButton, new TGLayoutHints(kLHintsCenterY, 0, 0, 2, 2));
    // comment out until way to go to EndOfRun is implemented
@@ -180,7 +180,7 @@ ArgusAnalyzerController::~ArgusAnalyzerController()
    SafeDelete(fVerticalFrame[0]);
    SafeDelete(fVerticalFrame[1]);
    SafeDelete(fPlayButton);
-   SafeDelete(fBackButton);
+   SafeDelete(fPreviousButton);
    SafeDelete(fNextButton);
    SafeDelete(fStopButton);
    SafeDelete(fRunNumberLabel);
@@ -236,7 +236,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
                }
             }
             break;
-         case B_Back:
+         case B_Previous:
             if (gROME->IsStandAloneARGUS()) {
                if (fNetFolder) {
                   ROMEString command;
