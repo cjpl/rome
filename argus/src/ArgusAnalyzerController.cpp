@@ -97,38 +97,29 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    fRunNumberLabel = new TGLabel(fVerticalFrame[0], "Run number");
    fEventNumberLabel = new TGLabel(fVerticalFrame[0], "Event number");
    fEventStepLabel = new TGLabel(fVerticalFrame[0], "Event step");
-   if (gROME->IsStandAloneARGUS())
-      fEventIntervalLabel = new TGLabel(fVerticalFrame[0], "Update frequency");
-   else
-      fEventIntervalLabel = 0;
+   fEventIntervalLabel = new TGLabel(fVerticalFrame[0], "Update frequency");
 
    fVerticalFrame[0]->AddFrame(fRunNumberLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fVerticalFrame[0]->AddFrame(fEventNumberLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fVerticalFrame[0]->AddFrame(fEventStepLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   if (gROME->IsStandAloneARGUS())
-      fVerticalFrame[0]->AddFrame(fEventIntervalLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
+   fVerticalFrame[0]->AddFrame(fEventIntervalLabel, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
    // Vertical frame which contains text entries
    fVerticalFrame[1] = new TGVerticalFrame(fHorizontalFrame[1], 60, 20);
    fRunNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_RunNumber, (Double_t)fRunNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventNumberEntry = new TGNumberEntryField(fVerticalFrame[1], T_EventNumber, (Double_t)fEventNumber, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
    fEventStepEntry = new TGNumberEntry(fVerticalFrame[1], fEventStep, 5, T_EventStep, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   if (gROME->IsStandAloneARGUS())
-      fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1], fEventInterval, 5, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
-   else
-      fEventIntervalEntry = 0;
+   fEventIntervalEntry = new TGNumberEntry(fVerticalFrame[1], fEventInterval, 5, T_EventInterval, TGNumberFormat::kNESInteger, TGNumberFormat::kNEANonNegative);
 
    fRunNumberEntry->Associate(this);
    fEventNumberEntry->Associate(this);
    fEventStepEntry->Associate(this);
-   if (gROME->IsStandAloneARGUS())
-      fEventIntervalEntry->Associate(this);
+   fEventIntervalEntry->Associate(this);
 
    fVerticalFrame[1]->AddFrame(fRunNumberEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fVerticalFrame[1]->AddFrame(fEventNumberEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fVerticalFrame[1]->AddFrame(fEventStepEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
-   if (gROME->IsStandAloneARGUS())
-      fVerticalFrame[1]->AddFrame(fEventIntervalEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
+   fVerticalFrame[1]->AddFrame(fEventIntervalEntry, new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
 
    fHorizontalFrame[1]->AddFrame(fVerticalFrame[0], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
    fHorizontalFrame[1]->AddFrame(fVerticalFrame[1], new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, 2, 2, 2, 2));
