@@ -25,6 +25,8 @@ enum {
 
 protected:
    Int_t fCommentLevel;
+   ROMEString fConfigFileName;
+   ROMEString fConfigContent;
 
 public:
    ROMEConfig() { fCommentLevel = kCommentLevelSP; }
@@ -32,6 +34,8 @@ public:
 
    void           SetCommentLevel(Int_t level) { fCommentLevel = level; }
    Int_t          GetCommentLevel() { return fCommentLevel; }
+   const char*    GetConfigContent() { return fConfigContent.Data(); }
+   const char*    GetConfigFileName() { return fConfigFileName.Data(); }
    virtual Bool_t WriteConfigurationFile(const char *file) = 0;
    virtual Bool_t ReadConfigurationFile(const char *file) = 0;
    virtual Bool_t CheckConfiguration(Long64_t runNumber) = 0;

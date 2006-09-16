@@ -9,12 +9,13 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include <TSystem.h>
 #include "ROMETree.h"
 #include "ROME.h"
 
 ClassImp(ROMETree)
 
-ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, TFile* file, Int_t fileOption, Bool_t read, Bool_t write, Bool_t fill, Int_t compressionLevel, Long64_t maxEntries) {
+ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, TFile* file, Int_t fileOption, Bool_t read, Bool_t write, Bool_t fill, Bool_t saveConfig, Int_t compressionLevel, Long64_t maxEntries) {
    fTree = tree;
    fFileName = fileName;
    fConfigFileName = configFileName;
@@ -23,6 +24,7 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, 
    fSwitches.fRead = read;
    fSwitches.fWrite = write;
    fSwitches.fFill = fill;
+   fSwitches.fSaveConfig = saveConfig;
    fSwitches.fCompressionLevel = compressionLevel;
    fSwitches.fMaxEntries = static_cast<Int_t>(maxEntries);
    /* note: use 4byte integer for odb */
@@ -38,4 +40,49 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, 
 
 ROMETree::~ROMETree() {
    SafeDeleteArray(fBranchActive);
+}
+
+Bool_t ROMETree::SaveConfig(const char* xml, const char* filename) {
+   if(!fFile->cd())
+      return kFALSE;
+   TDirectory *configDir;
+   fFile->GetObject("configuration", configDir);
+   if (!configDir)
+      gDirectory->mkdir("configuration", "directory for configuration XML file");
+   gDirectory->cd("configuration");
+   TNamed *config;
+   TString filename_mod = filename;
+   filename_mod.ReplaceAll(".xml", "");
+   if (!filename) {
+      filename_mod = "config";
+   }
+   else {
+      filename_mod = gSystem->BaseName(filename);
+      filename_mod.ReplaceAll(".xml", "");
+   }
+   config = new TNamed(filename_mod.Data(), xml);
+   config->Write(config->GetName(), TObject::kOverwrite);
+   delete config;
+   return kTRUE;
+}
+
+Bool_t ROMETree::LoadConfig(TString &xml, const char* filename) {
+   if(!fFile)
+      return kFALSE;
+   TNamed *config;
+   TString path = "configuration/";
+   TString name = filename;
+   if (!name.Length()) {
+      fFile->cd();
+      gDirectory->cd("configuration");
+      if(!gDirectory->GetNkeys())
+         return kFALSE;
+      name = gDirectory->GetListOfKeys()->At(0)->GetName();
+   }
+   path += name;
+   fFile->GetObject(path.Data(), config);
+   if (!config)
+      return kFALSE;
+   xml = config->GetTitle();
+   return kTRUE;
 }

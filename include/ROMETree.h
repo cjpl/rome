@@ -24,6 +24,7 @@ private:
       Int_t    fRead;              //!   Read Flag
       Int_t    fWrite;             //!   Write Flag
       Int_t    fFill;              //!   Fill Flag
+      Int_t    fSaveConfig;        //!   Save Config Flag
       Int_t    fCompressionLevel;  //!   Compression Level
       Int_t    fMaxEntries;        //!   Max number of entries, 0 in case of a non circular tree
      /* note: use 4byte integer for odb */
@@ -39,7 +40,7 @@ protected:
    Int_t       fFileOption;        //!   File Option for the Tree Object
 
 public:
-   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Int_t compressionLevel=0,Long64_t maxEntries=0);
+   ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=0,Int_t compressionLevel=0,Long64_t maxEntries=0);
    virtual ~ROMETree();
 
    void        AllocateBranchActive(Int_t n) { fBranchActive = new Bool_t[n]; for(int i=0;i<n;i++) fBranchActive[i]=kTRUE; }
@@ -53,6 +54,7 @@ public:
    Bool_t      isRead() { return fSwitches.fRead!=0; }
    Bool_t      isWrite() { return fSwitches.fWrite!=0; }
    Bool_t      isFill() { return fSwitches.fFill!=0; }
+   Bool_t      isSaveConfig() { return fSwitches.fSaveConfig!=0; }
    Int_t       GetCompressionLevel() { return fSwitches.fCompressionLevel; }
    Bool_t      isCircular() {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
@@ -75,6 +77,7 @@ public:
    void        SetRead(Bool_t read) { fSwitches.fRead = read; }
    void        SetWrite(Bool_t write) { fSwitches.fWrite = write; }
    void        SetFill(Bool_t fill) { fSwitches.fFill = fill; }
+   void        SetSaveConfig(Bool_t saveConfig) { fSwitches.fSaveConfig = saveConfig; }
    void        SetCompressionLevel(Int_t compressionLevel) {
                   fSwitches.fCompressionLevel = compressionLevel;
                   TObjArray *branches = fTree->GetListOfBranches();
@@ -88,6 +91,8 @@ public:
 #endif
                }
    void        SetBranchActiveAt(Int_t i, Bool_t active) { fBranchActive[i] = active; }
+   Bool_t      SaveConfig(const char* xml, const char* filename = 0);
+   Bool_t      LoadConfig(TString &xml, const char* filename = 0);
 
    ClassDef(ROMETree,0) // TTree container for ROME
 };

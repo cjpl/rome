@@ -699,6 +699,11 @@
 					<xs:documentation>The name of the trees output file. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="SaveConfiguration" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this is true, content of configuration XML file would be saved in the output file. Default is false</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a branch. (optional)</xs:documentation>
