@@ -11616,11 +11616,30 @@ Bool_t ROMEBuilder::WriteVersionH()
    // read current revision
    ROMEString path;
    path.SetFormatted("%s.svn/entries", outDir.Data());
+
    if (!gSystem->AccessPathName(path,kFileExists)) {
-      ROMEXML *svnxml = new ROMEXML();
-      svnxml->OpenFileForPath(path.Data());
-      svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0");
-      delete svnxml;
+      // check format
+      ifstream entryStream(path.Data());
+      if (entryStream.good()) {
+         TString entryLine;
+         entryLine.ReadLine(entryStream, kFALSE);
+         if (entryLine.Length() && entryLine.IsDigit()) {
+            // This is maybe text format (Subversion 1.4 or lator)
+            entryLine.ReadLine(entryStream, kFALSE);
+            entryLine.ReadLine(entryStream, kFALSE);
+            entryLine.ReadLine(entryStream, kFALSE);
+            revNumber = entryLine;
+            entryStream.close();
+         }
+         else {
+            // This is maybe XML format (Subversion 1.3 or older)
+            entryStream.close();
+            ROMEXML *svnxml = new ROMEXML();
+            svnxml->OpenFileForPath(path.Data());
+            svnxml->GetPathAttribute("/wc-entries/entry[1]", "revision", revNumber, "0");
+            delete svnxml;
+         }
+      }
    }
 
    // current time
