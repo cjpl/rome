@@ -6138,6 +6138,13 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    // Read Configuration File
    buffer.AppendFormatted("\n// Read Configuration File\n");
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfigurationFile(const char *file) {\n",shortCut.Data());
+   buffer.AppendFormatted("   // Fill config file content\n");
+   buffer.AppendFormatted("   ifstream ifile(file);\n");
+   buffer.AppendFormatted("   if (ifile.good()) {\n");
+   buffer.AppendFormatted("      fConfigFileName = file;\n");
+   buffer.AppendFormatted("      fConfigContent.ReadFile(ifile);\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   fXMLFile = file;\n");
    buffer.AppendFormatted("   ROMEXML *xml = new ROMEXML();\n");
    buffer.AppendFormatted("   xml->OpenFileForPath(fXMLFile);\n");
@@ -7099,7 +7106,20 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
          subSubGroup->GetLastParameter()->AddSetLine("gAnalyzer->GetTreeObjectAt(%d)->SetConfigFileName(##);",i);
          subSubGroup->GetLastParameter()->AddWriteLine("writeString = gAnalyzer->GetTreeObjectAt(%d)->GetConfigFileName().Data();",i);
+         // Tree/SaveConfiguration
+         subSubGroup->AddParameter(new ROMEConfigParameter("SaveConfiguration", "1", "CheckButton"));
+         subSubGroup->GetLastParameter()->ReadComment(ROMEConfig::kCommentLevelParam, "Tree");
+         subSubGroup->GetLastParameter()->AddSetLine("if ((##==\"true\"))");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(true);",i);
+         subSubGroup->GetLastParameter()->AddSetLine("else");
+         subSubGroup->GetLastParameter()->AddSetLine("   gAnalyzer->GetTreeObjectAt(%d)->SetSaveConfig(false);",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("if (gAnalyzer->GetTreeObjectAt(%d)->isSaveConfig())",i);
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"true\";");
+         subSubGroup->GetLastParameter()->AddWriteLine("else");
+         subSubGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
+
          subGroup->AddSubGroup(subSubGroup);
+
          for (j=0;j<numOfBranch[i];j++) {
             subSubSubGroup = new ROMEConfigParameterGroup(branchName[i][j],"1","Branch");
             subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Branch");

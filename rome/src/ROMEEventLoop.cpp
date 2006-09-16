@@ -1022,6 +1022,8 @@ Bool_t ROMEEventLoop::DAQEndOfRun()
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
             }
+            if(romeTree->isSaveConfig())
+               romeTree->SaveConfig(gROME->GetConfiguration()->GetConfigContent(), gROME->GetConfiguration()->GetConfigFileName());
             tree->SetDirectory(0);
             for(k = nTree - 1; k > j; k--) {
                if (gROME->GetTreeObjectAt(k)->GetFileName() == gROME->GetTreeObjectAt(j)->GetFileName()) {
@@ -1084,6 +1086,8 @@ Bool_t ROMEEventLoop::DAQTerminate()
                ROMEPrint::Warning("--> If you have activated the read flag for this tree you must\n");
                ROMEPrint::Warning("    have different input and output directories.\n");
             }
+            if (romeTree->isSaveConfig())
+               romeTree->SaveConfig(gROME->GetConfiguration()->GetConfigContent(), gROME->GetConfiguration()->GetConfigFileName());
             for(k = nTree - 1; k > j; k--) {
                if (gROME->GetTreeObjectAt(k)->GetFileName() == gROME->GetTreeObjectAt(j)->GetFileName()) {
                   identicalFileNameFound = kTRUE;
