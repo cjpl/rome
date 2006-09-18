@@ -7,6 +7,7 @@
 #ifndef ROMEConfig_H
 #define ROMEConfig_H
 
+#include <ROMEString.h>
 #include <TObject.h>
 
 class ROMEConfig : public TObject
