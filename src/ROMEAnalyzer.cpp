@@ -180,12 +180,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fWindow = 0;
    fWindowUpdateFrequency = 0;
    fRequestEventHandling = false;
-#if !defined (ENABLE_FASTCOPY)
-   fFolderStorageTree = new TTree("ROMEFolderStorage", "Tree to store folders");
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-   fFolderStorageTree->SetCircular(1);
-#endif
-#endif
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -225,9 +219,6 @@ ROMEAnalyzer::~ROMEAnalyzer() {
    SafeDeleteArray(fDataBaseName);
    SafeDeleteArray(fDataBaseDir);
    SafeDeleteArray(fDataBaseHandle);
-#if !defined (ENABLE_FASTCOPY)
-   SafeDelete(fFolderStorageTree);
-#endif
 }
 
 Bool_t ROMEAnalyzer::Start(int argc, char **argv)
@@ -247,9 +238,6 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    ROMEPrint::Debug("Starting analyzer\n");
 // Starts the ROME Analyzer
    ROMEString text;
-#if !defined (ENABLE_FASTCOPY)
-   AddFolderStorageTreeBranches();
-#endif
 
    // disable writing date and time in XML files written by mxml.
    ROMEXML::SuppressWritingDate();

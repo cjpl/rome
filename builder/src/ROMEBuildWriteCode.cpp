@@ -831,49 +831,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       }
       buffer.AppendFormatted("\n");
 
-      // FastCopy
-#if defined (ENABLE_FASTCOPY)
-      buffer.AppendFormatted("void %s::FastCopy(%s%s* destination) {\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
-      buffer.AppendFormatted("   memcpy(destination,this,sizeof(%s%s));\n",shortCut.Data(),folderName[iFold].Data());
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (valueType[iFold][i].Contains("*"))
-            relation = "->";
-         else
-            relation = ".";
-         if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-             && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-            continue;
-         else if (isFolder(valueType[iFold][i].Data())) {
-            tmp = valueType[iFold][i];
-            tmp.ReplaceAll("*","");
-            if (valueDimension[iFold][i]==0) {
-               buffer.AppendFormatted("   memcpy(destination->Get%s(),this->Get%s(),sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),tmp.Data());
-            }
-            else {
-               buffer.AppendFormatted("   memcpy(destination->Get%s(),this->Get%s(),sizeof(TClonesArray));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
-            }
-         }
-         else if (isTArrayType(valueType[iFold][i])) {
-            if (valueType[iFold][i].Contains("*")) {
-               tmp = valueType[iFold][i];
-               tmp.ReplaceAll("*","");
-               buffer.AppendFormatted("   memcpy(destination->Get%s(),this->Get%s(),sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),tmp.Data());
-            }
-         }
-         else {
-            if (valueArray[iFold][i][0]=="variable") {
-               buffer.AppendFormatted("   if (%s > 0) {\n",valueArraySpecifier[iFold][i].Data());
-               buffer.AppendFormatted("      memcpy(destination->Get%s(),this->Get%s(),sizeof(%s));\n",valueName[iFold][i].Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
-               buffer.AppendFormatted("   }\n");
-            }
-         }
-      }
-      buffer.AppendFormatted("}\n");
-#else
-      buffer.AppendFormatted("void %s::FastCopy(%s%s*) {}\n",clsName.Data(),shortCut.Data(),folderName[iFold].Data());
-#endif
-      buffer.AppendFormatted("\n");
-
       // Write File
       WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -1366,10 +1323,6 @@ Bool_t ROMEBuilder::WriteFolderH()
       buffer.AppendFormatted("\n");
       // Reset
       buffer.AppendFormatted("   void Reset();\n");
-      buffer.AppendFormatted("\n");
-
-      // FastCopy
-      buffer.AppendFormatted("   void FastCopy(%s%s* destination);\n",shortCut.Data(),folderName[iFold].Data());
       buffer.AppendFormatted("\n");
 
       // Private
@@ -4133,13 +4086,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             if (folderArray[i]=="1") {
                buffer.AppendFormatted("      %s%s* p%s = (%s%s*)in.FindObjectAny(\"%s\");\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data()
                                       ,shortCut.Data(),folderName[i].Data(),folderName[i].Data());
-               buffer.AppendFormatted("      if (p%s)\n",folderName[i].Data());
-               buffer.AppendFormatted("         *f%sFolder = *p%s;\n",folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      if (p%s) {\n",folderName[i].Data());
+               buffer.AppendFormatted("         SafeDelete(f%sFolder);\n",folderName[i].Data());
+               buffer.AppendFormatted("         f%sFolder = static_cast<%s%s*>(p%s->Clone(p%s->GetName()));\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      }\n");
             }
             else {
                buffer.AppendFormatted("      TClonesArray *p%s = (TClonesArray*)in.FindObjectAny(\"%ss\");\n",folderName[i].Data(),folderName[i].Data());
-               buffer.AppendFormatted("      if (p%s)\n",folderName[i].Data());
-               buffer.AppendFormatted("          p%s->Copy(*f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      if (p%s) {\n",folderName[i].Data());
+               buffer.AppendFormatted("          SafeDelete(f%sFolders);\n",folderName[i].Data());
+               buffer.AppendFormatted("          f%sFolders = static_cast<TClonesArray*>(p%s->Clone(p%s->GetName()));\n",folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+               buffer.AppendFormatted("      }\n");
             }
             buffer.AppendFormatted("   }\n");
          }
@@ -4162,12 +4119,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Fill Folder Storage
    buffer.AppendFormatted("void %sAnalyzer::FillFolderStorage() {\n", shortCut.Data());
    buffer.AppendFormatted("   R__LOCKGUARD2(fMutex);\n");
-#if !defined (ENABLE_FASTCOPY)
-#if (ROOT_VERSION_CODE < ROOT_VERSION(4,1,0))
-   buffer.AppendFormatted("   fFolderStorageTree->Reset();\n");
-#endif
-   buffer.AppendFormatted("   fFolderStorageTree->Fill();\n");
-#else
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -4175,32 +4126,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   f%sFolder->FastCopy(f%sFolderStorage);\n",folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   SafeDelete(f%sFolderStorage);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolderStorage = static_cast<%s%s*>(f%sFolder->Clone(f%sFolder->GetName()));\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
          }
          else {
-//            buffer.AppendFormatted("   memcpy(f%sFolderStorage,f%sFolder,sizeof(%s%s));\n",folderName[i].Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   SafeDelete(f%sFoldersStorage);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage = static_cast<TClonesArray*>(f%sFolders->Clone(f%sFolders->GetName()));\n",folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
          }
       }
    }
-#endif
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
-
-#if !defined (ENABLE_FASTCOPY)
-   Int_t iFold;
-   // Add folder storage tree branches
-   buffer.AppendFormatted("// Add branches\n");
-   buffer.AppendFormatted("void %sAnalyzer::AddFolderStorageTreeBranches()\n{\n",shortCut.Data());
-   for (iFold=0;iFold<numOfFolder;iFold++) {
-      if (numOfValue[iFold]<=0 || folderSupport[iFold] || !folderUsed[iFold])
-         continue;
-      if (folderArray[iFold]=="1")
-         buffer.AppendFormatted("   f%sStorageBranch = fFolderStorageTree->Branch(\"%s\", \"%s%s\", &f%sFolder,32000, 0);\n",folderName[iFold].Data(),folderName[iFold].Data(),shortCut.Data(),folderName[iFold].Data(),folderName[iFold].Data());
-      else
-         buffer.AppendFormatted("   f%sStorageBranch = fFolderStorageTree->Branch(\"%s\", \"TClonesArray\",&f%sFolders, 32000, 0);\n",folderName[iFold].Data(),folderName[iFold].Data(),folderName[iFold].Data());
-   }
-   buffer.AppendFormatted("}\n\n");
-#endif
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -4637,9 +4573,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
-#if !defined (ENABLE_FASTCOPY)
    buffer.AppendFormatted("#include <TMutex.h>\n");
-#endif
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFile.h>\n");
@@ -4750,9 +4684,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
                buffer.AppendFormatted("   TClonesArray* f%sFolders; // Handle to %s%s Folders\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   TClonesArray* f%sFoldersStorage; // Handle to %s%s Folders Storage\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
-#if !defined (ENABLE_FASTCOPY)
-            buffer.AppendFormatted("   TBranch* f%sStorageBranch; // TBranch for %s%s Storage\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-#endif
          }
       }
    }
@@ -4823,9 +4754,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       WriteFolderGetterInclude(buffer,i);
    }
    buffer.AppendFormatted("   void FillFolderStorage();\n");
-#if !defined (ENABLE_FASTCOPY)
-   buffer.AppendFormatted("   void AddFolderStorageTreeBranches();\n");
-#endif
    buffer.AppendFormatted("\n");
 
    // Set size
@@ -10128,13 +10056,6 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("   %s%s* Get%s();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   %s%s** Get%sAddress();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   %s%s* Get%sStorage() {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
-#if !defined (ENABLE_FASTCOPY)
-         buffer.AppendFormatted("      R__LOCKGUARD2(fMutex);\n");
-         buffer.AppendFormatted("      void *p = f%sStorageBranch->GetAddress();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(&f%sFolderStorage);\n",folderName[numFolder].Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->GetEntry(0);\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(p);\n",folderName[numFolder].Data());
-#endif
          buffer.AppendFormatted("      return f%sFolderStorage;\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   }\n");
       }
@@ -10143,12 +10064,6 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("   TClonesArray* Get%ss();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ssStorage() {\n",folderName[numFolder].Data());
-#if !defined (ENABLE_FASTCOPY)
-         buffer.AppendFormatted("      void *p = f%sStorageBranch->GetAddress();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(&f%sFoldersStorage);\n",folderName[numFolder].Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->GetEntry(0);\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      f%sStorageBranch->SetAddress(p);\n",folderName[numFolder].Data());
-#endif
          buffer.AppendFormatted("      return f%sFoldersStorage;\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   }\n");
       }

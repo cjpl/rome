@@ -234,9 +234,6 @@ protected:
 #endif // __CINT__
 
    TVirtualMutex *fMutex;                        // Main Mutex
-#if !defined(ENABLE_FASTCOPY)
-   TTree         *fFolderStorageTree;            //! tree to store folders for wring
-#endif
 
 public:
    ROMEAnalyzer() {}
@@ -611,9 +608,6 @@ protected:
    Bool_t          ConnectSocketToROME();
    virtual Bool_t  ConnectSocketToROMENetFolder() = 0;
    virtual void    StartNetFolderServer() = 0;
-#if !defined(ENABLE_FASTCOPY)
-   virtual void    AddFolderStorageTreeBranches() = 0;
-#endif
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class
 };
