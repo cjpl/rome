@@ -298,7 +298,12 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
          return true;
       }
 
-      gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
+      if (((EVENT_HEADER*)mEvent)->event_id!=1) {
+         gROME->SetCurrentEventNumber(gROME->GetCurrentEventNumber()+1);
+         gROME->SetFillEvent(false);
+      }
+      else
+         gROME->SetCurrentEventNumber(((EVENT_HEADER*)mEvent)->serial_number);
       gROME->SetEventID(((EVENT_HEADER*)mEvent)->event_id);
       fTimeStamp = ((EVENT_HEADER*)mEvent)->time_stamp;
       if (fByteSwap) {
@@ -396,7 +401,12 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 
       // initalize event
       gROME->SetEventID(pevent->event_id);
-      gROME->SetCurrentEventNumber(pevent->serial_number);
+      if (pevent->event_id!=1) {
+         gROME->SetCurrentEventNumber(gROME->GetCurrentEventNumber()+1);
+         gROME->SetFillEvent(false);
+      }
+      else
+         gROME->SetCurrentEventNumber(pevent->serial_number);
       fTimeStamp = pevent->time_stamp;
 
       this->InitMidasBanks();
@@ -420,20 +430,20 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
                fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
             }
             if(!fGZippedMidasFile)
-               fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+               fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
             else
-               fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+               fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
             fValidEventFilePositions = fCurrentPosition + 1;
          }
          return fCurrentPosition;
       }
       else if (event < fValidEventFilePositions) {
          // use stored position
-         if(fEventFilePositions->At(event) != -1) {
+         if(fEventFilePositions->At((int)event) != -1) {
             if(!fGZippedMidasFile)
-               lseek(fMidasFileHandle, fEventFilePositions->At(event), SEEK_SET);
+               lseek(fMidasFileHandle, fEventFilePositions->At((int)event), SEEK_SET);
             else
-               gzseek(fMidasGzFileHandle, fEventFilePositions->At(event), SEEK_SET);
+               gzseek(fMidasGzFileHandle, fEventFilePositions->At((int)event), SEEK_SET);
             fCurrentPosition = event;
             return fCurrentPosition;
          }
@@ -451,9 +461,9 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
             fEventFilePositions->Set(fEventFilePositions->GetSize() + kEventFilePositionsResizeIncrement);
          }
          if(!fGZippedMidasFile)
-            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
          else
-            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
          if(!fGZippedMidasFile)
             n = read(fMidasFileHandle,pevent, sizeof(EVENT_HEADER));
          else
@@ -572,9 +582,9 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
             ((ROMEODBOfflineDataBase*)gROME->GetDataBase("ODB"))->SetBuffer((char*)(pevent+1));
          fCurrentPosition = 0;
          if(!fGZippedMidasFile)
-            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+            fEventFilePositions->AddAt(lseek(fMidasFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
          else
-            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), fCurrentPosition);
+            fEventFilePositions->AddAt(gzseek(fMidasGzFileHandle, 0L, SEEK_CUR), (int)fCurrentPosition);
          fValidEventFilePositions = 1;
       }
       else {
@@ -585,7 +595,7 @@ Bool_t ROMEMidasDAQ::ReadODBOffline() {
                gzseek(fMidasGzFileHandle, posOld, SEEK_SET);
          }
          fCurrentPosition = 0;
-         fEventFilePositions->AddAt(posOld, fCurrentPosition);
+         fEventFilePositions->AddAt(posOld, (int)fCurrentPosition);
          fValidEventFilePositions = 1;
       }
       this->SetBeginOfRun();
