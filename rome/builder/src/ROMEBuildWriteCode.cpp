@@ -88,20 +88,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
       buffer.AppendFormatted("\n");
 
       // Constructor
-      buffer.AppendFormatted("%s::%s()\n",clsName.Data(),clsName.Data());
-      buffer.AppendFormatted("{\n");
-      buffer.AppendFormatted("   %s::Class()->IgnoreTObjectStreamer();\n",clsName.Data());
-      for (i=0;i<numOfValue[iFold];i++) {
-         if (isFolder(valueType[iFold][i].Data()))
-            buffer.AppendFormatted("   %s = NULL;\n",valueName[iFold][i].Data());
-         else if (isTArrayType(valueType[iFold][i]) && valueType[iFold][i].Contains("*"))
-            buffer.AppendFormatted("   %s = NULL;\n",valueName[iFold][i].Data());
-         else if (valueDimension[iFold][i]!=0 && valueArray[iFold][i][0]=="variable")
-            buffer.AppendFormatted("   %s = NULL;\n",valueName[iFold][i].Data());
-      }
-      buffer.AppendFormatted("}\n");
-      buffer.AppendFormatted("\n");
-      buffer.AppendFormatted("%s::%s(Bool_t ",clsName.Data(),clsName.Data());
+      ROMEString separator = "";
+      buffer.AppendFormatted("%s::%s(",clsName.Data(),clsName.Data());
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueDimension[iFold][i]==0) {
             if (isFolder(valueType[iFold][i].Data()))
@@ -110,10 +98,12 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") && !isTArrayType(valueType[iFold][i]))
                continue;
             if (valueType[iFold][i]=="TRef") {
-               buffer.AppendFormatted(",TObject* %s_value",valueName[iFold][i].Data());
+               buffer.AppendFormatted("%sTObject* %s_value",separator.Data(),valueName[iFold][i].Data());
+               separator = ", ";
             }
             else {
-               buffer.AppendFormatted(",%s %s_value",valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               buffer.AppendFormatted("%s%s %s_value",separator.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               separator = ", ";
             }
          }
       }
@@ -1033,14 +1023,13 @@ Bool_t ROMEBuilder::WriteFolderH()
       // Methods
 
       buffer.AppendFormatted("public:\n");
+      ROMEString separator = "";
       // Constructor
       if (folderUserCode[iFold]) {
-         buffer.AppendFormatted("   %s%s_Base();\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("   %s%s_Base(Bool_t ",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("   %s%s_Base(",shortCut.Data(),folderName[iFold].Data());
       }
       else {
-         buffer.AppendFormatted("   %s%s();\n",shortCut.Data(),folderName[iFold].Data());
-         buffer.AppendFormatted("   %s%s(Bool_t ",shortCut.Data(),folderName[iFold].Data());
+         buffer.AppendFormatted("   %s%s(",shortCut.Data(),folderName[iFold].Data());
       }
       for (i=0;i<numOfValue[iFold];i++) {
          if (valueDimension[iFold][i]==0) {
@@ -1050,10 +1039,12 @@ Bool_t ROMEBuilder::WriteFolderH()
                && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString") && !isTArrayType(valueType[iFold][i]))
                continue;
             if (valueType[iFold][i]=="TRef") {
-               buffer.AppendFormatted(",TObject* %s_value=%s",valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               buffer.AppendFormatted("%sTObject* %s_value=%s",separator.Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               separator = ", ";
             }
             else {
-               buffer.AppendFormatted(",%s %s_value=%s",valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               buffer.AppendFormatted("%s%s %s_value=%s",separator.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data(),valueInit[iFold][i].Data());
+               separator = ", ";
             }
          }
       }
@@ -3640,7 +3631,7 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (!folderSupport[i]) {
          if (numOfValue[i] > 0) {
             if (folderArray[i]=="1") {
-               buffer.AppendFormatted("\n   f%sFolder = new %s%s(true);\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("\n   f%sFolder = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolder);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFolderStorage = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
@@ -3775,7 +3766,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("\n");
 
    // Set size
+   ROMEString separator;
    for (i=0;i<numOfFolder;i++) {
+      separator = "";
       if (!folderUsed[i])
          continue;
       if (!folderSupport[i] && numOfValue[i] > 0 && folderArray[i]!="1") {
@@ -3783,15 +3776,17 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          buffer.AppendFormatted("   int i;\n");
          buffer.AppendFormatted("   if (f%sFolders) f%sFolders->Delete();\n",folderName[i].Data(),folderName[i].Data());
          buffer.AppendFormatted("   for (i=0;i<number;i++) {\n");
-         buffer.AppendFormatted("      new((*f%sFolders)[i]) %s%s(true ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+         buffer.AppendFormatted("      new((*f%sFolders)[i]) %s%s(",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
          for (j=0;j<numOfValue[i];j++) {
             if (isFolder(valueType[i][j].Data()))
                continue;
             if (valueIsTObject[i][j] && !isPointerType(valueType[i][j].Data())
                && !valueType[i][j].Contains("TRef") && !valueType[i][j].Contains("TString"))
             continue;
-            if (valueDimension[i][j]==0)
-               buffer.AppendFormatted(",(%s)%s",valueType[i][j].Data(),valueInit[i][j].Data());
+            if (valueDimension[i][j]==0) {
+               buffer.AppendFormatted("%s(%s)%s",separator.Data(),valueType[i][j].Data(),valueInit[i][j].Data());
+               separator = ", ";
+            }
          }
          buffer.AppendFormatted(" );\n");
          buffer.AppendFormatted("   }\n");
@@ -10362,17 +10357,21 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 
    // Initialize Single Folders
    buffer.AppendFormatted("void %sEventLoop::InitSingleFolders() {\n",shortCut.Data());
+   ROMEString separator;
    for (i=0;i<numOfFolder;i++) {
+      separator = "";
       if (!folderUsed[i])
          continue;
       if (numOfValue[i] > 0 && !folderSupport[i]) {
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   new(gAnalyzer->Get%s()) %s%s(true ",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            buffer.AppendFormatted("   new(gAnalyzer->Get%s()) %s%s(",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             for (j=0;j<numOfValue[i];j++) {
                if (isFolder(valueType[i][j].Data()))
                   continue;
-               if (valueDimension[i][j]==0)
-                  buffer.AppendFormatted(",%s",valueInit[i][j].Data());
+               if (valueDimension[i][j]==0) {
+                  buffer.AppendFormatted("%s%s",separator.Data(),valueInit[i][j].Data());
+                  separator = ", ";
+               }
             }
             buffer.AppendFormatted(" );\n");
          }
