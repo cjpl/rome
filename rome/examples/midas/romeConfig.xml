@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu Jul 27 10:35:24 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -28,7 +27,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     <Modes>
       <!-- Description of the modes in which the framework can run. -->
       <!-- Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline -->
-      <AnalyzingMode>online</AnalyzingMode>
+      <AnalyzingMode>offline</AnalyzingMode>
       <!-- Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none. -->
       <DAQSystem>midas</DAQSystem>
       <!-- Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal. -->
@@ -94,6 +93,18 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <RunNumber>0</RunNumber>
     </HistogramRead>
 
+    <Macros>
+      <!-- Description of macros. -->
+      <!-- Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional) -->
+      <BeginOfRun></BeginOfRun>
+      <!-- Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional) -->
+      <BeginOfEvent></BeginOfEvent>
+      <!-- Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional) -->
+      <EndOfEvent></EndOfEvent>
+      <!-- Macro file name which is executed at the end of run. It is executed after Tasks::EndOfRun. (optional) -->
+      <EndOfRun></EndOfRun>
+    </Macros>
+
     <Tasks>
       <Task>
         <TaskName>PrintValues</TaskName>
@@ -131,6 +142,19 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <Bank>
           <!-- Description of a midas bank. -->
           <BankName>TDC0</BankName>
+          <!-- If true, this bank will be analyzed. Default is false. -->
+          <Active>true</Active>
+        </Bank>
+      </Event>
+
+      <Event>
+        <!-- Description of a midas event. -->
+        <EventName>Scaler</EventName>
+        <!-- If true, this event type will be analyzed. Default is false. -->
+        <Active>true</Active>
+        <Bank>
+          <!-- Description of a midas bank. -->
+          <BankName>SCLR</BankName>
           <!-- If true, this bank will be analyzed. Default is false. -->
           <Active>true</Active>
         </Bank>

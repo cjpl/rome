@@ -122,14 +122,12 @@ void ROMETask::Exec(Option_t *option)
    }
    else if (!strncmp(option,"Event",5) && (strtol(option+5,&cstop,10)==fEventID || fEventID==-1 || strtol(option+5,&cstop,10)==-1)) {
       fCurrentEventMethod = "Event";
-      if (gROME->isFillEvent()) {
-         ROMEPrint::Debug("Executing %s::Event\n", ClassName());
-         fWatchUser.Start(false);
-         fWatchUserEvent.Start(false);
-         Event();
-         fWatchUserEvent.Stop();
-         fWatchUser.Stop();
-      }
+      ROMEPrint::Debug("Executing %s::Event\n", ClassName());
+      fWatchUser.Start(false);
+      fWatchUserEvent.Start(false);
+      Event();
+      fWatchUserEvent.Stop();
+      fWatchUser.Stop();
    }
    fWatchAll.Stop();
 }

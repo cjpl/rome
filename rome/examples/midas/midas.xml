@@ -74,5 +74,17 @@
 				</Bank>
 			</Banks>
 		</EventDefinition>
+		<EventDefinition>
+			<EventName>Scaler</EventName>
+			<EventID>2</EventID>
+			<EventTriggerMask>-1</EventTriggerMask>
+			<EventSamplingRate>2</EventSamplingRate>
+			<Banks>
+				<Bank>
+					<BankName>SCLR</BankName>
+					<BankType>WORD</BankType>
+				</Bank>
+			</Banks>
+		</EventDefinition>
 	</MidasBanks>
 </ROMEFrameworkDefinition>

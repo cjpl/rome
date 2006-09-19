@@ -426,11 +426,13 @@ Int_t ROMEEventLoop::RunEvent()
 
    // Write Event
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
-   if (!this->WriteEvent() && gROME->isFillEvent()) {
-      this->Terminate();
-      gROME->SetTerminationFlag();
-      ROMEPrint::Print("\n\nTerminating Program !\n");
-      return kReturn;
+   if (gROME->isFillEvent()) {
+      if (!this->WriteEvent()) {
+         this->Terminate();
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return kReturn;
+      }
    }
 
    return kContinue;
@@ -690,6 +692,7 @@ Bool_t ROMEEventLoop::DAQEvent()
 
 Bool_t ROMEEventLoop::WriteEvent()
 {
+   cout << "write event  " <<gROME->isFillEvent()<< endl;
    // Writes the event. Called after the Event tasks.
    this->CleanUpFolders();
    fTreeInfo->SetEventNumber(gROME->GetCurrentEventNumber());

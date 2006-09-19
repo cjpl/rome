@@ -61,6 +61,11 @@ void MIDTPrintValues::Event()
       cout << gAnalyzer->GetMidasDAQ()->GetTDC0BankAt(i) << endl;
    }
    cout << endl;
+   cout << "SCLR" << endl;
+   for (i=0;i<gAnalyzer->GetMidasDAQ()->GetSCLRBankEntries();i++) {
+      cout << gAnalyzer->GetMidasDAQ()->GetSCLRBankAt(i) << endl;
+   }
+   cout << endl;
    gSystem->Sleep(10);
 }
 
