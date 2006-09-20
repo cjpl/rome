@@ -2641,6 +2641,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   ROMEString str;\n");
       if (tabHistoDisplay[iTab]) {
          buffer.AppendFormatted("   fNumberOfUserLines = 0;\n");
+         buffer.AppendFormatted("   fNumberOfDisplayTypes = %d;\n",numOfTabObjects[iTab]);
       }
       buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   Init();\n");
