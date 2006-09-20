@@ -81,7 +81,7 @@ Bool_t ROMEMidasDAQ::Init() {
       atexit((void (*)(void))cm_disconnect_experiment);
 
       // open the "system" buffer, 1M size
-      bm_open_buffer(const_cast<char*>("SYSTEM"), EVENT_BUFFER_SIZE, &fMidasOnlineBuffer);
+      bm_open_buffer(const_cast<char*>("SYSTEM"), 2*MAX_EVENT_SIZE, &fMidasOnlineBuffer);
 
       // set the buffer cache size
       bm_set_cache_size(fMidasOnlineBuffer, 100000, 0);

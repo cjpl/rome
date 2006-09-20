@@ -34,7 +34,7 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, 
    TObjArray *branches = fTree->GetListOfBranches();
    for (Int_t i=0;i<branches->GetEntriesFast();i++)
       ((TBranch*)branches->At(i))->SetCompressionLevel(compressionLevel);
-   fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
+   fSwitchesString =  "Read = BOOL : 0\nWrite = BOOL : 0\nFill = BOOL : 0\nSave Config = BOOL : 0\nCompression Level = INT : 0\nMax Entries = INT : 0\n";
    fBranchActive = 0;
 }
 

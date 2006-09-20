@@ -63,6 +63,7 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
       }
    }
    fCurrentDisplayType = 0;
+   fNumberOfDisplayTypes = 0;
    fDisplayTypeOld = 0;
    fDisplayObjIndex = 0;
    fInherited = false;
@@ -214,6 +215,7 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
 void ArgusHistoDisplay::BaseInit()
 {
    ROMEString str;
+   int i,j;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
    fCanvas = new TRootEmbeddedCanvas("Canvas", this, 800, 400);
@@ -229,6 +231,14 @@ void ArgusHistoDisplay::BaseInit()
    gROME->GetWindow()->GetStatusBar()->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
 
    SetWindowName("DRS");
+
+   fLines->AddLast(new TObjArray());
+   for (i=0;i<fNumberOfDisplayTypes;i++) {
+      ((TObjArray*)fLines->Last())->AddLast(new TObjArray());
+      for (j=0;j<kMaxNumberOfLines;j++) {
+         ((TObjArray*)((TObjArray*)fLines->Last())->Last())->AddLast(new TLine());
+      }
+   }
 
    SetSize(GetDefaultSize());
    fChannelNumber = 0;

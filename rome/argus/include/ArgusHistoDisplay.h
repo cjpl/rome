@@ -65,6 +65,7 @@ protected:
    TText               *fText;          //! 
 
    Int_t                fCurrentDisplayType;//! 
+   Int_t                fNumberOfDisplayTypes;//! 
    Int_t                fDisplayTypeOld;  //! 
    Int_t                fDisplayObjIndex; //! 
    Bool_t               fInherited;       //! 
