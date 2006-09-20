@@ -4114,22 +4114,57 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    // Fill Folder Storage
    buffer.AppendFormatted("void %sAnalyzer::FillFolderStorage() {\n", shortCut.Data());
    buffer.AppendFormatted("   R__LOCKGUARD2(fMutex);\n");
+   buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
+   buffer.AppendFormatted("   TFile *filsav = gFile;\n");
+   buffer.AppendFormatted("   gFile = 0;\n");
+   buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
+   buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("   Bool_t bypassOld;\n");
+   buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
+   buffer.AppendFormatted("\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
       if (folderSupport[i])
          continue;
       if (numOfValue[i] > 0) {
+            buffer.AppendFormatted("   buffer->Reset();\n");
+            buffer.AppendFormatted("   buffer->SetWriteMode();\n");
          if (folderArray[i]=="1") {
-            buffer.AppendFormatted("   SafeDelete(f%sFolderStorage);\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFolderStorage = static_cast<%s%s*>(f%sFolder->Clone(f%sFolder->GetName()));\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   buffer->Reset();\n");
+            buffer.AppendFormatted("   buffer->SetWriteMode();\n");
+            buffer.AppendFormatted("   buffer->MapObject(f%sFolder);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("   ((TObject*)f%sFolder)->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("   // read new object from buffer\n");
+            buffer.AppendFormatted("   buffer->SetReadMode();\n");
+            buffer.AppendFormatted("   buffer->ResetMap();\n");
+            buffer.AppendFormatted("   buffer->SetBufferOffset(0);\n");
+            buffer.AppendFormatted("   buffer->MapObject(f%sFolderStorage);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolderStorage->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolderStorage->ResetBit(kIsReferenced);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolderStorage->ResetBit(kCanDelete);\n",folderName[i].Data());
+            buffer.AppendFormatted("\n");
          }
          else {
-            buffer.AppendFormatted("   SafeDelete(f%sFoldersStorage);\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFoldersStorage = static_cast<TClonesArray*>(f%sFolders->Clone(f%sFolders->GetName()));\n",folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("   bypassOld = f%sFoldersStorage->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->BypassStreamer(kTRUE);\n",folderName[i].Data());
+            buffer.AppendFormatted("   buffer->MapObject(f%sFolders);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("   ((TObject*)f%sFolders)->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("   // read new object from buffer\n");
+            buffer.AppendFormatted("   buffer->SetReadMode();\n");
+            buffer.AppendFormatted("   buffer->ResetMap();\n");
+            buffer.AppendFormatted("   buffer->SetBufferOffset(0);\n");
+            buffer.AppendFormatted("   buffer->MapObject(f%sFoldersStorage);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->ResetBit(kIsReferenced);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->ResetBit(kCanDelete);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->BypassStreamer(bypassOld);\n",folderName[i].Data());
+            buffer.AppendFormatted("\n");
          }
       }
    }
+   buffer.AppendFormatted("   gFile = filsav;\n");
+   buffer.AppendFormatted("   delete buffer;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
