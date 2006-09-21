@@ -11223,7 +11223,7 @@ void ROMEBuilder::WriteHTMLDoku()
 
    // Write documentation
    ROMEString htmlFile;
-   htmlFile.SetFormatted("%s/%s%s.html",outDir.Data(),shortCut.Data(),mainProgName.Data());
+   htmlFile.SetFormatted("%s%s.html",shortCut.Data(),mainProgName.Data()); // we are already in outputDir
    WriteFile(htmlFile.Data(),buffer.Data(),0);
 
    // Write style sheet
