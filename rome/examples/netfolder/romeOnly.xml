@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu Jul 27 14:31:46 2006 -->
 
 <!-- Please check ROME homepage for details of tags
 http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
@@ -53,7 +52,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     <Online>
       <Host></Host>
       <Experiment></Experiment>
-      <AnalyzerName></AnalyzerName>
+      <AnalyzerName>NFExample</AnalyzerName>
     </Online>
 
     <SocketInterface>
@@ -70,6 +69,13 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </HistogramRead>
+
+    <Macros>
+      <BeginOfRun></BeginOfRun>
+      <BeginOfEvent></BeginOfEvent>
+      <EndOfEvent></EndOfEvent>
+      <EndOfRun></EndOfRun>
+    </Macros>
 
     <Tasks>
       <Task>

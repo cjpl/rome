@@ -3615,13 +3615,14 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   // Folder initialisation\n");
    buffer.AppendFormatted("   fMainFolder = gROOT->GetRootFolder()->AddFolder(\"%s\",\"Root Folder of %s%s\");\n",shortCut.Data(),shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("   gROOT->GetListOfBrowsables()->Add(fMainFolder,\"%s\");\n\n",shortCut.Data());
-
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
       if (!folderSupport[i]) {
-         if (folderParentName[i]=="GetMainFolder()") parentt = folderParentName[i];
-         else parentt.SetFormatted("%sFolder",folderParentName[i].Data());
+         if (folderParentName[i]=="GetMainFolder()")
+               parentt = folderParentName[i];
+         else
+            parentt.SetFormatted("%sFolder",folderParentName[i].Data());
          format.SetFormatted("   TFolder* %%sFolder%%%ds = %%s->AddFolder(\"%%s\",\"%%s\");\n",nameLen-folderName[i].Length());
          buffer.AppendFormatted(format.Data(),folderName[i].Data(),"",parentt.Data(),folderName[i].Data(),folderTitle[i].Data());
       }
@@ -3631,16 +3632,18 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       if (!folderSupport[i]) {
          if (numOfValue[i] > 0) {
+            buffer.AppendFormatted("\n");
             if (folderArray[i]=="1") {
-               buffer.AppendFormatted("\n   f%sFolder = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   f%sFolder = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolder);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFolderStorage = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
             else {
-               buffer.AppendFormatted("\n   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
-               buffer.AppendFormatted("\n   f%sFolders->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   f%sFolders = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   f%sFolders->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
                buffer.AppendFormatted("   %sFolder->Add(f%sFolders);\n",folderName[i].Data(),folderName[i].Data());
                buffer.AppendFormatted("   f%sFoldersStorage = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   f%sFoldersStorage->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
          }
       }
@@ -4104,17 +4107,23 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
-   // Fill Folder Storage
+   // Start NetFolder server
    buffer.AppendFormatted("void %sAnalyzer::StartNetFolderServer() {\n", shortCut.Data());
-   buffer.AppendFormatted("   %sNetFolderServer *tnet = new %sNetFolderServer();\n", shortCut.Data(), shortCut.Data());
-   buffer.AppendFormatted("   tnet->StartServer(GetApplication(),GetPortNumber(),\"ROME\");\n");
+   buffer.AppendFormatted("   if(fNetFolderServer) {\n");
+   buffer.AppendFormatted("      Error(\"StartNetFolderServer\", \"Another server is already running.\");\n");
+   buffer.AppendFormatted("      return;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   fNetFolderServer = new %sNetFolderServer();\n", shortCut.Data());
+   buffer.AppendFormatted("   fNetFolderServer->StartServer(GetApplication(),GetPortNumber(),\"ROME\");\n");
    buffer.AppendFormatted("   ROMEPrint::Print(\"Root server listening on port %%d\\n\", GetPortNumber());\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
    // Fill Folder Storage
    buffer.AppendFormatted("void %sAnalyzer::FillFolderStorage() {\n", shortCut.Data());
-   buffer.AppendFormatted("   R__LOCKGUARD2(fMutex);\n");
+   buffer.AppendFormatted("   if (fFolderStorageStatus != kStorageFree)\n");
+   buffer.AppendFormatted("      return;\n");
+   buffer.AppendFormatted("   fFolderStorageStatus = kStorageWriting;\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");
    buffer.AppendFormatted("   gFile = 0;\n");
@@ -4122,6 +4131,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
    buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   Bool_t bypassStorageOld;\n");
+   buffer.AppendFormatted("   bypassStorageOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -4147,7 +4158,9 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("\n");
          }
          else {
-            buffer.AppendFormatted("   bypassOld = f%sFoldersStorage->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("   bypassOld = f%sFolders->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("   bypassStorageOld = f%sFoldersStorage->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolders->BypassStreamer(kTRUE);\n",folderName[i].Data());
             buffer.AppendFormatted("   f%sFoldersStorage->BypassStreamer(kTRUE);\n",folderName[i].Data());
             buffer.AppendFormatted("   buffer->MapObject(f%sFolders);  //register obj in map to handle self reference\n",folderName[i].Data());
             buffer.AppendFormatted("   ((TObject*)f%sFolders)->Streamer(*buffer);\n",folderName[i].Data());
@@ -4159,13 +4172,15 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
             buffer.AppendFormatted("   f%sFoldersStorage->Streamer(*buffer);\n",folderName[i].Data());
             buffer.AppendFormatted("   f%sFoldersStorage->ResetBit(kIsReferenced);\n",folderName[i].Data());
             buffer.AppendFormatted("   f%sFoldersStorage->ResetBit(kCanDelete);\n",folderName[i].Data());
-            buffer.AppendFormatted("   f%sFoldersStorage->BypassStreamer(bypassOld);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFolders->BypassStreamer(bypassOld);\n",folderName[i].Data());
+            buffer.AppendFormatted("   f%sFoldersStorage->BypassStreamer(bypassStorageOld);\n",folderName[i].Data());
             buffer.AppendFormatted("\n");
          }
       }
    }
    buffer.AppendFormatted("   gFile = filsav;\n");
    buffer.AppendFormatted("   delete buffer;\n");
+   buffer.AppendFormatted("   fFolderStorageStatus = kStorageFree;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -9404,10 +9419,91 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+   buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sNetFolderServer.h\"\n",shortCut.Data());
 
    buffer.AppendFormatted("\nClassImp(%sNetFolderServer)\n",shortCut.Data());
 
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("void %sNetFolderServer::ConstructFolders(TSocket* socket)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t id = FindId(socket);\n");
+   buffer.AppendFormatted("   if(id == -1) return;\n");
+   int i;
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            buffer.AppendFormatted("   f%sFolderActive[id] = kTRUE;\n",folderName[i].Data()); // <- please change to false after implementing active switch in client
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("   f%sFolder[id] = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            }
+            else {
+               buffer.AppendFormatted("   f%sFolders[id] = new TClonesArray(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+               buffer.AppendFormatted("   f%sFolders[id]->SetName(\"%s%s\");\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            }
+         }
+      }
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("void %sNetFolderServer::DestructFolders(TSocket* socket)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t id = FindId(socket);\n");
+   buffer.AppendFormatted("   if(id == -1) return;\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("   SafeDelete(f%sFolder[id]);\n",folderName[i].Data());
+            }
+            else {
+               buffer.AppendFormatted("   SafeDelete(f%sFolders[id]);\n",folderName[i].Data());
+            }
+         }
+      }
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("Int_t %sNetFolderServer::Register(TSocket* socket)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   Int_t id = -1;\n");
+   buffer.AppendFormatted("   for (i = 0; i < kMaxSocketClients; i++) {;\n");
+   buffer.AppendFormatted("      if(fAcceptedSockets[i] == 0) {\n");
+   buffer.AppendFormatted("         fAcceptedSockets[i] = socket;\n");
+   buffer.AppendFormatted("         id = i;\n");
+   buffer.AppendFormatted("         break;\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   if(id == -1)\n");
+   buffer.AppendFormatted("      Error(\"Register\", \"Number of netfolder clients exceeded the maximum (%%d)\", kMaxSocketClients);\n");
+   buffer.AppendFormatted("   return id;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("void %sNetFolderServer::UnRegister(TSocket* socket)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t id = FindId(socket);\n");
+   buffer.AppendFormatted("   if(id != -1);\n");
+   buffer.AppendFormatted("      fAcceptedSockets[id] = 0;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("Int_t %sNetFolderServer::FindId(TSocket* socket)\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   i = 0;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   for (i = 0; i < kMaxSocketClients; i++) {;\n");
+   buffer.AppendFormatted("      if(fAcceptedSockets[i] == socket) {\n");
+   buffer.AppendFormatted("         return i;\n");
+   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   return -1;\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int %sNetFolderServer::ResponseFunction(TSocket *socket) {\n",shortCut.Data());
    buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
@@ -9430,6 +9526,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   // Check Command\n");
    buffer.AppendFormatted("   if (strncmp(str, \"GetCurrentRunNumber\", 19) == 0) {\n");
    buffer.AppendFormatted("      //get run number\n");
@@ -9440,6 +9537,51 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      socket->Send(message);\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n",shortCut.Data());
+   buffer.AppendFormatted("   if(id >= 0) {\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%s)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),strlen("FindObjectAny()")+shortCut.Length()+folderName[i].Length());
+               buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
+               buffer.AppendFormatted("      while(1) {\n");
+               buffer.AppendFormatted("         if (!localThis->fLocks[id]) {\n");
+               buffer.AppendFormatted("            localThis->fLocks[id] = kTRUE;\n");
+               buffer.AppendFormatted("            message<<localThis->f%sFolder[id];\n",folderName[i].Data());
+               buffer.AppendFormatted("            localThis->fLocks[id] = kFALSE;\n");
+               buffer.AppendFormatted("            break;\n");
+               buffer.AppendFormatted("         }\n");
+               buffer.AppendFormatted("         else\n");
+               buffer.AppendFormatted("            gSystem->Sleep(100);\n");
+               buffer.AppendFormatted("      }\n");
+               buffer.AppendFormatted("      socket->Send(message);\n");
+               buffer.AppendFormatted("      return 1;\n");
+               buffer.AppendFormatted("   }\n");
+            }
+            else {
+               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%ss)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),strlen("FindObjectAny(s)")+shortCut.Length()+folderName[i].Length());
+               buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
+               buffer.AppendFormatted("      while(1) {\n");
+               buffer.AppendFormatted("         if (!localThis->fLocks[id]) {\n");
+               buffer.AppendFormatted("            localThis->fLocks[id] = kTRUE;\n");
+               buffer.AppendFormatted("            message<<localThis->f%sFolders[id];\n",folderName[i].Data());
+               buffer.AppendFormatted("            localThis->fLocks[id] = kFALSE;\n");
+               buffer.AppendFormatted("            break;\n");
+               buffer.AppendFormatted("         }\n");
+               buffer.AppendFormatted("         else\n");
+               buffer.AppendFormatted("            gSystem->Sleep(100);\n");
+               buffer.AppendFormatted("      }\n");
+               buffer.AppendFormatted("      socket->Send(message);\n");
+               buffer.AppendFormatted("      return 1;\n");
+               buffer.AppendFormatted("   }\n");
+            }
+         }
+      }
+   }
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   return ROMENetFolderServer::CheckCommand(socket,str);\n");
    buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return 1;\n");
@@ -9449,11 +9591,19 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))\n");
    buffer.AppendFormatted("   TSocket *socket = (TSocket *) arg;\n");
+   buffer.AppendFormatted("   %sNetFolderServer* localThis = static_cast<%sNetFolderServer*>(gAnalyzer->GetNetFolderServer());\n",shortCut.Data(),shortCut.Data());
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (!socket->IsValid())\n");
    buffer.AppendFormatted("      return THREADRETURN;\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   if (!localThis->Register(socket))\n");
+   buffer.AppendFormatted("      return THREADRETURN;\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   localThis->ConstructFolders(socket);\n");
    buffer.AppendFormatted("   while (%sNetFolderServer::ResponseFunction(socket))\n",shortCut.Data());
    buffer.AppendFormatted("   {}\n");
+   buffer.AppendFormatted("   localThis->DestructFolders(socket);\n");
+   buffer.AppendFormatted("   localThis->UnRegister(socket);\n");
    buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("   return THREADRETURN;\n");
    buffer.AppendFormatted("}\n");
@@ -9507,6 +9657,79 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("void %sNetFolderServer::UpdateFolders()\n",shortCut.Data());
+   buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   gAnalyzer->SetFolderStorageStatus(ROMEAnalyzer::kStorageReading);\n");
+   buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
+   buffer.AppendFormatted("   TFile *filsav = gFile;\n");
+   buffer.AppendFormatted("   gFile = 0;\n");
+   buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
+   buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
+   buffer.AppendFormatted("   Bool_t bypassOrgOld;\n");
+   buffer.AppendFormatted("   bypassOrgOld = kFALSE;\n"); // to suppress unused warning
+   buffer.AppendFormatted("   Bool_t bypassOld;\n");
+   buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   Int_t iClient;\n");
+   buffer.AppendFormatted("   for(iClient = 0; iClient < kMaxSocketClients; iClient++) {\n");
+   buffer.AppendFormatted("      if(!fAcceptedSockets[iClient]) continue;\n");
+   buffer.AppendFormatted("      if(fLocks[iClient]) continue;\n");
+   buffer.AppendFormatted("      fLocks[iClient] = kTRUE;\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (folderSupport[i])
+         continue;
+      if (numOfValue[i] > 0) {
+         buffer.AppendFormatted("      buffer->Reset();\n");
+         buffer.AppendFormatted("      buffer->SetWriteMode();\n");
+         buffer.AppendFormatted("      if (f%sFolderActive[iClient]) {\n",folderName[i].Data());
+         if (folderArray[i]=="1") {
+            buffer.AppendFormatted("         %s%s *%sOrg = gAnalyzer->Get%sStorage();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("         buffer->Reset();\n");
+            buffer.AppendFormatted("         buffer->SetWriteMode();\n");
+            buffer.AppendFormatted("         buffer->MapObject(%sOrg);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("         ((TObject*)%sOrg)->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("         // read new object from buffer\n");
+            buffer.AppendFormatted("         buffer->SetReadMode();\n");
+            buffer.AppendFormatted("         buffer->ResetMap();\n");
+            buffer.AppendFormatted("         buffer->SetBufferOffset(0);\n");
+            buffer.AppendFormatted("         buffer->MapObject(f%sFolder[iClient]);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolder[iClient]->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolder[iClient]->ResetBit(kIsReferenced);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolder[iClient]->ResetBit(kCanDelete);\n",folderName[i].Data());
+         }
+         else {
+            buffer.AppendFormatted("         TClonesArray *%ssOrg = gAnalyzer->Get%ssStorage();\n",folderName[i].Data(),folderName[i].Data());
+            buffer.AppendFormatted("         bypassOrgOld = %ssOrg->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("         bypassOld = f%sFolders[iClient]->CanBypassStreamer();\n",folderName[i].Data());
+            buffer.AppendFormatted("         %ssOrg->BypassStreamer(kTRUE);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolders[iClient]->BypassStreamer(kTRUE);\n",folderName[i].Data());
+            buffer.AppendFormatted("         buffer->MapObject(%ssOrg);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("         ((TObject*)%ssOrg)->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("         // read new object from buffer\n");
+            buffer.AppendFormatted("         buffer->SetReadMode();\n");
+            buffer.AppendFormatted("         buffer->ResetMap();\n");
+            buffer.AppendFormatted("         buffer->SetBufferOffset(0);\n");
+            buffer.AppendFormatted("         buffer->MapObject(f%sFolders[iClient]);  //register obj in map to handle self reference\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolders[iClient]->Streamer(*buffer);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolders[iClient]->ResetBit(kIsReferenced);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolders[iClient]->ResetBit(kCanDelete);\n",folderName[i].Data());
+            buffer.AppendFormatted("         %ssOrg->BypassStreamer(bypassOrgOld);\n",folderName[i].Data());
+            buffer.AppendFormatted("         f%sFolders[iClient]->BypassStreamer(bypassOld);\n",folderName[i].Data());
+         }
+         buffer.AppendFormatted("      }\n");
+         buffer.AppendFormatted("\n");
+      }
+   }
+   buffer.AppendFormatted("      fLocks[iClient] = kFALSE;\n");
+   buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   gFile = filsav;\n");
+   buffer.AppendFormatted("   delete buffer;\n");
+   buffer.AppendFormatted("   gAnalyzer->SetFolderStorageStatus(ROMEAnalyzer::kStorageFree);\n");
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
 
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
@@ -9534,10 +9757,39 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#include \"ROMENetFolderServer.h\"\n");
+   // Folder class declaration
+   Int_t i;
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (numOfValue[i] > 0 && !folderSupport[i]) {
+         buffer.AppendFormatted("class %s%s;\n",shortCut.Data(),folderName[i].Data());
+      }
+   }
+   buffer.AppendFormatted("\n");
 
    // Class
    buffer.AppendFormatted("\nclass %sNetFolderServer : public ROMENetFolderServer\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("protected:\n");
+   // Folder Fields
+   buffer.AppendFormatted("   // Folder Fields\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            buffer.AppendFormatted("   Bool_t f%sFolderActive[kMaxSocketClients]; // Flag if %s%s is active\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            if (folderArray[i]=="1") {
+               buffer.AppendFormatted("   %s%s* f%sFolder[kMaxSocketClients]; // Handle to %s%s Folder\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            }
+            else {
+               buffer.AppendFormatted("   TClonesArray* f%sFolders[kMaxSocketClients]; // Handle to %s%s Folders\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
+            }
+         }
+      }
+   }
+   buffer.AppendFormatted("\n");
    buffer.AppendFormatted("public:\n");
    buffer.AppendFormatted("   void              StartServer(TApplication *app,Int_t port,const char* serverName);\n");
    buffer.AppendFormatted("   static Int_t      ResponseFunction(TSocket *socket);\n");
@@ -9545,6 +9797,12 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("public:\n");
    buffer.AppendFormatted("   %sNetFolderServer(){}\n",shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sNetFolderServer(){}\n",shortCut.Data());
+   buffer.AppendFormatted("   void   UpdateFolders();\n");
+   buffer.AppendFormatted("   void   ConstructFolders(TSocket* socket);\n");
+   buffer.AppendFormatted("   void   DestructFolders(TSocket* socket);\n");
+   buffer.AppendFormatted("   Int_t  Register(TSocket* socket);\n");
+   buffer.AppendFormatted("   void   UnRegister(TSocket* socket);\n");
+   buffer.AppendFormatted("   Int_t  FindId(TSocket* socket);\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("protected:\n");
    buffer.AppendFormatted("   static Int_t      CheckCommand(TSocket *socket,char *str);\n");
@@ -10086,17 +10344,13 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
       if (folderArray[numFolder]=="1") {
          buffer.AppendFormatted("   %s%s* Get%s();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   %s%s** Get%sAddress();\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("   %s%s* Get%sStorage() {\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
-         buffer.AppendFormatted("      return f%sFolderStorage;\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   %s%s* Get%sStorage() { return f%sFolderStorage; } \n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
       }
       else {
          buffer.AppendFormatted("   %s%s* Get%sAt(Int_t index);\n",shortCut.Data(),folderName[numFolder].Data(),folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%ss();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray** Get%sAddress();\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   TClonesArray* Get%ssStorage() {\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("      return f%sFoldersStorage;\n",folderName[numFolder].Data());
-         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   TClonesArray* Get%ssStorage() { return f%sFoldersStorage; }\n",folderName[numFolder].Data(),folderName[numFolder].Data());
       }
    }
 }

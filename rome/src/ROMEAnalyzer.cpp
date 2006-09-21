@@ -66,7 +66,6 @@
 #include <TFile.h>
 #include <TArrayI.h>
 #include <TArrayL.h>
-#include <TMutex.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -92,7 +91,6 @@ ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
 ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nographics)
 {
 // Initialisations
-   fMutex = new TMutex();
    fProgramMode = kStandAloneROME;
    fWindowClosed = false;
    fApplication = app;
@@ -142,6 +140,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fMainTask = 0;
    fMainFolder = 0;
    fHistoFiles = 0;
+   fNetFolderServer = 0;
    fTreeObjects = new TObjArray(0);
    fTreeAccumulation = false;
    fMainHistoFolder = 0;
@@ -179,6 +178,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fRomeOutputFile = 0;
    fWindow = 0;
    fWindowUpdateFrequency = 0;
+   fFolderStorageStatus = kStorageFree;
    fRequestEventHandling = false;
 }
 
@@ -1367,4 +1367,12 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
       buffer.Insert(startStr, insertStr);
       endStr = startStr + insertStr.Length();
    }
+}
+
+THREADTYPE ROMEAnalyzer::FillFoldersInNetFolderServer(ROMEAnalyzer *localThis)
+{
+   if (localThis->GetFolderStorageStatus() != kStorageFree)
+      return THREADRETURN;
+   localThis->GetNetFolderServer()->UpdateFolders();
+   return THREADRETURN;
 }

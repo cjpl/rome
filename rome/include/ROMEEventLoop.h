@@ -22,6 +22,9 @@
 class ROMETreeInfo;
 class TFile;
 class TTime;
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+class TThread;
+#endif
 
 class ROMEEventLoop : public ROMETask {
 protected:
@@ -76,6 +79,14 @@ protected:
    Bool_t        fHaveEndOfEventMacro;             //! flag if it has macro to execute at the end of event
    Bool_t        fHaveEndOfRunMacro;               //! flag if it has macro to execute at the end of run
 
+   // NetFolderServer update
+   ULong_t       fLastNetFolderServerUpdateTime;    //! Time of the last NetFolderServers update
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   TThread      *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
+#else
+   void         *fNetFolderServerUpdateThread;     //! Thread to update NetFolderServers
+#endif
+
 public:
    // Static Hot Links
 #if defined( HAVE_MIDAS )
@@ -113,6 +124,7 @@ public:
    const char*  GetEndOfRunMacro() { return fEndOfRunMacro.Data(); }
 
    virtual void AddTreeBranches() = 0;
+
 protected:
    // Run Status
    inline Bool_t isRunning();

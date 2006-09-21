@@ -67,6 +67,7 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fStop = false;
    fHistoFile = 0;
    fLastUpdateTime = 0;
+   fLastNetFolderServerUpdateTime = 0;
    fBeginOfRunMacro = "";
    fBeginOfEventMacro = "";
    fEndOfEventMacro = "";
@@ -75,10 +76,17 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fHaveBeginOfEventMacro = kFALSE;
    fHaveEndOfEventMacro = kFALSE;
    fHaveEndOfRunMacro = kFALSE;
+   fNetFolderServerUpdateThread = 0;
 }
 
 ROMEEventLoop::~ROMEEventLoop()
 {
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+   if (fNetFolderServerUpdateThread) {
+      TThread::Delete(fNetFolderServerUpdateThread);
+      delete fNetFolderServerUpdateThread;
+   }
+#endif
    SafeDelete(fHistoFile);
 }
 
@@ -421,8 +429,22 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Store Event
-   if (gROME->isOnline() || gROME->isSocketOffline())      
-      gROME->FillFolderStorage();
+   const ULong_t kInterval = 10000; // this should be changed to parameter
+   if (gROME->GetNetFolderServer()) {
+      if (gROME->GetFolderStorageStatus() == ROMEAnalyzer::kStorageFree
+          && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
+         fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
+         gROME->FillFolderStorage();
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+         if (fNetFolderServerUpdateThread) {
+            TThread::Delete(fNetFolderServerUpdateThread);
+            delete fNetFolderServerUpdateThread;
+         }
+         fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillFoldersInNetFolderServer,(void*) gROME);
+         fNetFolderServerUpdateThread->Run();
+#endif
+      }
+   }
 
    // Write Event
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
@@ -723,7 +745,6 @@ Bool_t ROMEEventLoop::Update()
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
          if (gROME->GetWindow()->IsControllerActive())
             gROME->GetWindow()->GetAnalyzerController()->Update();
-
          if (fUpdateWindow || gROME->IsEventHandlingRequested()) {
             if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency()) || gROME->IsEventHandlingRequested()) {
                if (!gROME->IsStandAloneARGUS())

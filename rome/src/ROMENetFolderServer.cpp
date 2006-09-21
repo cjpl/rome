@@ -77,12 +77,20 @@ THREADTYPE ROMENetFolderServer::Server(void *arg)
 {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    TSocket *socket = (TSocket *) arg;
+   ROMENetFolderServer* localThis = gROME->GetNetFolderServer();
 
    if (!socket->IsValid())
       return THREADRETURN;
 
+   if(localThis->Register(socket) == -1)
+      return THREADRETURN;
+
+   localThis->ConstructFolders(socket);
    while (ROMENetFolderServer::ResponseFunction(socket))
    {}
+   localThis->DestructFolders(socket);
+   localThis->UnRegister(socket);
+
 #endif // ROOT_VERSION
    return THREADRETURN;
 }
