@@ -18,9 +18,7 @@
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
-
-#define THREADRETURN NULL
-#define THREADTYPE void*
+#include "ROME.h"
 
 class TApplication;
 class TSocket;

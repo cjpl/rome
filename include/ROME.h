@@ -8,6 +8,9 @@
 #define ROME_H
 #include <Rtypes.h>
 
+#define THREADRETURN NULL
+#define THREADTYPE void*
+
 #if defined( R__VISUAL_CPLUSPLUS )
 #   define OS_WINNT
 #endif

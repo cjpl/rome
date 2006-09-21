@@ -40,10 +40,10 @@ typedef Int_t HNDLE;
 class TObjArray;
 class TSocket;
 class TTree;
-class TVirtualMutex;
 class ROMEDAQSystem;
 class ROMEAnalyzer;
 class ArgusWindow;
+class ROMENetFolderServer;
 
 typedef struct {
    Double_t processedEvents;   //! Processed Events
@@ -52,6 +52,8 @@ typedef struct {
 } Statistics;
 
 extern ROMEAnalyzer *gROME;  // global ROMEAnalyzer Handle
+
+const Int_t kMaxSocketClients = 100;
 
 class ROMEAnalyzer : public TObject
 {
@@ -77,6 +79,13 @@ public:
       kStandAloneROME,
       kStandAloneARGUS,
       kROMEAndARGUS
+   };
+
+   // Folder Storage Status
+   enum {
+      kStorageFree,
+      kStorageWriting,
+      kStorageReading
    };
 
 protected:
@@ -159,6 +168,7 @@ protected:
    TTask         *fMainTask;                     //! Handle to Main Task
    TFolder       *fMainFolder;                   //! Handle to Main Folder
    TFile         *fHistoFiles;                   //! Handle to Histogram Files
+   ROMENetFolderServer *fNetFolderServer;        //! Handle to NetFolder server
 
    // Trees
    TObjArray     *fTreeObjects;                  //! Handle to Tree Objects
@@ -227,13 +237,14 @@ protected:
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
 
+   // Folder Storage Status
+   Int_t           fFolderStorageStatus;
+
 #ifndef __CINT__
    // stream
    streambuf     *fOldbuf;                       //! original buffer of stdout
    ofstream      *fRomeOutputFile;               //! Redirected output currently not used
 #endif // __CINT__
-
-   TVirtualMutex *fMutex;                        // Main Mutex
 
 public:
    ROMEAnalyzer() {}
@@ -276,6 +287,9 @@ public:
    void            SetDataBase(Int_t i,ROMEDataBase *dataBase) { fDataBaseHandle[i] = dataBase; }
    Int_t           GetNumberOfDataBases() { return fNumberOfDataBases; }
    void            InitDataBases(Int_t number);
+
+   // NetFolderServer
+   ROMENetFolderServer *GetNetFolderServer() { return fNetFolderServer; }
 
    // modes
    Bool_t          isSplashScreen() { return fSplashScreen; }
@@ -576,9 +590,6 @@ public:
    void            NextEvent();
    void            GotoEvent(Long64_t eventNumber);
 
-   // Mutex
-   TVirtualMutex  *GetMutex() { return fMutex; };
-
    virtual Bool_t  ReadSingleDataBaseFolders() = 0;
    virtual Bool_t  ReadArrayDataBaseFolders() = 0;
 
@@ -593,7 +604,10 @@ public:
    void            redirectOutput();
    void            restoreOutput();
 
+   static THREADTYPE FillFoldersInNetFolderServer(ROMEAnalyzer *localThis);
    virtual void    FillFolderStorage() = 0;
+   Int_t           GetFolderStorageStatus() { return fFolderStorageStatus; }
+   void            SetFolderStorageStatus(Int_t status) { fFolderStorageStatus = status; }
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);

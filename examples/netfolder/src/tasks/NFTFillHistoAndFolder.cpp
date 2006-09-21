@@ -44,6 +44,7 @@
 #include "generated/NFAnalyzer.h"
 
 #include <TRandom.h>
+#include <TSystem.h>
 #include "include/tasks/NFTFillHistoAndFolder.h"
 #include "Riostream.h"
 
@@ -63,6 +64,7 @@ void NFTFillHistoAndFolder::Event()
    double value = gRandom->Gaus(0,20);
    FillHisto1(value);
    int ivalue = (int)(value+100);
+   gSystem->Sleep(10);
    if (ivalue>=0 && ivalue<200)
       gAnalyzer->GetGaussData()->SetBinAt(ivalue,gAnalyzer->GetGaussData()->GetBinAt(ivalue)+1);
 }
