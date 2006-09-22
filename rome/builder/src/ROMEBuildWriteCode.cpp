@@ -9488,7 +9488,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("void %sNetFolderServer::UnRegister(TSocket* socket)\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
    buffer.AppendFormatted("   Int_t id = FindId(socket);\n");
-   buffer.AppendFormatted("   if(id != -1);\n");
+   buffer.AppendFormatted("   if(id != -1)\n");
    buffer.AppendFormatted("      fAcceptedSockets[id] = 0;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
