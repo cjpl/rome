@@ -2509,7 +2509,7 @@ Bool_t ROMEBuilder::WriteTabCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
-      buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu *menu,Long_t param)\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("void %sT%s::MenuClicked(TGPopupMenu * /* menu */, Long_t /* param */)\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("{\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
