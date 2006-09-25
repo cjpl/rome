@@ -37,6 +37,7 @@ protected:
       kMaxNumberOfPads = 120,
       kMaxNumberOfPadsX = 6,
       kMaxNumberOfPadsY = 20,
+      kNumberOfDisplayViewSelections = 1000,
       kMaxNumberOfLines = 5
    };
    enum MenuEnumeration {
@@ -54,10 +55,9 @@ protected:
    TGPopupMenu         *fMenuDisplay;   //!
    TGPopupMenu         *fMenuView;      //!
    TGPopupMenu         *fMenuViewDivide;//!
-   TGPopupMenu         *fMenuView0_19;  //!
-   TGPopupMenu         *fMenuView20_39; //!
-   TGPopupMenu         *fMenuView40_59; //!
-   TGPopupMenu         *fMenuView60_79; //!
+   TGPopupMenu         *fMenuViewSelect;//!
+   TGPopupMenu         *fMenuView10[10][10];  //!
+   TGPopupMenu         *fMenuView100[10]; //!
    TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
    TGHProgressBar      *fProgress;      //! 
    TRootEmbeddedCanvas *fStatus;        //! 
