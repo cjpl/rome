@@ -2015,7 +2015,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("clean: depclean userclean\n");
    buffer.AppendFormatted("\t-$(RM) obj/*%s G__auto*LinkDef.h dict/*.h dict/*.cpp",kObjectSuffix);
    if (pch)
-      buffer.AppendFormatted(" include/generated/*.gch",kObjectSuffix);
+      buffer.AppendFormatted(" include/generated/*.gch");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("distclean: userdistclean clean\n");

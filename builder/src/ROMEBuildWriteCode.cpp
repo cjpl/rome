@@ -3747,8 +3747,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    for (i=0;i<daqNameArray->GetEntriesFast();i++) {
       buffer.AppendFormatted("   SafeDelete(f%sDAQ);\n",daqNameArray->At(i).Data());
    }
-   buffer.AppendFormatted("   SafeDelete(fWindow);\n",shortCut.Data());
-   buffer.AppendFormatted("   SafeDelete(fConfiguration);\n",shortCut.Data());
+   buffer.AppendFormatted("   SafeDelete(fWindow);\n");
+   buffer.AppendFormatted("   SafeDelete(fConfiguration);\n");
    // End of Destructor
    buffer.AppendFormatted("}\n\n");
 
@@ -5959,7 +5959,7 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
       if (level==0 || (level==1 && parGroup->GetGroupName()=="Tasks")) {
          if ((level==0 && parGroup->GetSubGroupAt(i)->GetGroupName()=="Tasks")) {
             for (j=0;j<parGroup->GetSubGroupAt(i)->GetNumberOfSubGroups();j++)
-               buffer.AppendFormatted("%s   if (!Save%s(dialog)) return false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data(),shortCut.Data());
+               buffer.AppendFormatted("%s   if (!Save%s(dialog)) return false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetSubGroupAt(j)->GetGroupName().Data());
          }
          buffer.AppendFormatted("   return true;\n");
          buffer.AppendFormatted("   WarningSuppression(dialog);\n");
@@ -6179,8 +6179,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
-   buffer.AppendFormatted("   int ii[100];\n",i);
-   buffer.AppendFormatted("   ii[0] = 0;\n",i); // to suppress unused warning
+   buffer.AppendFormatted("   int ii[100];\n");
+   buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    WriteConfigRead(buffer,mainParGroup,1,"","","","");
    buffer.AppendFormatted("   return true;\n");
    buffer.AppendFormatted("}\n\n");
@@ -9537,7 +9537,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("      socket->Send(message);\n");
    buffer.AppendFormatted("      return 1;\n");
    buffer.AppendFormatted("   }\n");
-   buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n",shortCut.Data());
+   buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n");
    buffer.AppendFormatted("   if(id >= 0) {\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -9545,7 +9545,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       if (!folderSupport[i]) {
          if (numOfValue[i] > 0) {
             if (folderArray[i]=="1") {
-               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%s)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),strlen("FindObjectAny()")+shortCut.Length()+folderName[i].Length());
+               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%s)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),static_cast<int>(strlen("FindObjectAny()")+shortCut.Length()+folderName[i].Length()));
                buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
                buffer.AppendFormatted("      while(1) {\n");
                buffer.AppendFormatted("         if (!localThis->fLocks[id]) {\n");
@@ -9562,7 +9562,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                buffer.AppendFormatted("   }\n");
             }
             else {
-               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%ss)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),strlen("FindObjectAny(s)")+shortCut.Length()+folderName[i].Length());
+               buffer.AppendFormatted("   if (strncmp(str, \"FindObjectAny(%s%ss)\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),static_cast<int>(strlen("FindObjectAny(s)")+shortCut.Length()+folderName[i].Length()));
                buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
                buffer.AppendFormatted("      while(1) {\n");
                buffer.AppendFormatted("         if (!localThis->fLocks[id]) {\n");
