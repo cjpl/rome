@@ -2832,7 +2832,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("            *((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)) = *((%s*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn));\n",tabObjectSupportedHistos.At(j).Data(),tabObjectSupportedHistos.At(j).Data());
          }
          buffer.AppendFormatted("         ((TNamed*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->SetTitle(((TNamed*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn))->GetTitle());\n");
-         buffer.AppendFormatted("         for (k=0;k<TMath::Min(kMaxNumberOfLines,fNumberOfUserLines);k++) {\n");
+         buffer.AppendFormatted("         for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++) {\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetX1(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetX1());\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetY1(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetY1());\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetX2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetX2());\n");

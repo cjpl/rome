@@ -80,10 +80,12 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fMenuDisplay = 0;
    fMenuView = 0;
    fMenuViewDivide = 0;
-   fMenuView0_19 = 0;
-   fMenuView20_39 = 0;
-   fMenuView40_59 = 0;
-   fMenuView60_79 = 0;
+   fMenuViewSelect = 0;
+   for (i=0;i<10;i++) {
+      fMenuView100[i] = 0;
+      for (j=0;j<10;j++)
+         fMenuView10[i][j] = 0;
+   }
    fProgress = 0;
    fStatus = 0;
    fStatusText = 0;
@@ -111,10 +113,11 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
    SafeDelete(fMenuDisplay);
    SafeDelete(fMenuView);
    SafeDelete(fMenuViewDivide);
-   SafeDelete(fMenuView0_19);
-   SafeDelete(fMenuView20_39);
-   SafeDelete(fMenuView40_59);
-   SafeDelete(fMenuView60_79);
+   for (i=0;i<10;i++) {
+      SafeDelete(fMenuView100[i]);
+      for (j=0;j<10;j++)
+         SafeDelete(fMenuView10[i][j]);
+   }
    SafeDelete(fProgress);
    SafeDelete(fStatus);
    SafeDelete(fStatusText);
@@ -215,7 +218,6 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
 void ArgusHistoDisplay::BaseInit()
 {
    ROMEString str;
-   int i,j;
 
    /* Create an embedded canvas and add to the main frame, centered in x and y */
    fCanvas = new TRootEmbeddedCanvas("Canvas", this, 800, 400);
@@ -231,14 +233,6 @@ void ArgusHistoDisplay::BaseInit()
    gROME->GetWindow()->GetStatusBar()->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
 
    SetWindowName("DRS");
-
-   fLines->AddLast(new TObjArray());
-   for (i=0;i<fNumberOfDisplayTypes;i++) {
-      ((TObjArray*)fLines->Last())->AddLast(new TObjArray());
-      for (j=0;j<kMaxNumberOfLines;j++) {
-         ((TObjArray*)((TObjArray*)fLines->Last())->Last())->AddLast(new TLine());
-      }
-   }
 
    SetSize(GetDefaultSize());
    fChannelNumber = 0;
@@ -314,7 +308,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
          }
       }
    }
-   for (i=0;i<80;i++) {
+   for (i=0;i<kNumberOfDisplayViewSelections;i++) {
       if (param == M_ARGUS_DISPLAY_VIEW_SELECT+i) {
          fChannelNumber = i;
          Display();
@@ -326,7 +320,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
 
 void ArgusHistoDisplay::BaseTabSelected()
 {
-   Int_t i,j;
+   Int_t i,j,k;
    ROMEString str;
    // Create menu
 
@@ -336,14 +330,16 @@ void ArgusHistoDisplay::BaseTabSelected()
    fMenuView->Associate(gROME->GetWindow());
    fMenuViewDivide = new TGPopupMenu(fClient->GetRoot());
    fMenuViewDivide->Associate(gROME->GetWindow());
-   fMenuView0_19 = new TGPopupMenu(fClient->GetRoot());
-   fMenuView0_19->Associate(gROME->GetWindow());
-   fMenuView20_39 = new TGPopupMenu(fClient->GetRoot());
-   fMenuView20_39->Associate(gROME->GetWindow());
-   fMenuView40_59 = new TGPopupMenu(fClient->GetRoot());
-   fMenuView40_59->Associate(gROME->GetWindow());
-   fMenuView60_79 = new TGPopupMenu(fClient->GetRoot());
-   fMenuView60_79->Associate(gROME->GetWindow());
+   fMenuViewSelect = new TGPopupMenu(fClient->GetRoot());
+   fMenuViewSelect->Associate(gROME->GetWindow());
+   for (i=0;i<10;i++) {
+      fMenuView100[i] = new TGPopupMenu(fClient->GetRoot());
+      fMenuView100[i]->Associate(gROME->GetWindow());
+      for (j=0;j<10;j++) {
+         fMenuView10[i][j] = new TGPopupMenu(fClient->GetRoot());
+         fMenuView10[i][j]->Associate(gROME->GetWindow());
+      }
+   }
    for (i=0;i<kMaxNumberOfPadsX;i++) {
       fMenuViewDivideColumn[i] = new TGPopupMenu(fClient->GetRoot());
       fMenuViewDivideColumn[i]->Associate(gROME->GetWindow());
@@ -355,26 +351,19 @@ void ArgusHistoDisplay::BaseTabSelected()
       fMenuViewDivide->AddPopup(str.Data(), fMenuViewDivideColumn[i]);
    }
    fMenuView->AddPopup("Divide", fMenuViewDivide);
-   for (i=0;i<20;i++) {
-      str.SetFormatted("%d",i);
-      fMenuView0_19->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i);
+   for (i=0;i<10;i++) {
+      for (j=0;j<10;j++) {
+         for (k=0;k<10;k++) {
+            str.SetFormatted("%d",i*100+j*10+k);
+            fMenuView10[i][j]->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i*100+j*10+k);
+         }
+         str.SetFormatted("%d-%d",i*100+j*10,i*100+(j+1)*10-1);
+         fMenuView100[i]->AddPopup(str.Data(), fMenuView10[i][j]);
+      }
+      str.SetFormatted("%d-%d",i*100,(i+1)*100-1);
+      fMenuViewSelect->AddPopup(str.Data(), fMenuView100[i]);
    }
-   fMenuView->AddPopup("0-19", fMenuView0_19);
-   for (i=20;i<40;i++) {
-      str.SetFormatted("%d",i);
-      fMenuView20_39->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i);
-   }
-   fMenuView->AddPopup("20-39", fMenuView20_39);
-   for (i=40;i<60;i++) {
-      str.SetFormatted("%d",i);
-      fMenuView40_59->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i);
-   }
-   fMenuView->AddPopup("40-59", fMenuView40_59);
-   for (i=60;i<80;i++) {
-      str.SetFormatted("%d",i);
-      fMenuView60_79->AddEntry(str.Data(), M_ARGUS_DISPLAY_VIEW_SELECT+i);
-   }
-   fMenuView->AddPopup("60-79", fMenuView60_79);
+   fMenuView->AddPopup("Select", fMenuViewSelect);
 
    fMenuView->AddEntry("Next", M_ARGUS_DISPLAY_VIEW_NEXT);
    fMenuView->AddEntry("Previous", M_ARGUS_DISPLAY_VIEW_PREVIOUS);
@@ -488,7 +477,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("AL");
          else
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw();
-         for (k=0;k<TMath::Min(kMaxNumberOfLines,fNumberOfUserLines);k++)
+         for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++)
             ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
          SetStatisticBox(true);
       }
