@@ -461,6 +461,8 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("      %sActualSize = number;\n",valueName[iFold][i].Data());
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   %sSize = number;\n",valueName[iFold][i].Data());
+               if (valueArraySpecifier[iFold][i].Length())
+                  buffer.AppendFormatted("   %s = number;\n",valueArraySpecifier[iFold][i].Data());
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
                buffer.AppendFormatted("void %s::Set%sCopy(Int_t n,%s* array)\n",clsName.Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data());
