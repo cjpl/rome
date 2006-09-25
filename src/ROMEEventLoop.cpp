@@ -84,7 +84,7 @@ ROMEEventLoop::~ROMEEventLoop()
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (fNetFolderServerUpdateThread) {
       TThread::Delete(fNetFolderServerUpdateThread);
-      delete fNetFolderServerUpdateThread;
+      fNetFolderServerUpdateThread = 0;
    }
 #endif
    SafeDelete(fHistoFile);
@@ -438,7 +438,7 @@ Int_t ROMEEventLoop::RunEvent()
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
          if (fNetFolderServerUpdateThread) {
             TThread::Delete(fNetFolderServerUpdateThread);
-            delete fNetFolderServerUpdateThread;
+            fNetFolderServerUpdateThread = 0;
          }
          fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillFoldersInNetFolderServer,(void*) gROME);
          fNetFolderServerUpdateThread->Run();
