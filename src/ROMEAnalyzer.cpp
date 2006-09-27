@@ -1252,11 +1252,15 @@ Bool_t ROMEAnalyzer::isDataBaseActive(const char *name)
 
 void ROMEAnalyzer::InitDataBases(Int_t number)
 {
+   int i;
    fDataBaseHandle = new ROMEDataBase*[number];
    fDataBaseConnection = new ROMEString[number];
    fDataBaseName = new ROMEString[number];
    fDataBaseDir = new ROMEString[number];
    fNumberOfDataBases = number;
+   for(i = 0; i < fNumberOfDataBases; i++) {
+      fDataBaseHandle[i] = NULL;
+   }
 }
 
 void ROMEAnalyzer::NextEvent()

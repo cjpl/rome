@@ -746,7 +746,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          noLink = true;
          minRebuild = true;
          sql = false;
-         mysql = false;
+         mysql = true;
          outDir = "C:/meg/meganalyzer/";
          xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
          affiliations.AddAtAndExpand("dch",0);
