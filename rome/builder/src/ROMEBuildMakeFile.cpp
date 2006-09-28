@@ -1226,7 +1226,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
    if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"generating obj/%sionary.d\"\n",dictionaryName);
+      buffer.AppendFormatted("\t@echo \"creating  obj/%sionary.d\"\n",dictionaryName);
       tmp = "@";
    }
    else {
@@ -1253,7 +1253,7 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    buffer.AppendFormatted(" $(%sionaryDep)\n", dictionaryName);
 
    // Echo
-   buffer.AppendFormatted("\t@echo creating %s\n",dictionaryName);
+   buffer.AppendFormatted("\t@echo \"creating  dict/%s.cpp dict/%s.h\"\n",dictionaryName,dictionaryName);
 #if defined( R__UNIX )
    buffer.AppendFormatted("\t-@$(RM) dict/%s.cpp dict/%s.h\n",dictionaryName,dictionaryName);
 #endif // R__UNIX
@@ -1372,7 +1372,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
    if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"generating obj/%sUserDictionary.d\"\n",shortCut.Data());
+      buffer.AppendFormatted("\t@echo \"creating  obj/%sUserDictionary.d\"\n",shortCut.Data());
       tmp = "@";
    }
    else {
@@ -1958,7 +1958,7 @@ void ROMEBuilder::WriteMakefile() {
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
    if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"Linking %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
       buffer.AppendFormatted("\t@$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    }
    else {
@@ -1969,7 +1969,7 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("lib%s%s.so: $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
    if (quietMake) {
-      buffer.AppendFormatted("\t@echo \"Linking lib%s%s.so\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("\t@echo \"linking   lib%s%s.so\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
       tmp5 = "@";
    }
    else {
