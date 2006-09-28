@@ -415,7 +415,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("   int i;\n");
                buffer.AppendFormatted("   if (%s) %s->Delete();\n",valueName[iFold][i].Data(),valueName[iFold][i].Data());
                buffer.AppendFormatted("   for (i=0;i<number;i++) {\n");
-               buffer.AppendFormatted("      new((*%s)[i]) %s(kTRUE);\n",valueName[iFold][i].Data(),tmp.Data());
+               buffer.AppendFormatted("      new((*%s)[i]) %s();\n",valueName[iFold][i].Data(),tmp.Data());
                buffer.AppendFormatted("   }\n");
                buffer.AppendFormatted("   SetModified(true);\n");
                buffer.AppendFormatted("}\n");
@@ -1638,10 +1638,10 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       buffer.AppendFormatted("\n\n");
 
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
-      buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
-      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
       if (numOfHistos[iTask]>0 && readGlobalSteeringParameters)
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
       buffer.AppendFormatted("\nClassImp(%sT%s_Base)\n\n",shortCut.Data(),taskName[iTask].Data());
 
@@ -3482,8 +3482,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -3494,6 +3492,8 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
    }
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
@@ -4323,8 +4323,6 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -4335,6 +4333,8 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
          continue;
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
    }
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfigToForm.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sWindow.h\"\n",shortCut.Data());
@@ -5908,13 +5908,21 @@ Bool_t ROMEBuilder::WriteConfigToFormSave(ROMEString &buffer,ROMEConfigParameter
             buffer.AppendFormatted("%s   if (str!=writeString) {\n",sTab.Data());
             buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%sModified = true;\n",sTab.Data(),shortCut.Data(),configPointer.Data(),parGroup->GetParameterAt(i)->GetName());
             buffer.AppendFormatted("%s      ((%sConfig*)fConfiguration)->fConfigData[0]->%sf%s = str;\n",sTab.Data(),shortCut.Data(),configPointer.Data(),parGroup->GetParameterAt(i)->GetName());
+            for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfSetLines();j++) {
+               temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
+               temp.ReplaceAll("##","str");
+               temp.ReplaceAll("fConfigData[index]","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
+               buffer.AppendFormatted("%s      %s\n",sTab.Data(),temp.Data());
+            }
             buffer.AppendFormatted("%s   }\n",sTab.Data());
          }
-         for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfSetLines();j++) {
-            temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
-            temp.ReplaceAll("##","str");
-            temp.ReplaceAll("fConfigData[index]","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
-            buffer.AppendFormatted("%s   %s\n",sTab.Data(),temp.Data());
+         else {
+            for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfSetLines();j++) {
+               temp = parGroup->GetParameterAt(i)->GetSetLineAt(j);
+               temp.ReplaceAll("##","str");
+               temp.ReplaceAll("fConfigData[index]","(("+shortCut+"Config*)fConfiguration)->fConfigData[0]");
+               buffer.AppendFormatted("%s   %s\n",sTab.Data(),temp.Data());
+            }
          }
       }
    }
@@ -10515,11 +10523,11 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
          continue;
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
    }
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"ROMETree.h\"\n");
    buffer.AppendFormatted("#include \"ROMETreeInfo.h\"\n");
    buffer.AppendFormatted("\n");
@@ -11829,13 +11837,13 @@ Bool_t ROMEBuilder::WriteVersionH()
       // check format
       ifstream entryStream(path.Data());
       if (entryStream.good()) {
-         TString entryLine;
-         entryLine.ReadLine(entryStream, kFALSE);
+         ROMEString entryLine;
+         entryLine.ReadLine(entryStream);
          if (entryLine.Length() && entryLine.IsDigit()) {
             // This is maybe text format (Subversion 1.4 or lator)
-            entryLine.ReadLine(entryStream, kFALSE);
-            entryLine.ReadLine(entryStream, kFALSE);
-            entryLine.ReadLine(entryStream, kFALSE);
+            entryLine.ReadLine(entryStream);
+            entryLine.ReadLine(entryStream);
+            entryLine.ReadLine(entryStream);
             revNumber = entryLine;
             entryStream.close();
          }

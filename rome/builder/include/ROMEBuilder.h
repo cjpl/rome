@@ -490,7 +490,7 @@ private:
    Bool_t  ReadXMLDB();
    Bool_t  ReadXMLMidasBanks();
    Bool_t  ReadXMLRootDAQ();
-   Bool_t  ReadXMLSteering(Int_t iTask);
+   Bool_t  ReadXMLSteering(Int_t iTask,Bool_t gsp);
    Bool_t  ReadXMLUserMakefile();
    void    ParseSVNKeyword(ROMEString& str);
 
