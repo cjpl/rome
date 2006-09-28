@@ -495,6 +495,12 @@ Bool_t ROMEEventLoop::DAQInit()
    if (!gROME->GetActiveDAQ()->InitDAQ())
       return false;
 
+   // Init Data Base
+   if (!gROME->ReadSingleDataBaseFolders()) {
+      ROMEPrint::Error("\nError while reading the data base !\n");
+      return false;
+   }
+
    // Open Output Files for accumulative output tree files
    ROMEString filename;
    ROMETree *romeTree;

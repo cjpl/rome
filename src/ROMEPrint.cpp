@@ -112,7 +112,7 @@ void ROMEPrint::Error(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
-   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
+//   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
    cerr<<text<<flush;
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;

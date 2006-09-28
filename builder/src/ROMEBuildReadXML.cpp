@@ -786,7 +786,7 @@ Bool_t ROMEBuilder::ReadXMLDefinitionFile()
                   recursiveSteerDepth = 0;
                   steerParent[numOfTask][0] = -1;
                   numOfSteering[numOfTask] = -1;
-                  if (!ReadXMLSteering(numOfTask)) return false;
+                  if (!ReadXMLSteering(numOfTask,true)) return false;
                   numOfSteering[numOfTask]++;
                }
                if (!strcmp((const char*)name,"UserMakeFile")) {
@@ -1591,7 +1591,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          steerParent[numOfTask][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
-         if (!ReadXMLSteering(numOfTask))
+         if (!ReadXMLSteering(numOfTask,false))
             return false;
          numOfSteering[numOfTask]++;
       }
@@ -1758,7 +1758,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
          steerParent[currentNumberOfTabs+numOfTask+1][0] = -1;
          actualSteerIndex = 0;
          recursiveSteerDepth = 0;
-         if (!ReadXMLSteering(currentNumberOfTabs+numOfTask+1))
+         if (!ReadXMLSteering(currentNumberOfTabs+numOfTask+1,false))
             return kFALSE;
          numOfSteering[currentNumberOfTabs+numOfTask+1]++;
       }
@@ -2968,7 +2968,7 @@ Bool_t ROMEBuilder::ReadXMLRootDAQ()
    return true;
 }
 
-Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
+Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask,Bool_t gsp)
 {
    // read the steering parameter definitions out of the xml file
    ROMEString tmp;
@@ -2994,7 +2994,8 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
    numOfSteerFields[iTask][numOfSteering[iTask]] = 0;
    numOfSteerChildren[iTask][numOfSteering[iTask]] = 0;
    numOfSteerAffiliations[iTask][numOfSteering[iTask]] = 0;
-   numOfGSPInclude = 0;
+   if (gsp)
+      numOfGSPInclude = 0;
    steerUsed[iTask][numOfSteering[iTask]] = true;
 
    while (xml->NextLine()) {
@@ -3006,41 +3007,43 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
       if (type == 15 && !strcmp((const char*)name,"GlobalSteeringParameters"))
          return true;
       // gsp include
-      if (type == 1 && !strcmp((const char*)name,"Include")) { // there is no check if under GSP. We should add the check.
-         // include initialisation
-         gspInclude[numOfGSPInclude] = "";
-         gspLocalFlag[numOfGSPInclude] = false;
-         while (xml->NextLine()) {
-            type = xml->GetType();
-            name = xml->GetName();
-            // include name
-            if (type == 1 && !strcmp((const char*)name,"IncludeName"))
-               xml->GetValue(gspInclude[numOfGSPInclude],gspInclude[numOfGSPInclude]);
-            // include type
-            if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
-               xml->GetValue(tmp,"false");
-               if (tmp == "local")
-                  gspLocalFlag[numOfGSPInclude] = true;
+      if (gsp) {
+         if (type == 1 && !strcmp((const char*)name,"Include")) { // there is no check if under GSP. We should add the check.
+            // include initialisation
+            gspInclude[numOfGSPInclude] = "";
+            gspLocalFlag[numOfGSPInclude] = false;
+            while (xml->NextLine()) {
+               type = xml->GetType();
+               name = xml->GetName();
+               // include name
+               if (type == 1 && !strcmp((const char*)name,"IncludeName"))
+                  xml->GetValue(gspInclude[numOfGSPInclude],gspInclude[numOfGSPInclude]);
+               // include type
+               if (type == 1 && !strcmp((const char*)name,"IncludeType")) {
+                  xml->GetValue(tmp,"false");
+                  if (tmp == "local")
+                     gspLocalFlag[numOfGSPInclude] = true;
+               }
+               // include end
+               if (type == 15 && !strcmp((const char*)name,"Include")) {
+                  break;
+               }
             }
-            // include end
-            if (type == 15 && !strcmp((const char*)name,"Include")) {
-               break;
+            // check input
+            if (gspInclude[numOfGSPInclude]=="") {
+               cout << "An Include of global steering parameter  has no Name !" << endl;
+               cout << "Terminating program." << endl;
+               return false;
             }
+            // count includes
+            numOfGSPInclude++;
+            if (numOfGSPInclude>=maxNumberOfInclude) {
+               cout << "Maximal number of includes in global steering parameter reached : " << maxNumberOfInclude << " !" << endl;
+               cout << "Terminating program." << endl;
+               return false;
+            }
+            continue;
          }
-         // check input
-         if (gspInclude[numOfGSPInclude]=="") {
-            cout << "An Include of global steering parameter  has no Name !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         // count includes
-         numOfGSPInclude++;
-         if (numOfGSPInclude>=maxNumberOfInclude) {
-            cout << "Maximal number of includes in global steering parameter reached : " << maxNumberOfInclude << " !" << endl;
-            cout << "Terminating program." << endl;
-            return false;
-         }
-         continue;
       }
       // subgroup
       if (type == 1 && !strcmp((const char*)name,"SteeringParameterGroup")) {
@@ -3049,7 +3052,7 @@ Bool_t ROMEBuilder::ReadXMLSteering(Int_t iTask)
          actualSteerIndex = numOfSteering[iTask]+1;
          recursiveSteerDepth++;
          // read subgroup
-         if (!ReadXMLSteering(iTask))
+         if (!ReadXMLSteering(iTask,false))
             return false;
          continue;
       }
