@@ -684,6 +684,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    noVP = false;
    pch = false;
    minRebuild = false;
+   quietMake = false;
 #if defined (HAVE_LIBROME)
    librome = true;
 #else
@@ -895,6 +896,13 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          cout << "Minimal rebuild is only available on windows." << endl;
 #   endif
       }
+      else if (!strcmp(argv[i],"-qm")) {
+#if defined( R__VISUAL_CPLUSPLUS )
+         cout << "Quiet make is only available on Unix." << endl;
+#else
+         quietMake = true;
+#endif
+      }
       else if (!strcmp(argv[i],"-pch")) {
 #if defined( __GNUC__ ) && (( __GNUC__ >= 4 ) || (( __GNUC__ == 3 ) && ( __GNUC_MINOR__ >= 4 )))
          pch = true;
@@ -972,7 +980,12 @@ void ROMEBuilder::Usage()
    cout << "  -v        Verbose Mode (no Argument)" << endl;
    cout << "  -nl       No Linking (no Argument)" << endl;
    cout << "  -pch      Use precompiled header (no Argument)" << endl;
+#if defined( R__VISUAL_CPLUSPLUS )
    cout << "  -minrb    Enables minimal rebuild, only on windows (no Argument)" << endl;
+#endif
+#if defined( R__UNIX )
+   cout << "  -qm       Quiet make. Not print compile commands in make procedure." << endl;
+#endif
    cout << "  -midas    Generated program can be connected to a midas online system (no Argument)" << endl;
    cout << "  -orca     Generated program can be connected to a orca DAQ system (no Argument)" << endl;
    cout << "  -mysql    Generated program can be connected to a MySQL server (no Argument)" << endl;
