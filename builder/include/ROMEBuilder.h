@@ -82,6 +82,7 @@ protected:
    Bool_t        librome;
    Bool_t        pch;
    Bool_t        minRebuild;
+   Bool_t        quietMake;
    ROMEStrArray  flags;
    ROMEStrArray  affiliations;
    ROMEStr2DArray affiliationList;

@@ -1225,8 +1225,14 @@ void ROMEBuilder::WriteMakefileDictionary(ROMEString& buffer,const char* diction
    // depend file
 #if defined( R__UNIX )
    buffer.AppendFormatted("obj/%sionary.d:dict/%s.h\n",dictionaryName,dictionaryName);
-
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | \\\n\tsed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@ ",dictionaryName,dictionaryName,dictionaryName,dictionaryName);
+   if (quietMake) {
+      buffer.AppendFormatted("\t@echo \"generating obj/%sionary.d\"\n",dictionaryName);
+      tmp = "@";
+   }
+   else {
+      tmp = "";
+   }
+   buffer.AppendFormatted("\t%s$(CXX) $(Flags) $(Includes) -MM -MT dict/%s.cpp src/generated/%sDummy.cpp | \\\n\tsed \"s/.\\/dict\\/%s.h//g\" | sed \"s/dict\\/%s.h//g\" > $@ ",tmp.Data(),dictionaryName,dictionaryName,dictionaryName,dictionaryName);
    buffer.AppendFormatted(" || ($(RM) $@; exit 1;)\n");
    buffer.AppendFormatted("\n");
 #endif
@@ -1365,7 +1371,14 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    // dictionary depend file
    buffer.AppendFormatted("obj/%sUserDictionary.d:dict/%sUserDict.h\n",shortCut.Data(),shortCut.Data());
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ ",shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
+   if (quietMake) {
+      buffer.AppendFormatted("\t@echo \"generating obj/%sUserDictionary.d\"\n",shortCut.Data());
+      tmp = "@";
+   }
+   else {
+      tmp = "";
+   }
+   buffer.AppendFormatted("\t%s$(CXX) $(Flags) $(Includes) -MM -MT dict/%sUserDict.cpp src/generated/%sUserDictDummy.cpp | sed \"s/.\\/dict\\/%sUserDict.h//g\" | sed \"s/dict\\/%sUserDict.h//g\" > $@ ",tmp.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted(" \\\n\t   || ($(RM) obj/%sUserDictionary.d; exit 1;)\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 #endif
@@ -1409,7 +1422,11 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
    GetUserDictIncludeDirString(bufferT," ");
    includedirs.AppendFormatted(" %s",bufferT.Data());
    GetUserDictHeaderString(includes," ");
-   dictionaryCommands->AddFormatted("rootcint%s %s %s",arguments.Data(),includedirs.Data(),includes.Data());
+   if (quietMake)
+      tmp = "@";
+   else
+      tmp = "";
+   dictionaryCommands->AddFormatted("%srootcint%s %s %s",tmp.Data(),arguments.Data(),includedirs.Data(),includes.Data());
 }
 
 void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray* sources,const char* flag)
@@ -1428,20 +1445,26 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
    for (i=0;i<sources->GetEntriesFast();i++) {
       AnalyzeFileName(sources->At(i).Data(),path,name,ext);
 #if defined( R__UNIX )
+      if (quietMake) {
+         temp = "@";
+      }
+      else {
+         temp = "";
+      }
       if (ext == "c") {
-         compiler = "$(CC)";
+         compiler.SetFormatted("%s$(CC)", temp.Data());
          compileOption.SetFormatted("$(%sCFLAGS)", shortCut.ToUpper(temp));
       }
       else if (ext == "F" || ext == "f") {
-         compiler = "$(FC)";
+         compiler.SetFormatted("%s$(FC)",temp.Data());
          compileOption.SetFormatted("$(%sFFLAGS)", shortCut.ToUpper(temp));
       }
       else if (ext == "h") { // c++ precompiled header
-         compiler = "$(CXX)";
+         compiler.SetFormatted("%s$(CXX)",temp.Data());
          compileOption.SetFormatted("$(%sCXXFLAGS) -x c++-header", shortCut.ToUpper(temp));
       }
       else {
-         compiler = "$(CXX)";
+         compiler.SetFormatted("%s$(CXX)",temp.Data());
          compileOption.SetFormatted("$(%sCXXFLAGS) %s", shortCut.ToUpper(temp),additionalFlag.Data());
       }
 
@@ -1450,12 +1473,16 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
       if (ext == "h") {
          buffer.AppendFormatted("include/%s.gch : ./include/%s $(%sDep)\n"
                                 ,sources->At(i).Data(),sources->At(i).Data(),name.Data());
+         if (quietMake)
+            buffer.AppendFormatted("\t@echo \"compiling include/%s.gch\"\n",sources->At(i).Data());
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o include/%s.gch\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),sources->At(i).Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
          buffer.AppendFormatted("obj/%s%s : %s $(%sDep)\n"
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
+         if (quietMake)
+            buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
          buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o obj/%s%s\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
       }
@@ -1701,6 +1728,8 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
       buffer.AppendFormatted(" -pch");
    if (minRebuild)
       buffer.AppendFormatted(" -minrb");
+   if (quietMake)
+      buffer.AppendFormatted(" -qm");
    if (flags.GetEntriesFast())
       buffer.AppendFormatted(" -f");
    int i;
@@ -1719,7 +1748,7 @@ void ROMEBuilder::WriteMakefileBuildRule(ROMEString& buffer,const char *builder)
 void ROMEBuilder::WriteMakefile() {
    // write a Makefile
    ROMEString buffer;
-   ROMEString tmp,tmp2,tmp3,tmp4;
+   ROMEString tmp,tmp2,tmp3,tmp4,tmp5;
    ROMEString path, name, ext;
 
    dictionaryNames = new ROMEStrArray(50);
@@ -1928,15 +1957,27 @@ void ROMEBuilder::WriteMakefile() {
    buffer.AppendFormatted("\t@cl /nologo /Fe%s%s.exe $(objects) $(Libraries)\n\n",shortCut.Data(),mainProgName.Data());
 #endif // R__VISUAL_CPLUSPLUS
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+   if (quietMake) {
+      buffer.AppendFormatted("\t@echo \"Linking %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      buffer.AppendFormatted("\t@$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+   }
+   else {
+      buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+   }
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("so: lib%s%s.so\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("lib%s%s.so: $(objects) $(dependfiles) $(lib%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
-   buffer.AppendFormatted("\t");
-   buffer.AppendFormatted("$(CXX) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   if (quietMake) {
+      buffer.AppendFormatted("\t@echo \"Linking lib%s%s.so\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+      tmp5 = "@";
+   }
+   else {
+      tmp5 = "";
+   }
+   buffer.AppendFormatted("\t%s$(CXX) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
-   buffer.AppendFormatted("\tln -sf lib%s%s.so lib%s%s.dylib",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
+   buffer.AppendFormatted("\t%sln -sf lib%s%s.so lib%s%s.dylib",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
    buffer.AppendFormatted("\n\n");
 #endif // R__UNIX
@@ -2086,11 +2127,16 @@ void ROMEBuilder::WriteMakefile() {
 
 void ROMEBuilder::WriteRootCintCall(ROMEString& buffer)
 {
+   TString tmp;
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("\t@-%%ROOTSYS%%\\bin\\rootcint");
 #endif
 #if defined( R__UNIX )
-   buffer.AppendFormatted("\t$(ROOTSYS)/bin/rootcint");
+   if (quietMake)
+      tmp = "@";
+   else
+      tmp = "";
+   buffer.AppendFormatted("\t%s$(ROOTSYS)/bin/rootcint",tmp.Data());
 #endif
 }
 
