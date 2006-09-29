@@ -202,6 +202,8 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfInclude));
    taskLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks,maxNumberOfInclude));
+   numOfTaskAccessedFolder = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   taskAccessedFolder = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfFolders));
    histoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoFolderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));

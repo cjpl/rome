@@ -186,7 +186,7 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    libDirs.AppendFormatted(";\"$(ROMESYS)\\lib_win\"");
    xml->StartElement("Tool");
    xml->WriteAttribute("Name","VCLinkerTool");
-   xml->WriteAttribute("AdditionalDependencies","wsock32.lib gdi32.lib user32.lib kernel32.lib");
+   xml->WriteAttribute("AdditionalDependencies","winmm.lib wsock32.lib gdi32.lib user32.lib kernel32.lib");
    if (version==2002) {
       str.SetFormatted("$(OutDir)/%s%s.exe",shortCut.Data(),mainProgName.Data());
       xml->WriteAttribute("OutputFile",str.Data());

@@ -91,6 +91,8 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskVersion;
    delete [] taskInclude;
    delete [] taskLocalFlag;
+   delete [] numOfTaskAccessedFolder;
+   delete [] taskAccessedFolder;
    delete [] histoName;
    delete [] histoTitle;
    delete [] histoFolderName;

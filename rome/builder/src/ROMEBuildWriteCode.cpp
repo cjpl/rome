@@ -1542,6 +1542,7 @@ Bool_t ROMEBuilder::WriteTaskCpp()
          clsDescription.AppendFormatted("Get<Histogram Name>At(Int_t index)\n");
       }
       bool folderIncludeFirst = true;
+      numOfTaskAccessedFolder[iTask] = 0;
       for (j=0;j<numOfFolder;j++) {
          if (accessFolder(fileBuffer,j)) {
             if (!folderUsed[j])
@@ -1552,10 +1553,12 @@ Bool_t ROMEBuilder::WriteTaskCpp()
                   clsDescription.AppendFormatted("\n");
                   clsDescription.AppendFormatted("Followings are include files of folders. ROMEBuilder will update it with reading this source code when it is executed next time.\n");
                }
+               taskAccessedFolder[iTask][numOfTaskAccessedFolder[iTask]] = j;
                if (folderUserCode[j])
                   clsDescription.AppendFormatted("#include \"folders/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
                else
                   clsDescription.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(),folderName[j].Data());
+               numOfTaskAccessedFolder[iTask]++;
             }
          }
       }
@@ -5494,7 +5497,7 @@ Bool_t ROMEBuilder::WriteWindowH()
    buffer.AppendFormatted("   };\n");
 
    buffer.AppendFormatted("   enum MenuEnumeration {\n");
-   buffer.AppendFormatted("      M_ROOT = 1000,\n");
+   buffer.AppendFormatted("      M_ROOT = 10000,\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
@@ -11160,7 +11163,7 @@ void ROMEBuilder::WriteHTMLDoku()
    // Tasks
    buffer.AppendFormatted("<h3><a name=taskobjects>Tasks</a></h3>\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("The %s%s has the following task hierarchy :\n",shortCut.Data(),mainProgName.Data());
+   buffer.AppendFormatted("The %s%s has the following task hierarchy. The folders which the task accesses are written in brackets.\n",shortCut.Data(),mainProgName.Data());
    buffer.AppendFormatted("\n");
 
    int ddelta;
@@ -11173,7 +11176,13 @@ void ROMEBuilder::WriteHTMLDoku()
       ddelta = depth-depthold;
       if (ddelta>0) for (k=0;k<ddelta;k++)  buffer.AppendFormatted("<ul>\n");
       if (ddelta<0) for (k=0;k<-ddelta;k++) buffer.AppendFormatted("</ul>\n");
-      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a></h4></li>\n",taskHierarchyName[i].Data(),shortCut.Data(),taskHierarchyName[i].Data());
+      buffer.AppendFormatted("<li type=\"circle\"><h4><a href=\"#%s\">%sT%s</a> (",taskHierarchyName[i].Data(),shortCut.Data(),taskHierarchyName[i].Data());
+      for (j=0;j<numOfTaskAccessedFolder[taskHierarchyClassIndex[i]];j++) {
+         buffer.AppendFormatted("%s,",folderName[taskAccessedFolder[taskHierarchyClassIndex[i]][j]].Data());
+      }
+      if (numOfTaskAccessedFolder[taskHierarchyClassIndex[i]]>0)
+         buffer = buffer(0,buffer.Length()-1);
+      buffer.AppendFormatted(")</h4></li>\n");
       depthold = depth;
    }
    for (i=0;i<depth;i++) buffer.AppendFormatted("</ul>\n");
