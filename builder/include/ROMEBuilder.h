@@ -193,6 +193,8 @@ protected:
    ROMEString   *taskVersion;
    ROMEString  **taskInclude;
    Bool_t      **taskLocalFlag;
+   Int_t        *numOfTaskAccessedFolder;
+   Int_t       **taskAccessedFolder;
    ROMEString  **histoName;
    ROMEString  **histoTitle;
    ROMEString  **histoFolderName;
