@@ -27,6 +27,7 @@ ROMEConfigToForm::ROMEConfigToForm()
    fSubstitutes = NULL;
    fPlaceHolders = NULL;
    fMainFrame = NULL;
+   fCommentLevel = 0;
 }
 
 ROMEConfigToForm::~ROMEConfigToForm()

@@ -286,7 +286,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
                fDialog = new XMLToForm(gClient->GetRoot(),this,"res/xmltoform/PadConfigDia.xml",&exitID,substitutes);
                if (exitID==1) {
                   for (i=0;i<kMaxNumberOfPads;i++) {
-                     str.SetFormatted("Pad %d/Channel",i);
+                     str.SetFormatted("Pad %d/Object Index",i);
                      fPadConfigChannel[i] = fDialog->GetIntValue(str.Data());
                   }
                   fPadConfigActive = true;
@@ -500,7 +500,7 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
-         if (strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph")) {
+         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph")) {
             ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetXaxis()->SetRangeUser(x1,x2-1);
             ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetYaxis()->SetRangeUser(y1,y2);
          }

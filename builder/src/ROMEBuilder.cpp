@@ -31,6 +31,8 @@ ROMEBuilder::~ROMEBuilder()
    // when there is an inconsistency between actual size and arguments.
    // So for the moment I only free the first dimension.
    // Ryu.
+   delete configXSD;
+
    delete [] parent;
 
    delete [] numOfValue;
@@ -308,6 +310,9 @@ Bool_t ROMEBuilder::StartBuilder()
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
+
+   configXSD = new ROMEXML();
+   configXSD->OpenFileForPath(gSystem->ExpandPathName("$(ROMESYS)/romeConfig.xsd"));
 
    if (!AllocateMemorySpace())
       return false;

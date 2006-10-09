@@ -75,6 +75,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBaseDAQ.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEODBOfflineDataBase.h");
@@ -162,6 +163,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
    }
    if (!librome) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
+      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMERint.h");
@@ -267,6 +270,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/mxml.c");
       romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEDataBaseDAQ.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEHisto.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
       if (numOfTree>0)
