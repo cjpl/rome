@@ -8,11 +8,11 @@
 #ifndef ROMEBuilder_H
 #define ROMEBuilder_H
 
+#include "ROMEXML.h"
 #include "ROMEString.h"
 #include "ROMEStrArray.h"
 #include "ROMEStr2DArray.h"
 
-class ROMEXML;
 class ROMEConfigParameter;
 class ROMEConfigParameterGroup;
 
@@ -66,6 +66,9 @@ public:
    ROMEString    romeVersion;
 
 protected:
+   ROMEStrArray *histoParameters;
+   ROMEStrArray *histoParameterTypes;
+
    ROMEString    outDir;
    ROMEString    xmlFile;
    ROMEString    xsdFile;

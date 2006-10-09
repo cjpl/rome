@@ -34,7 +34,7 @@
   <User>schneebeli_m</User>
   <Host>PC4883</Host>
   <Directory>c:/rome</Directory>
-  <LastCompile>Fri, 29 Sep 2006 10:30:36 W. Europe Standard Time +861413501 nsec</LastCompile>
+  <LastCompile>Fri, 29 Sep 2006 13:34:08 W. Europe Standard Time +870392301 nsec</LastCompile>
 </Entry>
 <Entry>
   <User>egger_j</User>
@@ -47,4 +47,10 @@
   <Host>megmac01.psi.ch</Host>
   <Directory>/Users/sawada/Analysis/rome</Directory>
   <LastCompile>Thu, 21 Sep 2006 16:43:09 UTC +122377000 nsec</LastCompile>
+</Entry>
+<Entry>
+  <User>egger_j</User>
+  <Host>PC4883</Host>
+  <Directory>c:/rome</Directory>
+  <LastCompile>Mon, 09 Oct 2006 14:39:39 W. Europe Standard Time +693997501 nsec</LastCompile>
 </Entry>

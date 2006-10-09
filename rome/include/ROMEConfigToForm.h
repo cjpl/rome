@@ -6,6 +6,7 @@
 
 class ROMEConfigToForm : public XMLToForm{
 protected:
+   Int_t fCommentLevel; // Comment Level
 public:
    ROMEConfigToForm();
    virtual ~ROMEConfigToForm();
