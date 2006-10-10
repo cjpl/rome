@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 17:10:42 2006 -->
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
     <ROME>
@@ -9,20 +12,25 @@
       <Active>true</Active>
     </ARGUS>
   </ProgramConfiguration>
+
   <MainConfiguration>
     <RunParameters>
       <RunNumbers></RunNumbers>
       <EventNumbers></EventNumbers>
       <InputFileNames></InputFileNames>
     </RunParameters>
+
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
-      <BatchMode>false</BatchMode>
+      <VerboseLevel>normal</VerboseLevel>
+      <ConfigCommentLevel>1</ConfigCommentLevel>
       <QuitMode>false</QuitMode>
       <ShowSplashScreen>true</ShowSplashScreen>
       <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      <PreserveConfig>false</PreserveConfig>
     </Modes>
+
     <Argus>
       <WindowScale>1.0</WindowScale>
       <StatusBar>true</StatusBar>
@@ -31,81 +39,109 @@
         <Active>false</Active>
         <NetFolderName></NetFolderName>
       </AnalyzerController>
+
       <SocketToROME>
         <Active>false</Active>
         <Host>localhost</Host>
         <Port>9090</Port>
       </SocketToROME>
     </Argus>
+
     <DataBases/>
+
     <Online>
       <Host></Host>
       <Experiment></Experiment>
+      <AnalyzerName>TBmonitor</AnalyzerName>
     </Online>
+
     <SocketInterface>
       <PortNumber>9090</PortNumber>
       <AvailableOffline>false</AvailableOffline>
     </SocketInterface>
+
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Histograms>
+
+    <HistogramRead>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
-    </Histograms>
+    </HistogramRead>
+
+    <Macros>
+      <BeginOfRun></BeginOfRun>
+      <BeginOfEvent></BeginOfEvent>
+      <EndOfEvent></EndOfEvent>
+      <EndOfRun></EndOfRun>
+    </Macros>
+
     <Tabs>
       <Tab>
         <TabName>Tab1</TabName>
         <Active>true</Active>
         <SteeringParameterField>
+          <!-- Color of text. -->
           <SPName>Color</SPName>
           <SPValue>1</SPValue>
         </SteeringParameterField>
+
         <Tab>
           <TabName>Tab1_1</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
         </Tab>
+
         <Tab>
           <TabName>Tab1_2</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
         </Tab>
       </Tab>
+
       <Tab>
         <TabName>Tab2</TabName>
         <Active>true</Active>
         <SteeringParameterField>
+          <!-- Color of text. -->
           <SPName>Color</SPName>
           <SPValue>1</SPValue>
         </SteeringParameterField>
+
         <Tab>
           <TabName>Tab2_1</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
         </Tab>
+
         <Tab>
           <TabName>Tab2_2</TabName>
           <Active>true</Active>
           <SteeringParameterField>
+            <!-- Color of text. -->
             <SPName>Color</SPName>
             <SPValue>1</SPValue>
           </SteeringParameterField>
         </Tab>
       </Tab>
     </Tabs>
+
     <GlobalSteeringParameters>
       <SteeringParameterField>
+        <!-- Switch for pedestal calculation -->
         <SPName>Piedi</SPName>
         <SPValue>false</SPValue>
       </SteeringParameterField>
