@@ -1677,6 +1677,15 @@ Bool_t ROMEBuilder::ReadXMLTab()
                }
             }
          }
+         // Check Tab Objects
+         for (i=0;i<numOfTabObjects[currentNumberOfTabs];i++) {
+            if (tabUsed[currentNumberOfTabs] && tabObjectType[currentNumberOfTabs][i] == "none") {
+               cout << "The object reference of a display object '" << tabObjectName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
+               cout << "Terminating program." << endl;
+               return kFALSE;
+            }
+         }
+
          // description
          if (tabDescription[numOfTab].Length()
              && !tabShortDescription[numOfTab].Length()
@@ -1958,9 +1967,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         }
                      }
                      if (!found) {
-                        cout << "The object reference of a display object '" << tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
-                        cout << "Terminating program." << endl;
-                        return kFALSE;
+                        tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "none";
                      }
                      // count thread functions
                      numOfTabObjects[currentNumberOfTabs]++;
