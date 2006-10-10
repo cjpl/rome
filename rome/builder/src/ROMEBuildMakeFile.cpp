@@ -72,6 +72,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/ROME.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigHisto.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBaseDAQ.h");
@@ -191,6 +192,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
       romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigHisto.h");
+      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENoDataBase.h");
@@ -295,6 +298,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMENetFolderServer.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMENetFolder.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEConfig.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEConfigToForm.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToForm.cpp");
       romeSources->Add("$(ROMESYS)/src/XMLToFormWindow.cpp");
