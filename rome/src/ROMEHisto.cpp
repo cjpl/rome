@@ -18,7 +18,7 @@ ROMEHisto::ROMEHisto():TObject()
    fAccumulation = false;
 }
 
-const char* ROMEHisto::GetTitle() {
+const char* ROMEHisto::GetTitle() const{
    if (fTitle.Length()==0)
       return fTitleOrig;
    else
