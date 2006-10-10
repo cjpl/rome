@@ -6180,6 +6180,7 @@ Bool_t ROMEBuilder::WriteConfigH() {
    buffer.AppendFormatted("#   include \"TArrayL64.h\"\n");
    buffer.AppendFormatted("#   include \"ROMEString.h\"\n");
    buffer.AppendFormatted("#   include \"ROMEStrArray.h\"\n");
+   buffer.AppendFormatted("#   include \"ROMEConfigHisto.h\"\n");
    buffer.AppendFormatted("#   include \"ROMEConfig.h\"\n");
    buffer.AppendFormatted("#endif\n");
    buffer.AppendFormatted("class ROMEXML;\n");
@@ -7369,6 +7370,11 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
    for (i=0;i<tab;i++)
       sTab += "   ";
    buffer.AppendFormatted("%s// %s;\n",sTab.Data(),parGroup->GetGroupName().Data());
+   if (parGroup->GetGroupIdentifier()=="Histogram") {
+      buffer.AppendFormatted("%sROMEConfigHisto* f%s;\n",sTab.Data(),parGroup->GetGroupName().Data());
+      buffer.AppendFormatted("%sBool_t f%sModified;\n",sTab.Data(),parGroup->GetGroupName().Data());
+      return true;
+   }
    buffer.AppendFormatted("%sclass %s {\n",sTab.Data(),parGroup->GetGroupName().Data());
    buffer.AppendFormatted("%spublic:\n",sTab.Data());
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
@@ -7416,7 +7422,11 @@ Bool_t ROMEBuilder::WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup
       }
    }
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {
-      if (parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
+      if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram") {
+         buffer.AppendFormatted("%s      f%s = new ROMEConfigHisto();\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+         buffer.AppendFormatted("%s      f%sModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+      }
+      else if (parGroup->GetSubGroupAt(i)->GetArraySize()=="1") {
          buffer.AppendFormatted("%s      f%s = new %s();\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          buffer.AppendFormatted("%s      f%sModified = false;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
       }
@@ -7468,6 +7478,11 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
       sTab += "   ";
 
    // Parameters
+   if (parGroup->GetGroupIdentifier()=="Histogram") {
+      pointerT = pointer(0,pointer.Length()-2);
+      buffer.AppendFormatted("%sReadHistoConfiguration(xml,path+\"/%s\",fConfigData[index]->%s);\n",sTab.Data(),groupName.Data(),pointerT.Data());
+      return true;
+   }
    for (i=0;i<parGroup->GetNumberOfParameters();i++) {
       buffer.AppendFormatted("%s// %s%s\n",sTab.Data(),groupName.Data(),parGroup->GetParameterAt(i)->GetName());
       if (indexes.Length()==0)

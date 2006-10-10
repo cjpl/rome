@@ -746,6 +746,11 @@ Bool_t ROMEEventLoop::Update()
       }
    }
 
+   if (gROME->GetActiveDAQ()->isStopped() && gROME->IsEventHandlingRequested()) {
+      gROME->GetWindow()->TriggerEventHandler();
+      gROME->ClearEventHandlingRequest();
+   }
+
    if (!gROME->isBatchMode() &&
        ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
@@ -815,6 +820,10 @@ Bool_t ROMEEventLoop::UserInput()
    fUserInputLastTime = (ULong_t)gSystem->Now();
 
    while (wait || first) {
+      if (!first && gROME->IsEventHandlingRequested()) {
+         gROME->GetWindow()->TriggerEventHandler();
+         gROME->ClearEventHandlingRequest();
+      }
       first = false;
       if (!fContinuous)
          wait = true;
