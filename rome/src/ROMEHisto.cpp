@@ -5,7 +5,7 @@
 //                                                                      //
 //  The Base Class for all Histos in ROME.
 //                                                                      //
-//  $Id: ROMEHisto.cpp 1403 2006-09-19 15:02:05Z schneebeli_m $
+//  $Id$
 //                                                                      //
 //////////////////////////////////////////////////////////////////////////
 #include "ROMEHisto.h"

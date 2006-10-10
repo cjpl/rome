@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEConfigHisto.h, M. Schneebeli PSI
 
-  $Id: ROMEConfigHisto.h 1402 2006-09-18 14:22:07Z schneebeli_m $
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEConfigHisto_H
@@ -66,6 +66,7 @@ public:
       fHistZmaxModified = false;
       fHistAccumulateModified = false;
    }
+   virtual ~ROMEConfigHisto() {}
 
    ClassDef(ROMEConfigHisto, 0) // Histo configuration class
 };
