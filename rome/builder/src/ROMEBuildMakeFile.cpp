@@ -260,9 +260,11 @@ void ROMEBuilder::AddRomeSources()
    romeSources = new ROMEStrArray(50);
 #if defined( R__VISUAL_CPLUSPLUS ) 
    // temporary
-   romeSources->Add("$(MIDASSYS)/src/midas.c");
-   romeSources->Add("$(MIDASSYS)/src/system.c");
-   romeSources->Add("$(MIDASSYS)/src/odb.c");
+   if (midas) {
+      romeSources->Add("$(MIDASSYS)/src/midas.c");
+      romeSources->Add("$(MIDASSYS)/src/system.c");
+      romeSources->Add("$(MIDASSYS)/src/odb.c");
+   }
 #endif // R__VISUAL_CPLUSPLUS
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
