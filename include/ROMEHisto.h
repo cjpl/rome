@@ -84,7 +84,7 @@ public:
    void SetZNbinsOriginal(Int_t value) { fZNbinsOrig = value; };
    void SetZminOriginal(Double_t value) { fZminOrig = value; };
    void SetZmaxOriginal(Double_t value) { fZmaxOrig = value; };
-   const char* GetTitle();
+   const char* GetTitle() const;
    const char* GetFolderTitle();
    const char* GetXLabel();
    const char* GetYLabel();

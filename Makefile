@@ -113,6 +113,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMETree.o \
               obj/ROMELabel.o \
               obj/ROMEHorizontalFrame.o \
+              obj/ROMEHisto.o \
               obj/TArrayL64.o \
               obj/TNetFolder.o \
               obj/TNetFolderServer.o \
@@ -157,6 +158,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMEDataBase.h \
                   include/ROMELabel.h \
                   include/ROMEHorizontalFrame.h \
+                  include/ROMEHisto.h \
                   include/TNetFolder.h \
                   include/TNetFolderServer.h \
                   include/XMLToFormWindow.h \
