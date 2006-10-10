@@ -1,7 +1,7 @@
 /********************************************************************
   ROMEHorizontalFrame.h, M. Schneebeli PSI
 
-  $Id: ROMEHorizontalFrame.h 1206 2006-07-05 17:23:11Z sawada $
+  $Id$
 
 ********************************************************************/
 #ifndef ROMEHorizontalFrame_H

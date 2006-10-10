@@ -5,7 +5,7 @@
 //
 //  TGHorizontalFrame costomized for ROME
 //
-//  $Id: ROMEHorizontalFrame.cpp 1235 2006-07-07 23:26:48Z sawada $
+//  $Id$
 //
 //////////////////////////////////////////////////////////////////////////
 
