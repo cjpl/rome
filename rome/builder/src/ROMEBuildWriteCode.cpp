@@ -4859,11 +4859,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    // CreateTabs
    buffer.AppendFormatted("Bool_t %sWindow::CreateTabs()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   Int_t tabID;\n");
-   buffer.AppendFormatted("   tabID = 0;\n"); // to suppress unused warning
    for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
       recursiveTabDepth = 0;
       if (!AddTab(buffer, i))
          return kFALSE;
@@ -4947,7 +4943,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
       if (tabHeredity[i].Length()>0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
             menu_title = menuTitle[tabHeredityIndex[i]][j];
@@ -4960,7 +4955,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          menu_title.ReplaceAll("&", "");
          buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n", menu_title.Data());
       }
-      buffer.AppendFormatted("         }\n");
    }
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -5020,6 +5014,8 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
       buffer.AppendFormatted("         if (fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
       buffer.AppendFormatted("            fCurrentTabID = param1;\n");
+      if (tabNumOfChildren[i])
+         buffer.AppendFormatted("            ProcessMessage(MK_MSG(kC_COMMAND, kCM_TAB), %d + f%s%sTabSubTab->GetCurrent(), 0);;\n", 1000 * i, tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("            f%s%sTab->TabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("         }\n");
    }
@@ -5345,50 +5341,40 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    ROMEString format;
    Int_t depth;
 
+   if (!tabUsed[i])
+      return kTRUE;
+
    if (tabParentIndex[i] == -1)
       parentt = "fTab";
    else
       parentt.SetFormatted("f%s%sTabSubTab", tabName[tabParentIndex[i]].Data(), tabSuffix[tabParentIndex[i]].Data());
 
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("   if (fTabSwitches.%s%s) {\n", tabName[i].Data(),tabSuffix[i].Data());
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      t%sT%s = %s->AddTab(\"%s\");\n", shortCut.Data(), tabName[i].Data(), parentt.Data(), tabTitle[i].Data());
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      f%s%sTab->ReparentWindow(t%sT%s, 60, 20);\n", tabName[i].Data(), tabSuffix[i].Data(), shortCut.Data(), tabName[i].Data());
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      f%s%sTab->ArgusInit();\n", tabName[i].Data(), tabSuffix[i].Data());
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      f%s%sTab->SetTitle(\"%s\");\n", tabName[i].Data(), tabSuffix[i].Data(),tabTitle[i].Data());
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      f%s%sTab->SetName(\"%s\");\n", tabName[i].Data(), tabSuffix[i].Data(),tabName[i].Data());
-
    if (!tabNumOfChildren[i]) {
-      for (depth = 0; depth < recursiveTabDepth; depth++)
-         buffer += "   ";
+      for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
       buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%sTab,new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY , 0, 0, 0, 0));\n", shortCut.Data(), tabName[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
    }
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
-
-   buffer.AppendFormatted("      f%sTabID = tabID++;\n", tabName[i].Data());
-
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
+   if (parentt == "fTab")
+      buffer.AppendFormatted("      f%sTabID = %s->GetNumberOfTabs() - 1;\n", tabName[i].Data(), parentt.Data());
+   else
+      buffer.AppendFormatted("      f%sTabID = %s->GetNumberOfTabs() - 1 + %d;\n", tabName[i].Data(), parentt.Data(), 1000 * tabParentIndex[i]);
    if (tabNumOfChildren[i]) {
-      for (depth = 0; depth < recursiveTabDepth; depth++)
-         buffer += "   ";
+      for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
       buffer.AppendFormatted("      f%s%sTabSubTab = new TGTab(t%sT%s, (UInt_t)(600*GetWindowScale()), (UInt_t)(400*GetWindowScale()));\n", tabName[i].Data(), tabSuffix[i].Data(), shortCut.Data(), tabName[i].Data());
+      for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
+      buffer.AppendFormatted("      f%s%sTabSubTab->SetCommand(\"gAnalyzer->GetWindow()->ProcessMessage($MSG, $PARM1 + %d, $PARM2)\");\n", tabName[i].Data(), tabSuffix[i].Data(), i * 1000);
    }
    recursiveTabDepth++;
    j = i;
@@ -5398,25 +5384,16 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
       if (!AddTab(buffer, i))
          return kFALSE;
    }
-
    recursiveTabDepth--;
-
    if (tabNumOfChildren[j]) {
-      for (depth = 0; depth < recursiveTabDepth; depth++)
-         buffer += "   ";
+      for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
       buffer.AppendFormatted("      t%sT%s->AddFrame(f%s%sTabSubTab, new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));\n", shortCut.Data(), tabName[j].Data(), tabName[j].Data(), tabSuffix[j].Data());
    }
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("   else\n");
-
-   for (depth = 0; depth < recursiveTabDepth; depth++)
-      buffer += "   ";
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("      f%sTabID = -1;\n", tabName[i].Data());
 
    return kTRUE;
