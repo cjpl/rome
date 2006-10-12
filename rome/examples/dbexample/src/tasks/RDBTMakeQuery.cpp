@@ -4,7 +4,20 @@
 //                                                                            //
 // RDBTMakeQuery                                                              //
 //                                                                            //
+// Description:                                                               //
 // This is an example to use SQL query from analyzer.                         //
+//                                                                            //
+// Usage:                                                                     //
+//                                                                            //
+//                                                                            //
+// Status:                                                                    //
+//                                                                            //
+//                                                                            //
+// To Do:                                                                     //
+//                                                                            //
+//                                                                            //
+// Known Problems:                                                            //
+//                                                                            //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //

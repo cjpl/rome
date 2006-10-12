@@ -4,7 +4,20 @@
 //                                                                            //
 // RDBTWriteFolders                                                           //
 //                                                                            //
+// Description:                                                               //
 // This is an example to write database.                                      //
+//                                                                            //
+// Usage:                                                                     //
+//                                                                            //
+//                                                                            //
+// Status:                                                                    //
+//                                                                            //
+//                                                                            //
+// To Do:                                                                     //
+//                                                                            //
+//                                                                            //
+// Known Problems:                                                            //
+//                                                                            //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //
