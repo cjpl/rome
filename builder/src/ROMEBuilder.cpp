@@ -86,6 +86,10 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskEventID;
    delete [] taskDescription;
    delete [] taskShortDescription;
+   delete [] taskUsage;
+   delete [] taskStatus;
+   delete [] taskToDo;
+   delete [] taskKnownProblems;
    delete [] taskAuthor;
    delete [] taskAuthorInstitute;
    delete [] taskAuthorCollaboration;
@@ -163,6 +167,10 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabUsed;
    delete [] tabDescription;
    delete [] tabShortDescription;
+   delete [] tabUsage;
+   delete [] tabStatus;
+   delete [] tabToDo;
+   delete [] tabKnownProblems;
    delete [] tabAuthor;
    delete [] tabAuthorInstitute;
    delete [] tabAuthorCollaboration;
@@ -350,6 +358,10 @@ Bool_t ROMEBuilder::StartBuilder()
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
                tabShortDescription[numOfTab] = "";
+               tabUsage[numOfTab] = "";
+               tabStatus[numOfTab] = "";
+               tabToDo[numOfTab] = "";
+               tabKnownProblems[numOfTab] = "";
                numOfSteering[numOfTab+numOfTask+1] = -1;
                numOfMenu[numOfTab] = -1;
                tabNumOfChildren[numOfTab] = 0;

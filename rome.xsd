@@ -476,7 +476,7 @@
 						<xs:documentation>The array size of the histogram. If the value is 1 the histogram is a single histogram. If the histogram is an array they are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistArrayStartIndex" type="xs:integer" default="0" minOccurs="0">
+				<xs:element name="HistArrayStartIndex" type="xs:string" default="0" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Start index of histogram array name enumeration. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
 					</xs:annotation>
@@ -496,47 +496,47 @@
 						<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistXNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:element name="HistXNbins" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The number of bins in x. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistXmin" type="xs:double" default="0" minOccurs="0">
+				<xs:element name="HistXmin" type="xs:string" default="0" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The minimum value in x. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistXmax" type="xs:double" default="1" minOccurs="0">
+				<xs:element name="HistXmax" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The maximum value in x. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistYNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:element name="HistYNbins" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The number of bins in y. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistYmin" type="xs:double" default="0" minOccurs="0">
+				<xs:element name="HistYmin" type="xs:string" default="0" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The minimum value in y. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistYmax" type="xs:double" default="1" minOccurs="0">
+				<xs:element name="HistYmax" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The maximum value in y. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistZNbins" type="xs:integer" default="1" minOccurs="0">
+				<xs:element name="HistZNbins" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The number of bins in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistZmin" type="xs:double" default="0" minOccurs="0">
+				<xs:element name="HistZmin" type="xs:string" default="0" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The minimum value in z. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="HistZmax" type="xs:double" default="1" minOccurs="0">
+				<xs:element name="HistZmax" type="xs:string" default="1" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
