@@ -4,7 +4,20 @@
 //                                                                            //
 // RDBTPrintFolders                                                           //
 //                                                                            //
+// Description:                                                               //
 // This task shows containts of folders.                                      //
+//                                                                            //
+// Usage:                                                                     //
+//                                                                            //
+//                                                                            //
+// Status:                                                                    //
+//                                                                            //
+//                                                                            //
+// To Do:                                                                     //
+//                                                                            //
+//                                                                            //
+// Known Problems:                                                            //
+//                                                                            //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //
