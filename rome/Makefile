@@ -22,7 +22,6 @@
 # Compiler
 CXX ?= g++
 CC  ?= gcc
-LD  ?= g++
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -191,13 +190,13 @@ obj:
 	fi;
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(LD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
-	$(LD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(LD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
+	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
