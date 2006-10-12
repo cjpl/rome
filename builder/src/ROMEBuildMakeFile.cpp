@@ -822,6 +822,7 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("# CC                : C compiler command\n");
    buffer.AppendFormatted("# CXX               : C++ compiler command\n");
    buffer.AppendFormatted("# FC                : Fortran compiler command\n");
+   buffer.AppendFormatted("# LD                : linker command\n");
    buffer.AppendFormatted("# %sOPT             : optimization and debug flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sINC             : additional include flag\n", shortCut.ToUpper(tmp));
    buffer.AppendFormatted("# %sCFLAGS          : additional C compile flag\n", shortCut.ToUpper(tmp));
@@ -918,6 +919,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("CXX ?= g++\n");
    buffer.AppendFormatted("CC  ?= gcc\n");
    buffer.AppendFormatted("FC  ?= g77\n");
+   buffer.AppendFormatted("LD  ?= g++\n");
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Additional flags\n");
@@ -1975,10 +1977,10 @@ void ROMEBuilder::WriteMakefile() {
 #if defined( R__UNIX )
    if (quietMake) {
       buffer.AppendFormatted("\t@echo \"linking   %s%s.exe\"\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
-      buffer.AppendFormatted("\t@$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+      buffer.AppendFormatted("\t@$(LD) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    }
    else {
-      buffer.AppendFormatted("\t$(CXX) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
+      buffer.AppendFormatted("\t$(LD) $(LDFLAGS) -o $@ $(objects) $(Libraries)\n");
    }
    buffer.AppendFormatted("\t@if [ -e lib%s%s.so ]; then $(MAKE) so; fi;\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("\n");
@@ -1991,7 +1993,7 @@ void ROMEBuilder::WriteMakefile() {
    else {
       tmp5 = "";
    }
-   buffer.AppendFormatted("\t%s$(CXX) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("\t%s$(LD) $(SOFLAGS) -o lib%s%s.so $(objects) $(Libraries)\n",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
 #if defined( R__MACOSX )
    buffer.AppendFormatted("\t%sln -sf lib%s%s.so lib%s%s.dylib",tmp5.Data(),shortCut.ToLower(tmp),mainProgName.ToLower(tmp2),shortCut.ToLower(tmp3),mainProgName.ToLower(tmp4));
 #endif // R__MACOSX
