@@ -5971,7 +5971,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::ReadConfiguration(ROMEXML *xml,ROMEString& path,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
-   buffer.AppendFormatted("   MEGConfig::ConfigData *configData = fConfigData[index];\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n", shortCut.Data());
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    iSub = 0;
@@ -5984,7 +5984,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::CheckConfigurationModified(Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   ROMEString tempPath;\n");
-   buffer.AppendFormatted("   MEGConfig::ConfigData *configData = fConfigData[index];\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n", shortCut.Data());
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    iSub = 0;
@@ -6062,8 +6062,8 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("\n// Set Configuration\n");
    buffer.AppendFormatted("Bool_t %sConfig::SetConfiguration(Int_t modIndex,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
-   buffer.AppendFormatted("   MEGConfig::ConfigData *configData = fConfigData[index];\n");
-   buffer.AppendFormatted("   MEGConfig::ConfigData *modConfigData = fConfigData[modIndex];\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n", shortCut.Data());
+   buffer.AppendFormatted("   %sConfig::ConfigData *modConfigData = fConfigData[modIndex];\n", shortCut.Data());
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
    buffer.AppendFormatted("   char* cstop;\n");
@@ -6138,7 +6138,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("Bool_t %sConfig::WriteConfiguration(ROMEXML *xml,Int_t index) {\n",shortCut.Data());
    buffer.AppendFormatted("   ROMEString str = \"\";\n");
    buffer.AppendFormatted("   ROMEString writeString;\n");
-   buffer.AppendFormatted("   MEGConfig::ConfigData *configData = fConfigData[index];\n");
+   buffer.AppendFormatted("   %sConfig::ConfigData *configData = fConfigData[index];\n", shortCut.Data());
    buffer.AppendFormatted("   int i;\n");
    buffer.AppendFormatted("   int ii[100];\n");
    buffer.AppendFormatted("   ii[0] = 0;\n"); // to suppress unused warning
@@ -7548,11 +7548,13 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          else
             groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity());
          if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram") {
-            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          else {
             temp = classNameT(0,classNameT.Length()-2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d = %sf%s;\n",sTab.Data(),temp.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n",sTab.Data(),temp.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
          (*iSub)++;
@@ -7619,11 +7621,13 @@ Bool_t ROMEBuilder::WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParame
          else
             groupNameT.SetFormatted("%s%s[%d]/",groupName.Data(),parGroup->GetSubGroupAt(i)->GetTagName().Data(),parGroup->GetSubGroupAt(i)->GetMultiplicity());
          if (parGroup->GetSubGroupAt(i)->GetGroupIdentifier()=="Histogram") {
-            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sROMEConfigHisto* tmp%s%d;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          else {
             temp = classNameT(0,classNameT.Length()-2);
-            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d = %sf%s;\n",sTab.Data(),temp.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
+            buffer.AppendFormatted("%sConfigData::%s* tmp%s%d;\n",sTab.Data(),temp.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
+            buffer.AppendFormatted("%stmp%s%d = %sf%s;\n",sTab.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub,pointer.Data(),parGroup->GetSubGroupAt(i)->GetGroupName().Data());
          }
          pointerT.SetFormatted("tmp%s%d->",parGroup->GetSubGroupAt(i)->GetGroupName().Data(),*iSub);
          iSubSave = *iSub;
