@@ -10,7 +10,9 @@
 #include <ROMEString.h>
 #include <TObject.h>
 
+class ROMEStrArray;
 class ROMEXML;
+class ROMEHisto;
 class ROMEConfigHisto;
 
 class ROMEConfig : public TObject
@@ -47,6 +49,9 @@ public:
    virtual Bool_t CheckConfigurationModified(Int_t index) = 0;
 protected:
    Bool_t ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* histo);
+   Bool_t CheckHistoConfigurationModified(ROMEConfigHisto* configHisto);
+   Bool_t SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto);
+   Bool_t WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,Int_t commentLevel,ROMEStrArray& comment);
 
    ClassDef(ROMEConfig, 0) // Base configuration class
 };

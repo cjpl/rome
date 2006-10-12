@@ -195,6 +195,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskEventID = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskUsage = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskStatus = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskToDo = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
+   taskKnownProblems = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    taskAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
@@ -273,6 +277,10 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
    tabDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabShortDescription = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabUsage = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabStatus = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabToDo = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
+   tabKnownProblems = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthorInstitute = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabAuthorCollaboration = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
@@ -1292,6 +1300,10 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskVersion[numOfTask] = "0";
    taskDescription[numOfTask] = "";
    taskShortDescription[numOfTask] = "";
+   taskUsage[numOfTask] = "";
+   taskStatus[numOfTask] = "";
+   taskToDo[numOfTask] = "";
+   taskKnownProblems[numOfTask] = "";
    numOfHistos[numOfTask] = 0;
    numOfTaskInclude[numOfTask] = 0;
    numOfSteering[numOfTask] = -1;
@@ -1394,6 +1406,18 @@ Bool_t ROMEBuilder::ReadXMLTask()
       // task short description
       if (type == 1 && !strcmp((const char*)name,"TaskShortDescription"))
          xml->GetValue(taskShortDescription[numOfTask],taskShortDescription[numOfTask]);
+      // task usage
+      if (type == 1 && !strcmp((const char*)name,"TaskUsage"))
+         xml->GetValue(taskUsage[numOfTask],taskUsage[numOfTask]);
+      // task status
+      if (type == 1 && !strcmp((const char*)name,"TaskStatus"))
+         xml->GetValue(taskStatus[numOfTask],taskStatus[numOfTask]);
+      // task to do
+      if (type == 1 && !strcmp((const char*)name,"TaskToDo"))
+         xml->GetValue(taskToDo[numOfTask],taskToDo[numOfTask]);
+      // task known problems
+      if (type == 1 && !strcmp((const char*)name,"TaskKnownProblems"))
+         xml->GetValue(taskKnownProblems[numOfTask],taskKnownProblems[numOfTask]);
       // task include
       if (type == 1 && !strcmp((const char*)name,"Include")) {
          // include initialisation
@@ -1630,6 +1654,10 @@ Bool_t ROMEBuilder::ReadXMLTab()
    tabVersion[currentNumberOfTabs] = "0";
    tabDescription[currentNumberOfTabs] = "";
    tabShortDescription[currentNumberOfTabs] = "";
+   tabUsage[currentNumberOfTabs] = "";
+   tabStatus[currentNumberOfTabs] = "";
+   tabToDo[currentNumberOfTabs] = "";
+   tabKnownProblems[currentNumberOfTabs] = "";
    tabHeredity[currentNumberOfTabs] = "";
    tabHeredityIndex[currentNumberOfTabs] = 0;
    numOfSteering[currentNumberOfTabs+numOfTask+1] = -1;
@@ -1758,6 +1786,18 @@ Bool_t ROMEBuilder::ReadXMLTab()
       // tab short description
       if (type == 1 && !strcmp(name, "TabShortDescription"))
          xml->GetValue(tabShortDescription[currentNumberOfTabs], tabShortDescription[currentNumberOfTabs]);
+      // tab usage
+      if (type == 1 && !strcmp((const char*)name,"TabUsage"))
+         xml->GetValue(tabUsage[currentNumberOfTabs],tabUsage[currentNumberOfTabs]);
+      // tab status
+      if (type == 1 && !strcmp((const char*)name,"TabStatus"))
+         xml->GetValue(tabStatus[currentNumberOfTabs],tabStatus[currentNumberOfTabs]);
+      // tab to do
+      if (type == 1 && !strcmp((const char*)name,"TabToDo"))
+         xml->GetValue(tabToDo[currentNumberOfTabs],tabToDo[currentNumberOfTabs]);
+      // tab known problems
+      if (type == 1 && !strcmp((const char*)name,"TabKnownProblems"))
+         xml->GetValue(tabKnownProblems[currentNumberOfTabs],tabKnownProblems[currentNumberOfTabs]);
       // tab heredity
       if (type == 1 && !strcmp(name, "InheritedFrom"))
          xml->GetValue(tabHeredity[currentNumberOfTabs], tabHeredity[currentNumberOfTabs]);

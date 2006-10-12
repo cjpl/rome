@@ -189,6 +189,10 @@ protected:
    ROMEString   *taskEventID;
    ROMEString   *taskDescription;
    ROMEString   *taskShortDescription;
+   ROMEString   *taskUsage;
+   ROMEString   *taskStatus;
+   ROMEString   *taskToDo;
+   ROMEString   *taskKnownProblems;
    ROMEString   *taskAuthor;
    ROMEString   *taskAuthorInstitute;
    ROMEString   *taskAuthorCollaboration;
@@ -273,6 +277,10 @@ protected:
    Bool_t       *tabUsed;
    ROMEString   *tabDescription;
    ROMEString   *tabShortDescription;
+   ROMEString   *tabUsage;
+   ROMEString   *tabStatus;
+   ROMEString   *tabToDo;
+   ROMEString   *tabKnownProblems;
    ROMEString   *tabAuthor;
    ROMEString   *tabAuthorInstitute;
    ROMEString   *tabAuthorCollaboration;
@@ -543,10 +551,10 @@ private:
    Bool_t  AddSteeringConfigParameters(ROMEConfigParameterGroup *parGroup,Int_t numSteer,Int_t numTask,ROMEString steerPointer,ROMEString taskPointer);
    Bool_t  CheckConfigParameters(ROMEConfigParameterGroup *parGroup);
    Bool_t  WriteConfigClass(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab);
-   Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes);
-   Bool_t  WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes);
-   Bool_t  WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer);
-   Bool_t  WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer);
+   Bool_t  WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
+   Bool_t  WriteConfigCheckModified(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString className,ROMEString pointer,ROMEString indexes,Int_t* iSub);
+   Bool_t  WriteConfigSet(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub);
+   Bool_t  WriteConfigWrite(ROMEString &buffer,ROMEConfigParameterGroup *parGroup,int tab,ROMEString groupName,ROMEString pointer,Int_t* iSub);
    Bool_t  WriteMidasDAQCpp();
    Bool_t  WriteMidasDAQH();
    Bool_t  WriteRomeDAQCpp();
