@@ -307,6 +307,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabHistoHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
    tabHistoIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    numOfTabObjects = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabObjectName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
    tabObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
@@ -1707,7 +1708,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
          // Check Tab Objects
          for (i=0;i<numOfTabObjects[currentNumberOfTabs];i++) {
             if (tabUsed[currentNumberOfTabs] && tabObjectType[currentNumberOfTabs][i] == "none") {
-               cout << "The object reference of a display object '" << tabObject[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
+               cout << "The object reference of a display object '" << tabObjectName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
                cout << "Terminating program." << endl;
                return kFALSE;
             }
@@ -1918,6 +1919,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
             // display object
             if (type == 1 && !strcmp(name, "DisplayObject")) {
+               tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
                tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
                tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
                tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
@@ -1926,18 +1928,22 @@ Bool_t ROMEBuilder::ReadXMLTab()
                   type = xml->GetType();
                   name = xml->GetName();
 
-                  // object
-                  if (type == 1 && !strcmp(name, "Object")) {
-                     xml->GetValue(tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  // object name
+                  if (type == 1 && !strcmp(name, "ObjectName")) {
+                     xml->GetValue(tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
                      if (makeOutput) {
                         for (i = 0; i < recursiveTabDepth + 2; i++)
                            cout << "   ";
-                        tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].WriteLine();
+                        tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].WriteLine();
                      }
                   }
                   // object title
                   if (type == 1 && !strcmp(name, "ObjectTitle")) {
                      xml->GetValue(tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  }
+                  // object
+                  if (type == 1 && !strcmp(name, "Object")) {
+                     xml->GetValue(tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
                   }
                   // object task hierarchy index
                   if (type == 1 && !strcmp(name, "ObjectTaskHierarchyIndex")) {
@@ -1947,16 +1953,16 @@ Bool_t ROMEBuilder::ReadXMLTab()
                   // end
                   if (type == 15 && !strcmp(name, "DisplayObject")) {
                      // check input
-                     if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "") {
+                     if (tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "") {
                         cout << "A display object of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
                         cout << "Terminating program." << endl;
                         return kFALSE;
                      }
                      if (tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Length()==0)
-                        tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
+                        tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
 
                      for (j = 0; j < numOfTabObjects[currentNumberOfTabs]; j++) {
-                        if (tabObject[currentNumberOfTabs][j] == tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] && tabObjectTaskHierarchyNumber[currentNumberOfTabs][j] == tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
+                        if (tabObjectName[currentNumberOfTabs][j] == tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] && tabObjectTaskHierarchyNumber[currentNumberOfTabs][j] == tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
                            cout << "Two display object of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
                            cout << "Terminating program." << endl;
                            return kFALSE;
@@ -1992,7 +1998,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                                        typeFound = true;
                                  }
                                  if (!typeFound) {
-                                    cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for display objects. (" << tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
+                                    cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for display objects. (" << tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
                                     cout << "Terminating program." << endl;
                                     return kFALSE;
                                  }

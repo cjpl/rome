@@ -196,6 +196,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabHistoTaskIndex;
    delete [] tabHistoHistoIndex;
    delete [] tabHistoIndexMax;
+   delete [] tabObjectName;
    delete [] tabObjectTitle;
    delete [] tabObject;
    delete [] tabObjectType;

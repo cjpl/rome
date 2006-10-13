@@ -2764,23 +2764,23 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             if (tabObjectTaskHierarchyIndex[iTab][i]<0)
-               buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObject[iTab][i].ToUpper(str));
+               buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str));
             else {
                if (tabObjectTaskHierarchyNumber[iTab][i]>0)
-                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%d. %s\", M_DISPLAY_%s%s);\n",tabObjectTaskHierarchyNumber[iTab][i]+1,tabObjectTitle[iTab][i].Data(),tabObject[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%d. %s\", M_DISPLAY_%s%s);\n",tabObjectTaskHierarchyNumber[iTab][i]+1,tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
                else
-                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s%s);\n",tabObjectTitle[iTab][i].Data(),tabObject[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s%s);\n",tabObjectTitle[iTab][i].Data(),tabObjectName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
             }
          }
          if (numOfTabObjects[iTab]>0) {
             if (tabObjectTaskHierarchyIndex[iTab][0]<0)
-               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s",tabObject[iTab][0].ToUpper(str),tabObject[iTab][0].ToUpper(str1));
+               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s",tabObjectName[iTab][0].ToUpper(str),tabObjectName[iTab][0].ToUpper(str1));
             else
-               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s%s+fDisplayObjIndex,M_DISPLAY_%s%s",tabObject[iTab][0].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][0]].Data(),tabObject[iTab][0].ToUpper(str1),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][0]].Data());
+               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s%s+fDisplayObjIndex,M_DISPLAY_%s%s",tabObjectName[iTab][0].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][0]].Data(),tabObjectName[iTab][0].ToUpper(str1),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][0]].Data());
             if (tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]<0)
-               buffer.AppendFormatted(",M_DISPLAY_%s);\n",tabObject[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+               buffer.AppendFormatted(",M_DISPLAY_%s);\n",tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
             else
-               buffer.AppendFormatted(",M_DISPLAY_%s%s);\n",tabObject[iTab][numOfTabObjects[iTab]-1].ToUpper(str2),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]].Data());
+               buffer.AppendFormatted(",M_DISPLAY_%s%s);\n",tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]].Data());
          }
       }
       buffer.AppendFormatted("}\n");
@@ -2801,9 +2801,9 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("   switch (param) {\n");
             for (i=0;i<numOfTabObjects[iTab];i++) {
                if (tabObjectTaskHierarchyIndex[iTab][i]<0)
-                  buffer.AppendFormatted("      case M_DISPLAY_%s:\n",tabObject[iTab][i].ToUpper(str));
+                  buffer.AppendFormatted("      case M_DISPLAY_%s:\n",tabObjectName[iTab][i].ToUpper(str));
                else
-                  buffer.AppendFormatted("      case M_DISPLAY_%s%s:\n",tabObject[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+                  buffer.AppendFormatted("      case M_DISPLAY_%s%s:\n",tabObjectName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
                buffer.AppendFormatted("         {\n");
                buffer.AppendFormatted("            fDisplayObjIndex = %d;\n",i);
                for (j=0;j<tabObjectSupportedHistos.GetEntriesFast();j++) {
@@ -2811,13 +2811,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      buffer.AppendFormatted("            fCurrentDisplayType = %d;\n",j);
                }
                buffer.AppendFormatted("            SetupPads(fNumberOfPadsX,fNumberOfPadsY,true);\n");
-               buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s",tabObject[iTab][i].ToUpper(str));
+               buffer.AppendFormatted("            fMenuDisplay->RCheckEntry(M_DISPLAY_%s",tabObjectName[iTab][i].ToUpper(str));
                if (tabObjectTaskHierarchyIndex[iTab][i]>-1)
                   buffer.AppendFormatted(taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
-               buffer.AppendFormatted(",M_DISPLAY_%s",tabObject[iTab][0].ToUpper(str1));
+               buffer.AppendFormatted(",M_DISPLAY_%s",tabObjectName[iTab][0].ToUpper(str1));
                if (tabObjectTaskHierarchyIndex[iTab][0]>-1)
                   buffer.AppendFormatted(taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][0]].Data());
-               buffer.AppendFormatted(",M_DISPLAY_%s",tabObject[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
+               buffer.AppendFormatted(",M_DISPLAY_%s",tabObjectName[iTab][numOfTabObjects[iTab]-1].ToUpper(str2));
                if (tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]>-1)
                   buffer.AppendFormatted(taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][numOfTabObjects[iTab]-1]].Data());
                buffer.AppendFormatted(");\n");
@@ -2996,9 +2996,9 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("      M_DISPLAY_ROOT = 800,\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             if (tabObjectTaskHierarchyIndex[iTab][i]<0)
-               buffer.AppendFormatted("      M_DISPLAY_%s,\n",tabObject[iTab][i].ToUpper(str));
+               buffer.AppendFormatted("      M_DISPLAY_%s,\n",tabObjectName[iTab][i].ToUpper(str));
             else
-               buffer.AppendFormatted("      M_DISPLAY_%s%s,\n",tabObject[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+               buffer.AppendFormatted("      M_DISPLAY_%s%s,\n",tabObjectName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
          }
          buffer = buffer(0,buffer.Length()-2);
          buffer.AppendFormatted("   \n};\n");
@@ -7235,7 +7235,7 @@ Bool_t ROMEBuilder::AddTabConfigParameters(ROMEConfigParameterGroup *parGroup,In
       subGroup->GetLastParameter()->AddWriteLine("   writeString = \"false\";");
       if (tabHistoDisplay[i]) {
          for (j=0;j<numOfTabObjects[i];j++) {
-            subSubGroup = new ROMEConfigParameterGroup(tabObject[i][j],"1","DisplayObject","DisplayObjectName");
+            subSubGroup = new ROMEConfigParameterGroup(tabObjectName[i][j],"1","DisplayObject","DisplayObjectName");
             subSubGroup->ReadComment(ROMEConfig::kCommentLevelObj, "DisplayObject");
             // Draw Option
             subSubGroup->AddParameter(new ROMEConfigParameter("DrawOption"));
