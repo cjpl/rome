@@ -2,20 +2,34 @@
 //                                                                            //
 // DOTFillHisto                                                               //
 //                                                                            //
+// Begin_Html                                                                 //
+//                                                                            //
 // Description:                                                               //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Usage:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Status:                                                                    //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // To Do:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Known Problems:                                                            //
+// <p>                                                                        //
 //                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 // The event methods have been written by .                                   //
 //                                                                            //
@@ -26,6 +40,7 @@
 // This task contains the following histgrams :                               //
 //    MyHisto                                                                 //
 //    MyOtherHisto                                                            //
+//    My2DHisto                                                               //
 //                                                                            //
 // The histograms are created and saved automaticaly by the task.             //
 //                                                                            //
@@ -65,6 +80,9 @@ void DOTFillHisto::Event()
    GetMyOtherHistoAt(0)->Fill(gRandom->Gaus(10,10));
    GetMyOtherHistoAt(1)->Fill(gRandom->Gaus(10,20));
    GetMyOtherHistoAt(2)->Fill(gRandom->Gaus(10,30));
+   GetMy2DHistoAt(0)->Fill(gRandom->Gaus(10,10),gRandom->Gaus(10,10));
+   GetMy2DHistoAt(1)->Fill(gRandom->Gaus(10,20),gRandom->Gaus(10,20));
+   GetMy2DHistoAt(2)->Fill(gRandom->Gaus(10,30),gRandom->Gaus(10,30));
 }
 
 void DOTFillHisto::EndOfRun()

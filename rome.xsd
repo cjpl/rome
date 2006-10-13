@@ -746,19 +746,14 @@
 			<xs:documentation>Description of an object in a histogram display.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ObjectName" type="xs:string">
+			<xs:element name="Object" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>Name of the object.</xs:documentation>
+					<xs:documentation>Object reference. This can be either the name of a histogram defined in the task section or a root histogram typ or 'TGraph'. If a histogram name is specified this histogram will be displayed. If a root histogram or graph class name is specified then the objects have to be filled inside the tab user code.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ObjectTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Title of the object.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Object" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>Object reference. This can be either the name of a histogram or TH1F, TH2F or TGraph. If a histogram name is specified this histogram will be displayed. If a histogram or graph class name is specified then the objects have to be filled by the user code.</xs:documentation>
+					<xs:documentation>Title of the entry in the drop down menu.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="ObjectTaskHierarchyIndex" type="xs:integer" default="0" minOccurs="0">

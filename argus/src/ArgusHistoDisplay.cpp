@@ -48,6 +48,7 @@
 #endif
 
 #include "ArgusWindow.h"
+#include "ROMEStrArray.h"
 #include "ROMEAnalyzer.h"
 #include "ArgusHistoDisplay.h"
 #include "XMLToForm.h"
@@ -103,6 +104,7 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
    fObjects = new TObjArray();
    fUserLines = new TObjArray();
    fLines = new TObjArray();
+   fDrawOption = new ROMEStrArray();
 }
 
 ArgusHistoDisplay::~ArgusHistoDisplay()
@@ -170,6 +172,8 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
       delete(fLines->At(i));
    }
    SafeDelete(fLines);
+   // DrawOption
+   SafeDelete(fDrawOption);
 }
 
 TGraph* ArgusHistoDisplay::GetUserTGraphAt(Int_t index)
@@ -213,6 +217,16 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
       return ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(index);
    }
    return NULL;
+}
+
+void ArgusHistoDisplay::SetDrawOption(Int_t displayTypeIndex,const char* option)
+{
+   fDrawOption->AddAt(option,displayTypeIndex);
+}
+
+const char* ArgusHistoDisplay::GetDrawOption(Int_t displayTypeIndex)
+{
+   return fDrawOption->At(displayTypeIndex);
 }
 
 void ArgusHistoDisplay::BaseInit()
@@ -474,9 +488,9 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->SetBottomMargin(1.0f);
          fPad[i]->cd();
          if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph"))
-            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("AL");
+            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          else
-            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw();
+            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++)
             ((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k)->Draw();
          SetStatisticBox(true);
