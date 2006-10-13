@@ -1695,11 +1695,11 @@ Bool_t ROMEBuilder::ReadXMLTab()
             return kFALSE;
          }
          if (affiliations.GetEntriesFast()>0) {
-            tabUsed[numOfTab] = false;
-            for (i=0;i<affiliations.GetEntriesFast() && !tabUsed[numOfTab];i++) {
-               for (j=0;j<numOfTabAffiliations[numOfTab];j++) {
-                  if (affiliations.At(i)==tabAffiliation[numOfTab][j]) {
-                     tabUsed[numOfTab] = true;
+            tabUsed[currentNumberOfTabs] = false;
+            for (i=0;i<affiliations.GetEntriesFast() && !tabUsed[currentNumberOfTabs];i++) {
+               for (j=0;j<numOfTabAffiliations[currentNumberOfTabs];j++) {
+                  if (affiliations.At(i)==tabAffiliation[currentNumberOfTabs][j]) {
+                     tabUsed[currentNumberOfTabs] = true;
                      break;
                   }
                }
@@ -1715,10 +1715,10 @@ Bool_t ROMEBuilder::ReadXMLTab()
          }
 
          // description
-         if (tabDescription[numOfTab].Length()
-             && !tabShortDescription[numOfTab].Length()
-             && !tabDescription[numOfTab].Contains("\n"))
-            tabShortDescription[numOfTab] = tabDescription[numOfTab];
+         if (tabDescription[currentNumberOfTabs].Length()
+             && !tabShortDescription[currentNumberOfTabs].Length()
+             && !tabDescription[currentNumberOfTabs].Contains("\n"))
+            tabShortDescription[currentNumberOfTabs] = tabDescription[currentNumberOfTabs];
          recursiveTabDepth--;
          return kTRUE;
       }
