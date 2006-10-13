@@ -57,12 +57,14 @@
 				<HistogramDisplay>true</HistogramDisplay>
 				<DisplayObjects>
 					<DisplayObject>
-						<Object>MyHisto</Object>
+						<ObjectName>MyHisto</ObjectName>
 						<ObjectTitle>MyHisto</ObjectTitle>
+						<Object>MyHisto</Object>
 					</DisplayObject>
 					<DisplayObject>
-						<Object>MyOtherHisto</Object>
+						<ObjectName>MyOtherHisto</ObjectName>
 						<ObjectTitle>MyOtherHisto</ObjectTitle>
+						<Object>MyOtherHisto</Object>
 					</DisplayObject>
 				</DisplayObjects>
 			</Tab>
@@ -72,8 +74,9 @@
 				<HistogramDisplay>true</HistogramDisplay>
 				<DisplayObjects>
 					<DisplayObject>
-						<Object>My2DHisto</Object>
+						<ObjectName>My2DHisto</ObjectName>
 						<ObjectTitle>My2DHisto</ObjectTitle>
+						<Object>My2DHisto</Object>
 					</DisplayObject>
 				</DisplayObjects>
 			</Tab>

@@ -307,6 +307,7 @@ protected:
    Int_t       **tabHistoHistoIndex;
    Int_t        *tabHistoIndexMax;
    Int_t        *numOfTabObjects;
+   ROMEString  **tabObjectName;
    ROMEString  **tabObjectTitle;
    ROMEString  **tabObject;
    ROMEString  **tabObjectType;
