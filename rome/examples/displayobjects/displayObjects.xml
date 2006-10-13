@@ -30,25 +30,53 @@
 				<HistXmin>-100</HistXmin>
 				<HistXmax>100</HistXmax>
 			</Histogram>
+			<Histogram>
+				<HistName>My2DHisto</HistName>
+				<HistTitle>MyOtherHisto</HistTitle>
+				<HistFolderName>myotherhistos</HistFolderName>
+				<HistType>TH2F</HistType>
+				<HistArraySize>3</HistArraySize>
+				<HistXLabel>X</HistXLabel>
+				<HistYLabel>Entries</HistYLabel>
+				<HistXNbins>100</HistXNbins>
+				<HistXmin>-100</HistXmin>
+				<HistXmax>100</HistXmax>
+				<HistYNbins>100</HistYNbins>
+				<HistYmin>-100</HistYmin>
+				<HistYmax>100</HistYmax>
+			</Histogram>
 		</Task>
 	</Tasks>
 	<Tabs>
 		<Tab>
-			<TabName>Histos</TabName>
-			<TabTitle>Histos</TabTitle>
-			<HistogramDisplay>true</HistogramDisplay>
-			<DisplayObjects>
-				<DisplayObject>
-					<ObjectName>MyHisto</ObjectName>
-					<ObjectTitle>MyHisto</ObjectTitle>
-					<Object>MyHisto</Object>
-				</DisplayObject>
-				<DisplayObject>
-					<ObjectName>MyOtherHisto</ObjectName>
-					<ObjectTitle>MyOtherHisto</ObjectTitle>
-					<Object>MyOtherHisto</Object>
-				</DisplayObject>
-			</DisplayObjects>
+			<TabName>Main</TabName>
+			<TabTitle>Main</TabTitle>
+			<Tab>
+				<TabName>Histos1D</TabName>
+				<TabTitle>Histos 1D</TabTitle>
+				<HistogramDisplay>true</HistogramDisplay>
+				<DisplayObjects>
+					<DisplayObject>
+						<Object>MyHisto</Object>
+						<ObjectTitle>MyHisto</ObjectTitle>
+					</DisplayObject>
+					<DisplayObject>
+						<Object>MyOtherHisto</Object>
+						<ObjectTitle>MyOtherHisto</ObjectTitle>
+					</DisplayObject>
+				</DisplayObjects>
+			</Tab>
+			<Tab>
+				<TabName>Histos2D</TabName>
+				<TabTitle>Histos 2D</TabTitle>
+				<HistogramDisplay>true</HistogramDisplay>
+				<DisplayObjects>
+					<DisplayObject>
+						<Object>My2DHisto</Object>
+						<ObjectTitle>My2DHisto</ObjectTitle>
+					</DisplayObject>
+				</DisplayObjects>
+			</Tab>
 		</Tab>
 	</Tabs>
 </ROMEFrameworkDefinition>

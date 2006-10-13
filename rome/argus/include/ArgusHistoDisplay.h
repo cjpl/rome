@@ -19,6 +19,7 @@
 #include "ROMEString.h"
 #include "ArgusTab.h"
 
+class ROMEStrArray;
 class TGMenuBar;
 class TGPopupMenu;
 class TGHProgressBar;
@@ -76,6 +77,7 @@ protected:
    TObjArray           *fObjects;         //!
    TObjArray           *fUserLines;       //!
    TObjArray           *fLines;           //!
+   ROMEStrArray        *fDrawOption;      //!
    Int_t                fNumberOfUserTGraph;//!
    Int_t                fNumberOfUserLines;//!
    Int_t                fNumberOfLines;   //!
@@ -104,6 +106,8 @@ public:
    TObject* GetCurrentObjectAt(Int_t index);
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
+   void SetDrawOption(Int_t displayTypeIndex,const char* option);
+   const char* GetDrawOption(Int_t displayTypeIndex);
 
    void SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
    int  GetNumberOfPadsX() { return fNumberOfPadsX; };
