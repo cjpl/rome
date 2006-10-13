@@ -4847,6 +4847,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       if (!tabUsed[i])
          continue;
       buffer.AppendFormatted("   fTabSwitches.%s%s = kTRUE;\n",tabName[i].Data(),tabSuffix[i].Data());
+      buffer.AppendFormatted("   f%sTabID = -1;\n", tabName[i].Data());
 
       if (tabHeredity[i].Length()>0) {
          if (numOfMenu[tabHeredityIndex[i]] > 0) {

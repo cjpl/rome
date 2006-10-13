@@ -55,17 +55,19 @@ void ArgusTab::ArgusEventHandler() {
 // Time methods
 void ArgusTab::ShowTimeStatistics()
 {
-   int i;
-   ROMEString name;
-   int nchars;
-   nchars = 0;
-   ROMEPrint::Print(" Tab ");
-   nchars = 5;
-   name = this->GetName();
-   ROMEPrint::Print(name.Data());
-   for (i=0;i<30-name.Length()-5;i++)
-      ROMEPrint::Print(".");
-   ROMEPrint::Print(" : %s %s %s\n", GetTimeOfAll(), GetTimeOfUser(), GetTimeOfUserEvents());
+   if (fActive) {
+      int i;
+      ROMEString name;
+      int nchars;
+      nchars = 0;
+      ROMEPrint::Print(" Tab ");
+      nchars = 5;
+      name = this->GetName();
+      ROMEPrint::Print(name.Data());
+      for (i=0;i<30-name.Length()-5;i++)
+         ROMEPrint::Print(".");
+      ROMEPrint::Print(" : %s  %s  %s\n", GetTimeOfAll(), GetTimeOfUser(), GetTimeOfUserEvents());
+   }
 }
 
 const char* ArgusTab::GetTimeOfAll()
