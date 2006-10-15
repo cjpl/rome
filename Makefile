@@ -49,9 +49,11 @@ ifeq ($(ROMEOPTIMIZE), yes)
   CXXFLAGS += -O
 endif
 
+DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h
 ifeq ($(LIBROME), yes)
   INCLUDE += -DHAVE_LIBROME
   LIBROMEFILE = librome.a
+  DICTIONARIES += ROMELibDict.h
 else
   LIBROMEFILE =
 endif
@@ -189,6 +191,8 @@ obj:
 		mkdir obj; \
 	fi;
 
+dict: $(DICTIONARIES)
+
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
@@ -244,7 +248,17 @@ clean:
 	ROMEBuilderDict.h ROMEBuilderDict.cpp \
 	UpdateVersionHDict.h UpdateVersionHDict.cpp
 
-ifneq ($(MAKECMDGOALS), clean)
+SkipDepInclude = no
+
+ifeq ($(MAKECMDGOALS), dict)
+SkipDepInclude = yes
+endif
+
+ifeq ($(MAKECMDGOALS), clean)
+SkipDepInclude = yes
+endif
+
+ifeq ($(SkipDepInclude), no)
 -include obj/*.d
 endif
 
