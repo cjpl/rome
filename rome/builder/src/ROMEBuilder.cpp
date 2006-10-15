@@ -629,8 +629,9 @@ Bool_t ROMEBuilder::StartBuilder()
 // Linking
    WriteMakefile();
    if (!WriteLinkDefHs()) return false;
+#if defined( R__UNIX )
    if (noLink) {
-/*      ROMEString tempStr;
+      ROMEString tempStr;
 #if defined( R__UNIX )
       tempStr.SetFormatted("make");
 #endif
@@ -661,10 +662,10 @@ Bool_t ROMEBuilder::StartBuilder()
          tempStr.AppendFormatted(" dict/%sDAQDict.cpp",shortCut.Data());
       if (databaseHeaders->GetEntriesFast()>0)
          tempStr.AppendFormatted(" dict/%sDBDict.cpp",shortCut.Data());
-      if (numOfMFDictHeaders>0)
-         tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
-      gSystem->Exec(tempStr.Data());*/
+      tempStr.AppendFormatted(" dict/%sUserDict.cpp",shortCut.Data());
+      gSystem->Exec(tempStr.Data());
    }
+#endif
 // Documentation
    if (makeOutput) cout << "\nWrite HTML Documentation." << endl;
    WriteHTMLDoku();
