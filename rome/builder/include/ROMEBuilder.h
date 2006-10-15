@@ -64,6 +64,7 @@ class ROMEBuilder
 {
 public:
    ROMEString    romeVersion;
+   ROMEString    makeFlag;
 
 protected:
    ROMEStrArray *histoParameters;
@@ -489,6 +490,7 @@ public:
    Bool_t  CheckFileAndPath();
    Bool_t  GetNoLink() { return noLink; }
    Bool_t  GetMakeOutput() { return makeOutput; }
+   ROMEString* GetMakeFlag() { return &makeFlag; }
 
 private:
    // XML Read Methods
