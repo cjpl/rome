@@ -63,6 +63,17 @@ int main(int argc, char *argv[])
 
    bool noLink = romeb->GetNoLink();
    bool makeOutput = romeb->GetMakeOutput();
+   ROMEString *makeFlag = romeb->GetMakeFlag();
+   ROMEString makeCommand;
+#if defined( R__UNIX )
+   makeCommand = "make";
+#else
+   makeCommand = "nmake -f Makefile.win";
+#endif
+   if (makeFlag->Length()) {
+      makeCommand += " ";
+      makeCommand += makeFlag->Data();
+   }
 
    delete romeb;
 
@@ -70,10 +81,10 @@ int main(int argc, char *argv[])
       if(makeOutput)
          cout<<"Linking the executable binary."<<endl;
 #if defined( R__UNIX )
-      return (gSystem->Exec("make")) ? EXIT_FAILURE : EXIT_SUCCESS;
+      return (gSystem->Exec(makeCommand.Data())) ? EXIT_FAILURE : EXIT_SUCCESS;
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
-      return gSystem->Exec("nmake -f Makefile.win");
+      return gSystem->Exec(makeCommand.Data());
 #endif
    }
 
