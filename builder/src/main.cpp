@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
       if(makeOutput)
          cout<<"Linking the executable binary."<<endl;
 #if defined( R__UNIX )
-      return (gSystem->Exec("make -e")) ? EXIT_FAILURE : EXIT_SUCCESS;
+      return (gSystem->Exec("make")) ? EXIT_FAILURE : EXIT_SUCCESS;
 #endif
 #if defined( R__VISUAL_CPLUSPLUS )
       return gSystem->Exec("nmake -f Makefile.win");
