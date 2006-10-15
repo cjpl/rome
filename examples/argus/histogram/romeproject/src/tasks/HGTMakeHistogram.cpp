@@ -4,20 +4,34 @@
 //                                                                            //
 // HGTMakeHistogram                                                           //
 //                                                                            //
+// Begin_Html                                                                 //
+//                                                                            //
 // Description:                                                               //
+// <p>                                                                        //
 // Create and fill histograms at the begin of run                             //
 //                                                                            //
+// <p>                                                                        //
 // Usage:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Status:                                                                    //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // To Do:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Known Problems:                                                            //
+// <p>                                                                        //
 //                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //
