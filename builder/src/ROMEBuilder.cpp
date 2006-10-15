@@ -704,6 +704,7 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
    pch = false;
    minRebuild = false;
    quietMake = false;
+   makeFlag = "";
 #if defined (HAVE_LIBROME)
    librome = true;
 #else
@@ -929,6 +930,14 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          cout << "Precompiled header is available with GCC 3.4 or later." << endl;
 #endif
       }
+      else if (!strcmp(argv[i],"-makeflag")&&i<argc-1) {
+         i++;
+         makeFlag = ((const char*)argv[i]);
+         if (makeFlag[0] == '\"' && makeFlag[makeFlag.Length() - 1] == '\"') {
+            makeFlag.Remove(makeFlag.Length() - 1, 1);
+            makeFlag.Remove(0, 1);
+         }
+      }
       else if (!strcmp(argv[i],"-f")&&i<argc-1) {
          i++;
          while (argv[i][0]!='-') {
@@ -1012,6 +1021,7 @@ void ROMEBuilder::Usage()
    cout << "  -sqlite   Generated program can be connected to a SQLite database (no Argument)" << endl;
    cout << "  -sqlite3  Generated program can be connected to a SQLite3 database (no Argument)" << endl;
    cout << "  -f        Compile flags added to the Makefile" << endl;
+   cout << "  -makeflag Options for make command executed in romebuilder" << endl;
 }
 
 void ROMEBuilder::AnalyzeFileName(const char* file,ROMEString& pathOfFile,ROMEString& nameOfFile,ROMEString& extensionOfFile)
