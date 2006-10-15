@@ -1414,6 +1414,7 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 
    // Command
 #if defined( R__UNIX )
+   buffer.AppendFormatted("ifdef DictionaryHeaders\n");
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.cpp ]; then $(RM) dict/%sUserDict.cpp; fi;\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("\t@if [ -e dict/%sUserDict.h ]; then $(RM) dict/%sUserDict.h; fi;\n",shortCut.Data(),shortCut.Data());
 #endif
@@ -1430,7 +1431,9 @@ void ROMEBuilder::WriteMakefileUserDictionary(ROMEString& buffer)
 #endif // R__UNIX
    buffer.AppendFormatted(" $(DictionaryIncludes)");
    buffer.AppendFormatted(" $(DictionaryHeaders)");
-   buffer.AppendFormatted("\n\n");
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("endif\n");
+   buffer.AppendFormatted("\n");
 
    GetUserDictHeaderString(bufferT,";");
    dictionaryDependencies->AddFormatted(bufferT.Data());
