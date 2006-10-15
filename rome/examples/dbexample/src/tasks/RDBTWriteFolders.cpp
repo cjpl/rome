@@ -4,20 +4,34 @@
 //                                                                            //
 // RDBTWriteFolders                                                           //
 //                                                                            //
+// Begin_Html                                                                 //
+//                                                                            //
 // Description:                                                               //
+// <p>                                                                        //
 // This is an example to write database.                                      //
 //                                                                            //
+// <p>                                                                        //
 // Usage:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Status:                                                                    //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // To Do:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Known Problems:                                                            //
+// <p>                                                                        //
 //                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //

@@ -4,20 +4,34 @@
 //                                                                            //
 // HWTFrench                                                                  //
 //                                                                            //
+// Begin_Html                                                                 //
+//                                                                            //
 // Description:                                                               //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Usage:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Status:                                                                    //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // To Do:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Known Problems:                                                            //
+// <p>                                                                        //
 //                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 #include "generated/HWWindow.h"
 //                                                                            //

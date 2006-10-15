@@ -4,20 +4,34 @@
 //                                                                            //
 // RDBTMakeQuery                                                              //
 //                                                                            //
+// Begin_Html                                                                 //
+//                                                                            //
 // Description:                                                               //
+// <p>                                                                        //
 // This is an example to use SQL query from analyzer.                         //
 //                                                                            //
+// <p>                                                                        //
 // Usage:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Status:                                                                    //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // To Do:                                                                     //
+// <p>                                                                        //
 //                                                                            //
 //                                                                            //
+// <p>                                                                        //
 // Known Problems:                                                            //
+// <p>                                                                        //
 //                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //

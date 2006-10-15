@@ -4,7 +4,34 @@
 //                                                                            //
 // FOTFillHisto                                                               //
 //                                                                            //
+// Begin_Html                                                                 //
 //                                                                            //
+// Description:                                                               //
+// <p>                                                                        //
+//                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// Usage:                                                                     //
+// <p>                                                                        //
+//                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// Status:                                                                    //
+// <p>                                                                        //
+//                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// To Do:                                                                     //
+// <p>                                                                        //
+//                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// Known Problems:                                                            //
+// <p>                                                                        //
+//                                                                            //
+//                                                                            //
+// <p>                                                                        //
+// End_Html                                                                   //
 //                                                                            //
 // The event methods have been written by Ryu Sawada.                         //
 //                                                                            //
@@ -12,21 +39,12 @@
 // the ROMEBuilder.                                                           //
 //                                                                            //
 //                                                                            //
-//  This task contains the following histgrams :                              //
-//     MyHisto                                                                //
+// This task contains the following histgrams :                               //
+//    MyHisto                                                                 //
 //                                                                            //
 // The histograms are created and saved automaticaly by the task.             //
 //                                                                            //
-// The following method can be used to fill a histogram :                     //
-//                                                                            //
-// Fill<Histogram Name>(Double_t value,Double_t weight)                       //
-//                                                                            //
-// For histogram arrays use :                                                 //
-//                                                                            //
-// Fill<Histogram Name>At(Int_t index,Double_t value,Double_t weight)         //
-//                                                                            //
-// If more histogram functions are needed use the following function the get  //
-//  a handle to the histogram and use the root functions.                     //
+// The following method can be used to get a handle of the histogram :        //
 //                                                                            //
 // Get<Histogram Name>()                                                      //
 //                                                                            //
