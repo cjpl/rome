@@ -106,8 +106,8 @@ public:
    TObject* GetCurrentObjectAt(Int_t index);
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
    TLine* GetUserLineAt(Int_t histoIndex,Int_t lineIndex);
-   void SetDrawOption(Int_t displayTypeIndex,const char* option);
-   const char* GetDrawOption(Int_t displayTypeIndex);
+   void SetDrawOptionAt(Int_t displayTypeIndex,const char* option);
+   const char* GetDrawOptionAt(Int_t displayTypeIndex);
 
    void SetNumberOfPadsX(int n) { fNumberOfPadsX = n; };
    int  GetNumberOfPadsX() { return fNumberOfPadsX; };
