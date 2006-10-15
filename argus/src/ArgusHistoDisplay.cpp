@@ -219,12 +219,12 @@ TObject* ArgusHistoDisplay::GetCurrentObjectAt(Int_t index)
    return NULL;
 }
 
-void ArgusHistoDisplay::SetDrawOption(Int_t displayTypeIndex,const char* option)
+void ArgusHistoDisplay::SetDrawOptionAt(Int_t displayTypeIndex,const char* option)
 {
    fDrawOption->AddAt(option,displayTypeIndex);
 }
 
-const char* ArgusHistoDisplay::GetDrawOption(Int_t displayTypeIndex)
+const char* ArgusHistoDisplay::GetDrawOptionAt(Int_t displayTypeIndex)
 {
    return fDrawOption->At(displayTypeIndex);
 }
