@@ -41,14 +41,14 @@
 			<HistogramDisplay>true</HistogramDisplay>
 			<DisplayObjects>
 				<DisplayObject>
-					<ObjectName>MyHisto</ObjectName>
-					<ObjectTitle>MyHisto</ObjectTitle>
+					<ObjectName>MyHisto_0</ObjectName>
+					<ObjectTitle>MyHisto 0</ObjectTitle>
 					<Object>MyHisto</Object>
 					<ObjectTaskHierarchyIndex>0</ObjectTaskHierarchyIndex>
 				</DisplayObject>
 				<DisplayObject>
-					<ObjectName>MyHisto</ObjectName>
-					<ObjectTitle>MyHisto</ObjectTitle>
+					<ObjectName>MyHisto_1</ObjectName>
+					<ObjectTitle>MyHisto 1</ObjectTitle>
 					<Object>MyHisto</Object>
 					<ObjectTaskHierarchyIndex>1</ObjectTaskHierarchyIndex>
 				</DisplayObject>

@@ -752,6 +752,18 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
          flags.AddAtAndExpand("HAVE_VME",4);
          affiliations.AddAtAndExpand("drs",0);
       }
+      else if (!strcmp(argv[i],"-drstest")) {
+         makeOutput = false;
+         midas = false;
+         noLink = true;
+         minRebuild = true;
+         sql = false;
+         mysql = false;
+         outDir = "C:/meg/meganalyzer/";
+         xmlFile = "C:/meg/meganalyzer/MEGAnalyzer.xml";
+         affiliations.AddAtAndExpand("drs",0);
+         flags.AddAtAndExpand("HAVE_DRS",0);
+      }
       else if (!strcmp(argv[i],"-dch")) {
          makeOutput = false;
          midas = true;

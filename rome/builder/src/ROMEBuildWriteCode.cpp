@@ -2634,7 +2634,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      else {\n");
          buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"TGraph\"))\n");
-         buffer.AppendFormatted("            ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Set(0);\n");
+         buffer.AppendFormatted("            ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Set(1);\n");
          buffer.AppendFormatted("         else \n");
          buffer.AppendFormatted("            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Reset();\n");
          buffer.AppendFormatted("         ((TNamed*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->SetTitle(\"\");\n");
@@ -4965,19 +4965,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("         // %s\n", tabName[i].Data());
       buffer.AppendFormatted("         if (fCurrentTabID == f%sTabID && param1 != f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
       buffer.AppendFormatted("            f%s%sTab->BaseTabUnSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
-      buffer.AppendFormatted("         }\n");
-   }
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
-      buffer.AppendFormatted("         // %s\n", tabName[i].Data());
-      buffer.AppendFormatted("         if (fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
-      buffer.AppendFormatted("            f%s%sTab->BaseTabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
-      buffer.AppendFormatted("         }\n");
-   }
-   for (i = 0; i < numOfTab; i++) {
-      if (!tabUsed[i])
-         continue;
       if (tabHeredity[i].Length()>0) {
          for (j = 0; j < numOfMenu[tabHeredityIndex[i]]; j++) {
             menu_title = menuTitle[tabHeredityIndex[i]][j];
@@ -4990,6 +4977,15 @@ Bool_t ROMEBuilder::WriteWindowCpp()
          menu_title.ReplaceAll("&", "");
          buffer.AppendFormatted("            delete fMenuBar->RemovePopup(\"%s\");\n", menu_title.Data());
       }
+      buffer.AppendFormatted("         }\n");
+   }
+   for (i = 0; i < numOfTab; i++) {
+      if (!tabUsed[i])
+         continue;
+      buffer.AppendFormatted("         // %s\n", tabName[i].Data());
+      buffer.AppendFormatted("         if (fCurrentTabID != f%sTabID && param1 == f%sTabID) {\n", tabName[i].Data(), tabName[i].Data());
+      buffer.AppendFormatted("            f%s%sTab->BaseTabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("         }\n");
    }
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
