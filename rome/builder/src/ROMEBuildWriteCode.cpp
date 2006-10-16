@@ -11228,7 +11228,7 @@ void ROMEBuilder::WriteHTMLDoku()
       if (numOfSteerChildren[numOfTask+1+i][0]>0 || numOfSteerFields[numOfTask+1+i][0]>0) {
          buffer.AppendFormatted("<table>\n");
          buffer.AppendFormatted("<tr class=\"cont\"><td>Name</td><td>Type</td><td>Description</td></tr>\n");
-//         WriteHTMLSteering(buffer,0,numOfTask+1+i,""); // <-- temporary comment out until bug fix.
+         WriteHTMLSteering(buffer,0,numOfTask+1+i,"");
          buffer.AppendFormatted("</table>\n");
       }
       else {

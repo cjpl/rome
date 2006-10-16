@@ -363,11 +363,12 @@ Bool_t ROMEBuilder::StartBuilder()
                tabToDo[numOfTab] = "";
                tabKnownProblems[numOfTab] = "";
                numOfSteering[numOfTab+numOfTask+1] = -1;
+               numOfSteerChildren[numOfTab+numOfTask+1][0] = 0;
+               numOfSteerFields[numOfTab+numOfTask+1][0] = 0;
                numOfMenu[numOfTab] = -1;
                tabNumOfChildren[numOfTab] = 0;
                numOfThreadFunctions[numOfTab] = 0;
                tabParentIndex[numOfTab] = -1;
-
                tabNumber = numOfTab;
                histoNumber = 0;
                numOfTabHistos[numOfTab] = 0;
