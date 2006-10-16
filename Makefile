@@ -209,15 +209,6 @@ librome.a: $(LibObjects)
 	-$(RM) $@
 	$(AR) -cr $@ $^
 
-obj/mxml.o: src/mxml.c include/mxml.h
-	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
-
-obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
-
-obj/%Dict.o: %Dict.cpp %Dict.h
-	$(CXX) $(CXXFLAGS) -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
-
 ROMELibDict.h ROMELibDict.cpp: $(LibDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f ROMELibDict.cpp -c -p $(INCLUDE) $(LibDictHeaders)
@@ -230,8 +221,17 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	LD_LIBRARY_PATH=$(LD_LIBRARY_PATH):$(shell $(ROOTSYS)/bin/root-config --libdir) \
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
+obj/mxml.o: src/mxml.c include/mxml.h
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+
+obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
+	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+
+obj/%Dict.o: %Dict.cpp %Dict.h
+	$(CXX) $(CXXFLAGS) -O0 -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
+
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -O0 $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
 	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
