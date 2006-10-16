@@ -435,18 +435,21 @@ void ROMEBuilder::WriteVisualProjectProjUserSources(ROMEXML *xml)
             xml->EndElement();
          }
       }
-      if (numOfMFDictHeaders>0) {
-         xml->StartElement("File");
-         str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
-         str.ReplaceAll("//","\\");
-         str.ReplaceAll("/\\","\\");
-         str.ReplaceAll("\\/","\\");
-         str.ReplaceAll("\\\\","\\");
-         str.ReplaceAll("/","\\");
-         RelativeWindowsPath(str,outDir.Data());
-         xml->WriteAttribute("RelativePath",str.Data());
-         WriteVisualProjectProjFileConfiguration(xml,"0",NULL);
-         xml->EndElement();
+      str.SetFormatted("%sUserDict",shortCut.Data());
+      for (i=0;i<dictionaryNames->GetEntriesFast();i++) {
+         if (dictionaryNames->At(i)==str && dictionaryDependencies->At(i).Length()>0) {
+            xml->StartElement("File");
+            str.SetFormatted("%s\\dict\\%sUserDict.cpp",outDir.Data(),shortCut.Data());
+            str.ReplaceAll("//","\\");
+            str.ReplaceAll("/\\","\\");
+            str.ReplaceAll("\\/","\\");
+            str.ReplaceAll("\\\\","\\");
+            str.ReplaceAll("/","\\");
+            RelativeWindowsPath(str,outDir.Data());
+            xml->WriteAttribute("RelativePath",str.Data());
+            WriteVisualProjectProjFileConfiguration(xml,"0",NULL);
+            xml->EndElement();
+         }
       }
       xml->EndElement();
    }

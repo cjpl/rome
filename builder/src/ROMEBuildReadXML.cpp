@@ -1962,7 +1962,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
 
                      for (j = 0; j < numOfTabObjects[currentNumberOfTabs]; j++) {
-                        if (tabObjectName[currentNumberOfTabs][j] == tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] && tabObjectTaskHierarchyNumber[currentNumberOfTabs][j] == tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
+                        if (tabObjectName[currentNumberOfTabs][j] == tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
                            cout << "Two display object of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
                            cout << "Terminating program." << endl;
                            return kFALSE;
