@@ -55,7 +55,6 @@ protected:
    void        InitSubFrames(XMLToFormFrame *frame);
    Bool_t      ReadTitle(ROMEString &path,ROMEString &value);
    Int_t       GetIndex(const char* label);
-   void        SaveFrame(XMLToFormFrame *frame);
    void        DeleteFrame(XMLToFormFrame *frame);
    void        PrintFrame(XMLToFormFrame *frame,Int_t tab=0);
 

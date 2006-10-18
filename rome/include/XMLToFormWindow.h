@@ -14,6 +14,7 @@
 
 class XMLToFormFrame;
 class TGListTreeItem;
+class ROMEXML;
 
 class XMLToFormWindow : public TGTransientFrame {
 public:
@@ -32,15 +33,18 @@ protected:
    Int_t           fListTreeHeight;
    XMLToFormFrame *fMainFrame;
    XMLToFormFrame *fTreeListActiveFrame;
+   ROMEXML        *fXML;
 
 public:
    XMLToFormWindow() {}
-   XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, Int_t *exitButtonID, Int_t windowWidth=200);
+   XMLToFormWindow(const TGWindow * p,const TGWindow * main, XMLToFormFrame *frame, Int_t *exitButtonID, Int_t windowWidth=200,ROMEXML *xml=NULL);
    virtual ~ XMLToFormWindow();
    void   SignalHandler();
    Bool_t SearchWidget(const char* path,XMLToFormFrame** frame,Int_t *index,XMLToFormFrame* mainFrame);
+   Bool_t SearchWidget(Int_t id,XMLToFormFrame** frame,Int_t *index);
    Bool_t ListTreeClicked(TGListTreeItem* item,Int_t btn);
-   void DeleteFrame(XMLToFormFrame *frame);
+   void   DeleteFrame(XMLToFormFrame *frame);
+   void   SaveFrame(XMLToFormFrame *frame);
 
 protected:
    XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);
@@ -61,6 +65,9 @@ protected:
    void   HideFrame(XMLToFormFrame *frame);
    void   HideFrame(TGFrame *frame) { TGCompositeFrame::HideFrame(frame); }
    void   GetFirstPathItem(const char* path,ROMEString& firstItem,ROMEString& rest);
+   Bool_t ReloadValues(const char* xmlFileName);
+   Bool_t ReloadValues(XMLToFormFrame *frame);
+   void   UpdateFileSelector(const char *xmlFileName);
 
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 

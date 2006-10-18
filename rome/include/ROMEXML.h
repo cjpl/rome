@@ -30,6 +30,7 @@ protected:
    Int_t      nodeDepth;
    Bool_t     endTag;
    ROMEString fFileName;
+   ROMEString fFullFileName;
    ROMEString fPath;
 
    // write
@@ -41,6 +42,7 @@ public:
    virtual ~ROMEXML();
 
    const char *GetFileName() { return fFileName.Data(); }
+   const char *GetFullFileName() { return fFullFileName.Data(); }
    const char *GetPath() { return fPath.Data(); }
 
    Bool_t      isReaderOpen() { return rootNode!=NULL; }
