@@ -488,7 +488,8 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
          fPad[i]->SetBottomMargin(1.0f);
          fPad[i]->cd();
          if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),"TGraph"))
-            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
+            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw("A L");
+//            ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          else
             ((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->Draw(fDrawOption->At(fDisplayObjIndex).Data());
          for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++)

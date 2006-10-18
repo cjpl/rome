@@ -2489,6 +2489,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("      str.SetFormatted(\"f%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectSupportedHistos.At(i).Data());
             if (tabObjectSupportedHistos.At(i)=="TGraph") {
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(1));\n",tabObjectSupportedHistos.At(i).Data());
+               buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->GetHistogram();\n",tabObjectSupportedHistos.At(i).Data());
                buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetTitle(str.Data());\n",tabObjectSupportedHistos.At(i).Data());
                buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetPoint(0,0,0);\n",tabObjectSupportedHistos.At(i).Data());
             }
@@ -5050,8 +5051,6 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("            f%s%sTab->TabSelected();\n", tabName[i].Data(), tabSuffix[i].Data());
       buffer.AppendFormatted("         }\n");
    }
-   buffer.AppendFormatted("         fCurrentTabID = param1;\n");
-
    buffer.AppendFormatted("         MapSubwindows();\n");
    buffer.AppendFormatted("         Resize(fWidth-1,fHeight-1);\n");
    buffer.AppendFormatted("         Resize(fWidth+1,fHeight+1);\n");
