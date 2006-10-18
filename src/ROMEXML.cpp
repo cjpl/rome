@@ -54,6 +54,7 @@ Bool_t ROMEXML::OpenFileForRead(const char* file) {
       ROMEPrint::Error("%s\n", error);
       return false;
    }
+   fFullFileName = file;
    fFileName = file;
    fFileName.ReplaceAll('\\','/');
    if (fFileName.Last('/')==-1)
@@ -135,6 +136,7 @@ Bool_t ROMEXML::OpenFileForWrite(const char* file) {
    writer = mxml_open_file(file);
    if (writer==NULL)
       return false;
+   fFullFileName = file;
    fFileName = file;
    fFileName.ReplaceAll('\\','/');
    if (fFileName.Last('/')==-1)
@@ -208,6 +210,7 @@ Bool_t ROMEXML::OpenFileForPath(const char* file) {
       ROMEPrint::Error("%s\n", error);
       return false;
    }
+   fFullFileName = file;
    fFileName = file;
    fFileName.ReplaceAll('\\','/');
    if (fFileName.Last('/')==-1)
@@ -416,6 +419,14 @@ Bool_t ROMEXML::HasPathChildren(const char* path) {
 
 Bool_t ROMEXML::WritePathFile(const char* file) {
    mxml_write_tree((char*)file,rootNode);
+   fFullFileName = file;
+   fFileName = file;
+   fFileName.ReplaceAll('\\','/');
+   if (fFileName.Last('/')==-1)
+      fPath = "";
+   else
+      fPath = fFileName(0,fFileName.Last('/'));
+   fFileName = fFileName(fFileName.Last('/')+1,fFileName.Length());
    return true;
 }
 

@@ -84,6 +84,7 @@ public:
    TString GetPath() { return fPath; }
    Int_t   GetWidth() { return fWidth; }
    void    SetWidth(Int_t width) { fWidth = width; }
+   void    AddEntryAt(const char* entry,Int_t i) { return fEntry.AddAt(entry,i); }
    TString GetEntryAt(Int_t i) { return fEntry.At(i).Data(); }
    Int_t   GetNumberOfEntries() { return fEntry.GetEntriesFast(); }
    Int_t   GetSelectedEntry() { return fSelectedEntry; }
