@@ -706,10 +706,11 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
                ROMEString newFile;
                Int_t num;
                Int_t i;
+               ROMEStrArray entries;
                XMLToFormFrame *frameNameFrame = fMainFrame;
                XMLToFormFrame *fileNameEditFrame = new XMLToFormFrame(NULL,"","",false,XMLToFormFrame::kFrame,true,0);
-               fileNameEditFrame->AddElement(new XMLToFormElement("EditBox","File Name","","",200,NULL));
-               fileNameEditFrame->AddElement(new XMLToFormElement("Button","Ok","","",20,NULL));
+               fileNameEditFrame->AddElement(new XMLToFormElement("EditBox","File Name","","",200,&entries));
+               fileNameEditFrame->AddElement(new XMLToFormElement("Button","Ok","","",20,&entries));
                XMLToFormWindow *fFileNameWindow = new XMLToFormWindow(gClient->GetRoot(),this,fileNameEditFrame,&exitButtonID,200);
                fFileNameWindow->SearchWidget("File Name",&frameNameFrame,&frameNameIndex,fileNameEditFrame);
 
