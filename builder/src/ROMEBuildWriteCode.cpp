@@ -2330,7 +2330,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
 {
    ROMEString cppFile;
    ROMEString buffer;
-   Int_t i, j,k;
+   Int_t i, j,k,index;
    ROMEString format;
    ROMEString clsDescription;
    ROMEString clsName;
@@ -2461,7 +2461,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          for (i=0;i<tabHistoIndexMax[iTab];i++) {
             for (j=0;j<numOfTabHistos[iTab];j++) {
                if (tabHistoIndex[iTab][j]==i) {
-                  buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTaskBase()->IsActive()) {\n",taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
+                  buffer.AppendFormatted("   if (true");
+                  index = tabHistoTaskHierarchyIndex[iTab][j];
+                  while (index!=-1) {
+                     buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+                     index = taskHierarchyParentIndex[index];
+                  }
+                  buffer.AppendFormatted(") {\n");
                   if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                      buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                      buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabHistoName[iTab][j].Data(),j);
@@ -2560,7 +2566,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("\n");
          for (i=0;i<numOfTabObjects[iTab];i++) {
             if (tabObjectTaskIndex[iTab][i]!=-1) {
-               buffer.AppendFormatted("   if (fDisplayObjIndex==%d && gAnalyzer->Get%s%sTaskBase()->IsActive()) {\n",i,taskHierarchyName[tabObjectTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectTaskHierarchyIndex[iTab][i]].Data());
+               buffer.AppendFormatted("   if (fDisplayObjIndex==%d",i);
+               index = tabObjectTaskHierarchyIndex[iTab][i];
+               while (index!=-1) {
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+                  index = taskHierarchyParentIndex[index];
+               }
+               buffer.AppendFormatted(") {\n");
                buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",histoArraySize[tabObjectTaskIndex[iTab][i]][tabObjectHistoIndex[iTab][i]].Data());
                for (j=0;j<tabObjectSupportedHistos.GetEntriesFast();j++) {
                   if (tabObjectSupportedHistos.At(j)==tabObjectType[iTab][i])
@@ -2574,7 +2586,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       for (i=0;i<tabHistoIndexMax[iTab];i++) {
          for (j=0;j<numOfTabHistos[iTab];j++) {
             if (tabHistoIndex[iTab][j]==i) {
-               buffer.AppendFormatted("   if (gAnalyzer->Get%s%sTaskBase()->IsActive()) {\n",taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data());
+               buffer.AppendFormatted("   if (true");
+               index = tabHistoTaskHierarchyIndex[iTab][j];
+               while (index!=-1) {
+                  buffer.AppendFormatted(" && gAnalyzer->Get%s%sTaskBase()->IsActive()",taskHierarchyName[index].Data(),taskHierarchySuffix[index].Data());
+                  index = taskHierarchyParentIndex[index];
+               }
+               buffer.AppendFormatted(") {\n");
                if (histoArraySize[tabHistoTaskIndex[iTab][j]][tabHistoHistoIndex[iTab][j]]=="1") {
                   buffer.AppendFormatted("      f%sHisto%d = gAnalyzer->Get%s%sTaskBase()->Get%s();\n",tabHistoName[iTab][j].Data(),j,taskHierarchyName[tabHistoTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabHistoTaskHierarchyIndex[iTab][j]].Data(),tabHistoName[iTab][j].Data());
                   buffer.AppendFormatted("      if (gAnalyzer->IsStandAloneARGUS() && gAnalyzer->IsSocketToROMEActive())\n");
