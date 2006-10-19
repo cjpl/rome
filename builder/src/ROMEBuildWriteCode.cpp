@@ -2491,6 +2491,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       if (tabHistoDisplay[iTab]) {
          for (i=0;i<tabObjectSupportedHistos.GetEntriesFast();i++) {
             buffer.AppendFormatted("   fObjects->AddLast(new TObjArray());\n");
+            buffer.AppendFormatted("   fLines->AddLast(new TObjArray());\n");
             buffer.AppendFormatted("   for (i=0 ; i<kMaxNumberOfPads ; i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"f%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectSupportedHistos.At(i).Data());
             if (tabObjectSupportedHistos.At(i)=="TGraph") {
@@ -2505,6 +2506,10 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1,1,0,1));\n",tabObjectSupportedHistos.At(i).Data());
             else if (tabObjectSupportedHistos.At(i).Contains("3"))
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1,1,0,1,1,0,1));\n",tabObjectSupportedHistos.At(i).Data());
+            buffer.AppendFormatted("      ((TObjArray*)fLines->Last())->AddLast(new TObjArray());\n");
+            buffer.AppendFormatted("      for (j=0 ; j<kMaxNumberOfLines ; j++) {\n");
+            buffer.AppendFormatted("         ((TObjArray*)((TObjArray*)fLines->Last())->Last())->AddLast(new TLine());\n");
+            buffer.AppendFormatted("      }\n");
             buffer.AppendFormatted("   }\n");
          }
 
