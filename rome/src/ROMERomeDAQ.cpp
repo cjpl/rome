@@ -261,15 +261,18 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
 Long64_t ROMERomeDAQ::Seek(Long64_t event)
 {
    if (gROME->isOffline()) {
-      if (event < 0)
-         event = 0;
-      if (event > fMaxEventNumber)
-         event = fMaxEventNumber;
-
-      return event;
+      if (event < 0 || event > fMaxEventNumber) {
+#if defined(R__UNIX)
+         Warning("Seek", "Event number %lld was not found.", event);
+#else
+         Warning("Seek", "Event number %I64d was not found.", event);
+#endif
+         event = gROME->GetCurrentEventNumber();
+         gROME->SetDontReadNextEvent();
+         SetContinue();
+      }
    }
-
-   return -1;
+   return event;
 }
 
 Bool_t ROMERomeDAQ::EndOfRun() {
