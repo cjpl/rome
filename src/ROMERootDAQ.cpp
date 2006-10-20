@@ -72,15 +72,29 @@ Bool_t ROMERootDAQ::Event(Long64_t event) {
 }
 
 Long64_t ROMERootDAQ::Seek(Long64_t event) {
+   Bool_t found = kTRUE;
+
    if (event < 0)
-      return Seek(0);
+      found = kFALSE;
 
    int j;
    // read event
    for (j=0;j<fTrees->GetEntriesFast();j++) {
       if(event >= ((TTree*)fTrees->At(j))->GetEntries())
-         event = ((TTree*)fTrees->At(j))->GetEntries() - 1;
+         found = kFALSE;
    }
+
+   if (!found) {
+#if defined(R__UNIX)
+      Warning("Seek", "Event number %lld was not found.", event);
+#else
+      Warning("Seek", "Event number %I64d was not found.", event);
+#endif
+      event = gROME->GetCurrentEventNumber();
+      gROME->SetDontReadNextEvent();
+      SetContinue();
+   }
+
    return event;
 }
 

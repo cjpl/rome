@@ -416,8 +416,17 @@ Bool_t ROMEMidasDAQ::Event(Long64_t event) {
 }
 
 Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
-   if (event < 0)
-      return Seek(0);
+   if (event < 0) {
+#if defined(R__UNIX)
+      Warning("Seek", "Event number %lld was not found.", event);
+#else
+      Warning("Seek", "Event number %I64d was not found.", event);
+#endif
+      event = gROME->GetCurrentEventNumber();
+      gROME->SetDontReadNextEvent();
+      SetContinue();
+      return Seek(event);
+   }
 
    if (gROME->isOnline()) {
       return -1;
@@ -498,7 +507,15 @@ Long64_t ROMEMidasDAQ::Seek(Long64_t event) {
          if (readError || pevent->event_id < 0) {
             if (readError && n > 0) ROMEPrint::Warning("Unexpected end of file\n");
             fMaxDataEvent = fCurrentPosition - 2;
-            return Seek(fMaxDataEvent); // the before EOR.
+#if defined(R__UNIX)
+            Warning("Seek", "Event number %lld was not found.", event);
+#else
+            Warning("Seek", "Event number %I64d was not found.", event);
+#endif
+            event = gROME->GetCurrentEventNumber();
+            gROME->SetDontReadNextEvent();
+            SetContinue();
+            return Seek(event); // the before EOR.
          }
          if (pevent->data_size < ((BANK_HEADER*)(pevent+1))->data_size) {
             continue;
