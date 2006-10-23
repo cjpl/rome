@@ -41,15 +41,15 @@
 // This task contains the following histgrams :                               //
 //    ADC                                                                     //
 //                                                                            //
-// The histograms are created and saved automaticaly by the task.             //
+// The histograms/graph are created and saved automaticaly by the task.       //
 //                                                                            //
-// The following method can be used to get a handle of the histogram :        //
+// The following method can be used to get a handle of the histogram/graph :  //
 //                                                                            //
-// Get<Histogram Name>()                                                      //
+// Get<Histogram/Graph Name>()                                                //
 //                                                                            //
-// For histogram arrays use :                                                 //
+// For histogram/graph arrays use :                                           //
 //                                                                            //
-// Get<Histogram Name>At(Int_t index)                                         //
+// Get<Histogram/Graph Name>At(Int_t index)                                   //
 //                                                                            //
 // Followings are include files of folders. ROMEBuilder will update it with   //
 // reading this source code when it is executed next time.                    //
