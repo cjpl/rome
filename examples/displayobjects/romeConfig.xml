@@ -100,10 +100,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
     </Paths>
 
     <HistogramRead>
-      <!-- Description of the histogram reading. -->
+      <!-- Description of the histogram/graph reading. -->
       <!-- Read flag. (required) -->
       <Read>false</Read>
-      <!-- Run number of the required histogram file. (required) -->
+      <!-- Run number of the required histogram/graph file. (required) -->
       <RunNumber>0</RunNumber>
     </HistogramRead>
 
@@ -147,7 +147,7 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
         <!-- Inactive tasks are not executed by the framework. -->
         <Active>true</Active>
         <Tab>
-          <TabName>Histos1D</TabName>
+          <TabName>tab1D</TabName>
           <!-- Inactive tasks are not executed by the framework. -->
           <Active>true</Active>
           <!-- The initial number of pads in horizontal direction. This tag is only used for tabs with display objects. -->
@@ -156,23 +156,24 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <NumberOfPadsY>1</NumberOfPadsY>
           <!-- Tells the tab to activate the pad configuration. This tag is only used for tabs with display objects. -->
           <PadConfiguration>false</PadConfiguration>
-          <DisplayObject>
-            <!-- Description of a display object. -->
-            <DisplayObjectName>MyHisto</DisplayObjectName>
-            <!-- The root draw option. (optional) -->
+          <ObjectDisplay>
+            <ObjectDisplayName>MyHisto</ObjectDisplayName>
             <DrawOption></DrawOption>
-          </DisplayObject>
+          </ObjectDisplay>
 
-          <DisplayObject>
-            <!-- Description of a display object. -->
-            <DisplayObjectName>MyOtherHisto</DisplayObjectName>
-            <!-- The root draw option. (optional) -->
+          <ObjectDisplay>
+            <ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
             <DrawOption></DrawOption>
-          </DisplayObject>
+          </ObjectDisplay>
+
+          <ObjectDisplay>
+            <ObjectDisplayName>MyGraph</ObjectDisplayName>
+            <DrawOption></DrawOption>
+          </ObjectDisplay>
         </Tab>
 
         <Tab>
-          <TabName>Histos2D</TabName>
+          <TabName>tab2D</TabName>
           <!-- Inactive tasks are not executed by the framework. -->
           <Active>true</Active>
           <!-- The initial number of pads in horizontal direction. This tag is only used for tabs with display objects. -->
@@ -181,12 +182,10 @@ http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
           <NumberOfPadsY>1</NumberOfPadsY>
           <!-- Tells the tab to activate the pad configuration. This tag is only used for tabs with display objects. -->
           <PadConfiguration>false</PadConfiguration>
-          <DisplayObject>
-            <!-- Description of a display object. -->
-            <DisplayObjectName>My2DHisto</DisplayObjectName>
-            <!-- The root draw option. (optional) -->
-            <DrawOption>box</DrawOption>
-          </DisplayObject>
+          <ObjectDisplay>
+            <ObjectDisplayName>My2DHisto</ObjectDisplayName>
+            <DrawOption></DrawOption>
+          </ObjectDisplay>
         </Tab>
       </Tab>
     </Tabs>

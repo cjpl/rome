@@ -45,6 +45,17 @@
 				<HistYmin>-100</HistYmin>
 				<HistYmax>100</HistYmax>
 			</Histogram>
+			<Graph>
+				<GraphName>MyGraph</GraphName>
+				<GraphTitle>MyGraph</GraphTitle>
+				<GraphFolderName>mygraph</GraphFolderName>
+				<GraphType>TGraph</GraphType>
+				<GraphArraySize>3</GraphArraySize>
+				<GraphXLabel>X</GraphXLabel>
+				<GraphYLabel>Y</GraphYLabel>
+				<GraphXmin>0</GraphXmin>
+				<GraphXmax>5</GraphXmax>
+			</Graph>
 		</Task>
 	</Tasks>
 	<Tabs>
@@ -52,33 +63,38 @@
 			<TabName>Main</TabName>
 			<TabTitle>Main</TabTitle>
 			<Tab>
-				<TabName>Histos1D</TabName>
-				<TabTitle>Histos 1D</TabTitle>
-				<HistogramDisplay>true</HistogramDisplay>
-				<DisplayObjects>
-					<DisplayObject>
-						<ObjectName>MyHisto</ObjectName>
-						<ObjectTitle>MyHisto</ObjectTitle>
-						<Object>MyHisto</Object>
-					</DisplayObject>
-					<DisplayObject>
-						<ObjectName>MyOtherHisto</ObjectName>
-						<ObjectTitle>MyOtherHisto</ObjectTitle>
-						<Object>MyOtherHisto</Object>
-					</DisplayObject>
-				</DisplayObjects>
+				<TabName>tab1D</TabName>
+				<TabTitle>1D</TabTitle>
+				<TabObjectDisplay>true</TabObjectDisplay>
+				<ObjectDisplays>
+					<ObjectDisplay>
+						<ObjectDisplayName>MyHisto</ObjectDisplayName>
+						<ObjectDisplayTitle>MyHisto</ObjectDisplayTitle>
+						<ObjectDisplayObject>MyHisto</ObjectDisplayObject>
+					</ObjectDisplay>
+					<ObjectDisplay>
+						<ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
+						<ObjectDisplayTitle>MyOtherHisto</ObjectDisplayTitle>
+						<ObjectDisplayObject>MyOtherHisto</ObjectDisplayObject>
+					</ObjectDisplay>
+					<ObjectDisplay>
+						<ObjectDisplayName>MyGraph</ObjectDisplayName>
+						<ObjectDisplayTitle>MyGraph</ObjectDisplayTitle>
+						<ObjectDisplayObject>MyGraph</ObjectDisplayObject
+					</ObjectDisplay>
+				</ObjectDisplays>
 			</Tab>
 			<Tab>
-				<TabName>Histos2D</TabName>
-				<TabTitle>Histos 2D</TabTitle>
-				<HistogramDisplay>true</HistogramDisplay>
-				<DisplayObjects>
-					<DisplayObject>
-						<ObjectName>My2DHisto</ObjectName>
-						<ObjectTitle>My2DHisto</ObjectTitle>
-						<Object>My2DHisto</Object>
-					</DisplayObject>
-				</DisplayObjects>
+				<TabName>tab2D</TabName>
+				<TabTitle>2D</TabTitle>
+				<TabObjectDisplay>true</TabObjectDisplay>
+				<ObjectDisplays>
+					<ObjectDisplay>
+						<ObjectDisplayName>My2DHisto</ObjectDisplayName>
+						<ObjectDisplayTitle>My2DHisto</ObjectDisplayTitle>
+						<ObjectDisplayObject>My2DHisto</ObjectDisplayObject>
+					</ObjectDisplay>
+				</ObjectDisplays>
 			</Tab>
 		</Tab>
 	</Tabs>
