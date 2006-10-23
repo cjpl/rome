@@ -21,9 +21,13 @@ const Int_t maxNumberOfInclude = 10;
 const Int_t maxNumberOfValues = 50;
 const Int_t maxNumberOfValueDimension = 3;
 const Int_t maxNumberOfHistos = 50;
-const Int_t maxNumberOfHistoTabs = 5;
-const Int_t maxNumberOfTabHistos = 20;
-const Int_t maxNumberOfTabObjects = 20;
+const Int_t maxNumberOfGraphs = 50;
+const Int_t maxNumberOfHistoSingleObjectTabs = 5;
+const Int_t maxNumberOfGraphSingleObjectTabs = 5;
+const Int_t maxNumberOfGraphTabs = 5;
+const Int_t maxNumberOfTabSingleObjects = 20;
+const Int_t maxNumberOfTabGraphs = 20;
+const Int_t maxNumberOfTabObjectDisplays = 20;
 const Int_t maxNumberOfMenus = 20;
 const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
@@ -39,7 +43,6 @@ const Int_t maxNumberOfMFWinLibFlags = 5;
 const Int_t maxNumberOfMFUnixLibFlags = 5;
 const Int_t maxNumberOfMFSourceFlags = 5;
 const Int_t maxNumberOfAffiliations = 20;
-const Int_t maxNumberOfHistoLines = 5;
 
 const Ssiz_t kTStringResizeIncrement = 4096;
 const char* const LINE_TITLE = "NoDayWithoutItsLine";
@@ -69,6 +72,8 @@ public:
 protected:
    ROMEStrArray *histoParameters;
    ROMEStrArray *histoParameterTypes;
+   ROMEStrArray *graphParameters;
+   ROMEStrArray *graphParameterTypes;
 
    ROMEString    outDir;
    ROMEString    xmlFile;
@@ -181,8 +186,6 @@ protected:
 
 // task
    Int_t         numOfTask;
-   Int_t        *numOfHistos;
-   Int_t        *numOfTaskInclude;
    ROMEString   *taskName;
    Int_t        *numOfTaskAffiliations;
    ROMEString  **taskAffiliation;
@@ -199,10 +202,12 @@ protected:
    ROMEString   *taskAuthorCollaboration;
    ROMEString   *taskAuthorEmail;
    ROMEString   *taskVersion;
+   Int_t        *numOfTaskInclude;
    ROMEString  **taskInclude;
    Bool_t      **taskLocalFlag;
    Int_t        *numOfTaskAccessedFolder;
    Int_t       **taskAccessedFolder;
+   Int_t        *numOfHistos;
    ROMEString  **histoName;
    ROMEString  **histoTitle;
    ROMEString  **histoFolderName;
@@ -222,10 +227,31 @@ protected:
    ROMEString  **histoZNbins;
    ROMEString  **histoZmin;
    ROMEString  **histoZmax;
-   Int_t       **numOfHistoTabs;
-   ROMEString ***histoTabName;
-   ROMEString ***histoTabIndex;
-   ROMEString ***histoTabArrayIndex;
+   Int_t       **numOfHistoSingleObjectTabs;
+   ROMEString ***histoSingleObjectTabName;
+   ROMEString ***histoSingleObjectTabIndex;
+   ROMEString ***histoSingleObjectTabArrayIndex;
+   Int_t        *numOfGraphs;
+   ROMEString  **graphName;
+   ROMEString  **graphTitle;
+   ROMEString  **graphFolderName;
+   ROMEString  **graphFolderTitle;
+   ROMEString  **graphType;
+   ROMEString  **graphArraySize;
+   ROMEString  **graphArrayStartIndex;
+   ROMEString  **graphXLabel;
+   ROMEString  **graphYLabel;
+   ROMEString  **graphZLabel;
+   ROMEString  **graphXmin;
+   ROMEString  **graphXmax;
+   ROMEString  **graphYmin;
+   ROMEString  **graphYmax;
+   ROMEString  **graphZmin;
+   ROMEString  **graphZmax;
+   Int_t       **numOfGraphSingleObjectTabs;
+   ROMEString ***graphSingleObjectTabName;
+   ROMEString ***graphSingleObjectTabIndex;
+   ROMEString ***graphSingleObjectTabArrayIndex;
 
 // task hierarchy
    Int_t         numOfTaskHierarchy;
@@ -272,7 +298,7 @@ protected:
    ROMEString   *tabName;
    ROMEString   *tabSuffix;
    ROMEString   *tabTitle;
-   Bool_t       *tabHistoDisplay;
+   Bool_t       *tabObjectDisplay;
    Int_t        *numOfTabAffiliations;
    ROMEString  **tabAffiliation;
    Bool_t       *tabUsed;
@@ -298,25 +324,26 @@ protected:
    Int_t      ***menuItemChildMenuIndex;
    ROMEString ***menuItemEnumName;
    ROMEString ***menuItemTitle;
-   Int_t        *numOfTabHistos;
-   ROMEString  **tabHistoName;
-   Int_t       **tabHistoIndex;
-   Int_t       **tabHistoArrayIndexStart;
-   Int_t       **tabHistoArrayIndexEnd;
-   Int_t       **tabHistoTaskHierarchyIndex;
-   Int_t       **tabHistoTaskIndex;
-   Int_t       **tabHistoHistoIndex;
-   Int_t        *tabHistoIndexMax;
-   Int_t        *numOfTabObjects;
-   ROMEString  **tabObjectName;
-   ROMEString  **tabObjectTitle;
-   ROMEString  **tabObject;
-   ROMEString  **tabObjectType;
-   Int_t       **tabObjectTaskHierarchyIndex;
-   Int_t       **tabObjectTaskIndex;
-   Int_t       **tabObjectHistoIndex;
-   Int_t       **tabObjectTaskHierarchyNumber;
-   ROMEStrArray  tabObjectSupportedHistos;
+   Int_t        *numOfTabSingleObjects;
+   ROMEString  **tabSingleObjectName;
+   Int_t       **tabSingleObjectIndex;
+   Int_t       **tabSingleObjectArrayIndexStart;
+   Int_t       **tabSingleObjectArrayIndexEnd;
+   Int_t       **tabSingleObjectTaskHierarchyIndex;
+   Int_t       **tabSingleObjectTaskIndex;
+   Int_t       **tabSingleObjectObjectIndex;
+   ROMEString  **tabSingleObjectType;
+   Int_t        *tabSingleObjectIndexMax;
+   Int_t        *numOfTabObjectDisplays;
+   ROMEString  **tabObjectDisplayName;
+   ROMEString  **tabObjectDisplayTitle;
+   ROMEString  **tabObjectDisplayObject;
+   ROMEString  **tabObjectDisplayType;
+   Int_t       **tabObjectDisplayTaskHierarchyIndex;
+   Int_t       **tabObjectDisplayTaskIndex;
+   Int_t       **tabObjectDisplayHistoIndex;
+   Int_t       **tabObjectDisplayTaskHierarchyNumber;
+   ROMEStrArray  tabObjectDisplaySupportedHistos;
 
 // tree
    Int_t         numOfTree;

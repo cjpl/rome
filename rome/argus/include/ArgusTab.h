@@ -24,7 +24,7 @@ class ArgusTab : public TGCompositeFrame {
 
 protected:
    ROMEString     fTitle;            //! Tab Title
-   Bool_t         fActive;           //! is Active
+   Bool_t         fTabActive;        //! is Active
    Bool_t         fBusy;             //! Busy flag
    ROMEStopwatch  fWatchAll;         //! Records time used by tab
    ROMEString     fTimeAllString;    //! Elapsed Time of all in a readable format
@@ -48,8 +48,8 @@ public:
    // User Methods
    const char* GetTitle() const { return fTitle.Data(); }
    void        SetTitle(const char* title) { fTitle = title; }
-   Bool_t      IsActive() const { return fActive; } // This might be dangerouse because it overload TGFrame::IsActive
-   void        SetActive(Bool_t active) { fActive = active; }
+   Bool_t      IsTabActive() const { return fTabActive; }
+   void        SetTabActive(Bool_t active) { fTabActive = active; }
    Bool_t      IsBusy() { return fBusy; }
 
    virtual void BaseInit() = 0;

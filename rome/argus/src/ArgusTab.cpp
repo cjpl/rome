@@ -25,7 +25,7 @@
 ClassImp(ArgusTab)
 
 ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
-   fActive  = kFALSE;
+   fTabActive  = kFALSE;
    fBusy = false;
    fWatchAll.Reset();
    fWatchUser.Reset();
@@ -55,7 +55,7 @@ void ArgusTab::ArgusEventHandler() {
 // Time methods
 void ArgusTab::ShowTimeStatistics()
 {
-   if (fActive) {
+   if (fTabActive) {
       int i;
       ROMEString name;
       int nchars;

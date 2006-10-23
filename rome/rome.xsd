@@ -32,6 +32,12 @@
 			<xs:enumeration value="TProfile2D"/>
 		</xs:restriction>
 	</xs:simpleType>
+	<xs:simpleType name="GraphTypeDesc">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="TGraph"/>
+			<xs:enumeration value="TGraph2D"/>
+		</xs:restriction>
+	</xs:simpleType>
 	<xs:simpleType name="ValueTypeDesc">
 		<xs:restriction base="xs:string">
 			<xs:enumeration value="Short_t"/>
@@ -402,7 +408,7 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="HistoTabDesc">
+	<xs:complexType name="HistGraphTabDesc">
 		<xs:annotation>
 			<xs:documentation>Description of display configuration for a tab.</xs:documentation>
 		</xs:annotation>
@@ -415,23 +421,28 @@
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
 				<xs:element name="Index" type="xs:integer" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Index of the histogram in the tab. Default is 0.</xs:documentation>
+						<xs:documentation>Index of the pad on the tab, where the histogram/graph should be placed. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="HistArrayIndex" type="xs:string" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Histogram array index. An array range can be selected with e.g. '4-9'. Default is 0.</xs:documentation>
+						<xs:documentation>This tag is deprecated -> Use ObjectArrayIndex.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="ObjectArrayIndex" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Histogram/Graph array index. An array range can be selected with e.g. '4-9'. Default is 0.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="HistoArgusDesc">
+	<xs:complexType name="HistGraphArgusDesc">
 		<xs:annotation>
-			<xs:documentation>Description of Argus display configuration for the histogram.</xs:documentation>
+			<xs:documentation>Description of Argus display configuration for the histogram/graph.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="Tab" type="HistoTabDesc" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="Tab" type="HistGraphTabDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Display configuration for a tab.</xs:documentation>
 				</xs:annotation>
@@ -541,9 +552,75 @@
 						<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="Argus" type="HistoArgusDesc" minOccurs="0">
+				<xs:element name="Argus" type="HistGraphArgusDesc" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Argus display configuration for the histogram.</xs:documentation>
+						<xs:documentation>Argus display configuration for the histogram/graph.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GraphDesc">
+		<xs:annotation>
+			<xs:documentation>Description of graphs.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="GraphName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the graph. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="GraphTitle" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The title of the graph. Displayed in the ROOT browser. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphFolderName" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The ROOT folder, where the graph is stored in (this folder has nothing to do with a data folder of ROME). The graphs are stored under //root/[Shortcut]/[TaskName]/[GraphFolderName]. Default is the value of GraphName.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphFolderTitle" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The title of the ROOT folder in which the graph is stored. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+			</xs:choice>
+			<xs:element name="GraphType" type="GraphTypeDesc">
+				<xs:annotation>
+					<xs:documentation>The type of the graph. Can be any ROOT graph type. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:choice minOccurs="0" maxOccurs="unbounded">
+				<xs:element name="GraphArraySize" type="xs:string" default="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The array size of the graph. If the value is 1 the graph is a single graph. If the graph is an array they are named GraphName_001 and so on. With GraphArrayStartIndex you can specifie with which number the enumeration starts. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphArrayStartIndex" type="xs:string" default="0" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Start index of graph array name enumeration. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphXLabel" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The label text of the x axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphYLabel" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The label text of the y axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphZLabel" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Argus" type="HistGraphArgusDesc" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Argus display configuration for the histogram/graph.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 			</xs:choice>
@@ -635,6 +712,11 @@
 				<xs:element name="Histogram" type="HistogramDesc" minOccurs="0" maxOccurs="unbounded">
 					<xs:annotation>
 						<xs:documentation>Defines the histograms of the task. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="Graph" type="GraphDesc" minOccurs="0" maxOccurs="unbounded">
+					<xs:annotation>
+						<xs:documentation>Defines the graphs of the task. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="SteeringParameters" type="SteeringParametersDesc" minOccurs="0" maxOccurs="unbounded">
@@ -761,41 +843,41 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="DisplayObjectDesc">
+	<xs:complexType name="ObjectDisplayDesc">
 		<xs:annotation>
-			<xs:documentation>Description of an object in a histogram display.</xs:documentation>
+			<xs:documentation>Description of an object display.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ObjectName" type="xs:string">
+			<xs:element name="ObjectDisplayName" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The name of the display object. Used in the configuration file.</xs:documentation>
+					<xs:documentation>The name of the object display. Used in the configuration file.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ObjectTitle" type="xs:string" minOccurs="0">
+			<xs:element name="ObjectDisplayTitle" type="xs:string" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Title of the entry in the drop down menu.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Object" type="xs:string">
+			<xs:element name="ObjectDisplayObject" type="xs:string">
 				<xs:annotation>
 					<xs:documentation>Object reference. This can be either the name of a histogram defined in the task section or a root histogram typ or 'TGraph'. If a histogram name is specified this histogram will be displayed. If a root histogram or graph class name is specified then the objects have to be filled inside the tab user code.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="ObjectTaskHierarchyIndex" type="xs:integer" default="0" minOccurs="0">
+			<xs:element name="ObjectDisplayTaskHierarchyIndex" type="xs:integer" default="0" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Index of the task holding the object in the task hierarchy. Index starts with 0. Default is 0.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="DisplayObjectsDesc">
+	<xs:complexType name="ObjectDisplaysDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the objects in a histogram display.</xs:documentation>
+			<xs:documentation>Description of the object displays.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="DisplayObject" type="DisplayObjectDesc" minOccurs="0" maxOccurs="unbounded">
+			<xs:element name="ObjectDisplay" type="ObjectDisplayDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Defines an object in a histogram display.</xs:documentation>
+					<xs:documentation>Defines an object display.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -816,9 +898,9 @@
 				</xs:annotation>
 			</xs:element>
 			<xs:choice minOccurs="0" maxOccurs="unbounded">
-				<xs:element name="HistogramDisplay" type="xs:boolean" minOccurs="0">
+				<xs:element name="TabObjectDisplay" type="xs:boolean" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>If this value is 'true', the tab will be a histogram display. Default is false.</xs:documentation>
+						<xs:documentation>If this value is 'true', the tab will be a object display. Default is false.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Affiliation" type="xs:string" minOccurs="0" maxOccurs="unbounded">
@@ -886,9 +968,9 @@
 						<xs:documentation>Defines the menus of the Tab.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
-				<xs:element name="DisplayObjects" type="DisplayObjectsDesc" minOccurs="0">
+				<xs:element name="ObjectDisplays" type="ObjectDisplaysDesc" minOccurs="0">
 					<xs:annotation>
-						<xs:documentation>Defines the objects in a histogram display.</xs:documentation>
+						<xs:documentation>Defines the object displays.</xs:documentation>
 					</xs:annotation>
 				</xs:element>
 				<xs:element name="Tab" type="TabDesc" minOccurs="0" maxOccurs="unbounded">

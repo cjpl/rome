@@ -100,6 +100,8 @@ public:
    void         ExecuteTask(Option_t *option="");
    void         BookHisto() {}
    void         ResetHisto() {}
+   void         BookGraph() {}
+   void         ResetGraph() {}
    void         Init() {}
    void         BeginOfRun() {}
    void         Event() {}

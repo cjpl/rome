@@ -26,6 +26,7 @@ protected:
    ROMEString     fTimeUserEventString;//! Elapsed Time of user events in a readable format
    Int_t          fVersion;            // Version of Task
    Bool_t         fHasHistograms;      // Flags Tasks containing Histograms
+   Bool_t         fHasGraphs;          // Flags Tasks containing Histograms
    int            fEventID;            // TriggerID for event method
    ROMEString     fCurrentEventMethod; // Current event method name
    TFolder       *fHistoFolder;        // Histogram Folder of this Task in the Memory
@@ -36,6 +37,7 @@ public:
    virtual ~ROMETask() { SafeDelete(fHistoFolder); }
    void         Exec(Option_t *option="");
    Bool_t       hasHistograms()  { return fHasHistograms; }
+   Bool_t       hasGraphs()  { return fHasGraphs; }
    Int_t        GetVersion()     { return fVersion; }
    TFolder     *GetHistoFolder() { return fHistoFolder; }
 
@@ -47,6 +49,8 @@ protected:
 
    virtual void BookHisto() = 0;
    virtual void ResetHisto() = 0;
+   virtual void BookGraph() = 0;
+   virtual void ResetGraph() = 0;
    virtual void Init() = 0;
    virtual void BeginOfRun() = 0;
    virtual void Event() = 0;

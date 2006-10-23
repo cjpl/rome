@@ -29,6 +29,23 @@
 					</Tab>
 				</Argus>
 			</Histogram>
+			<Graph>
+				<GraphName>MyGraph</GraphName>
+				<GraphFolderName>mygraphs</GraphFolderName>
+				<GraphType>TGraph</GraphType>
+				<GraphXLabel>X</GraphXLabel>
+				<GraphYLabel>Y</GraphYLabel>
+				<GraphXmin>0</GraphXmin>
+				<GraphXmax>4</GraphXmax>
+				<GraphYmin>-2</GraphYmin>
+				<GraphYmax>2</GraphYmax>
+				<Argus>
+					<Tab>
+						<TabName>GeneratedHisto</TabName>
+						<Index>4</Index>
+					</Tab>
+				</Argus>
+			</Graph>
 			<Histogram>
 				<HistName>MyOtherHisto</HistName>
 				<HistFolderName>myotherhistos</HistFolderName>
