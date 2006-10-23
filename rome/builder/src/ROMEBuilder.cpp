@@ -224,7 +224,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabObjectDisplayType;
    delete [] tabObjectDisplayTaskHierarchyIndex;
    delete [] tabObjectDisplayTaskIndex;
-   delete [] tabObjectDisplayHistoIndex;
+   delete [] tabObjectDisplayObjectIndex;
    delete [] tabObjectDisplayTaskHierarchyNumber;
 
    // tree
@@ -321,22 +321,23 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
-   tabObjectDisplaySupportedHistos.AddLast("TGraph");
-   tabObjectDisplaySupportedHistos.AddLast("TH1C");
-   tabObjectDisplaySupportedHistos.AddLast("TH1S");
-   tabObjectDisplaySupportedHistos.AddLast("TH1I");
-   tabObjectDisplaySupportedHistos.AddLast("TH1F");
-   tabObjectDisplaySupportedHistos.AddLast("TH1D");
-   tabObjectDisplaySupportedHistos.AddLast("TH2C");
-   tabObjectDisplaySupportedHistos.AddLast("TH2S");
-   tabObjectDisplaySupportedHistos.AddLast("TH2I");
-   tabObjectDisplaySupportedHistos.AddLast("TH2F");
-   tabObjectDisplaySupportedHistos.AddLast("TH2D");
-   tabObjectDisplaySupportedHistos.AddLast("TH3C");
-   tabObjectDisplaySupportedHistos.AddLast("TH3S");
-   tabObjectDisplaySupportedHistos.AddLast("TH3I");
-   tabObjectDisplaySupportedHistos.AddLast("TH3F");
-   tabObjectDisplaySupportedHistos.AddLast("TH3D");
+   tabObjectDisplaySupportedObjects.AddLast("TGraph");
+//   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
+   tabObjectDisplaySupportedObjects.AddLast("TH1C");
+   tabObjectDisplaySupportedObjects.AddLast("TH1S");
+   tabObjectDisplaySupportedObjects.AddLast("TH1I");
+   tabObjectDisplaySupportedObjects.AddLast("TH1F");
+   tabObjectDisplaySupportedObjects.AddLast("TH1D");
+   tabObjectDisplaySupportedObjects.AddLast("TH2C");
+   tabObjectDisplaySupportedObjects.AddLast("TH2S");
+   tabObjectDisplaySupportedObjects.AddLast("TH2I");
+   tabObjectDisplaySupportedObjects.AddLast("TH2F");
+   tabObjectDisplaySupportedObjects.AddLast("TH2D");
+   tabObjectDisplaySupportedObjects.AddLast("TH3C");
+   tabObjectDisplaySupportedObjects.AddLast("TH3S");
+   tabObjectDisplaySupportedObjects.AddLast("TH3I");
+   tabObjectDisplaySupportedObjects.AddLast("TH3F");
+   tabObjectDisplaySupportedObjects.AddLast("TH3D");
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);

@@ -335,7 +335,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabObjectDisplayType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
-   tabObjectDisplayHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
    tabObjectDisplayTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
 
    // tree
@@ -2147,15 +2147,15 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         }
                      }
                      found = false;
-                     for (i=0;i<tabObjectDisplaySupportedHistos.GetEntriesFast() && !found;i++) {
-                        for (k=0;k<tabObjectDisplaySupportedHistos.GetEntriesFast();k++) {
+                     for (i=0;i<tabObjectDisplaySupportedObjects.GetEntriesFast() && !found;i++) {
+                        for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast();k++) {
                            if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "TGraph" ||
-                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == tabObjectDisplaySupportedHistos.At(k)) {
+                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == tabObjectDisplaySupportedObjects.At(k)) {
                               found = true;
                               tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
                               tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
                               tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
-                              tabObjectDisplayHistoIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
+                              tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
                               break;
                            }
                         }
@@ -2169,14 +2169,36 @@ Bool_t ROMEBuilder::ReadXMLTab()
                                  tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = histoType[taskHierarchyClassIndex[i]][j];
                                  tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
                                  tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = i;
-                                 tabObjectDisplayHistoIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
+                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
                                  typeFound = false;
-                                 for (k=0;k<tabObjectDisplaySupportedHistos.GetEntriesFast() && !typeFound;k++) {
-                                    if (histoType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedHistos.At(k))
+                                 for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast() && !typeFound;k++) {
+                                    if (histoType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedObjects.At(k))
                                        typeFound = true;
                                  }
                                  if (!typeFound) {
                                     cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for object displays. (" << tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
+                                    cout << "Terminating program." << endl;
+                                    return kFALSE;
+                                 }
+                              }
+                              num++;
+                           }
+                        }
+                        for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]] && !found;j++) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == graphName[taskHierarchyClassIndex[i]][j]) {
+                              if (num==tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
+                                 found = true;
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = graphType[taskHierarchyClassIndex[i]][j];
+                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
+                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = i;
+                                 tabObjectDisplayObjectIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
+                                 typeFound = false;
+                                 for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast() && !typeFound;k++) {
+                                    if (graphType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedObjects.At(k))
+                                       typeFound = true;
+                                 }
+                                 if (!typeFound) {
+                                    cout << graphType[taskHierarchyClassIndex[i]][j] << " graphs are not yet supported for object displays. (" << tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
                                     cout << "Terminating program." << endl;
                                     return kFALSE;
                                  }

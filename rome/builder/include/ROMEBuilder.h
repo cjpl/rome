@@ -341,9 +341,9 @@ protected:
    ROMEString  **tabObjectDisplayType;
    Int_t       **tabObjectDisplayTaskHierarchyIndex;
    Int_t       **tabObjectDisplayTaskIndex;
-   Int_t       **tabObjectDisplayHistoIndex;
+   Int_t       **tabObjectDisplayObjectIndex;
    Int_t       **tabObjectDisplayTaskHierarchyNumber;
-   ROMEStrArray  tabObjectDisplaySupportedHistos;
+   ROMEStrArray  tabObjectDisplaySupportedObjects;
 
 // tree
    Int_t         numOfTree;
