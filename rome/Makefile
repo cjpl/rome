@@ -114,6 +114,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMEUtilities.o \
               obj/ROMEXMLDataBase.o \
               obj/ROMETree.o \
+              obj/ROMEGraph.o \
               obj/ROMELabel.o \
               obj/ROMEHorizontalFrame.o \
               obj/ROMEHisto.o \
@@ -143,12 +144,14 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMENetFolder.h \
                   include/ROMENetFolderServer.h \
                   include/ROMEConfig.h \
+                  include/ROMEConfigGraph.h \
                   include/ROMEDataBase.h \
                   include/ROMENoDataBase.h \
                   include/ROMEODBOfflineDataBase.h \
                   include/ROMETextDataBase.h \
                   include/ROMEXMLDataBase.h \
                   include/ROMETree.h \
+                  include/ROMEGraph.h \
                   include/ROMEPath.h \
                   include/ROMEStopwatch.h \
                   include/ROMEDAQSystem.h \
