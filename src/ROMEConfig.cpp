@@ -12,141 +12,143 @@
 #include "ROMEXML.h"
 #include "ROMEStrArray.h"
 #include "ROMEHisto.h"
+#include "ROMEGraph.h"
 #include "ROMEConfigHisto.h"
+#include "ROMEConfigGraph.h"
 #include "ROMEConfig.h"
 
 ClassImp(ROMEConfig)
 
-Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* histo)
+Bool_t ROMEConfig::ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto)
 {
    ROMEString fullPath;
    // fHistTitle
    fullPath.SetFormatted("%sHistTitle",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistTitle,"");
-   if (histo->fHistTitle=="")
-      histo->fHistTitleModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistTitle,"");
+   if (configHisto->fHistTitle=="")
+      configHisto->fHistTitleModified = false;
    else {
-      histo->fHistTitleModified = true;
+      configHisto->fHistTitleModified = true;
    }
    // fHistFolderTitle
    fullPath.SetFormatted("%sHistFolderTitle",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistFolderTitle,"");
-   if (histo->fHistFolderTitle=="")
-      histo->fHistFolderTitleModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistFolderTitle,"");
+   if (configHisto->fHistFolderTitle=="")
+      configHisto->fHistFolderTitleModified = false;
    else {
-      histo->fHistFolderTitleModified = true;
+      configHisto->fHistFolderTitleModified = true;
    }
    // fHistArraySize
    fullPath.SetFormatted("%sHistArraySize",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistArraySize,"");
-   if (histo->fHistArraySize=="")
-      histo->fHistArraySizeModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistArraySize,"");
+   if (configHisto->fHistArraySize=="")
+      configHisto->fHistArraySizeModified = false;
    else {
-      histo->fHistArraySizeModified = true;
+      configHisto->fHistArraySizeModified = true;
    }
    // fHistArrayStartIndex
    fullPath.SetFormatted("%sHistArrayStartIndex",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistArrayStartIndex,"");
-   if (histo->fHistArrayStartIndex=="")
-      histo->fHistArrayStartIndexModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistArrayStartIndex,"");
+   if (configHisto->fHistArrayStartIndex=="")
+      configHisto->fHistArrayStartIndexModified = false;
    else {
-      histo->fHistArrayStartIndexModified = true;
+      configHisto->fHistArrayStartIndexModified = true;
    }
    // fHistXLabel
    fullPath.SetFormatted("%sHistXLabel",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistXLabel,"");
-   if (histo->fHistXLabel=="")
-      histo->fHistXLabelModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistXLabel,"");
+   if (configHisto->fHistXLabel=="")
+      configHisto->fHistXLabelModified = false;
    else {
-      histo->fHistXLabelModified = true;
+      configHisto->fHistXLabelModified = true;
    }
    // fHistYLabel
    fullPath.SetFormatted("%sHistYLabel",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistYLabel,"");
-   if (histo->fHistYLabel=="")
-      histo->fHistYLabelModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistYLabel,"");
+   if (configHisto->fHistYLabel=="")
+      configHisto->fHistYLabelModified = false;
    else {
-      histo->fHistYLabelModified = true;
+      configHisto->fHistYLabelModified = true;
    }
    // fHistZLabel
    fullPath.SetFormatted("%sHistZLabel",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistZLabel,"");
-   if (histo->fHistZLabel=="")
-      histo->fHistZLabelModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistZLabel,"");
+   if (configHisto->fHistZLabel=="")
+      configHisto->fHistZLabelModified = false;
    else {
-      histo->fHistZLabelModified = true;
+      configHisto->fHistZLabelModified = true;
    }
    // fHistXNbins
    fullPath.SetFormatted("%sHistXNbins",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistXNbins,"");
-   if (histo->fHistXNbins=="")
-      histo->fHistXNbinsModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistXNbins,"");
+   if (configHisto->fHistXNbins=="")
+      configHisto->fHistXNbinsModified = false;
    else {
-      histo->fHistXNbinsModified = true;
+      configHisto->fHistXNbinsModified = true;
    }
    // fHistXmin
    fullPath.SetFormatted("%sHistXmin",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistXmin,"");
-   if (histo->fHistXmin=="")
-      histo->fHistXminModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistXmin,"");
+   if (configHisto->fHistXmin=="")
+      configHisto->fHistXminModified = false;
    else {
-      histo->fHistXminModified = true;
+      configHisto->fHistXminModified = true;
    }
    // fHistXmax
    fullPath.SetFormatted("%sHistXmax",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistXmax,"");
-   if (histo->fHistXmax=="")
-      histo->fHistXmaxModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistXmax,"");
+   if (configHisto->fHistXmax=="")
+      configHisto->fHistXmaxModified = false;
    else {
-      histo->fHistXmaxModified = true;
+      configHisto->fHistXmaxModified = true;
    }
    // fHistYNbins
    fullPath.SetFormatted("%sHistYNbins",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistYNbins,"");
-   if (histo->fHistYNbins=="")
-      histo->fHistYNbinsModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistYNbins,"");
+   if (configHisto->fHistYNbins=="")
+      configHisto->fHistYNbinsModified = false;
    else {
-      histo->fHistYNbinsModified = true;
+      configHisto->fHistYNbinsModified = true;
    }
    // fHistYmin
    fullPath.SetFormatted("%sHistYmin",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistYmin,"");
-   if (histo->fHistYmin=="")
-      histo->fHistYminModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistYmin,"");
+   if (configHisto->fHistYmin=="")
+      configHisto->fHistYminModified = false;
    else {
-      histo->fHistYminModified = true;
+      configHisto->fHistYminModified = true;
    }
    // fHistYmax
    fullPath.SetFormatted("%sHistYmax",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistYmax,"");
-   if (histo->fHistYmax=="")
-      histo->fHistYmaxModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistYmax,"");
+   if (configHisto->fHistYmax=="")
+      configHisto->fHistYmaxModified = false;
    else {
-      histo->fHistYmaxModified = true;
+      configHisto->fHistYmaxModified = true;
    }
    // fHistZNbins
    fullPath.SetFormatted("%sHistZNbins",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistZNbins,"");
-   if (histo->fHistZNbins=="")
-      histo->fHistZNbinsModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistZNbins,"");
+   if (configHisto->fHistZNbins=="")
+      configHisto->fHistZNbinsModified = false;
    else {
-      histo->fHistZNbinsModified = true;
+      configHisto->fHistZNbinsModified = true;
    }
    // fHistZmin
    fullPath.SetFormatted("%sHistZmin",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistZmin,"");
-   if (histo->fHistZmin=="")
-      histo->fHistZminModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistZmin,"");
+   if (configHisto->fHistZmin=="")
+      configHisto->fHistZminModified = false;
    else {
-      histo->fHistZminModified = true;
+      configHisto->fHistZminModified = true;
    }
    // fHistZmax
    fullPath.SetFormatted("%sHistZmax",path);
-   xml->GetPathValue(fullPath.Data(),histo->fHistZmax,"");
-   if (histo->fHistZmax=="")
-      histo->fHistZmaxModified = false;
+   xml->GetPathValue(fullPath.Data(),configHisto->fHistZmax,"");
+   if (configHisto->fHistZmax=="")
+      configHisto->fHistZmaxModified = false;
    else {
-      histo->fHistZmaxModified = true;
+      configHisto->fHistZmaxModified = true;
    }
    return true;
 }
@@ -340,3 +342,156 @@ Bool_t ROMEConfig::WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configH
    }
    return true;
 }
+Bool_t ROMEConfig::ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph)
+{
+   ROMEString fullPath;
+   // fGraphTitle
+   fullPath.SetFormatted("%sGraphTitle",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphTitle,"");
+   if (configGraph->fGraphTitle=="")
+      configGraph->fGraphTitleModified = false;
+   else {
+      configGraph->fGraphTitleModified = true;
+   }
+   // fGraphFolderTitle
+   fullPath.SetFormatted("%sGraphFolderTitle",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphFolderTitle,"");
+   if (configGraph->fGraphFolderTitle=="")
+      configGraph->fGraphFolderTitleModified = false;
+   else {
+      configGraph->fGraphFolderTitleModified = true;
+   }
+   // fGraphArraySize
+   fullPath.SetFormatted("%sGraphArraySize",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphArraySize,"");
+   if (configGraph->fGraphArraySize=="")
+      configGraph->fGraphArraySizeModified = false;
+   else {
+      configGraph->fGraphArraySizeModified = true;
+   }
+   // fGraphArrayStartIndex
+   fullPath.SetFormatted("%sGraphArrayStartIndex",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphArrayStartIndex,"");
+   if (configGraph->fGraphArrayStartIndex=="")
+      configGraph->fGraphArrayStartIndexModified = false;
+   else {
+      configGraph->fGraphArrayStartIndexModified = true;
+   }
+   // fGraphXLabel
+   fullPath.SetFormatted("%sGraphXLabel",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphXLabel,"");
+   if (configGraph->fGraphXLabel=="")
+      configGraph->fGraphXLabelModified = false;
+   else {
+      configGraph->fGraphXLabelModified = true;
+   }
+   // fGraphYLabel
+   fullPath.SetFormatted("%sGraphYLabel",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphYLabel,"");
+   if (configGraph->fGraphYLabel=="")
+      configGraph->fGraphYLabelModified = false;
+   else {
+      configGraph->fGraphYLabelModified = true;
+   }
+   // fGraphZLabel
+   fullPath.SetFormatted("%sGraphZLabel",path);
+   xml->GetPathValue(fullPath.Data(),configGraph->fGraphZLabel,"");
+   if (configGraph->fGraphZLabel=="")
+      configGraph->fGraphZLabelModified = false;
+   else {
+      configGraph->fGraphZLabelModified = true;
+   }
+   return true;
+}
+Bool_t ROMEConfig::CheckGraphConfigurationModified(ROMEConfigGraph* configGraph)
+{
+    if (configGraph->fGraphTitleModified ||
+        configGraph->fGraphFolderTitleModified ||
+        configGraph->fGraphArraySizeModified ||
+        configGraph->fGraphArrayStartIndexModified ||
+        configGraph->fGraphXLabelModified ||
+        configGraph->fGraphYLabelModified ||
+        configGraph->fGraphZLabelModified)
+      return true;
+    else
+      return false;
+}
+Bool_t ROMEConfig::SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph)
+{
+   // fGraphTitle
+   if (configGraph->fGraphTitleModified) {
+      graph->SetTitle(configGraph->fGraphTitle.Data());
+   }
+   // fGraphFolderTitle
+   if (configGraph->fGraphFolderTitleModified) {
+      graph->SetFolderTitle(configGraph->fGraphFolderTitle.Data());
+   }
+   // fGraphArraySize
+   if (configGraph->fGraphArraySizeModified) {
+      graph->SetArraySize(configGraph->fGraphArraySize.Data());
+   }
+   // fGraphArrayStartIndex
+   if (configGraph->fGraphArrayStartIndexModified) {
+      graph->SetArrayStartIndex(configGraph->fGraphArrayStartIndex.Data());
+   }
+   // fGraphXLabel
+   if (configGraph->fGraphXLabelModified) {
+      graph->SetXLabel(configGraph->fGraphXLabel.Data());
+   }
+   // fGraphYLabel
+   if (configGraph->fGraphYLabelModified) {
+      graph->SetYLabel(configGraph->fGraphYLabel.Data());
+   }
+   // fGraphZLabel
+   if (configGraph->fGraphZLabelModified) {
+      graph->SetZLabel(configGraph->fGraphZLabel.Data());
+   }
+   return true;
+}
+Bool_t ROMEConfig::WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,Int_t commentLevel,ROMEStrArray& comment)
+{
+   // fGraphTitle
+   if (commentLevel >= 3 && configGraph->fGraphTitleModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphTitleModified) {
+      xml->WriteElement("GraphTitle",configGraph->fGraphTitle.Data());
+   }
+   // fGraphFolderTitle
+   if (commentLevel >= 3 && configGraph->fGraphFolderTitleModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphFolderTitleModified) {
+      xml->WriteElement("GraphFolderTitle",configGraph->fGraphFolderTitle.Data());
+   }
+   // fGraphArraySize
+   if (commentLevel >= 3 && configGraph->fGraphArraySizeModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphArraySizeModified) {
+      xml->WriteElement("GraphArraySize",configGraph->fGraphArraySize.Data());
+   }
+   // fGraphArrayStartIndex
+   if (commentLevel >= 3 && configGraph->fGraphArrayStartIndexModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphArrayStartIndexModified) {
+      xml->WriteElement("GraphArrayStartIndex",configGraph->fGraphArrayStartIndex.Data());
+   }
+   // fGraphXLabel
+   if (commentLevel >= 3 && configGraph->fGraphXLabelModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphXLabelModified) {
+      xml->WriteElement("GraphXLabel",configGraph->fGraphXLabel.Data());
+   }
+   // fGraphYLabel
+   if (commentLevel >= 3 && configGraph->fGraphYLabelModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphYLabelModified) {
+      xml->WriteElement("GraphYLabel",configGraph->fGraphYLabel.Data());
+   }
+   // fGraphZLabel
+   if (commentLevel >= 3 && configGraph->fGraphZLabelModified)
+      xml->WriteComment(comment.At(0).Data());
+   if (configGraph->fGraphZLabelModified) {
+      xml->WriteElement("GraphZLabel",configGraph->fGraphZLabel.Data());
+   }
+   return true;
+}
+

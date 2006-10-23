@@ -77,7 +77,6 @@ ROMEBuilder::~ROMEBuilder()
    delete [] netFolderRoot;
 
    // task
-   delete [] numOfHistos;
    delete [] numOfTaskInclude;
    delete [] taskName;
    delete [] numOfTaskAffiliations;
@@ -99,6 +98,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] taskLocalFlag;
    delete [] numOfTaskAccessedFolder;
    delete [] taskAccessedFolder;
+   delete [] numOfHistos;
    delete [] histoName;
    delete [] histoTitle;
    delete [] histoFolderName;
@@ -118,10 +118,31 @@ ROMEBuilder::~ROMEBuilder()
    delete [] histoZNbins;
    delete [] histoZmin;
    delete [] histoZmax;
-   delete [] numOfHistoTabs;
-   delete [] histoTabName;
-   delete [] histoTabIndex;
-   delete [] histoTabArrayIndex;
+   delete [] numOfHistoSingleObjectTabs;
+   delete [] histoSingleObjectTabName;
+   delete [] histoSingleObjectTabIndex;
+   delete [] histoSingleObjectTabArrayIndex;
+   delete [] numOfGraphs;
+   delete [] graphName;
+   delete [] graphTitle;
+   delete [] graphFolderName;
+   delete [] graphFolderTitle;
+   delete [] graphType;
+   delete [] graphArraySize;
+   delete [] graphArrayStartIndex;
+   delete [] graphXLabel;
+   delete [] graphYLabel;
+   delete [] graphZLabel;
+   delete [] graphXmin;
+   delete [] graphXmax;
+   delete [] graphYmin;
+   delete [] graphYmax;
+   delete [] graphZmin;
+   delete [] graphZmax;
+   delete [] numOfGraphSingleObjectTabs;
+   delete [] graphSingleObjectTabName;
+   delete [] graphSingleObjectTabIndex;
+   delete [] graphSingleObjectTabArrayIndex;
 
    // task hierarchy
    delete [] taskHierarchyName;
@@ -187,23 +208,24 @@ ROMEBuilder::~ROMEBuilder()
    delete [] menuItemChildMenuIndex;
    delete [] menuItemEnumName;
    delete [] menuItemTitle;
-   delete [] numOfTabHistos;
-   delete [] tabHistoName;
-   delete [] tabHistoIndex;
-   delete [] tabHistoArrayIndexStart;
-   delete [] tabHistoArrayIndexEnd;
-   delete [] tabHistoTaskHierarchyIndex;
-   delete [] tabHistoTaskIndex;
-   delete [] tabHistoHistoIndex;
-   delete [] tabHistoIndexMax;
-   delete [] tabObjectName;
-   delete [] tabObjectTitle;
-   delete [] tabObject;
-   delete [] tabObjectType;
-   delete [] tabObjectTaskHierarchyIndex;
-   delete [] tabObjectTaskIndex;
-   delete [] tabObjectHistoIndex;
-   delete [] tabObjectTaskHierarchyNumber;
+   delete [] numOfTabSingleObjects;
+   delete [] tabSingleObjectName;
+   delete [] tabSingleObjectIndex;
+   delete [] tabSingleObjectArrayIndexStart;
+   delete [] tabSingleObjectArrayIndexEnd;
+   delete [] tabSingleObjectTaskHierarchyIndex;
+   delete [] tabSingleObjectTaskIndex;
+   delete [] tabSingleObjectObjectIndex;
+   delete [] tabSingleObjectType;
+   delete [] tabSingleObjectIndexMax;
+   delete [] tabObjectDisplayName;
+   delete [] tabObjectDisplayTitle;
+   delete [] tabObjectDisplayObject;
+   delete [] tabObjectDisplayType;
+   delete [] tabObjectDisplayTaskHierarchyIndex;
+   delete [] tabObjectDisplayTaskIndex;
+   delete [] tabObjectDisplayHistoIndex;
+   delete [] tabObjectDisplayTaskHierarchyNumber;
 
    // tree
    delete [] numOfBranch;
@@ -299,22 +321,22 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
-   tabObjectSupportedHistos.AddLast("TGraph");
-   tabObjectSupportedHistos.AddLast("TH1C");
-   tabObjectSupportedHistos.AddLast("TH1S");
-   tabObjectSupportedHistos.AddLast("TH1I");
-   tabObjectSupportedHistos.AddLast("TH1F");
-   tabObjectSupportedHistos.AddLast("TH1D");
-   tabObjectSupportedHistos.AddLast("TH2C");
-   tabObjectSupportedHistos.AddLast("TH2S");
-   tabObjectSupportedHistos.AddLast("TH2I");
-   tabObjectSupportedHistos.AddLast("TH2F");
-   tabObjectSupportedHistos.AddLast("TH2D");
-   tabObjectSupportedHistos.AddLast("TH3C");
-   tabObjectSupportedHistos.AddLast("TH3S");
-   tabObjectSupportedHistos.AddLast("TH3I");
-   tabObjectSupportedHistos.AddLast("TH3F");
-   tabObjectSupportedHistos.AddLast("TH3D");
+   tabObjectDisplaySupportedHistos.AddLast("TGraph");
+   tabObjectDisplaySupportedHistos.AddLast("TH1C");
+   tabObjectDisplaySupportedHistos.AddLast("TH1S");
+   tabObjectDisplaySupportedHistos.AddLast("TH1I");
+   tabObjectDisplaySupportedHistos.AddLast("TH1F");
+   tabObjectDisplaySupportedHistos.AddLast("TH1D");
+   tabObjectDisplaySupportedHistos.AddLast("TH2C");
+   tabObjectDisplaySupportedHistos.AddLast("TH2S");
+   tabObjectDisplaySupportedHistos.AddLast("TH2I");
+   tabObjectDisplaySupportedHistos.AddLast("TH2F");
+   tabObjectDisplaySupportedHistos.AddLast("TH2D");
+   tabObjectDisplaySupportedHistos.AddLast("TH3C");
+   tabObjectDisplaySupportedHistos.AddLast("TH3S");
+   tabObjectDisplaySupportedHistos.AddLast("TH3I");
+   tabObjectDisplaySupportedHistos.AddLast("TH3F");
+   tabObjectDisplaySupportedHistos.AddLast("TH3D");
 
    TString::MaxWaste(kTStringResizeIncrement-1);
    TString::ResizeIncrement(kTStringResizeIncrement);
@@ -330,30 +352,31 @@ Bool_t ROMEBuilder::StartBuilder()
    haveSteerFieldHotLinks = false;
    int tabNumber=numOfTab;
    int histoNumber=0;
+   int graphNumber=0;
    int is,ie,ind;
-   // Check Histos & Tabs
+   // Assign Single Object Tabs
    for (i=0;i<numOfTaskHierarchy;i++) {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         for (k=0;k<numOfHistoTabs[taskHierarchyClassIndex[i]][j];k++) {
+         for (k=0;k<numOfHistoSingleObjectTabs[taskHierarchyClassIndex[i]][j];k++) {
             found = false;
             for (l=0;l<numOfTab;l++) {
                if (!tabUsed[l])
                   continue;
-               if (histoTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
+               if (histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
                   found = true;
                   tabNumber = l;
-                  histoNumber = numOfTabHistos[l];
+                  histoNumber = numOfTabSingleObjects[l];
                   break;
                }
             }
             if (!found) {
                if (numOfTab<0)
                   numOfTab = 0;
-               tabName[numOfTab] = histoTabName[taskHierarchyClassIndex[i]][j][k];
-               tabTitle[numOfTab] = histoTabName[taskHierarchyClassIndex[i]][j][k];
-               tabHistoDisplay[numOfTab] = false;
+               tabName[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
+               tabTitle[numOfTab] = histoSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
+               tabObjectDisplay[numOfTab] = false;
                tabAuthor[numOfTab] = mainAuthor;
                tabVersion[numOfTab] = "1";
                tabDescription[numOfTab] = "";
@@ -371,25 +394,84 @@ Bool_t ROMEBuilder::StartBuilder()
                tabParentIndex[numOfTab] = -1;
                tabNumber = numOfTab;
                histoNumber = 0;
-               numOfTabHistos[numOfTab] = 0;
+               numOfTabSingleObjects[numOfTab] = 0;
                tabUsed[numOfTab] = true;
                numOfTab++;
             }
-            is = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
-            if ((ind=histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
-               str = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
+            is = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
+            if ((ind=histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
+               str = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
                is = str.ToInteger();
-               str = histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,histoTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
+               str = histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,histoSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
                ie = str.ToInteger();
             }
-            tabHistoName[tabNumber][histoNumber] = histoName[taskHierarchyClassIndex[i]][j];
-            tabHistoIndex[tabNumber][histoNumber] = histoTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
-            tabHistoArrayIndexStart[tabNumber][histoNumber] = is;
-            tabHistoArrayIndexEnd[tabNumber][histoNumber] = ie;
-            tabHistoTaskHierarchyIndex[tabNumber][histoNumber] = i;
-            tabHistoTaskIndex[tabNumber][histoNumber] = taskHierarchyClassIndex[i];
-            tabHistoHistoIndex[tabNumber][histoNumber] = j;
-            numOfTabHistos[tabNumber]++;
+            tabSingleObjectName[tabNumber][histoNumber] = histoName[taskHierarchyClassIndex[i]][j];
+            tabSingleObjectIndex[tabNumber][histoNumber] = histoSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
+            tabSingleObjectArrayIndexStart[tabNumber][histoNumber] = is;
+            tabSingleObjectArrayIndexEnd[tabNumber][histoNumber] = ie;
+            tabSingleObjectTaskHierarchyIndex[tabNumber][histoNumber] = i;
+            tabSingleObjectTaskIndex[tabNumber][histoNumber] = taskHierarchyClassIndex[i];
+            tabSingleObjectObjectIndex[tabNumber][histoNumber] = j;
+            tabSingleObjectType[tabNumber][histoNumber] = "Histogram";
+            numOfTabSingleObjects[tabNumber]++;
+         }
+      }
+      for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
+         for (k=0;k<numOfGraphSingleObjectTabs[taskHierarchyClassIndex[i]][j];k++) {
+            found = false;
+            for (l=0;l<numOfTab;l++) {
+               if (!tabUsed[l])
+                  continue;
+               if (graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k]==tabName[l]) {
+                  found = true;
+                  tabNumber = l;
+                  graphNumber = numOfTabSingleObjects[l];
+                  break;
+               }
+            }
+            if (!found) {
+               if (numOfTab<0)
+                  numOfTab = 0;
+               tabName[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
+               tabTitle[numOfTab] = graphSingleObjectTabName[taskHierarchyClassIndex[i]][j][k];
+               tabObjectDisplay[numOfTab] = false;
+               tabAuthor[numOfTab] = mainAuthor;
+               tabVersion[numOfTab] = "1";
+               tabDescription[numOfTab] = "";
+               tabShortDescription[numOfTab] = "";
+               tabUsage[numOfTab] = "";
+               tabStatus[numOfTab] = "";
+               tabToDo[numOfTab] = "";
+               tabKnownProblems[numOfTab] = "";
+               numOfSteering[numOfTab+numOfTask+1] = -1;
+               numOfSteerChildren[numOfTab+numOfTask+1][0] = 0;
+               numOfSteerFields[numOfTab+numOfTask+1][0] = 0;
+               numOfMenu[numOfTab] = -1;
+               tabNumOfChildren[numOfTab] = 0;
+               numOfThreadFunctions[numOfTab] = 0;
+               tabParentIndex[numOfTab] = -1;
+               tabNumber = numOfTab;
+               graphNumber = 0;
+               numOfTabSingleObjects[numOfTab] = 0;
+               tabUsed[numOfTab] = true;
+               numOfTab++;
+            }
+            is = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].ToInteger(); ie = is;
+            if ((ind=graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Index("-"))!=-1) {
+               str = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](0,ind);
+               is = str.ToInteger();
+               str = graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k](ind+1,graphSingleObjectTabArrayIndex[taskHierarchyClassIndex[i]][j][k].Length()-ind-1);
+               ie = str.ToInteger();
+            }
+            tabSingleObjectName[tabNumber][graphNumber] = graphName[taskHierarchyClassIndex[i]][j];
+            tabSingleObjectIndex[tabNumber][graphNumber] = graphSingleObjectTabIndex[taskHierarchyClassIndex[i]][j][k].ToInteger();
+            tabSingleObjectArrayIndexStart[tabNumber][graphNumber] = is;
+            tabSingleObjectArrayIndexEnd[tabNumber][graphNumber] = ie;
+            tabSingleObjectTaskHierarchyIndex[tabNumber][graphNumber] = i;
+            tabSingleObjectTaskIndex[tabNumber][graphNumber] = taskHierarchyClassIndex[i];
+            tabSingleObjectObjectIndex[tabNumber][graphNumber] = j;
+            tabSingleObjectType[tabNumber][graphNumber] = "Graph";
+            numOfTabSingleObjects[tabNumber]++;
          }
       }
    }
@@ -397,9 +479,9 @@ Bool_t ROMEBuilder::StartBuilder()
    for (i=0;i<numOfTab;i++) {
       if (!tabUsed[i])
          continue;
-      tabHistoIndexMax[i] = 0;
-      for (j=0;j<numOfTabHistos[i];j++) {
-         tabHistoIndexMax[i] = TMath::Max(tabHistoIndex[i][j]+1+tabHistoArrayIndexEnd[i][j]-tabHistoArrayIndexStart[i][j],tabHistoIndexMax[i]);
+      tabSingleObjectIndexMax[i] = 0;
+      for (j=0;j<numOfTabSingleObjects[i];j++) {
+         tabSingleObjectIndexMax[i] = TMath::Max(tabSingleObjectIndex[i][j]+1+tabSingleObjectArrayIndexEnd[i][j]-tabSingleObjectArrayIndexStart[i][j],tabSingleObjectIndexMax[i]);
       }
    }
    // fill task hierarchy index and suffix

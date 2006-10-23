@@ -67,33 +67,37 @@ void ROMEBuilder::AddPrecompiledHeaders()
 void ROMEBuilder::AddRomeHeaders()
 {
    romeHeaders = new ROMEStrArray(50);
-   romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
-   romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/ROME.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEAnalyzer.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigGraph.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEConfigHisto.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEDataBaseDAQ.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEEventLoop.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEGraph.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDAQSystem.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMENoDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEODBOfflineDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEODBOnlineDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEPath.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMERint.h");
-   if (numOfEvent>0)
-      romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
-   if (numOfTree>0)
-      romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
-   if (numOfRootTree>0)
-      romeHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEString.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEPrint.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMERint.h");
+   if (this->sql) {
+      romeHeaders->Add("$(ROMESYS)/include/ROMESQL.h");
+      romeHeaders->Add("$(ROMESYS)/include/ROMESQLDataBase.h");
+   }
+   romeHeaders->Add("$(ROMESYS)/include/ROMEStopwatch.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEStrArray.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
+   romeHeaders->Add("$(ROMESYS)/include/ROMEString.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETask.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETextDataBase.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMETree.h");
@@ -101,22 +105,24 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/ROMEUtilities.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEXML.h");
    romeHeaders->Add("$(ROMESYS)/include/ROMEXMLDataBase.h");
-   romeHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+   romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/strlcpy.h");
+   romeHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMENetFolder.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEConfigToForm.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormFrame.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormElement.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormElementSignal.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToFormWindow.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMEHorizontalFrame.h");
-   romeHeaders->Add("$(ROMESYS)/include/ROMELabel.h");
+   if (numOfEvent>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMEMidasDAQ.h");
    if (this->orca)
       romeHeaders->Add("$(ROMESYS)/include/ROMEOrcaDAQ.h");
+   if (numOfTree>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMERomeDAQ.h");
+   if (numOfRootTree>0)
+      romeHeaders->Add("$(ROMESYS)/include/ROMERootDAQ.h");
    if (this->mysql)
       romeHeaders->Add("$(ROMESYS)/include/ROMEMySQL.h");
    if (this->pgsql)
@@ -125,10 +131,6 @@ void ROMEBuilder::AddRomeHeaders()
       romeHeaders->Add("$(ROMESYS)/include/ROMESQLite.h");
    if (this->sqlite3)
       romeHeaders->Add("$(ROMESYS)/include/ROMESQLite3.h");
-   if (this->sql) {
-      romeHeaders->Add("$(ROMESYS)/include/ROMESQL.h");
-      romeHeaders->Add("$(ROMESYS)/include/ROMESQLDataBase.h");
-   }
 }
 
 void ROMEBuilder::AddRomeDictHeaders()
@@ -164,6 +166,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeLinkDefSuffix->Add("");
    }
    if (!librome) {
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEGraph.h");
+      romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEHisto.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMETask.h");
@@ -191,6 +195,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEStr2DArray.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfig.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigGraph.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEConfigHisto.h");
       romeLinkDefSuffix->Add("");
@@ -258,14 +264,6 @@ void ROMEBuilder::AddRomeDictHeaders()
 void ROMEBuilder::AddRomeSources()
 {
    romeSources = new ROMEStrArray(50);
-#if defined( R__VISUAL_CPLUSPLUS ) 
-   // temporary
-   if (midas) {
-      romeSources->Add("$(MIDASSYS)/src/midas.c");
-      romeSources->Add("$(MIDASSYS)/src/system.c");
-      romeSources->Add("$(MIDASSYS)/src/odb.c");
-   }
-#endif // R__VISUAL_CPLUSPLUS
    romeSources->Add("$(ROMESYS)/src/ROMEAnalyzer.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEEventLoop.cpp");
    romeSources->Add("$(ROMESYS)/src/ROMEODBOnlineDataBase.cpp");
@@ -275,6 +273,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/mxml.c");
       romeSources->Add("$(ROMESYS)/src/ROMEDAQSystem.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEDataBaseDAQ.cpp");
+      romeSources->Add("$(ROMESYS)/src/ROMEGraph.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEHisto.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEODBOfflineDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMEPath.cpp");
@@ -331,6 +330,14 @@ void ROMEBuilder::AddRomeSources()
          romeSources->Add("dict/ROMESDict.cpp");
       }
    }
+#if defined( R__VISUAL_CPLUSPLUS ) 
+   // temporary
+   if (midas) {
+      romeSources->Add("$(MIDASSYS)/src/midas.c");
+      romeSources->Add("$(MIDASSYS)/src/system.c");
+      romeSources->Add("$(MIDASSYS)/src/odb.c");
+   }
+#endif // R__VISUAL_CPLUSPLUS
 }
 
 void ROMEBuilder::AddArgusHeaders()

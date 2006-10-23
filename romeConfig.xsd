@@ -260,7 +260,7 @@
 	</xs:complexType>
 	<xs:complexType name="HistogramReadDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the histogram reading.</xs:documentation>
+			<xs:documentation>Description of the histogram/graph reading.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="Read" type="xs:boolean">
@@ -270,7 +270,7 @@
 			</xs:element>
 			<xs:element name="RunNumber" type="xs:integer">
 				<xs:annotation>
-					<xs:documentation>Run number of the required histogram file. (required)</xs:documentation>
+					<xs:documentation>Run number of the required histogram/graph file. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -368,6 +368,53 @@
 			<xs:element name="HistAccumulate" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>If this value is true the histograms content will be accumulated over all runs. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="GraphDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the graph configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="GraphName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the graph. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the graph. Displayed in the ROOT browser. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphFolderTitle" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The title of the ROOT folder in which the graph is stored. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphArraySize" type="xs:string" default="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The array size of the graph. This value will be ignord if the graph is not declared as an array in the ROME definition file. The histograms are named HistName_001 and so on. With HistArrayStartIndex you can specifie with which number the enumeration starts. This value overwrites the value specified in the definition file. Default is 1.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphArrayStartIndex" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation> Start index of graph array name enumeration. This value overwrites the value specified in the definition file. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphXLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the x axis. Text has to be placed in quotes. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphYLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the y axis. Text has to be placed in quotes. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="GraphZLabel" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -576,6 +623,11 @@
 			<xs:element name="Histogram" type="HistogramDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a histogram configuration. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Graph" type="GraphDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a graph configuration. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
@@ -855,7 +907,7 @@
 			</xs:element>
 			<xs:element name="HistogramRead" type="HistogramReadDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the histogram reading. (optional)</xs:documentation>
+					<xs:documentation>Describes the histogram/graph reading. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Folders" minOccurs="0">

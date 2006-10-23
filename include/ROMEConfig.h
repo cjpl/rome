@@ -13,7 +13,9 @@
 class ROMEStrArray;
 class ROMEXML;
 class ROMEHisto;
+class ROMEGraph;
 class ROMEConfigHisto;
+class ROMEConfigGraph;
 
 class ROMEConfig : public TObject
 {
@@ -48,10 +50,14 @@ public:
    virtual Bool_t CheckConfiguration(const char *file) = 0;
    virtual Bool_t CheckConfigurationModified(Int_t index) = 0;
 protected:
-   Bool_t ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* histo);
+   Bool_t ReadHistoConfiguration(ROMEXML* xml,const char* path,ROMEConfigHisto* configHisto);
    Bool_t CheckHistoConfigurationModified(ROMEConfigHisto* configHisto);
    Bool_t SetHistoConfiguration(ROMEHisto* histo,ROMEConfigHisto* configHisto);
    Bool_t WriteHistoConfiguration(ROMEXML* xml,ROMEConfigHisto* configHisto,Int_t commentLevel,ROMEStrArray& comment);
+   Bool_t ReadGraphConfiguration(ROMEXML* xml,const char* path,ROMEConfigGraph* configGraph);
+   Bool_t CheckGraphConfigurationModified(ROMEConfigGraph* configGraph);
+   Bool_t SetGraphConfiguration(ROMEGraph* graph,ROMEConfigGraph* configGraph);
+   Bool_t WriteGraphConfiguration(ROMEXML* xml,ROMEConfigGraph* configGraph,Int_t commentLevel,ROMEStrArray& comment);
 
    ClassDef(ROMEConfig, 0) // Base configuration class
 };

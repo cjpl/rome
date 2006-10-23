@@ -186,7 +186,6 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    netFolderRoot = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfNetFolders));
 
    // task
-   numOfHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    numOfTaskInclude = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    taskName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTasks));
    numOfTaskAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
@@ -208,6 +207,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    taskLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfTasks,maxNumberOfInclude));
    numOfTaskAccessedFolder = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    taskAccessedFolder = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfFolders));
+   numOfHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
    histoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoFolderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
@@ -227,10 +227,31 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    histoZNbins = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
    histoZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos));
-   numOfHistoTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfHistos));
-   histoTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
-   histoTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
-   histoTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoTabs));
+   numOfHistoSingleObjectTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfHistos));
+   histoSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
+   histoSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
+   histoSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfHistos,maxNumberOfHistoSingleObjectTabs));
+   numOfGraphs = static_cast<Int_t*>(AllocateInt(maxNumberOfTasks));
+   graphName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphFolderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphFolderTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphArraySize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphArrayStartIndex = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphXLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphYLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphZLabel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphXmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphXmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphYmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphYmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphZmin = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   graphZmax = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs));
+   numOfGraphSingleObjectTabs = static_cast<Int_t**>(AllocateInt(maxNumberOfTasks,maxNumberOfGraphs));
+   graphSingleObjectTabName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
+   graphSingleObjectTabIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
+   graphSingleObjectTabArrayIndex = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTasks,maxNumberOfGraphs,maxNumberOfGraphSingleObjectTabs));
 
    // task hierarchy
    taskHierarchyName = static_cast<ROMEString*>(AllocateROMEString(2*maxNumberOfTasks));
@@ -271,7 +292,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    tabName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabSuffix = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
    tabTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTabs));
-   tabHistoDisplay = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
+   tabObjectDisplay = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
    numOfTabAffiliations = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
    tabAffiliation = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfAffiliations));
    tabUsed = static_cast<Bool_t*>(AllocateBool(maxNumberOfTabs));
@@ -297,24 +318,25 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    menuItemChildMenuIndex = static_cast<Int_t***>(AllocateInt(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
    menuItemEnumName = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
    menuItemTitle = static_cast<ROMEString***>(AllocateROMEString(maxNumberOfTabs,maxNumberOfMenus,maxNumberOfMenuItems));
-   numOfTabHistos = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
-   tabHistoName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoArrayIndexStart = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoArrayIndexEnd = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabHistos));
-   tabHistoIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
-   numOfTabObjects = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
-   tabObjectName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
-   tabObjectTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjects));
+   numOfTabSingleObjects = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabSingleObjectName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectArrayIndexStart = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectArrayIndexEnd = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectObjectIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabSingleObjects));
+   tabSingleObjectIndexMax = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   numOfTabObjectDisplays = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
+   tabObjectDisplayName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTitle = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayObject = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTaskHierarchyIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTaskIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayHistoIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
+   tabObjectDisplayTaskHierarchyNumber = static_cast<Int_t**>(AllocateInt(maxNumberOfTabs,maxNumberOfTabObjectDisplays));
 
    // tree
    numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
@@ -1305,6 +1327,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
    taskToDo[numOfTask] = "";
    taskKnownProblems[numOfTask] = "";
    numOfHistos[numOfTask] = 0;
+   numOfGraphs[numOfTask] = 0;
    numOfTaskInclude[numOfTask] = 0;
    numOfSteering[numOfTask] = -1;
    numOfSteerFields[numOfTask][0] = 0;
@@ -1476,7 +1499,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          histoZNbins[numOfTask][numOfHistos[numOfTask]] = "1";
          histoZmin[numOfTask][numOfHistos[numOfTask]] = "0";
          histoZmax[numOfTask][numOfHistos[numOfTask]] = "1";
-         numOfHistoTabs[numOfTask][numOfHistos[numOfTask]] = 0;
+         numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]] = 0;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -1544,29 +1567,29 @@ Bool_t ROMEBuilder::ReadXMLTask()
                   name = xml->GetName();
                   // tab
                   if (type == 1 && !strcmp((const char*)name,"Tab")) {
-                     if (numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]>=maxNumberOfHistoTabs) {
-                        cout << "Maximal number of Tabs in the Argus section of Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' reached : " << maxNumberOfHistoTabs << " !" << endl;
+                     if (numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]>=maxNumberOfHistoSingleObjectTabs) {
+                        cout << "Maximal number of Tabs in the Argus section of Histogram '" << histoName[numOfTask][numOfHistos[numOfTask]].Data() << "' reached : " << maxNumberOfHistoSingleObjectTabs << " !" << endl;
                         cout << "Terminating program." << endl;
                         return false;
                      }
-                     histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "";
-                     histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
-                     histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
+                     histoSingleObjectTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]] = "";
+                     histoSingleObjectTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
+                     histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]] = "0";
                      while (xml->NextLine()) {
                         type = xml->GetType();
                         name = xml->GetName();
                         // tab name
                         if (type == 1 && !strcmp((const char*)name,"TabName"))
-                           xml->GetValue(histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                           xml->GetValue(histoSingleObjectTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]],histoSingleObjectTabName[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]);
                         // index
                         if (type == 1 && !strcmp((const char*)name,"Index"))
-                           xml->GetValue(histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                           xml->GetValue(histoSingleObjectTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]],histoSingleObjectTabIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]);
                         // array index
                         if (type == 1 && !strcmp((const char*)name,"HistArrayIndex"))
-                           xml->GetValue(histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]],histoTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]]);
+                           xml->GetValue(histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]],histoSingleObjectTabArrayIndex[numOfTask][numOfHistos[numOfTask]][numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]]);
                         // tab end
                         if (type == 15 && !strcmp((const char*)name,"Tab")) {
-                           numOfHistoTabs[numOfTask][numOfHistos[numOfTask]]++;
+                           numOfHistoSingleObjectTabs[numOfTask][numOfHistos[numOfTask]]++;
                            break;
                         }
                      }
@@ -1604,6 +1627,149 @@ Bool_t ROMEBuilder::ReadXMLTask()
          numOfHistos[numOfTask]++;
          if (numOfHistos[numOfTask]>=maxNumberOfHistos) {
             cout << "Maximal number of histos in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfHistos << " !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         continue;
+      }
+      // task graph
+      if (type == 1 && !strcmp((const char*)name,"Graph")) {
+         // graph initialisation
+         graphName[numOfTask][numOfGraphs[numOfTask]] = "";
+         graphTitle[numOfTask][numOfGraphs[numOfTask]] = "";
+         graphFolderName[numOfTask][numOfGraphs[numOfTask]] = "";
+         graphFolderTitle[numOfTask][numOfGraphs[numOfTask]] = "";
+         graphType[numOfTask][numOfGraphs[numOfTask]] = "TH1F";
+         graphArraySize[numOfTask][numOfGraphs[numOfTask]] = "1";
+         graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]] = "0";
+         graphXLabel[numOfTask][numOfGraphs[numOfTask]] = "X";
+         graphYLabel[numOfTask][numOfGraphs[numOfTask]] = "Y";
+         graphZLabel[numOfTask][numOfGraphs[numOfTask]] = "Z";
+         graphXmin[numOfTask][numOfGraphs[numOfTask]] = "0";
+         graphXmax[numOfTask][numOfGraphs[numOfTask]] = "1";
+         graphYmin[numOfTask][numOfGraphs[numOfTask]] = "0";
+         graphYmax[numOfTask][numOfGraphs[numOfTask]] = "1";
+         graphZmin[numOfTask][numOfGraphs[numOfTask]] = "0";
+         graphZmax[numOfTask][numOfGraphs[numOfTask]] = "1";
+         numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]] = 0;
+         while (xml->NextLine()) {
+            type = xml->GetType();
+            name = xml->GetName();
+            // histo name
+            if (type == 1 && !strcmp((const char*)name,"GraphName"))
+               xml->GetValue(graphName[numOfTask][numOfGraphs[numOfTask]],graphName[numOfTask][numOfGraphs[numOfTask]]);
+            // graph title
+            if (type == 1 && !strcmp((const char*)name,"GraphTitle"))
+               xml->GetValue(graphTitle[numOfTask][numOfGraphs[numOfTask]],graphTitle[numOfTask][numOfGraphs[numOfTask]]);
+            // graph folder name
+            if (type == 1 && !strcmp((const char*)name,"GraphFolderName"))
+               xml->GetValue(graphFolderName[numOfTask][numOfGraphs[numOfTask]],graphFolderName[numOfTask][numOfGraphs[numOfTask]]);
+            // graph folder title
+            if (type == 1 && !strcmp((const char*)name,"GraphFolderTitle"))
+               xml->GetValue(graphFolderTitle[numOfTask][numOfGraphs[numOfTask]],graphFolderTitle[numOfTask][numOfGraphs[numOfTask]]);
+            // graph type
+            if (type == 1 && !strcmp((const char*)name,"GraphType"))
+               xml->GetValue(graphType[numOfTask][numOfGraphs[numOfTask]],graphType[numOfTask][numOfGraphs[numOfTask]]);
+            // graph array size
+            if (type == 1 && !strcmp((const char*)name,"GraphArraySize"))
+               xml->GetValue(graphArraySize[numOfTask][numOfGraphs[numOfTask]],graphArraySize[numOfTask][numOfGraphs[numOfTask]]);
+            // graph array start index
+            if (type == 1 && !strcmp((const char*)name,"GraphArrayStartIndex"))
+               xml->GetValue(graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]],graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]]);
+            // graph x label
+            if (type == 1 && !strcmp((const char*)name,"GraphXLabel"))
+               xml->GetValue(graphXLabel[numOfTask][numOfGraphs[numOfTask]],graphXLabel[numOfTask][numOfGraphs[numOfTask]]);
+            // graph y label
+            if (type == 1 && !strcmp((const char*)name,"GraphYLabel"))
+               xml->GetValue(graphYLabel[numOfTask][numOfGraphs[numOfTask]],graphYLabel[numOfTask][numOfGraphs[numOfTask]]);
+            // graph z label
+            if (type == 1 && !strcmp((const char*)name,"GraphZLabel"))
+               xml->GetValue(graphZLabel[numOfTask][numOfGraphs[numOfTask]],graphZLabel[numOfTask][numOfGraphs[numOfTask]]);
+            // graph xmin
+            if (type == 1 && !strcmp((const char*)name,"GraphXmin"))
+               xml->GetValue(graphXmin[numOfTask][numOfGraphs[numOfTask]],graphXmin[numOfTask][numOfGraphs[numOfTask]]);
+            // graph xmax
+            if (type == 1 && !strcmp((const char*)name,"GraphXmax"))
+               xml->GetValue(graphXmax[numOfTask][numOfGraphs[numOfTask]],graphXmax[numOfTask][numOfGraphs[numOfTask]]);
+            // graph ymin
+            if (type == 1 && !strcmp((const char*)name,"GraphYmin"))
+               xml->GetValue(graphYmin[numOfTask][numOfGraphs[numOfTask]],graphYmin[numOfTask][numOfGraphs[numOfTask]]);
+            // graph ymax
+            if (type == 1 && !strcmp((const char*)name,"GraphYmax"))
+               xml->GetValue(graphYmax[numOfTask][numOfGraphs[numOfTask]],graphYmax[numOfTask][numOfGraphs[numOfTask]]);
+            // graph zmin
+            if (type == 1 && !strcmp((const char*)name,"GraphZmin"))
+               xml->GetValue(graphZmin[numOfTask][numOfGraphs[numOfTask]],graphZmin[numOfTask][numOfGraphs[numOfTask]]);
+            // graph zmax
+            if (type == 1 && !strcmp((const char*)name,"GraphZmax"))
+               xml->GetValue(graphZmax[numOfTask][numOfGraphs[numOfTask]],graphZmax[numOfTask][numOfGraphs[numOfTask]]);
+            // argus
+            if (type == 1 && !strcmp((const char*)name,"Argus")) {
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // tab
+                  if (type == 1 && !strcmp((const char*)name,"Tab")) {
+                     if (numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]>=maxNumberOfGraphSingleObjectTabs) {
+                        cout << "Maximal number of Tabs in the Argus section of Graph '" << graphName[numOfTask][numOfGraphs[numOfTask]].Data() << "' reached : " << maxNumberOfGraphSingleObjectTabs << " !" << endl;
+                        cout << "Terminating program." << endl;
+                        return false;
+                     }
+                     graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]] = "";
+                     graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]] = "0";
+                     graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]] = "0";
+                     while (xml->NextLine()) {
+                        type = xml->GetType();
+                        name = xml->GetName();
+                        // tab name
+                        if (type == 1 && !strcmp((const char*)name,"TabName"))
+                           xml->GetValue(graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],graphSingleObjectTabName[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                        // index
+                        if (type == 1 && !strcmp((const char*)name,"Index"))
+                           xml->GetValue(graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],graphSingleObjectTabIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                        // array index
+                        if (type == 1 && !strcmp((const char*)name,"HistArrayIndex"))
+                           xml->GetValue(graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]],graphSingleObjectTabArrayIndex[numOfTask][numOfGraphs[numOfTask]][numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]]);
+                        // tab end
+                        if (type == 15 && !strcmp((const char*)name,"Tab")) {
+                           numOfGraphSingleObjectTabs[numOfTask][numOfGraphs[numOfTask]]++;
+                           break;
+                        }
+                     }
+                  }
+                  // argus end
+                  if (type == 15 && !strcmp((const char*)name,"Argus"))
+                     break;
+               }
+            }
+            // graph end
+            if (type == 15 && !strcmp((const char*)name,"Graph"))
+               break;
+         }
+         // check input
+         if (graphName[numOfTask][numOfGraphs[numOfTask]]=="") {
+            cout << "A Graph of Task '" << taskName[numOfTask].Data() << "' has no Name !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         if (graphType[numOfTask][numOfGraphs[numOfTask]]=="") {
+            cout << "Graph '" << graphName[numOfTask][numOfGraphs[numOfTask]].Data() << "' of Task '" << taskName[numOfTask].Data() << "' has no type defined !" << endl;
+            cout << "Terminating program." << endl;
+            return false;
+         }
+         for (i=0;i<numOfGraphs[numOfTask];i++) {
+            for (j=i+1;j<numOfGraphs[numOfTask];j++) {
+               if (graphName[numOfTask][i]==graphName[numOfTask][j]) {
+                  cout << "\nTask '" << taskName[numOfTask].Data() << "' has two graphs with the name '" << graphName[numOfTask][i].Data() << "' !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+            }
+         }
+         // count graphs
+         numOfGraphs[numOfTask]++;
+         if (numOfGraphs[numOfTask]>=maxNumberOfGraphs) {
+            cout << "Maximal number of graphs in task '" << taskName[numOfTask].Data() << "' reached : " << maxNumberOfGraphs << " !" << endl;
             cout << "Terminating program." << endl;
             return false;
          }
@@ -1647,7 +1813,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
    // initialisation
    tabName[currentNumberOfTabs] = "";
    tabTitle[currentNumberOfTabs] = "";
-   tabHistoDisplay[currentNumberOfTabs] = false;
+   tabObjectDisplay[currentNumberOfTabs] = false;
    numOfTabAffiliations[numOfTab] = 0;
    tabUsed[numOfTab] = true;
    tabAuthor[currentNumberOfTabs] = mainAuthor;
@@ -1664,11 +1830,11 @@ Bool_t ROMEBuilder::ReadXMLTab()
    numOfMenu[currentNumberOfTabs] = -1;
    tabNumOfChildren[currentNumberOfTabs] = 0;
    numOfThreadFunctions[currentNumberOfTabs] = 0;
-   numOfTabHistos[currentNumberOfTabs] = 0;
+   numOfTabSingleObjects[currentNumberOfTabs] = 0;
    numOfSteering[currentNumberOfTabs+numOfTask+1] = 0;
    numOfSteerFields[currentNumberOfTabs+numOfTask+1][0] = 0;
    numOfSteerChildren[currentNumberOfTabs+numOfTask+1][0] = 0;
-   numOfTabObjects[currentNumberOfTabs] = 0;
+   numOfTabObjectDisplays[currentNumberOfTabs] = 0;
 
    while (xml->NextLine()) {
       type = xml->GetType();
@@ -1706,9 +1872,9 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
          // Check Tab Objects
-         for (i=0;i<numOfTabObjects[currentNumberOfTabs];i++) {
-            if (tabUsed[currentNumberOfTabs] && tabObjectType[currentNumberOfTabs][i] == "none") {
-               cout << "The object reference of a display object '" << tabObjectName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
+         for (i=0;i<numOfTabObjectDisplays[currentNumberOfTabs];i++) {
+            if (tabUsed[currentNumberOfTabs] && tabObjectDisplayType[currentNumberOfTabs][i] == "none") {
+               cout << "The object reference of a display object '" << tabObjectDisplayName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;
                cout << "Terminating program." << endl;
                return kFALSE;
             }
@@ -1738,9 +1904,15 @@ Bool_t ROMEBuilder::ReadXMLTab()
          xml->GetValue(tabTitle[currentNumberOfTabs], tabTitle[currentNumberOfTabs]);
       // tab histo display
       if (type == 1 && !strcmp(name, "HistogramDisplay")) {
+         cout << "The tag HistogramDisplay has been renamed to TabObjectDisplay. ( " << tabName[currentNumberOfTabs] << " )" << endl;
+         cout << "Please see the ROME homepage under 'TabObjectDisplay'." << endl;
+         cout << "Terminating program." << endl;
+         return kFALSE;
+      }
+      if (type == 1 && !strcmp(name, "TabObjectDisplay")) {
          xml->GetValue(tmp,"false");
          if (tmp == "true")
-            tabHistoDisplay[currentNumberOfTabs] = true;
+            tabObjectDisplay[currentNumberOfTabs] = true;
       }
       // tab affiliation
       if (type == 1 && !strcmp((const char*)name,"Affiliation")) {
@@ -1902,82 +2074,88 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
       }
-      // tab objects
+      // tab display objects
       if (type == 1 && !strcmp(name, "DisplayObjects")) {
+         cout << "The tag DisplayObjects and all subtags have been renamed. ( " << tabName[currentNumberOfTabs] << " )" << endl;
+         cout << "Please see the ROME homepage under 'ObjectDisplays'." << endl;
+         cout << "Terminating program." << endl;
+         return kFALSE;
+      }
+      if (type == 1 && !strcmp(name, "ObjectDisplays")) {
          if (makeOutput)
             for (i = 0; i < recursiveTabDepth + 1; i++)
                cout << "   ";
          if (makeOutput)
-            cout << "Display Objects:" << endl;
+            cout << "Object Displays :" << endl;
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
 
             // end
-            if (type == 15 && !strcmp(name, "DisplayObjects")) {
+            if (type == 15 && !strcmp(name, "ObjectDisplays")) {
                break;
             }
             // display object
-            if (type == 1 && !strcmp(name, "DisplayObject")) {
-               tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
-               tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
-               tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
-               tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "";
-               tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = 0;
+            if (type == 1 && !strcmp(name, "ObjectDisplay")) {
+               tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
+               tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
+               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
+               tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "";
+               tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = 0;
                while (xml->NextLine()) {
                   type = xml->GetType();
                   name = xml->GetName();
 
                   // object name
-                  if (type == 1 && !strcmp(name, "ObjectName")) {
-                     xml->GetValue(tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp(name, "ObjectDisplayName")) {
+                     xml->GetValue(tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
                      if (makeOutput) {
                         for (i = 0; i < recursiveTabDepth + 2; i++)
                            cout << "   ";
-                        tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].WriteLine();
+                        tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].WriteLine();
                      }
                   }
                   // object title
-                  if (type == 1 && !strcmp(name, "ObjectTitle")) {
-                     xml->GetValue(tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp(name, "ObjectDisplayTitle")) {
+                     xml->GetValue(tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
                   }
                   // object
-                  if (type == 1 && !strcmp(name, "Object")) {
-                     xml->GetValue(tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]], tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]);
+                  if (type == 1 && !strcmp(name, "ObjectDisplayObject")) {
+                     xml->GetValue(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
                   }
                   // object task hierarchy index
-                  if (type == 1 && !strcmp(name, "ObjectTaskHierarchyIndex")) {
+                  if (type == 1 && !strcmp(name, "ObjectDisplayTaskHierarchyIndex")) {
                      xml->GetValue(tmp,"0");
-                     tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tmp.ToInteger();
+                     tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tmp.ToInteger();
                   }
                   // end
-                  if (type == 15 && !strcmp(name, "DisplayObject")) {
+                  if (type == 15 && !strcmp(name, "ObjectDisplay")) {
                      // check input
-                     if (tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "") {
-                        cout << "A display object of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
+                     if (tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "") {
+                        cout << "A object display of tab '" << tabName[currentNumberOfTabs].Data() << "' has no Name !" << endl;
                         cout << "Terminating program." << endl;
                         return kFALSE;
                      }
-                     if (tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Length()==0)
-                        tabObjectTitle[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
+                     if (tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Length()==0)
+                        tabObjectDisplayTitle[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
 
-                     for (j = 0; j < numOfTabObjects[currentNumberOfTabs]; j++) {
-                        if (tabObjectName[currentNumberOfTabs][j] == tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
-                           cout << "Two display object of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
+                     for (j = 0; j < numOfTabObjectDisplays[currentNumberOfTabs]; j++) {
+                        if (tabObjectDisplayName[currentNumberOfTabs][j] == tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
+                           cout << "Two object display of tab '" << tabName[currentNumberOfTabs].Data() << "' have the same Name !" << endl;
                            cout << "Terminating program." << endl;
                            return kFALSE;
                         }
                      }
                      found = false;
-                     for (i=0;i<tabObjectSupportedHistos.GetEntriesFast() && !found;i++) {
-                        for (k=0;k<tabObjectSupportedHistos.GetEntriesFast();k++) {
-                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == "TGraph" ||
-                               tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == tabObjectSupportedHistos.At(k)) {
+                     for (i=0;i<tabObjectDisplaySupportedHistos.GetEntriesFast() && !found;i++) {
+                        for (k=0;k<tabObjectDisplaySupportedHistos.GetEntriesFast();k++) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "TGraph" ||
+                               tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == tabObjectDisplaySupportedHistos.At(k)) {
                               found = true;
-                              tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]];
-                              tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
-                              tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
-                              tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = -1;
+                              tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
+                              tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
+                              tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
+                              tabObjectDisplayHistoIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = -1;
                               break;
                            }
                         }
@@ -1985,20 +2163,20 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      int num = 0;
                      for (i=0;i<numOfTaskHierarchy && !found;i++) {
                         for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]] && !found;j++) {
-                           if (tabObject[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] == histoName[taskHierarchyClassIndex[i]][j]) {
-                              if (num==tabObjectTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]]) {
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == histoName[taskHierarchyClassIndex[i]][j]) {
+                              if (num==tabObjectDisplayTaskHierarchyNumber[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]) {
                                  found = true;
-                                 tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = histoType[taskHierarchyClassIndex[i]][j];
-                                 tabObjectTaskIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
-                                 tabObjectTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = i;
-                                 tabObjectHistoIndex[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = j;
+                                 tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = histoType[taskHierarchyClassIndex[i]][j];
+                                 tabObjectDisplayTaskIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = taskHierarchyClassIndex[i];
+                                 tabObjectDisplayTaskHierarchyIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = i;
+                                 tabObjectDisplayHistoIndex[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = j;
                                  typeFound = false;
-                                 for (k=0;k<tabObjectSupportedHistos.GetEntriesFast() && !typeFound;k++) {
-                                    if (histoType[taskHierarchyClassIndex[i]][j] == tabObjectSupportedHistos.At(k))
+                                 for (k=0;k<tabObjectDisplaySupportedHistos.GetEntriesFast() && !typeFound;k++) {
+                                    if (histoType[taskHierarchyClassIndex[i]][j] == tabObjectDisplaySupportedHistos.At(k))
                                        typeFound = true;
                                  }
                                  if (!typeFound) {
-                                    cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for display objects. (" << tabObjectName[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
+                                    cout << histoType[taskHierarchyClassIndex[i]][j] << " histograms are not yet supported for object displays. (" << tabObjectDisplayName[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]].Data() << " of tab " << tabName[currentNumberOfTabs].Data() << ")" << endl;
                                     cout << "Terminating program." << endl;
                                     return kFALSE;
                                  }
@@ -2008,12 +2186,12 @@ Bool_t ROMEBuilder::ReadXMLTab()
                         }
                      }
                      if (!found) {
-                        tabObjectType[currentNumberOfTabs][numOfTabObjects[currentNumberOfTabs]] = "none";
+                        tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = "none";
                      }
                      // count thread functions
-                     numOfTabObjects[currentNumberOfTabs]++;
-                     if (numOfTabObjects[currentNumberOfTabs] >= maxNumberOfTabObjects) {
-                        cout << "Maximal number of display objects reached : " << maxNumberOfTabObjects << " !" << endl;
+                     numOfTabObjectDisplays[currentNumberOfTabs]++;
+                     if (numOfTabObjectDisplays[currentNumberOfTabs] >= maxNumberOfTabObjectDisplays) {
+                        cout << "Maximal number of object displays reached : " << maxNumberOfTabObjectDisplays << " !" << endl;
                         cout << "Terminating program." << endl;
                         return kFALSE;
                      }

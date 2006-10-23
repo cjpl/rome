@@ -258,7 +258,7 @@ void ArgusHistoDisplay::BaseInit()
 
 void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
 {
-   fTabActive = true;
+   fBusy = true;
    Int_t exitID=1,i,j;
    ROMEString str;
    switch (param) {
@@ -329,7 +329,7 @@ void ArgusHistoDisplay::BaseMenuClicked(TGPopupMenu* /*menu*/,Long_t param)
          break;
       }
    }
-   fTabActive = false;
+   fBusy = false;
 }
 
 void ArgusHistoDisplay::BaseTabSelected()
@@ -403,7 +403,7 @@ void ArgusHistoDisplay::BaseTabSelected()
 }
 void ArgusHistoDisplay::BaseTabUnSelected()
 {
-   while (fTabActive)
+   while (fBusy)
       gSystem->Sleep(10);
 
    Int_t i;
