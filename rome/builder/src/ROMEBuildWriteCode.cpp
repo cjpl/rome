@@ -6669,6 +6669,7 @@ Bool_t ROMEBuilder::AddConfigParameters()
    ROMEConfigParameterGroup* subGroup;
    ROMEConfigParameterGroup* subSubGroup;
    ROMEConfigParameterGroup* subSubSubGroup;
+   ROMEString tmp;
    for (i=0;i<nIndex;i++)
       index[i] = -1;
    maxConfigParameterHierarchyLevel = 0;
@@ -7385,7 +7386,10 @@ Bool_t ROMEBuilder::AddConfigParameters()
          subGroup->AddSubGroup(subSubGroup);
 
          for (j=0;j<numOfBranch[i];j++) {
-            subSubSubGroup = new ROMEConfigParameterGroup(branchName[i][j],"1","Branch");
+            tmp = branchName[i][j];
+            if (tmp.EndsWith("."))
+               tmp.Resize(tmp.Length() - 1);
+            subSubSubGroup = new ROMEConfigParameterGroup(tmp,"1","Branch");
             subSubSubGroup->ReadComment(ROMEConfig::kCommentLevelGroup,"Branch");
             subSubSubGroup->SetWriteEmptyLine(kFALSE);
             //Tree/Branch/Active
