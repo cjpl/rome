@@ -3511,6 +3511,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
          buffer.AppendFormatted("%s\n",tmp.Data());
    }
    // Folder includes
+#if 0 // this is not necessary, probably
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
@@ -3527,6 +3528,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
          }
       }
    }
+#endif
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS
