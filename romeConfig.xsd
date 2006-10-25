@@ -647,14 +647,14 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="DisplayObjectDesc">
+	<xs:complexType name="ObjectDisplayDesc">
 		<xs:annotation>
-			<xs:documentation>Description of a display object.</xs:documentation>
+			<xs:documentation>Description of an object display.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="DisplayObjectName" type="xs:string">
+			<xs:element name="ObjectDisplayName" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The name of the display object. (required)</xs:documentation>
+					<xs:documentation>The name of the object display. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="DrawOption" type="xs:string" minOccurs="0">
@@ -709,9 +709,9 @@
 					<xs:documentation>Describes a sub-tab.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="DisplayObject" type="DisplayObjectDesc" maxOccurs="unbounded" minOccurs="0">
+			<xs:element name="ObjectDisplay" type="ObjectDisplayDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>Describes a display object.</xs:documentation>
+					<xs:documentation>Describes an object display.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
