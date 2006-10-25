@@ -440,6 +440,7 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                continue;
             else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
                      && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
+               continue;
             }
             else if (valueArray[iFold][i][0]=="variable") {
                buffer.AppendFormatted("void %s::Set%sAt(Int_t index,%s %s_value) {\n",clsName.Data(),valueName[iFold][i].Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
@@ -1097,8 +1098,12 @@ Bool_t ROMEBuilder::WriteFolderH()
             }
             else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
                     && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
-               format.SetFormatted("   %%-%ds* Get%%sAt();\n",typeLen);
+               format.SetFormatted("   %%-%ds* Get%%sAt(",typeLen);
                buffer.AppendFormatted(format.Data(),valueType[iFold][i].Data(),valueName[iFold][i].Data());
+               for (iDm=0;iDm<valueDimension[iFold][i];iDm++)
+                  buffer.AppendFormatted("Int_t %c, ",valueCounter[iDm]);
+               buffer.Resize(buffer.Length()-2);
+               buffer.AppendFormatted(");\n");
             }
             else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
                      && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
@@ -10729,6 +10734,9 @@ void ROMEBuilder::WriteReadDataBaseFolder(ROMEString &buffer,Int_t numFolder,Int
    buffer.AppendFormatted("   cstop=NULL;\n"); // to suppress unused warning
    for (j=0;j<numOfValue[numFolder];j++) {
       if ( valueDimension[numFolder][j]>1 || valueArray[numFolder][j][0] == "variable")
+         continue;
+      if (valueIsTObject[numFolder][j] && !isPointerType(valueType[numFolder][j].Data())
+          && !valueType[numFolder][j].Contains("TRef") && !valueType[numFolder][j].Contains("TString"))
          continue;
       if (folderArray[numFolder]=="1" && type==1 || folderArray[numFolder]!="1" && type==2 && !folderSupport[numFolder]) {
          buffer.AppendFormatted("   values->RemoveAll();\n");
