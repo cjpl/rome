@@ -38,21 +38,21 @@
 		<Tab>
 			<TabName>Histos</TabName>
 			<TabTitle>Histos</TabTitle>
-			<HistogramDisplay>true</HistogramDisplay>
-			<DisplayObjects>
-				<DisplayObject>
-					<ObjectName>MyHisto_0</ObjectName>
-					<ObjectTitle>MyHisto 0</ObjectTitle>
-					<Object>MyHisto</Object>
+			<TabObjectDisplay>true</TabObjectDisplay>
+			<ObjectDisplays>
+				<ObjectDisplay>
+					<ObjectDisplayName>MyHisto_0</ObjectDisplayName>
+					<ObjectDisplayTitle>MyHisto 0</ObjectDisplayTitle>
+					<ObjectDisplayObject>MyHisto</ObjectDisplayObject>
 					<ObjectTaskHierarchyIndex>0</ObjectTaskHierarchyIndex>
-				</DisplayObject>
-				<DisplayObject>
-					<ObjectName>MyHisto_1</ObjectName>
-					<ObjectTitle>MyHisto 1</ObjectTitle>
-					<Object>MyHisto</Object>
+				</ObjectDisplay>
+				<ObjectDisplay>
+					<ObjectDisplayName>MyHisto_1</ObjectDisplayName>
+					<ObjectDisplayTitle>MyHisto 1</ObjectDisplayTitle>
+					<ObjectDisplayObject>MyHisto</ObjectDisplayObject>
 					<ObjectTaskHierarchyIndex>1</ObjectTaskHierarchyIndex>
-				</DisplayObject>
-			</DisplayObjects>
+				</ObjectDisplay>
+			</ObjectDisplays>
 		</Tab>
 	</Tabs>
 </ROMEFrameworkDefinition>
