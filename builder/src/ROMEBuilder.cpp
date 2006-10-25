@@ -959,8 +959,8 @@ Bool_t ROMEBuilder::ReadCommandLineParameters(int argc, char *argv[])
       else if (!strcmp(argv[i],"-jan")) {
          noLink = true;
          minRebuild = true;
-         outDir = "C:/Data/Testprojects/jan/wi-rome-ls-intel/";
-         xmlFile = "C:/Data/Testprojects/jan/wi-rome-ls-intel/WIArgon.xml";
+         outDir = "C:/Data/Testprojects/jan/dance/test/";
+         xmlFile = "C:/Data/Testprojects/jan/dance/test/danceobj.xml";
       }
       else if (!strcmp(argv[i],"-gsptest")) {
          noLink = true;

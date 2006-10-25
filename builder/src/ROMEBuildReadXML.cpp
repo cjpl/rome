@@ -1872,6 +1872,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
             }
          }
          // Check Tab Objects
+         if (numOfTabObjectDisplays[currentNumberOfTabs]==0 && tabObjectDisplay[currentNumberOfTabs])
+            tabObjectDisplay[currentNumberOfTabs] = false;
          for (i=0;i<numOfTabObjectDisplays[currentNumberOfTabs];i++) {
             if (tabUsed[currentNumberOfTabs] && tabObjectDisplayType[currentNumberOfTabs][i] == "none") {
                cout << "The object reference of a display object '" << tabObjectDisplayName[currentNumberOfTabs][i].Data() << "' of tab '" << tabName[currentNumberOfTabs].Data() << "' was not found !" << endl;

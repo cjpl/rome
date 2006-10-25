@@ -618,6 +618,36 @@
 						<xs:documentation>The label text of the z axis. Text has to be placed in quotes. This value can be overwritten in the configuration file. (optional)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element name="GraphXmin" type="xs:string" default="0" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The minimum value in x. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphXmax" type="xs:string" default="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The maximum value in x. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphYmin" type="xs:string" default="0" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The minimum value in y. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphYmax" type="xs:string" default="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The maximum value in y. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphZmin" type="xs:string" default="0" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The minimum value in z. This value can be overwritten in the configuration file. Default is 0.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
+				<xs:element name="GraphZmax" type="xs:string" default="1" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>The maximum value in z. This value can be overwritten in the configuration file. Default is 1.</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="Argus" type="HistGraphArgusDesc" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>Argus display configuration for the histogram/graph.</xs:documentation>
