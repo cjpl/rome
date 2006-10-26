@@ -387,7 +387,7 @@ Bool_t XMLToForm::XMLToRootClass()
 
 void XMLToForm::SaveForm()
 {
-   fWindow->SaveFrame(fMainFrame);
+   fWindow->SaveFrame(fMainFrame,fXML);
    fXML->WritePathFile(fXML->GetFullFileName());
 }
 
