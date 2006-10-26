@@ -731,10 +731,10 @@ void ROMEBuilder::AddRootLibraries()
 void ROMEBuilder::AddMysqlLibraries()
 {
 #if defined( R__VISUAL_CPLUSPLUS )
-   mysqlLibraries = new ROMEStrArray(3);
-   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\libmySQL.lib");
-   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysqlclient.lib");
-   mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\mysys.lib");
+   if (this->mysql) {
+      mysqlLibraries = new ROMEStrArray(1);
+      mysqlLibraries->AddFormatted("$(ROMESYS)\\lib_win\\libmysql.lib");
+   }
 #endif
 }
 
@@ -853,7 +853,7 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("sqllibs =");
    if (this->mysql)
-      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmySQL.lib $(ROMESYS)/lib_win/mysys.lib $(ROMESYS)/lib_win/mysqlclient.lib");
+      buffer.AppendFormatted(" $(ROMESYS)/lib_win/libmysql.lib");
    if (this->pgsql)
       buffer.AppendFormatted(" $(ROMESYS)/lib_win/libpq.lib");
    if (this->sqlite)
