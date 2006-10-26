@@ -44,7 +44,7 @@ public:
    Bool_t SearchWidget(Int_t id,XMLToFormFrame** frame,Int_t *index);
    Bool_t ListTreeClicked(TGListTreeItem* item,Int_t btn);
    void   DeleteFrame(XMLToFormFrame *frame);
-   void   SaveFrame(XMLToFormFrame *frame);
+   void   SaveFrame(XMLToFormFrame *frame,ROMEXML *xml);
 
 protected:
    XMLToFormFrame* SearchFrame(XMLToFormFrame *frame,const char* title,const char* editBoxLabel);

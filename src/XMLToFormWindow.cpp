@@ -722,7 +722,7 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
                for (i=0;i<num-1;i++)
                   UpdateFileSelector(frame->GetElementAt(index)->GetEntryAt(i).Data());
                SaveCurrentValues(fMainFrame);
-               SaveFrame(fMainFrame);
+               SaveFrame(fMainFrame,fXML);
                fXML->WritePathFile(newFile.Data());
                frame->GetElementAt(index)->fComboBox->RemoveEntry(num-1);
                frame->GetElementAt(index)->fComboBox->AddEntry(newFile.Data(),num-1);
@@ -791,7 +791,7 @@ void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
          SaveCurrentValues(frame->GetSubFrameAt(i));
    }
 }
-void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame)
+void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame,ROMEXML *xml)
 {
    Int_t i,j,num;
    ROMEString path;
@@ -801,35 +801,35 @@ void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame)
       if (frame->GetElementAt(i)->GetType()=="EditBox") {
          path = frame->GetElementAt(i)->GetPath();
          path.Append("/Value");
-         fXML->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
+         xml->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
       }
       if (frame->GetElementAt(i)->GetType()=="ComboBox") {
          path = frame->GetElementAt(i)->GetPath();
          path.Append("/Selected");
          value.SetFormatted("%d",frame->GetElementAt(i)->GetSelectedEntry());
-         fXML->ReplacePathValue(path.Data(),value.Data());
+         xml->ReplacePathValue(path.Data(),value.Data());
       }
       if (frame->GetElementAt(i)->GetType()=="CheckButton") {
          path = frame->GetElementAt(i)->GetPath();
          path.Append("/Checked");
-         fXML->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
+         xml->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
       }
       if (frame->GetElementAt(i)->GetType()=="FileSelector") {
          path = frame->GetElementAt(i)->GetPath();
          for (j=0;j<frame->GetElementAt(i)->GetNumberOfEntries();j++) {
             tempPath = path;
-            num = fXML->NumberOfOccurrenceOfPath(path+"/Entry");
+            num = xml->NumberOfOccurrenceOfPath(path+"/Entry");
             if (num>j) {
                tempPath.AppendFormatted("/Entry[%d]",j+1);
-               fXML->ReplacePathValue(tempPath.Data(),frame->GetElementAt(i)->GetEntryAt(j).Data());
+               xml->ReplacePathValue(tempPath.Data(),frame->GetElementAt(i)->GetEntryAt(j).Data());
             }
             else {
                if (num==0) {
-                  fXML->NewPathChildElement(path.Data(),"Entry",frame->GetElementAt(i)->GetEntryAt(j).Data());
+                  xml->NewPathChildElement(path.Data(),"Entry",frame->GetElementAt(i)->GetEntryAt(j).Data());
                }
                else {
                   tempPath.AppendFormatted("/Entry[%d]",num);
-                  fXML->NewPathLastElement(tempPath.Data(),"Entry",frame->GetElementAt(i)->GetEntryAt(j).Data());
+                  xml->NewPathLastElement(tempPath.Data(),"Entry",frame->GetElementAt(i)->GetEntryAt(j).Data());
                }
             }
          }
@@ -837,7 +837,7 @@ void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame)
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       if (frame->GetSubFrameAt(i)->IsFrameVisible())
-         SaveFrame(frame->GetSubFrameAt(i));
+         SaveFrame(frame->GetSubFrameAt(i),xml);
    }
 }
 
