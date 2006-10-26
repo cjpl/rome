@@ -597,7 +597,8 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
    xml->WriteAttribute("UniqueIdentifier","{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}");
 
    WriteVisualProjectProjFiles(xml,rootLibraries,"ROOT","lib");
-   WriteVisualProjectProjFiles(xml,mysqlLibraries,"MySQL","lib");
+   if (this->mysql)
+      WriteVisualProjectProjFiles(xml,mysqlLibraries,"MySQL","lib");
    WriteVisualProjectProjFiles(xml,daqLibraries,"MIDAS","lib");
 
    // user

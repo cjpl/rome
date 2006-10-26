@@ -40,6 +40,7 @@ public:
 
    void        SaveForm();
    const char* GetValue(const char* label);
+   Bool_t      GetBoolValue(const char* label);
    Int_t       GetIntValue(const char* label);
    double      GetDoubleValue(const char* label);
    Int_t       GetSelectedIndex(const char* label);

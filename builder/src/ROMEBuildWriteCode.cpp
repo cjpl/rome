@@ -8053,14 +8053,14 @@ Bool_t ROMEBuilder::WriteConfigRead(ROMEString &buffer,ROMEConfigParameterGroup 
          buffer.AppendFormatted("%stempPath.SetFormatted(\"/%s%s\"%s);\n",sTab.Data(),groupName.Data(),parGroup->GetParameterAt(i)->GetName(),indexes.Data());
          buffer.AppendFormatted("%sxml->GetPathValue(path+tempPath,%sf%s,\"\");\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
       }
-      buffer.AppendFormatted("%sif (%sf%s==\"\")\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
-      buffer.AppendFormatted("%s   %sf%sModified = false;\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
-      buffer.AppendFormatted("%selse {\n",sTab.Data());
-      buffer.AppendFormatted("%s   %sf%sModified = true;\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
-      for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines();j++) {
-         buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetParameterAt(i)->GetReadModifiedTrueLineAt(j));
+      buffer.AppendFormatted("%s%sf%sModified = (%sf%s!=\"\");\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
+      if (parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines()>0) {
+         buffer.AppendFormatted("%sif (%sf%s==\"\") {\n",sTab.Data(),pointer.Data(),parGroup->GetParameterAt(i)->GetName());
+         for (j=0;j<parGroup->GetParameterAt(i)->GetNumberOfReadModifiedTrueLines();j++) {
+            buffer.AppendFormatted("%s   %s\n",sTab.Data(),parGroup->GetParameterAt(i)->GetReadModifiedTrueLineAt(j));
+         }
+         buffer.AppendFormatted("%s}\n",sTab.Data());
       }
-      buffer.AppendFormatted("%s}\n",sTab.Data());
    }
    // Sub Groups
    for (i=0;i<parGroup->GetNumberOfSubGroups();i++) {

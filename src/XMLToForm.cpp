@@ -393,6 +393,12 @@ void XMLToForm::SaveForm()
 
 
 
+Bool_t XMLToForm::GetBoolValue(const char* label)
+{
+   if (!strcmp(GetValue(label),"true"))
+      return true;
+   return false;
+}
 Int_t XMLToForm::GetIntValue(const char* label)
 {
    char *cstop;
