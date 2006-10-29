@@ -178,7 +178,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
          fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
          fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
+
          // Begin of Run Tasks
+         ReadRunHeaders();
          if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
             ROMEPrint::Debug("Executing BeginOfRun tasks\n");
             ExecuteTasks("BeginOfRun");
@@ -186,6 +188,8 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
                gROME->GetApplication()->ProcessFile(fBeginOfRunMacro.Data());
             CleanTasks();
          }
+         WriteRunHeaders();
+
          eventLoopIndex++;
 
          // Output

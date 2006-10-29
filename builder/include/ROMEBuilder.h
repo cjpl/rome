@@ -31,6 +31,7 @@ const Int_t maxNumberOfMenuItems = 100;
 const Int_t maxNumberOfThreadFunctions = 10;
 const Int_t maxNumberOfThreadFunctionArguments = 10;
 const Int_t maxNumberOfBranches = 20;
+const Int_t maxNumberOfRunHeaders = 20;
 const Int_t maxNumberOfBanks = 50;
 const Int_t maxNumberOfRootBranches = 20;
 const Int_t maxNumberOfRootBranchFields = 20;
@@ -346,6 +347,7 @@ protected:
 // tree
    Int_t         numOfTree;
    Int_t        *numOfBranch;
+   Int_t        *numOfRunHeader;
    ROMEString   *treeName;
    ROMEString   *treeTitle;
    ROMEString   *treeFileName;
@@ -354,6 +356,9 @@ protected:
    ROMEString  **branchFolder;
    ROMEString  **branchBufferSize;
    ROMEString  **branchSplitLevel;
+   ROMEString  **runHeaderName;
+   ROMEString  **runHeaderFolder;
+   Int_t       **runHeaderFolderIndex;
 
 // thread functions
    Int_t        *numOfThreadFunctions;

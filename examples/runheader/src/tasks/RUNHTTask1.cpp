@@ -41,8 +41,8 @@
 //                                                                            //
 // Followings are include files of folders. ROMEBuilder will update it with   //
 // reading this source code when it is executed next time.                    //
-#include "generated/RUNHRunHeader.h"
-#include "generated/RUNHEventData.h"
+#include "generated/RUNHRunInfo.h"
+#include "generated/RUNHCalibration.h"
 #include "generated/RUNHGlobalSteering.h"
 //                                                                            //
 ////////////////////////////////////////////////////////////////////////////////
@@ -64,28 +64,31 @@ void RUNHTTask1::Init()
 
 void RUNHTTask1::BeginOfRun()
 {
-   // write run header
+   Int_t i;
    if (!strcmp(gAnalyzer->GetActiveDAQ()->GetName(), "none")) {
-      gAnalyzer->GetDataTreeFile()->cd();
-      gAnalyzer->GetRunHeader()->SetTriggerType(gAnalyzer->GetGSP()->GetTriggerType());
-      gAnalyzer->GetRunHeader()->Write();
-      cout<<"Trigger type is "<<gAnalyzer->GetRunHeader()->GetTriggerType()<<"."<<endl;
+      gAnalyzer->GetRunInfo()->SetTriggerType(gAnalyzer->GetGSP()->GetTriggerType());
+      cout<<"Trigger type is "<<gAnalyzer->GetRunInfo()->GetTriggerType()<<"."<<endl;
+
+      cout<<"Calibration"<<endl;
+      for (i = 0; i < 10; i++) {
+         gAnalyzer->GetCalibrationAt(i)->SetPedestal(static_cast<Int_t>(gRandom->Gaus(100,1)));
+         cout<<i<<" "<<gAnalyzer->GetCalibrationAt(i)->GetPedestal()<<endl;
+      }
    }
 
    // read run header
    if (!strcmp(gAnalyzer->GetActiveDAQ()->GetName(), "rome")) {
-      RUNHRunHeader *a 
-         = static_cast<RUNHRunHeader*>(static_cast<RUNHRomeDAQ*>(gAnalyzer->GetActiveDAQ())
-                                       ->GetDataTreeFile()->FindObjectAny("RUNHRunHeader"));
-      gAnalyzer->GetRunHeader()->SetTriggerType(a->GetTriggerType());
-      cout<<"Trigger type is "<<gAnalyzer->GetRunHeader()->GetTriggerType()<<"."<<endl;
+      cout<<"Trigger type is "<<gAnalyzer->GetRunInfo()->GetTriggerType()<<"."<<endl;
+
+      cout<<"Calibration"<<endl;
+      for (i = 0; i < 10; i++) {
+         cout<<i<<" "<<gAnalyzer->GetCalibrationAt(i)->GetPedestal()<<endl;
+      }
    }
 }
 
 void RUNHTTask1::Event()
 {
-   // write ADC value
-   gAnalyzer->GetEventData()->SetADC(static_cast<Int_t>(gRandom->Gaus(2000,100)));
 }
 
 void RUNHTTask1::EndOfRun()

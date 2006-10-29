@@ -43,6 +43,7 @@ public:
    Bool_t       EndOfRun();
    Bool_t       Terminate();
 
+   virtual void ReadRunHeaders() = 0;
    virtual void ConnectTrees() = 0;
 
    ClassDef(ROMERomeDAQ, 0) // Base DAQ class for trees

@@ -9133,7 +9133,7 @@ Bool_t ROMEBuilder::WriteMidasDAQH() {
 }
 
 Bool_t ROMEBuilder::WriteRomeDAQCpp() {
-   int i;
+   int i ,j;
 
    ROMEString cppFile;
    ROMEString buffer;
@@ -9164,6 +9164,12 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
+   for (i=0;i<numOfTree;i++) {
+      for (j=0;j<numOfRunHeader[i];j++) {
+         buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
+      }
+   }
+
 
    buffer.AppendFormatted("\nClassImp(%sRomeDAQ)\n",shortCut.Data());
 
@@ -9173,7 +9179,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("\n");
 
    // Connect Trees
-   int iFold=0,j,k;
+   int iFold=0,k;
    bool found = false;
    buffer.AppendFormatted("// Connect Trees\n");
    buffer.AppendFormatted("void %sRomeDAQ::ConnectTrees()\n{\n",shortCut.Data());
@@ -9218,6 +9224,24 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    }
    buffer.AppendFormatted("}\n\n");
 
+   // Read run header
+   buffer.AppendFormatted("void %sRomeDAQ::ReadRunHeaders()\n{\n",shortCut.Data());
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   if (gAnalyzer->GetTreeObjectAt(%d)->isRead()) {\n", i);
+      buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetFile()) {\n", i);
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetFile()->cd();\n", i);
+      for (j=0;j<numOfRunHeader[i];j++) {
+         if (folderArray[runHeaderFolderIndex[i][j]] == "1")
+            buffer.AppendFormatted("         gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         else
+            buffer.AppendFormatted("         gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+      }
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+
    // Write File
    WriteFile(cppFile.Data(),buffer.Data(),6);
 
@@ -9256,6 +9280,9 @@ Bool_t ROMEBuilder::WriteRomeDAQH() {
    // Constructor
    buffer.AppendFormatted("   %sRomeDAQ();\n",shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sRomeDAQ() {}\n",shortCut.Data());
+
+   // Run header
+   buffer.AppendFormatted("   void    ReadRunHeaders();\n");
 
    // File getter
    for (i=0;i<numOfTree;i++)
@@ -11001,6 +11028,8 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("#include \"generated/%sAllFolders.h\"\n",shortCut.Data());
+   if (numOfTree>0)
+      buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("\nClassImp(%sEventLoop)\n",shortCut.Data());
@@ -11054,7 +11083,33 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       }
    }
    buffer.AppendFormatted("}\n\n");
-
+   // Write run headers
+   buffer.AppendFormatted("// Write run headers\n");
+   buffer.AppendFormatted("void %sEventLoop::WriteRunHeaders()\n{\n",shortCut.Data());
+   for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   if (gAnalyzer->GetTreeObjectAt(%d)->isWrite()) {\n", i);
+      buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetFile()) {\n", i);
+      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetFile()->cd();\n", i);
+      for (j=0;j<numOfRunHeader[i];j++) {
+         if (folderArray[runHeaderFolderIndex[i][j]] == "1")
+            buffer.AppendFormatted("         gAnalyzer->Get%s()->Write(\"%s\", TObject::kOverwrite);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         else
+            buffer.AppendFormatted("         gAnalyzer->Get%ss()->Write(\"%s\", TObject::kOverwrite | TObject::kSingleKey);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+      }
+      buffer.AppendFormatted("      }\n");
+      buffer.AppendFormatted("   }\n");
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
+   // Read run headers
+   buffer.AppendFormatted("// Read run headers\n");
+   buffer.AppendFormatted("void %sEventLoop::ReadRunHeaders()\n{\n",shortCut.Data());
+   if (numOfTree>0) {
+      buffer.AppendFormatted("   if(gAnalyzer->GetActiveDAQ()->InheritsFrom(\"%sRomeDAQ\"));\n", shortCut.Data());
+      buffer.AppendFormatted("      static_cast<%sRomeDAQ*>(gAnalyzer->GetActiveDAQ())->ReadRunHeaders();\n", shortCut.Data());
+   }
+   buffer.AppendFormatted("}\n");
+   buffer.AppendFormatted("\n");
    // clean up folders
    buffer.AppendFormatted("// Delete Unused Folders\n");
    buffer.AppendFormatted("void %sEventLoop::CleanUpFolders() {\n",shortCut.Data());
@@ -11444,6 +11499,8 @@ Bool_t ROMEBuilder::WriteEventLoopH()
    buffer.AppendFormatted("   void InitTrees();\n");
    buffer.AppendFormatted("   void FillTrees();\n");
    buffer.AppendFormatted("   void GetTreeFileName(ROMEString& buffer,Int_t treeIndex);\n");
+   buffer.AppendFormatted("   void WriteRunHeaders();\n");
+   buffer.AppendFormatted("   void ReadRunHeaders();\n");
    buffer.AppendFormatted("\n");
 
    // Hot Links
