@@ -5,11 +5,20 @@
 	</Experiment>
 	<Folders>
 		<Folder>
-			<FolderName>RunHeader</FolderName>
+			<FolderName>RunInfo</FolderName>
 			<Field>
 				<FieldName>TriggerType</FieldName>
 				<FieldType>Int_t</FieldType>
 				<FieldComment>Type of trigger of the run</FieldComment>
+			</Field>
+		</Folder>
+		<Folder>
+			<FolderName>Calibration</FolderName>
+			<ArraySize>10</ArraySize>
+			<Field>
+				<FieldName>Pedestal</FieldName>
+				<FieldType>Int_t</FieldType>
+				<FieldComment>Calibratin parameter of ADC</FieldComment>
 			</Field>
 		</Folder>
 		<Folder>
@@ -18,6 +27,7 @@
 				<FieldName>ADC</FieldName>
 				<FieldType>Int_t</FieldType>
 				<FieldComment>ADC Value</FieldComment>
+				<ArraySize>10</ArraySize>
 			</Field>
 		</Folder>
 	</Folders>
@@ -29,6 +39,14 @@
 	<Trees>
 		<Tree>
 			<TreeName>DataTree</TreeName>
+			<RunHeader>
+				<RunHeaderName>runinfo</RunHeaderName>
+				<RelatedFolder>RunInfo</RelatedFolder>
+			</RunHeader>
+			<RunHeader>
+				<RunHeaderName>calib</RunHeaderName>
+				<RelatedFolder>Calibration</RelatedFolder>
+			</RunHeader>
 			<Branch>
 				<BranchName>data</BranchName>
 				<RelatedFolder>EventData</RelatedFolder>

@@ -340,6 +340,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
 
    // tree
    numOfBranch = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
+   numOfRunHeader = static_cast<Int_t*>(AllocateInt(maxNumberOfTrees));
    treeName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
    treeTitle = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
    treeFileName = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfTrees));
@@ -348,6 +349,9 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    branchFolder = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
    branchBufferSize = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
    branchSplitLevel = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfBranches));
+   runHeaderName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfRunHeaders));
+   runHeaderFolder = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfTrees,maxNumberOfRunHeaders));
+   runHeaderFolderIndex = static_cast<Int_t**>(AllocateInt(maxNumberOfTrees,maxNumberOfRunHeaders));
 
    // thread functions
    numOfThreadFunctions = static_cast<Int_t*>(AllocateInt(maxNumberOfTabs));
@@ -2626,6 +2630,7 @@ Bool_t ROMEBuilder::ReadXMLTree()
          }
          // tree initialisation
          numOfBranch[numOfTree] = 0;
+         numOfRunHeader[numOfTree] = 0;
          treeName[numOfTree] = "";
          treeTitle[numOfTree] = "";
          treeFileName[numOfTree] = "";
@@ -2655,6 +2660,52 @@ Bool_t ROMEBuilder::ReadXMLTree()
             if (type == 1 && !strcmp((const char*)name,"TreeOutputFileName")) {
                xml->GetValue(treeFileName[numOfTree],treeFileName[numOfTree]);
                FormatText(treeFileName[numOfTree], kTRUE);
+            }
+            // run header
+            if (type == 1 && !strcmp((const char*)name,"RunHeader")) {
+               // run header initialisation
+               runHeaderName[numOfTree][numOfRunHeader[numOfTree]] = "";
+               runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]] = "";
+               runHeaderFolderIndex[numOfTree][numOfRunHeader[numOfTree]] = 0;
+               while (xml->NextLine()) {
+                  type = xml->GetType();
+                  name = xml->GetName();
+                  // run header name
+                  if (type == 1 && !strcmp((const char*)name,"RunHeaderName")) {
+                     xml->GetValue(runHeaderName[numOfTree][numOfRunHeader[numOfTree]],runHeaderName[numOfTree][numOfRunHeader[numOfTree]]);
+                     FormatText(runHeaderName[numOfTree][numOfRunHeader[numOfTree]], kTRUE);
+                  }
+                  // run header folder
+                  if (type == 1 && !strcmp((const char*)name,"RelatedFolder")) {
+                     xml->GetValue(runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]],runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]);
+                     FormatText(runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]], kTRUE);
+                  }
+                  // runHeader
+                  if (type == 15 && !strcmp((const char*)name,"RunHeader"))
+                     break;
+               }
+               bool found = false;
+               for (i=0;i<numOfFolder;i++) {
+                  if (!folderSupport[i] && folderName[i]==runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]]) {
+                     found = true;
+                     runHeaderFolderIndex[numOfTree][numOfRunHeader[numOfTree]] = i;
+                  }
+               }
+               if (!found) {
+                  cout << "Folder of RunHeader '" << runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]].Data() << "' of Tree '" << treeName[numOfTree].Data() << "' not existing !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
+               if (runHeaderName[numOfTree][numOfRunHeader[numOfTree]] == "") {
+                  runHeaderName[numOfTree][numOfRunHeader[numOfTree]] = runHeaderFolder[numOfTree][numOfRunHeader[numOfTree]];
+               }
+               // count run headeres
+               numOfRunHeader[numOfTree]++;
+               if (numOfRunHeader[numOfTree]>=maxNumberOfRunHeaders) {
+                  cout << "Maximal number of run headers in tree '" << treeName[numOfTree].Data() << "' reached : " << maxNumberOfRunHeaders << " !" << endl;
+                  cout << "Terminating program." << endl;
+                  return false;
+               }
             }
             if (type == 1 && !strcmp((const char*)name,"Branch")) {
                // branch initialisation

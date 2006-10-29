@@ -175,6 +175,9 @@ protected:
 
    virtual void ReadHistograms() = 0;
 
+   virtual void ReadRunHeaders() = 0;
+   virtual void WriteRunHeaders() = 0;
+
    ClassDef(ROMEEventLoop, 0) // Base event loop class
 };
 
