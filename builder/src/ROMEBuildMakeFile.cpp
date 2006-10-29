@@ -1509,8 +1509,8 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
          if (quietMake)
             buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o obj/%s%s\n"
-                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d -MT obj/%s.o $< -o obj/%s%s\n"
+                                ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
       }
       buffer.AppendFormatted("\n");
 #endif // R__UNIX
