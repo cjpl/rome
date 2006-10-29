@@ -534,6 +534,7 @@ private:
    Bool_t  ReadXMLSteering(Int_t iTask,Bool_t gsp);
    Bool_t  ReadXMLUserMakefile();
    void    ParseSVNKeyword(ROMEString& str);
+   void    FormatText(ROMEString& str, Bool_t stripSpace, const char* invalidCharacters = 0);
 
    // Code Write Methods
    Bool_t  WriteFolderCpp();
