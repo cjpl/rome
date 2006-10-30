@@ -9202,6 +9202,7 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       }
    }
    for (i=0;i<numOfTree;i++) {
+      buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (branchFolder[i][j]==folderName[k] && !folderSupport[k])
@@ -9209,32 +9210,33 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
          }
          if (!folderUsed[iFold])
             continue;
-         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
-         buffer.AppendFormatted("   if (bb) {\n");
-         buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetBranchActiveAt(%d)) {\n",i,j);
+         buffer.AppendFormatted("     bb = (TBranchElement*)fROMETrees[%d]->GetTree()->FindBranch(\"%s\");\n",i,branchName[i][j].Data());
+         buffer.AppendFormatted("     if (bb) {\n");
+         buffer.AppendFormatted("        if (fROMETrees[%d]->GetBranchActiveAt(%d)) {\n",i,j);
          if (folderArray[iFold]=="1") {
-            buffer.AppendFormatted("         bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
          else {
-            buffer.AppendFormatted("         bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
+            buffer.AppendFormatted("           bb->SetAddress(gAnalyzer->Get%sAddress());\n",folderName[iFold].Data());
          }
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("      else {\n");
-         buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetTree()->SetBranchStatus(\"%s*\", 0);\n",i,branchName[i][j].Data());
-         buffer.AppendFormatted("      }\n");
-         buffer.AppendFormatted("   }\n");
-         buffer.AppendFormatted("   bb = (TBranchElement*)gAnalyzer->GetTreeObjectAt(%d)->GetTree()->FindBranch(\"Info\");\n",i);
-         buffer.AppendFormatted("   bb->SetAddress(&fTreeInfo);\n");
+         buffer.AppendFormatted("        }\n");
+         buffer.AppendFormatted("        else {\n");
+         buffer.AppendFormatted("           fROMETrees[%d]->GetTree()->SetBranchStatus(\"%s*\", 0);\n",i,branchName[i][j].Data());
+         buffer.AppendFormatted("        }\n");
+         buffer.AppendFormatted("     }\n");
+         buffer.AppendFormatted("     bb = (TBranchElement*)fROMETrees[%d]->GetTree()->FindBranch(\"Info\");\n",i);
+         buffer.AppendFormatted("     bb->SetAddress(&fTreeInfo);\n");
       }
+      buffer.AppendFormatted("   }\n", i);
    }
    buffer.AppendFormatted("}\n\n");
 
    // Read run header
    buffer.AppendFormatted("void %sRomeDAQ::ReadRunHeaders()\n{\n",shortCut.Data());
    for (i=0;i<numOfTree;i++) {
-      buffer.AppendFormatted("   if (gAnalyzer->GetTreeObjectAt(%d)->isRead()) {\n", i);
-      buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetFile()) {\n", i);
-      buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetFile()->cd();\n", i);
+      buffer.AppendFormatted("   if (fROMETrees[%d]->isRead()) {\n", i);
+      buffer.AppendFormatted("      if (fROMETrees[%d]->GetFile()) {\n", i);
+      buffer.AppendFormatted("         fROMETrees[%d]->GetFile()->cd();\n", i);
       for (j=0;j<numOfRunHeader[i];j++) {
          if (folderArray[runHeaderFolderIndex[i][j]] == "1")
             buffer.AppendFormatted("         gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
@@ -11255,6 +11257,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("   write = false;\n");
       buffer.AppendFormatted("   romeTree = (ROMETree*)gAnalyzer->GetTreeObjectAt(%d);\n",i);
       buffer.AppendFormatted("   if (romeTree->isFill()) {\n");
+      buffer.AppendFormatted("      write = fAlwaysFillTrees;\n");
       for (j=0;j<numOfBranch[i];j++) {
          for (k=0;k<numOfFolder;k++) {
             if (folderName[k]==branchFolder[i][j] && !folderSupport[k]) {

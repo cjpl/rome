@@ -13,6 +13,7 @@
 #include <TMath.h>
 #include "ROMEAnalyzer.h"
 #include "ROMERomeDAQ.h"
+#include "ROMETree.h"
 #include "ROMETreeInfo.h"
 
 ClassImp(ROMERomeDAQ)
@@ -22,6 +23,7 @@ ROMERomeDAQ::ROMERomeDAQ() {
    fTreeIndex = 0;
    fInputFileNameIndex = -1;
    fRootFiles = 0;
+   fROMETrees = 0;
    fTreePosition = 0;
    fTreePositionArray = 0;
    fTreeNEntries = 0;
@@ -29,7 +31,6 @@ ROMERomeDAQ::ROMERomeDAQ() {
 
 ROMERomeDAQ::~ROMERomeDAQ() {
    SafeDelete(fTreeInfo);
-   SafeDeleteArray(fRootFiles);
    SafeDeleteArray(fTreePosition);
    SafeDeleteArray(fTreePositionArray);
    SafeDeleteArray(fTreeNEntries);
@@ -63,17 +64,35 @@ Bool_t ROMERomeDAQ::Init() {
    fTreePosition = new Long64_t[nTree];
    fTreePositionArray = new Long64_t*[nTree];
    fTreeNEntries = new Long64_t[nTree];
+
+   Int_t j;
+   fROMETrees = new ROMETree*[nTree];
+   for (j=0;j<nTree;j++) {
+      fROMETrees[j] = new ROMETree(new TTree());
+   }
    return true;
 }
 
 Bool_t ROMERomeDAQ::BeginOfRun() {
    const Int_t nTree = gROME->GetTreeObjectEntries();
    const Int_t nInputFile = gROME->GetNumberOfInputFileNames();
+
+   int i,j,k;
+   for (j=0;j<nTree;j++) {
+      fROMETrees[j]->SetFileName(gROME->GetTreeObjectAt(j)->GetFileName());
+      fROMETrees[j]->SetConfigFileName(gROME->GetTreeObjectAt(j)->GetConfigFileName());
+      fROMETrees[j]->SetRead(gROME->GetTreeObjectAt(j)->isRead());
+      fROMETrees[j]->SetName(gROME->GetTreeObjectAt(j)->GetName());
+      fROMETrees[j]->AllocateBranchActive(gROME->GetTreeObjectAt(j)->GetNBranchActive());
+      memcpy(fROMETrees[j]->GetBranchActive(),
+             gROME->GetTreeObjectAt(j)->GetBranchActive(),
+             gROME->GetTreeObjectAt(j)->GetNBranchActive() * sizeof(Bool_t));
+   }
+
    Int_t nKey;
    if (gROME->isOffline()) {
       this->SetRunning();
       // Read Trees
-      int i,j,k;
       ROMEString filename;
       ROMEString treename;
       if (gROME->IsRunNumberBasedIO())
@@ -85,14 +104,14 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
          gROME->GetCurrentRunNumberString(runNumberString);
       bool treeRead = false;
       for (j=0;j<nTree;j++) {
-         romeTree = gROME->GetTreeObjectAt(j);
+         romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             treeRead = true;
 
             if (gROME->IsRunNumberBasedIO()) {
-               if(gROME->GetTreeObjectAt(j)->GetConfigFileName().Length()) {
-                  filename = gROME->GetTreeObjectAt(j)->GetConfigFileName();
+               if(romeTree->GetConfigFileName().Length()) {
+                  filename = romeTree->GetConfigFileName();
                   gROME->ReplaceWithRunAndEventNumber(filename);
                }
                else {
@@ -186,7 +205,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
 
       // Get run number
       for (j=0;j<nTree;j++) {
-         romeTree = gROME->GetTreeObjectAt(j);
+         romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             if (tree->GetEntriesFast()>0) {
@@ -201,7 +220,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
       fMaxEventNumber = 0;
       fTreeInfo->SetEventNumber(0);
       for (j=0;j<nTree;j++) {
-         romeTree = gROME->GetTreeObjectAt(j);
+         romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             fTreePositionArray[j] = new Long64_t[(int)fTreeNEntries[j]]; // Warning : potential loss of data (int)
@@ -235,7 +254,7 @@ Bool_t ROMERomeDAQ::Event(Long64_t event) {
 
       // read event
       for (j=0;j<nTree;j++) {
-         romeTree = gROME->GetTreeObjectAt(j);
+         romeTree = fROMETrees[j];
          tree = romeTree->GetTree();
          if (romeTree->isRead()) {
             fTreePosition[j] = TMath::BinarySearch(fTreeNEntries[j], fTreePositionArray[j], event);
@@ -285,11 +304,12 @@ Bool_t ROMERomeDAQ::EndOfRun() {
       int j;
       if (gROME->IsRunNumberBasedIO()) {
          for (j=0;j<nTree;j++) {
-            if (gROME->GetTreeObjectAt(j)->isRead()) {
-               gROME->GetTreeObjectAt(j)->GetTree()->Delete("");
+            if (fROMETrees[j]->isRead()) {
+               fROMETrees[j]->GetTree()->Delete("");
                fRootFiles[j]->Close();
-               gROME->GetTreeObjectAt(j)->SetTree(new TTree());
+               fROMETrees[j]->SetTree(new TTree());
             }
+            SafeDelete(fRootFiles[j]);
          }
          SafeDeleteArray(fRootFiles);
       }

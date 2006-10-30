@@ -59,6 +59,7 @@ ClassImp(ROMEEventLoop)
 ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,title,0)
 {
    fTreeInfo = new ROMETreeInfo();
+   fAlwaysFillTrees = kFALSE;
    fContinuous = true;
    fUserInputLastTime = 0;
    fTreeUpdateIndex = 0;
@@ -130,6 +131,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       ROMEPrint::Print("\n\nTerminating Program !\n");
       return;
    }
+
+   if (gROME->GetActiveDAQ()->InheritsFrom("ROMERomeDAQ"))
+      fAlwaysFillTrees = kTRUE;
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEPrint::Debug("Executing Init tasks\n");

@@ -50,6 +50,16 @@ ROMETree::~ROMETree() {
    SafeDeleteArray(fBranchActive);
 }
 
+void ROMETree::AllocateBranchActive(Int_t n) {
+   fNBranchActive = n;
+   if (fBranchActive) {
+      delete [] fBranchActive;
+      fBranchActive;
+   }
+   fBranchActive = new Bool_t[n];
+   for(int i=0;i<n;i++) fBranchActive[i]=kTRUE;
+}
+
 Bool_t ROMETree::SaveConfig(const char* xml, const char* filename) {
    if(!fFile->cd())
       return kFALSE;

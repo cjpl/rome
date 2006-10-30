@@ -32,6 +32,7 @@ private:
 
    ROMEString  fSwitchesString;    //!   Switches String
    Bool_t     *fBranchActive;      //!   Flag if brahch is active
+   Int_t       fNBranchActive;     //!   Number of branch active
 protected:
    TTree      *fTree;              //    Tree
    ROMEString  fFileName;          //!   Name of the File for the Tree Object
@@ -43,7 +44,7 @@ public:
    ROMETree(TTree *tree=NULL,ROMEString fileName="",ROMEString configFileName="",TFile* file=NULL,Int_t fileOption=kOverWrite,Bool_t read=0,Bool_t write=0,Bool_t fill=0,Bool_t saveConfig=0,Int_t compressionLevel=0,Long64_t maxEntries=0);
    virtual ~ROMETree();
 
-   void        AllocateBranchActive(Int_t n) { fBranchActive = new Bool_t[n]; for(int i=0;i<n;i++) fBranchActive[i]=kTRUE; }
+   void        AllocateBranchActive(Int_t n);
    TTree      *GetTree() { return fTree; }
    ROMEString &GetFileName() { return fFileName; }
    ROMEString &GetConfigFileName() { return fConfigFileName; }
@@ -67,6 +68,8 @@ public:
    Switches   *GetSwitches() { return &fSwitches; }
    Int_t       GetSwitchesSize() { return sizeof(Switches); }
    const char *GetSwitchesString() { return fSwitchesString.Data(); }
+   Int_t       GetNBranchActive() { return fNBranchActive; }
+   Bool_t     *GetBranchActive() { return fBranchActive; }
    Bool_t      GetBranchActiveAt(Int_t i) { return fBranchActive[i]; }
    void        SetTree(TTree *tree) { fTree = tree; }
    void        SetFileName(ROMEString &fileName) { fFileName = fileName; }

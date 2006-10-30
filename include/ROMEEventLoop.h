@@ -59,6 +59,7 @@ protected:
    // Output Tree Files
    ROMETreeInfo *fTreeInfo;                        //! Tree Info Object
    Int_t         fTreeUpdateIndex;                 //! Index of the tree (for trees in the same file)
+   Bool_t        fAlwaysFillTrees;                 //! Flag if filling trees in every events
 
    // Histo File
    TFile        *fHistoFile;                       //! Histo file
