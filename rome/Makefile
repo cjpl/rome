@@ -19,6 +19,16 @@
 # Add -O compile option when compiling librome.a and romebuilder
 # ROMEOPTIMIZE = yes
 
+# PIC(position-independent code) option. Default is PIC.
+# Valid values are 'PIC', 'pic' or 'no'.
+# 'PIC' : use -fPIC option during compile.
+# 'pic' : use -fpic option during compile.
+# 'no'  : not use -fPIC or -pfic.
+# -fPIC or -fpic is necessary when you make dynamic link library.
+# -fpic is slightly faster than -fPIC, but all operating system don't support.
+# For details, please read man page of gcc.
+# ROMEPIC = no
+
 # Compiler
 CXX ?= g++
 CC  ?= gcc
@@ -47,6 +57,19 @@ endif
 ifeq ($(ROMEOPTIMIZE), yes)
   CFLAGS += -O
   CXXFLAGS += -O
+endif
+
+ifeq ($(ROMEPIC), pic)
+ROMEPICOPT = -fpic
+ROMEPICDEF = -DROMEPIC="pic"
+else
+ifeq ($(ROMEPIC), no)
+ROMEPICOPT = ""
+ROMEPICDEF = -DROMEPIC="no"
+else
+ROMEPICOPT = -fPIC
+ROMEPICDEF = -DROMEPIC="PIC"
+endif
 endif
 
 DICTIONARIES = ROMEBuilderDict.h UpdateVersionHDict.h
@@ -225,25 +248,25 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CC) $(CFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	$(CXX) $(CXXFLAGS) -O0 -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMPICOPT) -O0 -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
-	$(CXX) $(CXXFLAGS) -O0 $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS)  $(ROMEPICDEF) -O0 $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
