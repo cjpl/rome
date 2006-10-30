@@ -309,6 +309,7 @@ void ROMEAnalyzer::ParameterUsage()
    ROMEPrint::Print("  -o       Start Analyzer in Step by Step Mode\n");
    ROMEPrint::Print("  -docu    Generates a Root-Html-Documentation (no Argument)\n");
    ROMEPrint::Print("  -ng      No graphics is used\n");
+   ROMEPrint::Print("  -I       Go into interactive session directory. Other options are ignored.\n");
    UserParameterUsage();
    return;
 }
@@ -565,6 +566,8 @@ Bool_t ROMEAnalyzer::ReadParameters(int argc, char *argv[])
       }
       else if (!strcmp(argv[i],"-ng")) {
          fNoGraphics = kTRUE;
+      }
+      else if (!strcmp(argv[i],"-I")) {
       }
       else if (!ReadUserParameter(argv[i], i<argc-1 ? argv[i+1] : "", i)) {
          ROMEPrint::Error("Input line parameter '%s' not available.\n", argv[i]);
