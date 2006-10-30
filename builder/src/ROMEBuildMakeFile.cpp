@@ -818,7 +818,6 @@ void ROMEBuilder::WriteMakefileHeader(ROMEString& buffer)
    buffer.AppendFormatted("# make              : compile executable\n");
    buffer.AppendFormatted("# make build        : execute romebuilder\n");
    buffer.AppendFormatted("# make so           : build shared library\n");
-   buffer.AppendFormatted("# make dep          : make depend files\n");
    buffer.AppendFormatted("# make -k clean     : remove intermediate files\n");
    buffer.AppendFormatted("# make -k distclean : remove following directries and files\n");
    buffer.AppendFormatted("#                     src/generated include/generated obj dict Makefile\n");
