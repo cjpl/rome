@@ -2847,8 +2847,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                if (tabObjectDisplayType[iTab][i].Index("TGraph")!=-1) {
                   buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   for (j=0;j<tabObjectDisplaySupportedObjects.GetEntriesFast();j++) {
-                     if (tabObjectDisplaySupportedObjects.At(j)==tabObjectDisplayType[iTab][i])
+                     if (tabObjectDisplaySupportedObjects.At(j)==tabObjectDisplayType[iTab][i]) {
                         buffer.AppendFormatted("         *((%s*)((TObjArray*)fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",tabObjectDisplayType[iTab][i].Data(),j,taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
+                        buffer.AppendFormatted("         if (((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetN()==0)\n",tabObjectDisplayType[iTab][i].Data(),j);
+                        buffer.AppendFormatted("            ((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->Set(1);\n",tabObjectDisplayType[iTab][i].Data(),j);
+                     }
                   }
                   buffer.AppendFormatted("      }\n");
                }
@@ -3471,7 +3474,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    ROMEString clsName;
    ROMEString clsDescription;
    ROMEString tmp;
-   Int_t i, j;
+   Int_t i, j=0;
 
    hFile.SetFormatted("%sinclude/generated/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
 
