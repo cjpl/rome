@@ -11110,7 +11110,7 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
    buffer.AppendFormatted("// Read run headers\n");
    buffer.AppendFormatted("void %sEventLoop::ReadRunHeaders()\n{\n",shortCut.Data());
    if (numOfTree>0) {
-      buffer.AppendFormatted("   if(gAnalyzer->GetActiveDAQ()->InheritsFrom(\"%sRomeDAQ\"));\n", shortCut.Data());
+      buffer.AppendFormatted("   if(gAnalyzer->GetActiveDAQ()->InheritsFrom(\"%sRomeDAQ\"))\n", shortCut.Data());
       buffer.AppendFormatted("      static_cast<%sRomeDAQ*>(gAnalyzer->GetActiveDAQ())->ReadRunHeaders();\n", shortCut.Data());
    }
    buffer.AppendFormatted("}\n");
