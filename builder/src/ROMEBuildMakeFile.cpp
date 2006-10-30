@@ -983,10 +983,11 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("osldflags :=\n");
    buffer.AppendFormatted("ossoflags := -shared -Wl,-x\n");
 #elif defined( R__MACOSX )
-#   if (ROMEPIC == PIC)
+#   if defined(USE_PIC_UPPER)
    buffer.AppendFormatted("oscflags  := -fPIC");
 #   else
-#      if (ROMEPIC == pic)
+#      if defined(USE_PIC_LOWER)
+#         error Mac OSX does not support -fpic
    buffer.AppendFormatted("oscflags  := -fpic");
 #      else
    buffer.AppendFormatted("oscflags  :=");
@@ -1005,10 +1006,10 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("endif\n");
 #elif defined( R__LINUX )
-#   if (ROMEPIC == PIC)
+#   if defined(USE_PIC_UPPER)
    buffer.AppendFormatted("oscflags  := -fPIC");
 #   else
-#      if (ROMEPIC == pic)
+#      if defined(USE_PIC_LOWER)
    buffer.AppendFormatted("oscflags  := -fpic");
 #      else
    buffer.AppendFormatted("oscflags  :=");
