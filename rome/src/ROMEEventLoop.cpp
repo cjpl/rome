@@ -271,7 +271,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    }
    if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
       fUpdateWindow = false;
-      gROME->GetWindow()->TriggerEventHandler();
+//      gROME->GetWindow()->TriggerEventHandler();
    }
 
    // Terminate
@@ -349,7 +349,7 @@ Int_t ROMEEventLoop::RunEvent()
    // User Input
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
    if (!gROME->IsStandAloneARGUS()) {
-      if (!fFirstUserInput) {
+      if (!fFirstUserInput && fCurrentEvent>0) {
          if (!this->UserInput()) {
             gROME->SetTerminationFlag();
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
