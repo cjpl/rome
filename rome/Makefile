@@ -248,25 +248,25 @@ UpdateVersionHDict.h UpdateVersionHDict.cpp: $(UpHDictHeaders)
 	$(ROOTSYS)/bin/rootcint -f UpdateVersionHDict.cpp -c -p $(INCLUDE) $(UpHDictHeaders)
 
 obj/mxml.o: src/mxml.c include/mxml.h
-	$(CC) $(CFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/strlcpy.o: src/strlcpy.c include/strlcpy.h
-	$(CC) $(CFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CC) $(CFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%Dict.o: %Dict.cpp %Dict.h
-	$(CXX) $(CXXFLAGS) $(ROMPICOPT) -O0 -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) -O0 -MMD -MF $(@:.o=.d) -c $(INCLUDE) -o $@ $<
 
 obj/ROMEBuild%.o: builder/src/ROMEBuild%.cpp builder/include/ROMEBuilder.h $(LIBROMEFILE)
 	$(CXX) $(CXXFLAGS)  $(ROMEPICDEF) -O0 $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/ROMEConfigParameter.o: builder/src/ROMEConfigParameter.cpp builder/include/ROMEConfigParameter.h
-	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/Argus%.o: argus/src/Argus%.cpp argus/include/Argus%.h
-	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 obj/%.o: src/%.cpp include/%.h
-	$(CXX) $(CXXFLAGS) $(ROMPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) $(ROMEPICOPT) $(INCLUDE) -MMD -MF $(@:.o=.d) -c -o $@ $<
 
 clean:
 	-$(RM) $(BldObjects) $(UpHObjects) $(LibObjects) obj/*.d\
