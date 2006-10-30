@@ -984,7 +984,16 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("osldflags :=\n");
    buffer.AppendFormatted("ossoflags := -shared -Wl,-x\n");
 #elif defined( R__MACOSX )
-   buffer.AppendFormatted("oscflags  := -fPIC -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
+#   if (ROMEPIC == PIC)
+   buffer.AppendFormatted("oscflags  := -fPIC");
+#   else
+#      if (ROMEPIC == pic)
+   buffer.AppendFormatted("oscflags  := -fpic");
+#      else
+   buffer.AppendFormatted("oscflags  :=");
+#      endif
+#   endif
+   buffer.AppendFormatted(" -Wno-unused-function  $(shell [ -d $(FINK_DIR)/include ] && echo -I$(FINK_DIR)/include)\n");
    buffer.AppendFormatted("oslibs    := $(shell [ -d $(FINK_DIR)/lib ] && echo -L$(FINK_DIR)/lib)\n");
    buffer.AppendFormatted("osldflags := -bind_at_load -multiply_defined suppress\n");
    buffer.AppendFormatted("ifeq ($(MACOSX_DEPLOYMENT_TARGET),10.1)\n");
@@ -997,7 +1006,16 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
    buffer.AppendFormatted("endif\n");
    buffer.AppendFormatted("endif\n");
 #elif defined( R__LINUX )
-   buffer.AppendFormatted("oscflags  := -fPIC -Wno-unused-function\n");
+#   if (ROMEPIC == PIC)
+   buffer.AppendFormatted("oscflags  := -fPIC");
+#   else
+#      if (ROMEPIC == pic)
+   buffer.AppendFormatted("oscflags  := -fpic");
+#      else
+   buffer.AppendFormatted("oscflags  :=");
+#      endif
+#   endif
+   buffer.AppendFormatted(" -Wno-unused-function\n");
    buffer.AppendFormatted("oslibs    := -lutil\n");
    buffer.AppendFormatted("ossoflags := -shared -Wl\n");
 #elif defined( R__SOLARIS )
