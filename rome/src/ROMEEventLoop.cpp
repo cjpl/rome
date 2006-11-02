@@ -294,7 +294,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEString prompt = gROME->GetProgramName();
       prompt.ToLower();
-      prompt += " [%d]";
+      prompt += " [%d] ";
       ((TRint*)gROME->GetApplication())->SetPrompt(prompt.Data());
       if (!gROME->isQuitMode()) {
          gROME->GetApplication()->Run(true);
@@ -1015,7 +1015,7 @@ Bool_t ROMEEventLoop::UserInput()
 #endif
          ROMEString prompt = gROME->GetProgramName();
          prompt.ToLower();
-         prompt += " [%d]";
+         prompt += " [%d] ";
          gROME->GetApplication()->SetPrompt(prompt.Data());
          gROME->GetApplication()->Run(true);
 #if defined( R__VISUAL_CPLUSPLUS )
