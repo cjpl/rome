@@ -26,6 +26,7 @@ protected:
    ROMEString     fTitle;            //! Tab Title
    Bool_t         fTabActive;        //! is Active
    Bool_t         fBusy;             //! Busy flag
+   Bool_t         fForeground;       //! Flag if foreground
    ROMEStopwatch  fWatchAll;         //! Records time used by tab
    ROMEString     fTimeAllString;    //! Elapsed Time of all in a readable format
    ROMEStopwatch  fWatchUser;        //! Records time used by user
@@ -51,6 +52,8 @@ public:
    Bool_t      IsTabActive() const { return fTabActive; }
    void        SetTabActive(Bool_t active) { fTabActive = active; }
    Bool_t      IsBusy() { return fBusy; }
+   Bool_t      IsForeground() { return fForeground; }
+   void        SetForeground(Bool_t foreground) { fForeground = foreground; }
 
    virtual void BaseInit() = 0;
    virtual void Init() = 0;
