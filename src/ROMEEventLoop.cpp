@@ -313,7 +313,7 @@ Int_t ROMEEventLoop::RunEvent()
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
    // Update
-   if (!this->isContinue()) {
+   if (!this->isContinue() || gROME->IsStandAloneARGUS()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : Update\n");
       if (fCurrentEvent>0) {
          if (!this->Update()) {
