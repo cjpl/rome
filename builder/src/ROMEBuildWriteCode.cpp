@@ -11598,7 +11598,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("   if (interactive) {\n");
    buffer.AppendFormatted("      TRint *intapp = new TRint(\"App\", &argc, argv, 0, 0, kTRUE);\n");
-   buffer.AppendFormatted("      intapp->SetPrompt(\"%s%s [%%d]\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("      intapp->SetPrompt(\"%s%s [%%d] \");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("      cout<<%sLogo<<endl;\n", shortCut.Data());
    buffer.AppendFormatted("      intapp->Run();\n");
    buffer.AppendFormatted("   \n}");
