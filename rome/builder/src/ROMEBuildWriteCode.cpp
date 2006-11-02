@@ -9173,7 +9173,8 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
    buffer.AppendFormatted("#include \"generated/%sRomeDAQ.h\"\n",shortCut.Data());
    for (i=0;i<numOfTree;i++) {
       for (j=0;j<numOfRunHeader[i];j++) {
-         buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
+         if (folderUsed[runHeaderFolderIndex[i][j]])
+            buffer.AppendFormatted("#include \"generated/%s%s.h\"\n",shortCut.Data(), runHeaderFolder[i][j].Data());
       }
    }
 
@@ -9240,10 +9241,12 @@ Bool_t ROMEBuilder::WriteRomeDAQCpp() {
       buffer.AppendFormatted("      if (fROMETrees[%d]->GetFile()) {\n", i);
       buffer.AppendFormatted("         fROMETrees[%d]->GetFile()->cd();\n", i);
       for (j=0;j<numOfRunHeader[i];j++) {
-         if (folderArray[runHeaderFolderIndex[i][j]] == "1")
-            buffer.AppendFormatted("         gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
-         else
-            buffer.AppendFormatted("         gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         if (folderUsed[runHeaderFolderIndex[i][j]]) {
+            if (folderArray[runHeaderFolderIndex[i][j]] == "1")
+               buffer.AppendFormatted("         gAnalyzer->Get%s()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+            else
+               buffer.AppendFormatted("         gAnalyzer->Get%ss()->Read(\"%s\");\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         }
       }
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
@@ -11100,10 +11103,12 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
       buffer.AppendFormatted("      if (gAnalyzer->GetTreeObjectAt(%d)->GetFile()) {\n", i);
       buffer.AppendFormatted("         gAnalyzer->GetTreeObjectAt(%d)->GetFile()->cd();\n", i);
       for (j=0;j<numOfRunHeader[i];j++) {
-         if (folderArray[runHeaderFolderIndex[i][j]] == "1")
-            buffer.AppendFormatted("         gAnalyzer->Get%s()->Write(\"%s\", TObject::kOverwrite);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
-         else
-            buffer.AppendFormatted("         gAnalyzer->Get%ss()->Write(\"%s\", TObject::kOverwrite | TObject::kSingleKey);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         if (folderUsed[runHeaderFolderIndex[i][j]]) {
+            if (folderArray[runHeaderFolderIndex[i][j]] == "1")
+               buffer.AppendFormatted("         gAnalyzer->Get%s()->Write(\"%s\", TObject::kOverwrite);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+            else
+               buffer.AppendFormatted("         gAnalyzer->Get%ss()->Write(\"%s\", TObject::kOverwrite | TObject::kSingleKey);\n", runHeaderFolder[i][j].Data(), runHeaderName[i][j].Data());
+         }
       }
       buffer.AppendFormatted("      }\n");
       buffer.AppendFormatted("   }\n");
