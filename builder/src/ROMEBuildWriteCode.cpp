@@ -12332,7 +12332,7 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    ROMEString cFile;
    ROMEString buffer;
    ROMEString format;
-   ROMEString tmp,tmp2;
+   ROMEString tmp,tmp2,tmp3,tmp4;
    ROMEString macroDescription;
    buffer.Resize(0);
    macroDescription.Resize(0);
@@ -12342,11 +12342,10 @@ Bool_t ROMEBuilder::WriteReadTreesC()
    WriteHeader(buffer, mainAuthor, true);
    macroDescription.AppendFormatted("This macro shows how to read output file from %s%s.exe.\n\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    macroDescription.AppendFormatted(" Usage\n");
-   macroDescription.AppendFormatted("   %% make so;\n");
-   macroDescription.AppendFormatted("   %% root;\n");
-   macroDescription.AppendFormatted("   root [0] gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
-   macroDescription.AppendFormatted("   root [1] .L src/generated/%sReadTrees.C\n", shortCut.Data());
-   macroDescription.AppendFormatted("   root [2] %sReadTrees(1, 0, 10)\n", shortCut.Data());
+   macroDescription.AppendFormatted("   %% %s%s.exe -I;\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
+   macroDescription.AppendFormatted("   %s%s [0] gSystem->Load(\"lib%s%s.so\");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), shortCut.ToLower(tmp3), mainProgName.ToLower(tmp4));
+   macroDescription.AppendFormatted("   %s%s [1] .L src/generated/%sReadTrees.C\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), shortCut.Data());
+   macroDescription.AppendFormatted("   %s%s [2] %sReadTrees(1, 0, 10)\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2), shortCut.Data());
    macroDescription.AppendFormatted("\n");
    macroDescription.AppendFormatted(" Arguments\n");
    macroDescription.AppendFormatted("   run_num : run number\n");
