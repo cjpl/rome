@@ -1885,15 +1885,15 @@ void ROMEBuilder::WriteMakefile() {
 // Objects
 // -------
    buffer.AppendFormatted("## Objects\n");
+   WriteMakefileObjects(buffer,generatedSources);
+   WriteMakefileObjects(buffer,tabSources);
+   WriteMakefileObjects(buffer,taskSources);
+   WriteMakefileAdditionalSourceFilesObjects(buffer);
    WriteMakefileObjects(buffer,romeSources);
    WriteMakefileObjects(buffer,argusSources);
    WriteMakefileObjects(buffer,folderSources);
-   WriteMakefileObjects(buffer,taskSources);
-   WriteMakefileObjects(buffer,tabSources);
-   WriteMakefileObjects(buffer,generatedSources);
    WriteMakefileObjects(buffer,daqSources);
    WriteMakefileObjects(buffer,databaseSources);
-   WriteMakefileAdditionalSourceFilesObjects(buffer);
    buffer.AppendFormatted("\n\n");
 
 // Depend files
