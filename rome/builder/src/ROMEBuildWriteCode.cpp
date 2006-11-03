@@ -11608,19 +11608,21 @@ Bool_t ROMEBuilder::WriteMain()
       gSystem->Exec(cmd);
    }
 #if defined( R__MACOSX )
-   cmd.SetFormatted("[ -d $(FINK_DIR)/include ] && echo -I$FINK_DIR/include) > %s", tmpName.Data());
+   TString finkDir;
+   cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
    gSystem->Exec(cmd);
    ifs.open(tmpName.Data());
    if (ifs.good()) {
       cmdRes.ReadFile(ifs);
       ifs.close();
-      if (cmdRes.Length())
-         buffer.AppendFormatted(" -I%s", cmdRes.Data());
-      if (buffer.EndsWith("\n"))
-         buffer.Resize(buffer.Length() - 1);
+      finkDir = cmdRes;
+      if (finkDir.EndsWith("\n"))
+         finkDir.Resize(finkDir.Length() - 1);
+      cmd.SetFormatted("rm -f %s", tmpName.Data());
+      gSystem->Exec(cmd);
    }
-   cmd.SetFormatted("rm -f %s", tmpName.Data());
-   gSystem->Exec(cmd);
+   if (finkDir.Length())
+      buffer.AppendFormatted(" -I%s", finkDir.Data());
 #endif
    Int_t i;
    TString str;
