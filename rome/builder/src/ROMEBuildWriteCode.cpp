@@ -11572,6 +11572,10 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("const char* const kAdditionalInclude = \"");
 
    // Additional include path for ACLiC mode.
+   TString currentDirectory = gSystem->WorkingDirectory();
+   gSystem->ChangeDirectory(outDir.Data());
+   TString outDirAbsolute = gSystem->WorkingDirectory();
+   gSystem->ChangeDirectory(currentDirectory.Data());
    ROMEString cmd;
    ROMEString cmdRes;
    ROMEString tmpName;
@@ -11628,13 +11632,13 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted(" -I$MIDASSYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/argus/include");
-   buffer.AppendFormatted(" -Iinclude");
-   buffer.AppendFormatted(" -I.");
-   buffer.AppendFormatted(" -Iinclude/generated");
-   if (numOfDAQ > 0) buffer.AppendFormatted(" -Iinclude/daqs");
-   if (numOfDB > 0) buffer.AppendFormatted(" -Iinclude/databases");
-   if (numOfTab > 0) buffer.AppendFormatted(" -Iinclude/tabs");
-   if (numOfTask > 0) buffer.AppendFormatted(" -Iinclude/tasks");
+   buffer.AppendFormatted(" -I%s/include", currentDirectory.Data());
+   buffer.AppendFormatted(" -I%s", currentDirectory.Data());
+   buffer.AppendFormatted(" -I%s/include/generated", currentDirectory.Data());
+   if (numOfDAQ > 0) buffer.AppendFormatted(" -I%s/include/daqs", currentDirectory.Data());
+   if (numOfDB > 0) buffer.AppendFormatted(" -I%s/include/databases", currentDirectory.Data());
+   if (numOfTab > 0) buffer.AppendFormatted(" -I%s/include/tabs", currentDirectory.Data());
+   if (numOfTask > 0) buffer.AppendFormatted(" -I%s/include/tasks", currentDirectory.Data());
    Int_t i;
    TString str;
    for (i = 0; i < numOfMFIncDirs; i++) {
