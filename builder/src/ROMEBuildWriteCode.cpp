@@ -436,9 +436,6 @@ Bool_t ROMEBuilder::WriteFolderCpp()
                buffer.AppendFormatted("}\n");
             }
             else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                     && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
-               continue;
-            else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
                      && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
                continue;
             }
@@ -1211,12 +1208,8 @@ Bool_t ROMEBuilder::WriteFolderH()
                buffer.AppendFormatted(format.Data(),"void",valueName[iFold][i].Data(),TArray2StandardType(valueType[iFold][i],tempBuffer));
             }
             else if (valueIsTObject[iFold][i] && !isPointerType(valueType[iFold][i].Data())
-                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString"))
+                     && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
                continue;
-            else if (valueIsTObject[iFold][i] && isPointerType(valueType[iFold][i].Data())
-                    && !valueType[iFold][i].Contains("TRef") && !valueType[iFold][i].Contains("TString")) {
-               format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value);\n",lb,typeLen);
-               buffer.AppendFormatted(format.Data(),valueName[iFold][i].Data(),"",valueType[iFold][i].Data(),valueName[iFold][i].Data());
             }
             else if (valueArray[iFold][i][0]=="variable") {
                format.SetFormatted("   void Set%%sAt%%%ds(Int_t index,%%-%ds %%s_value);\n",lb,typeLen);
