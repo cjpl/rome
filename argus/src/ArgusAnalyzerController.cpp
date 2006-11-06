@@ -17,6 +17,7 @@
 #include <TGNumberEntry.h>
 #include <TGButton.h>
 #include <TGLabel.h>
+#include <TImage.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -26,6 +27,12 @@
 #include "ROMEEventLoop.h"
 #include "ROMENetFolder.h"
 #include "ROMETreeInfo.h"
+
+#include "../icons/previous.xpm"
+#include "../icons/play.xpm"
+#include "../icons/stop.xpm"
+#include "../icons/next.xpm"
+
 
 ClassImp(ArgusAnalyzerController)
 
@@ -52,10 +59,23 @@ ArgusAnalyzerController::ArgusAnalyzerController(const TGWindow *p, const TGWind
    // Horizontal frame which contains picture buttons
    fHorizontalFrame[0] = new TGHorizontalFrame(this, 32 * 4 + 4, 32 + 4);
 
-   fPreviousButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/previous.xpm"), B_Previous);
-   fPlayButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"), B_Play);
-   fStopButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/stop.xpm"), B_Stop);
-   fNextButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/next.xpm"), B_Next);
+   TImage *previousImage = TImage::Create();
+   TImage *playImage = TImage::Create();
+   TImage *stopImage = TImage::Create();
+   TImage *nextImage = TImage::Create();
+   previousImage->SetImageBuffer(previous, TImage::kXpm);
+   playImage->SetImageBuffer(play, TImage::kXpm);
+   stopImage->SetImageBuffer(stop, TImage::kXpm);
+   nextImage->SetImageBuffer(next, TImage::kXpm);
+
+   fPreviousButton = new TGPictureButton(fHorizontalFrame[0],
+                                         gClient->GetPicturePool()->GetPicture("previous", previousImage->GetPixmap(), previousImage->GetMask()), B_Previous);
+   fPlayButton = new TGPictureButton(fHorizontalFrame[0],
+                                     gClient->GetPicturePool()->GetPicture("play", playImage->GetPixmap(), playImage->GetMask()), B_Play);
+   fStopButton = new TGPictureButton(fHorizontalFrame[0],
+                                     gClient->GetPicturePool()->GetPicture("stop", stopImage->GetPixmap(), stopImage->GetMask()), B_Stop);
+   fNextButton = new TGPictureButton(fHorizontalFrame[0],
+                                     gClient->GetPicturePool()->GetPicture("next", nextImage->GetPixmap(), nextImage->GetMask()), B_Next);
    // comment out until way to go to EndOfRun is implemented
    //   fFrwdButton = new TGPictureButton(fHorizontalFrame[0], gClient->GetPicture("$ROMESYS/argus/icons/frwd.xpm"), B_Frwd);
 
