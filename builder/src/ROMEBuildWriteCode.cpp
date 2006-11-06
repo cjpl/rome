@@ -11624,14 +11624,6 @@ Bool_t ROMEBuilder::WriteMain()
    if (finkDir.Length())
       buffer.AppendFormatted(" -I%s", finkDir.Data());
 #endif
-   Int_t i;
-   TString str;
-   for (i = 0; i < numOfMFIncDirs; i++) {
-      str = mfIncDir[i].Data();
-      str.ReplaceAll("(","");
-      str.ReplaceAll(")","");
-      buffer.AppendFormatted(" -I%s",str.Data());
-   }
    if (this->midas)
       buffer.AppendFormatted(" -I$MIDASSYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/include");
@@ -11643,6 +11635,14 @@ Bool_t ROMEBuilder::WriteMain()
    if (numOfDB > 0) buffer.AppendFormatted(" -Iinclude/databases");
    if (numOfTab > 0) buffer.AppendFormatted(" -Iinclude/tabs");
    if (numOfTask > 0) buffer.AppendFormatted(" -Iinclude/tasks");
+   Int_t i;
+   TString str;
+   for (i = 0; i < numOfMFIncDirs; i++) {
+      str = mfIncDir[i].Data();
+      str.ReplaceAll("(","");
+      str.ReplaceAll(")","");
+      buffer.AppendFormatted(" -I%s",str.Data());
+   }
    buffer.AppendFormatted("\";\n");
 
    buffer.AppendFormatted("\n");
