@@ -11625,13 +11625,13 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted(" -I$MIDASSYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/argus/include");
-   buffer.AppendFormatted(" -I%s/include", currentDirectory.Data());
-   buffer.AppendFormatted(" -I%s", currentDirectory.Data());
-   buffer.AppendFormatted(" -I%s/include/generated", currentDirectory.Data());
-   if (numOfDAQ > 0) buffer.AppendFormatted(" -I%s/include/daqs", currentDirectory.Data());
-   if (numOfDB > 0) buffer.AppendFormatted(" -I%s/include/databases", currentDirectory.Data());
-   if (numOfTab > 0) buffer.AppendFormatted(" -I%s/include/tabs", currentDirectory.Data());
-   if (numOfTask > 0) buffer.AppendFormatted(" -I%s/include/tasks", currentDirectory.Data());
+   buffer.AppendFormatted(" -I%s/include", outDirAbsolute.Data());
+   buffer.AppendFormatted(" -I%s", outDirAbsolute.Data());
+   buffer.AppendFormatted(" -I%s/include/generated", outDirAbsolute.Data());
+   if (numOfDAQ > 0) buffer.AppendFormatted(" -I%s/include/daqs", outDirAbsolute.Data());
+   if (numOfDB > 0) buffer.AppendFormatted(" -I%s/include/databases", outDirAbsolute.Data());
+   if (numOfTab > 0) buffer.AppendFormatted(" -I%s/include/tabs", outDirAbsolute.Data());
+   if (numOfTask > 0) buffer.AppendFormatted(" -I%s/include/tasks", outDirAbsolute.Data());
    Int_t i;
    TString str;
    for (i = 0; i < numOfMFIncDirs; i++) {
