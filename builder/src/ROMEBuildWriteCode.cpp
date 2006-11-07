@@ -11581,14 +11581,18 @@ Bool_t ROMEBuilder::WriteMain()
       if (ifs.good()) {
          cmdRes.ReadFile(ifs);
          ifs.close();
-         if (cmdRes.Length())
+         if (cmdRes.Length()) {
+            cmdRes.ReplaceAll("\\\\","/");
+            cmdRes.ReplaceAll("\\","/");
             buffer.AppendFormatted(" -I%s", cmdRes.Data());
+         }
          if (buffer.EndsWith("\n"))
             buffer.Resize(buffer.Length() - 1);
       }
       cmd.SetFormatted("rm -f %s", tmpName.Data());
       gSystem->Exec(cmd);
    }
+#if defined( R__UNIX )
    if (this->mysql) {
       cmd.SetFormatted("mysql_config --include > %s", tmpName.Data());
       gSystem->Exec(cmd);
@@ -11604,6 +11608,7 @@ Bool_t ROMEBuilder::WriteMain()
       cmd.SetFormatted("rm -f %s", tmpName.Data());
       gSystem->Exec(cmd);
    }
+#endif // R__UNIX
 #if defined( R__MACOSX )
    TString finkDir;
    cmd.SetFormatted("which fink 2>&1 | sed -ne \"s/\\/bin\\/fink//p\" > %s", tmpName.Data());
@@ -11625,6 +11630,8 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted(" -I$MIDASSYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/include");
    buffer.AppendFormatted(" -I$ROMESYS/argus/include");
+   outDirAbsolute.ReplaceAll("\\\\","/");
+   outDirAbsolute.ReplaceAll("\\","/");
    buffer.AppendFormatted(" -I%s/include", outDirAbsolute.Data());
    buffer.AppendFormatted(" -I%s", outDirAbsolute.Data());
    buffer.AppendFormatted(" -I%s/include/generated", outDirAbsolute.Data());
