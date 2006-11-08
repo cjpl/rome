@@ -1519,7 +1519,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,sources->At(i).Data(),sources->At(i).Data(),name.Data());
          if (quietMake)
             buffer.AppendFormatted("\t@echo \"compiling include/%s.gch\"\n",sources->At(i).Data());
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d $< -o include/%s.gch\n"
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d $< -o include/%s.gch\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),sources->At(i).Data());
       }
       else {//if (path.Index("/dict/")!=-1 || path.Index("dict/")==0) {
@@ -1527,7 +1527,7 @@ void ROMEBuilder::WriteMakefileCompileStatements(ROMEString& buffer,ROMEStrArray
                                 ,name.Data(),kObjectSuffix,sources->At(i).Data(),name.Data());
          if (quietMake)
             buffer.AppendFormatted("\t@echo \"compiling obj/%s%s\"\n",name.Data(),kObjectSuffix);
-         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MF obj/%s.d -MT obj/%s.o $< -o obj/%s%s\n"
+         buffer.AppendFormatted("\t%s -c %s $(Flags) $(%sOpt) $(Includes) -MMD -MP -MF obj/%s.d -MT obj/%s.o $< -o obj/%s%s\n"
                                 ,compiler.Data(),compileOption.Data(),name.Data(),name.Data(),name.Data(),name.Data(),kObjectSuffix);
       }
       buffer.AppendFormatted("\n");
