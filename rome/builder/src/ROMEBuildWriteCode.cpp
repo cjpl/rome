@@ -3469,7 +3469,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    ROMEString clsName;
    ROMEString clsDescription;
    ROMEString tmp;
-   Int_t i, j=0;
+   Int_t i;
 
    hFile.SetFormatted("%sinclude/generated/%sGlobalSteering.h",outDir.Data(),shortCut.Data());
 
@@ -3510,6 +3510,7 @@ Bool_t ROMEBuilder::WriteSteering(Int_t iTask)
    }
    // Folder includes
 #if 0 // this is not necessary, probably
+   Int_t j = 0;
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
          continue;
