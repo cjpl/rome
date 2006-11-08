@@ -47,15 +47,11 @@ ROMETree::ROMETree(TTree *tree, ROMEString fileName, ROMEString configFileName, 
 }
 
 ROMETree::~ROMETree() {
-   SafeDeleteArray(fBranchActive);
 }
 
 void ROMETree::AllocateBranchActive(Int_t n) {
    fNBranchActive = n;
-   if (fBranchActive) {
-      delete [] fBranchActive;
-      fBranchActive;
-   }
+   SafeDeleteArray(fBranchActive);
    fBranchActive = new Bool_t[n];
    for(int i=0;i<n;i++) fBranchActive[i]=kTRUE;
 }
