@@ -5729,7 +5729,7 @@ Bool_t ROMEBuilder::WriteWindowH()
 
 Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
 {
-   Int_t j;
+   Int_t j,k;
    ROMEString parentt;
    ROMEString format;
    Int_t depth;
@@ -5772,7 +5772,7 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    recursiveTabDepth++;
    j = i;
 
-   while (j < i + tabNumOfChildren[i]) {
+   for (k=j;k < i + tabNumOfChildren[i];k++) {
       j++;
       if (!AddTab(buffer, j))
          return kFALSE;
@@ -5787,16 +5787,36 @@ Bool_t ROMEBuilder::AddTab(ROMEString &buffer, Int_t &i)
    for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("   else {\n");
    for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
-   j = i;
    buffer.AppendFormatted("      f%sTabID = -1;\n", tabName[i].Data());
-   while (j < i + tabNumOfChildren[i]) {
+   j = i;
+   for (k=j;k < i + tabNumOfChildren[i];k++) {
       j++;
-      buffer.AppendFormatted("      f%sTabID = -1;\n", tabName[j].Data());
+      if (!InitTabDefault(buffer, j))
+         return kFALSE;
    }
    for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
    buffer.AppendFormatted("   }\n");
 
-   i += tabNumOfChildren[i];
+   i = j;
+   return kTRUE;
+}
+Bool_t ROMEBuilder::InitTabDefault(ROMEString &buffer, Int_t &i)
+{
+   Int_t j,depth;
+
+   if (!tabUsed[i])
+      return kTRUE;
+
+   for (depth = 0; depth < recursiveTabDepth; depth++) buffer += "   ";
+   buffer.AppendFormatted("      f%sTabID = -1;\n", tabName[i].Data());
+   j = i;
+   while (j < i + tabNumOfChildren[i]) {
+      j++;
+      if (!InitTabDefault(buffer, j))
+         return kFALSE;
+   }
+   i = j;
+
    return kTRUE;
 }
 

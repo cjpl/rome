@@ -65,24 +65,34 @@
 			<Tab>
 				<TabName>tab1D</TabName>
 				<TabTitle>1D</TabTitle>
-				<TabObjectDisplay>true</TabObjectDisplay>
-				<ObjectDisplays>
-					<ObjectDisplay>
-						<ObjectDisplayName>MyHisto</ObjectDisplayName>
-						<ObjectDisplayTitle>MyHisto</ObjectDisplayTitle>
-						<ObjectDisplayObject>MyHisto</ObjectDisplayObject>
-					</ObjectDisplay>
-					<ObjectDisplay>
-						<ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
-						<ObjectDisplayTitle>MyOtherHisto</ObjectDisplayTitle>
-						<ObjectDisplayObject>MyOtherHisto</ObjectDisplayObject>
-					</ObjectDisplay>
-					<ObjectDisplay>
-						<ObjectDisplayName>MyGraph</ObjectDisplayName>
-						<ObjectDisplayTitle>MyGraph</ObjectDisplayTitle>
-						<ObjectDisplayObject>MyGraph</ObjectDisplayObject>
-					</ObjectDisplay>
-				</ObjectDisplays>
+				<Tab>
+					<TabName>tab1Dhistos</TabName>
+					<TabTitle>1D Histos</TabTitle>
+					<TabObjectDisplay>true</TabObjectDisplay>
+					<ObjectDisplays>
+						<ObjectDisplay>
+							<ObjectDisplayName>MyHisto</ObjectDisplayName>
+							<ObjectDisplayTitle>MyHisto</ObjectDisplayTitle>
+							<ObjectDisplayObject>MyHisto</ObjectDisplayObject>
+						</ObjectDisplay>
+						<ObjectDisplay>
+							<ObjectDisplayName>MyOtherHisto</ObjectDisplayName>
+							<ObjectDisplayTitle>MyOtherHisto</ObjectDisplayTitle>
+							<ObjectDisplayObject>MyOtherHisto</ObjectDisplayObject>
+						</ObjectDisplay>
+					</ObjectDisplays>
+				</Tab>
+				<Tab>
+					<TabName>tab1Dgraphs</TabName>
+					<TabTitle>1D Graphs</TabTitle>
+					<ObjectDisplays>
+						<ObjectDisplay>
+							<ObjectDisplayName>MyGraph</ObjectDisplayName>
+							<ObjectDisplayTitle>MyGraph</ObjectDisplayTitle>
+							<ObjectDisplayObject>MyGraph</ObjectDisplayObject>
+						</ObjectDisplay>
+					</ObjectDisplays>
+				</Tab>
 			</Tab>
 			<Tab>
 				<TabName>tab2D</TabName>
