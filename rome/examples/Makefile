@@ -4,7 +4,7 @@ RESTRICT_TEST = yes
 #JOBSFLAG = -j2
 
 ifeq ($(RESTRICT_TEST), yes)
-OPT = -Wall -W -Woverloaded-virtual -Werror
+OPT = -Wall -W -Werror
 endif
 export DOOPT    =$(OPT)
 export FLOPT    =$(OPT)
