@@ -30,6 +30,7 @@ class TGraph;
 class TLine;
 class TH1;
 class XMLToForm;
+class TStyle;
 
 class ArgusHistoDisplay : public ArgusTab
 {
@@ -52,6 +53,7 @@ protected:
    Int_t M_ARGUS_DISPLAY_VIEW[kMaxNumberOfPadsX][kMaxNumberOfPadsY];
 
 protected:
+   TStyle              *fStyle;         //!
    TGMenuBar           *fMenuBar;       //! menu bar
    TGPopupMenu         *fMenuDisplay;   //!
    TGPopupMenu         *fMenuView;      //!

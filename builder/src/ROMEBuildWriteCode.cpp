@@ -2602,6 +2602,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       if (tabObjectDisplay[iTab]) {
          for (i=0;i<tabObjectDisplaySupportedObjects.GetEntriesFast();i++)
             buffer.AppendFormatted("#include <%s.h>\n",tabObjectDisplaySupportedObjects.At(i).Data());
+         buffer.AppendFormatted("#include <TStyle.h>\n");
          buffer.AppendFormatted("#include <TGraph.h>\n");
          buffer.AppendFormatted("#include <TLine.h>\n");
          if (readGlobalSteeringParameters)
@@ -2821,6 +2822,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // BaseTabEventHandler
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   fStyle->cd();\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
             if (tabObjectDisplayTaskIndex[iTab][i]!=-1) {
                buffer.AppendFormatted("   int i;\n");
@@ -3076,6 +3078,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected() {\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   SetForeground(kTRUE);\n");
       if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   fStyle->cd();\n");
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
             if (tabObjectDisplayTaskHierarchyIndex[iTab][i]<0)
