@@ -63,6 +63,7 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
          M_ARGUS_DISPLAY_VIEW[i][j] = M_ROOT-400+i*kMaxNumberOfPadsY+j;
       }
    }
+   fStyle = new TStyle();
    fCurrentDisplayType = 0;
    fNumberOfDisplayTypes = 0;
    fDisplayTypeOld = 0;
@@ -111,6 +112,7 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
 {
    Int_t i,j,k;
 #if 0
+   SafeDelete(fStyle);
    SafeDelete(fMenuBar);
    SafeDelete(fMenuDisplay);
    SafeDelete(fMenuView);
@@ -425,13 +427,13 @@ void ArgusHistoDisplay::BaseTabUnSelected()
 void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
 {
    if (flag) {
-      gStyle->SetStatW(0.1f);
-      gStyle->SetOptStat(1110);
-      gStyle->SetOptFit(73);
+      fStyle->SetStatW(0.1f);
+      fStyle->SetOptStat(1110);
+      fStyle->SetOptFit(73);
    }
    else {
-      gStyle->SetOptFit(0);
-      gStyle->SetOptStat(0);
+      fStyle->SetOptFit(0);
+      fStyle->SetOptStat(0);
    }
 }
 
@@ -465,6 +467,7 @@ void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)
    if (fNumberOfPadsX==nx && fNumberOfPadsY==ny && fDisplayTypeOld==fCurrentDisplayType)
       clear = false;
 
+   fStyle->cd();
    fDisplayTypeOld = fCurrentDisplayType;
 
    fChannelNumber = fChannelNumber+gPad->GetNumber()-1;
@@ -512,6 +515,9 @@ void ArgusHistoDisplay::Modified(Bool_t processEvents)
 
    if (!fCanvas)
       return;
+
+   fStyle->cd();
+
    for (i=0 ; i<fNumberOfPads ; i++) {
       fPad[i]->GetRangeAxis(x1,y1,x2,y2);
       if (x1!=0 && x2!=1.1 && y1!=0 && y2!=1.1) {
