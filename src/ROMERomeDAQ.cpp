@@ -92,7 +92,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
 
             if (gROME->IsRunNumberBasedIO()) {
                if(gROME->GetTreeObjectAt(j)->GetConfigFileName().Length()) {
-                  filename = gROME->GetTreeObjectAt(j)->GetConfigFileName();
+                  filename.SetFormatted("%s%s",gROME->GetInputDir(),romeTree->GetConfigFileName().Data());
                   gROME->ReplaceWithRunAndEventNumber(filename);
                }
                else {
