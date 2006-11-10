@@ -40,6 +40,7 @@
 #   pragma warning( push )
 #   pragma warning( disable : 4244 )
 #endif // R__VISUAL_CPLUSPLUS
+#include <TSystem.h>
 #include <TArrayI.h>
 #include <TTimeStamp.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -112,7 +113,7 @@ Bool_t ROMETextDataBase::Read(ROMEStr2DArray *values,const char *dataBasePath,Lo
    fileName.Prepend(fDirectoryPath);
 
    // open file
-   fstream    fileStream(fileName.Data(),ios::in);
+   fstream    fileStream(gSystem->ExpandPathName(fileName.Data()),ios::in);
    if(!fileStream)
       return true;
 
