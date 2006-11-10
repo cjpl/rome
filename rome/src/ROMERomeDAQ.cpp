@@ -111,7 +111,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
 
             if (gROME->IsRunNumberBasedIO()) {
                if(romeTree->GetConfigFileName().Length()) {
-                  filename = romeTree->GetConfigFileName();
+                  filename.SetFormatted("%s%s",gROME->GetInputDir(),romeTree->GetConfigFileName().Data());
                   gROME->ReplaceWithRunAndEventNumber(filename);
                }
                else {
