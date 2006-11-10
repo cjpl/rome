@@ -9,6 +9,7 @@
 //
 //////////////////////////////////////////////////////////////////////////
 
+#include <TSystem.h>
 #include <TBranchElement.h>
 #include <TMath.h>
 #include "ROMEAnalyzer.h"
@@ -117,6 +118,7 @@ Bool_t ROMERomeDAQ::BeginOfRun() {
                else {
                   filename.SetFormatted("%s%s%s.root",gROME->GetInputDir(),romeTree->GetName(),runNumberString.Data());
                }
+               gSystem->ExpandPathName(filename);
                fRootFiles[j] = new TFile(filename.Data(),"READ");
                if (fRootFiles[j]->IsZombie()) {
                   ROMEPrint::Warning("Inputfile '%s' not found.\n", filename.Data());
