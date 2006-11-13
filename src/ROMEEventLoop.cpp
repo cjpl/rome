@@ -132,9 +132,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       return;
    }
 
-   if (gROME->GetActiveDAQ()->InheritsFrom("ROMERomeDAQ"))
-      fAlwaysFillTrees = kTRUE;
-
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
       ROMEPrint::Debug("Executing Init tasks\n");
       ExecuteTasks("Init");
