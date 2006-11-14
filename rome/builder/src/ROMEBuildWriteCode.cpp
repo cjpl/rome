@@ -11651,9 +11651,9 @@ Bool_t ROMEBuilder::WriteMain()
       buffer.AppendFormatted(" -I%s", finkDir.Data());
 #endif
    if (this->midas)
-      buffer.AppendFormatted(gSystem->ExpandPathName(" -I$(MIDASSYS)/include"));
-   buffer.AppendFormatted(gSystem->ExpandPathName(" -I$(ROMESYS)/include"));
-   buffer.AppendFormatted(gSystem->ExpandPathName(" -I$(ROMESYS)/argus/include"));
+      buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(MIDASSYS)/include"));
+   buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(ROMESYS)/include"));
+   buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(ROMESYS)/argus/include"));
    outDirAbsolute.ReplaceAll("\\\\","/");
    outDirAbsolute.ReplaceAll("\\","/");
    buffer.AppendFormatted(" -I%s/include", outDirAbsolute.Data());
@@ -11664,10 +11664,8 @@ Bool_t ROMEBuilder::WriteMain()
    if (numOfTab > 0) buffer.AppendFormatted(" -I%s/include/tabs", outDirAbsolute.Data());
    if (numOfTask > 0) buffer.AppendFormatted(" -I%s/include/tasks", outDirAbsolute.Data());
    Int_t i;
-   ROMEString str;
    for (i = 0; i < numOfMFIncDirs; i++) {
-      str.SetFormatted(" -I%s", mfIncDir[i].Data());
-      buffer.AppendFormatted(gSystem->ExpandPathName(str.Data()));
+      buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName(mfIncDir[i].Data()));
    }
    buffer.AppendFormatted("\";\n");
 
