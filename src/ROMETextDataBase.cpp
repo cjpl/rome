@@ -38,7 +38,7 @@
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #   pragma warning( push )
-#   pragma warning( disable : 4244 )
+#   pragma warning( disable : 4244 4800)
 #endif // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #include <TArrayI.h>
