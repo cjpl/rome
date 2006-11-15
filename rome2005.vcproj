@@ -26,7 +26,7 @@
 			<Tool
 				Name="VCPreBuildEventTool"
 				Description="Updating ROME Version"
-				CommandLine="updateVersionH.exe"
+				CommandLine="updateVersionH2005.exe"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -177,12 +177,60 @@
 	</References>
 	<Files>
 		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl;inc;xsd"
+			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
+			>
+			<File
+				RelativePath=".\include\mxml.h"
+				>
+			</File>
+			<File
+				RelativePath=".\builder\include\ROMEBuilder.h"
+				>
+			</File>
+			<File
+				RelativePath=".\builder\include\ROMEConfigParameter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEPrint.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEStr2DArray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEStrArray.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEString.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\ROMEXML.h"
+				>
+			</File>
+			<File
+				RelativePath=".\include\strlcpy.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Resource Files"
+			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
+			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
+			>
+		</Filter>
+		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\createDict"
+				RelativePath=".\createROMEBuilderDict"
 				>
 				<FileConfiguration
 					Name="Debug|Win32"
@@ -273,54 +321,6 @@
 				RelativePath=".\src\strlcpy.c"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath=".\include\mxml.h"
-				>
-			</File>
-			<File
-				RelativePath=".\builder\include\ROMEBuilder.h"
-				>
-			</File>
-			<File
-				RelativePath=".\builder\include\ROMEConfigParameter.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\ROMEPrint.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\ROMEStr2DArray.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\ROMEStrArray.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\ROMEString.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\ROMEXML.h"
-				>
-			</File>
-			<File
-				RelativePath=".\include\strlcpy.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>
