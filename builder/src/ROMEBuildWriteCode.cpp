@@ -11650,10 +11650,20 @@ Bool_t ROMEBuilder::WriteMain()
    if (finkDir.Length())
       buffer.AppendFormatted(" -I%s", finkDir.Data());
 #endif
-   if (this->midas)
-      buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(MIDASSYS)/include"));
-   buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(ROMESYS)/include"));
-   buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName("$(ROMESYS)/argus/include"));
+   if (this->midas) {
+      tmpName = gSystem->ExpandPathName("$(MIDASSYS)/include");
+      tmpName.ReplaceAll("\\\\","/");
+      tmpName.ReplaceAll("\\","/");
+      buffer.AppendFormatted(" -I%s", tmpName.Data());
+   }
+   tmpName = gSystem->ExpandPathName("$(ROMESYS)/include");
+   tmpName.ReplaceAll("\\\\","/");
+   tmpName.ReplaceAll("\\","/");
+   buffer.AppendFormatted(" -I%s", tmpName.Data());
+   tmpName = gSystem->ExpandPathName("$(ROMESYS)/argus/include");
+   tmpName.ReplaceAll("\\\\","/");
+   tmpName.ReplaceAll("\\","/");
+   buffer.AppendFormatted(" -I%s", tmpName.Data());
    outDirAbsolute.ReplaceAll("\\\\","/");
    outDirAbsolute.ReplaceAll("\\","/");
    buffer.AppendFormatted(" -I%s/include", outDirAbsolute.Data());
