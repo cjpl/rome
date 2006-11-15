@@ -124,7 +124,10 @@ int main()
          user[nEntry] == "ryu" ||
          // Matthias
          user[nEntry] == "schneebeli_m" ||
-         user[nEntry] == "egger_j"
+         user[nEntry] == "egger_j" ||
+         // Meg
+         user[nEntry] == "meg" ||
+         user[nEntry] == "Administrator"
          ) {
 
          ROMEXML::SuppressWritingDate();
