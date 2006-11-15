@@ -11586,7 +11586,7 @@ Bool_t ROMEBuilder::WriteMain()
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("const char* const kAdditionalInclude = \"");
+   buffer.AppendFormatted("const char* const kAdditionalInclude =\n");
 
    // Additional include path for ACLiC mode.
    TString currentDirectory = gSystem->WorkingDirectory();
@@ -11608,10 +11608,10 @@ Bool_t ROMEBuilder::WriteMain()
          if (cmdRes.Length()) {
             cmdRes.ReplaceAll("\\\\","/");
             cmdRes.ReplaceAll("\\","/");
-            buffer.AppendFormatted(" -I%s", cmdRes.Data());
+            if (cmdRes.EndsWith("\n"))
+                cmdRes.Resize(cmdRes.Length() -1);
+            buffer.AppendFormatted("      \" -I%s\"\n", cmdRes.Data());
          }
-         if (buffer.EndsWith("\n"))
-            buffer.Resize(buffer.Length() - 1);
       }
       cmd.SetFormatted("rm -f %s", tmpName.Data());
       gSystem->Exec(cmd);
@@ -11624,10 +11624,11 @@ Bool_t ROMEBuilder::WriteMain()
       if (ifs.good()) {
          cmdRes.ReadFile(ifs);
          ifs.close();
-         if (cmdRes.Length())
-            buffer.AppendFormatted(" %s", cmdRes.Data());
-         if (buffer.EndsWith("\n"))
-            buffer.Resize(buffer.Length() - 1);
+         if (cmdRes.Length()) {
+            if (cmdRes.EndsWith("\n"))
+               cmdRes.Resize(cmdRes.Length() -1);
+            buffer.AppendFormatted("      \" %s\"\n", cmdRes.Data());
+         }
       }
       cmd.SetFormatted("rm -f %s", tmpName.Data());
       gSystem->Exec(cmd);
@@ -11641,43 +11642,47 @@ Bool_t ROMEBuilder::WriteMain()
    if (ifs.good()) {
       cmdRes.ReadFile(ifs);
       ifs.close();
-      finkDir = cmdRes;
-      if (finkDir.EndsWith("\n"))
-         finkDir.Resize(finkDir.Length() - 1);
+      if (cmdRes.Length()) {
+         if (cmdRes.EndsWith("\n"))
+            cmdRes.Resize(cmdRes.Length() -1);
+         finkDir = cmdRes;
+      }
       cmd.SetFormatted("rm -f %s", tmpName.Data());
       gSystem->Exec(cmd);
    }
    if (finkDir.Length())
-      buffer.AppendFormatted(" -I%s", finkDir.Data());
+      buffer.AppendFormatted("      \" -I%s/include\"\n", finkDir.Data());
 #endif
    if (this->midas) {
       tmpName = gSystem->ExpandPathName("$(MIDASSYS)/include");
       tmpName.ReplaceAll("\\\\","/");
       tmpName.ReplaceAll("\\","/");
-      buffer.AppendFormatted(" -I%s", tmpName.Data());
+      buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
    }
    tmpName = gSystem->ExpandPathName("$(ROMESYS)/include");
    tmpName.ReplaceAll("\\\\","/");
    tmpName.ReplaceAll("\\","/");
-   buffer.AppendFormatted(" -I%s", tmpName.Data());
+   buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
    tmpName = gSystem->ExpandPathName("$(ROMESYS)/argus/include");
    tmpName.ReplaceAll("\\\\","/");
    tmpName.ReplaceAll("\\","/");
-   buffer.AppendFormatted(" -I%s", tmpName.Data());
+   buffer.AppendFormatted("      \" -I%s\"\n", tmpName.Data());
    outDirAbsolute.ReplaceAll("\\\\","/");
    outDirAbsolute.ReplaceAll("\\","/");
-   buffer.AppendFormatted(" -I%s/include", outDirAbsolute.Data());
-   buffer.AppendFormatted(" -I%s", outDirAbsolute.Data());
-   buffer.AppendFormatted(" -I%s/include/generated", outDirAbsolute.Data());
-   if (numOfDAQ > 0) buffer.AppendFormatted(" -I%s/include/daqs", outDirAbsolute.Data());
-   if (numOfDB > 0) buffer.AppendFormatted(" -I%s/include/databases", outDirAbsolute.Data());
-   if (numOfTab > 0) buffer.AppendFormatted(" -I%s/include/tabs", outDirAbsolute.Data());
-   if (numOfTask > 0) buffer.AppendFormatted(" -I%s/include/tasks", outDirAbsolute.Data());
+   buffer.AppendFormatted("      \" -I%s/include\"\n", outDirAbsolute.Data());
+   buffer.AppendFormatted("      \" -I%s\"\n", outDirAbsolute.Data());
+   buffer.AppendFormatted("      \" -I%s/include/generated\"\n", outDirAbsolute.Data());
+   if (numOfDAQ > 0) buffer.AppendFormatted("      \" -I%s/include/daqs\"\n", outDirAbsolute.Data());
+   if (numOfDB > 0) buffer.AppendFormatted("      \" -I%s/include/databases\"\n", outDirAbsolute.Data());
+   if (numOfTab > 0) buffer.AppendFormatted("      \" -I%s/include/tabs\"\n", outDirAbsolute.Data());
+   if (numOfTask > 0) buffer.AppendFormatted("      \" -I%s/include/tasks\"\n", outDirAbsolute.Data());
    Int_t i;
    for (i = 0; i < numOfMFIncDirs; i++) {
-      buffer.AppendFormatted(" -I%s", gSystem->ExpandPathName(mfIncDir[i].Data()));
+      buffer.AppendFormatted("      \" -I%s\"\n", gSystem->ExpandPathName(mfIncDir[i].Data()));
    }
-   buffer.AppendFormatted("\";\n");
+   if (buffer.EndsWith("\n"))
+      buffer.Resize(buffer.Length() - 1);
+   buffer.AppendFormatted(";\n");
 
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("int main(int argc, char *argv[])\n");
@@ -11721,7 +11726,7 @@ Bool_t ROMEBuilder::WriteMain()
    buffer.AppendFormatted("      intapp->SetPrompt(\"%s%s [%%d] \");\n", shortCut.ToLower(tmp), mainProgName.ToLower(tmp2));
    buffer.AppendFormatted("      cout<<%sLogo<<endl;\n", shortCut.Data());
    buffer.AppendFormatted("      intapp->Run();\n");
-   buffer.AppendFormatted("   \n}");
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   else {\n");
    buffer.AppendFormatted("\n");
    buffer.AppendFormatted("      gROOT->SetBatch(nographics || batch || daemon);\n");
