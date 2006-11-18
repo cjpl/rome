@@ -2789,7 +2789,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectDisplaySupportedObjects.At(j).Data());
                if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") {
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(1));\n",tabObjectDisplaySupportedObjects.At(j).Data());
-                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->GetHistogram();\n");
+                  buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s_Histo\",i,fInheritanceName.Data());\n",tabObjectDisplaySupportedObjects.At(j).Data());
+                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
                   buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
                   buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetPoint(0,0,0);\n");
                }
@@ -2829,6 +2830,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                break;
             }
          }
+         buffer.AppendFormatted("   ROMEString str;\n");
+         buffer.AppendFormatted("   str = \"\";\n");
          buffer.AppendFormatted("\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
             if (tabObjectDisplayTaskIndex[iTab][i]!=-1) {
@@ -2843,11 +2846,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   for (j=0;j<tabObjectDisplaySupportedObjects.GetEntriesFast();j++) {
                      if (tabObjectDisplaySupportedObjects.At(j)==tabObjectDisplayType[iTab][i]) {
-                        if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") { // TGraph::operator= causes memory leak
-                           buffer.AppendFormatted("         if (((TObjArray*)fUserObjects->At(%d))->At(i))\n",j);
-                           buffer.AppendFormatted("            delete ((TObjArray*)fUserObjects->At(%d))->At(i);\n",j);
-                           buffer.AppendFormatted("         ((TObjArray*)fUserObjects->At(%d))->AddAt(new %s(), i);\n",j,tabObjectDisplayType[iTab][i].Data());
-                           buffer.AppendFormatted("         ((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetHistogram();\n",tabObjectDisplayType[iTab][i].Data(),j);
+                        if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") { // TGraph::operator= does not free existing fX and fY
+                           buffer.AppendFormatted("         if (((TObjArray*)fUserObjects->At(%d))->At(i)) {\n",j);
+                           buffer.AppendFormatted("            if(((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetX())\n",tabObjectDisplayType[iTab][i].Data(),j);
+                           buffer.AppendFormatted("               delete [] ((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetX();\n",tabObjectDisplayType[iTab][i].Data(),j);
+                           buffer.AppendFormatted("            if(((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetY())\n",tabObjectDisplayType[iTab][i].Data(),j);
+                           buffer.AppendFormatted("               delete [] ((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetY();\n",tabObjectDisplayType[iTab][i].Data(),j);
+                           buffer.AppendFormatted("         }\n",j);
                         }
                         buffer.AppendFormatted("         *((%s*)((TObjArray*)fUserObjects->At(%d))->At(i)) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(i));\n",tabObjectDisplayType[iTab][i].Data(),j,taskHierarchyName[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data(),graphName[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                         buffer.AppendFormatted("         if (((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetN()==0)\n",tabObjectDisplayType[iTab][i].Data(),j);
@@ -2932,6 +2937,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("void %sT%s_Base::Display(bool processEvents) {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   int i,k,chn;\n");
+         buffer.AppendFormatted("   ROMEString str;\n");
+         buffer.AppendFormatted("   str = \"\";\n");
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("   for (i=0 ; i<fNumberOfPads ; i++) {\n");
          buffer.AppendFormatted("      if (fPadConfigActive)\n");
@@ -2941,8 +2948,21 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("\n");
          buffer.AppendFormatted("      if (chn<((TObjArray*)fUserObjects->At(fCurrentDisplayType))->GetEntriesFast()) {\n");
          for (j=0;j<tabObjectDisplaySupportedObjects.GetEntriesFast();j++) {
-            buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"%s\"))\n",tabObjectDisplaySupportedObjects.At(j).Data());
+            buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"%s\")) {\n",tabObjectDisplaySupportedObjects.At(j).Data());
+            if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") { // TGraph::operator= does not free existing fX and fY
+               buffer.AppendFormatted("            if (((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))) {\n",tabObjectDisplaySupportedObjects.At(j).Data());
+               buffer.AppendFormatted("               if(((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetX())\n",tabObjectDisplaySupportedObjects.At(j).Data());
+               buffer.AppendFormatted("                  delete [] ((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetX();\n",tabObjectDisplaySupportedObjects.At(j).Data());
+               buffer.AppendFormatted("               if(((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetY())\n",tabObjectDisplaySupportedObjects.At(j).Data());
+               buffer.AppendFormatted("                  delete [] ((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetY();\n",tabObjectDisplaySupportedObjects.At(j).Data());
+               buffer.AppendFormatted("            }\n");
+            }
             buffer.AppendFormatted("            *((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)) = *((%s*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn));\n",tabObjectDisplaySupportedObjects.At(j).Data(),tabObjectDisplaySupportedObjects.At(j).Data());
+            if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") {
+               buffer.AppendFormatted("            if(((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetN()==0)\n",tabObjectDisplaySupportedObjects.At(j).Data(),j);
+               buffer.AppendFormatted("               (((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)))->Set(1);\n",tabObjectDisplaySupportedObjects.At(j).Data(),j);
+            }
+            buffer.AppendFormatted("         }\n");
          }
          buffer.AppendFormatted("         ((TNamed*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->SetTitle(((TNamed*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn))->GetTitle());\n");
          buffer.AppendFormatted("         for (k=0;k<TMath::Min(fLines->GetEntriesFast(),fNumberOfUserLines);k++) {\n");
