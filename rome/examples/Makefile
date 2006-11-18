@@ -170,7 +170,7 @@ argus/histogram/romeproject/hgframework.exe :
 
 argus/histogram/hgmonitor.exe : argus/histogram/romeproject/hgframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/histogram/histogram.xml -o argus/histogram -nl
-	make $(JOBSFLAG) -C argus/histogram/romeproject/
+	make $(JOBSFLAG) -C argus/histogram/
 
 argus/folders/romeproject/foframework.exe :
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/romeproject/FOframework.xml -o argus/folders/romeproject -nl -midas
@@ -178,7 +178,7 @@ argus/folders/romeproject/foframework.exe :
 
 argus/folders/fomonitor.exe : argus/folders/romeproject/foframework.exe
 	$(ROMESYS)/bin/romebuilder.exe -i argus/folders/folders.xml -o argus/folders -nl -midas
-	make $(JOBSFLAG) -C argus/folders/romeproject/
+	make $(JOBSFLAG) -C argus/folders/
 
 clean :
 	find $(ROMESYS)/examples -name "*.o" -exec rm {} \;
