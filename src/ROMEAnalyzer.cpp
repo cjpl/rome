@@ -148,8 +148,8 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fProgramName = "rome";
    fOnlineHost = "";
    fOnlineExperiment = "";
-   fPortNumber = 9090;
-   fSocketOffline = false;
+   fSocketServerPortNumber = 9090;
+   fSocketServerActive = false;
    fDataBaseHandle = 0;
    fDataBaseName = 0;
    fDataBaseDir = 0;
@@ -168,11 +168,10 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fNetFolderHost = 0;
    fNetFolderRoot = 0;
    fOldbuf = 0;
-   fSocketToROME = 0;
-   fSocketToROMENetFolder = 0;
-   fSocketToROMEActive = true;
-   fSocketToROMEHost = "localhost";
-   fSocketToROMEPort = 9090;
+   fSocketClient = 0;
+   fSocketClientNetFolder = 0;
+   fSocketClientHost = "localhost";
+   fSocketClientPort = 9090;
    fHistoRead = false;
    fHistoRun = 0;
    fRomeOutputFile = 0;
@@ -188,8 +187,8 @@ ROMEAnalyzer::~ROMEAnalyzer() {
    SafeDelete(fTreeObjects);
    SafeDelete(fHistoFolders);
    SafeDelete(fRomeOutputFile);
-   SafeDelete(fSocketToROME);
-   SafeDelete(fSocketToROMENetFolder);
+   SafeDelete(fSocketClient);
+   SafeDelete(fSocketClientNetFolder);
    SafeDelete(fTaskObjects);
    SafeDelete(fMainTask);
    SafeDelete(fMainFolder);
@@ -252,7 +251,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
 
    if (IsStandAloneARGUS()) {
-      ConnectSocketToROME();
+      ConnectSocketClient();
    }
    if (!ConnectNetFolders())
       return false;
@@ -263,7 +262,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
       consoleStartScreen();
       if (isSplashScreen()) startSplashScreen();
 
-      if (isOnline() || isSocketOffline()) {
+      if (isSocketServerActive()) {
          StartNetFolderServer();
       }
 
@@ -1124,25 +1123,23 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
 }
 
 
-Bool_t ROMEAnalyzer::ConnectSocketToROME()
+Bool_t ROMEAnalyzer::ConnectSocketClient()
 {
-   if (!IsSocketToROMEActive())
-      return false;
-   if (fSocketToROME!=0) {
-      if (fSocketToROME->IsValid()) {
+   if (fSocketClient!=0) {
+      if (fSocketClient->IsValid()) {
          return true;
       }
    }
-   if (fSocketToROME==0)
-      fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
-   while (!fSocketToROME->IsValid()) {
-      delete fSocketToROME;
-      ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n", fSocketToROMEHost.Data(), fSocketToROMEPort);
+   if (fSocketClient==0)
+      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
+   while (!fSocketClient->IsValid()) {
+      delete fSocketClient;
+      ROMEPrint::Warning("can not make socket connection to the ROME analyzer on host '%s' through port %d.\n", fSocketClientHost.Data(), fSocketClientPort);
       ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
       gSystem->Sleep(5000);
-      fSocketToROME = new TSocket (fSocketToROMEHost.Data(), fSocketToROMEPort);
+      fSocketClient = new TSocket (fSocketClientHost.Data(), fSocketClientPort);
    }
-   ConnectSocketToROMENetFolder();
+   ConnectSocketClientNetFolder();
    return true;
 }
 

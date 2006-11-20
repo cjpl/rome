@@ -260,6 +260,41 @@ void XMLToFormWindow::BuildFrame(XMLToFormFrame *frame)
             if (frame->GetElementAt(j)->GetToolTip().Length()>0)
                frame->GetElementAt(j)->fCheckButtonLabel->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
          }
+         // radiobuttons
+         if (frame->GetElementAt(j)->GetType()=="RadioButton") {
+            nDiv = TMath::Min(frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
+            if (nDiv>nPart && frame->GetNumberOfElements()>frame->fNumberOfVFrames) {
+               nPart++;
+            }
+            else {
+               frame->fHHFrames[frame->fNumberOfHHFrames] = new TGHorizontalFrame(frame->fVFrames[index],0,58,kFixedHeight | kChildFrame);
+               frame->fHHFrameIndex[frame->fNumberOfHHFrames] = index;
+               frame->fNumberOfHHFrames++;
+               nPart = 1;
+               nDiv = frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10);
+            }
+            frame->GetElementAt(j)->SetParentFrameIndex(frame->fNumberOfHHFrames-1);
+            // hints
+            frame->GetElementAt(j)->fLRadioButtonLabel = new TGLayoutHints(kLHintsTop | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            frame->GetElementAt(j)->fLRadioButton = new TGLayoutHints(kFixedWidth | kFixedHeight | kLHintsLeft, frame->elementPad, frame->elementPad, frame->elementPad, frame->elementPad);
+            // vframe
+            frame->GetElementAt(j)->fRadioButtonVFrames = new TGVerticalFrame(frame->fHHFrames[frame->fNumberOfHHFrames-1],0,0);
+            // label
+            frame->GetElementAt(j)->fRadioButtonLabel = new ROMELabel(frame->GetElementAt(j)->fRadioButtonVFrames, frame->GetElementAt(j)->GetTitle().Data());
+            // button
+            if (frame->GetElementAt(j)->GetButtonID()!=-1)
+               frame->GetElementAt(j)->fRadioButton = new TGRadioButton(frame->GetElementAt(j)->fRadioButtonVFrames,"",frame->GetElementAt(j)->GetButtonID());
+            else
+               frame->GetElementAt(j)->fRadioButton = new TGRadioButton(frame->GetElementAt(j)->fRadioButtonVFrames);
+            if (frame->GetElementAt(j)->GetButtonChecked())
+               frame->GetElementAt(j)->fRadioButton->SetState(kButtonDown);
+            if (frame->GetElementAt(j)->GetSignal()!=NULL)
+               frame->GetElementAt(j)->fRadioButton->Connect(frame->GetElementAt(j)->GetSignal()->GetSignal().Data(),"XMLToFormWindow",this,"SignalHandler()");
+            frame->GetElementAt(j)->fRadioButton->Associate(this);
+            // tool tip
+            if (frame->GetElementAt(j)->GetToolTip().Length()>0)
+               frame->GetElementAt(j)->fRadioButtonLabel->SetToolTipText(frame->GetElementAt(j)->GetToolTip().Data(),0);
+         }
          // fileselector
          if (frame->GetElementAt(j)->GetType()=="FileSelector") {
             nDiv = TMath::Min(frame->GetFrameMaxWidth()/(frame->GetElementAt(j)->GetWidth()+10),nDiv);
@@ -323,6 +358,7 @@ void XMLToFormWindow::BuildSubFrames(XMLToFormFrame *frame)
          currentSubFrame->fLFrameExpand = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
          currentSubFrame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          currentSubFrame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
+         currentSubFrame->fLInnerRadioButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
          if (currentSubFrame->IsFrameListTree()) {
             currentSubFrame->fHFrame = new TGHorizontalFrame(frame->fFrame,0,0,kRaisedFrame);
             frame->fFrame->AddFrame(currentSubFrame->fHFrame,currentSubFrame->fLFrameExpand);
@@ -421,6 +457,15 @@ void XMLToFormWindow::AddFrame(XMLToFormFrame *frame)
             // button
             frame->GetElementAt(j)->fCheckButtonVFrames->AddFrame(frame->GetElementAt(j)->fCheckButton, frame->GetElementAt(j)->fLCheckButton);
          }
+         // radiobuttons
+         if (frame->GetElementAt(j)->GetType()=="RadioButton") {
+            // vframe
+            frame->fHHFrames[frame->GetElementAt(j)->GetParentFrameIndex()]->AddFrame(frame->GetElementAt(j)->fRadioButtonVFrames, frame->fLInnerFrame);
+            // label
+            frame->GetElementAt(j)->fRadioButtonVFrames->AddFrame(frame->GetElementAt(j)->fRadioButtonLabel, frame->GetElementAt(j)->fLRadioButtonLabel);
+            // button
+            frame->GetElementAt(j)->fRadioButtonVFrames->AddFrame(frame->GetElementAt(j)->fRadioButton, frame->GetElementAt(j)->fLRadioButton);
+         }
          // fileselector
          if (frame->GetElementAt(j)->GetType()=="FileSelector") {
             // vframe
@@ -509,6 +554,15 @@ void XMLToFormWindow::RemoveFrame(XMLToFormFrame *frame)
             // button
             frame->GetElementAt(j)->fCheckButtonVFrames->RemoveFrame(frame->GetElementAt(j)->fCheckButton);
          }
+         // radiobuttons
+         if (frame->GetElementAt(j)->GetType()=="RadioButton") {
+            // vframe
+            frame->fHHFrames[frame->GetElementAt(j)->GetParentFrameIndex()]->RemoveFrame(frame->GetElementAt(j)->fRadioButtonVFrames);
+            // label
+            frame->GetElementAt(j)->fRadioButtonVFrames->RemoveFrame(frame->GetElementAt(j)->fRadioButtonLabel);
+            // button
+            frame->GetElementAt(j)->fRadioButtonVFrames->RemoveFrame(frame->GetElementAt(j)->fRadioButton);
+         }
          // fileselector
          if (frame->GetElementAt(j)->GetType()=="FileSelector") {
             // vframe
@@ -591,6 +645,7 @@ void XMLToFormWindow::BuildForm(XMLToFormFrame *frame)
    frame->fLFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->framePad, frame->framePad, frame->framePad, frame->framePad);
    frame->fLInnerFrame = new TGLayoutHints(kLHintsExpandX | kLHintsExpandY, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    frame->fLInnerCheckButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
+   frame->fLInnerRadioButtonFrame = new TGLayoutHints(kLHintsExpandX, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad, frame->innerFramePad);
    AddFrame(frame->fFrame,frame->fLFrame);
    frame->fIndex = 1;
 }
@@ -686,6 +741,8 @@ Bool_t XMLToFormWindow::ListTreeClicked(TGListTreeItem* item,Int_t /*btn*/) {
 
 Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 {
+   XMLToFormFrame *frame;
+   Int_t index,i,ne;
    switch (GET_MSG(msg)) {
    case kC_COMMAND:
       switch (GET_SUBMSG(msg)) {
@@ -694,10 +751,20 @@ Bool_t XMLToFormWindow::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
          SaveCurrentValues(fMainFrame);
          CloseWindow();
          break;
+      case kCM_RADIOBUTTON:
+         frame = fMainFrame;
+         SearchWidget(parm1,&frame,&index);
+         ne = frame->GetNumberOfElements();
+         for (i=0;i<ne;i++) {
+            frame->GetElementAt(i)->GetType();
+            if (frame->GetElementAt(i)->GetType()=="RadioButton" && i!=index) {
+               frame->GetElementAt(i)->fRadioButton->SetState(kButtonUp);
+            }
+         }
+         break;
       case kCM_COMBOBOX:
          if (parm1==-2 && fXML!=NULL) {
-            Int_t index;
-            XMLToFormFrame *frame = fMainFrame;
+            frame = fMainFrame;
             SearchWidget(-2,&frame,&index);
             if (parm2==frame->GetElementAt(index)->GetNumberOfEntries()-1) {
                Int_t exitButtonID;
@@ -785,6 +852,16 @@ void XMLToFormWindow::SaveCurrentValues(XMLToFormFrame *frame)
             frame->GetElementAt(i)->SetButtonChecked(false);
          }
       }
+      if (frame->GetElementAt(i)->GetType()=="RadioButton") {
+         if (frame->GetElementAt(i)->fRadioButton->GetState()==kButtonDown) {
+            frame->GetElementAt(i)->SetValue("true");
+            frame->GetElementAt(i)->SetButtonChecked(true);
+         }
+         else {
+            frame->GetElementAt(i)->SetValue("false");
+            frame->GetElementAt(i)->SetButtonChecked(false);
+         }
+      }
    }
    for (i=0;i<frame->GetNumberOfSubFrames();i++) {
       if (frame->GetSubFrameAt(i)->IsFrameVisible())
@@ -810,6 +887,11 @@ void XMLToFormWindow::SaveFrame(XMLToFormFrame *frame,ROMEXML *xml)
          xml->ReplacePathValue(path.Data(),value.Data());
       }
       if (frame->GetElementAt(i)->GetType()=="CheckButton") {
+         path = frame->GetElementAt(i)->GetPath();
+         path.Append("/Checked");
+         xml->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
+      }
+      if (frame->GetElementAt(i)->GetType()=="RadioButton") {
          path = frame->GetElementAt(i)->GetPath();
          path.Append("/Checked");
          xml->ReplacePathValue(path.Data(),frame->GetElementAt(i)->GetValue().Data());
@@ -953,6 +1035,12 @@ bool XMLToFormWindow::SearchWidget(Int_t id,XMLToFormFrame** frame,int *index)
             return true;
          }
       }
+      if ((*frame)->GetElementAt(i)->GetType()=="RadioButton") {
+         if ((*frame)->GetElementAt(i)->fRadioButton->WidgetId()==id) {
+            *index = i;
+            return true;
+         }
+      }
       if ((*frame)->GetElementAt(i)->GetType()=="Button") {
          if ((*frame)->GetElementAt(i)->fButton->WidgetId()==id) {
             *index = i;
@@ -1028,6 +1116,12 @@ void XMLToFormWindow::CheckSignals(XMLToFormFrame *frame)
             else
                senderState = false;
          }
+         if (frame->GetElementAt(i)->GetType()=="RadioButton") {
+            if (frame->GetElementAt(i)->fRadioButton->GetState()==kButtonDown)
+               senderState = true;
+            else
+               senderState = false;
+         }
          for (j=0;j<frame->GetElementAt(i)->GetSignal()->GetNumberOfReceivers();j++) {
             recvFrame = SearchFrame(fMainFrame,frame->GetElementAt(i)->GetSignal()->GetReceiverPathAt(j).Data(),NULL);
             if (recvFrame==NULL)
@@ -1079,6 +1173,11 @@ void XMLToFormWindow::DeleteFrame(XMLToFormFrame *frame)
          delete frame->GetElementAt(i)->fCheckButtonLabel;
          delete frame->GetElementAt(i)->fCheckButton;
          delete frame->GetElementAt(i)->fCheckButtonVFrames;
+      }
+      if (frame->GetElementAt(i)->GetType()=="RadioButton") {
+         delete frame->GetElementAt(i)->fRadioButtonLabel;
+         delete frame->GetElementAt(i)->fRadioButton;
+         delete frame->GetElementAt(i)->fRadioButtonVFrames;
       }
       if (frame->GetElementAt(i)->GetType()=="FileSelector") {
          delete frame->GetElementAt(i)->fComboLabel;
@@ -1150,6 +1249,19 @@ Bool_t XMLToFormWindow::ReloadValues(XMLToFormFrame *frame)
             frame->GetElementAt(i)->SetValue(value.Data());
             frame->GetElementAt(i)->SetButtonChecked(false);
             frame->GetElementAt(i)->fCheckButton->SetState(kButtonUp);
+         }
+      }
+      if (frame->GetElementAt(i)->GetType()=="RadioButton") {
+         fXML->GetPathValue(frame->GetElementAt(i)->GetPath()+"/Checked",value);
+         if (value=="true") {
+            frame->GetElementAt(i)->SetValue(value.Data());
+            frame->GetElementAt(i)->SetButtonChecked(true);
+            frame->GetElementAt(i)->fRadioButton->SetState(kButtonDown);
+         }
+         else {
+            frame->GetElementAt(i)->SetValue(value.Data());
+            frame->GetElementAt(i)->SetButtonChecked(false);
+            frame->GetElementAt(i)->fRadioButton->SetState(kButtonUp);
          }
       }
    }

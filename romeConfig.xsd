@@ -23,9 +23,34 @@
 			<xs:enumeration value="text"/>
 		</xs:restriction>
 	</xs:simpleType>
-	<xs:complexType name="RunParametersDesc">
+	<xs:simpleType name="ProgramModeValue">
+		<xs:restriction base="xs:integer">
+			<xs:enumeration value="0"/>
+			<xs:enumeration value="1"/>
+			<xs:enumeration value="2"/>
+			<xs:enumeration value="3"/>
+		</xs:restriction>
+	</xs:simpleType>
+	<xs:complexType name="ModesDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the run parameters.</xs:documentation>
+			<xs:documentation>Description of the modes in which the framework can run.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="AnalyzingMode" type="AnalyzingModeType" default="offline">
+				<xs:annotation>
+					<xs:documentation>Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DAQSystem" type="xs:string" default="none">
+				<xs:annotation>
+					<xs:documentation>Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="OfflineDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the offline specific configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
 			<xs:element name="RunNumbers" type="xs:string" minOccurs="0">
@@ -45,21 +70,50 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="ModesDesc">
+	<xs:complexType name="OnlineDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the modes in which the framework can run.</xs:documentation>
+			<xs:documentation>Description of the online specific configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="AnalyzingMode" type="AnalyzingModeType" default="offline">
+			<xs:element name="Host" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>Describes the analyzing mode. This can be 'online' or 'offline'. Default is offline</xs:documentation>
+					<xs:documentation>The name of the host of the online experiment. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="DAQSystem" type="xs:string" default="none">
+			<xs:element name="Experiment" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>Describes the DAQ system used for IO. This can be 'none', 'midas', 'root' or a user defined DAQ system. Default is none.</xs:documentation>
+					<xs:documentation>The name of the online experiment. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="AnalyzerName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="PathsDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the file paths the framework is using.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="InputFilePath" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The path of all input files. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="OutputFilePath" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The path of all output files. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SettingsDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the common settings of the framework.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
 			<xs:element name="VerboseLevel" type="xs:string" default="false" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Specify amount of messages from framework. mute, error, warning, normal or debug. default is normal.</xs:documentation>
@@ -92,73 +146,19 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="AnalyzerControllerDesc">
+	<xs:complexType name="SocketServerDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+			<xs:documentation>Description of the socket server. External programs can access the objects inside the framework over a root socket interface.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="Active" type="xs:boolean">
+			<xs:element name="Active" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Activate flag.</xs:documentation>
+					<xs:documentation>The socket server is per default not available. This flag activates it. Default is false.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="NetFolderName" type="xs:string" minOccurs="0">
+			<xs:element name="PortNumber" type="xs:integer" default="9090" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SocketToROMEDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the socket interface to the ROME analyzer. This section is needed if the ARGUS display should connect to a ROME analyzer of the current project..</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="Active" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation>Activate flag.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Host" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Host which runs the ROME analyzer.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Port" type="xs:integer" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Port number for the socket connection.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ArgusDesc">
-		<xs:annotation>
-			<xs:documentation>Describes the argus specific properties.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="WindowScale" type="xs:float" default="1.0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Basic size of main window.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="StatusBar" type="xs:boolean" default="true" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Display a status bar in the window.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="UpdateFrequency" type="xs:integer" default="0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SocketToROME" type="SocketToROMEDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Description of the socket interface to the ROME analyzer. This section is needed if the ARGUS display should connect to a ROME analyzer of the current project.</xs:documentation>
+					<xs:documentation>The number of the port for the socket server. Default is 9090.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -202,59 +202,268 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="OnlineDesc">
+	<xs:complexType name="FieldDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the online specific configuration.</xs:documentation>
+			<xs:documentation>Description of a field of a folder.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="Host" type="xs:string">
+			<xs:element name="FieldName" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The name of the host of the online experiment. (required)</xs:documentation>
+					<xs:documentation>The name of the field. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Experiment" type="xs:string">
+			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The name of the online experiment. (required)</xs:documentation>
+					<xs:documentation>The name of the database from which to read the field value. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="AnalyzerName" type="xs:string" minOccurs="0">
+			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The name of the analyzer in the midas environment. Can be used to run two analyzer in parallel. (optional)</xs:documentation>
+					<xs:documentation>The path to the value in the database. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="SocketInterfaceDesc">
+	<xs:complexType name="FolderDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the socket interface. External programs can access the objects inside the framework over a root socket interface.</xs:documentation>
+			<xs:documentation>Description of the folder configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="PortNumber" type="xs:integer" default="9090" minOccurs="0">
+			<xs:element name="FolderName" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The number of the port for the socket interface. Default is 9090.</xs:documentation>
+					<xs:documentation>The name of the folder. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="AvailableOffline" type="xs:boolean" default="false" minOccurs="0">
+			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
-					<xs:documentation>The socket interface is per default not available in offline mode. This flag makes it available also offline. Default is false.</xs:documentation>
+					<xs:documentation>Describes a field of a folder. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="PathsDesc">
+	<xs:complexType name="BranchDesc">
 		<xs:annotation>
-			<xs:documentation>Description of the file paths the framework is using.</xs:documentation>
+			<xs:documentation>Description of a branch.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="InputFilePath" type="xs:string">
+			<xs:element name="BranchName" type="xs:string">
 				<xs:annotation>
-					<xs:documentation>The path of all input files. (required)</xs:documentation>
+					<xs:documentation>The name of the branch. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="OutputFilePath" type="xs:string" minOccurs="0">
+			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The path of all output files. (optional)</xs:documentation>
+					<xs:documentation>Inactive branches are not filled by the framework. (optional)</xs:documentation>
 				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="TreeDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the tree configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="TreeName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the tree. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Read" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Trees can be read into the framework to start the analysis from a previously saved state. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Write" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Trees are written to disc. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Fill" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Trees are filled. It will be changed to true when 'Write' is true. Default is false.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="CompressionLevel" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Compression level for all branches of the tree. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="MaxNumberOfEntries" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="TreeOutputFileName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The name of the trees output file. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SaveConfiguration" type="xs:boolean" default="false" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If this is true, content of configuration XML file would be saved in the output file. Default is false</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a branch. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterFieldArrayDesc">
+		<xs:annotation>
+			<xs:documentation>Description of an array value of the steering parameter field.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPFieldArrayIndex" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The index of the value of a steering parameter field array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldArrayValue" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The value of the steering parameter field array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterGroupArrayDesc">
+		<xs:annotation>
+			<xs:documentation>Description of an array group of the steering parameter group.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPGroupArrayIndex" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The index of the group of a steering parameter group array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a steering parameter field of the steering parameter group array. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterFieldDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the steering parameter fields.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPValue" type="xs:string" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>The value of the steering parameter field. (required for single values)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPFieldArray" type="SteeringParameterFieldArrayDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes an array value of the steering parameter field. (required for array values)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SteeringParameterGroupDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the steering parameter groups.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="SPGroupName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the steering parameter group. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SPGroupArray" type="SteeringParameterGroupArrayDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes an array group of the steering parameter group. (required for array groups)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a steering parameter field. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+				<xs:annotation>
+					<xs:documentation>Describes a steering parameter group. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="CommonDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the framework specifications, which are common for analyzer and monitors.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Settings" type="SettingsDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the common settings of the framework. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="SocketServer" type="SocketServerDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the socket server. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="DataBases" type="DataBasesDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Definition of the data bases, which the analysis accesses. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Folders" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the folders in the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Folder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the folder configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="Trees" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the trees in the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Accumulate" type="xs:boolean" default="false" minOccurs="0">
+							<xs:annotation>
+								<xs:documentation>Trees can be accumulated over certain runs. Default is false.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="Tree" type="TreeDesc" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the tree configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+			<xs:element name="GlobalSteeringParameters" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the global steering parameters configuration.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes a steering parameter field. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+						<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes a steering parameter group. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
@@ -271,6 +480,33 @@
 			<xs:element name="RunNumber" type="xs:integer">
 				<xs:annotation>
 					<xs:documentation>Run number of the required histogram/graph file. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="MacrosDesc">
+		<xs:annotation>
+			<xs:documentation>Description of macros.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="BeginOfRun" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="BeginOfEvent" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndOfEvent" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="EndOfRun" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Macro file name which is executed at the end of run. It is executed after Tasks::EndOfRun. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -419,192 +655,6 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="SteeringParameterFieldArrayDesc">
-		<xs:annotation>
-			<xs:documentation>Description of an array value of the steering parameter field.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="SPFieldArrayIndex" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>The index of the value of a steering parameter field array. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SPFieldArrayValue" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The value of the steering parameter field array. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="MacrosDesc">
-		<xs:annotation>
-			<xs:documentation>Description of macros.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="BeginOfRun" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the begin of run. It is executed after Tasks::BeginOfRun. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="BeginOfEvent" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the begin of event. It is executed before Tasks::Event. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="EndOfEvent" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the end of event. It is executed after Tasks::Event. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="EndOfRun" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Macro file name which is executed at the end of run. It is executed after Tasks::EndOfRun. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SteeringParameterGroupArrayDesc">
-		<xs:annotation>
-			<xs:documentation>Description of an array group of the steering parameter group.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="SPGroupArrayIndex" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>The index of the group of a steering parameter group array. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes a steering parameter field of the steering parameter group array. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SteeringParameterFieldDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the steering parameter fields.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="SPName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the steering parameter field. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SPValue" type="xs:string" default="0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The value of the steering parameter field. (required for single values)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SPFieldArray" type="SteeringParameterFieldArrayDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes an array value of the steering parameter field. (required for array values)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="SteeringParameterGroupDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the steering parameter groups.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="SPGroupName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the steering parameter group. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SPGroupArray" type="SteeringParameterGroupArrayDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes an array group of the steering parameter group. (required for array groups)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes a steering parameter field. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes a steering parameter group. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="FieldDesc">
-		<xs:annotation>
-			<xs:documentation>Description of a field of a folder.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="FieldName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the field. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="DataBaseName" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The name of the database from which to read the field value. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="DataBasePath" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The path to the value in the database. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="FolderDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the folder configuration.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="FolderName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the folder. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Field" type="FieldDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes a field of a folder. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="NetFolderDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the NetFolder configuration.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="NetFolderName" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The name of the NetFolder. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Active" type="xs:boolean">
-				<xs:annotation>
-					<xs:documentation>Activate flag.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Reconnect" type="xs:boolean" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If true, the framework tries to reconnect if the connection is lost. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Host" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The host of the NetFolder.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Port" type="xs:integer">
-				<xs:annotation>
-					<xs:documentation>The port for the connection</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Root" type="xs:string">
-				<xs:annotation>
-					<xs:documentation>The host's root folder.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="TaskDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the task configuration.</xs:documentation>
@@ -643,6 +693,135 @@
 			<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
 				<xs:annotation>
 					<xs:documentation>Describes a sub-task. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AnalyzerDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the framework specifications, which are used for an analyzer.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="HistogramRead" type="HistogramReadDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the histogram/graph reading. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Macros" type="MacrosDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the macross in which the framework can run. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Tasks" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Describes the tasks in the framework.</xs:documentation>
+				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the task configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="AnalyzerControllerDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Activate flag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="NetFolderName" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Name of the NetFolder to steer the analysis.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="DisplayDesc">
+		<xs:annotation>
+			<xs:documentation>Describes the display specific properties.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="WindowScale" type="xs:float" default="1.0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Basic size of main window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="StatusBar" type="xs:boolean" default="true" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Display a status bar in the window.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="UpdateFrequency" type="xs:integer" default="0" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Time intervall after which the EventHandler method is called in milli seconds. 0 means no update. Default is 0.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="AnalyzerController" type="AnalyzerControllerDesc" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Description of the Analyzer Contoller Settings.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="SocketClientDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the socket client connection to the ROME analyzer. This section is needed if the program mode is 3.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="Host" type="xs:string" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Host which runs the ROME analyzer.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Port" type="xs:integer" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>Port number for the socket connection.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+	<xs:complexType name="NetFolderDesc">
+		<xs:annotation>
+			<xs:documentation>Description of the NetFolder configuration.</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="NetFolderName" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The name of the NetFolder. (required)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Active" type="xs:boolean">
+				<xs:annotation>
+					<xs:documentation>Activate flag.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Reconnect" type="xs:boolean" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation>If true, the framework tries to reconnect if the connection is lost. (optional)</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Host" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The host of the NetFolder.</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Port" type="xs:integer">
+				<xs:annotation>
+					<xs:documentation>The port for the connection</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="Root" type="xs:string">
+				<xs:annotation>
+					<xs:documentation>The host's root folder.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -716,72 +895,48 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="BranchDesc">
+	<xs:complexType name="MonitorDesc">
 		<xs:annotation>
-			<xs:documentation>Description of a branch.</xs:documentation>
+			<xs:documentation>Describes the framework specifications, which are used for a monitor.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="BranchName" type="xs:string">
+			<xs:element name="Display" type="DisplayDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The name of the branch. (required)</xs:documentation>
+					<xs:documentation>Describes the display specific properties.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
+			<xs:element name="SocketClient" type="SocketClientDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Inactive branches are not filled by the framework. (optional)</xs:documentation>
+					<xs:documentation>Description of the socket client connection to the ROME analyzer. This section is needed if the program mode is 3.</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="TreeDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the tree configuration.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="TreeName" type="xs:string">
+			<xs:element name="NetFolders" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>The name of the tree. (required)</xs:documentation>
+					<xs:documentation>Describes the NetFolders in the framework.</xs:documentation>
 				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="NetFolder" type="NetFolderDesc" minOccurs="0" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the NetFolder configuration. (optional)</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
 			</xs:element>
-			<xs:element name="Read" type="xs:boolean" default="false" minOccurs="0">
+			<xs:element name="Tabs" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Trees can be read into the framework to start the analysis from a previously saved state. Default is false.</xs:documentation>
+					<xs:documentation>Describes the tabs.</xs:documentation>
 				</xs:annotation>
-			</xs:element>
-			<xs:element name="Write" type="xs:boolean" default="false" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Trees are written to disc. Default is false.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Fill" type="xs:boolean" default="false" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Trees are filled. It will be changed to true when 'Write' is true. Default is false.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="CompressionLevel" type="xs:integer" default="0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Compression level for all branches of the tree. Default is 0.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="MaxNumberOfEntries" type="xs:integer" default="0" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If this value is greater than 0 the tree is a circular tree with the specified size. Default is 0.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="TreeOutputFileName" type="xs:string" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The name of the trees output file. This value overwrites the value specified in the definition file. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="SaveConfiguration" type="xs:boolean" default="false" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If this is true, content of configuration XML file would be saved in the output file. Default is false</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
-				<xs:annotation>
-					<xs:documentation>Describes a branch. (optional)</xs:documentation>
-				</xs:annotation>
+				<xs:complexType>
+					<xs:sequence>
+						<xs:element name="Tab" type="TabDesc" maxOccurs="unbounded">
+							<xs:annotation>
+								<xs:documentation>Describes the tab configuration.</xs:documentation>
+							</xs:annotation>
+						</xs:element>
+					</xs:sequence>
+				</xs:complexType>
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
@@ -824,43 +979,14 @@
 			</xs:element>
 		</xs:sequence>
 	</xs:complexType>
-	<xs:complexType name="ROMEDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the ROME settings.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If true, the progam will be an analyzer. Default is true.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
-	<xs:complexType name="ARGUSDesc">
-		<xs:annotation>
-			<xs:documentation>Description of the ARGUSsettings.</xs:documentation>
-		</xs:annotation>
-		<xs:sequence>
-			<xs:element name="Active" type="xs:boolean" default="true" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>If true, the progam will be a monitor. Default is true.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-		</xs:sequence>
-	</xs:complexType>
 	<xs:complexType name="ProgramConfigurationDesc">
 		<xs:annotation>
 			<xs:documentation>Description of the program configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="ROME" type="ROMEDesc" minOccurs="0">
+			<xs:element name="ProgramMode" type="ProgramModeValue">
 				<xs:annotation>
-					<xs:documentation>The ROME settings. (required)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="ARGUS" type="ARGUSDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>The ARGUS settings. (required)</xs:documentation>
+					<xs:documentation>The program mode. Must be one of the following : 0 : analyzer; 1 : monitor; 2 : analyzer and monitor; 3 : monitor connected to an analyzer. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 		</xs:sequence>
@@ -870,24 +996,14 @@
 			<xs:documentation>Description of the configuration.</xs:documentation>
 		</xs:annotation>
 		<xs:sequence>
-			<xs:element name="RunParameters" type="RunParametersDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the run parameters. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="Modes" type="ModesDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the modes in which the framework can run. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Argus" type="ArgusDesc" minOccurs="0">
+			<xs:element name="Offline" type="OfflineDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the argus specific properties.</xs:documentation>
-				</xs:annotation>
-			</xs:element>
-			<xs:element name="DataBases" type="DataBasesDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Definition of the data bases, which the analysis accesses. (optional)</xs:documentation>
+					<xs:documentation>Describes the offline specific configuration. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Online" type="OnlineDesc" minOccurs="0">
@@ -895,119 +1011,25 @@
 					<xs:documentation>Describes the online specific configuration. (optional)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="SocketInterface" type="SocketInterfaceDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the socket interface. (optional)</xs:documentation>
-				</xs:annotation>
-			</xs:element>
 			<xs:element name="Paths" type="PathsDesc" minOccurs="0">
 				<xs:annotation>
 					<xs:documentation>Describes the file paths the framework is using. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="HistogramRead" type="HistogramReadDesc" minOccurs="0">
+			<xs:element name="Common" type="CommonDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the histogram/graph reading. (optional)</xs:documentation>
+					<xs:documentation>Describes the framework specifications, which are common for analyzer and monitors. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Folders" minOccurs="0">
+			<xs:element name="Analyzer" type="AnalyzerDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the folders in the framework.</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="Folder" type="FolderDesc" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes the folder configuration. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="NetFolders" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the NetFolders in the framework.</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="NetFolder" type="NetFolderDesc" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes the NetFolder configuration. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Macros" type="MacrosDesc" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the macross in which the framework can run. (optional)</xs:documentation>
+					<xs:documentation>Describes the framework specifications, which are used for an analyzer. (required)</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-			<xs:element name="Tasks" minOccurs="0">
+			<xs:element name="Monitor" type="MonitorDesc" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>Describes the tasks in the framework.</xs:documentation>
+					<xs:documentation>Describes the framework specifications, which are used for a monitor. (required)</xs:documentation>
 				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="Task" type="TaskDesc" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes the task configuration. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Tabs" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the tabs.</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="Tab" type="TabDesc" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes the tab configuration.</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="Trees" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the trees in the framework.</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="Accumulate" type="xs:boolean" default="false" minOccurs="0">
-							<xs:annotation>
-								<xs:documentation>Trees can be accumulated over certain runs. Default is false.</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="Tree" type="TreeDesc" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes the tree configuration. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
-			</xs:element>
-			<xs:element name="GlobalSteeringParameters" minOccurs="0">
-				<xs:annotation>
-					<xs:documentation>Describes the global steering parameters configuration.</xs:documentation>
-				</xs:annotation>
-				<xs:complexType>
-					<xs:sequence>
-						<xs:element name="SteeringParameterField" type="SteeringParameterFieldDesc" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes a steering parameter field. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-						<xs:element name="SteeringParameterGroup" type="SteeringParameterGroupDesc" minOccurs="0" maxOccurs="unbounded">
-							<xs:annotation>
-								<xs:documentation>Describes a steering parameter group. (optional)</xs:documentation>
-							</xs:annotation>
-						</xs:element>
-					</xs:sequence>
-				</xs:complexType>
 			</xs:element>
 			<xs:element name="Midas" minOccurs="0">
 				<xs:annotation>

@@ -78,7 +78,8 @@ public:
    enum {
       kStandAloneROME,
       kStandAloneARGUS,
-      kROMEAndARGUS
+      kROMEAndARGUS,
+      kROMEMonitor
    };
 
    // Folder Storage Status
@@ -188,16 +189,15 @@ protected:
    ROMEString     fOnlineExperiment;             //! Name of the Online Experiment
    ROMEString     fOnlineAnalyzerName;           //! The name of the analyzer in the midas environment
 
-   // Socket
-   Int_t          fPortNumber;                   //! Port Number for TSocket
-   Bool_t         fSocketOffline;                //! Socket available offline
+   // Socket Server
+   Bool_t         fSocketServerActive;           //! Socket active
+   Int_t          fSocketServerPortNumber;       //! Port Number for TSocket
 
-   // SocketToROME
-   TSocket       *fSocketToROME;                 //! Handle to socket connection to ROME
-   ROMENetFolder *fSocketToROMENetFolder;        //! Handle to the ROMENetFolder of the socket connection to ROME
-   Bool_t         fSocketToROMEActive;           //! Socket connection to ROME active flag
-   ROMEString     fSocketToROMEHost;             //! Socket connection to ROME host
-   Int_t          fSocketToROMEPort;             //! Socket connection to ROME port
+   // Socket Client
+   TSocket       *fSocketClient;                 //! Handle to socket connection to ROME
+   ROMENetFolder *fSocketClientNetFolder;        //! Handle to the ROMENetFolder of the socket connection to ROME
+   ROMEString     fSocketClientHost;             //! Socket connection to ROME host
+   Int_t          fSocketClientPort;             //! Socket connection to ROME port
 
    // Statistics
    Statistics     fTriggerStatistics;            //! Trigger Statistics
@@ -255,9 +255,11 @@ public:
    Bool_t          IsStandAloneROME() { return fProgramMode==kStandAloneROME; }
    Bool_t          IsStandAloneARGUS() { return fProgramMode==kStandAloneARGUS; }
    Bool_t          IsROMEAndARGUS() { return fProgramMode==kROMEAndARGUS; }
+   Bool_t          IsROMEMonitor() { return fProgramMode==kROMEMonitor; }
    void            SetStandAloneROME() { fProgramMode=kStandAloneROME; }
    void            SetStandAloneARGUS() { fProgramMode=kStandAloneARGUS; }
    void            SetROMEAndARGUS() { fProgramMode=kROMEAndARGUS; }
+   void            SetROMEMonitor() { fProgramMode=kROMEMonitor; }
 
    // Window Closed
    Bool_t          IsWindowClosed() { return fWindowClosed; }
@@ -491,24 +493,22 @@ public:
    void            SetOnlineExperiment(const char *experiment) { fOnlineExperiment = experiment; }
    void            SetOnlineAnalyzerName(const char *analyzerName) { fOnlineAnalyzerName = analyzerName; }
 
-   // Socket
-   Int_t           GetPortNumber() { return fPortNumber; }
-   Bool_t          isSocketOffline() { return fSocketOffline; }
+   // Socket Server
+   Int_t           GetSocketServerPortNumber() { return fSocketServerPortNumber; }
+   Bool_t          isSocketServerActive() { return fSocketServerActive; }
 
-   void            SetPortNumber(Int_t portNumber) { fPortNumber = portNumber; }
-   void            SetPortNumber(const char *portNumber) { char *cstop; fPortNumber = strtol(portNumber,&cstop,10); }
-   void            SetSocketOffline(Bool_t flag=true) { fSocketOffline = flag; }
+   void            SetSocketServerPortNumber(Int_t portNumber) { fSocketServerPortNumber = portNumber; }
+   void            SetSocketServerPortNumber(const char *portNumber) { char *cstop; fSocketServerPortNumber = strtol(portNumber,&cstop,10); }
+   void            SetSocketServerActive(Bool_t flag=true) { fSocketServerActive = flag; }
 
-   // SocketToROME
-   Bool_t          IsSocketToROMEActive() { return fSocketToROMEActive; }
-   const char     *GetSocketToROMEHost() { return fSocketToROMEHost.Data(); }
-   Int_t           GetSocketToROMEPort() { return fSocketToROMEPort; }
-   ROMENetFolder  *GetSocketToROMENetFolder() { ConnectSocketToROME(); return fSocketToROMENetFolder; }
+   // Socket Client
+   const char     *GetSocketClientHost() { return fSocketClientHost.Data(); }
+   Int_t           GetSocketClientPort() { return fSocketClientPort; }
+   ROMENetFolder  *GetSocketClientNetFolder() { ConnectSocketClient(); return fSocketClientNetFolder; }
 
-   void            SetSocketToROMEActive(Bool_t flag) { fSocketToROMEActive = flag; }
-   void            SetSocketToROMEHost(const char *host) { fSocketToROMEHost = host; }
-   void            SetSocketToROMEPort(Int_t portNumber) { fSocketToROMEPort = portNumber; }
-   void            SetSocketToROMEPort(const char *portNumber) { char *cstop; fSocketToROMEPort = strtol(portNumber,&cstop,10); }
+   void            SetSocketClientHost(const char *host) { fSocketClientHost = host; }
+   void            SetSocketClientPort(Int_t portNumber) { fSocketClientPort = portNumber; }
+   void            SetSocketClientPort(const char *portNumber) { char *cstop; fSocketClientPort = strtol(portNumber,&cstop,10); }
 
    // Midas ODB
    HNDLE        GetMidasOnlineDataBase() { return fMidasOnlineDataBase; }
@@ -619,8 +619,8 @@ protected:
 
    virtual void    startSplashScreen() = 0;
    virtual void    consoleStartScreen() = 0;
-   Bool_t          ConnectSocketToROME();
-   virtual Bool_t  ConnectSocketToROMENetFolder() = 0;
+   Bool_t          ConnectSocketClient();
+   virtual Bool_t  ConnectSocketClientNetFolder() = 0;
    virtual void    StartNetFolderServer() = 0;
 
    ClassDef(ROMEAnalyzer,0) // Base analyzer class

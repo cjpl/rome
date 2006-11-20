@@ -67,6 +67,7 @@ public:
    TGLayoutHints      *fLFrameExpand;     //!
    TGLayoutHints      *fLInnerFrame;      //!
    TGLayoutHints      *fLInnerCheckButtonFrame;  //!
+   TGLayoutHints      *fLInnerRadioButtonFrame;  //!
    XMLToFormFrame     *fParentFrame;      //!
    TGCompositeFrame   *fFrame;            //!
    TGTab              *fTab;              //!

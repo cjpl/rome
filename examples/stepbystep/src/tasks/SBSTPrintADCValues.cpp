@@ -70,8 +70,8 @@ void SBSTPrintADCValues::Event()
 
    if (gAnalyzer->GetGSP()->GetOutputOnOff()) {
       for (int i=0;i<10;i++)
-         cout << gAnalyzer->GetPMTDataAt(i)->GetADC() << endl;
-      cout << endl;
+         ROMEPrint::Print("%d\n",gAnalyzer->GetPMTDataAt(i)->GetADC());
+      ROMEPrint::Print("\n");
    }
 }
 

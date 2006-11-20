@@ -67,6 +67,12 @@ void XMLToFormElement::Init(const char* type,const char* title,const char* value
    fLCheckButtonLabel = NULL;
    fCheckButton = NULL;
    fLCheckButton = NULL;
+   // RadioButton
+   fRadioButtonVFrames = NULL;
+   fRadioButtonLabel = NULL;
+   fLRadioButtonLabel = NULL;
+   fRadioButton = NULL;
+   fLRadioButton = NULL;
 }
 
 XMLToFormElement::~XMLToFormElement()
@@ -94,5 +100,11 @@ XMLToFormElement::~XMLToFormElement()
    SafeDelete(fLCheckButtonLabel);
    SafeDelete(fCheckButton);
    SafeDelete(fLCheckButton);
+   // RadioButton
+   SafeDelete(fRadioButtonVFrames);
+   SafeDelete(fRadioButtonLabel);
+   SafeDelete(fLRadioButtonLabel);
+   SafeDelete(fRadioButton);
+   SafeDelete(fLRadioButton);
 #endif
 }

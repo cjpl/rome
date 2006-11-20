@@ -90,19 +90,36 @@ void ROMEConfigToForm::FillRunModeFrame(XMLToFormFrame *frame)
    XMLToFormElementSignal *signal;
    ROMEString rome = "false";
    ROMEString argus = "false";
-   if (gROME->IsROMEAndARGUS() || gROME->IsStandAloneROME())
+   ROMEString romeandargus = "false";
+   ROMEString romemonitor = "false";
+   if (gROME->IsStandAloneROME())
       rome = "true";
-   if (gROME->IsROMEAndARGUS() || gROME->IsStandAloneARGUS())
+   if (gROME->IsStandAloneARGUS())
       argus = "true";
+   if (gROME->IsROMEAndARGUS())
+      romeandargus = "true";
+   if (gROME->IsROMEMonitor())
+      romemonitor = "true";
    // ROME
    signal = new XMLToFormElementSignal("Clicked()","State");
    signal->AddReceiver("Tasks","Enable");
-   frame->AddElement(new XMLToFormElement("CheckButton","ROME",rome.Data(),"",0,0,"Check, if you want to run an analyzer",signal));
+   frame->AddElement(new XMLToFormElement("RadioButton","Analyzer",rome.Data(),"",0,10,"Check, if you want to run a stand alone analyzer",signal));
    // ARGUS
    signal = new XMLToFormElementSignal("Clicked()","State");
    signal->AddReceiver("Tabs","Enable");
    signal->AddReceiver("Argus","Enable");
-   frame->AddElement(new XMLToFormElement("CheckButton","ARGUS",argus.Data(),"",0,1,"Check, if you want to run a monitor",signal));
+   frame->AddElement(new XMLToFormElement("RadioButton","Monitor",argus.Data(),"",0,11,"Check, if you want to run a stand alone monitor",signal));
+   // ROME and ARGUS
+   signal = new XMLToFormElementSignal("Clicked()","State");
+   signal->AddReceiver("Tasks","Enable");
+   signal->AddReceiver("Tabs","Enable");
+   signal->AddReceiver("Argus","Enable");
+   frame->AddElement(new XMLToFormElement("RadioButton","Analyzer with Monitor",romeandargus.Data(),"",0,12,"Check, if you want to run an analyzer with a monitor",signal));
+   // ROME Monitor
+   signal = new XMLToFormElementSignal("Clicked()","State");
+   signal->AddReceiver("Tabs","Enable");
+   signal->AddReceiver("Argus","Enable");
+   frame->AddElement(new XMLToFormElement("RadioButton","Monitor connecting to Analyzer",romemonitor.Data(),"",0,13,"Check, if you want to run a monitor connecting to a rome analyzer",signal));
 }
 
 void ROMEConfigToForm::FillButtonFrame(XMLToFormFrame *frame)

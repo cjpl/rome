@@ -17,6 +17,7 @@ class TGLayoutHints;
 class TGTextButton;
 class TGComboBox;
 class TGCheckButton;
+class TGRadioButton;
 
 class XMLToFormElement : public TObject
 {
@@ -33,7 +34,7 @@ private:
    // ComboBox
    ROMEStrArray            fEntry;         //!
    Int_t                   fSelectedEntry; //!
-   // Button & CheckButton
+   // Button & CheckButton & RadioButton
    Int_t                   fButtonID;      //!
    Bool_t                  fButtonChecked; //!
 
@@ -61,6 +62,12 @@ public:
    TGLayoutHints          *fLCheckButtonLabel; //!
    TGCheckButton          *fCheckButton;       //!
    TGLayoutHints          *fLCheckButton;      //!
+   // RadioButton
+   TGVerticalFrame        *fRadioButtonVFrames;//!
+   ROMELabel              *fRadioButtonLabel;  //!
+   TGLayoutHints          *fLRadioButtonLabel; //!
+   TGRadioButton          *fRadioButton;       //!
+   TGLayoutHints          *fLRadioButton;      //!
 
 public:
    XMLToFormElement(const char* type,const char* title,const char* value,const char* path,Int_t width,const char* toolTip = "",XMLToFormElementSignal* signal = NULL) {
