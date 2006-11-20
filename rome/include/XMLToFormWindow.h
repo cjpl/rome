@@ -22,6 +22,7 @@ public:
       EDIT_BOX,
       COMBO_BOX,
       CHECK_BUTTON,
+      RADIO_BUTTON,
       BUTTON
    };
 protected:

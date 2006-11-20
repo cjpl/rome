@@ -66,7 +66,9 @@
 #include <ctype.h>
 #include <stdarg.h>
 #include <errno.h>
+#ifndef OS_VXWORKS
 #include <sys/time.h>
+#endif
 #include <time.h>
 
 #endif
@@ -554,14 +556,6 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, char *node
       pchild = parent->child;
       parent->child = (PMXML_NODE)realloc(parent->child, sizeof(MXML_NODE)*(parent->n_children+1));
 
-      if (parent->child != pchild) {
-         /* correct parent pointer for children */
-         for (i=0 ; i<parent->n_children ; i++) {
-            pchild = parent->child+i;
-            for (j=0 ; j<pchild->n_children ; j++)
-               pchild->child[j].parent = pchild;
-         }
-      }
    }
    assert(parent->child);
 
@@ -569,6 +563,13 @@ PMXML_NODE mxml_add_special_node_at(PMXML_NODE parent, int node_type, char *node
    if (index < parent->n_children) 
       for (i=parent->n_children ; i > index ; i--)
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
+
+   /* correct parent pointer for children */
+   for (i=0 ; i<parent->n_children ; i++) {
+      pchild = parent->child+i;
+      for (j=0 ; j<pchild->n_children ; j++)
+         pchild->child[j].parent = pchild;
+   }
 
    /* initialize new node */
    pnode = &parent->child[index];
@@ -618,7 +619,7 @@ int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
 /* add a whole node tree to an existing parent node at a specific position */
 {
    PMXML_NODE pchild;
-   int i, j;
+   int i, j, k;
 
    assert(parent);
    assert(tree);
@@ -645,10 +646,10 @@ int mxml_add_tree_at(PMXML_NODE parent, PMXML_NODE tree, int index)
          memcpy(&parent->child[i], &parent->child[i-1], sizeof(MXML_NODE));
 
          /* correct parent pointer for children */
-         for (i=0 ; i<parent->n_children ; i++) {
-            pchild = parent->child+i;
-            for (j=0 ; j<pchild->n_children ; j++)
-               pchild->child[j].parent = pchild;
+         for (j=0 ; j<parent->n_children ; j++) {
+            pchild = parent->child+j;
+            for (k=0 ; k<pchild->n_children ; k++)
+               pchild->child[k].parent = pchild;
          }
       }
 

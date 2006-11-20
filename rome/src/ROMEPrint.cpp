@@ -28,7 +28,7 @@ void ROMEPrint::PrintAlways(const char* va_(fmt),...)
       return;
    va_list ap;
    va_start(ap,va_(fmt));
-   cout<<ROMEString::Format(va_(fmt), ap)<<flush;
+   cout<<ROMEString::Format(va_(fmt), ap) <<flush;
    va_end(ap);
 }
 
@@ -73,7 +73,7 @@ void ROMEPrint::Info(const char* va_(fmt),...)
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
    cm_msg(MINFO, "ROMEPrint::Info", text.Data());
-   cout<<text<<flush;
+   cout<<text.Data()<<flush;
 #else
    cout<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
@@ -93,7 +93,7 @@ void ROMEPrint::Warning(const char* va_(fmt),...)
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
    cm_msg(MINFO, "ROMEPrint::Warning", text.Data());
-   cerr<<text<<flush;
+   cerr<<text.Data()<<flush;
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif
@@ -112,8 +112,8 @@ void ROMEPrint::Error(const char* va_(fmt),...)
    va_start(ap,va_(fmt));
 #if defined( HAVE_MIDAS )
    ROMEString text = ROMEString::Format(va_(fmt), ap);
-//   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
-   cerr<<text<<flush;
+   cm_msg(MERROR, "ROMEPrint::Error", text.Data());
+   cerr<<text.Data()<<flush;
 #else
    cerr<<ROMEString::Format(va_(fmt), ap)<<flush;
 #endif

@@ -35,7 +35,7 @@ TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Boo
    fSocket = socket;
    fFolder = GetPointer();
    fReconnect = reconnect;
-   fHost = fSocket->GetUrl();
+//   fHost = fSocket->GetUrl();
    fPort = fSocket->GetPort();
 }
 

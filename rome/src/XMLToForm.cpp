@@ -153,6 +153,7 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
    ROMEString currentPath;
    ROMEString savePath;
    ROMEString entry;
+   ROMEString buttonName;
    Int_t width;
    Int_t buttonID;
    Int_t selectedEntry;
@@ -261,19 +262,23 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
          nComboBox++;
          frame->AddElement(new XMLToFormElement("ComboBox",title,entries->At(selectedEntry),path,width,entries));
       }
-      if (!strcmp(node->child[j].name,"CheckButton")) {
+      if (!strcmp(node->child[j].name,"CheckButton") || !strcmp(node->child[j].name,"RadioButton")) {
+         if (!strcmp(node->child[j].name,"CheckButton"))
+            buttonName = "CheckButton";
+         if (!strcmp(node->child[j].name,"RadioButton"))
+            buttonName = "RadioButton";
          // label
          currentPath = xmlPath;
-         currentPath.AppendFormatted("/CheckButton[%d]/Label",nButton+1);
+         currentPath.AppendFormatted("/%s[%d]/Label",buttonName.Data(),nButton+1);
          fXML->GetPathValue(currentPath,temp);
          Substitute(temp,title);
          // value
          currentPath = xmlPath;
-         currentPath.AppendFormatted("/CheckButton[%d]/Checked",nButton+1);
+         currentPath.AppendFormatted("/%s[%d]/Checked",buttonName.Data(),nButton+1);
          fXML->GetPathValue(currentPath,value);
          // ID
          currentPath = xmlPath;
-         currentPath.AppendFormatted("/CheckButton[%d]/ID",nButton+1);
+         currentPath.AppendFormatted("/%s[%d]/ID",buttonName.Data(),nButton+1);
          fXML->GetPathValue(currentPath,temp);
          if (temp.Length()>0)
             buttonID = value.ToInteger();
@@ -281,14 +286,14 @@ void XMLToForm::XMLToClass(XMLToFormFrame *frame)
             buttonID = -1;
          // path
          path = xmlPath;
-         path.AppendFormatted("/CheckButton[%d]",nButton+1);
+         path.AppendFormatted("/%s[%d]",buttonName.Data(),nButton+1);
          // width
          currentPath = xmlPath;
-         currentPath.AppendFormatted("/CheckButton[%d]/Width",nButton+1);
+         currentPath.AppendFormatted("/%s[%d]/Width",buttonName.Data(),nButton+1);
          fXML->GetPathValue(currentPath,temp);
          width = temp.ToInteger();
          nButton++;
-         frame->AddElement(new XMLToFormElement("CheckButton",title,value,path,width,buttonID));
+         frame->AddElement(new XMLToFormElement(buttonName.Data(),title,value,path,width,buttonID));
       }
       if (!strcmp(node->child[j].name,"FileSelector") && nFileSelector==0) {
          // label

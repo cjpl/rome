@@ -167,7 +167,10 @@ void ROMEBuilder::WriteVisualProjectProjSettings(ROMEXML *xml,Int_t version,ROME
    else
       xml->WriteAttribute("MinimalRebuild","FALSE");
    xml->WriteAttribute("BasicRuntimeChecks","2");
-   xml->WriteAttribute("RuntimeLibrary","2");
+   if (version>2003)
+      xml->WriteAttribute("RuntimeLibrary","3");
+   else
+      xml->WriteAttribute("RuntimeLibrary","2");
    xml->WriteAttribute("RuntimeTypeInfo","TRUE");
    xml->WriteAttribute("WarningLevel","3");
    xml->WriteAttribute("DebugInformationFormat","3");
@@ -527,6 +530,7 @@ void ROMEBuilder::WriteVisualProjectProjFileConfiguration(ROMEXML *xml,const cha
 void ROMEBuilder::WriteVisualProjects(Int_t version)
 {
    int i,j,k;
+   ROMEString str;
    switch (version) {
       case 2002:
          break;
@@ -625,7 +629,9 @@ void ROMEBuilder::WriteVisualProjects(Int_t version)
       }
       if (addLib) {
          xml->StartElement("File");
-         xml->WriteAttribute("RelativePath",mfWinLibName[i].Data());
+         str = mfWinLibName[i].Data();
+         RelativeWindowsPath(str,outDir.Data());
+         xml->WriteAttribute("RelativePath",str.Data());
          xml->EndElement();
       }
    }
