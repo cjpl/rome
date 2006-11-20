@@ -223,7 +223,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             if (fPlayButton->IsDown()) {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/pause.xpm"));
                fPlayButton->SetToolTipText("Stop continuous analysis");
-               if (gROME->IsStandAloneARGUS()) {
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventC();");
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventR();");
@@ -237,7 +237,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             else {
                fPlayButton->SetPicture(gClient->GetPicture("$ROMESYS/argus/icons/play.xpm"));
                fPlayButton->SetToolTipText("Start continuous analysis");
-               if (gROME->IsStandAloneARGUS()) {
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventS();");
                   }
@@ -248,7 +248,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             }
             break;
          case B_Previous:
-            if (gROME->IsStandAloneARGUS()) {
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -264,7 +264,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             }
             break;
          case B_Next:
-            if (gROME->IsStandAloneARGUS()) {
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   ROMEString command;
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -280,7 +280,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             }
             break;
          case B_Stop:
-            if (gROME->IsStandAloneARGUS()) {
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   fNetFolder->ExecuteCommand("gAnalyzer->SetUserEventE();");
                }
@@ -290,7 +290,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
             }
             break;
          case B_Frwd:
-            if (gROME->IsStandAloneARGUS()) {
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                if (fNetFolder) {
                   /* do something to go to EndOfRun */
                }
@@ -335,7 +335,7 @@ Bool_t ArgusAnalyzerController::ProcessMessage(Long_t msg, Long_t parm1, Long_t)
          case T_EventNumber:
             if (fInitialized) {
                fEventNumber = fEventNumberEntry->GetIntNumber();
-               if (gROME->IsStandAloneARGUS()) {
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
                   if (fNetFolder) {
                      ROMEString str;
                      str.SetFormatted("gAnalyzer->SetUserEventJ(%d);",fEventNumber + 1);

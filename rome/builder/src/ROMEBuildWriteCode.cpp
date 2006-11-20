@@ -4986,6 +4986,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
       buffer.AppendFormatted("\n");
    }
 
+
    // Methods
    buffer.AppendFormatted("public:\n");
    // Constructor
