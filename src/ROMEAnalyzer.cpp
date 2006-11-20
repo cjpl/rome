@@ -250,7 +250,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
 
-   if (IsStandAloneARGUS()) {
+   if (IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
       ConnectSocketClient();
    }
    if (!ConnectNetFolders())
@@ -281,7 +281,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
          ROMEPrint::Print("\n");
       }
    }
-   if (IsStandAloneARGUS()) {
+   if (IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
       ShowRunStat(false);
    }
 

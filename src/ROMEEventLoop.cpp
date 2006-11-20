@@ -205,7 +205,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
       // Start ARGUS
       //-------------
-      if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())) {
+      if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
          ROMEPrint::Debug("Starting main window\n");
          gROME->StartWindow();
       }
@@ -265,12 +265,12 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          Exec("Time");
          gROME->GetActiveDAQ()->TimeDAQ();
          ExecuteTasks("Time");
-         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS())
+         if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())
             gROME->GetWindow()->ShowTimeStatistics();
          ROMEPrint::Print("\n");
       }
    }
-   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+   if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
       fUpdateWindow = false;
 //      gROME->GetWindow()->TriggerEventHandler();
    }
@@ -310,7 +310,7 @@ Int_t ROMEEventLoop::RunEvent()
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
    // Update
-   if (!this->isContinue() || gROME->IsStandAloneARGUS()) {
+   if (!this->isContinue() || gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : Update\n");
       if (fCurrentEvent>0) {
          if (!this->Update()) {
@@ -353,11 +353,11 @@ Int_t ROMEEventLoop::RunEvent()
    // User Input
    if (!this->isContinue()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
-      if (!gROME->IsStandAloneARGUS()) {
+      if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
          if (!fFirstUserInput && fCurrentEvent>0) {
             if (!this->UserInput()) {
                gROME->SetTerminationFlag();
-               if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
                   fUpdateWindow = false;
                   gROME->GetWindow()->TriggerEventHandler();
                }
@@ -765,12 +765,12 @@ Bool_t ROMEEventLoop::Update()
 
    if (!gROME->isBatchMode() &&
        ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
-      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
          if (gROME->GetWindow()->IsControllerActive())
             gROME->GetWindow()->GetAnalyzerController()->Update();
          if (fUpdateWindow || gROME->IsEventHandlingRequested()) {
             if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency()) || gROME->IsEventHandlingRequested()) {
-               if (!gROME->IsStandAloneARGUS())
+               if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor())
                   gROME->GetWindow()->TriggerEventHandler();
                fLastUpdateTime = (ULong_t)gSystem->Now();
             }
@@ -815,7 +815,7 @@ Bool_t ROMEEventLoop::UserInput()
    if (fStop) {
       wait = true;
       fStop = false;
-      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
          gROME->GetWindow()->TriggerEventHandler();
       }
    }
@@ -871,7 +871,7 @@ Bool_t ROMEEventLoop::UserInput()
 #else
             ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber());
 #endif
-            if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+            if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
                gROME->GetWindow()->TriggerEventHandler();
             }
             wait = true;
@@ -889,7 +889,7 @@ Bool_t ROMEEventLoop::UserInput()
                fContinuous = false;
                wait = true;
                fUpdateWindow = false;
-               if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS()) {
+               if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
                   gROME->GetWindow()->TriggerEventHandler();
                }
             }

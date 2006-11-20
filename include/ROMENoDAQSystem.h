@@ -25,7 +25,7 @@ public:
                }
    Bool_t      Event(Long64_t event) {
                   gROME->SetCurrentEventNumber(event);
-                  if (gROME->IsStandAloneARGUS()) SetContinue();
+                  if (gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) SetContinue();
                   return true;
                }
    Long64_t    Seek(Long64_t event) { return event; }
