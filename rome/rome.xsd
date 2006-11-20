@@ -279,6 +279,11 @@
 						<xs:documentation>The path to the value in the database. This value will be ignored if 'DataBaseAccess' is not true in the this folder. This value can be overwritten in the configuration file. (required if 'DataBaseAccess' is true in the this folder)</xs:documentation>
 					</xs:annotation>
 				</xs:element>
+				<xs:element name="DataBaseIfStatement" type="xs:string" minOccurs="0">
+					<xs:annotation>
+						<xs:documentation>Add condition if reading database or not. This value will be ignored if 'DataBaseAccess' is not true in the this folder. (optional)</xs:documentation>
+					</xs:annotation>
+				</xs:element>
 				<xs:element name="NoBoundCheck" type="xs:boolean" minOccurs="0">
 					<xs:annotation>
 						<xs:documentation>If this is true, bound check is not done when reading and writing arrayed field. Default is false. For variable length array, ROME checks if memory is allocated instead of checks bound when this key is false.</xs:documentation>

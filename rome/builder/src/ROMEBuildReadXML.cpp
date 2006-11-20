@@ -175,6 +175,7 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    valueArraySpecifier = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDBName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueDBPath = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
+   valueDBIf = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueNoBoundChech = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfValues));
    valueIsTObject = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfValues));
 
@@ -1100,6 +1101,7 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          valueArraySpecifier[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDBName[numOfFolder][numOfValue[numOfFolder]] = "";
          valueDBPath[numOfFolder][numOfValue[numOfFolder]] = "";
+         valueDBIf[numOfFolder][numOfValue[numOfFolder]] = "";
          while (xml->NextLine()) {
             type = xml->GetType();
             name = xml->GetName();
@@ -1181,6 +1183,11 @@ Bool_t ROMEBuilder::ReadXMLFolder()
             if (type == 1 && !strcmp((const char*)name,"DataBasePath")) {
                xml->GetValue(valueDBPath[numOfFolder][numOfValue[numOfFolder]],valueDBPath[numOfFolder][numOfValue[numOfFolder]]);
                FormatText(valueDBPath[numOfFolder][numOfValue[numOfFolder]], kTRUE);
+            }
+            // database if
+            if (type == 1 && !strcmp((const char*)name,"DataBaseIfStatement")) {
+               xml->GetValue(valueDBIf[numOfFolder][numOfValue[numOfFolder]],valueDBIf[numOfFolder][numOfValue[numOfFolder]]);
+               FormatText(valueDBIf[numOfFolder][numOfValue[numOfFolder]], kTRUE);
             }
             // no boundcheck
             if (type == 1 && !strcmp((const char*)name,"NoBoundCheck")) {

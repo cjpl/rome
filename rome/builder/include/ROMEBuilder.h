@@ -172,6 +172,7 @@ protected:
    ROMEString  **valueArraySpecifier;
    ROMEString  **valueDBName;
    ROMEString  **valueDBPath;
+   ROMEString  **valueDBIf;
    Bool_t      **valueNoBoundChech;
    Bool_t      **valueIsTObject;
 

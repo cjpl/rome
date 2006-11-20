@@ -66,6 +66,7 @@ ROMEBuilder::~ROMEBuilder()
    delete [] valueArraySpecifier;
    delete [] valueDBName;
    delete [] valueDBPath;
+   delete [] valueDBIf;
    delete [] valueNoBoundChech;
    delete [] valueIsTObject;
 
