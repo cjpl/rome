@@ -221,10 +221,16 @@ Bool_t ROMESQLDataBase:: MakePhrase(ROMEPath* path,Long64_t runNumber,Long64_t e
    ROMEPrint::Debug("Field\t: %s\n\n", path->GetFieldName());
    ROMEPrint::Debug("following relations...\n");
    // start following relation.
+   ROMEString tmp1, tmp2;
    for (iTable=0;iTable<path->GetNumberOfTables();iTable++) {
       ROMEPrint::Debug("Level-%d: %s\n", iTable, path->GetTableNameAt(iTable));
       //add table to FROM phrase
-      if (!fFromPhrase.Contains(path->GetTableNameAt(iTable))) {
+      tmp1.SetFormatted(",%s", path->GetTableNameAt(iTable));
+      tmp2.SetFormatted(",%s,", path->GetTableNameAt(iTable));
+      if (fFromPhrase != path->GetTableNameAt(iTable) &&
+          !fFromPhrase.EndsWith(tmp1) &&
+          !fFromPhrase.Contains(tmp2)
+         ) {
          if (fFromPhrase.Length())
             fFromPhrase += ",";
          fFromPhrase.AppendFormatted("%s",path->GetTableNameAt(iTable));
