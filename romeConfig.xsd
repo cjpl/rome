@@ -300,7 +300,7 @@
 			</xs:element>
 			<xs:element name="SaveConfiguration" type="xs:boolean" default="false" minOccurs="0">
 				<xs:annotation>
-					<xs:documentation>If this is true, content of configuration XML file would be saved in the output file. Default is false</xs:documentation>
+					<xs:documentation>If this is true, content of configuration XML file will be saved in the output file. Default is false</xs:documentation>
 				</xs:annotation>
 			</xs:element>
 			<xs:element name="Branch" type="BranchDesc" minOccurs="0" maxOccurs="unbounded">
