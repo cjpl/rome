@@ -159,12 +159,12 @@ Bool_t ROMEBuilder::AllocateMemorySpace()
    folderAuthor = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderVersion = static_cast<ROMEString*>(AllocateROMEString(maxNumberOfFolders));
    folderInclude = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfInclude));
-   folderNet = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderLocalFlag = static_cast<Bool_t**>(AllocateBool(maxNumberOfFolders,maxNumberOfInclude));
    folderDataBase = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderUserCode = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderSupport = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
    folderNoReset = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
+   folderNoResetModified = static_cast<Bool_t*>(AllocateBool(maxNumberOfFolders));
 
    valueName = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
    valueType = static_cast<ROMEString**>(AllocateROMEString(maxNumberOfFolders,maxNumberOfValues));
@@ -892,10 +892,10 @@ Bool_t ROMEBuilder::ReadXMLFolder()
    folderDescription[numOfFolder] = "";
    folderShortDescription[numOfFolder] = "";
    folderAuthor[numOfFolder] = mainAuthor;
-   folderNet[numOfFolder] = false;
    numOfFolderInclude[numOfFolder] = 0;
    numOfValue[numOfFolder] = 0;
    folderNoReset[numOfFolder] = false;
+   folderNoResetModified[numOfFolder] = false;
 
    // set parent
    folderParentName[numOfFolder] = parent[recursiveDepth];
@@ -1016,13 +1016,6 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          xml->GetValue(folderShortDescription[numOfFolder],folderShortDescription[numOfFolder]);
          FormatText(folderShortDescription[numOfFolder], kTRUE);
       }
-      // Net Folder
-      if (type == 1 && !strcmp((const char*)name,"NetFolder")) {
-         xml->GetValue(tmp,"false");
-         FormatText(tmp, kTRUE);
-         if (tmp == "true")
-            folderNet[numOfFolder] = true;
-      }
       // folder author
       if (type == 1 && !strcmp((const char*)name,"Author")) {
          while (xml->NextLine()) {
@@ -1084,6 +1077,13 @@ Bool_t ROMEBuilder::ReadXMLFolder()
          FormatText(tmp, kTRUE);
          if (tmp == "true")
             folderNoReset[numOfFolder] = true;
+      }
+      // folder no reset modified by framework
+      if (type == 1 && !strcmp((const char*)name,"NoResetModifiedByFramework")) {
+         xml->GetValue(tmp,"false");
+         FormatText(tmp, kTRUE);
+         if (tmp == "true")
+            folderNoResetModified[numOfFolder] = true;
       }
       // folder field
       if (type == 1 && !strcmp((const char*)name,"Field")) {

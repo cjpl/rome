@@ -20,6 +20,7 @@
 
 #include "ROMEiostream.h"
 #include "ArgusTab.h"
+#include "ArgusWindow.h"
 #include "ROMEAnalyzer.h"
 
 ClassImp(ArgusTab)
@@ -35,7 +36,9 @@ ArgusTab::ArgusTab():TGCompositeFrame(NULL,1,1) {
 void ArgusTab::ArgusInit() {
    // Init EventHandler
    fWatchAll.Start(false);
+   gROME->GetWindow()->SetStatus(0,"",0);
    BaseInit();
+   gROME->GetWindow()->SetStatus(2,"",0);
    fWatchAll.Stop();
 }
 
@@ -45,11 +48,13 @@ ArgusTab::~ArgusTab() {
 void ArgusTab::ArgusEventHandler() {
    if (fBusy)
       return;
+   gROME->GetWindow()->SetStatus(0,"",0);
    fWatchAll.Start(false);
    fBusy = true;
    BaseEventHandler();
    fBusy = false;
    fWatchAll.Stop();
+   gROME->GetWindow()->SetStatus(2,"",0);
 }
 
 // Time methods

@@ -62,10 +62,6 @@ protected:
    TGPopupMenu         *fMenuView10[10][10];  //!
    TGPopupMenu         *fMenuView100[10]; //!
    TGPopupMenu         *fMenuViewDivideColumn[kMaxNumberOfPadsX]; //!
-   TGHProgressBar      *fProgress;      //! 
-   TRootEmbeddedCanvas *fStatus;        //! 
-   TRootEmbeddedCanvas *fStatusText;    //! 
-   TText               *fText;          //! 
 
    Int_t                fCurrentDisplayType;//! 
    Int_t                fNumberOfDisplayTypes;//! 
@@ -125,7 +121,6 @@ protected:
    void BaseTabSelected();
    void BaseTabUnSelected();
    void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);
-   void SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime=10);
    void SetStatisticBox(Bool_t flag);
    void Modified(Bool_t processEvents=true);
    void SetLimits(TGraph *g);

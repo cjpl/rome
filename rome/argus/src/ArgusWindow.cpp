@@ -12,12 +12,14 @@
 #include <RConfig.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( push )
-#pragma warning( disable : 4800 )
+#pragma warning( disable : 4800 4244)
 #endif                          // R__VISUAL_CPLUSPLUS
 #include <TSystem.h>
 #include <TGMsgBox.h>
 #include <TGTab.h>
 #include <TGStatusBar.h>
+#include <TGProgressBar.h>
+#include <TColor.h>
 #include <TObjArray.h>
 #include <TGMenu.h>
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -59,6 +61,7 @@ void ArgusWindow::InitArgus()
    fTabObjects = 0;
    fController = 0;
    fControllerNetFolder = 0;
+   fProgress = 0;
 
    fWatchAll.Reset();
 }
@@ -72,6 +75,7 @@ ArgusWindow::~ArgusWindow()
    SafeDelete(fMenuNetFolder);
    SafeDelete(fTab);
    SafeDelete(fTabObjects);
+   SafeDelete(fProgress);
 #endif
 //   SafeDelete(fController); // fController can be deleted by clicking closed box.
 }
@@ -86,11 +90,15 @@ Bool_t ArgusWindow::Start()
       fController = new ArgusAnalyzerController(gClient->GetRoot(),this,100,100,fControllerNetFolder);
 
    // Create status bar
-   Int_t parts[] = { 5 };
+   Int_t parts[2] = { 70,30 };
    fStatusBar = new TGStatusBar(this, 50, 10, kHorizontalFrame);
    fStatusBar->SetParts(parts, sizeof(parts) / sizeof(Int_t));
+   fProgress = new TGHProgressBar(fStatusBar->GetBarPart(1),TGProgressBar::kStandard,20);
+   fProgress->SetPosition(0);
+   fStatusBar->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
    if (fStatusBarSwitch)
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
+   SetStatus(0,"",0);
 
    // Create menu
    fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
@@ -128,6 +136,7 @@ Bool_t ArgusWindow::Start()
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
+   SetStatus(2,"",0);
    return kTRUE;
 }
 
@@ -169,5 +178,28 @@ void ArgusWindow::ShowTimeStatistics()
    for (i=0;i<fTabObjects->GetEntriesFast();i++) {
       ((ArgusTab*)fTabObjects->At(i))->ShowTimeStatistics();
    }
+}
+
+void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime)
+{
+   // Set status bar
+   // mode 0 : initialization
+   // mode 1 : set progress
+   // mode 2 : finish
+
+   fProgress->SetPosition((float)(fProgress->GetMax()*progress));
+   gROME->GetWindow()->GetStatusBar()->SetText(text);
+
+   if (mode==0) {
+      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(TColor::RGB2Pixel(255,150,150));
+      gROME->GetWindow()->GetStatusBar()->Layout();
+      fProgress->Reset();
+   }
+   if (mode==2) {
+      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
+   }
+   gSystem->ProcessEvents();
+   gSystem->Sleep(sleepingTime);
+   return;
 }
 

@@ -88,10 +88,6 @@ ArgusHistoDisplay::ArgusHistoDisplay() : ArgusTab()
       for (j=0;j<10;j++)
          fMenuView10[i][j] = 0;
    }
-   fProgress = 0;
-   fStatus = 0;
-   fStatusText = 0;
-   fText = 0;
    fCanvas = 0;
    fDialog = 0;
 
@@ -122,10 +118,6 @@ ArgusHistoDisplay::~ArgusHistoDisplay()
       for (j=0;j<10;j++)
          SafeDelete(fMenuView10[i][j]);
    }
-   SafeDelete(fProgress);
-   SafeDelete(fStatus);
-   SafeDelete(fStatusText);
-   SafeDelete(fText);
    SafeDelete(fCanvas);
    SafeDelete(fDialog);
 
@@ -240,13 +232,6 @@ void ArgusHistoDisplay::BaseInit()
 
    AddFrame(fCanvas,
             new TGLayoutHints(kLHintsLeft | kLHintsExpandX | kLHintsExpandY, 0, 0, 1, 1));
-
-   // Status bar
-   Int_t parts[2] = { 70,30 };
-   gROME->GetWindow()->GetStatusBar()->SetParts(parts,2);
-   fProgress = new TGHProgressBar(gROME->GetWindow()->GetStatusBar()->GetBarPart(1),TGProgressBar::kStandard,20);
-   fProgress->SetPosition(0);
-   gROME->GetWindow()->GetStatusBar()->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
 
    SetWindowName("DRS");
 
@@ -435,29 +420,6 @@ void ArgusHistoDisplay::SetStatisticBox(Bool_t flag)
       fStyle->SetOptFit(0);
       fStyle->SetOptStat(0);
    }
-}
-
-void ArgusHistoDisplay::SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime)
-{
-   // Set status bar
-   // mode 0 : initialization
-   // mode 1 : set progress
-   // mode 2 : finish
-
-   fProgress->SetPosition((float)(fProgress->GetMax()*progress));
-   gROME->GetWindow()->GetStatusBar()->SetText(text);
-
-   if (mode==0) {
-      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(TColor::RGB2Pixel(255,150,150));
-      gROME->GetWindow()->GetStatusBar()->Layout();
-      fProgress->Reset();
-   }
-   if (mode==2) {
-      gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(GetDefaultFrameBackground());
-   }
-   gSystem->ProcessEvents();
-   gSystem->Sleep(sleepingTime);
-   return;
 }
 
 void ArgusHistoDisplay::SetupPads(Int_t nx, Int_t ny, Bool_t redraw)

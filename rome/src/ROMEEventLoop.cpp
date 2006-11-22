@@ -78,6 +78,8 @@ ROMEEventLoop::ROMEEventLoop(const char *name,const char *title):ROMETask(name,t
    fHaveEndOfEventMacro = kFALSE;
    fHaveEndOfRunMacro = kFALSE;
    fNetFolderServerUpdateThread = 0;
+   fProgressDelta = 10000;
+   fUpdateWindowLastEvent = 0;
 }
 
 ROMEEventLoop::~ROMEEventLoop()
@@ -125,11 +127,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
 
    // Initialisation
    //----------------
-   if (!this->DAQInit()) {
-      this->Terminate();
-      gROME->SetTerminationFlag();
-      ROMEPrint::Print("\n\nTerminating Program !\n");
-      return;
+   if (!gROME->IsROMEMonitor()) {
+      if (!this->DAQInit()) {
+         this->Terminate();
+         gROME->SetTerminationFlag();
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return;
+      }
    }
 
    if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
@@ -152,54 +156,56 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
    //----------------
    ROMEPrint::Debug("Entering run loop\n");
    for (ii=0;!this->isTerminate();ii++) {
-      if (!this->DAQBeginOfRun(eventLoopIndex)) {
-         this->DAQTerminate();
-         gROME->SetTerminationFlag();
-         ROMEPrint::Print("\n\nTerminating Program !\n");
-         return;
-      }
-      if (this->isEndOfRun()) {
-         eventLoopIndex++;
-         continue;
-      }
-      if (this->isTerminate()) {
-         break;
-      }
-
-      if (this->isRunning()) {
-         // Hot Links
-#if defined( HAVE_MIDAS )
-         if (ROMEEventLoop::fHotLinksChanged) {
-            this->UpdateHotLinks();
-            ROMEEventLoop::fHotLinksChanged = false;
+      if (!gROME->IsROMEMonitor()) {
+         if (!this->DAQBeginOfRun(eventLoopIndex)) {
+            this->DAQTerminate();
+            gROME->SetTerminationFlag();
+            ROMEPrint::Print("\n\nTerminating Program !\n");
+            return;
          }
-#endif // HAVE_MIDAS
-
-         fHaveBeginOfRunMacro = (fBeginOfRunMacro.Length() > 0);
-         fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
-         fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
-         fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
-
-         // Begin of Run Tasks
-         ReadRunHeaders();
-         if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-            ROMEPrint::Debug("Executing BeginOfRun tasks\n");
-            ExecuteTasks("BeginOfRun");
-            if (fHaveBeginOfRunMacro)
-               gROME->GetApplication()->ProcessFile(fBeginOfRunMacro.Data());
-            CleanTasks();
+         if (this->isEndOfRun()) {
+            eventLoopIndex++;
+            continue;
          }
-         WriteRunHeaders();
+         if (this->isTerminate()) {
+            break;
+         }
 
-         eventLoopIndex++;
+         if (this->isRunning()) {
+            // Hot Links
+   #if defined( HAVE_MIDAS )
+            if (ROMEEventLoop::fHotLinksChanged) {
+               this->UpdateHotLinks();
+               ROMEEventLoop::fHotLinksChanged = false;
+            }
+   #endif // HAVE_MIDAS
 
-         // Output
-         if (gROME->IsShowRunStat()) {
-#if defined( R__VISUAL_CPLUSPLUS )
-            ROMEPrint::Print("\n\nRun %I64d started\n",gROME->GetCurrentRunNumber());
-#else
-            ROMEPrint::Print("\n\nRun %lld started\n",gROME->GetCurrentRunNumber());
-#endif
+            fHaveBeginOfRunMacro = (fBeginOfRunMacro.Length() > 0);
+            fHaveBeginOfEventMacro =  (fBeginOfEventMacro.Length() > 0);
+            fHaveEndOfEventMacro =  (fEndOfEventMacro.Length() > 0);
+            fHaveEndOfRunMacro =  (fEndOfRunMacro.Length() > 0);
+
+            // Begin of Run Tasks
+            ReadRunHeaders();
+            if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+               ROMEPrint::Debug("Executing BeginOfRun tasks\n");
+               ExecuteTasks("BeginOfRun");
+               if (fHaveBeginOfRunMacro)
+                  gROME->GetApplication()->ProcessFile(fBeginOfRunMacro.Data());
+               CleanTasks();
+            }
+            WriteRunHeaders();
+
+            eventLoopIndex++;
+
+            // Output
+            if (gROME->IsShowRunStat()) {
+   #if defined( R__VISUAL_CPLUSPLUS )
+               ROMEPrint::Print("\n\nRun %I64d started\n",gROME->GetCurrentRunNumber());
+   #else
+               ROMEPrint::Print("\n\nRun %lld started\n",gROME->GetCurrentRunNumber());
+   #endif
+            }
          }
       }
 
@@ -208,6 +214,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
          ROMEPrint::Debug("Starting main window\n");
          gROME->StartWindow();
+         fWindowFirstDraw = kTRUE;
       }
 
       // Loop over Events
@@ -224,7 +231,7 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             break;
       }
 
-      if (this->isEndOfRun() || this->isTerminate()) {
+      if ((this->isEndOfRun() || this->isTerminate()) && !gROME->IsROMEMonitor()) {
          if (this->isEndOfRun())
             this->SetBeginOfRun();
 
@@ -310,7 +317,7 @@ Int_t ROMEEventLoop::RunEvent()
    ROMEPrint::Debug("ROMEEventLoop::RunEvent()");
 
    // Update
-   if (!this->isContinue() || gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
+   if (!this->isContinue() || this->isStopped() || gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : Update\n");
       if (fCurrentEvent>0) {
          if (!this->Update()) {
@@ -338,7 +345,7 @@ Int_t ROMEEventLoop::RunEvent()
 
    // Check Event Numbers
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : CheckEventNumber\n");
-   if (gROME->isOffline()) {
+   if (gROME->isOffline() && !gROME->IsROMEMonitor()) {
       int status = gROME->CheckEventNumber(fCurrentEvent);
       if (status==0) {
          return kContinue;
@@ -351,7 +358,7 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // User Input
-   if (!this->isContinue()) {
+   if (!this->isContinue() && !gROME->IsROMEMonitor()) {
       ROMEPrint::Debug("ROMEEventLoop::RunEvent() : UserInput\n");
       if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
          if (!fFirstUserInput && fCurrentEvent>0) {
@@ -359,6 +366,7 @@ Int_t ROMEEventLoop::RunEvent()
                gROME->SetTerminationFlag();
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
                   fUpdateWindow = false;
+                  fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                   gROME->GetWindow()->TriggerEventHandler();
                }
                // Terminate
@@ -383,90 +391,105 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Set Fill Event equal true
-   if (!this->isContinue()) {
+   if (!this->isContinue() && !gROME->IsROMEMonitor()) {
       gROME->SetFillEvent();
    }
 
    // Read Event
    ROMEPrint::Debug("ROMEEventLoop::RunEvent() : DAQEvent\n");
-   if (!this->DAQEvent()) {
-      this->Terminate();
-      gROME->SetTerminationFlag();
-      ROMEPrint::Print("\n\nTerminating Program !\n");
-      return kReturn;
-   }
-   if (fHaveBeginOfEventMacro)
-      gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
-   if (this->isEndOfRun()) {
-      this->SetStopped();
-      return kBreak;
-   }
-   if (this->isBeginOfRun()) {
-      this->SetAnalyze();
-      return kBreak;
-   }
-   if (this->isTerminate()) {
-      return kBreak;
-   }
-   if (this->isContinue()) {
-      return kContinue;
-   }
-
-   // Hot Links
-#if defined( HAVE_MIDAS )
-   if (ROMEEventLoop::fHotLinksChanged) {
-      this->UpdateHotLinks();
-      ROMEEventLoop::fHotLinksChanged = false;
-   }
-#endif // HAVE_MIDAS
-
-   // Event Tasks
-   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : ExecuteTasks\n");
-   if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
-      text.SetFormatted("Event%d",gROME->GetEventID());
-      ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
-      ExecuteTasks(text.Data());
-      if (fHaveEndOfEventMacro)
-         gROME->GetApplication()->ProcessFile(fEndOfEventMacro.Data());
-      CleanTasks();
-   }
-   if (gROME->isTerminationFlag()) {
-      ROMEPrint::Print("\n\nTerminating Program !\n");
-      return kReturn;
-   }
-   if (this->isEndOfRun())
-      return kBreak;
-   if (this->isContinue()) {
-      return kContinue;
-   }
-
-   // Store Event
-   const ULong_t kInterval = 10000; // this should be changed to parameter
-   if (gROME->GetNetFolderServer()) {
-      if (gROME->GetFolderStorageStatus() == ROMEAnalyzer::kStorageFree
-          && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
-         fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
-         gROME->FillFolderStorage();
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-         if (fNetFolderServerUpdateThread) {
-            TThread::Delete(fNetFolderServerUpdateThread);
-            fNetFolderServerUpdateThread = 0;
-         }
-         fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillFoldersInNetFolderServer,(void*) gROME);
-         fNetFolderServerUpdateThread->Run();
-#endif
-      }
-   }
-
-   // Write Event
-   ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
-   if (gROME->isFillEvent()) {
-      if (!this->WriteEvent()) {
+   if (!gROME->IsROMEMonitor()) {
+      if (!this->DAQEvent()) {
          this->Terminate();
          gROME->SetTerminationFlag();
          ROMEPrint::Print("\n\nTerminating Program !\n");
          return kReturn;
       }
+      if (fHaveBeginOfEventMacro)
+         gROME->GetApplication()->ProcessFile(fBeginOfEventMacro.Data());
+      if (this->isEndOfRun()) {
+         this->SetStopped();
+         return kBreak;
+      }
+      if (this->isBeginOfRun()) {
+         this->SetAnalyze();
+         return kBreak;
+      }
+      if (this->isTerminate()) {
+         return kBreak;
+      }
+      if (this->isContinue()) {
+         return kContinue;
+      }
+   }
+
+   // Hot Links
+#if defined( HAVE_MIDAS )
+   if (!gROME->IsROMEMonitor()) {
+      if (ROMEEventLoop::fHotLinksChanged) {
+         this->UpdateHotLinks();
+         ROMEEventLoop::fHotLinksChanged = false;
+      }
+   }
+#endif // HAVE_MIDAS
+
+   // Event Tasks
+   if (!gROME->IsROMEMonitor()) {
+      ROMEPrint::Debug("ROMEEventLoop::RunEvent() : ExecuteTasks\n");
+      if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
+         text.SetFormatted("Event%d",gROME->GetEventID());
+         ROMEPrint::Debug("Executing Event tasks (option = '%s')\n", text.Data());
+         ExecuteTasks(text.Data());
+         if (fHaveEndOfEventMacro)
+            gROME->GetApplication()->ProcessFile(fEndOfEventMacro.Data());
+         CleanTasks();
+      }
+      if (gROME->isTerminationFlag()) {
+         ROMEPrint::Print("\n\nTerminating Program !\n");
+         return kReturn;
+      }
+      if (this->isEndOfRun())
+         return kBreak;
+      if (this->isContinue()) {
+         return kContinue;
+      }
+   }
+
+   // Store Event
+   if (!gROME->IsROMEMonitor()) {
+      const ULong_t kInterval = 10000; // this should be changed to parameter
+      if (gROME->GetNetFolderServer()) {
+         if (gROME->GetObjectStorageStatus() == ROMEAnalyzer::kStorageFree
+            && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
+            fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
+            gROME->FillObjectStorage();
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+            if (fNetFolderServerUpdateThread) {
+               TThread::Delete(fNetFolderServerUpdateThread);
+               fNetFolderServerUpdateThread = 0;
+            }
+            fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
+            fNetFolderServerUpdateThread->Run();
+#endif
+         }
+      }
+   }
+
+   // Write Event
+   if (!gROME->IsROMEMonitor()) {
+      ROMEPrint::Debug("ROMEEventLoop::RunEvent() : WriteEvent\n");
+      if (gROME->isFillEvent()) {
+         if (!this->WriteEvent()) {
+            this->Terminate();
+            gROME->SetTerminationFlag();
+            ROMEPrint::Print("\n\nTerminating Program !\n");
+            return kReturn;
+         }
+      }
+   }
+   if (fWindowFirstDraw && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+      fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+      gROME->GetWindow()->TriggerEventHandler();
+      fWindowFirstDraw = kFALSE;
    }
 
    return kContinue;
@@ -744,7 +767,9 @@ Bool_t ROMEEventLoop::Update()
    // Update the Analyzer. Called after the Event tasks.
 
    ROMEString text;
+   Long64_t newUpdateWindowEvent;
    // Progress Display
+   ROMEPrint::Debug("ROMEEventLoop::Update() Progress Display");
    if (fProgressDelta>1) {
       if ((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5) >= fProgressLastEvent + fProgressDelta) {
          fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
@@ -758,26 +783,16 @@ Bool_t ROMEEventLoop::Update()
       }
    }
 
-   if (gROME->GetActiveDAQ()->isStopped() && gROME->IsEventHandlingRequested()) {
+   ROMEPrint::Debug("ROMEEventLoop::Update() TriggerEventHandler");
+   if (gROME->GetActiveDAQ()->isStopped() && gROME->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+      fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
       gROME->GetWindow()->TriggerEventHandler();
       gROME->ClearEventHandlingRequest();
    }
 
+   ROMEPrint::Debug("ROMEEventLoop::Update() Update");
    if (!gROME->isBatchMode() &&
-       ( gROME->IsEventHandlingRequested() || !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
-      if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
-         if (gROME->GetWindow()->IsControllerActive())
-            gROME->GetWindow()->GetAnalyzerController()->Update();
-         if (fUpdateWindow || gROME->IsEventHandlingRequested()) {
-            if ((ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency()) || gROME->IsEventHandlingRequested()) {
-               if (!gROME->IsStandAloneARGUS() || gROME->IsROMEMonitor())
-                  gROME->GetWindow()->TriggerEventHandler();
-               fLastUpdateTime = (ULong_t)gSystem->Now();
-            }
-         }
-         gSystem->ProcessEvents();
-         gSystem->Sleep(10);
-      }
+       ( !fContinuous || ((fProgressDelta==1 || !((Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5)%fProgressDelta) && fProgressWrite)))) {
       if (gROME->IsStandAloneROME() || gROME->IsROMEAndARGUS()) {
 #if defined( R__VISUAL_CPLUSPLUS )
          ROMEPrint::Print("processed event number %I64d                                              \r",gROME->GetCurrentEventNumber());
@@ -787,11 +802,30 @@ Bool_t ROMEEventLoop::Update()
          ROMEPrint::Debug("\n");
 #endif
       }
-      gROME->ClearEventHandlingRequest();
       fProgressWrite = false;
    }
 
+   if (!gROME->isBatchMode() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+      newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
+      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->IsEventHandlingRequested()) {
+         fUpdateWindowLastEvent = newUpdateWindowEvent;
+         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->IsEventHandlingRequested()) {
+            if (gROME->GetWindow()->IsControllerActive())
+               gROME->GetWindow()->GetAnalyzerController()->Update();
+            if (!this->isStopped()) {
+               fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+               gROME->GetWindow()->TriggerEventHandler();
+            }
+            fLastUpdateTime = (ULong_t)gSystem->Now();
+         }
+         gROME->ClearEventHandlingRequest();
+      }
+      gSystem->ProcessEvents();
+      gSystem->Sleep(10);
+   }
+
    // ODB update
+   ROMEPrint::Debug("ROMEEventLoop::Update() ODB update");
 #if defined( HAVE_MIDAS )
    db_send_changed_records();
 #endif
@@ -816,6 +850,7 @@ Bool_t ROMEEventLoop::UserInput()
       wait = true;
       fStop = false;
       if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
          gROME->GetWindow()->TriggerEventHandler();
       }
    }
@@ -832,7 +867,8 @@ Bool_t ROMEEventLoop::UserInput()
    fUserInputLastTime = (ULong_t)gSystem->Now();
 
    while (wait || first) {
-      if (!first && gROME->IsEventHandlingRequested()) {
+      if (!first && gROME->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
          gROME->GetWindow()->TriggerEventHandler();
          gROME->ClearEventHandlingRequest();
       }
@@ -872,6 +908,7 @@ Bool_t ROMEEventLoop::UserInput()
             ROMEPrint::Print("Stopped after event %lld                   \r",gROME->GetCurrentEventNumber());
 #endif
             if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+               fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                gROME->GetWindow()->TriggerEventHandler();
             }
             wait = true;
@@ -890,6 +927,7 @@ Bool_t ROMEEventLoop::UserInput()
                wait = true;
                fUpdateWindow = false;
                if (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor()) {
+                  fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
                   gROME->GetWindow()->TriggerEventHandler();
                }
             }

@@ -177,7 +177,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fRomeOutputFile = 0;
    fWindow = 0;
    fWindowUpdateFrequency = 0;
-   fFolderStorageStatus = kStorageFree;
+   fObjectStorageStatus = kStorageFree;
    fRequestEventHandling = false;
 }
 
@@ -250,7 +250,7 @@ Bool_t ROMEAnalyzer::Start(int argc, char **argv)
 
    static_cast<ROMEEventLoop*>(fMainTask)->AddTreeBranches();
 
-   if (IsStandAloneARGUS() || gROME->IsROMEMonitor()) {
+   if (gROME->IsROMEMonitor()) {
       ConnectSocketClient();
    }
    if (!ConnectNetFolders())
@@ -1373,10 +1373,41 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
    }
 }
 
-THREADTYPE ROMEAnalyzer::FillFoldersInNetFolderServer(ROMEAnalyzer *localThis)
+THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 {
-   if (localThis->GetFolderStorageStatus() != kStorageFree)
+   if (localThis->GetObjectStorageStatus() != kStorageFree)
       return THREADRETURN;
-   localThis->GetNetFolderServer()->UpdateFolders();
+   localThis->GetNetFolderServer()->UpdateObjects();
    return THREADRETURN;
+}
+void ROMEAnalyzer::CopyTObjectWithStreamer(TObject* source,TObject* destination)
+{
+   const Int_t bufsize = 10000;
+   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);
+   buffer->SetWriteMode();
+   buffer->MapObject(source);  //register obj in map to handle self reference
+   ((TObject*)source)->Streamer(*buffer);
+   // read new object from buffer
+   buffer->SetReadMode();
+   buffer->ResetMap();
+   buffer->SetBufferOffset(0);
+   buffer->MapObject(destination);  //register obj in map to handle self reference
+   destination->Streamer(*buffer);
+   destination->ResetBit(kIsReferenced);
+   destination->ResetBit(kCanDelete);
+}
+
+Long64_t ROMEAnalyzer::GetCurrentEventNumber()
+{
+   if (gROME->IsROMEMonitor()) {
+      fCurrentEventNumber = gROME->GetSocketClientNetFolder()->GetCurrentEventNumber();
+   }
+   return fCurrentEventNumber;
+}
+Long64_t ROMEAnalyzer::GetCurrentRunNumber()
+{
+   if (gROME->IsROMEMonitor()) {
+      fCurrentRunNumber = gROME->GetSocketClientNetFolder()->GetCurrentRunNumber();
+   }
+   return fCurrentRunNumber;
 }
