@@ -154,12 +154,12 @@ protected:
    ROMEString   *folderAuthor;
    ROMEString   *folderVersion;
    ROMEString  **folderInclude;
-   Bool_t       *folderNet;
    Bool_t      **folderLocalFlag;
    Bool_t       *folderDataBase;
    Bool_t       *folderUserCode;
    Bool_t       *folderSupport;
    Bool_t       *folderNoReset;
+   Bool_t       *folderNoResetModified;
    Bool_t        hasFolderUserCode;
    Bool_t        hasFolderGenerated;
 
@@ -568,6 +568,7 @@ private:
    Bool_t  WriteAnalyzer2Cpp();
    Bool_t  WriteAnalyzer3Cpp();
    Bool_t  WriteAnalyzerH();
+   Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass);
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindow2Cpp();
    Bool_t  WriteWindowH();
@@ -600,6 +601,8 @@ private:
    Bool_t  WriteRootDAQClassH(Int_t iTree,Int_t iBranch);
    Bool_t  WriteNetFolderServerCpp();
    Bool_t  WriteNetFolderServerH();
+   Bool_t  WriteCheckCommandObject(ROMEString &buffer,const char *fieldIdentifier,const char *fieldName,const char *pointer);
+   Bool_t  WriteUpdateObjectsObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass);
    Bool_t  WriteDAQCpp();
    Bool_t  WriteDAQH();
    Bool_t  WriteDBCpp();

@@ -238,7 +238,7 @@ protected:
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
 
    // Folder Storage Status
-   Int_t           fFolderStorageStatus;
+   Int_t           fObjectStorageStatus;
 
 #ifndef __CINT__
    // stream
@@ -372,7 +372,7 @@ public:
    void            GetRunNumberStringAt(ROMEString &buffer,Int_t i, const char* format = 0);
    Long64_t        GetRunNumberAt(Int_t i) { if (i>=fRunNumber.GetSize()) return 0; return fRunNumber.At(i); }
    void            GetCurrentRunNumberString(ROMEString &buffer, const char* format = 0);
-   Long64_t        GetCurrentRunNumber() { return fCurrentRunNumber; }
+   Long64_t        GetCurrentRunNumber();
    Int_t           GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    const char     *GetRunNumberStringOriginal() { return fRunNumberString.Data(); }
 
@@ -386,7 +386,7 @@ public:
    Long64_t        GetNextRunNumber(const Long64_t runNumber);
 
    // Event Number
-   Long64_t        GetCurrentEventNumber() { return fCurrentEventNumber; }
+   Long64_t        GetCurrentEventNumber();
    const char     *GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
    void            SetCurrentEventNumber(Long64_t eventNumber) { fCurrentEventNumber = eventNumber; }
@@ -604,10 +604,12 @@ public:
    void            redirectOutput();
    void            restoreOutput();
 
-   static THREADTYPE FillFoldersInNetFolderServer(ROMEAnalyzer *localThis);
-   virtual void    FillFolderStorage() = 0;
-   Int_t           GetFolderStorageStatus() { return fFolderStorageStatus; }
-   void            SetFolderStorageStatus(Int_t status) { fFolderStorageStatus = status; }
+   static THREADTYPE FillObjectsInNetFolderServer(ROMEAnalyzer *localThis);
+   virtual void    FillObjectStorage() = 0;
+   Int_t           GetObjectStorageStatus() { return fObjectStorageStatus; }
+   void            SetObjectStorageStatus(Int_t status) { fObjectStorageStatus = status; }
+
+   void            CopyTObjectWithStreamer(TObject* source,TObject* destination);
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);

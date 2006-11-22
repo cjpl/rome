@@ -32,6 +32,7 @@
 
 class TGTab;
 class TObjArray;
+class TGHProgressBar;
 
 class ArgusWindow : public TGMainFrame 
 {
@@ -41,6 +42,7 @@ protected:
    ROMEString               fTimeAllString;    //! Elapsed Time of all in a readable format
    TGStatusBar             *fStatusBar;        //! status bar
    Bool_t                   fStatusBarSwitch;  //! status bar switch
+   TGHProgressBar          *fProgress;      //! 
    Int_t                    fUpdateFrequency;  //! update frequency
    TGMenuBar               *fMenuBar;          //! menu bar
    TGPopupMenu             *fMenuFile;         //! file menu
@@ -52,7 +54,7 @@ protected:
    ArgusAnalyzerController *fController;
    ROMENetFolder           *fControllerNetFolder;
    Float_t                  fWindowScale;      //! Window scale
-   
+
    enum CommandIdentifiers{
       M_FILE_CONTROLLER,
       M_FILE_EXIT
@@ -84,11 +86,12 @@ public:
    void            SetStatusBarSwitch(Bool_t sw) { fStatusBarSwitch = sw; }
    Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
    TGStatusBar*    GetStatusBar() { return fStatusBar; }
+   void            ClearStatusBar();
+   void            SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime=10);
 
    // Menu
    TGMenuBar*      GetMenuBar() { return fMenuBar; }
    void            CloseWindow();
-   void            ClearStatusBar();
    
    // Tabs
    void            AddTab(TObject *tab) { fTabObjects->AddLast(tab); }

@@ -85,10 +85,10 @@ THREADTYPE ROMENetFolderServer::Server(void *arg)
    if(localThis->Register(socket) == -1)
       return THREADRETURN;
 
-   localThis->ConstructFolders(socket);
+   localThis->ConstructObjects(socket);
    while (ROMENetFolderServer::ResponseFunction(socket))
    {}
-   localThis->DestructFolders(socket);
+   localThis->DestructObjects(socket);
    localThis->UnRegister(socket);
 
 #endif // ROOT_VERSION

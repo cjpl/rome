@@ -50,12 +50,12 @@ ROMEBuilder::~ROMEBuilder()
    delete [] folderAuthor;
    delete [] folderVersion;
    delete [] folderInclude;
-   delete [] folderNet;
    delete [] folderLocalFlag;
    delete [] folderDataBase;
    delete [] folderUserCode;
    delete [] folderSupport;
    delete [] folderNoReset;
+   delete [] folderNoResetModified;
 
    delete [] valueName;
    delete [] valueType;
