@@ -10605,13 +10605,14 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("\n\n");
 
    buffer.AppendFormatted("#include \"ROMENetFolderServer.h\"\n");
-   buffer.AppendFormatted("class TH1;\n");
-   buffer.AppendFormatted("class TH2;\n");
-   buffer.AppendFormatted("class TH3;\n");
-   buffer.AppendFormatted("class TProfile;\n");
-   buffer.AppendFormatted("class TProfile2D;\n");
-   buffer.AppendFormatted("class TGraph;\n");
-   buffer.AppendFormatted("class TGraph2D;\n");
+   buffer.AppendFormatted("#include <TH1.h>\n");
+   buffer.AppendFormatted("#include <TH2.h>\n");
+   buffer.AppendFormatted("#include <TH3.h>\n");
+   buffer.AppendFormatted("#include <TProfile.h>\n");
+   buffer.AppendFormatted("#include <TProfile2D.h>\n");
+   buffer.AppendFormatted("#include <TGraph.h>\n");
+   buffer.AppendFormatted("#include <TGraph2D.h>\n");
+
    // Folder class declaration
    Int_t i,j;
    for (i=0;i<numOfFolder;i++) {
