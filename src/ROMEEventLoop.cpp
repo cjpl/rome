@@ -456,7 +456,7 @@ Int_t ROMEEventLoop::RunEvent()
    // Store Event
    if (!gROME->IsROMEMonitor()) {
       const ULong_t kInterval = 10000; // this should be changed to parameter
-/*      if (gROME->GetNetFolderServer()) {
+      if (gROME->GetNetFolderServer()) {
          if (gROME->GetObjectStorageStatus() == ROMEAnalyzer::kStorageFree
             && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
             fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
@@ -470,7 +470,7 @@ Int_t ROMEEventLoop::RunEvent()
             fNetFolderServerUpdateThread->Run();
 #endif
          }
-      }*/
+      }
    }
 
    // Write Event
@@ -784,10 +784,12 @@ Bool_t ROMEEventLoop::Update()
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() TriggerEventHandler");
-   if (gROME->GetActiveDAQ()->isStopped() && gROME->GetWindow()->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-      fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
-      gROME->GetWindow()->TriggerEventHandler();
-      gROME->GetWindow()->ClearEventHandlingRequest();
+   if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+      if (gROME->GetActiveDAQ()->isStopped() && gROME->GetWindow()->IsEventHandlingRequested()) {
+         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+         gROME->GetWindow()->TriggerEventHandler();
+         gROME->GetWindow()->ClearEventHandlingRequest();
+      }
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() Update");
@@ -867,10 +869,12 @@ Bool_t ROMEEventLoop::UserInput()
    fUserInputLastTime = (ULong_t)gSystem->Now();
 
    while (wait || first) {
-      if (!first && gROME->GetWindow()->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-         fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
-         gROME->GetWindow()->TriggerEventHandler();
-         gROME->GetWindow()->ClearEventHandlingRequest();
+      if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+         if (!first && gROME->GetWindow()->IsEventHandlingRequested()) {
+            fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
+            gROME->GetWindow()->TriggerEventHandler();
+            gROME->GetWindow()->ClearEventHandlingRequest();
+         }
       }
       first = false;
       if (!fContinuous)
@@ -951,8 +955,11 @@ Bool_t ROMEEventLoop::UserInput()
                fProgressTimeOfLastEvent = (ULong_t)gSystem->Now();
                fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
             }
-            else
-               gROME->GetWindow()->RequestEventHandling();
+            else {
+               if ((gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+                  gROME->GetWindow()->RequestEventHandling();
+               }
+            }
 
             wait = false;
          }
