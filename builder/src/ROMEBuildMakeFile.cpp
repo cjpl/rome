@@ -1992,7 +1992,7 @@ void ROMEBuilder::WriteMakefile() {
 // Link Statement
 // --------------
    buffer.AppendFormatted("## Link statements\n");
-   buffer.AppendFormatted("%s%s.exe: $(objects) $(dependfiles) ",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
+   buffer.AppendFormatted("%s%s.exe: $(dependfiles) $(objects) ",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
    if (librome)
       buffer.AppendFormatted(" $(ROMESYS)/librome.a");
    buffer.AppendFormatted(" $(%s%sDep)\n",shortCut.ToLower(tmp),mainProgName.ToLower(tmp2));
