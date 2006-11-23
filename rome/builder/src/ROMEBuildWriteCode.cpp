@@ -5646,7 +5646,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("// Event Handler\n");
    buffer.AppendFormatted("void %sWindow::TriggerEventHandler()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   SetStatus(0,"",0);\n");
+   buffer.AppendFormatted("   SetStatus(0,\"\",0);\n");
    buffer.AppendFormatted("   fWatchAll.Start(false);\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
@@ -5655,7 +5655,7 @@ Bool_t ROMEBuilder::WriteWindowCpp()
       buffer.AppendFormatted("      f%s%sTab->ArgusEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
    }
    buffer.AppendFormatted("   fWatchAll.Stop();\n");
-   buffer.AppendFormatted("   SetStatus(2,"",0);\n");
+   buffer.AppendFormatted("   SetStatus(2,\"\",0);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
