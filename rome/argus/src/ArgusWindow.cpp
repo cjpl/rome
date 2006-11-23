@@ -35,18 +35,18 @@
 ClassImp(ArgusWindow)
 ArgusWindow::ArgusWindow()
 {
-   fArgusActive = false;
    InitArgus();
 }
 
 ArgusWindow::ArgusWindow(const TGWindow* p) : TGMainFrame(p, 1, 1)
 {
-   fArgusActive = true;
    InitArgus();
 }
 
 void ArgusWindow::InitArgus()
 {
+   fRequestEventHandling = false;
+   fArgusActive = false;
    fWindowScale = 1;
    fStatusBarSwitch = true;
    fControllerActive = false;
@@ -98,7 +98,6 @@ Bool_t ArgusWindow::Start()
    fStatusBar->GetBarPart(1)->AddFrame(fProgress, new TGLayoutHints(kLHintsExpandX|kLHintsExpandY, 10, 10));
    if (fStatusBarSwitch)
       this->AddFrame(fStatusBar, new TGLayoutHints(kLHintsBottom | kLHintsLeft | kLHintsExpandX, 0, 0, 2, 0));
-   SetStatus(0,"",0);
 
    // Create menu
    fMenuNetFolder = new TGPopupMenu (fClient->GetRoot());
@@ -136,13 +135,12 @@ Bool_t ArgusWindow::Start()
 
    ROMEPrint::Debug("End of ArgusWindow::Start()\n");
    fWatchAll.Stop();
-   SetStatus(2,"",0);
    return kTRUE;
 }
 
 void ArgusWindow::ClearStatusBar()
 {
-   Int_t parts[] = { 5 };
+   Int_t parts[2] = { 70,30 };
    fStatusBar->SetParts(parts, sizeof(parts) / sizeof(Int_t));
    fStatusBar->SetText("", 0);
 }
@@ -180,6 +178,12 @@ void ArgusWindow::ShowTimeStatistics()
    }
 }
 
+void ArgusWindow::RequestEventHandling() 
+{
+   SetStatus(0,"",0);
+   fRequestEventHandling = true; 
+}
+
 void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime)
 {
    // Set status bar
@@ -192,7 +196,7 @@ void ArgusWindow::SetStatus(Int_t mode,const char *text,double progress,Int_t sl
 
    if (mode==0) {
       gROME->GetWindow()->GetStatusBar()->GetBarPart(0)->SetBackgroundColor(TColor::RGB2Pixel(255,150,150));
-      gROME->GetWindow()->GetStatusBar()->Layout();
+//      gROME->GetWindow()->GetStatusBar()->Layout();
       fProgress->Reset();
    }
    if (mode==2) {

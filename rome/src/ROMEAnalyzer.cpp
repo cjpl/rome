@@ -178,7 +178,6 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fWindow = 0;
    fWindowUpdateFrequency = 0;
    fObjectStorageStatus = kStorageFree;
-   fRequestEventHandling = false;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -1216,7 +1215,7 @@ Bool_t ROMEAnalyzer::IsWindowBusy() {
 
 ROMEDAQSystem* ROMEAnalyzer::GetActiveDAQ()
 {
-   if (fActiveDAQ!=0)
+   if (fActiveDAQ!=NULL)
       return fActiveDAQ;
    ROMEPrint::Error("\nYou have tried to access the active DAQ system but none is active .\nPlease select a DAQ system in the ROME configuration file under:\n<Modes>\n   <DAQSystem>\n\nShutting down the program.\n");
    fApplication->Terminate(1);

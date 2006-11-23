@@ -54,6 +54,7 @@ protected:
    ArgusAnalyzerController *fController;
    ROMENetFolder           *fControllerNetFolder;
    Float_t                  fWindowScale;      //! Window scale
+   Bool_t                   fRequestEventHandling; //! Event handling request flag
 
    enum CommandIdentifiers{
       M_FILE_CONTROLLER,
@@ -87,7 +88,12 @@ public:
    Bool_t          GetStatusBarSwitch() { return fStatusBarSwitch; }
    TGStatusBar*    GetStatusBar() { return fStatusBar; }
    void            ClearStatusBar();
-   void            SetStatus(Int_t mode,const char *text,double progress,Int_t sleepingTime=10);
+   void            SetStatus(Int_t mode,const char *text,double progress=0.,Int_t sleepingTime=10);
+
+   // Event Handling
+   void            RequestEventHandling();
+   void            ClearEventHandlingRequest() { fRequestEventHandling = false; }
+   Bool_t          IsEventHandlingRequested() { return fRequestEventHandling; }
 
    // Menu
    TGMenuBar*      GetMenuBar() { return fMenuBar; }
