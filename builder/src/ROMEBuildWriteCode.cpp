@@ -3206,6 +3206,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       // Tab Selected
       buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected() {\n", shortCut.Data(), tabName[iTab].Data());
       buffer.AppendFormatted("   SetForeground(kTRUE);\n");
+      buffer.AppendFormatted("   gAnalyzer->GetWindow()->RequestEventHandling();\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fStyle->cd();\n");
          buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
@@ -3269,7 +3270,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                if (tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]>-1)
                   buffer.AppendFormatted(taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]].Data());
                buffer.AppendFormatted(");\n");
-               buffer.AppendFormatted("            gAnalyzer->RequestEventHandling();\n");
+               buffer.AppendFormatted("            gAnalyzer->GetWindow()->RequestEventHandling();\n");
                buffer.AppendFormatted("            break;\n");
                buffer.AppendFormatted("         }\n");
             }
@@ -4741,7 +4742,7 @@ Bool_t ROMEBuilder::WriteAnalyzer3Cpp()
    buffer.AppendFormatted("   int exitID;\n");
    buffer.AppendFormatted("   %sConfigToForm *dialog = new %sConfigToForm();\n",shortCut.Data(),shortCut.Data());
    buffer.AppendFormatted("   if((exitID=dialog->Show(gClient->GetRoot(),NULL))==1) {\n");
-   buffer.AppendFormatted("      if (!fWindow->IsActive())\n");
+   buffer.AppendFormatted("      if (isNoGraphics())\n");
    buffer.AppendFormatted("         SetStandAloneROME();\n");
    buffer.AppendFormatted("      else {\n");
    buffer.AppendFormatted("         if (dialog->IsChecked(\"Analyzer\"))\n");
@@ -4891,7 +4892,6 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    buffer.AppendFormatted("#pragma warning( push )\n");
    buffer.AppendFormatted("#pragma warning( disable : 4800 )\n");
 #endif // R__VISUAL_CPLUSPLUS
-   buffer.AppendFormatted("#include <TMutex.h>\n");
    buffer.AppendFormatted("#include <TH1.h>\n");
    buffer.AppendFormatted("#include <TTree.h>\n");
    buffer.AppendFormatted("#include <TFile.h>\n");
@@ -5646,14 +5646,16 @@ Bool_t ROMEBuilder::WriteWindowCpp()
    buffer.AppendFormatted("// Event Handler\n");
    buffer.AppendFormatted("void %sWindow::TriggerEventHandler()\n", shortCut.Data());
    buffer.AppendFormatted("{\n");
+   buffer.AppendFormatted("   SetStatus(0,"",0);\n");
    buffer.AppendFormatted("   fWatchAll.Start(false);\n");
    for (i = 0; i < numOfTab; i++) {
       if (!tabUsed[i])
          continue;
-      buffer.AppendFormatted("   if (fTabSwitches.%s%s)\n", tabName[i].Data(),tabSuffix[i].Data(), tabName[i].Data(), tabSuffix[i].Data());
+      buffer.AppendFormatted("   if (fTabSwitches.%s%s && fCurrentTabID == f%sTabID)\n", tabName[i].Data(),tabSuffix[i].Data(), tabName[i].Data());
       buffer.AppendFormatted("      f%s%sTab->ArgusEventHandler();\n", tabName[i].Data(), tabSuffix[i].Data());
    }
    buffer.AppendFormatted("   fWatchAll.Stop();\n");
+   buffer.AppendFormatted("   SetStatus(2,"",0);\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -6560,7 +6562,7 @@ Bool_t ROMEBuilder::WriteConfigCpp() {
    buffer.AppendFormatted("   ROMEString buffer;\n");
    buffer.AppendFormatted("   xml->GetPathValue(\"/Configuration/ProgramConfiguration/ProgramMode\",buffer,\"\");\n");
    buffer.AppendFormatted("   buffer.ToLower();\n");
-   buffer.AppendFormatted("   if (!gAnalyzer->GetWindow()->IsActive())\n");
+   buffer.AppendFormatted("   if (gAnalyzer->isNoGraphics())\n");
    buffer.AppendFormatted("      gAnalyzer->SetStandAloneROME();\n");
    buffer.AppendFormatted("   else {\n");
    buffer.AppendFormatted("      if (buffer==\"0\")\n");
@@ -11961,6 +11963,7 @@ Bool_t ROMEBuilder::WriteMain()
 #endif // R__VISUAL_CPLUSPLUS
    buffer.AppendFormatted("#include <TFolder.h>\n");
    buffer.AppendFormatted("#include <TGClient.h>\n");
+   buffer.AppendFormatted("#include <TSystem.h>\n");
 #if defined( R__VISUAL_CPLUSPLUS )
    buffer.AppendFormatted("#pragma warning( pop )\n");
 #endif // R__VISUAL_CPLUSPLUS

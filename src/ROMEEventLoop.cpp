@@ -101,7 +101,6 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       this->InitTrees();
       return;
    }
-
 // Event loop
    fWatchUserEvent.Reset();
    fWatchUser.Reset();
@@ -457,7 +456,7 @@ Int_t ROMEEventLoop::RunEvent()
    // Store Event
    if (!gROME->IsROMEMonitor()) {
       const ULong_t kInterval = 10000; // this should be changed to parameter
-      if (gROME->GetNetFolderServer()) {
+/*      if (gROME->GetNetFolderServer()) {
          if (gROME->GetObjectStorageStatus() == ROMEAnalyzer::kStorageFree
             && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
             fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
@@ -471,7 +470,7 @@ Int_t ROMEEventLoop::RunEvent()
             fNetFolderServerUpdateThread->Run();
 #endif
          }
-      }
+      }*/
    }
 
    // Write Event
@@ -715,6 +714,7 @@ Bool_t ROMEEventLoop::DAQEvent()
 
    this->SetAnalyze();
 
+
    ROMEPrint::Debug("Reset folders\n");
    this->ResetFolders();
 
@@ -784,10 +784,10 @@ Bool_t ROMEEventLoop::Update()
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() TriggerEventHandler");
-   if (gROME->GetActiveDAQ()->isStopped() && gROME->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+   if (gROME->GetActiveDAQ()->isStopped() && gROME->GetWindow()->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
       fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
       gROME->GetWindow()->TriggerEventHandler();
-      gROME->ClearEventHandlingRequest();
+      gROME->GetWindow()->ClearEventHandlingRequest();
    }
 
    ROMEPrint::Debug("ROMEEventLoop::Update() Update");
@@ -807,9 +807,9 @@ Bool_t ROMEEventLoop::Update()
 
    if (!gROME->isBatchMode() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
       newUpdateWindowEvent =  gROME->GetCurrentEventNumber();
-      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->IsEventHandlingRequested()) {
+      if (fUpdateWindowLastEvent!=newUpdateWindowEvent || gROME->GetWindow()->IsEventHandlingRequested()) {
          fUpdateWindowLastEvent = newUpdateWindowEvent;
-         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->IsEventHandlingRequested()) {
+         if ((fUpdateWindow && (ULong_t)gSystem->Now()>((ULong_t)fLastUpdateTime+gROME->GetWindowUpdateFrequency())) || gROME->GetWindow()->IsEventHandlingRequested()) {
             if (gROME->GetWindow()->IsControllerActive())
                gROME->GetWindow()->GetAnalyzerController()->Update();
             if (!this->isStopped()) {
@@ -818,7 +818,7 @@ Bool_t ROMEEventLoop::Update()
             }
             fLastUpdateTime = (ULong_t)gSystem->Now();
          }
-         gROME->ClearEventHandlingRequest();
+         gROME->GetWindow()->ClearEventHandlingRequest();
       }
       gSystem->ProcessEvents();
       gSystem->Sleep(10);
@@ -867,10 +867,10 @@ Bool_t ROMEEventLoop::UserInput()
    fUserInputLastTime = (ULong_t)gSystem->Now();
 
    while (wait || first) {
-      if (!first && gROME->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
+      if (!first && gROME->GetWindow()->IsEventHandlingRequested() && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
          fUpdateWindowLastEvent = gROME->GetCurrentEventNumber();
          gROME->GetWindow()->TriggerEventHandler();
-         gROME->ClearEventHandlingRequest();
+         gROME->GetWindow()->ClearEventHandlingRequest();
       }
       first = false;
       if (!fContinuous)
@@ -952,7 +952,7 @@ Bool_t ROMEEventLoop::UserInput()
                fProgressLastEvent = (Long64_t)(gROME->GetTriggerStatistics()->processedEvents+0.5);
             }
             else
-               gROME->RequestEventHandling();
+               gROME->GetWindow()->RequestEventHandling();
 
             wait = false;
          }
