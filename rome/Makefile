@@ -30,8 +30,9 @@
 # ROMEPIC = no
 
 # Compiler
-CXX ?= g++
-CC  ?= gcc
+CXX   ?= g++
+CC    ?= gcc
+CXXLD ?= $(CXX)
 
 #####################################################################
 # Nothing needs to be modified after this line 
@@ -220,13 +221,13 @@ obj:
 dict: $(DICTIONARIES)
 
 bin/romebuilder.exe: builder/src/main.cpp $(BldObjects)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
+	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(BldObjects) $(LIBRARY)
 
 bin/updateVersionH.exe: tools/UpdateVersionH/main.cpp  $(UpHObjects)
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
+	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(UpHObjects) $(LIBRARY)
 
 bin/rome-config: tools/rome-config/main.cpp include/ROMEVersion.h
-	$(CXX) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
+	$(CXXLD) $(CXXFLAGS) $(INCLUDE) -o $@ $< $(LIBRARY)
 
 include/ROMEVersion.h: bin/updateVersionH.exe
 	@./bin/updateVersionH.exe
