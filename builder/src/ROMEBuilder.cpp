@@ -322,7 +322,7 @@ Bool_t ROMEBuilder::StartBuilder()
    ROMEString oldFile;
    ROMEString newFile;
 
-   tabObjectDisplaySupportedObjects.AddLast("TGraph");
+   tabObjectDisplaySupportedObjects.AddLast("TGraphMT");
 //   tabObjectDisplaySupportedObjects.AddLast("TGraph2D");
    tabObjectDisplaySupportedObjects.AddLast("TH1C");
    tabObjectDisplaySupportedObjects.AddLast("TH1S");

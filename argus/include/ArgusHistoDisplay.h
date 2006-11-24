@@ -26,7 +26,7 @@ class TGHProgressBar;
 class TRootEmbeddedCanvas;
 class TText;
 class TPad;
-class TGraph;
+class TGraphMT;
 class TLine;
 class TH1;
 class XMLToForm;
@@ -99,7 +99,7 @@ public:
    virtual ~ArgusHistoDisplay();
 
    void SetNumberOfUserTGraph(Int_t number) { fNumberOfUserTGraph = number; };
-   TGraph* GetUserTGraphAt(Int_t index);
+   TGraphMT* GetUserTGraphAt(Int_t index);
    TH1* GetUserHistoAt(Int_t index,const char* type);
    TObject* GetCurrentObjectAt(Int_t index);
    void SetNumberOfUserLines(Int_t number) { fNumberOfUserLines = number; };
@@ -123,7 +123,7 @@ protected:
    void SetupPads(Int_t nx, Int_t ny, Bool_t redraw);
    void SetStatisticBox(Bool_t flag);
    void Modified(Bool_t processEvents=true);
-   void SetLimits(TGraph *g);
+   void SetLimits(TGraphMT *g);
 
    virtual void Init() = 0;
    virtual void EndInit() = 0;

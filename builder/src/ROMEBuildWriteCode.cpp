@@ -2329,7 +2329,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
       }
       if (numOfGraphs[iTask]>0) {
-         buffer.AppendFormatted("#include <TGraph.h>\n");
+         buffer.AppendFormatted("#include <TGraphMT.h>\n");
          buffer.AppendFormatted("#include <TGraph2D.h>\n");
       }
       if (numOfSteering[iTask]>0) {
@@ -2690,7 +2690,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          for (i=0;i<tabObjectDisplaySupportedObjects.GetEntriesFast();i++)
             buffer.AppendFormatted("#include <%s.h>\n",tabObjectDisplaySupportedObjects.At(i).Data());
          buffer.AppendFormatted("#include <TStyle.h>\n");
-         buffer.AppendFormatted("#include <TGraph.h>\n");
+         buffer.AppendFormatted("#include <TGraphMT.h>\n");
          buffer.AppendFormatted("#include <TLine.h>\n");
          if (readGlobalSteeringParameters)
             buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
@@ -2834,7 +2834,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
             buffer.AppendFormatted("   fLines->AddLast(new TObjArray());\n");
             buffer.AppendFormatted("   for (i=0 ; i<kMaxNumberOfPads ; i++) {\n");
             buffer.AppendFormatted("      str.SetFormatted(\"f%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectDisplaySupportedObjects.At(i).Data());
-            if (tabObjectDisplaySupportedObjects.At(i)=="TGraph") {
+            if (tabObjectDisplaySupportedObjects.At(i)=="TGraphMT") {
                buffer.AppendFormatted("      ((TObjArray*)fObjects->Last())->AddLast(new %s(1));\n",tabObjectDisplaySupportedObjects.At(i).Data());
                buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->GetHistogram();\n",tabObjectDisplaySupportedObjects.At(i).Data());
                buffer.AppendFormatted("      ((%s*)((TObjArray*)fObjects->Last())->Last())->SetTitle(str.Data());\n",tabObjectDisplaySupportedObjects.At(i).Data());
@@ -2856,7 +2856,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("   int maxObjects = 0;\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
             if (tabObjectDisplayTaskIndex[iTab][i]>-1) {
-               if (tabObjectDisplayType[iTab][i].Index("TGraph")!=-1) {
+               if (tabObjectDisplayType[iTab][i].Index("TGraphMT")!=-1) {
                   buffer.AppendFormatted("   if (maxObjects<%s)\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   buffer.AppendFormatted("      maxObjects = %s;\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                }
@@ -2874,12 +2874,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("   fUserLines->AddLast(new TObjArray());\n");
                buffer.AppendFormatted("   for (i=0;i<maxObjects;i++) {\n");
                buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s\",i,fInheritanceName.Data());\n",tabObjectDisplaySupportedObjects.At(j).Data());
-               if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") {
+               if (tabObjectDisplaySupportedObjects.At(j)=="TGraphMT") {
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(1));\n",tabObjectDisplaySupportedObjects.At(j).Data());
                   buffer.AppendFormatted("      str.SetFormatted(\"fUser%s_%%d_%%s_Histo\",i,fInheritanceName.Data());\n",tabObjectDisplaySupportedObjects.At(j).Data());
-                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
-                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
-                  buffer.AppendFormatted("      ((TGraph*)((TObjArray*)fUserObjects->Last())->Last())->SetPoint(0,0,0);\n");
+                  buffer.AppendFormatted("      ((TGraphMT*)((TObjArray*)fUserObjects->Last())->Last())->GetHistogram()->SetName(str.Data());\n");
+                  buffer.AppendFormatted("      ((TGraphMT*)((TObjArray*)fUserObjects->Last())->Last())->SetTitle(str.Data());\n");
+                  buffer.AppendFormatted("      ((TGraphMT*)((TObjArray*)fUserObjects->Last())->Last())->SetPoint(0,0,0);\n");
                }
                else if (tabObjectDisplaySupportedObjects.At(j).Contains("1"))
                   buffer.AppendFormatted("      ((TObjArray*)fUserObjects->Last())->AddLast(new %s(str.Data(),\"\",1,0,1));\n",tabObjectDisplaySupportedObjects.At(j).Data());
@@ -2933,11 +2933,11 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                   index = taskHierarchyParentIndex[index];
                }
                buffer.AppendFormatted(") {\n");
-               if (tabObjectDisplayType[iTab][i].Index("TGraph")!=-1) {
+               if (tabObjectDisplayType[iTab][i].Index("TGraphMT")!=-1) {
                   buffer.AppendFormatted("      for (i=0;i<%s;i++) {\n",graphArraySize[tabObjectDisplayTaskIndex[iTab][i]][tabObjectDisplayObjectIndex[iTab][i]].Data());
                   for (j=0;j<tabObjectDisplaySupportedObjects.GetEntriesFast();j++) {
                      if (tabObjectDisplaySupportedObjects.At(j)==tabObjectDisplayType[iTab][i]) {
-                        if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") { // TGraph::operator= does not free existing fX and fY
+                        if (tabObjectDisplaySupportedObjects.At(j)=="TGraphMT") { // TGraph::operator= does not free existing fX and fY
                            buffer.AppendFormatted("         if (((TObjArray*)fUserObjects->At(%d))->At(i)) {\n",j);
                            buffer.AppendFormatted("            if(((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetX())\n",tabObjectDisplayType[iTab][i].Data(),j);
                            buffer.AppendFormatted("               delete [] ((%s*)((TObjArray*)fUserObjects->At(%d))->At(i))->GetX();\n",tabObjectDisplayType[iTab][i].Data(),j);
@@ -3048,7 +3048,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("      if (chn<((TObjArray*)fUserObjects->At(fCurrentDisplayType))->GetEntriesFast()) {\n");
          for (j=0;j<tabObjectDisplaySupportedObjects.GetEntriesFast();j++) {
             buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"%s\")) {\n",tabObjectDisplaySupportedObjects.At(j).Data());
-            if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") { // TGraph::operator= does not free existing fX and fY
+            if (tabObjectDisplaySupportedObjects.At(j)=="TGraphMT") { // TGraph::operator= does not free existing fX and fY
                buffer.AppendFormatted("            if (((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))) {\n",tabObjectDisplaySupportedObjects.At(j).Data());
                buffer.AppendFormatted("               if(((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetX())\n",tabObjectDisplaySupportedObjects.At(j).Data());
                buffer.AppendFormatted("                  delete [] ((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetX();\n",tabObjectDisplaySupportedObjects.At(j).Data());
@@ -3059,7 +3059,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted("            }\n");
             }
             buffer.AppendFormatted("            *((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)) = *((%s*)((TObjArray*)fUserObjects->At(fCurrentDisplayType))->At(chn));\n",tabObjectDisplaySupportedObjects.At(j).Data(),tabObjectDisplaySupportedObjects.At(j).Data());
-            if (tabObjectDisplaySupportedObjects.At(j)=="TGraph") {
+            if (tabObjectDisplaySupportedObjects.At(j)=="TGraphMT") {
                buffer.AppendFormatted("            SafeDelete(histtmp);\n");
                buffer.AppendFormatted("            SafeDelete(listtmp);\n");
                buffer.AppendFormatted("            if(((%s*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->GetN()==0)\n",tabObjectDisplaySupportedObjects.At(j).Data(),j);
@@ -3074,12 +3074,12 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetX2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetX2());\n");
          buffer.AppendFormatted("            ((TLine*)((TObjArray*)((TObjArray*)fLines->At(fCurrentDisplayType))->At(i))->At(k))->SetY2(((TLine*)((TObjArray*)((TObjArray*)fUserLines->At(fCurrentDisplayType))->At(chn))->At(k))->GetY2());\n");
          buffer.AppendFormatted("         }\n");
-         buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"TGraph\"))\n");
-         buffer.AppendFormatted("            SetLimits(((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)));\n");
+         buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"TGraphMT\"))\n");
+         buffer.AppendFormatted("            SetLimits(((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)));\n");
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("      else {\n");
-         buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"TGraph\"))\n");
-         buffer.AppendFormatted("            ((TGraph*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Set(1);\n");
+         buffer.AppendFormatted("         if (!strcmp(((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i)->ClassName(),\"TGraphMT\"))\n");
+         buffer.AppendFormatted("            ((TGraphMT*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Set(1);\n");
          buffer.AppendFormatted("         else \n");
          buffer.AppendFormatted("            ((TH1*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->Reset();\n");
          buffer.AppendFormatted("         ((TNamed*)((TObjArray*)fObjects->At(fCurrentDisplayType))->At(i))->SetTitle(\"\");\n");
@@ -3409,7 +3409,7 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("#include <TH3.h>\n");
          buffer.AppendFormatted("#include <TProfile.h>\n");
          buffer.AppendFormatted("#include <TProfile2D.h>\n");
-         buffer.AppendFormatted("#include <TGraph.h>\n");
+         buffer.AppendFormatted("#include <TGraphMT.h>\n");
          buffer.AppendFormatted("#include <TGraph2D.h>\n");
       }
       if (numOfSteering[iTab+numOfTask+1] > 0) {
@@ -4402,8 +4402,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       if (folderSupport[i])
          continue;
       if (numOfValue[i] > 0) {
-         buffer.AppendFormatted("   buffer->Reset();\n");
-         buffer.AppendFormatted("   buffer->SetWriteMode();\n");
          if (folderArray[i]=="1") {
             WriteFillObjectStorageObject(buffer,"f"+folderName[i]+"Folder","f"+folderName[i]+"FolderStorage",false);
          }
@@ -4425,8 +4423,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          buffer.AppendFormatted(") {\n");
       }
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         buffer.AppendFormatted("   buffer->Reset();\n");
-         buffer.AppendFormatted("   buffer->SetWriteMode();\n");
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistoStorage()",false);
          }
@@ -4435,8 +4431,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          }
       }
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
-         buffer.AppendFormatted("   buffer->Reset();\n");
-         buffer.AppendFormatted("   buffer->SetWriteMode();\n");
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphStorage()",false);
          }
@@ -5316,16 +5310,7 @@ Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *
       buffer.AppendFormatted("   %s->BypassStreamer(kTRUE);\n",objectPointer);
       buffer.AppendFormatted("   %s->BypassStreamer(kTRUE);\n",objectStoragePointer);
    }
-   buffer.AppendFormatted("   buffer->MapObject(%s);  //register obj in map to handle self reference\n",objectPointer);
-   buffer.AppendFormatted("   ((TObject*)%s)->Streamer(*buffer);\n",objectPointer);
-   buffer.AppendFormatted("   // read new object from buffer\n");
-   buffer.AppendFormatted("   buffer->SetReadMode();\n");
-   buffer.AppendFormatted("   buffer->ResetMap();\n");
-   buffer.AppendFormatted("   buffer->SetBufferOffset(0);\n");
-   buffer.AppendFormatted("   buffer->MapObject(%s);  //register obj in map to handle self reference\n",objectStoragePointer);
-   buffer.AppendFormatted("   ((TObject*)%s)->Streamer(*buffer);\n",objectStoragePointer);
-   buffer.AppendFormatted("   ((TObject*)%s)->ResetBit(kIsReferenced);\n",objectStoragePointer);
-   buffer.AppendFormatted("   ((TObject*)%s)->ResetBit(kCanDelete);\n",objectStoragePointer);
+   buffer.AppendFormatted("   CopyTObjectWithStreamer(buffer,%s,%s);\n",objectPointer,objectStoragePointer);
    if (bypass) {
       buffer.AppendFormatted("   %s->BypassStreamer(bypassOld);\n",objectPointer);
       buffer.AppendFormatted("   %s->BypassStreamer(bypassStorageOld);\n",objectStoragePointer);
@@ -10524,11 +10509,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          buffer.AppendFormatted("      if (f%sFolderActive[iClient]) {\n",folderName[i].Data());
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("         %s%s *%sOrg = gAnalyzer->Get%sFolderStorage();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
-            WriteUpdateObjectsObject(buffer,"f"+folderName[i]+"Folder",folderName[i]+"Org",false);
+            WriteUpdateObjectsObject(buffer,"f"+folderName[i]+"Folder[iClient]",folderName[i]+"Org",false);
          }
          else {
             buffer.AppendFormatted("         TClonesArray *%ssOrg = gAnalyzer->Get%sFoldersStorage();\n",folderName[i].Data(),folderName[i].Data());
-            WriteUpdateObjectsObject(buffer,"f"+folderName[i]+"Folders",folderName[i]+"sOrg",true);
+            WriteUpdateObjectsObject(buffer,"f"+folderName[i]+"Folders[iClient]",folderName[i]+"sOrg",true);
          }
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("\n");
@@ -10545,11 +10530,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          buffer.AppendFormatted("      if (f%s%s_%sHistoActive[iClient]) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("         %s *%sOrg = gAnalyzer->Get%s%sTaskBase()->Get%sHistoStorage();\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"Histo",histoName[taskHierarchyClassIndex[i]][j]+"Org",false);
+            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"Histo[iClient]",histoName[taskHierarchyClassIndex[i]][j]+"Org",false);
          }
          else {
             buffer.AppendFormatted("         TObjArray *%ssOrg = gAnalyzer->Get%s%sTaskBase()->Get%sHistosStorage();\n",histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
-            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"Histos",histoName[taskHierarchyClassIndex[i]][j]+"sOrg",false);
+            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"Histos[iClient]",histoName[taskHierarchyClassIndex[i]][j]+"sOrg",false);
          }
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("\n");
@@ -10560,11 +10545,11 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          buffer.AppendFormatted("      if (f%s%s_%sGraphActive[iClient]) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("         %s *%sOrg = gAnalyzer->Get%s%sTaskBase()->Get%sGraphStorage();\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"Graph",graphName[taskHierarchyClassIndex[i]][j]+"Org",false);
+            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"Graph[iClient]",graphName[taskHierarchyClassIndex[i]][j]+"Org",false);
          }
          else {
             buffer.AppendFormatted("         TObjArray *%ssOrg = gAnalyzer->Get%s%sTaskBase()->Get%sGraphsStorage();\n",graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
-            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"Graphs",graphName[taskHierarchyClassIndex[i]][j]+"sOrg",false);
+            WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"Graphs[iClient]",graphName[taskHierarchyClassIndex[i]][j]+"sOrg",false);
          }
          buffer.AppendFormatted("      }\n");
          buffer.AppendFormatted("\n");
@@ -10612,7 +10597,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("#include <TH3.h>\n");
    buffer.AppendFormatted("#include <TProfile.h>\n");
    buffer.AppendFormatted("#include <TProfile2D.h>\n");
-   buffer.AppendFormatted("#include <TGraph.h>\n");
+   buffer.AppendFormatted("#include <TGraphMT.h>\n");
    buffer.AppendFormatted("#include <TGraph2D.h>\n");
 
    // Folder class declaration
@@ -10723,23 +10708,14 @@ Bool_t ROMEBuilder::WriteUpdateObjectsObject(ROMEString &buffer,const char *obje
 {
    if (bypass) {
       buffer.AppendFormatted("         bypassOrgOld = %s->CanBypassStreamer();\n",objectStoragePointer);
-      buffer.AppendFormatted("         bypassOld = %s[iClient]->CanBypassStreamer();\n",objectPointer);
+      buffer.AppendFormatted("         bypassOld = %s->CanBypassStreamer();\n",objectPointer);
       buffer.AppendFormatted("         %s->BypassStreamer(kTRUE);\n",objectStoragePointer);
-      buffer.AppendFormatted("         %s[iClient]->BypassStreamer(kTRUE);\n",objectPointer);
+      buffer.AppendFormatted("         %s->BypassStreamer(kTRUE);\n",objectPointer);
    }
-   buffer.AppendFormatted("         buffer->MapObject(%s);  //register obj in map to handle self reference\n",objectStoragePointer);
-   buffer.AppendFormatted("         ((TObject*)%s)->Streamer(*buffer);\n",objectStoragePointer);
-   buffer.AppendFormatted("         // read new object from buffer\n");
-   buffer.AppendFormatted("         buffer->SetReadMode();\n");
-   buffer.AppendFormatted("         buffer->ResetMap();\n");
-   buffer.AppendFormatted("         buffer->SetBufferOffset(0);\n");
-   buffer.AppendFormatted("         buffer->MapObject(%s[iClient]);  //register obj in map to handle self reference\n",objectPointer);
-   buffer.AppendFormatted("         %s[iClient]->Streamer(*buffer);\n",objectPointer);
-   buffer.AppendFormatted("         %s[iClient]->ResetBit(kIsReferenced);\n",objectPointer);
-   buffer.AppendFormatted("         %s[iClient]->ResetBit(kCanDelete);\n",objectPointer);
+   buffer.AppendFormatted("         gAnalyzer->CopyTObjectWithStreamer(buffer,%s,%s);\n",objectStoragePointer,objectPointer);
    if (bypass) {
       buffer.AppendFormatted("         %s->BypassStreamer(bypassOrgOld);\n",objectStoragePointer);
-      buffer.AppendFormatted("         %s[iClient]->BypassStreamer(bypassOld);\n",objectPointer);
+      buffer.AppendFormatted("         %s->BypassStreamer(bypassOld);\n",objectPointer);
    }
    return true;
 }

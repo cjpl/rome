@@ -61,7 +61,7 @@ void ROMEBuilder::AddPrecompiledHeaders()
    precompiledIncludeHeaders->AddFormatted("TH1F.h");
    precompiledIncludeHeaders->AddFormatted("TH2F.h");
    precompiledIncludeHeaders->AddFormatted("TH3F.h");
-   precompiledIncludeHeaders->AddFormatted("TGraph.h");
+   precompiledIncludeHeaders->AddFormatted("TGraphMT.h");
 }
 
 void ROMEBuilder::AddRomeHeaders()
@@ -108,6 +108,7 @@ void ROMEBuilder::AddRomeHeaders()
    romeHeaders->Add("$(ROMESYS)/include/mxml.h");
    romeHeaders->Add("$(ROMESYS)/include/strlcpy.h");
    romeHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+   romeHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolderServer.h");
    romeHeaders->Add("$(ROMESYS)/include/TNetFolder.h");
    romeHeaders->Add("$(ROMESYS)/include/XMLToForm.h");
@@ -185,6 +186,8 @@ void ROMEBuilder::AddRomeDictHeaders()
       romeDictHeaders->Add("$(ROMESYS)/include/ROMENetFolderServer.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/TArrayL64.h");
+      romeLinkDefSuffix->Add("");
+      romeDictHeaders->Add("$(ROMESYS)/include/TGraphMT.h");
       romeLinkDefSuffix->Add("");
       romeDictHeaders->Add("$(ROMESYS)/include/ROMEString.h");
       romeLinkDefSuffix->Add("");
@@ -294,6 +297,7 @@ void ROMEBuilder::AddRomeSources()
       romeSources->Add("$(ROMESYS)/src/ROMEXMLDataBase.cpp");
       romeSources->Add("$(ROMESYS)/src/ROMETree.cpp");
       romeSources->Add("$(ROMESYS)/src/TArrayL64.cpp");
+      romeSources->Add("$(ROMESYS)/src/TGraphMT.cpp");
       romeSources->Add("$(ROMESYS)/src/strlcpy.c");
       romeSources->Add("$(ROMESYS)/src/TNetFolderServer.cpp");
       romeSources->Add("$(ROMESYS)/src/TNetFolder.cpp");
