@@ -1,0 +1,26 @@
+This example illustrates the communication of rome and argus.
+
+You can start the program either in one process with an analyzer 
+running together with a display or in two seperate processes 
+communication over sockets.
+
+One Process:
+------------
+
+Start the program with : 
+  singleProcessConfig.xml
+
+Two Processes : 
+---------------
+
+Start the program with : 
+  seperateProcessConfig.xml 
+  and choose '0' in the seperateProcessConfig.xml under <ProgramConfiguration> - <ProgramMode>
+  or choose 'Analyzer' in the config GUI under 'RunMode'
+
+Start the program again with : 
+  seperateProcessConfig.xml 
+  and choose '3' in the seperateProcessConfig.xml under <ProgramConfiguration> - <ProgramMode>
+  or choose 'Monitor connecting to Analyzer' in the config GUI under 'RunMode'
+
+
