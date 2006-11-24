@@ -1,68 +1,75 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 18:02:34 2006 -->
+<!-- created by MXML on Fri Nov 24 09:46:59 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="romeConfig.xsd">
   <ProgramConfiguration>
-    <ROME>
-      <Active>false</Active>
-    </ROME>
-    <ARGUS>
-      <Active>true</Active>
-    </ARGUS>
+    <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunParameters>
-      <RunNumbers></RunNumbers>
-      <EventNumbers></EventNumbers>
-      <InputFileNames></InputFileNames>
-    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
-      <BatchMode>false</BatchMode>
-      <QuitMode>false</QuitMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
-      <GraphicalConfigEdit>false</GraphicalConfigEdit>
     </Modes>
-    <Argus>
-      <WindowScale>1.0</WindowScale>
-      <StatusBar>true</StatusBar>
-      <UpdateFrequency>0</UpdateFrequency>
-      <AnalyzerController>
-        <Active>false</Active>
-        <NetFolderName></NetFolderName>
-      </AnalyzerController>
-      <SocketToROME>
-        <Active>true</Active>
-        <Host>localhost</Host>
-        <Port>9090</Port>
-      </SocketToROME>
-    </Argus>
-    <DataBases>
-      <DataBase>
-        <Name>myodb</Name>
-        <Connection></Connection>
-        <Type>odb</Type>
-        <EventBased>false</EventBased>
-      </DataBase>
-      <DataBase>
-        <Name>myxml</Name>
-        <Connection>.;FODataBase</Connection>
-        <Type>xml</Type>
-        <EventBased>false</EventBased>
-      </DataBase>
-    </DataBases>
+    <Offline>
+      <RunNumbers/>
+      <EventNumbers/>
+      <InputFileNames/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
     </Online>
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
-    </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Common>
+      <Settings>
+        <BatchMode>false</BatchMode>
+        <QuitMode>false</QuitMode>
+        <ShowSplashScreen>true</ShowSplashScreen>
+        <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      </Settings>
+      <SocketServer>
+        <Active>false</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases>
+        <DataBase>
+          <Name>myodb</Name>
+          <Connection/>
+          <Type>odb</Type>
+          <EventBased>false</EventBased>
+        </DataBase>
+        <DataBase>
+          <Name>myxml</Name>
+          <Connection>.;FODataBase</Connection>
+          <Type>xml</Type>
+          <EventBased>false</EventBased>
+        </DataBase>
+      </DataBases>
+    </Common>
+    <Analyzer/>
+    <Monitor>
+      <Display>
+        <WindowScale>1.0</WindowScale>
+        <StatusBar>true</StatusBar>
+        <UpdateFrequency>0</UpdateFrequency>
+        <AnalyzerController>
+          <Active>false</Active>
+          <NetFolderName/>
+        </AnalyzerController>
+      </Display>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+      <Tabs>
+        <Tab>
+          <TabName>Tab</TabName>
+          <Active>true</Active>
+        </Tab>
+      </Tabs>
+    </Monitor>
     <Histograms>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
@@ -75,11 +82,5 @@
       <Host>localhost</Host>
       <Port>9090</Port>
     </NetFolder>
-    <Tabs>
-      <Tab>
-        <TabName>Tab</TabName>
-        <Active>true</Active>
-      </Tab>
-    </Tabs>
   </MainConfiguration>
 </Configuration>

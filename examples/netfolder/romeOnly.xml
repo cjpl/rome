@@ -1,98 +1,85 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-
-<!-- Please check ROME homepage for details of tags
-http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
-
+<!-- created by MXML on Fri Nov 24 09:36:56 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
-    <ROME>
-      <Active>true</Active>
-    </ROME>
-    <ARGUS>
-      <Active>false</Active>
-    </ARGUS>
+    <ProgramMode>0</ProgramMode>
   </ProgramConfiguration>
-
   <MainConfiguration>
-    <RunParameters>
-      <RunNumbers>1</RunNumbers>
-      <EventNumbers>1-100000</EventNumbers>
-      <InputFileNames></InputFileNames>
-    </RunParameters>
-
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
-      <VerboseLevel>normal</VerboseLevel>
-      <ConfigCommentLevel>1</ConfigCommentLevel>
-      <QuitMode>false</QuitMode>
-      <ShowSplashScreen>false</ShowSplashScreen>
-      <GraphicalConfigEdit>true</GraphicalConfigEdit>
-      <PreserveConfig>false</PreserveConfig>
     </Modes>
-
-    <Argus>
-      <WindowScale>1.0</WindowScale>
-      <StatusBar>true</StatusBar>
-      <UpdateFrequency>100</UpdateFrequency>
-      <AnalyzerController>
-        <Active>false</Active>
-        <NetFolderName></NetFolderName>
-      </AnalyzerController>
-
-      <SocketToROME>
-        <Active>true</Active>
-        <Host>localhost</Host>
-        <Port>9090</Port>
-      </SocketToROME>
-    </Argus>
-
-    <DataBases/>
-
+    <Offline>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers>1-100000</EventNumbers>
+      <InputFileNames/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
       <AnalyzerName>NFExample</AnalyzerName>
     </Online>
-
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>true</AvailableOffline>
-    </SocketInterface>
-
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-
-    <HistogramRead>
-      <Read>false</Read>
-      <RunNumber>0</RunNumber>
-    </HistogramRead>
-
-    <Macros>
-      <BeginOfRun></BeginOfRun>
-      <BeginOfEvent></BeginOfEvent>
-      <EndOfEvent></EndOfEvent>
-      <EndOfRun></EndOfRun>
-    </Macros>
-
-    <Tasks>
-      <Task>
-        <TaskName>FillHistoAndFolder</TaskName>
+    <Common>
+      <Settings>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
+        <QuitMode>false</QuitMode>
+        <ShowSplashScreen>false</ShowSplashScreen>
+        <GraphicalConfigEdit>true</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
+      </Settings>
+      <SocketServer>
         <Active>true</Active>
-        <Histogram>
-          <HistName>Histo1</HistName>
-          <HistAccumulate>true</HistAccumulate>
-        </Histogram>
-      </Task>
-    </Tasks>
-
-    <Tabs>
-      <Tab>
-        <TabName>Histos</TabName>
-        <Active>true</Active>
-      </Tab>
-    </Tabs>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases/>
+    </Common>
+    <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+      <Macros>
+        <BeginOfRun/>
+        <BeginOfEvent/>
+        <EndOfEvent/>
+        <EndOfRun/>
+      </Macros>
+      <Tasks>
+        <Task>
+          <TaskName>FillHistoAndFolder</TaskName>
+          <Active>true</Active>
+          <Histogram>
+            <HistName>Histo1</HistName>
+            <HistAccumulate>true</HistAccumulate>
+          </Histogram>
+        </Task>
+      </Tasks>
+    </Analyzer>
+    <Monitor>
+      <Display>
+        <WindowScale>1.0</WindowScale>
+        <StatusBar>true</StatusBar>
+        <UpdateFrequency>100</UpdateFrequency>
+        <AnalyzerController>
+          <Active>false</Active>
+          <NetFolderName/>
+        </AnalyzerController>
+      </Display>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+      <Tabs>
+        <Tab>
+          <TabName>Histos</TabName>
+          <Active>true</Active>
+        </Tab>
+      </Tabs>
+    </Monitor>
   </MainConfiguration>
 </Configuration>

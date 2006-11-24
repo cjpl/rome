@@ -1,89 +1,75 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Fri Jul 21 19:37:30 2006 -->
-
-<!-- Please check ROME homepage for details of tags
-http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
-
+<!-- created by MXML on Fri Nov 24 09:34:44 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <ProgramConfiguration>
-    <ROME>
-      <Active>true</Active>
-    </ROME>
-    <ARGUS>
-      <Active>false</Active>
-    </ARGUS>
+    <ProgramMode>0</ProgramMode>
   </ProgramConfiguration>
-
   <MainConfiguration>
-    <RunParameters>
-      <RunNumbers>1</RunNumbers>
-      <EventNumbers></EventNumbers>
-      <InputFileNames></InputFileNames>
-    </RunParameters>
-
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
-      <VerboseLevel>normal</VerboseLevel>
-      <ConfigCommentLevel>1</ConfigCommentLevel>
-      <QuitMode>true</QuitMode>
-      <ShowSplashScreen>false</ShowSplashScreen>
-      <GraphicalConfigEdit>false</GraphicalConfigEdit>
-      <PreserveConfig>false</PreserveConfig>
     </Modes>
-
-    <DataBases>
-
-      <DataBase>
-        <Name>mydatabase</Name>
-        <Connection>xmlDataBase;RDBDataBase</Connection>
-        <Type>xml</Type>
-        <EventBased>false</EventBased>
-      </DataBase>
-
-      <DataBase>
-        <Name>myotherdatabase</Name>
-        <Connection>xmlDataBase;RDBDataBase</Connection>
-        <Type>xml</Type>
-        <EventBased>false</EventBased>
-      </DataBase>
-    </DataBases>
-
+    <Offline>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers/>
+      <InputFileNames/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
     </Online>
-
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
-    </SocketInterface>
-
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-
-    <HistogramRead>
-      <Read>false</Read>
-      <RunNumber>0</RunNumber>
-    </HistogramRead>
-
-    <Tasks>
-      <Task>
-        <TaskName>PrintFolders</TaskName>
-        <Active>true</Active>
-      </Task>
-
-      <Task>
-        <TaskName>WriteFolders</TaskName>
-        <Active>true</Active>
-      </Task>
-
-      <Task>
-        <TaskName>MakeQuery</TaskName>
-        <Active>true</Active>
-      </Task>
-    </Tasks>
+    <Common>
+      <Settings>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
+        <QuitMode>true</QuitMode>
+        <ShowSplashScreen>false</ShowSplashScreen>
+        <GraphicalConfigEdit>false</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
+      </Settings>
+      <SocketServer>
+        <Active>false</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases>
+        <DataBase>
+          <Name>mydatabase</Name>
+          <Connection>xmlDataBase;RDBDataBase</Connection>
+          <Type>xml</Type>
+          <EventBased>false</EventBased>
+        </DataBase>
+        <DataBase>
+          <Name>myotherdatabase</Name>
+          <Connection>xmlDataBase;RDBDataBase</Connection>
+          <Type>xml</Type>
+          <EventBased>false</EventBased>
+        </DataBase>
+      </DataBases>
+    </Common>
+    <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+      <Tasks>
+        <Task>
+          <TaskName>PrintFolders</TaskName>
+          <Active>true</Active>
+        </Task>
+        <Task>
+          <TaskName>WriteFolders</TaskName>
+          <Active>true</Active>
+        </Task>
+        <Task>
+          <TaskName>MakeQuery</TaskName>
+          <Active>true</Active>
+        </Task>
+      </Tasks>
+    </Analyzer>
+    <Monitor/>
   </MainConfiguration>
 </Configuration>

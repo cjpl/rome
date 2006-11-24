@@ -1,80 +1,81 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 16:13:44 2006 -->
+<!-- created by MXML on Fri Nov 24 09:46:48 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
-    <ROME>
-      <Active>false</Active>
-    </ROME>
-    <ARGUS>
-      <Active>true</Active>
-    </ARGUS>
+    <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunParameters>
-      <RunNumbers>1</RunNumbers>
-      <EventNumbers></EventNumbers>
-      <InputFileNames></InputFileNames>
-    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>user</DAQSystem>
-      <BatchMode>false</BatchMode>
-      <QuitMode>false</QuitMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
-      <GraphicalConfigEdit>false</GraphicalConfigEdit>
     </Modes>
-    <Argus>
-      <WindowScale>1.0</WindowScale>
-      <StatusBar>true</StatusBar>
-      <UpdateFrequency>0</UpdateFrequency>
-      <AnalyzerController>
-        <Active>false</Active>
-        <NetFolderName></NetFolderName>
-      </AnalyzerController>
-      <SocketToROME>
-        <Active>false</Active>
-        <Host>localhost</Host>
-        <Port>9090</Port>
-      </SocketToROME>
-    </Argus>
-    <DataBases/>
+    <Offline>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers/>
+      <InputFileNames/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
     </Online>
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
-    </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Common>
+      <Settings>
+        <BatchMode>false</BatchMode>
+        <QuitMode>false</QuitMode>
+        <ShowSplashScreen>true</ShowSplashScreen>
+        <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      </Settings>
+      <SocketServer>
+        <Active>false</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases/>
+      <Trees>
+        <Accumulate>false</Accumulate>
+        <Tree>
+          <TreeName>data</TreeName>
+          <Read>true</Read>
+          <Write>false</Write>
+          <Fill>false</Fill>
+          <CompressionLevel>0</CompressionLevel>
+          <MaxNumberOfEntries>0</MaxNumberOfEntries>
+          <TreeOutputFileName/>
+          <Branch>
+            <BranchName>test</BranchName>
+            <Active>true</Active>
+          </Branch>
+        </Tree>
+      </Trees>
+    </Common>
+    <Analyzer/>
+    <Monitor>
+      <Display>
+        <WindowScale>1.0</WindowScale>
+        <StatusBar>true</StatusBar>
+        <UpdateFrequency>0</UpdateFrequency>
+        <AnalyzerController>
+          <Active>false</Active>
+          <NetFolderName/>
+        </AnalyzerController>
+      </Display>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+      <Tabs>
+        <Tab>
+          <TabName>Tab1</TabName>
+          <Active>true</Active>
+        </Tab>
+      </Tabs>
+    </Monitor>
     <Histograms>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </Histograms>
-    <Tabs>
-      <Tab>
-        <TabName>Tab1</TabName>
-        <Active>true</Active>
-      </Tab>
-    </Tabs>
-    <Trees>
-      <Accumulate>false</Accumulate>
-      <Tree>
-        <TreeName>data</TreeName>
-        <Read>true</Read>
-        <Write>false</Write>
-        <Fill>false</Fill>
-        <CompressionLevel>0</CompressionLevel>
-        <MaxNumberOfEntries>0</MaxNumberOfEntries>
-        <TreeOutputFileName></TreeOutputFileName>
-        <Branch>
-          <BranchName>test</BranchName>
-          <Active>true</Active>
-        </Branch>
-      </Tree>
-    </Trees>
   </MainConfiguration>
 </Configuration>
