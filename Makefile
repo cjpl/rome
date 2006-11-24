@@ -154,6 +154,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ArgusHistoDisplay.o \
               obj/ArgusTextDialog.o \
               obj/ArgusWindow.o \
+              obj/TGraphMT.o \
               obj/mxml.o \
               obj/strlcpy.o
 
@@ -199,6 +200,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/XMLToFormFrame.h \
                   include/XMLToFormWindow.h \
                   include/TArrayL64.h \
+                  include/TGraphMT.h \
                   argus/include/ArgusWindow.h \
                   argus/include/ArgusTextDialog.h \
                   argus/include/ArgusAnalyzerController.h \
