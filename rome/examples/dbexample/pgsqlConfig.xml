@@ -1,40 +1,52 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu Apr 28 17:27:57 2005 -->
+<!-- created by MXML on Fri Nov 24 09:33:29 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
   <MainConfiguration>
-    <RunNumbers>1</RunNumbers>
-    <EventNumbers></EventNumbers>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>dummy</DAQSystem>
-      <BatchMode>false</BatchMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
     </Modes>
-    <DataBases>
-      <DataBase>
-        <Name>mydatabase</Name>
-        <Type>sql</Type>
-        <Connection>postgresql://username:password@hostname/dbname</Connection>
-      </DataBase>
-    </DataBases>
+    <Offline>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
     </Online>
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
-    </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
-    <Tasks>
-      <Task>
-        <TaskName>PrintFolders</TaskName>
-        <Active>true</Active>
-      </Task>
-    </Tasks>
+    <Common>
+      <Settings>
+        <BatchMode>false</BatchMode>
+        <ShowSplashScreen>true</ShowSplashScreen>
+      </Settings>
+      <SocketServer>
+        <Active>false</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases>
+        <DataBase>
+          <Name>mydatabase</Name>
+          <Type>sql</Type>
+          <Connection>postgresql://username:password@hostname/dbname</Connection>
+        </DataBase>
+      </DataBases>
+    </Common>
+    <Analyzer>
+      <Tasks>
+        <Task>
+          <TaskName>PrintFolders</TaskName>
+          <Active>true</Active>
+        </Task>
+      </Tasks>
+    </Analyzer>
+    <Monitor/>
     <Midas/>
   </MainConfiguration>
+  <ProgramConfiguration>
+    <ProgramMode>0</ProgramMode>
+  </ProgramConfiguration>
 </Configuration>

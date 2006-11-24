@@ -1,72 +1,73 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
-<!-- created by MXML on Thu May 25 17:05:47 2006 -->
+<!-- created by MXML on Fri Nov 24 09:47:48 2006 -->
 <Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="">
   <ProgramConfiguration>
-    <ROME>
-      <Active>false</Active>
-    </ROME>
-    <ARGUS>
-      <Active>true</Active>
-    </ARGUS>
+    <ProgramMode>1</ProgramMode>
   </ProgramConfiguration>
   <MainConfiguration>
-    <RunParameters>
-      <RunNumbers></RunNumbers>
-      <EventNumbers></EventNumbers>
-      <InputFileNames></InputFileNames>
-    </RunParameters>
     <Modes>
       <AnalyzingMode>offline</AnalyzingMode>
       <DAQSystem>none</DAQSystem>
-      <BatchMode>false</BatchMode>
-      <QuitMode>false</QuitMode>
-      <ShowSplashScreen>true</ShowSplashScreen>
-      <GraphicalConfigEdit>false</GraphicalConfigEdit>
     </Modes>
-    <Argus>
-      <WindowScale>1.0</WindowScale>
-      <StatusBar>true</StatusBar>
-      <UpdateFrequency>0</UpdateFrequency>
-      <AnalyzerController>
-        <Active>false</Active>
-        <NetFolderName></NetFolderName>
-      </AnalyzerController>
-      <SocketToROME>
-        <Active>false</Active>
-        <Host>localhost</Host>
-        <Port>9090</Port>
-      </SocketToROME>
-    </Argus>
-    <DataBases/>
+    <Offline>
+      <RunNumbers/>
+      <EventNumbers/>
+      <InputFileNames/>
+    </Offline>
     <Online>
-      <Host></Host>
-      <Experiment></Experiment>
+      <Host/>
+      <Experiment/>
     </Online>
-    <SocketInterface>
-      <PortNumber>9090</PortNumber>
-      <AvailableOffline>false</AvailableOffline>
-    </SocketInterface>
     <Paths>
       <InputFilePath>./</InputFilePath>
       <OutputFilePath>./</OutputFilePath>
     </Paths>
+    <Common>
+      <Settings>
+        <BatchMode>false</BatchMode>
+        <QuitMode>false</QuitMode>
+        <ShowSplashScreen>true</ShowSplashScreen>
+        <GraphicalConfigEdit>false</GraphicalConfigEdit>
+      </Settings>
+      <SocketServer>
+        <Active>false</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+      <DataBases/>
+    </Common>
+    <Analyzer/>
+    <Monitor>
+      <Display>
+        <WindowScale>1.0</WindowScale>
+        <StatusBar>true</StatusBar>
+        <UpdateFrequency>0</UpdateFrequency>
+        <AnalyzerController>
+          <Active>false</Active>
+          <NetFolderName/>
+        </AnalyzerController>
+      </Display>
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+      <Tabs>
+        <Tab>
+          <TabName>NoThread</TabName>
+          <Active>true</Active>
+        </Tab>
+        <Tab>
+          <TabName>Mixed</TabName>
+          <Active>true</Active>
+        </Tab>
+        <Tab>
+          <TabName>Thread</TabName>
+          <Active>true</Active>
+        </Tab>
+      </Tabs>
+    </Monitor>
     <Histograms>
       <Read>false</Read>
       <RunNumber>0</RunNumber>
     </Histograms>
-    <Tabs>
-      <Tab>
-        <TabName>NoThread</TabName>
-        <Active>true</Active>
-      </Tab>
-      <Tab>
-        <TabName>Mixed</TabName>
-        <Active>true</Active>
-      </Tab>
-      <Tab>
-        <TabName>Thread</TabName>
-        <Active>true</Active>
-      </Tab>
-    </Tabs>
   </MainConfiguration>
 </Configuration>

@@ -3,7 +3,7 @@
 using std::cout;
 using std::endl;
 
-bool convertConfig(PMXML_NODE configNode);
+bool convertConfig(PMXML_NODE configNode,bool runConfig);
 void deleteComments(PMXML_NODE node);
 
 int main(int argc, char *argv[])
@@ -25,7 +25,7 @@ int main(int argc, char *argv[])
    char *name = "";
    char *value;
    PMXML_NODE rootNode,configurationNode,node;
-   int index,nChild;
+   int nChild;
    int i;
    bool rome,argus;
    
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
    }
    configurationNode = mxml_find_node(rootNode,"/Configuration");
    if (configurationNode==NULL) {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
+      cout << "This configuration file has not the correct format.\n'Configuration' not found!\nPlease edit by hand." << endl;
       return 0;
    }
 
@@ -72,10 +72,11 @@ int main(int argc, char *argv[])
 
    node = mxml_find_node(rootNode,"/Configuration/MainConfiguration");
    if (node!=NULL) {
-      convertConfig(node);
+      if (!convertConfig(node,false))
+         return 0;
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
+      cout << "This configuration file has not the correct format.\n'Configuration->MainConfiguration' not found!\nPlease edit by hand." << endl;
       return 0;
    }
 
@@ -86,13 +87,13 @@ int main(int argc, char *argv[])
          node = mxml_subnode(configurationNode,i);
          name = mxml_get_name(node);
          if (!strcmp(name,"RunConfiguration")) {
-            if (!convertConfig(node))
+            if (!convertConfig(node,true))
                return 0;
          }
       }
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
+      cout << "This configuration file has not the correct format.\n'Configuration' not found!\nPlease edit by hand." << endl;
       return 0;
    }
 
@@ -114,7 +115,7 @@ void deleteComments(PMXML_NODE node)
 }
 
 
-bool convertConfig(PMXML_NODE configNode)
+bool convertConfig(PMXML_NODE configNode,bool runConfig)
 {
    PMXML_NODE node,tmpNode;
    PMXML_NODE modeNode;
@@ -140,8 +141,12 @@ bool convertConfig(PMXML_NODE configNode)
       mxml_add_tree_at(modeNode,tmpNode,1);
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
-      return false;
+      if (!runConfig) {
+         cout << "This configuration file has not the correct format.\n'Modes' not found!\nPlease edit by hand." << endl;
+         return false;
+      }
+      else
+         return true;
    }
 
    // Offline
@@ -150,8 +155,12 @@ bool convertConfig(PMXML_NODE configNode)
       mxml_replace_node_name(node,"Offline");
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
-      return false;
+      if (!runConfig) {
+         cout << "This configuration file has not the correct format.\n'RunParameters' not found!\nPlease edit by hand." << endl;
+         return false;
+      }
+      else
+         return true;
    }
 
    // Online
@@ -162,8 +171,12 @@ bool convertConfig(PMXML_NODE configNode)
       mxml_add_tree_at(configNode,tmpNode,2);
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
-      return false;
+      if (!runConfig) {
+         cout << "This configuration file has not the correct format.\n'Online' not found!\nPlease edit by hand." << endl;
+         return false;
+      }
+      else
+         return true;
    }
 
    // Paths
@@ -174,8 +187,12 @@ bool convertConfig(PMXML_NODE configNode)
       mxml_add_tree_at(configNode,tmpNode,3);
    }
    else {
-      cout << "This configuration file has not the correct format.\nPlease edit by hand." << endl;
-      return false;
+      if (!runConfig) {
+         cout << "This configuration file has not the correct format.\n'Paths' not found!\nPlease edit by hand." << endl;
+         return false;
+      }
+      else
+         return true;
    }
 
    // Common
