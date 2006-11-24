@@ -4420,18 +4420,18 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistoStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistoStorage()",false);
          }
          else {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistosStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistosStorage()",false);
          }
       }
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphStorage()",false);
          }
          else {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphsStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphsStorage()",false);
          }
       }
       if (numOfHistos[taskHierarchyClassIndex[i]]>0 || numOfGraphs[taskHierarchyClassIndex[i]]>0)
