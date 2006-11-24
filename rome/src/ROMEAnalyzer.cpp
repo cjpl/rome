@@ -66,6 +66,7 @@
 #include <TFile.h>
 #include <TArrayI.h>
 #include <TArrayL.h>
+#include <TMutex.h>
 #if defined( R__VISUAL_CPLUSPLUS )
 #pragma warning( pop )
 #endif // R__VISUAL_CPLUSPLUS
@@ -178,6 +179,7 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fWindow = 0;
    fWindowUpdateFrequency = 0;
    fObjectStorageStatus = kStorageFree;
+   fSocketServerMutex = new TMutex();
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -1379,10 +1381,9 @@ THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
    localThis->GetNetFolderServer()->UpdateObjects();
    return THREADRETURN;
 }
-void ROMEAnalyzer::CopyTObjectWithStreamer(TObject* source,TObject* destination)
+void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination)
 {
-   const Int_t bufsize = 10000;
-   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);
+   buffer->Reset();
    buffer->SetWriteMode();
    buffer->MapObject(source);  //register obj in map to handle self reference
    ((TObject*)source)->Streamer(*buffer);

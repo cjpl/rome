@@ -37,6 +37,7 @@
 typedef Int_t HNDLE;
 #endif
 
+class TMutex;
 class TObjArray;
 class TSocket;
 class TTree;
@@ -192,6 +193,7 @@ protected:
    // Socket Server
    Bool_t         fSocketServerActive;           //! Socket active
    Int_t          fSocketServerPortNumber;       //! Port Number for TSocket
+   TMutex        *fSocketServerMutex;            //! Mutex to secure socket server
 
    // Socket Client
    TSocket       *fSocketClient;                 //! Handle to socket connection to ROME
@@ -605,7 +607,7 @@ public:
    Int_t           GetObjectStorageStatus() { return fObjectStorageStatus; }
    void            SetObjectStorageStatus(Int_t status) { fObjectStorageStatus = status; }
 
-   void            CopyTObjectWithStreamer(TObject* source,TObject* destination);
+   void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
 
 protected:
    Bool_t          CreateHistoFolders(TList *,TFolder *);

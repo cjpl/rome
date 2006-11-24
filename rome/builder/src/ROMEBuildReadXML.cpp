@@ -1787,7 +1787,7 @@ Bool_t ROMEBuilder::ReadXMLTask()
          graphTitle[numOfTask][numOfGraphs[numOfTask]] = "";
          graphFolderName[numOfTask][numOfGraphs[numOfTask]] = "";
          graphFolderTitle[numOfTask][numOfGraphs[numOfTask]] = "";
-         graphType[numOfTask][numOfGraphs[numOfTask]] = "TH1F";
+         graphType[numOfTask][numOfGraphs[numOfTask]] = "TGraphMT";
          graphArraySize[numOfTask][numOfGraphs[numOfTask]] = "1";
          graphArrayStartIndex[numOfTask][numOfGraphs[numOfTask]] = "0";
          graphXLabel[numOfTask][numOfGraphs[numOfTask]] = "X";
@@ -1827,6 +1827,8 @@ Bool_t ROMEBuilder::ReadXMLTask()
             if (type == 1 && !strcmp((const char*)name,"GraphType")) {
                xml->GetValue(graphType[numOfTask][numOfGraphs[numOfTask]],graphType[numOfTask][numOfGraphs[numOfTask]]);
                FormatText(graphType[numOfTask][numOfGraphs[numOfTask]], kTRUE);
+               if (graphType[numOfTask][numOfGraphs[numOfTask]]=="TGraph")
+                  graphType[numOfTask][numOfGraphs[numOfTask]]="TGraphMT";
             }
             // graph array size
             if (type == 1 && !strcmp((const char*)name,"GraphArraySize")) {
@@ -2352,6 +2354,8 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      xml->GetValue(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]
                                    , tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]);
                      FormatText(tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]], kTRUE);
+                     if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]=="TGraph")
+                        tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]]="TGraphMT";
                   }
                   // object task hierarchy index
                   if (type == 1 && !strcmp(name, "ObjectDisplayTaskHierarchyIndex")) {
@@ -2380,7 +2384,7 @@ Bool_t ROMEBuilder::ReadXMLTab()
                      found = false;
                      for (i=0;i<tabObjectDisplaySupportedObjects.GetEntriesFast() && !found;i++) {
                         for (k=0;k<tabObjectDisplaySupportedObjects.GetEntriesFast();k++) {
-                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "TGraph" ||
+                           if (tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == "TGraphMT" ||
                                tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] == tabObjectDisplaySupportedObjects.At(k)) {
                               found = true;
                               tabObjectDisplayType[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]] = tabObjectDisplayObject[currentNumberOfTabs][numOfTabObjectDisplays[currentNumberOfTabs]];
