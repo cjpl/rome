@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<!-- Please check ROME homepage for details of tags
+http://midas.psi.ch/rome/romeConfigSchemaDocumentation.htm -->
+
+<Configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="c:/rome/romeConfig.xsd">
+  <ProgramConfiguration>
+    <ProgramMode>3</ProgramMode>
+  </ProgramConfiguration>
+
+  <MainConfiguration>
+    <Modes>
+      <AnalyzingMode>offline</AnalyzingMode>
+      <DAQSystem>none</DAQSystem>
+    </Modes>
+
+    <Offline>
+      <RunNumbers>1</RunNumbers>
+      <EventNumbers>1-100000</EventNumbers>
+      <InputFileNames></InputFileNames>
+    </Offline>
+
+    <Online>
+      <Host></Host>
+      <Experiment></Experiment>
+      <AnalyzerName>NFExample</AnalyzerName>
+    </Online>
+
+    <Paths>
+      <InputFilePath>./</InputFilePath>
+      <OutputFilePath>./</OutputFilePath>
+    </Paths>
+
+    <Common>
+      <Settings>
+        <VerboseLevel>normal</VerboseLevel>
+        <ConfigCommentLevel>1</ConfigCommentLevel>
+        <QuitMode>false</QuitMode>
+        <ShowSplashScreen>false</ShowSplashScreen>
+        <GraphicalConfigEdit>true</GraphicalConfigEdit>
+        <PreserveConfig>false</PreserveConfig>
+      </Settings>
+
+      <SocketServer>
+        <Active>true</Active>
+        <PortNumber>9090</PortNumber>
+      </SocketServer>
+
+      <DataBases/>
+    </Common>
+
+    <Analyzer>
+      <HistogramRead>
+        <Read>false</Read>
+        <RunNumber>0</RunNumber>
+      </HistogramRead>
+
+      <Macros>
+        <BeginOfRun></BeginOfRun>
+        <BeginOfEvent></BeginOfEvent>
+        <EndOfEvent></EndOfEvent>
+        <EndOfRun></EndOfRun>
+      </Macros>
+
+      <Tasks>
+        <Task>
+          <TaskName>FillHistoAndFolder</TaskName>
+          <Active>true</Active>
+          <Histogram>
+            <HistName>Histo1</HistName>
+          </Histogram>
+        </Task>
+      </Tasks>
+    </Analyzer>
+
+    <Monitor>
+      <Display>
+        <WindowScale>1.0</WindowScale>
+        <StatusBar>true</StatusBar>
+        <UpdateFrequency>100</UpdateFrequency>
+        <AnalyzerController>
+          <Active>false</Active>
+          <NetFolderName></NetFolderName>
+        </AnalyzerController>
+      </Display>
+
+      <SocketClient>
+        <Host>localhost</Host>
+        <Port>9090</Port>
+      </SocketClient>
+
+      <Tabs>
+        <Tab>
+          <TabName>Histos</TabName>
+          <Active>true</Active>
+        </Tab>
+      </Tabs>
+    </Monitor>
+  </MainConfiguration>
+</Configuration>

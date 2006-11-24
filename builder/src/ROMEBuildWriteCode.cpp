@@ -2788,14 +2788,16 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      if (histoArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
                         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                         buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j);
-                        buffer.AppendFormatted("      f%sSingleObject%d = gAnalyzer->Get%s%sTaskBase()->Get%s();\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
+                        buffer.AppendFormatted("      f%sSingleObject%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,histoType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                        buffer.AppendFormatted("      *(f%sSingleObject%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->Draw();\n",tabSingleObjectName[iTab][j].Data(),j);
                      }
                      else {
                         for (k=tabSingleObjectArrayIndexStart[iTab][j];k<=tabSingleObjectArrayIndexEnd[iTab][j];k++) {
                            buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabSingleObjectArrayIndexStart[iTab][j]);
                            buffer.AppendFormatted("      f%sPad%d_%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j,k);
-                           buffer.AppendFormatted("      f%sSingleObject%d_%d = gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d);\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
+                           buffer.AppendFormatted("      f%sSingleObject%d_%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,k,histoType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                           buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->Draw();\n",tabSingleObjectName[iTab][j].Data(),j,k);
                         }
                      }
@@ -2804,7 +2806,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                      if (graphArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
                         buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1);
                         buffer.AppendFormatted("      f%sPad%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j);
-                        buffer.AppendFormatted("      f%sSingleObject%d = gAnalyzer->Get%s%sTaskBase()->Get%s();\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
+                        buffer.AppendFormatted("      f%sSingleObject%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,graphType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                        buffer.AppendFormatted("      *(f%sSingleObject%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->GetXaxis()->SetLimits(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmin(),gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmax());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->SetMinimum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmin());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                         buffer.AppendFormatted("      f%sSingleObject%d->SetMaximum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmax());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
@@ -2814,7 +2817,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                         for (k=tabSingleObjectArrayIndexStart[iTab][j];k<=tabSingleObjectArrayIndexEnd[iTab][j];k++) {
                            buffer.AppendFormatted("      fGeneratedCanvas->GetCanvas()->cd(%d);\n",i+1+k-tabSingleObjectArrayIndexStart[iTab][j]);
                            buffer.AppendFormatted("      f%sPad%d_%d = (TPad*)gPad;\n",tabSingleObjectName[iTab][j].Data(),j,k);
-                           buffer.AppendFormatted("      f%sSingleObject%d_%d = gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d);\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
+                           buffer.AppendFormatted("      f%sSingleObject%d_%d = new %s();\n",tabSingleObjectName[iTab][j].Data(),j,k,graphType[tabSingleObjectTaskIndex[iTab][i]][tabSingleObjectObjectIndex[iTab][i]].Data());
+                           buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->GetXaxis()->SetLimits(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmin(),gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetXmax());\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->SetMinimum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmin());\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                            buffer.AppendFormatted("      f%sSingleObject%d_%d->SetMaximum(gAnalyzer->Get%s%sTaskBase()->Get%sGraph()->GetYmax());\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
@@ -2980,32 +2984,24 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
                buffer.AppendFormatted(") {\n");
                if (tabSingleObjectType[iTab][j]=="Histogram") {
                   if (histoArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
-                     buffer.AppendFormatted("      f%sSingleObject%d = gAnalyzer->Get%s%sTaskBase()->Get%s();\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
-                     buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-                     buffer.AppendFormatted("         f%sSingleObject%d->Draw();\n",tabSingleObjectName[iTab][j].Data(),j);
+                     buffer.AppendFormatted("      *(f%sSingleObject%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                      buffer.AppendFormatted("      f%sPad%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j);
                   }
                   else {
                      for (k=tabSingleObjectArrayIndexStart[iTab][j];k<=tabSingleObjectArrayIndexEnd[iTab][j];k++) {
-                        buffer.AppendFormatted("      f%sSingleObject%d_%d = gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d);\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-                        buffer.AppendFormatted("         f%sSingleObject%d_%d->Draw();\n",tabSingleObjectName[iTab][j].Data(),j,k);
+                        buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
                         buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j,k);
                      }
                   }
                }
                else if (tabSingleObjectType[iTab][j]=="Graph") {
                   if (graphArraySize[tabSingleObjectTaskIndex[iTab][j]][tabSingleObjectObjectIndex[iTab][j]]=="1") {
-                     buffer.AppendFormatted("      f%sSingleObject%d = gAnalyzer->Get%s%sTaskBase()->Get%s();\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
-                     buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-                     buffer.AppendFormatted("         f%sSingleObject%d->Draw(\"AL\");\n",tabSingleObjectName[iTab][j].Data(),j);
+                     buffer.AppendFormatted("      *(f%sSingleObject%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%s());\n",tabSingleObjectName[iTab][j].Data(),j,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data());
                      buffer.AppendFormatted("      f%sPad%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j);
                   }
                   else {
                      for (k=tabSingleObjectArrayIndexStart[iTab][j];k<=tabSingleObjectArrayIndexEnd[iTab][j];k++) {
-                        buffer.AppendFormatted("      f%sSingleObject%d_%d = gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d);\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
-                        buffer.AppendFormatted("      if (gAnalyzer->IsROMEMonitor())\n");
-                        buffer.AppendFormatted("         f%sSingleObject%d_%d->Draw(\"AL\");\n",tabSingleObjectName[iTab][j].Data(),j,k);
+                        buffer.AppendFormatted("      *(f%sSingleObject%d_%d) = *(gAnalyzer->Get%s%sTaskBase()->Get%sAt(%d));\n",tabSingleObjectName[iTab][j].Data(),j,k,taskHierarchyName[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),taskHierarchySuffix[tabSingleObjectTaskHierarchyIndex[iTab][j]].Data(),tabSingleObjectName[iTab][j].Data(),k);
                         buffer.AppendFormatted("      f%sPad%d_%d->Modified();\n",tabSingleObjectName[iTab][j].Data(),j,k);
                      }
                   }
