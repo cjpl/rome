@@ -847,6 +847,9 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 {
    int i,j;
    ROMEString tmp;
+#if defined( R__UNIX )
+   ROMEString tmp1, tmp2, tmp3;
+#endif
 
 #if defined( R__VISUAL_CPLUSPLUS )
    // libs
@@ -934,10 +937,14 @@ void ROMEBuilder::WriteMakefileLibsAndFlags(ROMEString& buffer)
 
    buffer.AppendFormatted("## Additional flags\n");
    // equal signs below should be '=' to allow change in Makefile.usr
-   buffer.AppendFormatted("%sCFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sFFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
-   buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp),shortCut.ToLower(tmp),shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sOPT      ?= -g -O\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCFLAGS   ?= -pipe -Wall -W\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCXXFLAGS ?= -pipe -Wall -W -Woverloaded-virtual\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sFFLAGS   ?= -pipe -Wall -W\n",shortCut.ToUpper(tmp));
+   buffer.AppendFormatted("%sCFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
+   buffer.AppendFormatted("%sCXXFLAGS += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
+   buffer.AppendFormatted("%sFFLAGS   += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
+   buffer.AppendFormatted("%sLDFLAGS  += $(%suserflags) $(%sOPT)\n",shortCut.ToUpper(tmp1),shortCut.ToLower(tmp2),shortCut.ToUpper(tmp3));
    buffer.AppendFormatted("\n");
 
    buffer.AppendFormatted("## Compile and link flags\n");
