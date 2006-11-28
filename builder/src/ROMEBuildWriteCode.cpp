@@ -1658,9 +1658,9 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
       // Header
       buffer.AppendFormatted("\n\n");
 
-      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
       if ((numOfHistos[iTask]>0 || numOfGraphs[iTask]>0) && readGlobalSteeringParameters)
          buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
+      buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[iTask].Data());
       buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
       buffer.AppendFormatted("#include \"ROMEiostream.h\"\n");
       buffer.AppendFormatted("\n");
@@ -2106,6 +2106,16 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   return f%ss;\n",histoName[iTask][i].Data());
             buffer.AppendFormatted("}\n");
          }
+         buffer.AppendFormatted("Bool_t %sT%s_Base::Register%s() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
+         buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   return false;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("Bool_t %sT%s_Base::UnRegister%s() {\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
+         buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   return false;\n");
+         buffer.AppendFormatted("}\n");
       }
 
       // Reset Graphs
@@ -2160,6 +2170,16 @@ Bool_t ROMEBuilder::WriteBaseTaskCpp()
             buffer.AppendFormatted("   return f%ss;\n",graphName[iTask][i].Data());
             buffer.AppendFormatted("}\n");
          }
+         buffer.AppendFormatted("Bool_t %sT%s_Base::Register%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
+         buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->RegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   return false;\n");
+         buffer.AppendFormatted("}\n");
+         buffer.AppendFormatted("Bool_t %sT%s_Base::UnRegister%s() {\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor())\n");
+         buffer.AppendFormatted("      return gAnalyzer->GetSocketClientNetFolder()->UnRegisterObject(\"%sT%s:%s\");\n",shortCut.Data(),taskName[iTask].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   return false;\n");
+         buffer.AppendFormatted("}\n");
       }
 
       ROMEString fctHead;
@@ -2341,6 +2361,7 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       buffer.AppendFormatted("#include \"ROMEHisto.h\"\n");
       buffer.AppendFormatted("#include \"ROMEGraph.h\"\n");
       buffer.AppendFormatted("#include \"ROMETask.h\"\n");
+      buffer.AppendFormatted("#include \"ROMEAnalyzer.h\"\n");
 
       for (i=0;i<numOfTaskInclude[iTask];i++) {
          if (taskLocalFlag[iTask][i]) {
@@ -2414,34 +2435,68 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]=="1") {
             if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) { f%s->Fill(x,weight); }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { f%s->Fill(x,y,weight); }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { \n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { f%s->Fill(x,y,z,weight); }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { \n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
-            buffer.AppendFormatted("   void Draw%s() { f%s->Draw(); }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   void Draw%s() { \n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Draw%s() was declared deprecated. Use Get%s()->Draw().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+            buffer.AppendFormatted("      return;\n");
+            buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   %s* Get%s();\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   %s* Get%sHistoStorage() { return f%sHistoStorage; } \n",histoType[iTask][i].Data(),histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          else {
             if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,weight); }\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,weight); }\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t z,Double_t weight=1) { ((%s*)f%ss->At(index))->Fill(x,y,z,weight); }\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t z,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+               buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+               buffer.AppendFormatted("      return;\n");
+               buffer.AppendFormatted("   }\n");
             }
-            buffer.AppendFormatted("   void Draw%sAt(Int_t index) { ((%s*)f%ss->At(index))->Draw(); }\n",histoName[iTask][i].Data(),histoType[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("   void Draw%sAt(Int_t index) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Draw%sAt() was declared deprecated. Use Get%sAt()->Draw().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+            buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
+            buffer.AppendFormatted("      return;\n");
+            buffer.AppendFormatted("   }\n");
             buffer.AppendFormatted("   %s* Get%sAt(Int_t index);\n",histoType[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("   TObjArray* Get%s();\n",histoName[iTask][i].Data());
             buffer.AppendFormatted("   TObjArray* Get%sHistosStorage() { return f%sHistosStorage; } \n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
          }
          buffer.AppendFormatted("   ROMEHisto* Get%sHisto() { return f%sHisto; }\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t Register%s();\n",histoName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t UnRegister%s();\n",histoName[iTask][i].Data());
       }
 
       for (i=0;i<numOfGraphs[iTask];i++) {
@@ -2455,6 +2510,8 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
             buffer.AppendFormatted("   TObjArray* Get%sGraphsStorage() { return f%sGraphsStorage; } \n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
          }
          buffer.AppendFormatted("   ROMEGraph* Get%sGraph() { return f%sGraph; }\n",graphName[iTask][i].Data(),graphName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t Register%s();\n",graphName[iTask][i].Data());
+         buffer.AppendFormatted("   Bool_t UnRegister%s();\n",graphName[iTask][i].Data());
       }
 
       // Object Interpreter
@@ -2653,6 +2710,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
    ROMEString str;
    ROMEString str1;
    ROMEString str2;
+   ROMEString taskFile;
+   fstream *fileStream;
 
    if (makeOutput)
       cout << "\n   Output Cpp-Files:" << endl;
@@ -2667,7 +2726,7 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       WriteHeader(buffer, tabAuthor[iTab].Data(), kFALSE);
       clsName.SetFormatted("%sT%s_Base", shortCut.Data() ,tabName[iTab].Data());
       clsDescription = tabDescription[iTab].Data();
-      fstream *fileStream = new fstream(cppFile.Data(),ios::in);
+      fileStream = new fstream(cppFile.Data(),ios::in);
       fileBuffer.ReadFile(*fileStream);
       delete fileStream;
       WriteDescription(buffer, clsName.Data(), clsDescription.Data(), kTRUE);
@@ -2746,6 +2805,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   i=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   j=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   ROMEString str;\n");
+      buffer.AppendFormatted("   RegisterObjects();\n");
+      buffer.AppendFormatted("   RequestNewEvent(-1,-1);\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fNumberOfUserLines = 0;\n");
          buffer.AppendFormatted("   fNumberOfDisplayTypes = %d;\n",numOfTabObjectDisplays[iTab]);
@@ -2908,11 +2969,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   fWatchUser.Start(false);\n");
       buffer.AppendFormatted("   EndInit();\n");
       buffer.AppendFormatted("   fWatchUser.Stop();\n");
+      buffer.AppendFormatted("   UnRegisterObjects();\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
       // BaseTabEventHandler
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   RequestNewEvent(gAnalyzer->GetWindow()->GetCurrentRun(),gAnalyzer->GetWindow()->GetCurrentEvent());\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fStyle->cd();\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
@@ -3199,44 +3262,6 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       }
       buffer.AppendFormatted("\n");
 
-      // Tab Selected
-      buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   SetForeground(kTRUE);\n");
-      buffer.AppendFormatted("   gAnalyzer->GetWindow()->RequestEventHandling();\n");
-      if (tabObjectDisplay[iTab]) {
-         buffer.AppendFormatted("   fStyle->cd();\n");
-         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
-         for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
-            if (tabObjectDisplayTaskHierarchyIndex[iTab][i]<0)
-               buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str));
-            else {
-               if (tabObjectDisplayTaskHierarchyNumber[iTab][i]>0)
-                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%d. %s\", M_DISPLAY_%s%s);\n",tabObjectDisplayTaskHierarchyNumber[iTab][i]+1,tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
-               else
-                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s%s);\n",tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
-            }
-         }
-         if (numOfTabObjectDisplays[iTab]>0) {
-            if (tabObjectDisplayTaskHierarchyIndex[iTab][0]<0)
-               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s",tabObjectDisplayName[iTab][0].ToUpper(str),tabObjectDisplayName[iTab][0].ToUpper(str1));
-            else
-               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s%s+fDisplayObjIndex,M_DISPLAY_%s%s",tabObjectDisplayName[iTab][0].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data(),tabObjectDisplayName[iTab][0].ToUpper(str1),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data());
-            if (tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]<0)
-               buffer.AppendFormatted(",M_DISPLAY_%s);\n",tabObjectDisplayName[iTab][numOfTabObjectDisplays[iTab]-1].ToUpper(str2));
-            else
-               buffer.AppendFormatted(",M_DISPLAY_%s%s);\n",tabObjectDisplayName[iTab][numOfTabObjectDisplays[iTab]-1].ToUpper(str2),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]].Data());
-         }
-      }
-      buffer.AppendFormatted("}\n");
-      // Tab Unselected
-      buffer.AppendFormatted("void %sT%s_Base::BaseTabUnSelected() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   SetForeground(kFALSE);\n");
-      if (tabObjectDisplay[iTab]) {
-         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabUnSelected();\n");
-      }
-      buffer.AppendFormatted("   TabUnSelected();\n");
-      buffer.AppendFormatted("}\n");
-      buffer.AppendFormatted("\n");
       // Menu Clicked
       buffer.AppendFormatted("void %sT%s_Base::BaseMenuClicked(TGPopupMenu *menu,Long_t param) {\n", shortCut.Data(), tabName[iTab].Data());
       if (tabObjectDisplay[iTab]) {
@@ -3278,6 +3303,113 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
 
+      // Tab Selected
+      buffer.AppendFormatted("void %sT%s_Base::BaseTabSelected() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   SetForeground(kTRUE);\n");
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   fStyle->cd();\n");
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabSelected();\n");
+         for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
+            if (tabObjectDisplayTaskHierarchyIndex[iTab][i]<0)
+               buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s);\n",tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str));
+            else {
+               if (tabObjectDisplayTaskHierarchyNumber[iTab][i]>0)
+                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%d. %s\", M_DISPLAY_%s%s);\n",tabObjectDisplayTaskHierarchyNumber[iTab][i]+1,tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
+               else
+                  buffer.AppendFormatted("   fMenuDisplay->AddEntry(\"%s\", M_DISPLAY_%s%s);\n",tabObjectDisplayTitle[iTab][i].Data(),tabObjectDisplayName[iTab][i].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][i]].Data());
+            }
+         }
+         if (numOfTabObjectDisplays[iTab]>0) {
+            if (tabObjectDisplayTaskHierarchyIndex[iTab][0]<0)
+               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s+fDisplayObjIndex,M_DISPLAY_%s",tabObjectDisplayName[iTab][0].ToUpper(str),tabObjectDisplayName[iTab][0].ToUpper(str1));
+            else
+               buffer.AppendFormatted("   fMenuDisplay->RCheckEntry(M_DISPLAY_%s%s+fDisplayObjIndex,M_DISPLAY_%s%s",tabObjectDisplayName[iTab][0].ToUpper(str),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data(),tabObjectDisplayName[iTab][0].ToUpper(str1),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][0]].Data());
+            if (tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]<0)
+               buffer.AppendFormatted(",M_DISPLAY_%s);\n",tabObjectDisplayName[iTab][numOfTabObjectDisplays[iTab]-1].ToUpper(str2));
+            else
+               buffer.AppendFormatted(",M_DISPLAY_%s%s);\n",tabObjectDisplayName[iTab][numOfTabObjectDisplays[iTab]-1].ToUpper(str2),taskHierarchySuffix[tabObjectDisplayTaskHierarchyIndex[iTab][numOfTabObjectDisplays[iTab]-1]].Data());
+         }
+      }
+      // Check Task File for Folder/Histo/Graph access
+      buffer.AppendFormatted("   RegisterObjects();\n");
+      buffer.AppendFormatted("   RequestNewEvent(-1,-1);\n");
+      buffer.AppendFormatted("   gAnalyzer->GetWindow()->RequestEventHandling();\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // Tab Unselected
+      buffer.AppendFormatted("void %sT%s_Base::BaseTabUnSelected() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   SetForeground(kFALSE);\n");
+      if (tabObjectDisplay[iTab]) {
+         buffer.AppendFormatted("   ArgusHistoDisplay::BaseTabUnSelected();\n");
+      }
+      buffer.AppendFormatted("   TabUnSelected();\n");
+      // Check Task File for Folder/Histo/Graph access
+      buffer.AppendFormatted("   UnRegisterObjects();\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // Register Objects
+      buffer.AppendFormatted("void %sT%s_Base::RegisterObjects() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
+      taskFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      fileStream = new fstream(taskFile.Data(),ios::in);
+      fileBuffer.Resize(0);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j) || accessFolder(buffer,j)) {
+            buffer.AppendFormatted("      gAnalyzer->Register%s();\n",folderName[j].Data());
+         }
+      }
+      for (j=0;j<numOfTaskHierarchy;j++) {
+         if (!taskUsed[taskHierarchyClassIndex[j]])
+            continue;
+         for (k=0;k<numOfHistos[taskHierarchyClassIndex[j]];k++) {
+            if (accessHisto(fileBuffer,taskHierarchyClassIndex[j],k) || accessHisto(buffer,taskHierarchyClassIndex[j],k)) {
+               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->Register%s();\n",taskHierarchyName[j].Data(),taskHierarchySuffix[j].Data(),histoName[taskHierarchyClassIndex[j]][k].Data());
+            }
+         }
+         for (k=0;k<numOfGraphs[taskHierarchyClassIndex[j]];k++) {
+            if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) || accessGraph(buffer,taskHierarchyClassIndex[j],k)) {
+               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->Register%s();\n",taskHierarchyName[j].Data(),taskHierarchySuffix[j].Data(),graphName[taskHierarchyClassIndex[j]][k].Data());
+            }
+         }
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
+
+      // UnRegister Objects
+      buffer.AppendFormatted("void %sT%s_Base::UnRegisterObjects() {\n", shortCut.Data(), tabName[iTab].Data());
+      buffer.AppendFormatted("   if (gAnalyzer->IsROMEMonitor()) {\n");
+      taskFile.SetFormatted("%ssrc/tabs/%sT%s.cpp", outDir.Data(), shortCut.Data(), tabName[iTab].Data());
+      fileStream = new fstream(taskFile.Data(),ios::in);
+      fileBuffer.Resize(0);
+      fileBuffer.ReadFile(*fileStream);
+      delete fileStream;
+      for (j=0;j<numOfFolder;j++) {
+         if (accessFolder(fileBuffer,j) || accessFolder(buffer,j)) {
+            buffer.AppendFormatted("      gAnalyzer->UnRegister%s();\n",folderName[j].Data());
+         }
+      }
+      for (j=0;j<numOfTaskHierarchy;j++) {
+         if (!taskUsed[taskHierarchyClassIndex[j]])
+            continue;
+         for (k=0;k<numOfHistos[taskHierarchyClassIndex[j]];k++) {
+            if (accessHisto(fileBuffer,taskHierarchyClassIndex[j],k) || accessHisto(buffer,taskHierarchyClassIndex[j],k)) {
+               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->UnRegister%s();\n",taskHierarchyName[j].Data(),taskHierarchySuffix[j].Data(),histoName[taskHierarchyClassIndex[j]][k].Data());
+            }
+         }
+         for (k=0;k<numOfGraphs[taskHierarchyClassIndex[j]];k++) {
+            if (accessGraph(fileBuffer,taskHierarchyClassIndex[j],k) || accessGraph(buffer,taskHierarchyClassIndex[j],k)) {
+               buffer.AppendFormatted("      gAnalyzer->Get%s%sTaskBase()->UnRegister%s();\n",taskHierarchyName[j].Data(),taskHierarchySuffix[j].Data(),graphName[taskHierarchyClassIndex[j]][k].Data());
+            }
+         }
+      }
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("\n");
 
       // Write file
       WriteFile(cppFile.Data(), buffer.Data(), 6);
@@ -3558,6 +3690,10 @@ Bool_t ROMEBuilder::WriteBaseTabH()
          buffer.AppendFormatted("\n");
       }
       buffer.AppendFormatted("\n");
+
+      // Register
+      buffer.AppendFormatted("   void RegisterObjects();\n");
+      buffer.AppendFormatted("   void UnRegisterObjects();\n");
 
       // User Methods
       buffer.AppendFormatted("   // User Methods\n");
@@ -4379,12 +4515,11 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
 
    // Fill Object Storage
    buffer.AppendFormatted("void %sAnalyzer::FillObjectStorage() {\n", shortCut.Data());
-   buffer.AppendFormatted("   if (fObjectStorageStatus != kStorageFree)\n");
-   buffer.AppendFormatted("      return;\n");
-   buffer.AppendFormatted("   fObjectStorageStatus = kStorageWriting;\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");
    buffer.AppendFormatted("   gFile = 0;\n");
+   buffer.AppendFormatted("   Int_t i;\n");
+   buffer.AppendFormatted("   i = 0;\n");
    buffer.AppendFormatted("   const Int_t bufsize = 10000;\n");
    buffer.AppendFormatted("   TBuffer *buffer = new TBuffer(TBuffer::kWrite,bufsize);\n");
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
@@ -4399,10 +4534,10 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
          continue;
       if (numOfValue[i] > 0) {
          if (folderArray[i]=="1") {
-            WriteFillObjectStorageObject(buffer,"f"+folderName[i]+"Folder","f"+folderName[i]+"FolderStorage",false);
+            WriteFillObjectStorageObject(buffer,"f"+folderName[i]+"Folder","f"+folderName[i]+"FolderStorage","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+folderName[i]+"FolderActive(i)",false);
          }
          else {
-            WriteFillObjectStorageObject(buffer,"f"+folderName[i]+"Folders","f"+folderName[i]+"FoldersStorage",true);
+            WriteFillObjectStorageObject(buffer,"f"+folderName[i]+"Folders","f"+folderName[i]+"FoldersStorage","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+folderName[i]+"FolderActive(i)",true);
          }
       }
    }
@@ -4420,18 +4555,18 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
       }
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistoStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistoStorage()","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"HistoActive(i)",false);
          }
          else {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistosStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+histoName[taskHierarchyClassIndex[i]][j]+"HistosStorage()","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"HistoActive(i)",false);
          }
       }
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphStorage()","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"GraphActive(i))",false);
          }
          else {
-            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphsStorage()",false);
+            WriteFillObjectStorageObject(buffer,"Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"()","Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"TaskBase()->Get"+graphName[taskHierarchyClassIndex[i]][j]+"GraphsStorage()","(("+shortCut+"NetFolderServer*)fNetFolderServer)->Get"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"GraphActive(i)",false);
          }
       }
       if (numOfHistos[taskHierarchyClassIndex[i]]>0 || numOfGraphs[taskHierarchyClassIndex[i]]>0)
@@ -4439,7 +4574,6 @@ Bool_t ROMEBuilder::WriteAnalyzerCpp()
    }
    buffer.AppendFormatted("   gFile = filsav;\n");
    buffer.AppendFormatted("   delete buffer;\n");
-   buffer.AppendFormatted("   fObjectStorageStatus = kStorageFree;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -5298,19 +5432,22 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
    return true;
 }
 
-Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass)
+Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass)
 {
+   buffer.AppendFormatted("   for(i=0;i<kMaxSocketClients;i++) {\n");
+   buffer.AppendFormatted("      if(!fNetFolderServer->GetAcceptedSockets(i) || !%s) continue;\n",objectActivePointer);
    if (bypass) {
-      buffer.AppendFormatted("   bypassOld = %s->CanBypassStreamer();\n",objectPointer);
-      buffer.AppendFormatted("   bypassStorageOld = %s->CanBypassStreamer();\n",objectStoragePointer);
-      buffer.AppendFormatted("   %s->BypassStreamer(kTRUE);\n",objectPointer);
-      buffer.AppendFormatted("   %s->BypassStreamer(kTRUE);\n",objectStoragePointer);
+      buffer.AppendFormatted("      bypassOld = %s->CanBypassStreamer();\n",objectPointer);
+      buffer.AppendFormatted("      bypassStorageOld = %s->CanBypassStreamer();\n",objectStoragePointer);
+      buffer.AppendFormatted("      %s->BypassStreamer(kTRUE);\n",objectPointer);
+      buffer.AppendFormatted("      %s->BypassStreamer(kTRUE);\n",objectStoragePointer);
    }
-   buffer.AppendFormatted("   CopyTObjectWithStreamer(buffer,%s,%s);\n",objectPointer,objectStoragePointer);
+   buffer.AppendFormatted("      CopyTObjectWithStreamer(buffer,%s,%s);\n",objectPointer,objectStoragePointer);
    if (bypass) {
-      buffer.AppendFormatted("   %s->BypassStreamer(bypassOld);\n",objectPointer);
-      buffer.AppendFormatted("   %s->BypassStreamer(bypassStorageOld);\n",objectStoragePointer);
+      buffer.AppendFormatted("      %s->BypassStreamer(bypassOld);\n",objectPointer);
+      buffer.AppendFormatted("      %s->BypassStreamer(bypassStorageOld);\n",objectStoragePointer);
    }
+   buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    return true;
 }
@@ -10193,7 +10330,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          continue;
       if (!folderSupport[i]) {
          if (numOfValue[i] > 0) {
-            buffer.AppendFormatted("   f%sFolderActive[id] = kTRUE;\n",folderName[i].Data()); // <- please change to false after implementing active switch in client
+            buffer.AppendFormatted("   f%sFolderActive[id] = kFALSE;\n",folderName[i].Data());
             if (folderArray[i]=="1") {
                buffer.AppendFormatted("   f%sFolder[id] = new %s%s();\n",folderName[i].Data(),shortCut.Data(),folderName[i].Data());
             }
@@ -10208,7 +10345,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       if (!taskUsed[taskHierarchyClassIndex[i]])
          continue;
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
-         buffer.AppendFormatted("   f%s%s_%sHistoActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data()); // <- please change to false after implementing active switch in client
+         buffer.AppendFormatted("   f%s%s_%sHistoActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("   f%s%s_%sHisto[id] = new %s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),histoType[taskHierarchyClassIndex[i]][j].Data());
          }
@@ -10217,7 +10354,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
          }
       }
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
-         buffer.AppendFormatted("   f%s%s_%sGraphActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data()); // <- please change to false after implementing active switch in client
+         buffer.AppendFormatted("   f%s%s_%sGraphActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("   f%s%s_%sGraph[id] = new %s();\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),graphType[taskHierarchyClassIndex[i]][j].Data());
          }
@@ -10341,7 +10478,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("   Int_t id = localThis->FindId(socket);\n");
    buffer.AppendFormatted("   if(id >= 0) {\n");
-   buffer.AppendFormatted("      if (!localThis->IsSocketClientRead(id))\n");
+   buffer.AppendFormatted("      while (!localThis->IsSocketClientRead(id))\n");
    buffer.AppendFormatted("         localThis->UpdateObjects();\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -10358,6 +10495,16 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
                WriteCheckCommandObject(buffer,"Folders",folderName[i].Data(),"");
                buffer.AppendFormatted("   }\n");
             }
+            buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),static_cast<int>(strlen("RegisterObject ")+shortCut.Length()+folderName[i].Length()));
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+            buffer.AppendFormatted("      localThis->f%sFolderActive[id] = kTRUE;\n",folderName[i].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+            buffer.AppendFormatted("   }\n");
+            buffer.AppendFormatted("   if (strncmp(str, \"UnRegisterObject %s%s\", %d) == 0) {\n",shortCut.Data(),folderName[i].Data(),static_cast<int>(strlen("UnRegisterObject ")+shortCut.Length()+folderName[i].Length()));
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+            buffer.AppendFormatted("      localThis->f%sFolderActive[id] = kFALSE;\n",folderName[i].Data());
+            buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+            buffer.AppendFormatted("   }\n");
          }
       }
    }
@@ -10380,6 +10527,16 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             WriteCheckCommandObject(buffer,"Histos",taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j],"");
             buffer.AppendFormatted("   }\n");
          }
+         buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("RegisterObject ")+shortCut.Length()+taskHierarchyName[i].Length()+histoName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+         buffer.AppendFormatted("      localThis->f%s%s_%sHistoActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (strncmp(str, \"UnRegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("UnRegisterObject ")+shortCut.Length()+taskHierarchyName[i].Length()+histoName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+         buffer.AppendFormatted("      localThis->f%s%s_%sHistoActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+         buffer.AppendFormatted("   }\n");
       }
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
@@ -10397,6 +10554,16 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
             WriteCheckCommandObject(buffer,"Graphs",taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j],"");
             buffer.AppendFormatted("   }\n");
          }
+         buffer.AppendFormatted("   if (strncmp(str, \"RegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("RegisterObject ")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+         buffer.AppendFormatted("      localThis->f%s%s_%sGraphActive[id] = kTRUE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+         buffer.AppendFormatted("   }\n");
+         buffer.AppendFormatted("   if (strncmp(str, \"UnRegisterObject %sT%s:%s\", %d) == 0) {\n",shortCut.Data(),taskHierarchyName[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),static_cast<int>(strlen("UnRegisterObject ")+shortCut.Length()+taskHierarchyName[i].Length()+graphName[taskHierarchyClassIndex[i]][j].Length()));
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+         buffer.AppendFormatted("      localThis->f%s%s_%sGraphActive[id] = kFALSE;\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+         buffer.AppendFormatted("   }\n");
       }
    }
    buffer.AppendFormatted("   }\n");
@@ -10475,9 +10642,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("#endif // ROOT_VERSION\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
-   buffer.AppendFormatted("void %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
+   buffer.AppendFormatted("Bool_t %sNetFolderServer::UpdateObjects()\n",shortCut.Data());
    buffer.AppendFormatted("{\n");
-   buffer.AppendFormatted("   gAnalyzer->SetObjectStorageStatus(ROMEAnalyzer::kStorageReading);\n");
+   buffer.AppendFormatted("   gAnalyzer->GetSocketServerMutex()->Lock();\n");
+   buffer.AppendFormatted("   gAnalyzer->GetObjectStorageMutex()->Lock();\n");
    buffer.AppendFormatted("   //create a buffer where the object will be streamed\n");
    buffer.AppendFormatted("   TFile *filsav = gFile;\n");
    buffer.AppendFormatted("   gFile = 0;\n");
@@ -10491,8 +10659,6 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   Int_t iClient;\n");
    buffer.AppendFormatted("   for(iClient = 0; iClient < kMaxSocketClients; iClient++) {\n");
    buffer.AppendFormatted("      if(!fAcceptedSockets[iClient]) continue;\n");
-   buffer.AppendFormatted("      if(fLocks[iClient]) continue;\n");
-   buffer.AppendFormatted("      fLocks[iClient] = kTRUE;\n");
    buffer.AppendFormatted("\n");
    for (i=0;i<numOfFolder;i++) {
       if (!folderUsed[i])
@@ -10553,12 +10719,13 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       if (numOfHistos[taskHierarchyClassIndex[i]]>0 || numOfGraphs[taskHierarchyClassIndex[i]]>0)
          buffer.AppendFormatted("      }\n");
    }
-   buffer.AppendFormatted("      fLocks[iClient] = kFALSE;\n");
    buffer.AppendFormatted("      fSocketClientRead[iClient] = kTRUE;\n");
    buffer.AppendFormatted("   }\n");
+   buffer.AppendFormatted("   gAnalyzer->GetSocketServerMutex()->UnLock();\n");
+   buffer.AppendFormatted("   gAnalyzer->GetObjectStorageMutex()->UnLock();\n");
    buffer.AppendFormatted("   gFile = filsav;\n");
    buffer.AppendFormatted("   delete buffer;\n");
-   buffer.AppendFormatted("   gAnalyzer->SetObjectStorageStatus(ROMEAnalyzer::kStorageFree);\n");
+   buffer.AppendFormatted("   return kTRUE;\n");
    buffer.AppendFormatted("}\n");
    buffer.AppendFormatted("\n");
 
@@ -10658,7 +10825,29 @@ Bool_t ROMEBuilder::WriteNetFolderServerH() {
    buffer.AppendFormatted("public:\n");
    buffer.AppendFormatted("   %sNetFolderServer():ROMENetFolderServer(){}\n",shortCut.Data());
    buffer.AppendFormatted("   virtual ~%sNetFolderServer(){}\n",shortCut.Data());
-   buffer.AppendFormatted("   void   UpdateObjects();\n");
+   buffer.AppendFormatted("\n");
+   for (i=0;i<numOfFolder;i++) {
+      if (!folderUsed[i])
+         continue;
+      if (!folderSupport[i]) {
+         if (numOfValue[i] > 0) {
+            buffer.AppendFormatted("   Bool_t Get%sFolderActive(Int_t i) { return f%sFolderActive[i]; }\n",folderName[i].Data(),folderName[i].Data());
+         }
+      }
+   }
+   for (i=0;i<numOfTaskHierarchy;i++) {
+      if (!taskUsed[taskHierarchyClassIndex[i]])
+         continue;
+      for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
+         buffer.AppendFormatted("   Bool_t Get%s%s_%sHistoActive(Int_t i) { return f%s%s_%sHistoActive[i]; }\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+      }
+      for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
+         buffer.AppendFormatted("   Bool_t Get%s%s_%sGraphActive(Int_t i) { return f%s%s_%sGraphActive[i]; }\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+      }
+   }
+
+   buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   Bool_t UpdateObjects();\n");
    buffer.AppendFormatted("   void   ConstructObjects(TSocket* socket);\n");
    buffer.AppendFormatted("   void   DestructObjects(TSocket* socket);\n");
    buffer.AppendFormatted("   Int_t  Register(TSocket* socket);\n");
@@ -10686,16 +10875,9 @@ Bool_t ROMEBuilder::WriteCheckCommandObject(ROMEString &buffer,const char *field
 {
    buffer.AppendFormatted("      ReadFolderPointer(socket);\n");
    buffer.AppendFormatted("      TMessage message(kMESS_OBJECT);\n");
-   buffer.AppendFormatted("      while(1) {\n");
-   buffer.AppendFormatted("         if (!localThis->fLocks[id]) {\n");
-   buffer.AppendFormatted("            localThis->fLocks[id] = kTRUE;\n");
-   buffer.AppendFormatted("            message<<localThis->f%s%s[id]%s;\n",fieldName,fieldIdentifier,pointer);
-   buffer.AppendFormatted("            localThis->fLocks[id] = kFALSE;\n");
-   buffer.AppendFormatted("            break;\n");
-   buffer.AppendFormatted("         }\n");
-   buffer.AppendFormatted("         else\n");
-   buffer.AppendFormatted("            gSystem->Sleep(100);\n");
-   buffer.AppendFormatted("      }\n");
+   buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->Lock();\n");
+   buffer.AppendFormatted("      message<<localThis->f%s%s[id]%s;\n",fieldName,fieldIdentifier,pointer);
+   buffer.AppendFormatted("      gAnalyzer->GetSocketServerMutex()->UnLock();\n");
    buffer.AppendFormatted("      socket->Send(message);\n");
    buffer.AppendFormatted("      return 1;\n");
    return true;
@@ -11256,6 +11438,8 @@ void ROMEBuilder::WriteFolderGetterInclude(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("   TClonesArray** Get%sAddress();\n",folderName[numFolder].Data());
          buffer.AppendFormatted("   TClonesArray* Get%sFoldersStorage() { return f%sFoldersStorage; }\n",folderName[numFolder].Data(),folderName[numFolder].Data());
       }
+      buffer.AppendFormatted("   Bool_t Register%s();\n",folderName[numFolder].Data());
+      buffer.AppendFormatted("   Bool_t UnRegister%s();\n",folderName[numFolder].Data());
    }
 }
 
@@ -11327,6 +11511,16 @@ void ROMEBuilder::WriteFolderGetterSource(ROMEString &buffer,Int_t numFolder)
          buffer.AppendFormatted("}\n");
          buffer.AppendFormatted("\n");
       }
+      buffer.AppendFormatted("Bool_t %sAnalyzer::Register%s() {\n",shortCut.Data(),folderName[numFolder].Data());
+      buffer.AppendFormatted("   if (IsROMEMonitor())\n");
+      buffer.AppendFormatted("      return GetSocketClientNetFolder()->RegisterObject(\"%s%s\");\n",shortCut.Data(),folderName[numFolder].Data());
+      buffer.AppendFormatted("   return false;\n");
+      buffer.AppendFormatted("}\n");
+      buffer.AppendFormatted("Bool_t %sAnalyzer::UnRegister%s() {\n",shortCut.Data(),folderName[numFolder].Data());
+      buffer.AppendFormatted("   if (IsROMEMonitor())\n");
+      buffer.AppendFormatted("      GetSocketClientNetFolder()->UnRegisterObject(\"%s%s\");\n",shortCut.Data(),folderName[numFolder].Data());
+      buffer.AppendFormatted("   return false;\n");
+      buffer.AppendFormatted("}\n");
    }
 }
 
@@ -11393,13 +11587,13 @@ Bool_t ROMEBuilder::WriteEventLoopCpp()
 #endif // R__VISUAL_CPLUSPLUS
 
    // Task class includes
+   if (readGlobalSteeringParameters)
+      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    for (i=0;i<numOfTask;i++) {
       if (!taskUsed[i])
          continue;
       buffer.AppendFormatted("#include \"generated/%sT%s_Base.h\"\n",shortCut.Data(),taskName[i].Data());
    }
-   if (readGlobalSteeringParameters)
-      buffer.AppendFormatted("#include \"generated/%sGlobalSteering.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sAnalyzer.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sEventLoop.h\"\n",shortCut.Data());
    buffer.AppendFormatted("#include \"generated/%sConfig.h\"\n",shortCut.Data());
@@ -13357,6 +13551,50 @@ Bool_t ROMEBuilder::accessFolder(ROMEString &fileBuffer, Int_t numFolder)
          return true;
    }
 
+   return false;
+}
+Bool_t ROMEBuilder::accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto)
+{
+   ROMEString str;
+
+   // Get
+   str = "Get";
+   str += histoName[numTask][numHisto];
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+
+   // Get At
+   if (histoArraySize[numTask][numHisto]!="1") {
+      str = "Get";
+      str += histoName[numTask][numHisto];
+      str += "At";
+      str += "(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
+   return false;
+}
+Bool_t ROMEBuilder::accessGraph(ROMEString &fileBuffer, Int_t numTask, Int_t numGraph)
+{
+   ROMEString str;
+
+   // Get
+   str = "Get";
+   str += graphName[numTask][numGraph];
+   str += "(";
+   if (fileBuffer.Contains(str))
+      return true;
+
+   // Get At
+   if (graphArraySize[numTask][numGraph]!="1") {
+      str = "Get";
+      str += graphName[numTask][numGraph];
+      str += "At";
+      str += "(";
+      if (fileBuffer.Contains(str))
+         return true;
+   }
    return false;
 }
 

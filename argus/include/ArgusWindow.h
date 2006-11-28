@@ -50,11 +50,13 @@ protected:
    TGTab                   *fTab;              //! tabs
    Int_t                    fCurrentTabID;     //! ID number of top tab
    TObjArray               *fTabObjects;       //! Handle to Tab Objects
-   Bool_t                   fControllerActive;
-   ArgusAnalyzerController *fController;
-   ROMENetFolder           *fControllerNetFolder;
+   Bool_t                   fControllerActive; //!
+   ArgusAnalyzerController *fController;       //!
+   ROMENetFolder           *fControllerNetFolder;//!
    Float_t                  fWindowScale;      //! Window scale
    Bool_t                   fRequestEventHandling; //! Event handling request flag
+   Long64_t                 fCurrentEvent;     //! Currently displayed event
+   Long64_t                 fCurrentRun;       //! Currently displayed run
 
    enum CommandIdentifiers{
       M_FILE_CONTROLLER,
@@ -109,6 +111,13 @@ public:
 
    // Event Handler
    virtual void    TriggerEventHandler() = 0;
+
+   // Event & Run Numbers
+   Long64_t        GetCurrentEvent() { return fCurrentEvent; };
+   void            SetCurrentEvent(Long64_t event) { fCurrentEvent = event; };
+   Long64_t        GetCurrentRun() { return fCurrentRun; };
+   void            SetCurrentRun(Long64_t run) { fCurrentRun = run; };
+
 protected:
    void            InitArgus();
 

@@ -194,6 +194,10 @@ protected:
    Bool_t         fSocketServerActive;           //! Socket active
    Int_t          fSocketServerPortNumber;       //! Port Number for TSocket
    TMutex        *fSocketServerMutex;            //! Mutex to secure socket server
+   TMutex        *fObjectStorageMutex;           //! Mutex to secure object storage
+   TMutex        *fRunEventNumberMutex;          //! Mutex to secure run and event number access
+   TMutex        *fUpdateObjectStorageMutex;     //! Mutex to secure object storage update flag
+   Bool_t         fObjectStorageUpdated;         //! Object storage update flag
 
    // Socket Client
    TSocket       *fSocketClient;                 //! Handle to socket connection to ROME
@@ -237,9 +241,6 @@ protected:
 
    // Midas
    HNDLE          fMidasOnlineDataBase;          //! Handle to the Midas Online Data Base
-
-   // Folder Storage Status
-   Int_t           fObjectStorageStatus;
 
 #ifndef __CINT__
    // stream
@@ -377,7 +378,7 @@ public:
    Int_t           GetNumberOfRunNumbers() { return fRunNumber.GetSize(); }
    const char     *GetRunNumberStringOriginal() { return fRunNumberString.Data(); }
 
-   void            SetCurrentRunNumber(Long64_t runNumber) { fCurrentRunNumber = runNumber; }
+   void            SetCurrentRunNumber(Long64_t runNumber);
    void            SetRunNumbers(ROMEString &numbers) {
                    fRunNumberString = numbers;
                    DecodeNumbers(numbers,fRunNumber); }
@@ -390,7 +391,7 @@ public:
    Long64_t        GetCurrentEventNumber();
    const char     *GetEventNumberStringOriginal() { return fEventNumberString.Data(); }
 
-   void            SetCurrentEventNumber(Long64_t eventNumber) { fCurrentEventNumber = eventNumber; }
+   void            SetCurrentEventNumber(Long64_t eventNumber);
    void            SetEventNumbers(ROMEString &numbers) {
                    fEventNumberString = numbers;
                    DecodeNumbers(numbers,fEventNumber); }
@@ -497,10 +498,19 @@ public:
    // Socket Server
    Int_t           GetSocketServerPortNumber() { return fSocketServerPortNumber; }
    Bool_t          isSocketServerActive() { return fSocketServerActive; }
+   TMutex         *GetSocketServerMutex() { return fSocketServerMutex; }
+   TMutex         *GetObjectStorageMutex() { return fObjectStorageMutex; }
+   TMutex         *GetRunEventNumberMutex() { return fRunEventNumberMutex; }
+   TMutex         *GetUpdateObjectStorageMutex() { return fUpdateObjectStorageMutex; }
 
    void            SetSocketServerPortNumber(Int_t portNumber) { fSocketServerPortNumber = portNumber; }
    void            SetSocketServerPortNumber(const char *portNumber) { char *cstop; fSocketServerPortNumber = strtol(portNumber,&cstop,10); }
    void            SetSocketServerActive(Bool_t flag=true) { fSocketServerActive = flag; }
+   static THREADTYPE FillObjectsInNetFolderServer(ROMEAnalyzer *localThis);
+   virtual void    FillObjectStorage() = 0;
+   void            UpdateObjectStorage();
+   Bool_t          IsObjectStorageUpdated();
+   void            SetObjectStorageUpdated();
 
    // Socket Client
    const char     *GetSocketClientHost() { return fSocketClientHost.Data(); }
@@ -601,11 +611,6 @@ public:
    Bool_t          toBool(Int_t value);
    void            redirectOutput();
    void            restoreOutput();
-
-   static THREADTYPE FillObjectsInNetFolderServer(ROMEAnalyzer *localThis);
-   virtual void    FillObjectStorage() = 0;
-   Int_t           GetObjectStorageStatus() { return fObjectStorageStatus; }
-   void            SetObjectStorageStatus(Int_t status) { fObjectStorageStatus = status; }
 
    void            CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination);
 

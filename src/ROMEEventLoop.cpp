@@ -454,24 +454,7 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Store Event
-   if (!gROME->IsROMEMonitor()) {
-      const ULong_t kInterval = 10000; // this should be changed to parameter
-      if (gROME->GetNetFolderServer()) {
-         if (gROME->GetObjectStorageStatus() == ROMEAnalyzer::kStorageFree
-            && (ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
-            fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
-            gROME->FillObjectStorage();
-#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
-            if (fNetFolderServerUpdateThread) {
-               TThread::Delete(fNetFolderServerUpdateThread);
-               fNetFolderServerUpdateThread = 0;
-            }
-            fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
-            fNetFolderServerUpdateThread->Run();
-#endif
-         }
-      }
-   }
+   StoreEvent();
 
    // Write Event
    if (!gROME->IsROMEMonitor()) {
@@ -492,6 +475,29 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    return kContinue;
+}
+Bool_t ROMEEventLoop::StoreEvent()
+{
+   if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
+      const ULong_t kInterval = 10; // this should be changed to parameter
+      if ((ULong_t)gSystem->Now() > fLastNetFolderServerUpdateTime + kInterval) {
+#if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
+         if (gROME->GetObjectStorageMutex()->TryLock()==0) {
+            fLastNetFolderServerUpdateTime = (ULong_t)gSystem->Now();
+            gROME->FillObjectStorage();
+            if (fNetFolderServerUpdateThread) {
+               TThread::Delete(fNetFolderServerUpdateThread);
+               fNetFolderServerUpdateThread = 0;
+            }
+            fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
+            gROME->GetObjectStorageMutex()->UnLock();
+            fNetFolderServerUpdateThread->Run();
+            gROME->SetObjectStorageUpdated();
+         }
+#endif
+      }
+   }
+   return kTRUE;
 }
 
 Bool_t ROMEEventLoop::DAQInit()
@@ -1068,6 +1074,7 @@ Bool_t ROMEEventLoop::UserInput()
       }
 
       if (wait) {
+         StoreEvent();
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }

@@ -13,25 +13,25 @@
 class ROMENetFolderServer : public TNetFolderServer
 {
 protected:
-   Bool_t   fLocks[kMaxSocketClients];
    TSocket *fAcceptedSockets[kMaxSocketClients];
    Bool_t   fSocketClientRead[kMaxSocketClients];
 
 public:
    void              StartServer(TApplication *app,Int_t port,const char* serverName);
    static Int_t      ResponseFunction(TSocket *socket);
-   virtual void      UpdateObjects() = 0;
+   virtual Bool_t    UpdateObjects() = 0;
    virtual void      ConstructObjects(TSocket* socket) = 0;
    virtual void      DestructObjects(TSocket* socket) = 0;
    virtual Int_t     Register(TSocket* socket) = 0;
    virtual void      UnRegister(TSocket* socket) = 0;
+
+   TSocket          *GetAcceptedSockets(Int_t i) { return fAcceptedSockets[i]; };
 
 public:
    ROMENetFolderServer()
    {
       Int_t i;
       for (i = 0; i < kMaxSocketClients; i++) {
-         fLocks[i] = kFALSE;
          fAcceptedSockets[i] = 0;
          fSocketClientRead[i] = false;
       }

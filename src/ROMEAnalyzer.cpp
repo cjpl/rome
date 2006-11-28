@@ -178,8 +178,12 @@ ROMEAnalyzer::ROMEAnalyzer(ROMERint *app,Bool_t batch,Bool_t daemon,Bool_t nogra
    fRomeOutputFile = 0;
    fWindow = 0;
    fWindowUpdateFrequency = 0;
-   fObjectStorageStatus = kStorageFree;
+   fNetFolderServer = 0;
    fSocketServerMutex = new TMutex();
+   fObjectStorageMutex = new TMutex();
+   fRunEventNumberMutex = new TMutex();
+   fUpdateObjectStorageMutex = new TMutex();
+   fObjectStorageUpdated = kFALSE;
 }
 
 ROMEAnalyzer::~ROMEAnalyzer() {
@@ -197,6 +201,10 @@ ROMEAnalyzer::~ROMEAnalyzer() {
    SafeDelete(fHistoFiles);
    SafeDelete(fHistoFolders);
    SafeDelete(fWindow);
+   SafeDelete(fSocketServerMutex);
+   SafeDelete(fObjectStorageMutex);
+   SafeDelete(fRunEventNumberMutex);
+   SafeDelete(fUpdateObjectStorageMutex);
 
    Int_t i;
    for(i = 0; i < fNumberOfNetFolders; i++) {
@@ -1376,8 +1384,6 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 
 THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 {
-   if (localThis->GetObjectStorageStatus() != kStorageFree)
-      return THREADRETURN;
    localThis->GetNetFolderServer()->UpdateObjects();
    return THREADRETURN;
 }
@@ -1399,15 +1405,56 @@ void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObje
 
 Long64_t ROMEAnalyzer::GetCurrentEventNumber()
 {
+   Long64_t tempNumber;
+   gROME->GetRunEventNumberMutex()->Lock();
    if (gROME->IsROMEMonitor()) {
       fCurrentEventNumber = gROME->GetSocketClientNetFolder()->GetCurrentEventNumber();
    }
-   return fCurrentEventNumber;
+   tempNumber = fCurrentEventNumber;
+   gROME->GetRunEventNumberMutex()->UnLock();
+   return tempNumber;
 }
 Long64_t ROMEAnalyzer::GetCurrentRunNumber()
 {
+   Long64_t tempNumber;
+   gROME->GetRunEventNumberMutex()->Lock();
    if (gROME->IsROMEMonitor()) {
       fCurrentRunNumber = gROME->GetSocketClientNetFolder()->GetCurrentRunNumber();
    }
-   return fCurrentRunNumber;
+   tempNumber = fCurrentRunNumber;
+   gROME->GetRunEventNumberMutex()->UnLock();
+   return tempNumber;
+}
+void ROMEAnalyzer::SetCurrentEventNumber(Long64_t eventNumber) 
+{ 
+   gROME->GetRunEventNumberMutex()->Lock();
+   fCurrentEventNumber = eventNumber; 
+   gROME->GetRunEventNumberMutex()->UnLock();
+}
+void ROMEAnalyzer::SetCurrentRunNumber(Long64_t runNumber) 
+{
+   gROME->GetRunEventNumberMutex()->Lock();
+   fCurrentRunNumber = runNumber;
+   gROME->GetRunEventNumberMutex()->UnLock();
+}
+
+void ROMEAnalyzer::UpdateObjectStorage()
+{
+   gROME->GetUpdateObjectStorageMutex()->Lock();
+   fObjectStorageUpdated = kFALSE;
+   gROME->GetUpdateObjectStorageMutex()->UnLock();
+}
+Bool_t ROMEAnalyzer::IsObjectStorageUpdated()
+{
+   Bool_t ret;
+   gROME->GetUpdateObjectStorageMutex()->Lock();
+   ret = fObjectStorageUpdated;
+   gROME->GetUpdateObjectStorageMutex()->UnLock();
+   return ret;
+}
+void ROMEAnalyzer::SetObjectStorageUpdated()
+{
+   gROME->GetUpdateObjectStorageMutex()->Lock();
+   fObjectStorageUpdated = kTRUE;
+   gROME->GetUpdateObjectStorageMutex()->UnLock();
 }

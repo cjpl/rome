@@ -19,6 +19,9 @@ public:
 
    Long64_t GetCurrentRunNumber();
    Long64_t GetCurrentEventNumber();
+   Bool_t RegisterObject(const char* name);
+   Bool_t UnRegisterObject(const char* name);
+   Bool_t RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber);
 
    ClassDef(ROMENetFolder, 0) // Customized TNetFolder for ROME
 };
