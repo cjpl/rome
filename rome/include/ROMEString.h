@@ -33,6 +33,7 @@ public:
    void         Write();
    void         WriteLine();
    Int_t        ToInteger();
+   Long_t       ToLong();
    Double_t     ToDouble();
    Float_t      ToFloat();
    Bool_t       ToBool();

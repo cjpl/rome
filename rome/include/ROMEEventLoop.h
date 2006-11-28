@@ -115,6 +115,7 @@ public:
    Bool_t       isContinuousMode() { return fContinuous; }
 
    Int_t        RunEvent();
+   Bool_t       StoreEvent();
    void         NextEvent();
    void         GotoEvent(Long64_t eventNumber);
 

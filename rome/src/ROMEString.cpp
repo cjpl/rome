@@ -118,6 +118,12 @@ Int_t ROMEString::ToInteger()
    return strtol(Data(),&cstop,10);
 }
 
+Long_t ROMEString::ToLong()
+{
+   char *cstop;
+   return strtol(Data(),&cstop,10);
+}
+
 Double_t ROMEString::ToDouble()
 {
    char *cstop;

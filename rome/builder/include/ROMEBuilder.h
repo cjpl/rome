@@ -568,7 +568,7 @@ private:
    Bool_t  WriteAnalyzer2Cpp();
    Bool_t  WriteAnalyzer3Cpp();
    Bool_t  WriteAnalyzerH();
-   Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,bool bypass);
+   Bool_t  WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass);
    Bool_t  WriteWindowCpp();
    Bool_t  WriteWindow2Cpp();
    Bool_t  WriteWindowH();
@@ -678,6 +678,8 @@ private:
    void    WriteDescription(ROMEString& buffer, const char* className, const char* description, Bool_t endmark);
    Bool_t  BackUpFile(const char* filename);
    Bool_t  accessFolder(ROMEString &fileBuffer, Int_t numFolder);
+   Bool_t  accessHisto(ROMEString &fileBuffer, Int_t numTask, Int_t numHisto);
+   Bool_t  accessGraph(ROMEString &fileBuffer, Int_t numTask, Int_t numGraph);
    Bool_t  RemoveFile(const char* filename, const char* str = 0);
    void    RemoveDepFiles(const char* str = 0);
    void    RelativeWindowsPath(ROMEString &path,const char *referencePath);

@@ -68,6 +68,32 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
       socket->Send(message);
       return 1;
    }
+   if (strncmp(str, "RequestNewEvent ", 16) == 0) {
+      //check for new event
+      Bool_t ret;
+      ROMEString string = str;
+      Long64_t runNumber = gROME->GetCurrentRunNumber();
+      Long64_t eventNumber = gROME->GetCurrentEventNumber();
+
+      ROMEString runStr = string(16,string.Length()-16);
+      Long64_t oldRunNumber = runStr.ToLong(); // --> This should be ToLong64
+      int blank = runStr.Index(" ");
+      ROMEString eventStr = runStr(blank+1,runStr.Length()-blank-1);
+      Long64_t oldEventNumber = eventStr.ToLong(); // --> This should be ToLong64
+
+      ret = kFALSE;
+      if (oldRunNumber<runNumber || oldRunNumber==runNumber && oldEventNumber<eventNumber) {
+         gROME->UpdateObjectStorage();
+         while (!gROME->IsObjectStorageUpdated())
+            gSystem->Sleep(20);
+         ret = kTRUE;
+      }
+
+      TMessage message(kMESS_OBJECT);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
    return TNetFolderServer::CheckCommand(socket,str);
 #endif // ROOT_VERSION
    return 1;
