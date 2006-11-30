@@ -3118,7 +3118,7 @@ Bool_t ROMEBuilder::ReadXMLMidasBanks()
          eventName[numOfEvent] = "";
          eventID[numOfEvent] = "-1";
          eventTriggerMask[numOfEvent] = "-1";
-         eventSamplingRate[numOfEvent] = "1";
+         eventSamplingRate[numOfEvent] = "2";
          numOfBank[numOfEvent] = -1;
          while (xml->NextLine()) {
             type = xml->GetType();

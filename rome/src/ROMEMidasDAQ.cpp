@@ -47,6 +47,7 @@ void ProcessMessage(Int_t /*hBuf*/, Int_t /*id*/, EVENT_HEADER * /*pheader*/, vo
 ClassImp(ROMEMidasDAQ)
 
 ROMEMidasDAQ::ROMEMidasDAQ() {
+   int i;
    fCurrentRawDataEvent = 0;
    fEventFilePositions = new TArrayL(kEventFilePositionsResizeIncrement);
 #if defined( R__BYTESWAP )
@@ -56,6 +57,10 @@ ROMEMidasDAQ::ROMEMidasDAQ() {
 #endif
    fOdbOffline = 0;
    fRequestAll = false;
+   for (i=0;i<kMaxMidasEventTypes;i++) {
+      fEventRequestRate[i] = 2;
+      fEventRequestMask[i] = -1;
+   }
 }
 
 ROMEMidasDAQ::~ROMEMidasDAQ() {
@@ -96,6 +101,7 @@ Bool_t ROMEMidasDAQ::Init() {
       for (i=0;i<nRequest;i++) {
          if (this->GetEventRequestRate(i)==1)
             fRequestAll = true;
+	    cout << this->GetEventRequestRate(i) << endl;
          bm_request_event(fMidasOnlineBuffer, this->GetEventRequestID(i),
             this->GetEventRequestMask(i),this->GetEventRequestRate(i), &requestId,NULL);
       }
