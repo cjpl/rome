@@ -2435,21 +2435,21 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
       for (i=0;i<numOfHistos[iTask];i++) {
          if (histoArraySize[iTask][i]=="1") {
             if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%s(double x,double weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double /* x */,double /* weight=1 */) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double weight=1) { \n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double /* x */,double /* y */,double /* weight=1 */) { \n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%s(double x,double y,double z,double weight=1) { \n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%s(double /* x */,double /* y */,double /* z */,double /* weight=1 */) { \n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%s() was declared deprecated. Use Get%s()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
@@ -2465,27 +2465,27 @@ Bool_t ROMEBuilder::WriteBaseTaskH()
          }
          else {
             if (histoType[iTask][i][2]==49) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t /* index */,Double_t /* x */,Double_t /* weight=1 */) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==50) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t /* index */,Double_t /* x */,Double_t /* y */,Double_t /* weight=1 */) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
             else if (histoType[iTask][i][2]==51) {
-               buffer.AppendFormatted("   void Fill%sAt(Int_t index,Double_t x,Double_t y,Double_t z,Double_t weight=1) {\n",histoName[iTask][i].Data());
+               buffer.AppendFormatted("   void Fill%sAt(Int_t /* index */,Double_t /* x */,Double_t /* y */,Double_t /* z */,Double_t /* weight=1 */) {\n",histoName[iTask][i].Data());
                buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Fill%sAt() was declared deprecated. Use Get%sAt()->Fill().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
                buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
                buffer.AppendFormatted("      return;\n");
                buffer.AppendFormatted("   }\n");
             }
-            buffer.AppendFormatted("   void Draw%sAt(Int_t index) {\n",histoName[iTask][i].Data());
+            buffer.AppendFormatted("   void Draw%sAt(Int_t /* index */) {\n",histoName[iTask][i].Data());
             buffer.AppendFormatted("      ROMEPrint::Error(\"\\nThe method Draw%sAt() was declared deprecated. Use Get%sAt()->Draw().\\nShutting down the program.\\n\");\n",histoName[iTask][i].Data(),histoName[iTask][i].Data());
             buffer.AppendFormatted("      gROME->GetApplication()->Terminate(1);\n");
             buffer.AppendFormatted("      return;\n");
