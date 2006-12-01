@@ -80,7 +80,7 @@ void NFTFillHistoAndFolder::BeginOfRun()
 void NFTFillHistoAndFolder::Event()
 {
    double value = gRandom->Gaus(0,20);
-   FillHisto1(value);
+   GetHisto1()->Fill(value);
    int ivalue = (int)(value+100);
    gSystem->Sleep(10);
    if (ivalue>=0 && ivalue<200)
