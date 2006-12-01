@@ -77,7 +77,7 @@ void HGTMakeHistogram::BeginOfRun()
 
 void HGTMakeHistogram::Event()
 {
-   FillhAdc(rndm->Gaus(2000, 200));
+   GethAdc()->Fill(rndm->Gaus(2000, 200));
 }
 
 void HGTMakeHistogram::EndOfRun()
