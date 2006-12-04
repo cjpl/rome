@@ -1118,7 +1118,7 @@ Bool_t ROMEAnalyzer::ConnectNetFolder(Int_t i)
    while (!fNetFolderSocket[i]->IsValid()) {
       delete fNetFolderSocket[i];
       ROMEPrint::Warning("can not make socket connection for %s.\n", fNetFolderName[i].Data());
-      ROMEPrint::Warning("program sleeps for 5s and tries again.\n");
+      ROMEPrint::Warning("program sleeps for 5s and tries again.\n\n");
       gSystem->Sleep(5000);
       fNetFolderSocket[i] = new TSocket (fNetFolderHost[i].Data(), fNetFolderPort[i]);
    }
@@ -1385,6 +1385,8 @@ void ROMEAnalyzer::ReplaceWithRunAndEventNumber(ROMEString &buffer)
 THREADTYPE ROMEAnalyzer::FillObjectsInNetFolderServer(ROMEAnalyzer *localThis)
 {
    localThis->GetNetFolderServer()->UpdateObjects();
+   localThis->SetObjectStorageUpdated();
+   localThis->GetNetFolderServer()->SetEventStorageAvailable(true);
    return THREADRETURN;
 }
 void ROMEAnalyzer::CopyTObjectWithStreamer(TBuffer *buffer,TObject* source,TObject* destination)

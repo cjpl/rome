@@ -99,3 +99,25 @@ Bool_t ROMENetFolder::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNum
    return retValue;
 }
 
+Bool_t ROMENetFolder::RequestEvent()
+{
+   ROMEString str = "RequestEvent";
+   if (!Send(str.Data()))
+      return false;
+
+   TMessage *mr = 0;
+   if (!Recv(mr))
+      return false;
+
+   if (mr == NULL) {
+      delete mr;
+      return false;
+   }
+
+   Bool_t retValue;
+   *mr >> retValue;
+
+   delete mr;
+   return retValue;
+}
+

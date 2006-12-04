@@ -15,6 +15,9 @@ class ROMENetFolderServer : public TNetFolderServer
 protected:
    TSocket *fAcceptedSockets[kMaxSocketClients];
    Bool_t   fSocketClientRead[kMaxSocketClients];
+   Bool_t   fCopyAll;
+   Bool_t   fEventStorageAvailable;
+   Bool_t   fAllDataAvailable;
 
 public:
    void              StartServer(TApplication *app,Int_t port,const char* serverName);
@@ -28,17 +31,18 @@ public:
    TSocket          *GetAcceptedSockets(Int_t i) { return fAcceptedSockets[i]; };
 
 public:
-   ROMENetFolderServer()
-   {
-      Int_t i;
-      for (i = 0; i < kMaxSocketClients; i++) {
-         fAcceptedSockets[i] = 0;
-         fSocketClientRead[i] = false;
-      }
-   }
+   ROMENetFolderServer();
    virtual ~ROMENetFolderServer(){}
 
    Bool_t   IsSocketClientRead(Int_t clientID) { return fSocketClientRead[clientID]; };
+   Bool_t   IsCopyAll() { return fCopyAll; };
+   void     SetCopyAll(bool copyAll) { fCopyAll = copyAll; };
+
+   Bool_t   IsEventStorageAvailable() { return fEventStorageAvailable; };
+   void     SetEventStorageAvailable(bool eventStorageAvailable) { fEventStorageAvailable = eventStorageAvailable; };
+
+   Bool_t   IsAllDataAvailable() { return fAllDataAvailable; };
+   void     SetAllDataAvailable(bool allDataAvailable) { fAllDataAvailable = allDataAvailable; };
 
 
 protected:
