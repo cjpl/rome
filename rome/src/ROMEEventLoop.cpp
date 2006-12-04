@@ -237,10 +237,13 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
             this->SetBeginOfRun();
 
          // Store whole Event
-         gROME->GetNetFolderServer()->SetCopyAll(true);
-         StoreEvent(false);
-         gROME->GetNetFolderServer()->SetCopyAll(false);
-         gROME->GetNetFolderServer()->SetEventStorageAvailable(false);
+         if (gROME->GetNetFolderServer()) {
+            gROME->GetNetFolderServer()->SetCopyAll(true);
+            StoreEvent(false);
+            gROME->GetNetFolderServer()->SetCopyAll(false);
+            gROME->GetNetFolderServer()->SetEventStorageAvailable(false);
+         }
+
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
