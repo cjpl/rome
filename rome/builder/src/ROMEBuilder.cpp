@@ -227,6 +227,9 @@ ROMEBuilder::~ROMEBuilder()
    delete [] tabObjectDisplayTaskIndex;
    delete [] tabObjectDisplayObjectIndex;
    delete [] tabObjectDisplayTaskHierarchyNumber;
+   delete [] tabObjectDisplayObjectTypeIndex;
+   delete [] numOfTabObjectDisplayObjectTypes;
+   delete [] tabObjectDisplayObjectType;
 
    // tree
    delete [] numOfBranch;
