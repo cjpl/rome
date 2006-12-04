@@ -140,7 +140,7 @@ LibObjects := obj/ROMEStr2DArray.o \
               obj/ROMETree.o \
               obj/ROMEGraph.o \
               obj/ROMELabel.o \
-              obj/ROMEHorizontalFrame.o \
+              obj/ROMECompositeFrame.o \
               obj/ROMEHisto.o \
               obj/TArrayL64.o \
               obj/TNetFolder.o \
@@ -188,7 +188,7 @@ LibDictHeaders := include/ROMEString.h \
                   include/ROMERomeDAQ.h \
                   include/ROMEDataBase.h \
                   include/ROMELabel.h \
-                  include/ROMEHorizontalFrame.h \
+                  include/ROMECompositeFrame.h \
                   include/ROMEHisto.h \
                   include/ROMEConfigHisto.h \
                   include/TNetFolder.h \
