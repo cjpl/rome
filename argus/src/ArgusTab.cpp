@@ -52,6 +52,7 @@ void ArgusTab::ArgusEventHandler() {
    fBusy = false;
    fWatchAll.Stop();
 }
+
 Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) {
    if (gROME->IsROMEMonitor()) {
       return gROME->GetSocketClientNetFolder()->RequestNewEvent(oldRunNumber,oldEventNumber);
@@ -61,6 +62,13 @@ Bool_t ArgusTab::RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber) 
          return kTRUE;
    }
    return kFALSE;
+}
+
+Bool_t ArgusTab::RequestEvent() {
+   if (gROME->IsROMEMonitor()) {
+      return gROME->GetSocketClientNetFolder()->RequestEvent();
+   }
+   return kTRUE;
 }
 
 // Time methods

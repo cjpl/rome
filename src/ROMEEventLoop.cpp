@@ -37,6 +37,7 @@
 #include "ROMEConfig.h"
 #include "ArgusWindow.h"
 #include "ArgusAnalyzerController.h"
+#include "ROMENetFolderServer.h"
 #include "ROMEAnalyzer.h"
 
 #if defined( HAVE_MIDAS )
@@ -211,8 +212,9 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
       // Start ARGUS
       //-------------
       if (ii==0 && (gROME->IsStandAloneARGUS() || gROME->IsROMEAndARGUS() || gROME->IsROMEMonitor())) {
-         ROMEPrint::Debug("Starting main window\n");
+         ROMEPrint::Print("Starting argus monitor ...                            \r");
          gROME->StartWindow();
+         ROMEPrint::Print("Argus monitor running                                 \n");
          fWindowFirstDraw = kTRUE;
       }
 
@@ -234,6 +236,11 @@ void ROMEEventLoop::ExecuteTask(Option_t *option)
          if (this->isEndOfRun())
             this->SetBeginOfRun();
 
+         // Store whole Event
+         gROME->GetNetFolderServer()->SetCopyAll(true);
+         StoreEvent(false);
+         gROME->GetNetFolderServer()->SetCopyAll(false);
+         gROME->GetNetFolderServer()->SetEventStorageAvailable(false);
          // Show number of processed events
          if (gROME->IsShowRunStat()) {
 #if defined( R__VISUAL_CPLUSPLUS )
@@ -454,7 +461,7 @@ Int_t ROMEEventLoop::RunEvent()
    }
 
    // Store Event
-   StoreEvent();
+   StoreEvent(true);
 
    // Write Event
    if (!gROME->IsROMEMonitor()) {
@@ -476,7 +483,7 @@ Int_t ROMEEventLoop::RunEvent()
 
    return kContinue;
 }
-Bool_t ROMEEventLoop::StoreEvent()
+Bool_t ROMEEventLoop::StoreEvent(Bool_t useThread)
 {
    if (!gROME->IsROMEMonitor() && gROME->GetNetFolderServer() && !gROME->IsObjectStorageUpdated()) {
       const ULong_t kInterval = 10; // this should be changed to parameter
@@ -489,10 +496,15 @@ Bool_t ROMEEventLoop::StoreEvent()
                TThread::Delete(fNetFolderServerUpdateThread);
                fNetFolderServerUpdateThread = 0;
             }
-            fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
-            gROME->GetObjectStorageMutex()->UnLock();
-            fNetFolderServerUpdateThread->Run();
-            gROME->SetObjectStorageUpdated();
+            if (useThread) {
+               fNetFolderServerUpdateThread = new TThread("CopyThread",(THREADTYPE (*)(void*))ROMEAnalyzer::FillObjectsInNetFolderServer,(void*) gROME);
+               gROME->GetObjectStorageMutex()->UnLock();
+               fNetFolderServerUpdateThread->Run();
+            }
+            else {
+               gROME->FillObjectsInNetFolderServer(gROME);
+               gROME->GetObjectStorageMutex()->UnLock();
+            }
          }
 #endif
       }
@@ -1074,7 +1086,7 @@ Bool_t ROMEEventLoop::UserInput()
       }
 
       if (wait) {
-         StoreEvent();
+         StoreEvent(true);
          gSystem->ProcessEvents();
          gSystem->Sleep(10);
       }

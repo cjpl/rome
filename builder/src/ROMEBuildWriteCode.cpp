@@ -2806,7 +2806,13 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       buffer.AppendFormatted("   j=0;\n"); // to suppress unused warning
       buffer.AppendFormatted("   ROMEString str;\n");
       buffer.AppendFormatted("   RegisterObjects();\n");
-      buffer.AppendFormatted("   RequestNewEvent(-1,-1);\n");
+      buffer.AppendFormatted("   if (!RequestNewEvent(-1,-1)) {\n");
+      buffer.AppendFormatted("      ROMEPrint::Warning(\"The analyzer doesn't provide any data in it's current state.\\n\");\n");
+      buffer.AppendFormatted("      ROMEPrint::Warning(\"The monitor waits until the analyzer provides new data.\\n\\n\");\n");
+      buffer.AppendFormatted("      gSystem->Sleep(100);\n");
+      buffer.AppendFormatted("   }\n");
+      buffer.AppendFormatted("   while (!RequestNewEvent(-1,-1))\n");
+      buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fNumberOfUserLines = 0;\n");
          buffer.AppendFormatted("   fNumberOfDisplayTypes = %d;\n",numOfTabObjectDisplays[iTab]);
@@ -2975,7 +2981,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
 
       // BaseTabEventHandler
       buffer.AppendFormatted("void %sT%s_Base::BaseEventHandler() {\n", shortCut.Data(), tabName[iTab].Data());
-      buffer.AppendFormatted("   RequestNewEvent(gAnalyzer->GetWindow()->GetCurrentRun(),gAnalyzer->GetWindow()->GetCurrentEvent());\n");
+      buffer.AppendFormatted("   if (!RequestNewEvent(gAnalyzer->GetWindow()->GetCurrentRun(),gAnalyzer->GetWindow()->GetCurrentEvent()))\n");
+      buffer.AppendFormatted("      return;\n");
       if (tabObjectDisplay[iTab]) {
          buffer.AppendFormatted("   fStyle->cd();\n");
          for (i=0;i<numOfTabObjectDisplays[iTab];i++) {
@@ -3332,7 +3339,8 @@ Bool_t ROMEBuilder::WriteBaseTabCpp()
       }
       // Check Task File for Folder/Histo/Graph access
       buffer.AppendFormatted("   RegisterObjects();\n");
-      buffer.AppendFormatted("   RequestNewEvent(-1,-1);\n");
+      buffer.AppendFormatted("   while (!RequestEvent())\n");
+      buffer.AppendFormatted("      gSystem->Sleep(100);\n");
       buffer.AppendFormatted("   gAnalyzer->GetWindow()->RequestEventHandling();\n");
       buffer.AppendFormatted("}\n");
       buffer.AppendFormatted("\n");
@@ -5435,7 +5443,7 @@ Bool_t ROMEBuilder::WriteAnalyzerH()
 Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *objectPointer,const char *objectStoragePointer,const char *objectActivePointer,bool bypass)
 {
    buffer.AppendFormatted("   for(i=0;i<kMaxSocketClients;i++) {\n");
-   buffer.AppendFormatted("      if(!fNetFolderServer->GetAcceptedSockets(i) || !%s) continue;\n",objectActivePointer);
+   buffer.AppendFormatted("      if(!fNetFolderServer->GetAcceptedSockets(i) || (!%s && !fNetFolderServer->IsCopyAll())) continue;\n",objectActivePointer);
    if (bypass) {
       buffer.AppendFormatted("      bypassOld = %s->CanBypassStreamer();\n",objectPointer);
       buffer.AppendFormatted("      bypassStorageOld = %s->CanBypassStreamer();\n",objectStoragePointer);
@@ -5447,6 +5455,7 @@ Bool_t ROMEBuilder::WriteFillObjectStorageObject(ROMEString &buffer,const char *
       buffer.AppendFormatted("      %s->BypassStreamer(bypassOld);\n",objectPointer);
       buffer.AppendFormatted("      %s->BypassStreamer(bypassStorageOld);\n",objectStoragePointer);
    }
+   buffer.AppendFormatted("      break;\n");
    buffer.AppendFormatted("   }\n");
    buffer.AppendFormatted("\n");
    return true;
@@ -10656,6 +10665,10 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
    buffer.AppendFormatted("   Bool_t bypassOld;\n");
    buffer.AppendFormatted("   bypassOld = kFALSE;\n"); // to suppress unused warning
    buffer.AppendFormatted("\n");
+   buffer.AppendFormatted("   if (fCopyAll)\n");
+   buffer.AppendFormatted("      fAllDataAvailable = kTRUE;\n");
+   buffer.AppendFormatted("   else\n");
+   buffer.AppendFormatted("      fAllDataAvailable = kFALSE;\n");
    buffer.AppendFormatted("   Int_t iClient;\n");
    buffer.AppendFormatted("   for(iClient = 0; iClient < kMaxSocketClients; iClient++) {\n");
    buffer.AppendFormatted("      if(!fAcceptedSockets[iClient]) continue;\n");
@@ -10668,7 +10681,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       if (numOfValue[i] > 0) {
          buffer.AppendFormatted("      buffer->Reset();\n");
          buffer.AppendFormatted("      buffer->SetWriteMode();\n");
-         buffer.AppendFormatted("      if (f%sFolderActive[iClient]) {\n",folderName[i].Data());
+         buffer.AppendFormatted("      if (f%sFolderActive[iClient] || fCopyAll) {\n",folderName[i].Data());
          if (folderArray[i]=="1") {
             buffer.AppendFormatted("         %s%s *%sOrg = gAnalyzer->Get%sFolderStorage();\n",shortCut.Data(),folderName[i].Data(),folderName[i].Data(),folderName[i].Data());
             WriteUpdateObjectsObject(buffer,"f"+folderName[i]+"Folder[iClient]",folderName[i]+"Org",false);
@@ -10689,7 +10702,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       for (j=0;j<numOfHistos[taskHierarchyClassIndex[i]];j++) {
          buffer.AppendFormatted("      buffer->Reset();\n");
          buffer.AppendFormatted("      buffer->SetWriteMode();\n");
-         buffer.AppendFormatted("      if (f%s%s_%sHistoActive[iClient]) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      if (f%s%s_%sHistoActive[iClient] || fCopyAll) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
          if (histoArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("         %s *%sOrg = gAnalyzer->Get%s%sTaskBase()->Get%sHistoStorage();\n",histoType[taskHierarchyClassIndex[i]][j].Data(),histoName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),histoName[taskHierarchyClassIndex[i]][j].Data());
             WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+histoName[taskHierarchyClassIndex[i]][j]+"Histo[iClient]",histoName[taskHierarchyClassIndex[i]][j]+"Org",false);
@@ -10704,7 +10717,7 @@ Bool_t ROMEBuilder::WriteNetFolderServerCpp() {
       for (j=0;j<numOfGraphs[taskHierarchyClassIndex[i]];j++) {
          buffer.AppendFormatted("      buffer->Reset();\n");
          buffer.AppendFormatted("      buffer->SetWriteMode();\n");
-         buffer.AppendFormatted("      if (f%s%s_%sGraphActive[iClient]) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
+         buffer.AppendFormatted("      if (f%s%s_%sGraphActive[iClient] || fCopyAll) {\n",taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
          if (graphArraySize[taskHierarchyClassIndex[i]][j]=="1") {
             buffer.AppendFormatted("         %s *%sOrg = gAnalyzer->Get%s%sTaskBase()->Get%sGraphStorage();\n",graphType[taskHierarchyClassIndex[i]][j].Data(),graphName[taskHierarchyClassIndex[i]][j].Data(),taskHierarchyName[i].Data(),taskHierarchySuffix[i].Data(),graphName[taskHierarchyClassIndex[i]][j].Data());
             WriteUpdateObjectsObject(buffer,"f"+taskHierarchyName[i]+taskHierarchySuffix[i]+"_"+graphName[taskHierarchyClassIndex[i]][j]+"Graph[iClient]",graphName[taskHierarchyClassIndex[i]][j]+"Org",false);

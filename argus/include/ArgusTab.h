@@ -41,6 +41,7 @@ public:
    void ArgusInit();
    void ArgusEventHandler();
    Bool_t RequestNewEvent(Long64_t oldRunNumber,Long64_t oldEventNumber);
+   Bool_t RequestEvent();
 
    void        ShowTimeStatistics();
    const char *GetTimeOfAll();

@@ -27,6 +27,17 @@
 
 ClassImp(ROMENetFolderServer)
 
+ROMENetFolderServer::ROMENetFolderServer() 
+{
+   Int_t i;
+   for (i = 0; i < kMaxSocketClients; i++) {
+      fAcceptedSockets[i] = 0;
+      fSocketClientRead[i] = false;
+   }
+   fCopyAll = false;
+   fEventStorageAvailable = false;
+}
+
 int ROMENetFolderServer::ResponseFunction(TSocket *socket) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (!socket->IsValid())
@@ -48,6 +59,8 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
 #if (ROOT_VERSION_CODE >= ROOT_VERSION(4,1,0))
    if (!socket->IsValid())
       return 1;
+
+   ROMENetFolderServer* localThis = static_cast<ROMENetFolderServer*>(gROME->GetNetFolderServer());
 
    // Check Command
    if (strncmp(str, "GetCurrentRunNumber", 19) == 0) {
@@ -82,7 +95,25 @@ int ROMENetFolderServer::CheckCommand(TSocket *socket,char *str) {
       Long64_t oldEventNumber = eventStr.ToLong(); // --> This should be ToLong64
 
       ret = kFALSE;
-      if (oldRunNumber<runNumber || oldRunNumber==runNumber && oldEventNumber<eventNumber) {
+      if ((oldRunNumber<runNumber || oldRunNumber==runNumber && oldEventNumber<eventNumber) && localThis->IsEventStorageAvailable()) {
+         gROME->UpdateObjectStorage();
+         while (!gROME->IsObjectStorageUpdated())
+            gSystem->Sleep(20);
+         ret = kTRUE;
+      }
+
+      TMessage message(kMESS_OBJECT);
+      message<<ret;
+      socket->Send(message);
+      return 1;
+   }
+   if (strncmp(str, "RequestEvent", 12) == 0) {
+      //return current event
+      Bool_t ret;
+      ret = kFALSE;
+      if (localThis->IsAllDataAvailable())
+         ret = kTRUE;
+      else if (localThis->IsEventStorageAvailable()) {
          gROME->UpdateObjectStorage();
          while (!gROME->IsObjectStorageUpdated())
             gSystem->Sleep(20);

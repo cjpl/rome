@@ -35,7 +35,7 @@ TNetFolder::TNetFolder(const char *name, const char *title, TSocket *socket, Boo
    fSocket = socket;
    fFolder = GetPointer();
    fReconnect = reconnect;
-//   fHost = fSocket->GetUrl();
+   fHost = fSocket->GetUrl();
    fPort = fSocket->GetPort();
 }
 
@@ -45,8 +45,7 @@ TNetFolder::~TNetFolder()
 
 void TNetFolder::Reconnect()
 {
-   Warning("Reconnect", "can not make socket connection to %s on port %d.", fHost.Data(), fPort);
-   Warning("Reconnect", "program sleeps for 5s and tries again.");
+   Warning("Reconnect", "can not make socket connection to %s on port %d.\nprogram sleeps for 5s and tries again.", fHost.Data(), fPort);
    gSystem->Sleep(5000);
    delete fSocket;
    fSocket = new TSocket (fHost.Data(), fPort);
